@@ -43,3 +43,6 @@ $string['chooseoption'] = 'Choose an option';
 $string['badgepositions'] = 'Number of the firsts positions who are going to receive a badge';
 $string['badgepositions_help'] = 'Number of the firsts positions who are going to receive a badge';
 $string['badgepositionsrule'] = 'Only numbers accepted';
+$string['completiondetail:answerall'] = 'Answer all the questions.';
+$string['completionansweralllabel'] = 'Answer all the questions.';
+$string['completionansweralldesc'] = 'Answer all the questions in all the sessions.';

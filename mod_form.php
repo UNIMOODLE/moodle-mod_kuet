@@ -52,13 +52,37 @@ class mod_jqshow_mod_form extends moodleform_mod {
         $mform->addElement('select', 'teamgrade', get_string('teamgrade', 'jqshow'), $options);
         $mform->disabledIf('teamgrade', 'groupmode', 'eq', 0);
         $mform->addHelpButton('teamgrade', 'teamgrade', 'jqshow');
+        $mform->setType('teamgrade', PARAM_RAW);
 
         // Badges.
         $mform->addElement('header', 'badges', get_string('badges', 'badges'));
         $mform->addElement('text', 'badgepositions', get_string('badgepositions', 'jqshow'), array('size'=>'5'));
         $mform->addHelpButton('badgepositions', 'badgepositions', 'jqshow');
         $mform->addRule('badgepositions', get_string('badgepositionsrule', 'jqshow'), 'numeric', null, 'server');
-
+        $mform->setType('badgepositions', PARAM_INT);
         $this->add_action_buttons();
+    }
+    /**
+     * Add custom completion rules.
+     *
+     * @return array Array of string IDs of added items, empty array if none
+     */
+    public function add_completion_rules() {
+        $mform =& $this->_form;
+
+        $mform->addElement('advcheckbox', 'completionanswerall', get_string('completionansweralllabel', 'jqshow'), get_string('completionansweralldesc', 'jqshow'));
+        // Enable this completion rule by default.
+        $mform->setDefault('completionanswerall', 0);
+        $mform->setType('completionanswerall', PARAM_INT);
+        return array('completionanswerall');
+    }
+    /**
+     * Determines if completion is enabled for this module.
+     *
+     * @param array $data
+     * @return bool
+     */
+    public function completion_rule_enabled($data) {
+        return !empty($data['completionanswerall']);
     }
 }
