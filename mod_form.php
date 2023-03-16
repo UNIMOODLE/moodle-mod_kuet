@@ -46,6 +46,19 @@ class mod_jqshow_mod_form extends moodleform_mod {
 
         $this->standard_coursemodule_elements();
 
+        // Teams grade.
+        $mform->addElement('header', 'teamsgrade', get_string('teamsgradeheader', 'jqshow'));
+        $options = ['' => get_string('chooseoption', 'jqshow'), 'first' => 'first', 'last' => 'last', 'average' => 'average'];
+        $mform->addElement('select', 'teamgrade', get_string('teamgrade', 'jqshow'), $options);
+        $mform->disabledIf('teamgrade', 'groupmode', 'eq', 0);
+        $mform->addHelpButton('teamgrade', 'teamgrade', 'jqshow');
+
+        // Badges.
+        $mform->addElement('header', 'badges', get_string('badges', 'badges'));
+        $mform->addElement('text', 'badgepositions', get_string('badgepositions', 'jqshow'), array('size'=>'5'));
+        $mform->addHelpButton('badgepositions', 'badgepositions', 'jqshow');
+        $mform->addRule('badgepositions', get_string('badgepositionsrule', 'jqshow'), 'numeric', null, 'server');
+
         $this->add_action_buttons();
     }
 }
