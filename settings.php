@@ -22,10 +22,16 @@
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 // This line protects the file from being accessed by a URL directly.
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023031501;       // The current module version (Date: YYYYMMDDXX).
-$plugin->requires  = 2021051711;    // Requires this Moodle version.
-$plugin->component = 'mod_jqshow';   // Full name of the plugin (used for diagnostics)
-$plugin->cron      = 0;
+if ($ADMIN->fulltree) {
+    // Modedit defaults.
+    $settings->add(new admin_setting_heading('jqshow_header',
+        get_string('jqshow_header', 'mod_jqshow'),''));
+
+    $settings->add(new admin_setting_configtext('mod_jqshow/questiontime',
+        get_string('questiontime', 'mod_jqshow'),
+        get_string('questiontime_desc', 'mod_jqshow'), '40', PARAM_INT));
+}

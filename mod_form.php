@@ -41,6 +41,9 @@ class mod_jqshow_mod_form extends moodleform_mod {
 
         $this->standard_intro_elements(get_string('introduction', 'jqshow'));
 
+        // Grade settings.
+        $this->standard_grading_coursemodule_elements();
+
         $this->standard_coursemodule_elements();
 
         $this->add_action_buttons();

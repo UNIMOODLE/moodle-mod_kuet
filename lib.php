@@ -47,6 +47,8 @@ function jqshow_supports($feature) {
         case FEATURE_GRADE_OUTCOMES:          return true;
         case FEATURE_BACKUP_MOODLE2:          return true;
         case FEATURE_SHOW_DESCRIPTION:        return true;
+        case FEATURE_CONTROLS_GRADE_VISIBILITY: return true;
+        case FEATURE_USES_QUESTIONS:            return true;
 
         default: return null;
     }

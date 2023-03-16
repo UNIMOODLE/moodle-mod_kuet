@@ -26,9 +26,13 @@
  */
 
 $string['pluginname'] = 'Jam Quiz Show';
+$string['pluginadministration'] = 'Jam Quiz Show Administration';
 $string['modulename'] = 'Jam Quiz Show';
 $string['modulenameplural'] = 'Jam Quiz Shows';
 $string['jqshow:addinstance'] = 'Add a new Jam Quiz Show package';
 $string['jqshow:view'] = 'View Jam Quiz Show';
 $string['name'] = 'Name';
 $string['introduction'] = 'Description';
+$string['jqshow_header'] = 'JAM Quiz Show settings';
+$string['questiontime'] = 'Question time';
+$string['questiontime_desc'] = 'Time for every question in seconds.';
