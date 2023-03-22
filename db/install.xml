@@ -10,6 +10,7 @@
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="name" TYPE="char" LENGTH="254" NOTNULL="true" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Jam Quiz Show introduction text."/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Quiz intro text format."/>
         <FIELD NAME="teamgrade" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Options: first,last or average"/>
         <FIELD NAME="badgepositions" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Ranking first positions to receive a badge"/>
         <FIELD NAME="completionanswerall" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if all the questions are answered"/>
