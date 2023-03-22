@@ -26,7 +26,7 @@
 require_once('../../config.php');
 require_once('lib.php');
 
-global $PAGE, $DB, $OUTPUT;
+global $CFG, $PAGE, $DB, $OUTPUT;
 $id = required_param('id', PARAM_INT);    // Course Module ID
 
 if (!$cm = get_coursemodule_from_id('jqshow', $id)) {
@@ -46,11 +46,40 @@ $context = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $context);
 
 
+$context = context_course::instance($COURSE->id);
+$userroles = get_user_roles($context, $USER->id);
+$teacherroles = get_roles_with_capability('mod/assign:grade'); // TODO change by own capability.
+$isteacher = false;
+foreach ($userroles as $userrole) {
+    if (!$isteacher) {
+        foreach ($teacherroles as $teacherrole) {
+            if ($userrole->shortname === $teacherrole->shortname) {
+                $isteacher = true;
+                break;
+            }
+        }
+    }
+}
+$context = [
+    'isteacher' => $isteacher,
+    'userid' => $USER->id,
+    'userfullname' => $USER->firstname . ' ' . $USER->lastname
+];
+
 $strjqshow = get_string("modulename", "jqshow");
-$PAGE->set_title($strjqshow->name);
+$PAGE->set_title($strjqshow);
 $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($jqshow->name));
-echo 'hola';
+
+if ($isteacher){
+    $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
+    // run_server_background($server);
+    echo $OUTPUT->render_from_template('mod_jqshow/teacher',
+        $context);
+} else {
+    echo $OUTPUT->render_from_template('mod_jqshow/student',
+        $context);
+}
 
 echo $OUTPUT->footer();

@@ -1,0 +1,21 @@
+<h4>Estudiante</h4>
+<div data-region="canvas" data-userid="{{userid}}" data-username="{{userfullname}}" data-isteacher="{{isteacher}}">
+    <div id="message-box"></div>
+
+    <div id="countusers">0</div>
+    <button id="student_send">Estudiante envía</button>
+    <div id="student_messages"></div>
+</div>
+
+{{#js}}
+    require(['mod_jqshow/sockets'], function(Sockets) {
+        Sockets.initSockets('[data-region="canvas"]');
+        /*window.onbeforeunload = function(e) {
+            // TODO review.
+            e.returnValue = confirm(
+                'Si sale de esta página se cerrará la conexión y perderá el' +
+                ' progreso si no ha finalizado. ¿Desea salir?'
+            );
+        };*/
+    });
+{{/js}}
