@@ -67,10 +67,25 @@ if ($ADMIN->fulltree) {
     );
     $page->add($setting);
 
+    $setting = new admin_setting_configtext_with_maxlength(
+        'jqshow/port',
+        get_string('port', 'mod_jqshow'),
+        get_string('port_desc', 'mod_jqshow'), '8080', PARAM_INT, 4, 4);
+    $page->add($setting);
+
     $setting = new admin_setting_description(
-        'testssl',
-        'testssl',
-        html_writer::link(new moodle_url('/mod/jqshow/testssl.php'), get_string('testssl', 'mod_jqshow'))
+        'jqshow/testssl',
+        get_string('testssl', 'mod_jqshow'),
+        html_writer::div(
+            get_string('warningtest', 'mod_jqshow'),
+            'alert alert-danger',
+            ['role' => 'alert']) .
+        html_writer::link(
+            new moodle_url('/mod/jqshow/testssl.php'),
+            get_string('testssl_desc', 'mod_jqshow'),
+            ['target' => '_blank']
+        ) .
+        html_writer::tag('hr', '')
     );
     $page->add($setting);
 

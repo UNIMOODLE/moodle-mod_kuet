@@ -31,12 +31,13 @@ $PAGE->set_title(get_string('testssl', 'mod_jqshow'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('testssl', 'mod_jqshow'));
 
-$server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
+$server = $CFG->dirroot . '/mod/jqshow/classes/testserver.php';
 run_server_background($server);
 
 echo html_writer::div('', '', ['id' => 'testresult']);
+$port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
 $PAGE->requires->js_amd_inline("require(['mod_jqshow/testssl'], function(TestSockets) {
-    TestSockets.initTestSockets('[data-region=\"mainpage\"]');
+    TestSockets.initTestSockets('[data-region=\"mainpage\"]', '" . $port . "');
 });");
 
 echo $OUTPUT->footer();

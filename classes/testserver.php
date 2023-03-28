@@ -18,6 +18,9 @@ declare(strict_types=1);
 
 use mod_jqshow\websocketuser;
 
+define('CLI_SCRIPT', true);
+require_once __DIR__ . '/../../../config.php';
+
 require_once __DIR__ . '/websockets.php';
 
 /**
@@ -29,7 +32,7 @@ require_once __DIR__ . '/websockets.php';
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class server extends websockets {
+class testserver extends websockets {
 
     // protected $maxBufferSize = 1048576; // 1MB
 
@@ -66,9 +69,7 @@ class server extends websockets {
     protected function connected($user) {
         $response = $this->mask(
             json_encode([
-                'action' => 'newuser',
-                'userid' => $user->id ?? '',
-                'count' => count($this->users)
+                'action' => 'newuser'
             ], JSON_THROW_ON_ERROR)
         );
         foreach ($this->users as $usersaved) {
@@ -84,21 +85,10 @@ class server extends websockets {
     protected function closed($user) {
         $response = $this->mask(
             json_encode([
-                'action' => 'userdisconnected',
-                'id' => $user->id,
-                'message' => '<span style="color: red">El estudiante ' . $user->dataname . ' se ha desconectado</span>',
-                'count' => count($this->users)
+                'action' => 'userdisconnected'
             ], JSON_THROW_ON_ERROR));
         foreach ($this->users as $usersaved) {
             fwrite($usersaved->socket, $response, strlen($response));
-        }
-        if ($user->isteacher) {
-            // END session, close sockets and server.
-            foreach ($this->sockets as $socket) {
-                stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
-                fclose($socket);
-            }
-            die();
         }
     }
 
@@ -110,58 +100,19 @@ class server extends websockets {
      * @throws JsonException
      */
     protected function get_response_from_action(websocketuser $user, string $user_action, array $data): string {
-        // Prepare data to be sent to client.
-        switch ($user_action) {
-            case 'newuser':
-                $this->users[$user->id]->dataname = $data['name'];
-                $this->users[$user->id]->dataid = $data['id'];
-                if ($data['isteacher']) {
-                    $user->isteacher = true;
-                    $this->users[$user->id]->isteacher = true;
-                }
-                return $this->mask(
-                    json_encode([
-                        'action' => 'newuser',
-                        'name' => $data['name'] ?? '',
-                        'userid' => $user->id ?? '',
-                        'message' => '<span style="color: green">El estudiante ' . $user->dataname . ' se ha conectado</span>',
-                        'count' => count($this->users),
-                    ], JSON_THROW_ON_ERROR)
-                );
-            case 'countusers':
-                return $this->mask(
-                    json_encode([
-                        'action' => 'countusers',
-                        'count' => count($this->users),
-                    ], JSON_THROW_ON_ERROR)
-                );
-            case 'teacherSend':
-                return $this->mask(
-                    json_encode([
-                        'action' => 'teacherSend',
-                        'message' => '<span style="color: orange">El Profesor ha pulsado el botón</span>'
-                    ], JSON_THROW_ON_ERROR)
-                );
-            case 'studentSend':
-                return $this->mask(
-                    json_encode([
-                        'action' => 'studentSend',
-                        'message' => '<span style="color: blue">El estudiante ' . $data['name'] . ' ha pulsado el botón</span>'
-                    ], JSON_THROW_ON_ERROR)
-                );
-            case 'shutdownTest':
-                foreach ($this->sockets as $socket) {
-                    stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
-                    fclose($socket);
-                }
-                die();
-            default:
-                return '';
+        if ($user_action === 'shutdownTest') {
+            foreach ($this->sockets as $socket) {
+                stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
+                fclose($socket);
+            }
+            die();
         }
+        return '';
     }
 }
 
-$server= new server("0.0.0.0","8080", 2048);
+$port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+$server= new testserver("0.0.0.0", $port, 2048);
 
 
 try {
@@ -170,3 +121,4 @@ try {
 catch (Exception $e) {
     $server->stdout($e->getMessage());
 }
+
