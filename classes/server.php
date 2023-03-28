@@ -96,7 +96,6 @@ class server extends websockets {
                 stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
                 fclose($socket);
             }
-            fclose($this->master);
             die();
         }
     }
@@ -148,6 +147,12 @@ class server extends websockets {
                         'message' => '<span style="color: blue">El estudiante ' . $data['name'] . ' ha pulsado el botón</span>'
                     ], JSON_THROW_ON_ERROR)
                 );
+            case 'shutdownTest':
+                foreach ($this->sockets as $socket) {
+                    stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
+                    fclose($socket);
+                }
+                die();
             default:
                 return '';
         }

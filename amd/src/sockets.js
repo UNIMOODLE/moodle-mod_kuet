@@ -25,7 +25,9 @@ define(['jquery'], function($) {
 
     /** @type {jQuery} The jQuery node for the page region. */
     Sockets.prototype.root = null;
-    Sockets.prototype.webSocket = new WebSocket('wss://unimoodle.3ip.eu:8080/jqshow'); // TODO Automatic.
+    Sockets.prototype.webSocket = new WebSocket(
+        'wss://' + M.cfg.wwwroot.replace(/^https?:\/\//, '') + ':8080/jqshow'
+    );
 
     let userid = null;
     let username = null;
@@ -83,12 +85,8 @@ define(['jquery'], function($) {
     };
 
     Sockets.prototype.webSocket.onmessage = function(ev) {
-        // eslint-disable-next-line no-console
-        //console.log(ev);
         let response = JSON.parse(ev.data); // PHP sends Json data.
         let resAction = response.action; // Message type.
-        // eslint-disable-next-line no-console
-        console.log(response);
         switch (resAction) {
             case 'newuser':
                 if (response.name !== undefined) {

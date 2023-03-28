@@ -192,3 +192,22 @@ function mod_jqshow_get_completion_active_rule_descriptions($cm) {
     }
     return $descriptions;
 }
+
+/**
+ * @param $server
+ * @return void
+ */
+function run_server_background($server) {
+    // NOTE: PHP_OS_FAMILY IS AVAILABLE IN PHP 7.2+ ONLY
+    switch (strtolower(PHP_OS_FAMILY)) {
+        case "windows":
+            pclose(popen("start /B php $server", "r"));
+            break;
+        case "linux":
+            exec("php $server > /dev/null &");
+            break;
+        default:
+            error_log("Unsupported OS" . strtolower(PHP_OS_FAMILY));
+            break;
+    }
+}

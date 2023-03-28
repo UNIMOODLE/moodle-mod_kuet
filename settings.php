@@ -25,13 +25,55 @@
 
 // This line protects the file from being accessed by a URL directly.
 defined('MOODLE_INTERNAL') || die();
+global $PAGE, $CFG;
 
 if ($ADMIN->fulltree) {
-    // Modedit defaults.
-    $settings->add(new admin_setting_heading('jqshow_header',
-        get_string('jqshow_header', 'mod_jqshow'),''));
 
-    $settings->add(new admin_setting_configtext('mod_jqshow/questiontime',
+    $settings = new theme_boost_admin_settingspage_tabs('modsettingjqshow', get_string('configtitle', 'mod_jqshow'));
+    $page = new admin_settingpage('mod_jqshow_general', get_string('generalsettings', 'mod_jqshow'));
+
+    // Modedit defaults.
+    $setting = new admin_setting_heading('jqshow_header',
+        get_string('jqshow_header', 'mod_jqshow'),'');
+    $page->add($setting);
+
+    $setting = new admin_setting_configtext('mod_jqshow/questiontime',
         get_string('questiontime', 'mod_jqshow'),
-        get_string('questiontime_desc', 'mod_jqshow'), '40', PARAM_INT));
+        get_string('questiontime_desc', 'mod_jqshow'), '40', PARAM_INT);
+    $page->add($setting);
+
+    $settings->add($page);
+
+
+    $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes);
+    $page = new admin_settingpage('mod_jqshow_ssl', get_string('sslcertificates', 'mod_jqshow'));
+    $setting = new admin_setting_configstoredfile (
+        'jqshow/certificate',
+        get_string('certificate', 'mod_jqshow'),
+        get_string('certificate_desc', 'mod_jqshow'),
+        'certificate_ssl',
+        0,
+        ['maxfiles' => 1, 'accepted_types' => ['.crt', '.pem'], 'maxbytes' => $maxbytes]
+    );
+    $page->add($setting);
+
+    $setting = new admin_setting_configstoredfile (
+        'jqshow/privatekey',
+        get_string('privatekey', 'mod_jqshow'),
+        get_string('privatekey_desc', 'mod_jqshow'),
+        'privatekey_ssl',
+        0,
+        ['maxfiles' => 1, 'accepted_types' => ['.pem', '.key'], 'maxbytes' => $maxbytes]
+    );
+    $page->add($setting);
+
+    $setting = new admin_setting_description(
+        'testssl',
+        'testssl',
+        html_writer::link(new moodle_url('/mod/jqshow/testssl.php'), get_string('testssl', 'mod_jqshow'))
+    );
+    $page->add($setting);
+
+    $settings->add($page);
+
 }

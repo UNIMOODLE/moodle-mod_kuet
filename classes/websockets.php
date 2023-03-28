@@ -17,6 +17,8 @@ declare(strict_types=1);
 
 use mod_jqshow\websocketuser;
 
+define('CLI_SCRIPT', true);
+require_once __DIR__ . '/../../../config.php';
 require_once __DIR__ . '/websocketuser.php';
 
 abstract class websockets {
@@ -32,22 +34,45 @@ abstract class websockets {
     /**
      * @param $addr
      * @param $port
-     * @param $bufferLength
+     * @param int $bufferLength
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public function __construct($addr, $port, $bufferLength = 2048) {
+        global $CFG;
         $this->addr = $addr;
         $this->port = $port;
         $this->maxBufferSize = $bufferLength;
 
+        $certificateurl = '';
+        $privatekeyurl = '';
+        $syscontext = context_system::instance();
+        $fs = get_file_storage();
+        $certificatefiles = $fs->get_area_files($syscontext->id, 'jqshow', 'certificate_ssl', 0, 'filename', false);
+        foreach ($certificatefiles as $file) {
+            if ($file->get_filename() !== '.') {
+                file_safe_save_content($file->get_content(), $CFG->localcachedir . '/jqshow/' . $file->get_filename());
+                $certificateurl = $CFG->localcachedir . '/jqshow/' . $file->get_filename();
+                break;
+            }
+        }
+        $privatekeyfiles = $fs->get_area_files($syscontext->id, 'jqshow', 'privatekey_ssl', 0, 'filename', false);
+        foreach ($privatekeyfiles as $file) {
+            if ($file->get_filename() !== '.') {
+                file_safe_save_content($file->get_content(), $CFG->localcachedir . '/jqshow/' . $file->get_filename());
+                $privatekeyurl = $CFG->localcachedir . '/jqshow/' . $file->get_filename();
+                break;
+            }
+        }
+
         // Certificate data:
         $context = stream_context_create();
         // local_cert and local_pk must be in PEM format
-        stream_context_set_option($context, 'ssl', 'local_cert', '/etc/letsencrypt/archive/unimoodle311pre.3ip.eu/cert1.pem'); // TODO config.
-        stream_context_set_option($context, 'ssl', 'local_pk', '/etc/letsencrypt/archive/unimoodle311pre.3ip.eu/privkey1.pem'); // TODO config.
-        // Pass Phrase (password) of private key
-        stream_context_set_option($context, 'ssl', 'passphrase', '');
+        stream_context_set_option($context, 'ssl', 'local_cert', $certificateurl);
+        stream_context_set_option($context, 'ssl', 'local_pk', $privatekeyurl);
         stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
         stream_context_set_option($context, 'ssl', 'verify_peer', false);
+        stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
 
         // Create the server socket
         $this->master = stream_socket_server("ssl://$addr:$port", $errno, $errstr, STREAM_SERVER_BIND|STREAM_SERVER_LISTEN, $context);
@@ -58,6 +83,16 @@ abstract class websockets {
 
         $this->sockets['m'] = $this->master;
         $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: " . $this->master);
+    }
+
+    protected function get_filepath_for_file(stored_file $file): string {
+        return sprintf(
+            '%s%s%s%s',
+            '',
+            $file->get_filearea(),
+            $file->get_filepath(),
+            $file->get_filename()
+        );
     }
 
     /**
@@ -198,7 +233,7 @@ abstract class websockets {
             $this->tick();
             stream_select($read, $write, $except, 10);
             if (in_array($this->master, $read, true)) {
-                $client = @stream_socket_accept($this->master, 20);
+                $client = stream_socket_accept($this->master, 20);
                 if (!$client) {
                     continue;
                 }

@@ -74,7 +74,7 @@ echo $OUTPUT->heading(format_string($jqshow->name));
 
 if ($isteacher){
     $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
-    // run_server_background($server);
+    run_server_background($server);
     echo $OUTPUT->render_from_template('mod_jqshow/teacher',
         $context);
 } else {
