@@ -4,6 +4,8 @@
 
 ## Configuration
 
+## SCSS Compilation for mod_jqshow
+
 ## PHPUnit
 To be able to run unit tests, you must first run the following command in the root of your Moodle installation:
 ```sh
@@ -29,7 +31,7 @@ When the installer has finished, we can run the tests of the whole platform with
 ```sh
 vendor/bin/phpunit
 ```
-Para ejecutar únicamente los test del mod_jshow, primero debe añadir el siguiente código en el archivo phpunit.xml:770
+To run only the mod_jshow tests, you must first add the following code in the phpunit.xml:770 file
 ```sh
 <testsuite name="mod_jqshow_testsuite">
     <directory suffix="_test.php">mod/jqshow/tests</directory>
