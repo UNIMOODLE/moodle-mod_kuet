@@ -14,11 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_jqshow\views;
-use renderable;
-use stdClass;
-use templatable;
-use renderer_base;
 /**
  *
  * @package     mod_jqshow
@@ -27,15 +22,10 @@ use renderer_base;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class teacher_view implements renderable, templatable {
-    public function export_for_template(renderer_base $output): stdClass {
-        global $USER;
-        $data = new stdClass();
-        $data->isteacher = true;
-        $data->userid = $USER->id;
-        $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
-        $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
 
-        return $data;
-    }
+
+namespace mod_jqshow\models;
+
+class student extends user {
+
 }

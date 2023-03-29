@@ -15,9 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_jqshow\output;
+use mod_jqshow\output\views\sessions_view;
+use moodle_exception;
 use plugin_renderer_base;
-use mod_jqshow\views\student_view;
-use mod_jqshow\views\teacher_view;
+use mod_jqshow\output\views\student_view;
+use mod_jqshow\output\views\teacher_view;
 /**
  *
  * @package     mod_jqshow
@@ -45,6 +47,17 @@ class renderer extends plugin_renderer_base {
      */
     public function render_teacher_view(teacher_view $view): string {
         $data = $view->export_for_template($this);
-        return parent::render_from_template('mod_jqshow/teacher', $data);
+//        return parent::render_from_template('mod_jqshow/teacher', $data);
+        return parent::render_from_template('mod_jqshow/sessions', $data);
+    }
+
+    /**
+     * @param sessions_view $view
+     * @return string
+     * @throws moodle_exception
+     */
+    public function render_sessions_view(sessions_view $view): string {
+        $data = $view->export_for_template($this);
+        return parent::render_from_template('mod_jqshow/sessions', $data);
     }
 }

@@ -14,6 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_jqshow\output\views;
+use renderable;
+use stdClass;
+use templatable;
+use renderer_base;
 /**
  *
  * @package     mod_jqshow
@@ -22,10 +27,15 @@
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// This line protects the file from being accessed by a URL directly.
-defined('MOODLE_INTERNAL') || die();
+class student_view implements renderable, templatable {
+    public function export_for_template(renderer_base $output): stdClass {
+        global $USER;
+        $data = new stdClass();
+        $data->isteacher = false;
+        $data->userid = $USER->id;
+        $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
+        $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
 
-$plugin->version   = 2023032902;       // The current module version (Date: YYYYMMDDXX).
-$plugin->requires  = 2022112801;    // Requires this Moodle version.
-$plugin->component = 'mod_jqshow';   // Full name of the plugin (used for diagnostics)
-$plugin->cron      = 0;
+        return $data;
+    }
+}

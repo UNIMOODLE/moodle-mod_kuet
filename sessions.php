@@ -25,6 +25,10 @@
 
 require_once('../../config.php');
 require_once('lib.php');
+
+use mod_jqshow\forms\sessionform;
+use mod_jqshow\models\sessions;
+use mod_jqshow\output\views\sessions_view;
 use mod_jqshow\output\views\student_view;
 use mod_jqshow\output\views\teacher_view;
 
@@ -32,10 +36,10 @@ global $CFG, $PAGE, $DB, $OUTPUT, $COURSE, $USER;
 $id = required_param('id', PARAM_INT);    // Course Module ID.
 
 $cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-$jqshow = $DB->get_record('jqshow', array('id' => $cm->instance), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+$jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
 
-$PAGE->set_url('/mod/jqshow/view.php', array('id' => $id));
+$PAGE->set_url('/mod/jqshow/sessions.php', ['id' => $id]);
 require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $cmcontext);
@@ -45,14 +49,7 @@ $strjqshow = get_string("modulename", "jqshow");
 $PAGE->set_title($strjqshow);
 $PAGE->set_heading($course->fullname);
 
-if ($isteacher) {
-    require_capability('mod/jqshow:startsession', $cmcontext);
-    $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
-//    run_server_background($server);
-    $view = new teacher_view();
-} else {
-    $view = new student_view();
-}
+$view = new sessions_view($jqshow, $cm->id);
 
 $output = $PAGE->get_renderer('mod_jqshow');
 echo $OUTPUT->header();

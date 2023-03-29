@@ -39,12 +39,15 @@
         <FIELD NAME="randomanswers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options:0 or 1"/>
         <FIELD NAME="showfeedback" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options true or false"/>
         <FIELD NAME="showfinalgrade" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options: true or false"/>
+        <FIELD NAME="enablestartdate" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="startdate" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT=""/>
+        <FIELD NAME="enableenddate" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="enddate" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="automaticstart" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options true or false"/>
         <FIELD NAME="timelimit" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Time in seconds"/>
         <FIELD NAME="activetimelimit" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Options: 1 or 0"/>
-        <FIELD NAME="groupmode" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options: 0: individual - 1: groups"/>
+        <FIELD NAME="groupmode" TYPE="int" LENGTH="1" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Options: 0: individual - 1: groups"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="session status: active or finished"/>
         <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>

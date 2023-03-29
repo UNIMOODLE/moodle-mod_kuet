@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_jqshow\views;
+namespace mod_jqshow\output\views;
+use coding_exception;
+use mod_jqshow\models\sessions;
 use renderable;
 use stdClass;
 use templatable;
@@ -27,15 +29,31 @@ use renderer_base;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class student_view implements renderable, templatable {
-    public function export_for_template(renderer_base $output): stdClass {
-        global $USER;
-        $data = new stdClass();
-        $data->isteacher = false;
-        $data->userid = $USER->id;
-        $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
-        $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+class sessions_view implements renderable, templatable {
 
-        return $data;
+    /** @var stdClass jqshow */
+    protected stdClass $jqshow;
+
+    /** @var int cmid */
+    protected int $cmid;
+
+    /**
+     * sessions_view constructor.
+     * @param stdClass $jqshow
+     * @param int $cmid
+     */
+    public function __construct(stdClass $jqshow, int $cmid) {
+        $this->jqshow = $jqshow;
+        $this->cmid = $cmid;
+    }
+
+    /**
+     * @param renderer_base $output
+     * @return stdClass
+     * @throws coding_exception
+     */
+    public function export_for_template(renderer_base $output): stdClass {
+        $sessions = new sessions($this->jqshow, $this->cmid);
+        return $sessions->export();
     }
 }
