@@ -26,28 +26,24 @@
 require_once('../../config.php');
 require_once('lib.php');
 
-global $CFG, $PAGE, $DB, $OUTPUT;
+global $CFG, $PAGE, $DB, $OUTPUT, $USER, $COURSE;
 $id = required_param('id', PARAM_INT);    // Course Module ID
 
 if (!$cm = get_coursemodule_from_id('jqshow', $id)) {
-    print_error('Course Module ID was incorrect'); // NOTE this is invalid use of print_error, must be a lang string id
+    throw new moodle_exception('Course Module ID was incorrect', 'error', '', null, null);
 }
 if (!$course = $DB->get_record('course', array('id'=> $cm->course))) {
-    print_error('course is misconfigured');  // NOTE As above
+    throw new moodle_exception('course is misconfigured', 'error', '', null, null);
 }
 if (!$jqshow = $DB->get_record('jqshow', array('id'=> $cm->instance))) {
-    print_error('course module is incorrect'); // NOTE As above
+    throw new moodle_exception('course module is incorrect', 'error', '', null, null);
 }
 
 $PAGE->set_url('/mod/jqshow/view.php', array('id' => $id));
 require_login($course, false, $cm);
-$context = context_module::instance($cm->id);
 
-require_capability('mod/jqshow:view', $context);
-
-
-$context = context_course::instance($COURSE->id);
-$userroles = get_user_roles($context, $USER->id);
+$coursecontext = context_course::instance($COURSE->id);
+$userroles = get_user_roles($coursecontext, $USER->id);
 $teacherroles = get_roles_with_capability('mod/assign:grade'); // TODO change by own capability.
 $isteacher = false;
 foreach ($userroles as $userrole) {
@@ -73,14 +69,15 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($jqshow->name));
 
+$modcontext = context_module::instance($cm->id);
 if ($isteacher){
+    require_capability('mod/jqshow:startsession', $modcontext);
     $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
     run_server_background($server);
-    echo $OUTPUT->render_from_template('mod_jqshow/teacher',
-        $context);
+    echo $OUTPUT->render_from_template('mod_jqshow/teacher', $context);
 } else {
-    echo $OUTPUT->render_from_template('mod_jqshow/student',
-        $context);
+    require_capability('mod/jqshow:view', $modcontext);
+    echo $OUTPUT->render_from_template('mod_jqshow/student', $context);
 }
 
 echo $OUTPUT->footer();
