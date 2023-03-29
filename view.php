@@ -25,62 +25,36 @@
 
 require_once('../../config.php');
 require_once('lib.php');
+use mod_jqshow\views\student_view;
+use mod_jqshow\views\teacher_view;
 
-global $CFG, $PAGE, $DB, $OUTPUT;
-$id = required_param('id', PARAM_INT);    // Course Module ID
+global $CFG, $PAGE, $DB, $OUTPUT, $COURSE, $USER;
+$id = required_param('id', PARAM_INT);    // Course Module ID.
 
-if (!$cm = get_coursemodule_from_id('jqshow', $id)) {
-    print_error('Course Module ID was incorrect'); // NOTE this is invalid use of print_error, must be a lang string id
-}
-if (!$course = $DB->get_record('course', array('id'=> $cm->course))) {
-    print_error('course is misconfigured');  // NOTE As above
-}
-if (!$jqshow = $DB->get_record('jqshow', array('id'=> $cm->instance))) {
-    print_error('course module is incorrect'); // NOTE As above
-}
+$cm = get_coursemodule_from_id('lesson', $id, 0, false, MUST_EXIST);
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+$jqshow = $DB->get_record('jqshow', array('id' => $cm->instance), '*', MUST_EXIST);
 
 $PAGE->set_url('/mod/jqshow/view.php', array('id' => $id));
 require_login($course, false, $cm);
-$context = context_module::instance($cm->id);
-
-require_capability('mod/jqshow:view', $context);
-
-
-$context = context_course::instance($COURSE->id);
-$userroles = get_user_roles($context, $USER->id);
-$teacherroles = get_roles_with_capability('mod/assign:grade'); // TODO change by own capability.
-$isteacher = false;
-foreach ($userroles as $userrole) {
-    if (!$isteacher) {
-        foreach ($teacherroles as $teacherrole) {
-            if ($userrole->shortname === $teacherrole->shortname) {
-                $isteacher = true;
-                break;
-            }
-        }
-    }
-}
-$context = [
-    'isteacher' => $isteacher,
-    'userid' => $USER->id,
-    'userfullname' => $USER->firstname . ' ' . $USER->lastname,
-    'port' => get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080'
-];
-
+$cmcontext = context_module::instance($cm->id);
+require_capability('mod/jqshow:view', $cmcontext);
+$coursecontext = context_course::instance($COURSE->id);
+$isteacher = has_capability('moodle/course:managegroups', $coursecontext);
 $strjqshow = get_string("modulename", "jqshow");
 $PAGE->set_title($strjqshow);
 $PAGE->set_heading($course->fullname);
-echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($jqshow->name));
 
-if ($isteacher){
+if ($isteacher) {
     $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
     run_server_background($server);
-    echo $OUTPUT->render_from_template('mod_jqshow/teacher',
-        $context);
+    $view = new teacher_view();
 } else {
-    echo $OUTPUT->render_from_template('mod_jqshow/student',
-        $context);
+    $view = new student_view();
 }
 
+$output = $PAGE->get_renderer('mod_jqshow');
+echo $OUTPUT->header();
+echo $OUTPUT->heading(format_string($jqshow->name));
+echo $output->render($view);
 echo $OUTPUT->footer();
