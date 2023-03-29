@@ -26,7 +26,7 @@
 require_once('../../config.php');
 require_once('lib.php');
 global $OUTPUT, $PAGE, $CFG;
-
+require_login();
 $PAGE->set_title(get_string('testssl', 'mod_jqshow'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('testssl', 'mod_jqshow'));

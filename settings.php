@@ -28,13 +28,12 @@ defined('MOODLE_INTERNAL') || die();
 global $PAGE, $CFG;
 
 if ($ADMIN->fulltree) {
-
     $settings = new theme_boost_admin_settingspage_tabs('modsettingjqshow', get_string('configtitle', 'mod_jqshow'));
     $page = new admin_settingpage('mod_jqshow_general', get_string('generalsettings', 'mod_jqshow'));
 
     // Modedit defaults.
     $setting = new admin_setting_heading('jqshow_header',
-        get_string('jqshow_header', 'mod_jqshow'),'');
+        get_string('jqshow_header', 'mod_jqshow'), '');
     $page->add($setting);
 
     $setting = new admin_setting_configtext('mod_jqshow/questiontime',
@@ -90,5 +89,4 @@ if ($ADMIN->fulltree) {
     $page->add($setting);
 
     $settings->add($page);
-
 }

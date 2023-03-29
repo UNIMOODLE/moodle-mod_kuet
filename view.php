@@ -51,7 +51,6 @@ if ($isteacher) {
     run_server_background($server);
     $view = new teacher_view();
 } else {
-    require_capability('mod/jqshow:view', $cmcontext);
     $view = new student_view();
 }
 
