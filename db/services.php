@@ -22,10 +22,17 @@
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// This line protects the file from being accessed by a URL directly.
-defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023032901;       // The current module version (Date: YYYYMMDDXX).
-$plugin->requires  = 2022112802;    // Requires this Moodle version.
-$plugin->component = 'mod_jqshow';   // Full name of the plugin (used for diagnostics)
-$plugin->cron      = 0;
+defined('MOODLE_INTERNAL') || die;
+
+$functions = [
+    'mod_jqshow_get_jqshows_by_courses' => [
+        'classname'     => 'mod_jqshow_external',
+        'methodname'    => 'get_jqshows_by_courses',
+        'description'   => 'Returns a list of jqshows in a provided list of courses, if no list is provided all jqshows
+                            that the user can view will be returned.',
+        'type'          => 'read',
+        'capabilities'  => 'mod/jqshow:view',
+        'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ]
+];

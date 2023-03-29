@@ -23,6 +23,9 @@
  */
 
 // This line protects the file from being accessed by a URL directly.
+use core_calendar\action_factory;
+use core_calendar\local\event\value_objects\action;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -210,4 +213,34 @@ function run_server_background($server) {
             error_log("Unsupported OS" . strtolower(PHP_OS_FAMILY));
             break;
     }
+}
+
+/**
+ * @throws moodle_exception
+ * @throws coding_exception
+ */
+function mod_jqshow_core_calendar_provide_event_action(calendar_event $event,
+                                                       action_factory $factory,
+                                                       int            $userid = 0): ?action {
+    $cm = get_fast_modinfo($event->courseid, $userid)->instances['jqshow'][$event->instance];
+
+    if (!$cm->uservisible) {
+        // The module is not visible to the user for any reason.
+        return null;
+    }
+
+    $completion = new \completion_info($cm->get_course());
+
+    $completiondata = $completion->get_data($cm, false, $userid);
+
+    if ($completiondata->completionstate !== COMPLETION_INCOMPLETE) {
+        return null;
+    }
+
+    return $factory->create_instance(
+        get_string('view'),
+        new moodle_url('/mod/jqshow/view.php', ['id' => $cm->id]),
+        1,
+        true
+    );
 }
