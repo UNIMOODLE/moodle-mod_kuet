@@ -19,9 +19,8 @@ declare(strict_types=1);
 use mod_jqshow\websocketuser;
 
 define('CLI_SCRIPT', true);
-require_once __DIR__ . '/../../../config.php';
-
-require_once __DIR__ . '/websockets.php';
+require_once(__DIR__ . '/../../../config.php');
+require_once(__DIR__ . '/websockets.php');
 
 /**
  *
@@ -34,19 +33,6 @@ require_once __DIR__ . '/websockets.php';
 
 class testserver extends websockets {
 
-    // protected $maxBufferSize = 1048576; // 1MB
-
-    /**
-     * @param $addr
-     * @param $port
-     * @param $bufferLength
-     * @throws coding_exception
-     * @throws dml_exception
-     */
-    public function __construct($addr, $port, $bufferLength) {
-        parent::__construct($addr, $port, $bufferLength);
-    }
-
     /**
      * @param $user
      * @param $message
@@ -55,9 +41,9 @@ class testserver extends websockets {
      */
     protected function process($user, $message) {
         $data = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
-        $response_text = $this->get_response_from_action($user, $data['action'], $data);
+        $responsetext = $this->get_response_from_action($user, $data['action'], $data);
         foreach ($this->users as $usersaved) {
-            fwrite($usersaved->socket, $response_text, strlen($response_text));
+            fwrite($usersaved->socket, $responsetext, strlen($responsetext));
         }
     }
 
@@ -94,13 +80,13 @@ class testserver extends websockets {
 
     /**
      * @param websocketuser $user
-     * @param string $user_action
+     * @param string $useraction
      * @param array $data
      * @return string
      * @throws JsonException
      */
-    protected function get_response_from_action(websocketuser $user, string $user_action, array $data): string {
-        if ($user_action === 'shutdownTest') {
+    protected function get_response_from_action(websocketuser $user, string $useraction, array $data): string {
+        if ($useraction === 'shutdownTest') {
             foreach ($this->sockets as $socket) {
                 stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
                 fclose($socket);
@@ -112,13 +98,11 @@ class testserver extends websockets {
 }
 
 $port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
-$server= new testserver("0.0.0.0", $port, 2048);
-
+$server = new testserver("0.0.0.0", $port, 2048);
 
 try {
     $server->run();
-}
-catch (Exception $e) {
+} catch (Exception $e) {
     $server->stdout($e->getMessage());
 }
 

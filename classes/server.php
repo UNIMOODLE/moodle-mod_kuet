@@ -18,7 +18,9 @@ declare(strict_types=1);
 
 use mod_jqshow\websocketuser;
 
-require_once __DIR__ . '/websockets.php';
+define('CLI_SCRIPT', true);
+require_once(__DIR__ . '/../../../config.php');
+require_once(__DIR__ . '/websockets.php');
 
 /**
  *
@@ -31,19 +33,6 @@ require_once __DIR__ . '/websockets.php';
 
 class server extends websockets {
 
-    // protected $maxBufferSize = 1048576; // 1MB
-
-    /**
-     * @param $addr
-     * @param $port
-     * @param $bufferLength
-     * @throws coding_exception
-     * @throws dml_exception
-     */
-    public function __construct($addr, $port, $bufferLength) {
-        parent::__construct($addr, $port, $bufferLength);
-    }
-
     /**
      * @param $user
      * @param $message
@@ -52,9 +41,9 @@ class server extends websockets {
      */
     protected function process($user, $message) {
         $data = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
-        $response_text = $this->get_response_from_action($user, $data['action'], $data);
+        $responsetext = $this->get_response_from_action($user, $data['action'], $data);
         foreach ($this->users as $usersaved) {
-            fwrite($usersaved->socket, $response_text, strlen($response_text));
+            fwrite($usersaved->socket, $responsetext, strlen($responsetext));
         }
     }
 
@@ -104,14 +93,14 @@ class server extends websockets {
 
     /**
      * @param websocketuser $user
-     * @param string $user_action
+     * @param string $useraction
      * @param array $data
      * @return string
      * @throws JsonException
      */
-    protected function get_response_from_action(websocketuser $user, string $user_action, array $data): string {
+    protected function get_response_from_action(websocketuser $user, string $useraction, array $data): string {
         // Prepare data to be sent to client.
-        switch ($user_action) {
+        switch ($useraction) {
             case 'newuser':
                 $this->users[$user->id]->dataname = $data['name'];
                 $this->users[$user->id]->dataid = $data['id'];
@@ -161,12 +150,10 @@ class server extends websockets {
     }
 }
 
-$server= new server("0.0.0.0","8080", 2048);
-
+$server = new server("0.0.0.0", "8080", 2048);
 
 try {
     $server->run();
-}
-catch (Exception $e) {
+} catch (Exception $e) {
     $server->stdout($e->getMessage());
 }

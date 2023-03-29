@@ -23,23 +23,16 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
-require_once('lib.php');
-global $OUTPUT, $PAGE, $CFG;
-require_login();
-$PAGE->set_title(get_string('testssl', 'mod_jqshow'));
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('testssl', 'mod_jqshow'));
+defined('MOODLE_INTERNAL') || die;
 
-$server = $CFG->dirroot . '/mod/jqshow/classes/testserver.php';
-run_server_background($server);
-
-echo html_writer::div('', '', ['id' => 'testresult']);
-$port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
-$PAGE->requires->js_amd_inline("require(['mod_jqshow/testssl'], function(TestSockets) {
-    TestSockets.initTestSockets('[data-region=\"mainpage\"]', '" . $port . "');
-});");
-
-echo $OUTPUT->footer();
-
-
+$functions = [
+    'mod_jqshow_get_jqshows_by_courses' => [
+        'classname'     => 'mod_jqshow_external',
+        'methodname'    => 'get_jqshows_by_courses',
+        'description'   => 'Returns a list of jqshows in a provided list of courses, if no list is provided all jqshows
+                            that the user can view will be returned.',
+        'type'          => 'read',
+        'capabilities'  => 'mod/jqshow:view',
+        'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ]
+];
