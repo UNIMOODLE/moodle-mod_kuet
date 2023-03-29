@@ -31,7 +31,7 @@ use mod_jqshow\views\teacher_view;
 global $CFG, $PAGE, $DB, $OUTPUT, $COURSE, $USER;
 $id = required_param('id', PARAM_INT);    // Course Module ID.
 
-$cm = get_coursemodule_from_id('lesson', $id, 0, false, MUST_EXIST);
+$cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 $jqshow = $DB->get_record('jqshow', array('id' => $cm->instance), '*', MUST_EXIST);
 
@@ -46,10 +46,12 @@ $PAGE->set_title($strjqshow);
 $PAGE->set_heading($course->fullname);
 
 if ($isteacher) {
+    require_capability('mod/jqshow:startsession', $cmcontext);
     $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
     run_server_background($server);
     $view = new teacher_view();
 } else {
+    require_capability('mod/jqshow:view', $cmcontext);
     $view = new student_view();
 }
 

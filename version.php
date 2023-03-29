@@ -25,7 +25,7 @@
 // This line protects the file from being accessed by a URL directly.
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023031501;       // The current module version (Date: YYYYMMDDXX).
-$plugin->requires  = 2021051711;    // Requires this Moodle version.
+$plugin->version   = 2023032900;       // The current module version (Date: YYYYMMDDXX).
+$plugin->requires  = 2022112802;    // Requires this Moodle version.
 $plugin->component = 'mod_jqshow';   // Full name of the plugin (used for diagnostics)
 $plugin->cron      = 0;
