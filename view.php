@@ -63,7 +63,8 @@ foreach ($userroles as $userrole) {
 $context = [
     'isteacher' => $isteacher,
     'userid' => $USER->id,
-    'userfullname' => $USER->firstname . ' ' . $USER->lastname
+    'userfullname' => $USER->firstname . ' ' . $USER->lastname,
+    'port' => get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080'
 ];
 
 $strjqshow = get_string("modulename", "jqshow");

@@ -11,7 +11,7 @@
 
 {{#js}}
     require(['mod_jqshow/sockets'], function(Sockets) {
-        Sockets.initSockets('[data-region="canvas"]');
+        Sockets.initSockets('[data-region="canvas"]', {{port}});
         /*window.onbeforeunload = function(e) {
             // TODO review.
             e.returnValue = confirm(
