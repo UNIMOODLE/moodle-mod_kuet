@@ -1,29 +1,48 @@
 # README #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+## Installation
 
-### What is this repository for? ###
+## Configuration
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+## PHPUnit
+To be able to run unit tests, you must first run the following command in the root of your Moodle installation:
+```sh
+composer install
+```
+In config.php file of our environment (there must be a moodledata folder exclusively for unit tests):
+```sh
+$CFG->phpunit_prefix = 'phpu_';
+$CFG->phpunit_dataroot = 'root\to\phpu_moodledata_unimoodle';
+$CFG->phpunit_dbtype    = 'mariadb';
+$CFG->phpunit_dblibrary = 'native';
+$CFG->phpunit_dbhost    = 'localhost';
+$CFG->phpunit_dbname    = 'dbname';
+$CFG->phpunit_dbuser    = 'root';
+$CFG->phpunit_dbpass    = '';
+```
+Then run the following command:
+```sh
+php admin/tool/phpunit/cli/init.php
+```
+The PHPUnit environment will start to install, which may take a few minutes.
+When the installer has finished, we can run the tests of the whole platform with the following command (from the root of the installation):
+```sh
+vendor/bin/phpunit
+```
+Para ejecutar únicamente los test del mod_jshow, primero debe añadir el siguiente código en el archivo phpunit.xml:770
+```sh
+<testsuite name="mod_jqshow_testsuite">
+    <directory suffix="_test.php">mod/jqshow/tests</directory>
+</testsuite>
+```
+After that you can run all mod_jshow tests with the following command:
+```sh
+vendor/bin/phpunit --testsuite mod_jqshow_testsuite
+```
+Or you can run specific files and test methods, for example:
+```sh
+vendor/bin/phpunit --filter test_mod_jqshow_get_jqshows_by_courses mod/jqshow/test/externallib_test.php
+vendor/bin/phpunit --filter test_generator mod/jqshow/tests/generator_test.php
+vendor/bin/phpunit --filter test_jqshow_core_calendar_provide_event_action mod/jqshow/tests/lib_test.php
+vendor/bin/phpunit --filter test_jqshow_core_calendar_provide_event_action_as_non_user mod/jqshow/tests/lib_test.php
+```

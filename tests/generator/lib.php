@@ -14,18 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  *
  * @package     mod_jqshow
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
+ * @category   test
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-// This line protects the file from being accessed by a URL directly.
-defined('MOODLE_INTERNAL') || die();
+class mod_jqshow_generator extends testing_module_generator {
 
-$plugin->version   = 2023032901;       // The current module version (Date: YYYYMMDDXX).
-$plugin->requires  = 2022112802;    // Requires this Moodle version.
-$plugin->component = 'mod_jqshow';   // Full name of the plugin (used for diagnostics)
-$plugin->cron      = 0;
+    /**
+     * @param $record
+     * @param array|null $options
+     * @return stdClass
+     * @throws coding_exception
+     */
+    public function create_instance($record = null, array $options = null) {
+        $record = (array)$record;
+        $record['showdescription'] = 1;
+        return parent::create_instance($record, $options);
+    }
+}
