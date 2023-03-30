@@ -237,4 +237,14 @@ class sessions {
     protected function get_session($params) : jqshow_sessions {
         return jqshow_sessions::get_record($params);
     }
+
+    /**
+     * @param int $cmid
+     * @param int $sessionid
+     * @return bool
+     */
+    public function copy_session(int $cmid, int $sessionid): bool {
+        // TODO copy session for service.
+        return false;
+    }
 }

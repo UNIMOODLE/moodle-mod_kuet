@@ -23,16 +23,37 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_jqshow\external\copysession_external;
+
 defined('MOODLE_INTERNAL') || die;
 
 $functions = [
     'mod_jqshow_get_jqshows_by_courses' => [
-        'classname'     => 'mod_jqshow_external',
+        'classname'     => mod_jqshow_external::class,
         'methodname'    => 'get_jqshows_by_courses',
         'description'   => 'Returns a list of jqshows in a provided list of courses, if no list is provided all jqshows
                             that the user can view will be returned.',
         'type'          => 'read',
         'capabilities'  => 'mod/jqshow:view',
         'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE],
+    ],
+    'mod_jqshow_copysession' => [
+        'classname'       => copysession_external::class,
+        'methodname'      => 'copysession',
+        'description'     => 'Copy session',
+        'type'            => 'write',
+        'ajax'            => true,
+        'loginrequired'   => true
+    ]
+];
+$services = [
+    'JQShow' => [
+        'functions' => [
+            'mod_jqshow_get_jqshows_by_courses',
+            'mod_jqshow_copysession'
+        ],
+        'restrictedusers' => 0,
+        'enabled'         => 1,
+        'shortname' => 'mod_jqshow'
     ]
 ];
