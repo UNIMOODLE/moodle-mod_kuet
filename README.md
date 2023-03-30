@@ -4,7 +4,7 @@
 
 ## Configuration
 
-## Linting Javascript (ESLint) and SCSS (stylelint)
+## Linting JavaScript (ESLint) and SCSS (stylelint)
 To use the JS and SCSS linters provided by Moodle, just run the following code **in the root of your Moodle installation**:
 ```sh
 npm i
@@ -35,6 +35,12 @@ composer install
 ```
 
 More information at <https://docs.moodle.org/dev/CodeSniffer>
+
+## Plugins PHPStorm
+The following PHPStorm plugins must be installed and activated, as well as following the code suggestions they provide:
+- **Php Inspections (EA Extended):** <https://plugins.jetbrains.com/plugin/7622-php-inspections-ea-extended->
+- **PhpClean:** <https://plugins.jetbrains.com/plugin/11272-phpclean>
+- **Handlebars/Mustache** <https://plugins.jetbrains.com/plugin/6884-handlebars-mustache>
 
 ## SCSS Compilation for mod_jqshow
 Moodle does not automatically compile the scss generated within the mods, so it is necessary to make a unique compilation for mod_jqshow.
