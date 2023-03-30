@@ -22,11 +22,9 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// This line protects the file from being accessed by a URL directly.
 use core_calendar\action_factory;
 use core_calendar\local\event\value_objects\action;
-
-defined('MOODLE_INTERNAL') || die();
+use core_completion\api;
 
 /**
  * @uses FEATURE_GROUPS
@@ -37,43 +35,36 @@ defined('MOODLE_INTERNAL') || die();
  * @uses FEATURE_GRADE_HAS_GRADE
  * @uses FEATURE_GRADE_OUTCOMES
  * @param string $feature FEATURE_xx constant for requested feature
- * @return mixed True if module supports feature, false if not, null if doesn't know
+ * @return true|null True if module supports feature, false if not, null if doesn't know
  */
-function jqshow_supports($feature) {
+function jqshow_supports(string $feature): ?bool {
     switch($feature) {
-        case FEATURE_GROUPS:                  return true;
-        case FEATURE_GROUPINGS:               return true;
-        case FEATURE_MOD_INTRO:               return true;
-//        case FEATURE_COMPLETION_TRACKS_VIEWS: return true;
-        case FEATURE_COMPLETION_HAS_RULES:    return true;
-        case FEATURE_GRADE_HAS_GRADE:         return true;
-        case FEATURE_GRADE_OUTCOMES:          return true;
-        case FEATURE_BACKUP_MOODLE2:          return true;
-        case FEATURE_SHOW_DESCRIPTION:        return true;
-        case FEATURE_CONTROLS_GRADE_VISIBILITY: return true;
-        case FEATURE_USES_QUESTIONS:            return true;
-
-        default: return null;
+        case FEATURE_GROUPINGS:
+        case FEATURE_MOD_INTRO:
+        case FEATURE_COMPLETION_HAS_RULES:
+        case FEATURE_GRADE_HAS_GRADE:
+        case FEATURE_GRADE_OUTCOMES:
+        case FEATURE_BACKUP_MOODLE2:
+        case FEATURE_SHOW_DESCRIPTION:
+        case FEATURE_CONTROLS_GRADE_VISIBILITY:
+        case FEATURE_USES_QUESTIONS:
+        case FEATURE_GROUPS:
+            return true;
+        default:
+            return null;
     }
 }
 /**
- * Given an object containing all the necessary data,
- * (defined by the form in mod.html) this function
- * will create a new instance and return the id number
- * of the new instance.
  *
- * @param \stdClass $jqshow An object from the form in mod.html
- * @return int The id of the newly inserted jqshow record
+ * @param stdClass $data An object from the form in mod.html.
+ * @return int The id of the newly inserted jqshow record.
  * @throws dml_exception
  */
-function jqshow_add_instance($data) {
+function jqshow_add_instance(stdClass $data): int {
     global $CFG, $DB;
-
-
     $cmid       = $data->coursemodule;
     $cmidnumber = $data->cmidnumber;
     $courseid   = $data->course;
-
     $context = context_module::instance($cmid);
 
     $id = $DB->insert_record('jqshow', $data);
@@ -84,48 +75,41 @@ function jqshow_add_instance($data) {
     // Reload scorm instance.
     $record = $DB->get_record('jqshow', array('id' => $id));
 
-
     if (!empty($data->completionexpected)) {
-        \core_completion\api::update_completion_date_event($cmid, 'jqshow', $record, $data->completionexpected);
+        api::update_completion_date_event($cmid, 'jqshow', $record, $data->completionexpected);
     }
 
     return $record->id;
 }
 /**
- * Given an object containing all the necessary data,
- * (defined by the form in mod.html) this function
- * will update an existing instance with new data.
  *
- * @param \stdClass $jqshow An object from the form in mod.html
+ * @param stdClass $data An object from the form in mod.html
  * @return boolean Success/Fail
  * @throws dml_exception
  */
-function jqshow_update_instance($data) {
+function jqshow_update_instance(stdClass $data): bool {
     global $DB;
 
     // Get the current value, so we can see what changed.
     $oldjqshow = $DB->get_record('jqshow', array('id' => $data->instance));
 
     // Update the database.
-//    $oldjqshow->id = $data->instance;
     $oldjqshow->name = $data->name;
     $DB->update_record('jqshow', $oldjqshow);
 
     return true;
 }
 /**
- * Given an ID of an instance of this module,
- * this function will permanently delete the instance and any data that depends on it.
  *
  * @param int $id Id of the module instance
  * @return boolean Success/Failure
  **/
-function jqshow_delete_instance($id) {
+function jqshow_delete_instance(int $id): bool {
     global $DB, $CFG;
 
     try {
         $jqshow = $DB->get_record('jqshow', ['id' => $id], '*', MUST_EXIST);
-        //TODO: remove other data.
+        // TODO: remove other data.
         // Finally delete the jqshow object.
         $DB->delete_records('jqshow', ['id' => $id]);
     } catch (Exception $e) {
@@ -133,18 +117,14 @@ function jqshow_delete_instance($id) {
     }
     return true;
 }
+
 /**
- * Add a get_coursemodule_info function in case any jqshow type wants to add 'extra' information
- * for the course (see resource).
- *
- * Given a course_module object, this function returns any "extra" information that may be needed
- * when printing this activity in a course listing.  See get_array_of_activities() in course/lib.php.
  *
  * @param stdClass $coursemodule The coursemodule object (record).
- * @return cached_cm_info An object on information that the courses
- *                        will know about (most noticeably, an icon).
+ * @return cached_cm_info|bool
+ * @throws dml_exception
  */
-function jqshow_get_coursemodule_info($coursemodule) {
+function jqshow_get_coursemodule_info(stdClass $coursemodule): ?cached_cm_info {
     global $DB;
 
     $dbparams = ['id' => $coursemodule->instance];
@@ -162,22 +142,22 @@ function jqshow_get_coursemodule_info($coursemodule) {
     }
 
     // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
-    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+    if ((int)$coursemodule->completion === COMPLETION_TRACKING_AUTOMATIC) {
         $result->customdata['customcompletionrules']['completionanswerall'] = $jqshow->completionanswerall;
     }
 
     return $result;
 }
+
 /**
- * Callback which returns human-readable strings describing the active completion custom rules for the module instance.
- *
- * @param cm_info|stdClass $cm object with fields ->completion and ->customdata['customcompletionrules']
+ * @param cm_info|stdClass $cm
  * @return array $descriptions the array of descriptions for the custom rules.
+ * @throws coding_exception
  */
-function mod_jqshow_get_completion_active_rule_descriptions($cm) {
+function mod_jqshow_get_completion_active_rule_descriptions($cm): array {
     // Values will be present in cm_info, and we assume these are up to date.
     if (empty($cm->customdata['customcompletionrules'])
-        || $cm->completion != COMPLETION_TRACKING_AUTOMATIC) {
+        || (int)$cm->completion !== COMPLETION_TRACKING_AUTOMATIC) {
         return [];
     }
 
@@ -201,7 +181,6 @@ function mod_jqshow_get_completion_active_rule_descriptions($cm) {
  * @return void
  */
 function run_server_background($server) {
-    // NOTE: PHP_OS_FAMILY IS AVAILABLE IN PHP 7.2+ ONLY
     switch (strtolower(PHP_OS_FAMILY)) {
         case "windows":
             pclose(popen("start /B php $server", "r"));
@@ -210,7 +189,7 @@ function run_server_background($server) {
             exec("php $server > /dev/null &");
             break;
         default:
-            error_log("Unsupported OS" . strtolower(PHP_OS_FAMILY));
+            debugging("Unsupported OS" . strtolower(PHP_OS_FAMILY));
             break;
     }
 }
@@ -219,9 +198,11 @@ function run_server_background($server) {
  * @throws moodle_exception
  * @throws coding_exception
  */
-function mod_jqshow_core_calendar_provide_event_action(calendar_event $event,
-                                                       action_factory $factory,
-                                                       int            $userid = 0): ?action {
+function mod_jqshow_core_calendar_provide_event_action(
+    calendar_event $event,
+    action_factory $factory,
+    int $userid = 0
+): ?action {
     $cm = get_fast_modinfo($event->courseid, $userid)->instances['jqshow'][$event->instance];
 
     if (!$cm->uservisible) {
@@ -243,4 +224,30 @@ function mod_jqshow_core_calendar_provide_event_action(calendar_event $event,
         1,
         true
     );
+}
+
+/**
+ * @param settings_navigation $settings
+ * @param navigation_node $navref
+ * @return void
+ * @throws coding_exception
+ * @throws moodle_exception
+ */
+function jqshow_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
+    $cm = $settings->get_page()->cm;
+    if (!$cm) {
+        return;
+    }
+    $course = $settings->get_page()->course;
+    if (!$course) {
+        return;
+    }
+    if (has_capability('mod/jqshow:managesessions', $settings->get_page()->cm->context)) {
+        $url = new moodle_url('/mod/jqshow/reports.php', ['cmid' => $settings->get_page()->cm->id]);
+        $node = navigation_node::create(get_string('reports', 'mod_jqshow'),
+            $url,
+            navigation_node::TYPE_SETTING, null, 'mmod_jqshow_reports');
+        $navref->add_node($node, 'modedit');
+    }
+
 }

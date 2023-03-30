@@ -27,8 +27,10 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
+use context_course;
 use mod_jqshow\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
 use moodle_url;
 use stdClass;
 use tool_brickfield\local\areas\mod_choice\option;
@@ -52,7 +54,7 @@ class teacher extends user {
                 $data = $this->export_reports();
                 break;
             default:
-                echo "No existe ese caso";
+                break;
         }
 
         return $data;
@@ -60,8 +62,11 @@ class teacher extends user {
 
     /**
      * @return Object
+     * @throws moodle_exception
+     * @throws coding_exception
      */
     public function export_sessions() : Object {
+        global $COURSE;
         // TODO.
         $cmid = optional_param('id', 0, PARAM_INT);
         $jqshow = new jqshow($cmid);
@@ -69,22 +74,57 @@ class teacher extends user {
         $inactives = [];
         /** @var jqshow_sessions[] $sessions */
         $sessions = $jqshow->get_sessions();
+        $coursecontext = context_course::instance($COURSE->id);
+        $managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
+        $initsession = has_capability('mod/jqshow:startsession', $coursecontext);
         foreach ($sessions as $session) {
-            $ds = new stdClass();
-            $ds->name = $session->get('name');
+            $ds = $this->get_data_session($session, $cmid, $managesessions, $initsession);
             if ($session->get('status')) {
                 $actives[] = $ds;
             } else {
                 $inactives[] = $ds;
             }
         }
-        // Active sessions.
         $data = new stdClass();
         $data->issessionview = true;
         $data->activesessions = $actives;
         $data->endedsessions = $inactives;
         $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['id' => $cmid, 'page' => 1]))->out(false);
         return $data;
+    }
+
+    /**
+     * @param jqshow_sessions $session
+     * @param int $cmid
+     * @param bool $managesessions
+     * @param bool $initsession
+     * @return stdClass
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    private function get_data_session(jqshow_sessions $session, int $cmid, bool $managesessions, bool $initsession): stdClass {
+        $ds = new stdClass();
+        $ds->name = $session->get('name');
+        $ds->id = $session->get('id');
+        $ds->questions_number = random_int(0, 10); // TODO get real questions number of session.
+        $ds->managesessions = $managesessions;
+        $ds->initsession = $initsession;
+        $ds->initsessionurl =
+            (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sessionid' => $session->get('id')]))->out();
+        $ds->viewreporturl =
+            (new moodle_url('/mod/jqshow/reports.php?', ['cmid' => $cmid, 'sessionid' => $session->get('id')]))->out();
+        $ds->date = '';
+        $startdate = $session->get('startdate');
+        $enddate = $session->get('enddate');
+        if ($startdate !== 0) {
+            $startdate = userdate(time(), get_string('strftimedatetimeshort', 'core_langconfig'));
+            $ds->date = $startdate;
+        }
+        if ($enddate !== 0) {
+            $enddate = userdate(time(), get_string('strftimedatetimeshort', 'core_langconfig'));
+            $ds->date .= ' - ' . $enddate;
+        }
+        return $ds;
     }
 
     /**

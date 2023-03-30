@@ -61,7 +61,7 @@ class sessions {
      *
      */
     private function set_list() {
-        $this->list = jqshow_sessions::get_records(['jqshowid' => $this->jqshow->id, 'status' => 1]);
+        $this->list = jqshow_sessions::get_records(['jqshowid' => $this->jqshow->id]);
     }
 
     /**
