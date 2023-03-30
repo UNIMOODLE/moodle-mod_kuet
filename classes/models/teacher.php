@@ -110,9 +110,11 @@ class teacher extends user {
         $ds->managesessions = $managesessions;
         $ds->initsession = $initsession;
         $ds->initsessionurl =
-            (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sessionid' => $session->get('id')]))->out();
+            (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sessionid' => $session->get('id')]))->out(false);
         $ds->viewreporturl =
-            (new moodle_url('/mod/jqshow/reports.php?', ['cmid' => $cmid, 'sessionid' => $session->get('id')]))->out();
+            (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sessionid' => $session->get('id')]))->out(false);
+        $ds->editsessionurl =
+            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sessionid' => $session->get('id')]))->out(false);
         $ds->date = '';
         $startdate = $session->get('startdate');
         $enddate = $session->get('enddate');

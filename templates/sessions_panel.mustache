@@ -30,7 +30,11 @@
                     <div class="d-table-cell actions">
                         {{#managesessions}}
                             <div class="content-actions">
-                                <div class="session-action">{{#pix}} i/edit_session, mod_jqshow {{/pix}}</div>
+                                <div class="session-action">
+                                    <a href="{{editsessionurl}}">
+                                        {{#pix}} i/edit_session, mod_jqshow {{/pix}}
+                                    </a>
+                                </div>
                                 <div class="session-action">{{#pix}} i/copy_session, mod_jqshow {{/pix}}</div>
                                 <div class="session-action">{{#pix}} i/delete_session, mod_jqshow {{/pix}}</div>
                             </div>
@@ -39,7 +43,9 @@
                                     {{#pix}}i/three_dots, mod_jqshow {{/pix}}
                                 </a>
                                 <div class="dropdown-menu" aria-labelledby="actions-{{id}}">
-                                    <a class="dropdown-item" href="#">{{#str}}edit_session, mod_jqshow{{/str}}</a>
+                                    <a class="dropdown-item" href="{{editsessionurl}}">
+                                        {{#str}}edit_session, mod_jqshow{{/str}}
+                                    </a>
                                     <a class="dropdown-item" href="#">{{#str}}copy_session, mod_jqshow{{/str}}</a>
                                     <a class="dropdown-item" href="#">{{#str}}delete_session, mod_jqshow{{/str}}</a>
                                 </div>
