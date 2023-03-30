@@ -1,0 +1,15 @@
+{
+  "name": "jqshow",
+  "version": "1.0.0",
+  "scripts": {
+    "scss": "node-sass --watch scss -o style"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/tresipunt/mod_jqshow.git"
+  },
+  "author": "3&Punt",
+  "dependencies": {
+    "node-sass": "^8.0.0"
+  }
+}
