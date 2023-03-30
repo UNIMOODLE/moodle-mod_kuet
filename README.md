@@ -38,6 +38,7 @@ More information at <https://docs.moodle.org/dev/CodeSniffer>
 
 ## Plugins PHPStorm
 The following PHPStorm plugins must be installed and activated, as well as following the code suggestions they provide:
+
 - **Php Inspections (EA Extended):** <https://plugins.jetbrains.com/plugin/7622-php-inspections-ea-extended->
 - **PhpClean:** <https://plugins.jetbrains.com/plugin/11272-phpclean>
 - **Handlebars/Mustache** <https://plugins.jetbrains.com/plugin/6884-handlebars-mustache>
@@ -110,5 +111,6 @@ More information at:
 ## Behat
 
 More information at:
+
 - <https://docs.moodle.org/dev/Writing_acceptance_tests>
 - <https://docs.behat.org/en/latest/guides.html>
