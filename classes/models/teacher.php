@@ -92,7 +92,7 @@ class teacher extends user {
         $data->endedsessions = $inactives;
         $data->courseid = $jqshow->course->id;
         $data->cmid = $cmid;
-        $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['id' => $cmid, 'page' => 1]))->out(false);
+        $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
         return $data;
     }
 
