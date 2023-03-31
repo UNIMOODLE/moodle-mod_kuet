@@ -1,0 +1,190 @@
+body#page-mod-jqshow-view {
+    #page-wrapper {
+        #page-content {
+            #region-main {
+                [role="main"] {
+                    > h2 {
+                        display: none;
+                    }
+                    .container-fluid {
+                        small {
+                            font-size: 13px;
+                            color: #929292;
+                        }
+                        .mobile-create-session {
+                            display: none;
+                        }
+                        .sessions-list {
+                            margin-top: 25px;
+                            padding: 0;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                            .sessions-list-header {
+                                padding: 20px;
+                                display: flex;
+                                flex-flow: row nowrap;
+                                justify-content: space-between;
+                                align-items: center;
+                                border-radius: 8px 8px 0 0;
+                                max-height: 60px;
+                                .sessions-list-header-title {
+                                    display: flex;
+                                    flex-flow: row nowrap;
+                                    justify-content: flex-start;
+                                    align-items: center;
+                                    color: white;
+                                    h5 {
+                                        margin-bottom: 0;
+                                    }
+                                }
+                                .create-session {
+                                    background-color: white;
+                                    color: #5A57FF;
+                                    &:hover {
+                                        background-color: #5A57FF;
+                                        color: white;
+                                        border-color: white;
+                                    }
+                                }
+                            }
+                            .sessions-list-body {
+                                width: 100%;
+                                .sessions-list-thead {
+                                    font-weight: bold;
+                                    .d-table-cell {
+                                        color: #2B2B2B !important;
+                                    }
+                                }
+                                .sessions-list-data {
+                                    font-weight: normal;
+                                    .d-table-cell {
+                                        border-top: 1px solid #EDEBF4;
+                                        color: #929292 !important;
+                                    }
+                                }
+                                .d-table-cell {
+                                    padding: 15px;
+                                    &.actions {
+                                        .content-actions {
+                                            display: flex;
+                                            flex-flow: row nowrap;
+                                            justify-content: flex-start;
+                                            align-items: center;
+                                            .session-action {
+                                                background-color: black;
+                                                height: 32px;
+                                                width: 32px;
+                                                border-radius: 8px;
+                                                display: flex;
+                                                justify-content: center;
+                                                align-items: center;
+                                                margin: 0 7px;
+                                                .icon {
+                                                    margin: 0 !important;
+                                                }
+                                                &:hover {
+                                                    cursor: pointer;
+                                                }
+                                            }
+                                        }
+                                        .mobile-content-actions {
+                                            display: none;
+                                        }
+                                    }
+                                    &.initsession,
+                                    &.viewreport-session {
+                                        a {
+                                            width: 125px;
+                                            height: 32px;
+                                            color: white;
+                                            background-color: black;
+                                            border-radius: 8px;
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: center;
+                                            &:hover {
+                                                text-decoration: none;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@media (max-width: 991px) {
+    body#page-mod-jqshow-view {
+        #page-wrapper {
+            #page-content {
+                #region-main {
+                    [role="main"] {
+                        .container-fluid {
+                            .mobile-create-session {
+                                display: flex;
+                                flex-flow: row nowrap;
+                                justify-content: center;
+                                align-items: center;
+                                margin-top: 10px;
+                                width: 100%;
+                                color: #5A57FF;
+                                border-radius: 8px;
+                                border: 1px solid #5A57FF;
+                                background-color: transparent;
+                                height: 50px;
+                                &:hover {
+                                    color: #5A57FF;
+                                    border: 1px solid #5A57FF;
+                                    background-color: transparent;
+                                }
+                            }
+                            .sessions-list {
+                                .sessions-list-header {
+                                    .create-session {
+                                        display: none;
+                                    }
+                                }
+                                .sessions-list-body {
+                                    .d-table-cell {
+                                        text-align: center;
+                                        &.actions {
+                                            .content-actions {
+                                                display: none;
+                                            }
+                                            .mobile-content-actions {
+                                                display: block;
+                                                .dropdown-toggle {
+                                                    &:after {
+                                                        display: none;
+                                                    }
+                                                    .icon {
+                                                        height: 22px;
+                                                        width: auto;
+                                                        margin: 0;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        &.initsession,
+                                        &.viewreport-session {
+                                            a {
+                                                width: 30px;
+                                                span {
+                                                    display: none;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

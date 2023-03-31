@@ -91,4 +91,5 @@ function xmldb_jqshow_upgrade($oldversion) {
         // Jqshow savepoint reached.
         upgrade_mod_savepoint(true, 2023033102, 'jqshow');
     }
+    return true;
 }

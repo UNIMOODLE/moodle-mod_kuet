@@ -16,6 +16,7 @@
 
 namespace mod_jqshow;
 use cm_info;
+use dml_exception;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use stdClass;
@@ -32,24 +33,34 @@ class jqshow {
     /** @var cm_info cm */
     protected $cm;
     /** @var mixed course */
-    protected $course;
+    public $course;
     /** @var sessions */
     protected $sessions;
     /** @var stdClass jqshow */
     protected $jqshow;
 
+    /**
+     * @param int $cmid
+     * @throws \moodle_exception
+     */
     public function __construct(int $cmid) {
-        list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'jqshow');
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'jqshow');
         $this->cm = $cm;
         $this->course = $course;
     }
 
+    /**
+     * @return void
+     * @throws dml_exception
+     */
     protected function set_jqshow() {
         global $DB;
         $this->jqshow = $DB->get_record('jqshow', array('id' => $this->cm->instance), '*', MUST_EXIST);
     }
+
     /**
-     *
+     * @return void
+     * @throws dml_exception
      */
     protected function set_sessions() {
 //        $this->activesessions = jqshow_sessions::get_records(['jqshowid' => $this->cm->instance, 'status' => 1]);
@@ -63,8 +74,9 @@ class jqshow {
 
     /**
      * @return jqshow_sessions[] array
+     * @throws dml_exception
      */
-    public function get_sessions() : array {
+    public function get_sessions(): array {
         if (is_null($this->sessions)) {
             $this->set_sessions();
         }

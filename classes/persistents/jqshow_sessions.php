@@ -14,7 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_jqshow\persistents;
+use coding_exception;
 use core\persistent;
+use dml_exception;
 
 /**
  *
@@ -104,5 +106,29 @@ class jqshow_sessions extends persistent {
                 'type' => PARAM_INT,
             ),
         );
+    }
+
+    /**
+     * @param int $sessionid
+     * @return bool
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function duplicate_session(int $sessionid): bool {
+        global $DB;
+        $record = $DB->get_record(self::TABLE, ['id' => $sessionid]);
+        unset($record->id);
+        $record->name .= ' - ' . get_string('copy', 'mod_jqshow');
+        return $DB->insert_record(self::TABLE, $record, false);
+    }
+
+    /**
+     * @param int $sessionid
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function delete_session(int $sessionid): bool {
+        global $DB;
+        return  $DB->delete_records(self::TABLE, ['id' => $sessionid]);
     }
 }
