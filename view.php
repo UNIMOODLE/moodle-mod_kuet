@@ -46,9 +46,8 @@ $PAGE->set_title($strjqshow);
 $PAGE->set_heading($course->fullname);
 
 if ($isteacher) {
-    require_capability('mod/jqshow:startsession', $cmcontext);
     $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
-//    run_server_background($server);
+    run_server_background($server);
     $view = new teacher_view();
 } else {
     $view = new student_view();

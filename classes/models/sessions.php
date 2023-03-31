@@ -102,7 +102,16 @@ class sessions {
             '1' => 'Opcion2',
             '3' => 'Opcion3'
         ];
+        $groupingsselect = [];
         list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);
+        if ($cm->groupmode) {
+            $groupings = groups_get_all_groupings($cm->course);
+            if (!empty($groupings)) {
+                foreach ($groupings as $grouping) {
+                    $groupingsselect[$grouping->id] = $grouping->name;
+                }
+            }
+        }
         $customdata = [
             'course' => $course,
             'cm' => $cm,
@@ -111,6 +120,7 @@ class sessions {
             'gamemode' => $gamemodechoices,
             'advancemode' => $advancemodechoices,
             'anonymousanswerchoices' => $anonymousanswerchoices,
+            'groupingsselect' => $groupingsselect,
         ];
 
         $action = new moodle_url('/mod/jqshow/sessions.php', ['id' => $this->cmid, 'sid' => $sid, 'page' => 1]);
@@ -215,6 +225,11 @@ class sessions {
      * @throws invalid_persistent_exception
      */
     protected static function save_session(object $data) : bool {
+        if (!empty($data->groupings)) {
+            $values = array_values($data->groupings);
+            $groupings = implode(',', $values);
+            $data->groupings = $groupings;
+        }
         $id = isset($data->sessionid) ? $data->sessionid : 0;
         $update = false;
         if (!empty($id)) {

@@ -90,3 +90,4 @@ $string['activetimelimit'] = 'Active time limit';
 $string['addtimequestionenable'] = 'Add time question enable';
 $string['accessrestrictions'] = 'Access restrictions';
 $string['next'] = 'Next';
+$string['groupings'] = 'Groupings';

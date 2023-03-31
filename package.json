@@ -2,7 +2,7 @@
   "name": "jqshow",
   "version": "1.0.0",
   "scripts": {
-    "scss": "node-sass --watch scss -o style"
+    "scss": "node-sass --watch scss/jqshow.scss styles.css --output-style compressed"
   },
   "repository": {
     "type": "git",

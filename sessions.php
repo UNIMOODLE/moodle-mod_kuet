@@ -26,11 +26,7 @@
 require_once('../../config.php');
 require_once('lib.php');
 
-use mod_jqshow\forms\sessionform;
-use mod_jqshow\models\sessions;
 use mod_jqshow\output\views\sessions_view;
-use mod_jqshow\output\views\student_view;
-use mod_jqshow\output\views\teacher_view;
 
 global $CFG, $PAGE, $DB, $OUTPUT, $COURSE, $USER;
 $id = required_param('id', PARAM_INT);    // Course Module ID.
@@ -48,7 +44,7 @@ $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
 $strjqshow = get_string("modulename", "jqshow");
 $PAGE->set_title($strjqshow);
 $PAGE->set_heading($course->fullname);
-
+$PAGE->requires->css('/mod/jqshow/style/jqshow.css');
 $view = new sessions_view($jqshow, $cm->id);
 
 $output = $PAGE->get_renderer('mod_jqshow');

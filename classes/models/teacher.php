@@ -23,7 +23,6 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace mod_jqshow\models;
 
 use coding_exception;
@@ -31,10 +30,8 @@ use mod_jqshow\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_url;
 use stdClass;
-use tool_brickfield\local\areas\mod_choice\option;
 
 class teacher extends user {
-
 
     /**
      * @return Object
