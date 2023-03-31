@@ -39,9 +39,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class copysession_external extends external_api {
+class deletesession_external extends external_api {
 
-    public static function copysession_parameters(): external_function_parameters {
+    public static function deletesession_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'courseid' => new external_value(PARAM_INT, 'course id'),
@@ -58,30 +58,30 @@ class copysession_external extends external_api {
      * @throws coding_exception
      * @throws invalid_parameter_exception
      */
-    public static function copysession(int $courseid, int $sessionid): array {
+    public static function deletesession(int $courseid, int $sessionid): array {
         global $USER;
         self::validate_parameters(
-            self::copysession_parameters(),
+            self::deletesession_parameters(),
             ['courseid' => $courseid, 'sessionid' => $sessionid]
         );
         $coursecontext = context_course::instance($courseid);
         if ($coursecontext !== null && has_capability('mod/jqshow:managesessions', $coursecontext, $USER)) {
             return [
-                'copied' => jqshow_sessions::duplicate_session($sessionid)
+                'deleted' => jqshow_sessions::delete_session($sessionid)
             ];
         }
         return [
-            'copied' => false
+            'deleted' => false
         ];
     }
 
     /**
      * @return external_single_structure
      */
-    public static function copysession_returns(): external_single_structure {
+    public static function deletesession_returns(): external_single_structure {
         return new external_single_structure(
             [
-                'copied' => new external_value(PARAM_BOOL, 'copied'),
+                'deleted' => new external_value(PARAM_BOOL, 'copied'),
             ]
         );
     }

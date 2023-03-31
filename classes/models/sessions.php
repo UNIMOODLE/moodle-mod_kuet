@@ -113,7 +113,7 @@ class sessions {
             'anonymousanswerchoices' => $anonymousanswerchoices,
         ];
 
-        $action = new moodle_url('/mod/jqshow/sessions.php', ['id' => $this->cmid, 'sid' => $sid, 'page' => 1]);
+        $action = new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $this->cmid, 'sid' => $sid, 'page' => 1]);
         $mform = new sessionform($action->out(false), $customdata);
 
         if ($mform->is_cancelled()) {
@@ -121,7 +121,7 @@ class sessions {
             redirect($url);
         } else if ($fromform = $mform->get_data()) {
             self::save_session($fromform);
-            $url = new moodle_url('/mod/jqshow/sessions.php', ['id' => $this->cmid, 'page' => 2]);
+            $url = new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $this->cmid, 'page' => 2]);
             redirect($url);
         } else {
             // This branch is executed if the form is submitted but the data doesn't
@@ -236,15 +236,5 @@ class sessions {
      */
     protected function get_session($params) : jqshow_sessions {
         return jqshow_sessions::get_record($params);
-    }
-
-    /**
-     * @param int $cmid
-     * @param int $sessionid
-     * @return bool
-     */
-    public function copy_session(int $cmid, int $sessionid): bool {
-        // TODO copy session for service.
-        return false;
     }
 }

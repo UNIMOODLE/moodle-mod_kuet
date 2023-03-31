@@ -33,13 +33,13 @@ use mod_jqshow\output\views\student_view;
 use mod_jqshow\output\views\teacher_view;
 
 global $CFG, $PAGE, $DB, $OUTPUT, $COURSE, $USER;
-$id = required_param('id', PARAM_INT);    // Course Module ID.
+$id = required_param('cmid', PARAM_INT);    // Course Module ID.
 
 $cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
 
-$PAGE->set_url('/mod/jqshow/sessions.php', ['id' => $id]);
+$PAGE->set_url('/mod/jqshow/sessions.php', ['cmid' => $id]);
 require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $cmcontext);

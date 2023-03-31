@@ -36,7 +36,7 @@ $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST)
 $jqshow = $DB->get_record('jqshow', array('id' => $cm->instance), '*', MUST_EXIST);
 
 $PAGE->set_url('/mod/jqshow/view.php', array('id' => $id));
-$PAGE->requires->css('/mod/jqshow/styles.css');
+//$PAGE->requires->css('/mod/jqshow/styles.css');
 require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $cmcontext);
