@@ -24,6 +24,8 @@
  */
 
 use mod_jqshow\external\copysession_external;
+use mod_jqshow\external\deletesession_external;
+use mod_jqshow\external\sessionspanel_external;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -37,10 +39,26 @@ $functions = [
         'capabilities'  => 'mod/jqshow:view',
         'services'      => [MOODLE_OFFICIAL_MOBILE_SERVICE],
     ],
+    'mod_jqshow_sessionspanel' => [
+        'classname'       => sessionspanel_external::class,
+        'methodname'      => 'sessionspanel',
+        'description'     => 'Get Sessions Panel for cmid',
+        'type'            => 'read',
+        'ajax'            => true,
+        'loginrequired'   => true
+    ],
     'mod_jqshow_copysession' => [
         'classname'       => copysession_external::class,
         'methodname'      => 'copysession',
         'description'     => 'Copy session',
+        'type'            => 'write',
+        'ajax'            => true,
+        'loginrequired'   => true
+    ],
+    'mod_jqshow_deletesession' => [
+        'classname'       => deletesession_external::class,
+        'methodname'      => 'deletesession',
+        'description'     => 'Delete session',
         'type'            => 'write',
         'ajax'            => true,
         'loginrequired'   => true
@@ -50,7 +68,9 @@ $services = [
     'JQShow' => [
         'functions' => [
             'mod_jqshow_get_jqshows_by_courses',
-            'mod_jqshow_copysession'
+            'mod_jqshow_sessionspanel',
+            'mod_jqshow_copysession',
+            'mod_jqshow_deletesession'
         ],
         'restrictedusers' => 0,
         'enabled'         => 1,

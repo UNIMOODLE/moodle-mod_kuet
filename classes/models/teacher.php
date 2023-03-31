@@ -39,16 +39,18 @@ class teacher extends user {
 
 
     /**
+     * @param $cmid
      * @return Object
      * @throws coding_exception
+     * @throws moodle_exception
      */
-    public function export() : Object {
+    public function export($cmid) : Object {
         $data = new stdClass();
         // Depending on parameter  the data returned is different.
         $tab = optional_param('tab', 'sessions', PARAM_RAW);
         switch ($tab) {
             case 'sessions':
-                $data = $this->export_sessions();
+                $data = $this->export_sessions($cmid);
                 break;
             case 'reports':
                 $data = $this->export_reports();
@@ -65,10 +67,9 @@ class teacher extends user {
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public function export_sessions() : Object {
+    public function export_sessions($cmid) : Object {
         global $COURSE;
         // TODO.
-        $cmid = optional_param('id', 0, PARAM_INT);
         $jqshow = new jqshow($cmid);
         $actives = [];
         $inactives = [];
@@ -89,6 +90,8 @@ class teacher extends user {
         $data->issessionview = true;
         $data->activesessions = $actives;
         $data->endedsessions = $inactives;
+        $data->courseid = $jqshow->course->id;
+        $data->cmid = $cmid;
         $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['id' => $cmid, 'page' => 1]))->out(false);
         return $data;
     }
@@ -105,7 +108,7 @@ class teacher extends user {
     private function get_data_session(jqshow_sessions $session, int $cmid, bool $managesessions, bool $initsession): stdClass {
         $ds = new stdClass();
         $ds->name = $session->get('name');
-        $ds->id = $session->get('id');
+        $ds->sessionid = $session->get('id');
         $ds->questions_number = random_int(0, 10); // TODO get real questions number of session.
         $ds->managesessions = $managesessions;
         $ds->initsession = $initsession;

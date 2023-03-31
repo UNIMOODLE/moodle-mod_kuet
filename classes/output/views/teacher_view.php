@@ -31,6 +31,7 @@ use renderer_base;
 class teacher_view implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
+        $cmid = required_param('id', PARAM_INT);
         $teacher = new teacher($USER->id);
 //        $data = new stdClass();
 //        $data->isteacher = true;
@@ -38,6 +39,6 @@ class teacher_view implements renderable, templatable {
 //        $data->userfullname = $teacher->get_fullname();
 //        $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
 
-        return $teacher->export();
+        return $teacher->export($cmid);
     }
 }
