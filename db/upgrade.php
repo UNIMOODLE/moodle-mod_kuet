@@ -71,7 +71,7 @@ function xmldb_jqshow_upgrade($oldversion) {
         // Jqshow savepoint reached.
         upgrade_mod_savepoint(true, 2023032902, 'jqshow');
     }
-    if ($oldversion < 2023032903) {
+    if ($oldversion < 2023033102) {
         $dbman = $DB->get_manager();
         // Define field groupmode to be dropped from jqshow_sessions.
         $table = new xmldb_table('jqshow_sessions');
@@ -89,6 +89,6 @@ function xmldb_jqshow_upgrade($oldversion) {
         }
 
         // Jqshow savepoint reached.
-        upgrade_mod_savepoint(true, 2023032903, 'jqshow');
+        upgrade_mod_savepoint(true, 2023033102, 'jqshow');
     }
 }
