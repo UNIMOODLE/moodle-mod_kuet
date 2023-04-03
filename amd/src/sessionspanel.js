@@ -10,7 +10,8 @@ import Notification from 'core/notification';
 
 let ACTION = {
     COPYSESSION: '[data-action="copy_session"]',
-    DELETESESSION: '[data-action="delete_session"]'
+    DELETESESSION: '[data-action="delete_session"]',
+    INITSESSION: '[data-action="init_session"]'
 };
 
 let SERVICES = {
@@ -51,6 +52,7 @@ SessionsPanel.prototype.node = null;
 SessionsPanel.prototype.initPanel = function() {
     this.node.find(ACTION.COPYSESSION).on('click', this.copySession);
     this.node.find(ACTION.DELETESESSION).on('click', this.deleteSession);
+    this.node.find(ACTION.INITSESSION).on('click', this.initSession);
 };
 
 SessionsPanel.prototype.copySession = function(e) {
@@ -186,6 +188,40 @@ SessionsPanel.prototype.deleteSession = function(e) {
     }).fail(Notification.exception);
 
 };
+
+SessionsPanel.prototype.initSession = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let sessionId = jQuery(e.currentTarget).attr('data-sessionid');
+    const stringkeys = [
+        {key: 'init_session', component: 'mod_jqshow'},
+        {key: 'init_session_desc', component: 'mod_jqshow'},
+        {key: 'confirm', component: 'mod_jqshow'}
+    ];
+    getStrings(stringkeys).then((langStrings) => {
+        const title = langStrings[0];
+        const confirmMessage = langStrings[1];
+        const buttonText = langStrings[2];
+        return ModalFactory.create({
+            title: title,
+            body: confirmMessage,
+            type: ModalFactory.types.SAVE_CANCEL
+        }).then(modal => {
+            modal.setSaveButtonText(buttonText);
+            modal.getRoot().on(ModalEvents.save, () => {
+                window.location.replace(M.cfg.wwwroot + '/mod/jqshow/session.php?cmid=' + cmId + '&sid=' + sessionId);
+            });
+            modal.getRoot().on(ModalEvents.hidden, () => {
+                modal.destroy();
+            });
+            return modal;
+        });
+    }).done(function(modal) {
+        modal.show();
+        // eslint-disable-next-line no-restricted-globals
+    }).fail(Notification.exception);
+};
+
 export const initSessionsPanel = (selector) => {
     return new SessionsPanel(selector);
 };

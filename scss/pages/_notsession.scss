@@ -1,0 +1,41 @@
+body#page-mod-jqshow-view {
+    #page-wrapper {
+        #page-content {
+            #region-main {
+                [role="main"] {
+                    .container {
+                        &.no-session-start {
+                            background-color: white;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                            border-radius: 8px;
+                            margin-top: 40px;
+                            padding: 30px;
+                            max-width: 945px;
+                            .containt-desktop {
+                                display: flex;
+                                flex-flow: row nowrap;
+                                justify-content: space-around;
+                                align-items: center;
+                                .content-text {
+                                    text-align: center;
+                                    display: flex;
+                                    flex-flow: column nowrap;
+                                    justify-content: center;
+                                    align-items: center;
+                                    h2 {
+                                        text-align: center;
+                                        max-width: 350px;
+                                    }
+                                    p {
+                                        font-size: 22px;
+                                        max-width: 300px;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

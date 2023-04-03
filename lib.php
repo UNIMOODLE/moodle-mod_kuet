@@ -242,12 +242,10 @@ function jqshow_extend_settings_navigation(settings_navigation $settings, naviga
     if (!$course) {
         return;
     }
-    if (has_capability('mod/jqshow:managesessions', $settings->get_page()->cm->context)) {
-        $url = new moodle_url('/mod/jqshow/reports.php', ['cmid' => $settings->get_page()->cm->id]);
-        $node = navigation_node::create(get_string('reports', 'mod_jqshow'),
-            $url,
-            navigation_node::TYPE_SETTING, null, 'mmod_jqshow_reports');
-        $navref->add_node($node, 'modedit');
-    }
+    $url = new moodle_url('/mod/jqshow/reports.php', ['cmid' => $settings->get_page()->cm->id]);
+    $node = navigation_node::create(get_string('reports', 'mod_jqshow'),
+        $url,
+        navigation_node::TYPE_SETTING, null, 'mmod_jqshow_reports');
+    $navref->add_node($node, 'modedit');
 
 }

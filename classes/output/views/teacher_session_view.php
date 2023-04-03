@@ -15,8 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_jqshow\output\views;
-use dml_exception;
-use mod_jqshow\persistents\jqshow_sessions;
 use renderable;
 use stdClass;
 use templatable;
@@ -29,27 +27,15 @@ use renderer_base;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class student_view implements renderable, templatable {
-
-    public int $jqshowid;
-    public function __construct(int $jqshowid) {
-        $this->jqshowid = $jqshowid;
-    }
-
-    /**
-     * @param renderer_base $output
-     * @return stdClass
-     * @throws dml_exception
-     */
+class teacher_session_view implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
-        global $OUTPUT;
+        global $USER;
         $data = new stdClass();
-        $data->notsessionimage = $OUTPUT->image_url('f/not_session', 'mod_jqshow')->out(false);
-        $nextsession = jqshow_sessions::get_next_session($this->jqshowid);
-        if ($nextsession !== 0) {
-            $data->hasnextsession = true;
-            $data->nextsessiontime = userdate($nextsession, get_string('strftimedatetimeshort', 'core_langconfig'));
-        }
+        $data->isteacher = false;
+        $data->userid = $USER->id;
+        $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
+        $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+
         return $data;
     }
 }

@@ -25,12 +25,14 @@
 
 require_once('../../config.php');
 require_once('lib.php');
-use mod_jqshow\output\views\student_view;
-use mod_jqshow\output\views\teacher_view;
+
+use mod_jqshow\output\views\student_session_view;
+use mod_jqshow\output\views\teacher_session_view;
 use mod_jqshow\persistents\jqshow_sessions;
 
 global $CFG, $PAGE, $DB, $COURSE, $USER;
-$id = required_param('id', PARAM_INT);    // Course Module ID.
+$id = required_param('cmid', PARAM_INT);    // Course Module ID.
+$sid = required_param('sid', PARAM_INT);    // Session id.
 
 $cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
@@ -42,18 +44,22 @@ $cmcontext = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $cmcontext);
 $coursecontext = context_course::instance($COURSE->id);
 $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
-$strjqshow = get_string("modulename", "jqshow");
+$strjqshow = get_string('modulename', 'jqshow');
 $PAGE->set_heading($course->fullname);
-$PAGE->set_title($strjqshow);
 
 if ($isteacher) {
-    $view = new teacher_view();
-} else {
-    $activessesion = jqshow_sessions::get_active_session_id($jqshow->id);
-    if ($activessesion !== 0) {
-        redirect((new moodle_url('/mod/jqshow/session.php', ['cmid' => $cm->id, 'sid' => $activessesion]))->out(false));
+    $activesession = jqshow_sessions::get_active_session_id($jqshow->id);
+    if ($activesession !== 0 && $activesession !== $sid) {
+        throw new moodle_exception('multiplesessionerror', 'mod_jqshow', '', [],
+            get_string('multiplesessionerror', 'mod_jqshow'));
     }
-    $view = new student_view($jqshow->id);
+    if ($activesession === 0) {
+        $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
+        run_server_background($server);
+    }
+    $view = new teacher_session_view();
+} else {
+    $view = new student_session_view();
 }
 
 $output = $PAGE->get_renderer('mod_jqshow');

@@ -59,6 +59,17 @@ class jqshow {
     }
 
     /**
+     * @return stdClass
+     * @throws dml_exception
+     */
+    public function get_jqshow() {
+        if (is_null($this->jqshow)) {
+            $this->set_jqshow();
+        }
+        return $this->jqshow;
+    }
+
+    /**
      * @return void
      * @throws dml_exception
      */

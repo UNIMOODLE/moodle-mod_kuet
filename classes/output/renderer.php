@@ -16,6 +16,8 @@
 
 namespace mod_jqshow\output;
 use mod_jqshow\output\views\sessions_view;
+use mod_jqshow\output\views\student_session_view;
+use mod_jqshow\output\views\teacher_session_view;
 use moodle_exception;
 use plugin_renderer_base;
 use mod_jqshow\output\views\student_view;
@@ -41,6 +43,16 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * @param student_session_view $view
+     * @return string
+     * @throws moodle_exception
+     */
+    public function render_student_session_view(student_session_view $view): string {
+        $data = $view->export_for_template($this);
+        return $this->render_from_template('mod_jqshow/session/student', $data);
+    }
+
+    /**
      * @param teacher_view $view
      * @return string
      * @throws moodle_exception
@@ -48,6 +60,11 @@ class renderer extends plugin_renderer_base {
     public function render_teacher_view(teacher_view $view): string {
         $data = $view->export_for_template($this);
         return $this->render_from_template('mod_jqshow/sessions', $data);
+    }
+
+    public function render_teacher_session_view(teacher_session_view $view): string {
+        $data = $view->export_for_template($this);
+        return $this->render_from_template('mod_jqshow/session/teacher', $data);
     }
 
     /**

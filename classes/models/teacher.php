@@ -27,6 +27,7 @@ namespace mod_jqshow\models;
 
 use coding_exception;
 use context_course;
+use dml_exception;
 use mod_jqshow\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
@@ -60,24 +61,24 @@ class teacher extends user {
     }
 
     /**
+     * @param $cmid
      * @return Object
-     * @throws moodle_exception
+     * @throws dml_exception
      * @throws coding_exception
+     * @throws moodle_exception
      */
     public function export_sessions($cmid) : Object {
         global $COURSE;
-        // TODO.
         $jqshow = new jqshow($cmid);
         $actives = [];
         $inactives = [];
-        /** @var jqshow_sessions[] $sessions */
         $sessions = $jqshow->get_sessions();
         $coursecontext = context_course::instance($COURSE->id);
         $managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
         $initsession = has_capability('mod/jqshow:startsession', $coursecontext);
         foreach ($sessions as $session) {
             $ds = $this->get_data_session($session, $cmid, $managesessions, $initsession);
-            if ($session->get('status')) {
+            if ((int)$session->get('status') !== 0) {
                 $actives[] = $ds;
             } else {
                 $inactives[] = $ds;
@@ -89,6 +90,7 @@ class teacher extends user {
         $data->courseid = $jqshow->course->id;
         $data->cmid = $cmid;
         $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
+        $data->hasactivesession = jqshow_sessions::get_active_session_id(($jqshow->get_jqshow())->id) !== 0;
         return $data;
     }
 
@@ -115,6 +117,11 @@ class teacher extends user {
         $ds->editsessionurl =
             (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->date = '';
+        $ds->status = $session->get('status');
+        $ds->issessionactive = $ds->status === 2;
+        $ds->stringsession =
+            $ds->status === 2 ? get_string('sessionactive', 'mod_jqshow') : get_string('init_session', 'mod_jqshow');
+        // TODO detect active session, rename and lock them all.
         $startdate = $session->get('startdate');
         if ($startdate !== 0) {
             $startdate = userdate($startdate, get_string('strftimedatetimeshort', 'core_langconfig'));
