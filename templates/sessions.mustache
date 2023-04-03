@@ -1,17 +1,5 @@
 <div class="container-fluid">
-    {{#ispage1}}
-        {{{form}}}
-    {{/ispage1}}
-    {{#ispage2}}
-        {{name}}
-    {{/ispage2}}
-    {{#ispage3}}
-        {{name}}
-    {{/ispage3}}
-
-    {{#issessionview}}
-        <div class="sessionpanel" data-region="sessions-panel-reload">
-            {{> mod_jqshow/sessions_panel }}
-        </div>
-    {{/issessionview}}
+    <div class="sessionpanel" data-region="sessions-panel-reload">
+        {{> mod_jqshow/sessions_panel }}
+    </div>
 </div>

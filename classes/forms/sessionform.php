@@ -35,15 +35,18 @@ class sessionform extends moodleform {
      * @inheritDoc
      */
     protected function definition() {
+        global $OUTPUT;
         $mform =& $this->_form;
         $customdata = $this->_customdata;
 
-        // TODO: Reisar estilos.
         // Header.
-//        $mform->addElement('header', 'generalsettings', get_string('generalsettings', 'mod_jqshow'));
-        $mform->addElement('html', '<div class="formcontainer">');
-        $mform->addElement('html', '<h5 class="titlecontainer">' . get_string('generalsettings', 'mod_jqshow') . '</h5>');
-        $mform->addElement('html', '<div class="formconcontent">');
+        $mform->addElement('html', '<div class="row">');
+        $mform->addElement('html', '<div class="col-12 formcontainer">');
+        $mform->addElement('html', '<h5 class="titlecontainer bg-primary">' .
+            $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
+            get_string('generalsettings', 'mod_jqshow') .
+            '</h5>');
+        $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
         // Name.
         $nameparams = [
             'placeholder' => get_string('session_name_placeholder', 'mod_jqshow')];
@@ -95,11 +98,16 @@ class sessionform extends moodleform {
 
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
+        $mform->addElement('html', '</div>');
         // Header.
 //        $mform->addElement('header', 'timesettings', get_string('timesettings', 'mod_jqshow'));
-        $mform->addElement('html', '<div class="formcontainer">');
-        $mform->addElement('html', '<h5  class="titlecontainer">' . get_string('timesettings', 'mod_jqshow') . '</h5>');
-        $mform->addElement('html', '<div class="formconcontent">');
+        $mform->addElement('html', '<div class="row">');
+        $mform->addElement('html', '<div class="col-12 formcontainer">');
+        $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
+            $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
+            get_string('timesettings', 'mod_jqshow') .
+            '</h5>');
+        $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
         // Openquiz.
 //        $mform->addElement('html', '<h2>' . get_string('openquiz', 'mod_jqshow') . '</h2>');
 
@@ -148,14 +156,18 @@ class sessionform extends moodleform {
 
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
+        $mform->addElement('html', '</div>');
 
         // In case mode group activates.
         if (!empty($customdata['groupingsselect'])) {
             // Header.
     //        $mform->addElement('header', 'accessrestrictions', get_string('accessrestrictions', 'mod_jqshow'));
-            $mform->addElement('html', '<div class="formcontainer">');
-            $mform->addElement('html', '<h5  class="titlecontainer">' . get_string('accessrestrictions', 'mod_jqshow') . '</h5>');
-            $mform->addElement('html', '<div class="formconcontent">');
+            $mform->addElement('html', '<div class="col-12 formcontainer">');
+            $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
+                $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
+                get_string('accessrestrictions', 'mod_jqshow') .
+                '</h5>');
+            $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
             $select = $mform->addElement('select', 'groupings',
                 get_string('groupings', 'mod_jqshow'), $customdata['groupingsselect'], ['cols' => 100]);
             $select->setMultiple(true);

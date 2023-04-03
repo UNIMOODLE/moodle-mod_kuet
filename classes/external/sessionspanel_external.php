@@ -74,7 +74,6 @@ class sessionspanel_external extends external_api {
      */
     public static function sessionspanel_returns(): external_single_structure {
         return new external_single_structure([
-            'issessionview' => new external_value(PARAM_BOOL, ''),
             'activesessions' => self::get_session_structure(),
             'endedsessions' => self::get_session_structure(),
             'courseid' => new external_value(PARAM_RAW, 'Course id'),

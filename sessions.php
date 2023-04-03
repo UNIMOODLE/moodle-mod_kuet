@@ -28,7 +28,7 @@ require_once('lib.php');
 
 use mod_jqshow\output\views\sessions_view;
 
-global $CFG, $PAGE, $DB, $OUTPUT, $COURSE, $USER;
+global $CFG, $PAGE, $DB, $COURSE, $USER;
 $id = required_param('cmid', PARAM_INT);    // Course Module ID.
 
 $cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
@@ -41,14 +41,12 @@ $cmcontext = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $cmcontext);
 $coursecontext = context_course::instance($COURSE->id);
 $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
-$strjqshow = get_string("modulename", "jqshow");
-$PAGE->set_title($strjqshow);
-$PAGE->set_heading($course->fullname);
-$PAGE->requires->css('/mod/jqshow/style/jqshow.css');
+$PAGE->set_title(get_string('modulename', 'jqshow'));
+$PAGE->set_heading(get_string('sessionconfiguration', 'jqshow'));
 $view = new sessions_view($jqshow, $cm->id);
 
 $output = $PAGE->get_renderer('mod_jqshow');
-echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($jqshow->name));
+echo $output->header();
+echo $output->heading(get_string('sessionconfiguration', 'jqshow'));
 echo $output->render($view);
-echo $OUTPUT->footer();
+echo $output->footer();

@@ -3,14 +3,7 @@ body#page-mod-jqshow-view {
         #page-content {
             #region-main {
                 [role="main"] {
-                    > h2 {
-                        display: none;
-                    }
                     .container-fluid {
-                        small {
-                            font-size: 13px;
-                            color: #929292;
-                        }
                         .mobile-create-session {
                             display: none;
                         }
@@ -19,6 +12,7 @@ body#page-mod-jqshow-view {
                             padding: 0;
                             border-radius: 8px;
                             box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                            background-color: white;
                             .sessions-list-header {
                                 padding: 20px;
                                 display: flex;

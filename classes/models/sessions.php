@@ -32,8 +32,6 @@ use mod_jqshow\forms\sessionform;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
-use moodleform;
-use PhpParser\Node\Expr\Cast\Object_;
 use stdClass;
 
 class sessions {
@@ -79,14 +77,12 @@ class sessions {
      * @throws coding_exception
      * @throws invalid_persistent_exception
      */
-    public function export_form() : Object {
-
-
+    public function export_form(): Object {
         $sid = optional_param('sid', 0, PARAM_INT);    // Session id.
         $anonymousanswerchoices = [
-            '0' => 'Anonimizar las respuestas del estudiante',
-            '1' => 'Anonimizar totalmente las respuestas del estudiante',
-            '2' => 'No anonimizar las respuestas del estudiante',
+            0 => get_string('anonymiseresponses', 'mod_jqshow'),
+            1 => get_string('anonymiseallresponses', 'mod_jqshow'),
+            2 => get_string('noanonymiseresponses', 'mod_jqshow'),
         ];
         $advancemodechoices = [
             'manual' => 'Manual',
@@ -98,12 +94,12 @@ class sessions {
             'podium' => 'Podio'
         ];
         $countdownchoices = [
-            '0' => 'Opcion1',
-            '1' => 'Opcion2',
-            '3' => 'Opcion3'
+            0 => 'Opcion1',
+            1 => 'Opcion2',
+            3 => 'Opcion3'
         ];
         $groupingsselect = [];
-        list($course, $cm) = get_course_and_cm_from_cmid($this->cmid);
+        [$course, $cm] = get_course_and_cm_from_cmid($this->cmid);
         if ($cm->groupmode) {
             $groupings = groups_get_all_groupings($cm->course);
             if (!empty($groupings)) {
@@ -131,17 +127,8 @@ class sessions {
             redirect($url);
         } else if ($fromform = $mform->get_data()) {
             self::save_session($fromform);
-            $url = new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $this->cmid, 'page' => 2]);
+            $url = new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $this->cmid, 'sid' => $sid,  'page' => 2]);
             redirect($url);
-        } else {
-            // This branch is executed if the form is submitted but the data doesn't
-            // validate and the form should be redisplayed or on the first display of the form.
-
-            // Set anydefault data (if any).
-            //    $mform->set_data($toform);
-            //
-            //    // Display the form.
-            //    $this->content->text = $mform->render();
         }
         if ($sid) {
             $formdata = $this->get_form_data($sid);
@@ -149,15 +136,17 @@ class sessions {
         }
         $data = new stdClass();
         $data->form = $mform->render();
-        $data->ispage3 = false;
-        $data->ispage2 = false;
         $data->ispage1 = true;
 
         return $data;
     }
 
-    private function get_form_data(int $sid) {
-        /** @var jqshow_sessions $session */
+    /**
+     * @param int $sid
+     * @return array
+     * @throws coding_exception
+     */
+    private function get_form_data(int $sid): array {
         $session = $this->get_session(['id' => $sid]);
         return [
             'sessionid' => $session->get('id'),
@@ -175,18 +164,16 @@ class sessions {
             'enddate' => $session->get('enddate'),
             'automaticstart' => $session->get('automaticstart'),
             'activetimelimit' => $session->get('activetimelimit'),
-            'timelimit' => $session->get('timelimit'),
-//            'addtimequestionenable' => $session->get('addtimequestionenable')
+            'timelimit' => $session->get('timelimit')
         ];
     }
+
     /**
      * @return Object
      */
-    public function export_session_questions() : Object {
+    public function export_session_questions(): Object {
         $data = new stdClass();
-        $data->ispage1 = false;
         $data->ispage2 = true;
-        $data->ispage3 = false;
         $data->name = 'export_session_questions';
         return $data;
     }
@@ -194,23 +181,24 @@ class sessions {
     /**
      * @return Object
      */
-    public function export_session_resume() : Object {
+    public function export_session_resume(): Object {
         $data = new stdClass();
-        $data->name = 'export_session_resume';
         $data->ispage3 = true;
-        $data->ispage2 = false;
-        $data->ispage1 = false;
+        $data->name = 'export_session_resume';
         return $data;
     }
 
     /**
      * @return Object
      * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public function export() : Object {
         $page = optional_param('page', 1, PARAM_INT);
         switch ($page) {
             case 1:
+            default:
                 return $this->export_form();
             case 2:
                 return $this->export_session_questions();
@@ -218,19 +206,20 @@ class sessions {
                 return $this->export_session_resume();
         }
     }
+
     /**
-     * @param $data
+     * @param object $data
      * @return bool
      * @throws coding_exception
      * @throws invalid_persistent_exception
      */
-    protected static function save_session(object $data) : bool {
+    protected static function save_session(object $data): bool {
         if (!empty($data->groupings)) {
             $values = array_values($data->groupings);
             $groupings = implode(',', $values);
             $data->groupings = $groupings;
         }
-        $id = isset($data->sessionid) ? $data->sessionid : 0;
+        $id = $data->sessionid ?? 0;
         $update = false;
         if (!empty($id)) {
             $update = true;
@@ -249,7 +238,7 @@ class sessions {
      * @param $params
      * @return jqshow_sessions
      */
-    protected function get_session($params) : jqshow_sessions {
+    protected function get_session($params): jqshow_sessions {
         return jqshow_sessions::get_record($params);
     }
 }
