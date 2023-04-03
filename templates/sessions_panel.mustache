@@ -31,7 +31,7 @@
                         <div class="d-table-cell actions">
                             {{#managesessions}}
                                 <div class="content-actions">
-                                    <div class="session-action">
+                                    <div class="session-action {{#issessionactive}}disabled{{/issessionactive}}">
                                         <a href="{{editsessionurl}}">
                                             {{#pix}} i/edit_session, mod_jqshow {{/pix}}
                                         </a>
@@ -39,7 +39,9 @@
                                     <div class="session-action" data-action="copy_session" data-sessionid="{{sessionid}}">
                                         {{#pix}} i/copy_session, mod_jqshow {{/pix}}
                                     </div>
-                                    <div class="session-action" data-action="delete_session" data-sessionid="{{sessionid}}">
+                                    <div class="session-action {{#issessionactive}}disabled{{/issessionactive}}"
+                                         {{#issessionactive}}data-action="delete_session"{{/issessionactive}}
+                                         data-sessionid="{{sessionid}}">
                                         {{#pix}} i/delete_session, mod_jqshow {{/pix}}
                                     </div>
                                 </div>
@@ -48,13 +50,13 @@
                                         {{#pix}}i/three_dots, mod_jqshow {{/pix}}
                                     </a>
                                     <div class="dropdown-menu" aria-labelledby="actions-{{sessionid}}">
-                                        <a class="dropdown-item" href="{{editsessionurl}}">
+                                        <a class="dropdown-item {{#issessionactive}}disabled{{/issessionactive}}" href="{{editsessionurl}}">
                                             {{#str}}edit_session, mod_jqshow{{/str}}
                                         </a>
                                         <a class="dropdown-item" href="#" data-action="copy_session" data-sessionid="{{sessionid}}">
                                             {{#str}}copy_session, mod_jqshow{{/str}}
                                         </a>
-                                        <a class="dropdown-item" href="#" data-action="delete_session" data-sessionid="{{sessionid}}">
+                                        <a class="dropdown-item" {{#issessionactive}}disabled{{/issessionactive}} href="#" data-action="delete_session" data-sessionid="{{sessionid}}">
                                             {{#str}}delete_session, mod_jqshow{{/str}}
                                         </a>
                                     </div>
@@ -63,9 +65,12 @@
                         </div>
                         <div class="d-table-cell initsession">
                             {{#initsession}}
-                                <a href="{{initsessionurl}}">
-                                    + <span>{{#str}}init_session, mod_jqshow{{/str}}</span>
-                                </a>
+                                <div class="{{#hasactivesession}}disabled{{/hasactivesession}}"
+                                        {{^hasactivesession}}data-action="init_session"{{/hasactivesession}}
+                                        data-sessionid="{{sessionid}}"
+                                >
+                                    + <span>{{stringsession}}</span>
+                                </div>
                             {{/initsession}}
                         </div>
                     </div>

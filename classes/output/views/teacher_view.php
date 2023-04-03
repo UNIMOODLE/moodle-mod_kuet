@@ -15,7 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_jqshow\output\views;
+use coding_exception;
 use mod_jqshow\models\teacher;
+use moodle_exception;
 use renderable;
 use stdClass;
 use templatable;
@@ -29,16 +31,16 @@ use renderer_base;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class teacher_view implements renderable, templatable {
+
+    /**
+     * @param renderer_base $output
+     * @return stdClass
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
         $cmid = required_param('id', PARAM_INT);
-        $teacher = new teacher($USER->id);
-//        $data = new stdClass();
-//        $data->isteacher = true;
-//        $data->userid = $USER->id;
-//        $data->userfullname = $teacher->get_fullname();
-//        $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
-
-        return $teacher->export($cmid);
+        return (new teacher($USER->id))->export($cmid);
     }
 }

@@ -131,4 +131,44 @@ class jqshow_sessions extends persistent {
         global $DB;
         return  $DB->delete_records(self::TABLE, ['id' => $sessionid]);
     }
+
+    /**
+     * @param int $jqshowid
+     * @return int
+     * @throws dml_exception
+     */
+    public static function get_active_session_id(int $jqshowid): int {
+        global $DB;
+        $activesession = $DB->get_record(self::TABLE, ['jqshowid' => $jqshowid, 'status' => 2], 'id');
+        return $activesession !== false ? $activesession->id : 0;
+    }
+
+    public static function get_next_session(int $jqshowid): int {
+        global $DB;
+        $allsessions = $DB->get_records(self::TABLE, ['jqshowid' => $jqshowid, 'status' => 1], 'startdate DESC', 'startdate');
+        $dates = [];
+        foreach ($allsessions as $key => $date) {
+            if ($key !== 0) {
+                $dates[] = $key;
+            }
+        }
+        if (!empty($dates)) {
+            return self::find_closest($dates, time());
+        }
+        return 0;
+    }
+
+    /**
+     * @param $array
+     * @param $date
+     * @return mixed
+     */
+    private static function find_closest($array, $date): int {
+        foreach ($array as $key => $day) {
+            $interval[] = abs($date - $key);
+        }
+        asort($interval);
+        $closest = key($interval);
+        return $array[$closest];
+    }
 }

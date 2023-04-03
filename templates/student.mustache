@@ -1,21 +1,19 @@
-<h4>Estudiante</h4>
-<div data-region="canvas" data-userid="{{userid}}" data-username="{{userfullname}}" data-isteacher="{{isteacher}}">
-    <div id="message-box"></div>
-
-    <div id="countusers">0</div>
-    <button id="student_send">Estudiante envía</button>
-    <div id="student_messages"></div>
+<div class="container no-session-start">
+    <div class="containt-desktop">
+        <div class="content-image">
+            <img src="{{notsessionimage}}" alt="{{#str}}nosession, mod_jqshow{{/str}}" />
+        </div>
+        <div class="content-text">
+            <h2>{{#str}}notactivesession, mod_jqshow{{/str}}</h2>
+            <p>{{#str}}notactivesessionawait, mod_jqshow{{/str}}</p>
+            {{#hasnextsession}}
+                <div class="alert alert-primary" role="alert">
+                    <b>{{#str}}nextsession, mod_jqshow{{/str}}</b> {{nextsessiontime}}
+                </div>
+            {{/hasnextsession}}
+            <button class="btn btn-primary">
+                {{#str}}reports, mod_jqshow{{/str}}
+            </button>
+        </div>
+    </div>
 </div>
-
-{{#js}}
-    require(['mod_jqshow/sockets'], function(Sockets) {
-        Sockets.initSockets('[data-region="canvas"]', {{port}});
-        /*window.onbeforeunload = function(e) {
-            // TODO review.
-            e.returnValue = confirm(
-                'Si sale de esta página se cerrará la conexión y perderá el' +
-                ' progreso si no ha finalizado. ¿Desea salir?'
-            );
-        };*/
-    });
-{{/js}}

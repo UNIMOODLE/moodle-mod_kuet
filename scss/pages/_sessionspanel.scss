@@ -82,7 +82,7 @@ body#page-mod-jqshow-view {
                                     }
                                     &.initsession,
                                     &.viewreport-session {
-                                        a {
+                                        div, a {
                                             width: 125px;
                                             height: 32px;
                                             color: white;
@@ -92,6 +92,7 @@ body#page-mod-jqshow-view {
                                             justify-content: center;
                                             align-items: center;
                                             &:hover {
+                                                cursor: pointer;
                                                 text-decoration: none;
                                             }
                                         }
