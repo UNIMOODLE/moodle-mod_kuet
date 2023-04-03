@@ -84,7 +84,6 @@ class teacher extends user {
             }
         }
         $data = new stdClass();
-        $data->issessionview = true;
         $data->activesessions = $actives;
         $data->endedsessions = $inactives;
         $data->courseid = $jqshow->course->id;
@@ -110,20 +109,20 @@ class teacher extends user {
         $ds->managesessions = $managesessions;
         $ds->initsession = $initsession;
         $ds->initsessionurl =
-            (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sessionid' => $session->get('id')]))->out(false);
+            (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->viewreporturl =
-            (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sessionid' => $session->get('id')]))->out(false);
+            (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->editsessionurl =
-            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sessionid' => $session->get('id')]))->out(false);
+            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->date = '';
         $startdate = $session->get('startdate');
-        $enddate = $session->get('enddate');
         if ($startdate !== 0) {
-            $startdate = userdate(time(), get_string('strftimedatetimeshort', 'core_langconfig'));
+            $startdate = userdate($startdate, get_string('strftimedatetimeshort', 'core_langconfig'));
             $ds->date = $startdate;
         }
+        $enddate = $session->get('enddate');
         if ($enddate !== 0) {
-            $enddate = userdate(time(), get_string('strftimedatetimeshort', 'core_langconfig'));
+            $enddate = userdate($enddate, get_string('strftimedatetimeshort', 'core_langconfig'));
             $ds->date .= ' - ' . $enddate;
         }
         return $ds;

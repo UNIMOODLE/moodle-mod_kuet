@@ -53,7 +53,6 @@ class sessions_view implements renderable, templatable {
      * @throws coding_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $sessions = new sessions($this->jqshow, $this->cmid);
-        return $sessions->export();
+        return (new sessions($this->jqshow, $this->cmid))->export();
     }
 }

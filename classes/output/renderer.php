@@ -37,7 +37,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_student_view(student_view $view): string {
         $data = $view->export_for_template($this);
-        return parent::render_from_template('mod_jqshow/student', $data);
+        return $this->render_from_template('mod_jqshow/student', $data);
     }
 
     /**
@@ -47,8 +47,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_teacher_view(teacher_view $view): string {
         $data = $view->export_for_template($this);
-//        return parent::render_from_template('mod_jqshow/teacher', $data);
-        return parent::render_from_template('mod_jqshow/sessions', $data);
+        return $this->render_from_template('mod_jqshow/sessions', $data);
     }
 
     /**
@@ -58,6 +57,6 @@ class renderer extends plugin_renderer_base {
      */
     public function render_sessions_view(sessions_view $view): string {
         $data = $view->export_for_template($this);
-        return parent::render_from_template('mod_jqshow/sessions', $data);
+        return $this->render_from_template('mod_jqshow/createsession/createsession', $data);
     }
 }

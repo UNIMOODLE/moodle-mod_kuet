@@ -28,7 +28,7 @@ require_once('lib.php');
 use mod_jqshow\output\views\student_view;
 use mod_jqshow\output\views\teacher_view;
 
-global $CFG, $PAGE, $DB, $OUTPUT, $COURSE, $USER;
+global $CFG, $PAGE, $DB, $COURSE, $USER;
 $id = required_param('id', PARAM_INT);    // Course Module ID.
 
 $cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
@@ -36,14 +36,12 @@ $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST)
 $jqshow = $DB->get_record('jqshow', array('id' => $cm->instance), '*', MUST_EXIST);
 
 $PAGE->set_url('/mod/jqshow/view.php', array('id' => $id));
-//$PAGE->requires->css('/mod/jqshow/styles.css');
 require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $cmcontext);
 $coursecontext = context_course::instance($COURSE->id);
 $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
 $strjqshow = get_string("modulename", "jqshow");
-//$PAGE->set_title($strjqshow);
 $PAGE->set_heading($course->fullname);
 
 if ($isteacher) {
@@ -55,7 +53,7 @@ if ($isteacher) {
 }
 
 $output = $PAGE->get_renderer('mod_jqshow');
-echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($jqshow->name));
+echo $output->header();
+echo $output->heading(format_string($jqshow->name));
 echo $output->render($view);
-echo $OUTPUT->footer();
+echo $output->footer();
