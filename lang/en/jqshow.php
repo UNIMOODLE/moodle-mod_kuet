@@ -113,3 +113,4 @@ $string['deletesession_desc'] = 'Are you sure you want to delete this session?';
 $string['deletesessionerror'] = 'An error occurred while deleting the session. Check that you have the capacity "mod/jqshow:managesessions", or try again later.';
 $string['confirm'] = 'Confirm';
 $string['copy'] = 'Copy';
+$string['groupings'] = 'Groupings';

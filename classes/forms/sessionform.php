@@ -38,9 +38,12 @@ class sessionform extends moodleform {
         $mform =& $this->_form;
         $customdata = $this->_customdata;
 
+        // TODO: Reisar estilos.
         // Header.
-        $mform->addElement('header', 'generalsettings', get_string('generalsettings', 'mod_jqshow'));
-
+//        $mform->addElement('header', 'generalsettings', get_string('generalsettings', 'mod_jqshow'));
+        $mform->addElement('html', '<div class="formcontainer">');
+        $mform->addElement('html', '<h5 class="titlecontainer">' . get_string('generalsettings', 'mod_jqshow') . '</h5>');
+        $mform->addElement('html', '<div class="formconcontent">');
         // Name.
         $nameparams = [
             'placeholder' => get_string('session_name_placeholder', 'mod_jqshow')];
@@ -48,6 +51,7 @@ class sessionform extends moodleform {
             get_string('session_name', 'mod_jqshow'), $nameparams);
         $mform->setType('name', PARAM_RAW);
         $mform->addHelpButton('name', 'session_name', 'mod_jqshow');
+        $mform->addRule('name', get_string('required'), 'required');
 
         // Anonymousanswer.
         $mform->addElement('select', 'anonymousanswer',
@@ -89,9 +93,13 @@ class sessionform extends moodleform {
         $mform->addElement('selectyesno', 'showfinalgrade', get_string('showfinalgrade', 'mod_jqshow'));
         $mform->setType('showfinalgrade', PARAM_INT);
 
+        $mform->addElement('html', '</div>');
+        $mform->addElement('html', '</div>');
         // Header.
-        $mform->addElement('header', 'timesettings', get_string('timesettings', 'mod_jqshow'));
-
+//        $mform->addElement('header', 'timesettings', get_string('timesettings', 'mod_jqshow'));
+        $mform->addElement('html', '<div class="formcontainer">');
+        $mform->addElement('html', '<h5  class="titlecontainer">' . get_string('timesettings', 'mod_jqshow') . '</h5>');
+        $mform->addElement('html', '<div class="formconcontent">');
         // Openquiz.
 //        $mform->addElement('html', '<h2>' . get_string('openquiz', 'mod_jqshow') . '</h2>');
 
@@ -122,9 +130,7 @@ class sessionform extends moodleform {
         $mform->addElement('selectyesno', 'automaticstart', get_string('automaticstart', 'mod_jqshow'));
         $mform->setType('automaticstart', PARAM_INT);
 
-        // Timelimit header.
-        $mform->addElement('html', '<h5>' . get_string('timelimit', 'mod_jqshow') . '</h5>');
-
+//        $mform->addElement('html', '<span  class="bold">' . get_string('timelimit', 'mod_jqshow') . '</span>');
         // Automaticstart.
         $mform->addElement('selectyesno', 'activetimelimit', get_string('activetimelimit', 'mod_jqshow'));
         $mform->setType('activetimelimit', PARAM_INT);
@@ -134,16 +140,29 @@ class sessionform extends moodleform {
         $mform->setType('timelimit', PARAM_INT);
         $mform->disabledIf('timelimit', 'activetimelimit', 'eq', 0);
 
-        // TODO: hasta que no digan q es no lo añado.
         // Add time question enable.
-//        $mform->addElement('selectyesno', 'addtimequestionenable', get_string('addtimequestionenable', 'mod_jqshow'));
-//        $mform->setType('addtimequestionenable', PARAM_INT);
+        $mform->addElement('selectyesno', 'addtimequestionenable', get_string('addtimequestionenable', 'mod_jqshow'), 'asdasd');
+        $mform->setType('addtimequestionenable', PARAM_INT);
+        $mform->disabledIf('addtimequestionenable', 'activetimelimit', 'eq', 1);
+        $mform->disabledIf('activetimelimit', 'addtimequestionenable', 'eq', 1);
 
-        // Header.
-        $mform->addElement('header', 'accessrestrictions', get_string('accessrestrictions', 'mod_jqshow'));
-        $mform->addElement('textarea', 'availabilityconditionsjson',
-            get_string('accessrestrictions', 'availability'));
-            \core_availability\frontend::include_all_javascript($customdata['course'], $customdata['cm']);
+        $mform->addElement('html', '</div>');
+        $mform->addElement('html', '</div>');
+
+        // In case mode group activates.
+        if (!empty($customdata['groupingsselect'])) {
+            // Header.
+    //        $mform->addElement('header', 'accessrestrictions', get_string('accessrestrictions', 'mod_jqshow'));
+            $mform->addElement('html', '<div class="formcontainer">');
+            $mform->addElement('html', '<h5  class="titlecontainer">' . get_string('accessrestrictions', 'mod_jqshow') . '</h5>');
+            $mform->addElement('html', '<div class="formconcontent">');
+            $select = $mform->addElement('select', 'groupings',
+                get_string('groupings', 'mod_jqshow'), $customdata['groupingsselect'], ['cols' => 100]);
+            $select->setMultiple(true);
+            $mform->setType('groupings', PARAM_INT);
+            $mform->addElement('html', '</div>');
+            $mform->addElement('html', '</div>');
+        }
 
         // Hidden params.
         $mform->addElement('hidden', 'jqshowid', $customdata['jqshowid']);
@@ -154,6 +173,8 @@ class sessionform extends moodleform {
         $mform->setType('status', PARAM_INT);
         $mform->addElement('hidden', 'sessionid', 0);
         $mform->setType('sessionid', PARAM_INT);
+        $mform->addElement('html', '</div>');
+        $mform->addElement('html', '</div>');
 
         $this->add_action_buttons(true, get_string('next', 'mod_jqshow'));
     }

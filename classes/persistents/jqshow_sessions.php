@@ -88,8 +88,10 @@ class jqshow_sessions extends persistent {
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
             ),
-            'groupmode' => array(
-                'type' => PARAM_INT,
+            'groupings' => array(
+                'type' => PARAM_RAW,
+                'null' => NULL_ALLOWED,
+                'default' => null,
             ),
             'status' => array(
                 'type' => PARAM_INT,
