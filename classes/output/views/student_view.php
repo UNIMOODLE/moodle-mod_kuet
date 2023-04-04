@@ -17,6 +17,8 @@
 namespace mod_jqshow\output\views;
 use dml_exception;
 use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
+use moodle_url;
 use renderable;
 use stdClass;
 use templatable;
@@ -32,14 +34,17 @@ use renderer_base;
 class student_view implements renderable, templatable {
 
     public int $jqshowid;
-    public function __construct(int $jqshowid) {
+    public int $cmid;
+    public function __construct(int $jqshowid, int $cmid) {
         $this->jqshowid = $jqshowid;
+        $this->cmid = $cmid;
     }
 
     /**
      * @param renderer_base $output
      * @return stdClass
      * @throws dml_exception
+     * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         global $OUTPUT;
@@ -50,6 +55,7 @@ class student_view implements renderable, templatable {
             $data->hasnextsession = true;
             $data->nextsessiontime = userdate($nextsession, get_string('strftimedatetimeshort', 'core_langconfig'));
         }
+        $data->urlreports = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $this->cmid]))->out(false);
         return $data;
     }
 }
