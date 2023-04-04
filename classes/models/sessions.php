@@ -58,14 +58,14 @@ class sessions {
     /**
      *
      */
-    private function set_list() {
+    public function set_list() {
         $this->list = jqshow_sessions::get_records(['jqshowid' => $this->jqshow->id]);
     }
 
     /**
      * @return jqshow_sessions[]
      */
-    public function get_list() {
+    public function get_list(): array {
         if (empty($this->list)) {
             $this->set_list();
         }
@@ -213,7 +213,7 @@ class sessions {
      * @throws coding_exception
      * @throws invalid_persistent_exception
      */
-    protected static function save_session(object $data): bool {
+    public static function save_session(object $data): bool {
         if (!empty($data->groupings)) {
             $values = array_values($data->groupings);
             $groupings = implode(',', $values);

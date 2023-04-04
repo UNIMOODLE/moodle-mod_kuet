@@ -212,4 +212,14 @@ class jqshow_sessions extends persistent {
         $session->status = 0;
         return $DB->update_record(self::TABLE, $session);
     }
+
+    /**
+     * For PHPUnit
+     * @param jqshow_sessions $other
+     * @return bool
+     * @throws coding_exception
+     */
+    public function equals(self $other): bool {
+        return $this->get('id') === $other->get('id');
+    }
 }
