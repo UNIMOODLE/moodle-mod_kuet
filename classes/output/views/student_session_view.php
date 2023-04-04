@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_jqshow\output\views;
+use coding_exception;
 use dml_exception;
 use renderable;
 use stdClass;
@@ -33,11 +34,14 @@ class student_session_view implements renderable, templatable {
     /**
      * @param renderer_base $output
      * @return stdClass
+     * @throws coding_exception
      * @throws dml_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
         $data = new stdClass();
+        $data->cmid = required_param('cmid', PARAM_INT);
+        $data->sid = required_param('sid', PARAM_INT);
         $data->isteacher = false;
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;

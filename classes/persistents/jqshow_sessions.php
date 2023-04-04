@@ -176,4 +176,40 @@ class jqshow_sessions extends persistent {
         $closest = key($interval);
         return $array[$closest];
     }
+
+    /**
+     * @param int $sid
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function mark_session_started(int $sid): bool {
+        global $DB;
+        $session = $DB->get_record(self::TABLE, ['id' => $sid], 'id, status');
+        $session->status = 2;
+        return $DB->update_record(self::TABLE, $session);
+    }
+
+    /**
+     * @param int $sid
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function mark_session_active(int $sid): bool {
+        global $DB;
+        $session = $DB->get_record(self::TABLE, ['id' => $sid], 'id, status');
+        $session->status = 1;
+        return $DB->update_record(self::TABLE, $session);
+    }
+
+    /**
+     * @param int $sid
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function mark_session_finished(int $sid): bool {
+        global $DB;
+        $session = $DB->get_record(self::TABLE, ['id' => $sid], 'id, status');
+        $session->status = 0;
+        return $DB->update_record(self::TABLE, $session);
+    }
 }

@@ -280,7 +280,7 @@ abstract class websockets {
                 }
                 $unmasked = $this->unmask($buffer);
                 if ($unmasked !== "") {
-                    $user = $this->getuserbysocket($socket);
+                    $user = $this->get_user_by_socket($socket);
                     if ($user !== null) {
                         if (!$user->handshake) {
                             $tmp = str_replace("\r", '', $buffer);
@@ -318,7 +318,7 @@ abstract class websockets {
      * @return void
      */
     protected function disconnect($socket, $triggerclosed = true, $sockerrno = null) {
-        $disconnecteduser = $this->getuserbysocket($socket);
+        $disconnecteduser = $this->get_user_by_socket($socket);
         if ($disconnecteduser !== null) {
             unset($this->users[$disconnecteduser->id]);
             if (array_key_exists($disconnecteduser->id, $this->sockets)) {
@@ -370,7 +370,7 @@ abstract class websockets {
      * @param $hostname
      * @return true
      */
-    protected function checkhost($hostname) {
+    protected function check_host($hostname) {
         return true;
         /* Override and return false if the host is not one that you would expect.
         Ex: You only want to accept hosts from the my-domain.com domain,
@@ -381,7 +381,7 @@ abstract class websockets {
      * @param $origin
      * @return true
      */
-    protected function checkorigin($origin) {
+    protected function check_origin($origin) {
         return true; // Override and return false if the origin is not one that you would expect.
     }
 
@@ -389,7 +389,7 @@ abstract class websockets {
      * @param $protocol
      * @return true
      */
-    protected function checkwebsocprotocol($protocol) {
+    protected function check_web_soc_protocol($protocol) {
         return true; // Override and return false if a protocol is not found that you would expect.
     }
 
@@ -397,7 +397,7 @@ abstract class websockets {
      * @param $extensions
      * @return true
      */
-    protected function checkwebsocextensions($extensions) {
+    protected function check_web_soc_extensions($extensions) {
         return true; // Override and return false if an extension is not found that you would expect.
     }
 
@@ -405,7 +405,7 @@ abstract class websockets {
      * @param $protocol
      * @return string
      */
-    protected function processprotocol($protocol) {
+    protected function process_protocol($protocol) {
         return "";
         /* return either "Sec-WebSocket-Protocol: SelectedProtocolFromClientList\r\n" or return an empty string.
         The carriage return/newline combo must appear at the end of a non-empty string, and must not
@@ -417,7 +417,7 @@ abstract class websockets {
      * @param $extensions
      * @return string
      */
-    protected function processextensions($extensions) {
+    protected function process_extensions($extensions) {
         return ''; // Return either "Sec-WebSocket-Extensions: SelectedExtensions\r\n" or return an empty string.
     }
 
@@ -425,7 +425,7 @@ abstract class websockets {
      * @param $socket
      * @return mixed|null
      */
-    protected function getuserbysocket($socket) {
+    protected function get_user_by_socket($socket) {
         foreach ($this->users as $user) {
             if ($user->socket === $socket) {
                 return $user;
@@ -530,7 +530,7 @@ abstract class websockets {
      * @param $headers
      * @return int
      */
-    protected function calcoffset($headers) {
+    protected function calc_offset($headers) {
         $offset = 2;
         if ($headers['hasmask']) {
             $offset += 4;
@@ -549,7 +549,7 @@ abstract class websockets {
      * @return false|int|mixed|string
      */
     protected function deframe($message, &$user) {
-        $headers = $this->extractheaders($message);
+        $headers = $this->extract_headers($message);
         $pongreply = false;
         $willclose = false;
         switch($headers['opcode']) {
@@ -570,7 +570,7 @@ abstract class websockets {
                 break;
         }
 
-        if ($this->checkrsvbits($headers, $user)) {
+        if ($this->check_rsv_bits($headers, $user)) {
             return false;
         }
 
@@ -579,20 +579,20 @@ abstract class websockets {
             return false;
         }
 
-        $payload = $user->partialMessage . $this->extractpayload($message, $headers);
+        $payload = $user->partialMessage . $this->extract_payload($message, $headers);
 
         if ($pongreply) {
             $reply = $this->frame($payload, $user, 'pong');
             stream_socket_sendto($user->socket, $reply);
             return false;
         }
-        if ($headers['length'] > strlen($this->applymask($headers, $payload))) {
+        if ($headers['length'] > strlen($this->apply_mask($headers, $payload))) {
             $user->handlingPartialPacket = true;
             $user->partialBuffer = $message;
             return false;
         }
 
-        $payload = $this->applymask($headers, $payload);
+        $payload = $this->apply_mask($headers, $payload);
 
         if ($headers['fin']) {
             $user->partialMessage = "";
@@ -606,7 +606,7 @@ abstract class websockets {
      * @param $message
      * @return array
      */
-    protected function extractheaders($message) {
+    protected function extract_headers($message) {
         $header = ['fin'     => $message[0] & chr(128),
             'rsv1'    => $message[0] & chr(64),
             'rsv2'    => $message[0] & chr(32),
@@ -646,7 +646,7 @@ abstract class websockets {
      * @param $headers
      * @return false|string
      */
-    protected function extractpayload($message, $headers) {
+    protected function extract_payload($message, $headers) {
         $offset = 2;
         if ($headers['hasmask']) {
             $offset += 4;
@@ -664,7 +664,7 @@ abstract class websockets {
      * @param $payload
      * @return int|mixed
      */
-    protected function applymask($headers, $payload) {
+    protected function apply_mask($headers, $payload) {
         $effectivemask = '';
         if ($headers['hasmask']) {
             $mask = $headers['mask'];
@@ -686,7 +686,7 @@ abstract class websockets {
      * @param $user
      * @return bool
      */
-    protected function checkrsvbits($headers, $user) {
+    protected function check_rsv_bits($headers, $user) {
         // Override this method if you are using an extension where the RSV bits are used.
         return ord($headers['rsv1']) + ord($headers['rsv2']) + ord($headers['rsv3']) > 0;
     }
@@ -695,7 +695,7 @@ abstract class websockets {
      * @param $str
      * @return string
      */
-    protected function strtohex($str) {
+    protected function str_to_hex($str) {
         $strout = "";
         for ($i = 0, $imax = strlen($str); $i < $imax; $i++) {
             $strout .= (ord($str[$i]) < 16) ? "0" . dechex(ord($str[$i])) : dechex(ord($str[$i]));
@@ -720,12 +720,12 @@ abstract class websockets {
      * @param $headers
      * @return void
      */
-    protected function printheaders($headers) {
+    protected function print_headers($headers) {
         foreach ($headers as $key => $value) {
             if ($key === 'length' || $key === 'opcode') {
                 debugging("\t[$key] => $value\n\n");
             } else {
-                debugging("\t[$key] => ".$this->strtohex($value)."\n");
+                debugging("\t[$key] => ".$this->str_to_hex($value)."\n");
             }
 
         }

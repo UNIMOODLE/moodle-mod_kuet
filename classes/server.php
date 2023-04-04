@@ -16,6 +16,7 @@
 
 declare(strict_types=1);
 
+use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\websocketuser;
 
 define('CLI_SCRIPT', true);
@@ -69,6 +70,7 @@ class server extends websockets {
      * @param $user
      * @return void
      * @throws JsonException
+     * @throws dml_exception
      */
     protected function closed($user) {
         $response = $this->mask(
@@ -87,6 +89,7 @@ class server extends websockets {
                 stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
                 fclose($socket);
             }
+            jqshow_sessions::mark_session_finished((int)$user->sid);
             die();
         }
     }
@@ -104,6 +107,10 @@ class server extends websockets {
             case 'newuser':
                 $this->users[$user->id]->dataname = $data['name'];
                 $this->users[$user->id]->dataid = $data['id'];
+                $this->users[$user->id]->sid = $data['sid'];
+                $this->users[$user->id]->cmid = $data['cmid'];
+                $user->cmid = $data['cmid'];
+                $user->sid = $data['sid'];
                 if ($data['isteacher']) {
                     $user->isteacher = true;
                     $this->users[$user->id]->isteacher = true;

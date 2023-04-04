@@ -39,11 +39,15 @@ define(['jquery'], function($) {
     let teacherMessages = null;
     let studentMessages = null;
     let isteacher = null;
+    let cmid = null;
+    let sid = null;
 
     Sockets.prototype.initSockets = function() {
         userid = this.root[0].dataset.userid;
         username = this.root[0].dataset.username;
         isteacher = this.root[0].dataset.isteacher;
+        cmid = this.root[0].dataset.cmid;
+        sid = this.root[0].dataset.sid;
         messageBox = this.root.find(REGION.MESSAGEBOX);
         userlist = this.root.find(REGION.USERLIST);
         countusers = this.root.find(REGION.COUNTUSERS);
@@ -61,6 +65,8 @@ define(['jquery'], function($) {
                 'id': userid,
                 'name': username,
                 'isteacher': isteacher,
+                'cmid': cmid,
+                'sid': sid,
                 'action': 'newuser',
             };
             Sockets.prototype.sendMessageSocket(JSON.stringify(msg));

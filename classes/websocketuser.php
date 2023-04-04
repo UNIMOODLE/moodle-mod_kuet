@@ -35,6 +35,8 @@ class websocketuser {
     public $dataid; // Moodle userid.
     public $isteacher;
     public $handshake = false;
+    public $cmid;
+    public $sid;
 
     /**
      * @param $id
