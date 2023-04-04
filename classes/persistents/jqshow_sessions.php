@@ -143,6 +143,11 @@ class jqshow_sessions extends persistent {
         return $activesession !== false ? $activesession->id : 0;
     }
 
+    /**
+     * @param int $jqshowid
+     * @return int
+     * @throws dml_exception
+     */
     public static function get_next_session(int $jqshowid): int {
         global $DB;
         $allsessions = $DB->get_records(self::TABLE, ['jqshowid' => $jqshowid, 'status' => 1], 'startdate DESC', 'startdate');

@@ -53,7 +53,7 @@ if ($isteacher) {
     if ($activessesion !== 0) {
         redirect((new moodle_url('/mod/jqshow/session.php', ['cmid' => $cm->id, 'sid' => $activessesion]))->out(false));
     }
-    $view = new student_view($jqshow->id);
+    $view = new student_view($jqshow->id, $cm->id);
 }
 
 $output = $PAGE->get_renderer('mod_jqshow');
