@@ -19,6 +19,7 @@ use cm_info;
 use dml_exception;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
 use stdClass;
 
 /**
@@ -41,7 +42,7 @@ class jqshow {
 
     /**
      * @param int $cmid
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     public function __construct(int $cmid) {
         [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'jqshow');

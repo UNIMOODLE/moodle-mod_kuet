@@ -22,6 +22,7 @@ use dml_exception;
 use external_api;
 use externallib_advanced_testcase;
 use file_exception;
+use invalid_parameter_exception;
 use invalid_response_exception;
 use mod_jqshow_external;
 use stdClass;
@@ -46,7 +47,7 @@ class externallib_test extends externallib_advanced_testcase {
 
     /**
      * @return void
-     * @throws \invalid_parameter_exception
+     * @throws invalid_parameter_exception
      * @throws coding_exception
      * @throws dml_exception
      * @throws file_exception

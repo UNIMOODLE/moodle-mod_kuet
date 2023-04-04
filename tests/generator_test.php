@@ -59,4 +59,8 @@ class generator_test extends advanced_testcase {
         $context = context_module::instance($cm->id);
         $this->assertEquals($jqshow->cmid, $context->instanceid);
     }
+
+    public function test_create_session() {
+        // TODO.
+    }
 }
