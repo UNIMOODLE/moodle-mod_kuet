@@ -37,31 +37,7 @@ require_once($CFG->dirroot . '/mod/jqshow/tests/sessions_test.php');
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class deletesession_external_test extends advanced_testcase
-{
-
-    public array $sessionmock = [
-        'name' => 'Session Test',
-        'anonymousanswer' => 0,
-        'allowguests' => 0,
-        'advancemode' => 'programmed',
-        'gamemode' => 'inactive',
-        'countdown' => 0,
-        'randomquestions' => 0,
-        'randomanswers' => 0,
-        'showfeedback' => 0,
-        'showfinalgrade' => 0,
-        'startdate' => 1680534000,
-        'enddate' => 1683133200,
-        'automaticstart' => 0,
-        'activetimelimit' => 0,
-        'timelimit' => 0,
-        'addtimequestionenable' => 0,
-        'groupmode' => 0,
-        'status' => 0,
-        'sessionid' => 0,
-        'submitbutton' => 0
-    ];
+class deletesession_external_test extends advanced_testcase {
 
     /**
      * @return true
@@ -76,7 +52,6 @@ class deletesession_external_test extends advanced_testcase
         $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
         $sessiontest = new sessions_test();
         $sessiontest->test_session($jqshow);
         $list = $sessiontest->sessions->get_list();

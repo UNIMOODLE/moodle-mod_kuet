@@ -47,7 +47,7 @@ class sessions_test extends advanced_testcase {
         'timelimit' => 0,
         'addtimequestionenable' => 0,
         'groupmode' => 0,
-        'status' => 0,
+        'status' => 1,
         'sessionid' => 0,
         'submitbutton' => 0
     ];

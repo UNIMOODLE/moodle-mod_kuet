@@ -13,8 +13,18 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+namespace mod_jqshow;
+
+use advanced_testcase;
+use coding_exception;
 use core\invalid_persistent_exception;
+use dml_exception;
+use invalid_parameter_exception;
 use mod_jqshow\external\copysession_external;
+use mod_jqshow\external\deletesession_external;
+use mod_jqshow\external\sessionspanel_external;
+use moodle_exception;
+use sessions_test;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -29,17 +39,39 @@ require_once($CFG->dirroot . '/mod/jqshow/tests/sessions_test.php');
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+class sessionspanel_external_test extends advanced_testcase {
 
-class copysession_external_test extends advanced_testcase {
+    public array $sessionmock = [
+        'name' => 'Session Test',
+        'anonymousanswer' => 0,
+        'allowguests' => 0,
+        'advancemode' => 'programmed',
+        'gamemode' => 'inactive',
+        'countdown' => 0,
+        'randomquestions' => 0,
+        'randomanswers' => 0,
+        'showfeedback' => 0,
+        'showfinalgrade' => 0,
+        'startdate' => 1680534000,
+        'enddate' => 1683133200,
+        'automaticstart' => 0,
+        'activetimelimit' => 0,
+        'timelimit' => 0,
+        'addtimequestionenable' => 0,
+        'groupmode' => 0,
+        'status' => 0,
+        'sessionid' => 0,
+        'submitbutton' => 0
+    ];
 
     /**
      * @return true
-     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      * @throws coding_exception
-     * @throws dml_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      */
-    public function test_copysession(): bool {
+    public function test_sessionspanel(): bool {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
@@ -47,19 +79,14 @@ class copysession_external_test extends advanced_testcase {
         self::setUser($teacher);
         $sessiontest = new sessions_test();
         $sessiontest->test_session($jqshow);
-        $list = $sessiontest->sessions->get_list();
-        $result = copysession_external::copysession($course->id, $list[0]->get('id'));
+        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $this->assertTrue($sessiontest->sessions::save_session((object)$this->sessionmock));
+        $result = sessionspanel_external::sessionspanel($jqshow->cmid);
         $this->assertIsArray($result);
-        $this->assertTrue($result['copied']);
-        $sessiontest->sessions->set_list();
-        $newlist = $sessiontest->sessions->get_list();
-        $this->assertCount(2, $newlist);
-
-        $student = self::getDataGenerator()->create_and_enrol($course);
-        self::setUser($student);
-        $result = copysession_external::copysession($course->id, $newlist[0]->get('id'));
-        $this->assertIsArray($result);
-        $this->assertFalse($result['copied']);
+        $this->assertCount(1, $result['activesessions']);
+        $this->assertCount(1, $result['endedsessions']);
+        $this->assertSame($course->id, $result['courseid']);
+        $this->assertSame($jqshow->cmid, $result['cmid']);
 
         return true;
     }
