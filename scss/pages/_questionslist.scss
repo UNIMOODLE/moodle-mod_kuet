@@ -1,0 +1,71 @@
+body#page-mod-jqshow-sessions {
+    .questions-configuration {
+        .container {
+            padding: 0;
+        }
+        .questions-list,
+        .questions-bank {
+            margin-top: 25px;
+            padding: 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,.06);
+            .titlecontainer {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                border-radius: 8px 8px 0 0;
+                color: #FFFFFF;
+                padding: 1em;
+            }
+            .questions-list-body {
+                width: 100%;
+                .d-table-cell {
+                    padding: 15px;
+                }
+                .questions-list-thead {
+                    font-weight: bold;
+                    .d-table-cell {
+                        color: #2B2B2B !important;
+                    }
+                }
+                .questions-list-data {
+                    font-weight: normal;
+                    .d-table-cell {
+                        border-top: 1px solid #EDEBF4;
+                        color: #929292 !important;
+                        &.actions {
+                            &.actions {
+                                .content-actions {
+                                    display: flex;
+                                    flex-flow: row nowrap;
+                                    justify-content: flex-start;
+                                    align-items: center;
+                                    .question-action {
+                                        background-color: black;
+                                        height: 32px;
+                                        width: 32px;
+                                        border-radius: 8px;
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        margin: 0 7px;
+                                        .icon {
+                                            margin: 0 !important;
+                                        }
+                                        &:hover {
+                                            cursor: pointer;
+                                        }
+                                    }
+                                }
+                                .mobile-content-actions {
+                                    display: none;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .questions-list {
+            margin-right: 15px;
+        }
+    }
+}
