@@ -23,16 +23,24 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace mod_jqshow\models;
 
 use coding_exception;
+use context;
+use context_module;
 use core\invalid_persistent_exception;
+use core_php_time_limit;
+use dml_exception;
 use mod_jqshow\forms\sessionform;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
+use qbank_managecategories\helper;
 use stdClass;
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/question/editlib.php');
 
 class sessions {
 
@@ -170,12 +178,97 @@ class sessions {
 
     /**
      * @return Object
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function export_session_questions(): Object {
+        global $DB;
         $data = new stdClass();
         $data->ispage2 = true;
-        $data->name = 'export_session_questions';
+        [$data->currentcategory, $data->questionbank_categories] = $this->get_questionbank_select();
+        $course = $DB->get_record_sql("
+                    SELECT c.*
+                      FROM {course_modules} cm
+                      JOIN {course} c ON c.id = cm.course
+                     WHERE cm.id = ?", [$this->cmid], MUST_EXIST);
+        $data->questionbank_url = (new moodle_url('/question/edit.php', ['courseid' => $course->id]))->out(false);
+        $data->questions = array_values($this->get_questions_for_category($data->currentcategory));
         return $data;
+    }
+
+    /**
+     * @param array $category
+     * @return array
+     * @throws dml_exception
+     */
+    private function get_questions_for_category(array $category): array {
+        global $DB;
+        core_php_time_limit::raise(300);
+        $catstr = '';
+        $params = [];
+        $questions = [];
+        foreach ($category as $key => $str) {
+            [$categoryid, $contextid] = explode(',', $str);
+            $catstr .= ':cat_' . $key . ',';
+            $params['cat_' . $key] = $categoryid;
+        }
+        if (!empty($params) && $catstr !== '') {
+            $catstr = trim($catstr, ',');
+            $sql = "SELECT
+                        qv.status,
+                        qc.id as categoryid,
+                        qv.version,
+                        qv.id as versionid,
+                        qbe.id as questionbankentryid,
+                        q.id,
+                        q.qtype,
+                        q.name,
+                        qbe.idnumber,
+                        qc.contextid
+                    FROM {question} q
+                        JOIN {question_versions} qv ON qv.questionid = q.id
+                        JOIN {question_bank_entries} qbe on qbe.id = qv.questionbankentryid
+                        JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                            WHERE q.parent = 0
+                            AND qv.version = (SELECT MAX(v.version)
+                                                FROM {question_versions} v
+                                                JOIN {question_bank_entries} be
+                                                ON be.id = v.questionbankentryid
+                                                WHERE be.id = qbe.id)
+                                                    AND ((qbe.questioncategoryid IN ($catstr)))
+                            ORDER BY q.qtype ASC, q.name ASC";
+            $questionsrs = $DB->get_recordset_sql($sql, $params);
+            foreach ($questionsrs as $question) {
+                if (!empty($question->id)) {
+                    $questions[$question->id] = $question;
+                }
+            }
+            $questionsrs->close();
+        }
+        return $questions;
+    }
+
+    /**
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private function get_questionbank_select(): array {
+        $context = context_module::instance($this->cmid);
+        $contexts = $context->get_parent_contexts();
+        $contexts[$context->id] = $context;
+        $categoriesarray = helper::question_category_options($contexts, true, 0,
+            false, -1, false);
+        $currentcategory = [];
+        foreach ($categoriesarray as $sistemcategory) {
+            foreach ($sistemcategory as $key => $category) {
+                $currentcategory[] = $key;
+            }
+            break;
+        }
+        return [$currentcategory, helper::question_category_select_menu($contexts, true, 0,
+            true, -1, true)];
     }
 
     /**
