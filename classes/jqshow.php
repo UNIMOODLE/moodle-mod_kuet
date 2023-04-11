@@ -56,7 +56,7 @@ class jqshow {
      */
     protected function set_jqshow() {
         global $DB;
-        $this->jqshow = $DB->get_record('jqshow', array('id' => $this->cm->instance), '*', MUST_EXIST);
+        $this->jqshow = $DB->get_record('jqshow', ['id' => $this->cm->instance], '*', MUST_EXIST);
     }
 
     /**

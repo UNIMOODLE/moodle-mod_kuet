@@ -3,7 +3,9 @@
         {{> mod_jqshow/createsession/step_1 }}
     {{/ispage1}}
     {{#ispage2}}
-        {{> mod_jqshow/createsession/step_2 }}
+        <div data-region="questions-panel" data-sid="{{sid}}" data-cmid="{{cmid}}">
+            {{> mod_jqshow/createsession/step_2 }}
+        </div>
     {{/ispage2}}
     {{#ispage3}}
         {{> mod_jqshow/createsession/step_3 }}

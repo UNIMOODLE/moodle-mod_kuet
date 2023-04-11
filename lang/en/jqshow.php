@@ -139,3 +139,7 @@ $string['question_date'] = 'Dates';
 $string['question_actions'] = 'Actions';
 $string['select_category'] = 'Select a category';
 $string['go_questionbank'] = 'Go to the question bank';
+$string['selectall'] = 'Select all';
+$string['add_questions'] = 'Add questions';
+$string['number_select'] = 'Selected questions: ';
+

@@ -1,0 +1,29 @@
+<input type="checkbox" name="selectall" id="selectall">
+<label for="selectall">{{#str}}selectall, mod_jqshow{{/str}}</label>
+{{#questions}}
+    <div class="question" data-id="{{id}}" data-type="{{qtype}}" data-contextid="{{contextid}}">
+        <div class="add-question" data-action="add_question" data-questionnid="{{id}}">
+            {{#pix}}i/add, mod_jqshow{{/pix}}
+        </div>
+        <input type="checkbox" class="select_question" id="{{id}}" name="question_{{id}}" />
+        {{#icon}}
+            {{#pix}} {{key}}, {{component}}, {{alttext}} {{/pix}}
+        {{/icon}}
+        <span class="question-text">{{name}}</span>
+        {{#pix}}i/loupe, mod_jqshow{{/pix}}
+    </div>
+{{/questions}}
+<hr>
+<button class="btn btn-primary" data-action="add_questions">
+    {{#str}}add_questions, mod_jqshow{{/str}}
+</button>
+<small>
+    {{#str}}number_select, mod_jqshow{{/str}} <span id="number_select">0</span>
+</small>
+{{#js}}
+    require(['mod_jqshow/selectquestions'],
+        function(SelectQuestions) {
+            SelectQuestions.initSelectQuestions('[data-region="questions-panel"]');
+        }
+    );
+{{/js}}

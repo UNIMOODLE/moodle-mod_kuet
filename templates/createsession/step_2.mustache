@@ -50,10 +50,10 @@
                                             {{#pix}} i/edit_session, mod_jqshow {{/pix}}
                                         </a>
                                     </div>
-                                    <div class="question-action" data-action="copy_session" data-questionnid="{{questionnid}}">
+                                    <div class="question-action" data-action="copy_question" data-questionnid="{{questionnid}}">
                                         {{#pix}} i/copy_session, mod_jqshow {{/pix}}
                                     </div>
-                                    <div class="question-action" data-questionnid="{{questionnid}}">
+                                    <div class="question-action" data-action="delete_question" data-questionnid="{{questionnid}}">
                                         {{#pix}} i/delete_session, mod_jqshow {{/pix}}
                                     </div>
                                 </div>
@@ -73,21 +73,21 @@
             <div class="form-group">
                 <label for="exampleFormControlSelect1">{{#str}}select_category, mod_jqshow{{/str}}</label>
                 {{{questionbank_categories}}}
-                <hr>
                 <a class="btn btn-primary" href="{{questionbank_url}}" target="_blank">
                     {{#str}}go_questionbank, mod_jqshow{{/str}}
                 </a>
-                <hr>
-                <div class="content-question" data-region="content-question">
-                    {{#questions}}
-                        <div class="question" data-id="{{id}}" data-type="{{qtype}}" data-contextid="{{contextid}}">
-                            <input type="checkbox" />
-                            <span>{{name}}</span>
-                            {{#pix}}i/loupe, mod_jqshow{{/pix}}
-                        </div>
-                    {{/questions}}
-                </div>
+            </div>
+            <hr>
+            <div class="content-question" data-region="content-question">
+                {{> mod_jqshow/createsession/contentquestions }}
             </div>
         </div>
     </div>
 </div>
+{{#js}}
+    require(['mod_jqshow/questionspanel'],
+        function(QuestionsPanel) {
+            QuestionsPanel.initQuestionsPanel('[data-region="questions-panel"]');
+        }
+    );
+{{/js}}
