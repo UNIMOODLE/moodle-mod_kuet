@@ -67,26 +67,76 @@ QuestionsPanel.prototype.selectCategory = function(e) {
     e.stopPropagation();
     let categoryKey = jQuery(e.currentTarget).val();
     let identifier = jQuery(REGION.CONTENTQUESTIONS);
-    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
-        let identifier = jQuery(REGION.PANEL);
-        identifier.append(html);
-    });
-    let request = {
-        methodname: SERVICES.SELECTCATEGORY,
-        args: {
-            categorykey: categoryKey,
-            cmid: cmId
-        }
-    };
-    Ajax.call([request])[0].done(function(response) {
-        let templateQuestions = TEMPLATES.QUESTIONSFORSELECT;
-        Templates.render(templateQuestions, response).then(function(html, js) {
-            identifier.html(html);
-            Templates.runTemplateJS(js);
-            jQuery(REGION.LOADING).remove();
-            // Templates.replaceNode(this.node, html, js);
+    // eslint-disable-next-line no-console
+    console.log(jQuery(REGION.SELECTQUESTION + ':checked').length);
+    if (jQuery(REGION.SELECTQUESTION + ':checked').length > 0) {
+        const stringkeys = [
+            {key: 'changecategory', component: 'mod_jqshow'},
+            {key: 'changecategory_desc', component: 'mod_jqshow'},
+            {key: 'confirm', component: 'mod_jqshow'},
+            {key: 'copysessionerror', component: 'mod_jqshow'},
+        ];
+        getStrings(stringkeys).then((langStrings) => {
+            const title = langStrings[0];
+            const message = langStrings[1];
+            const buttonText = langStrings[2];
+            return ModalFactory.create({
+                title: title,
+                body: message,
+                type: ModalFactory.types.SAVE_CANCEL
+            }).then(modal => {
+                modal.setSaveButtonText(buttonText);
+                modal.getRoot().on(ModalEvents.save, () => {
+                    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                        let identifier = jQuery(REGION.PANEL);
+                        identifier.append(html);
+                    });
+                    let request = {
+                        methodname: SERVICES.SELECTCATEGORY,
+                        args: {
+                            categorykey: categoryKey,
+                            cmid: cmId
+                        }
+                    };
+                    Ajax.call([request])[0].done(function(response) {
+                        let templateQuestions = TEMPLATES.QUESTIONSFORSELECT;
+                        Templates.render(templateQuestions, response).then(function(html, js) {
+                            identifier.html(html);
+                            Templates.runTemplateJS(js);
+                            jQuery(REGION.LOADING).remove();
+                        }).fail(Notification.exception);
+                    });
+                });
+                modal.getRoot().on(ModalEvents.hidden, () => {
+                    modal.destroy();
+                });
+                return modal;
+            });
+        }).done(function(modal) {
+            modal.show();
+            // eslint-disable-next-line no-restricted-globals
         }).fail(Notification.exception);
-    });
+    } else {
+        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+            let identifier = jQuery(REGION.PANEL);
+            identifier.append(html);
+        });
+        let request = {
+            methodname: SERVICES.SELECTCATEGORY,
+            args: {
+                categorykey: categoryKey,
+                cmid: cmId
+            }
+        };
+        Ajax.call([request])[0].done(function(response) {
+            let templateQuestions = TEMPLATES.QUESTIONSFORSELECT;
+            Templates.render(templateQuestions, response).then(function(html, js) {
+                identifier.html(html);
+                Templates.runTemplateJS(js);
+                jQuery(REGION.LOADING).remove();
+            }).fail(Notification.exception);
+        });
+    }
 };
 
 QuestionsPanel.prototype.copyQuestion = function(e) {

@@ -143,4 +143,6 @@ $string['selectall'] = 'Select/unselect all';
 $string['selectvisibles'] = 'Select/unselect visibles';
 $string['add_questions'] = 'Add questions';
 $string['number_select'] = 'Selected questions: ';
+$string['changecategory'] = 'Change of category';
+$string['changecategory_desc'] = 'You have selected questions that have not been added to the session. If you change category you will lose this selection. Do you wish to continue?';
 
