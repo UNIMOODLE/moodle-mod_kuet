@@ -7,7 +7,7 @@ import Ajax from 'core/ajax';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Notification from 'core/notification';
-import Templates from "../../../../lib/amd/src/templates";
+import Templates from 'core/templates';
 
 let ACTION = {
     ADDQUESTIONS: '[data-action="add_questions"]',
