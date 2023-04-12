@@ -190,6 +190,7 @@ class sessions {
         $data->ispage2 = true;
         $data->sid = required_param('sid', PARAM_INT);
         $data->cmid = required_param('cmid', PARAM_INT);
+        $data->jqshowid = $this->jqshow->id;
         [$data->currentcategory, $data->questionbank_categories] = $this->get_questionbank_select();
         $course = $DB->get_record_sql("
                     SELECT c.*
