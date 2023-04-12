@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/jqshow/db" VERSION="20230313" COMMENT="XMLDB file for Moodle mod/jqshow"
+<XMLDB PATH="mod/jqshow/db" VERSION="2023041201" COMMENT="XMLDB file for Moodle mod/jqshow"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >

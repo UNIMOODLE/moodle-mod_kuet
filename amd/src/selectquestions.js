@@ -2,6 +2,12 @@
 /* eslint-disable no-unused-vars */ // TODO remove.
 
 import jQuery from 'jquery';
+import {get_strings as getStrings} from 'core/str';
+import Ajax from 'core/ajax';
+import ModalFactory from 'core/modal_factory';
+import ModalEvents from 'core/modal_events';
+import Notification from 'core/notification';
+import Templates from "../../../../lib/amd/src/templates";
 
 let ACTION = {
     ADDQUESTIONS: '[data-action="add_questions"]',
@@ -18,8 +24,19 @@ let REGION = {
     CURRENTPAGE: '#current_page'
 };
 
+let SERVICES = {
+    ADDQUESTIONS: 'mod_jqshow_addquestions'
+};
+
+let TEMPLATES = {
+    LOADING: 'core/overlay_loading',
+    SUCCESS: 'core/notification_success',
+    ERROR: 'core/notification_error',
+};
+
 let cmId;
 let sId;
+let jqshowId;
 let showPerPage = 20;
 
 /**
@@ -30,6 +47,7 @@ function SelectQuestions(selector) {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
+    jqshowId = this.node.attr('data-jqshowid');
     this.initPanel();
 }
 
@@ -63,7 +81,88 @@ SelectQuestions.prototype.selectVisibles = function(e) {
 SelectQuestions.prototype.addQuestions = function(e) {
     e.preventDefault();
     e.stopPropagation();
-    alert('addQuestions ');
+    let questionschekced = jQuery(REGION.SELECTQUESTION + ':checked');
+    if (questionschekced.length < 1) {
+        const stringkeys = [
+            {key: 'selectone', component: 'mod_jqshow'},
+            {key: 'selectone_desc', component: 'mod_jqshow'}
+        ];
+        getStrings(stringkeys).then((langStrings) => {
+            const title = langStrings[0];
+            const message = langStrings[1];
+            return ModalFactory.create({
+                title: title,
+                body: message,
+                type: ModalFactory.types.CANCEL
+            }).then(modal => {
+                modal.getRoot().on(ModalEvents.hidden, () => {
+                    modal.destroy();
+                });
+                return modal;
+            });
+        }).done(function(modal) {
+            modal.show();
+            // eslint-disable-next-line no-restricted-globals
+        }).fail(Notification.exception);
+    } else {
+        let questions = [];
+        questionschekced.each(function callback(index, question) {
+            // eslint-disable-next-line no-console
+            console.log(jQuery(question).attr('data-questionnid'));
+            let questionid = jQuery(question).attr('data-questionnid');
+            let questiondata = {
+                questionid: questionid,
+                sessionid: sId,
+                jqshowid: jqshowId
+            };
+            questions.push(questiondata);
+        });
+        const stringkeys = [
+            {key: 'addquestions', component: 'mod_jqshow'},
+            {key: 'addquestions_desc', component: 'mod_jqshow', param: questionschekced.length},
+            {key: 'confirm', component: 'mod_jqshow'}
+        ];
+        getStrings(stringkeys).then((langStrings) => {
+            const title = langStrings[0];
+            const message = langStrings[1];
+            const buttonText = langStrings[2];
+            return ModalFactory.create({
+                title: title,
+                body: message,
+                type: ModalFactory.types.SAVE_CANCEL
+            }).then(modal => {
+                modal.setSaveButtonText(buttonText);
+                modal.getRoot().on(ModalEvents.save, () => {
+                    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                        let identifier = jQuery(REGION.PANEL);
+                        identifier.append(html);
+                    });
+                    let request = {
+                        methodname: SERVICES.ADDQUESTIONS,
+                        args: {
+                            questions: questions
+                        }
+                    };
+                    Ajax.call([request])[0].done(function(response) {
+                        if (response) {
+                            jQuery(REGION.LOADING).remove();
+                        } else {
+                            alert('error');
+                        }
+                    });
+                });
+                modal.getRoot().on(ModalEvents.hidden, () => {
+                    modal.destroy();
+                });
+                return modal;
+            });
+        }).done(function(modal) {
+            modal.show();
+            // eslint-disable-next-line no-restricted-globals
+        }).fail(Notification.exception);
+        // eslint-disable-next-line no-console
+        console.log(questions);
+    }
 };
 
 SelectQuestions.prototype.addQuestion = function(e) {

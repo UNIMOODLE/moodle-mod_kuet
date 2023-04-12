@@ -85,8 +85,7 @@ class jqshow_questions extends persistent {
      * @param $questionid
      * @param $sessionid
      * @param $jqshowid
-     * @throws invalid_persistent_exception
-     * @throws coding_exception
+     * @return bool
      */
     public static function add_not_valid_question($questionid, $sessionid, $jqshowid) : bool {
         $order = parent::count_records(['sessionid' => $sessionid]);
