@@ -90,6 +90,10 @@ SelectQuestions.prototype.pagination = function() {
     jQuery(REGION.CURRENTPAGE).val(0);
     let navigationHtml = '';
     let currentLink = 0;
+    if (numberOfItems === 0) {
+        jQuery(ACTION.SELECTALL).remove();
+        jQuery('label[for="selectall"]').remove();
+    }
     if (numberOfPages > 1) {
         while (numberOfPages > currentLink) {
             navigationHtml +=
