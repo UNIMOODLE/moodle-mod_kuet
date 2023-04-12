@@ -25,6 +25,7 @@
 
 use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
+use mod_jqshow\external\selectquestionscategory_external;
 use mod_jqshow\external\sessionspanel_external;
 
 defined('MOODLE_INTERNAL') || die;
@@ -62,7 +63,15 @@ $functions = [
         'type'            => 'write',
         'ajax'            => true,
         'loginrequired'   => true
-    ]
+    ],
+    'mod_jqshow_selectquestionscategory' => [
+        'classname'       => selectquestionscategory_external::class,
+        'methodname'      => 'selectquestionscategory',
+        'description'     => 'Get questions for a determinate category',
+        'type'            => 'read',
+        'ajax'            => true,
+        'loginrequired'   => true
+    ],
 ];
 $services = [
     'JQShow' => [
@@ -70,7 +79,8 @@ $services = [
             'mod_jqshow_get_jqshows_by_courses',
             'mod_jqshow_sessionspanel',
             'mod_jqshow_copysession',
-            'mod_jqshow_deletesession'
+            'mod_jqshow_deletesession',
+            'mod_jqshow_selectquestionscategory'
         ],
         'restrictedusers' => 0,
         'enabled'         => 1,

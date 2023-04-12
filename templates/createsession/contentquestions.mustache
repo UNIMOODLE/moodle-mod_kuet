@@ -1,0 +1,30 @@
+<input type="checkbox" name="selectall" id="selectall">
+<label for="selectall">{{#str}}selectall, mod_jqshow{{/str}}</label>
+<br>
+<input type="checkbox" name="selectvisibles" id="selectvisibles">
+<label for="selectvisibles">{{#str}}selectvisibles, mod_jqshow{{/str}}</label>
+<input type='hidden' id='current_page' />
+<input type='hidden' id='show_per_page' />
+<div id="content_questions">
+    {{#questions}}
+        <div class="question" data-id="{{id}}" data-type="{{qtype}}" data-contextid="{{contextid}}">
+            <div class="add-question" data-action="add_question" data-questionnid="{{id}}">
+                {{#pix}}i/add, mod_jqshow{{/pix}}
+            </div>
+            <input type="checkbox" class="select_question" id="{{id}}" name="question_{{id}}" />
+            {{#icon}}
+                {{#pix}} {{key}}, {{component}}, {{alttext}} {{/pix}}
+            {{/icon}}
+            <span class="question-text">{{name}}</span>
+            {{#pix}}i/loupe, mod_jqshow{{/pix}}
+        </div>
+    {{/questions}}
+</div>
+<div id='page_navigation' class="mt-3 d-flex justify-content-center pagination"></div>
+{{#js}}
+    require(['mod_jqshow/selectquestions'],
+        function(SelectQuestions) {
+            SelectQuestions.initSelectQuestions('[data-region="questions-panel"]');
+        }
+    );
+{{/js}}

@@ -67,5 +67,44 @@ body#page-mod-jqshow-sessions {
         .questions-list {
             margin-right: 15px;
         }
+        .questions-bank {
+            .form-group {
+                padding: 15px;
+            }
+            .btn-primary {
+                margin-left: 15px;
+            }
+            .content-question {
+                padding: 15px;
+                .question {
+                    display: flex;
+                    flex-flow: row nowrap;
+                    justify-content: flex-start;
+                    align-items: center;
+                    .add-question {
+                        img {
+                            width: 13px;
+                            height: 13px;
+                        }
+                        &:hover {
+                            cursor: pointer;
+                        }
+                    }
+                    input {
+                        margin-right: 15px;
+                    }
+                    .question-text {
+                        width: 90%;
+                    }
+                }
+            }
+            .pagination {
+                .page-item {
+                    &:hover {
+                        cursor: pointer;
+                    }
+                }
+            }
+        }
     }
 }

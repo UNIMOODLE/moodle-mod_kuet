@@ -35,6 +35,8 @@ use mod_jqshow\forms\sessionform;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
+use pix_icon;
+use qbank_editquestion\qbank_chooser_item;
 use qbank_managecategories\helper;
 use stdClass;
 
@@ -186,6 +188,8 @@ class sessions {
         global $DB;
         $data = new stdClass();
         $data->ispage2 = true;
+        $data->sid = required_param('sid', PARAM_INT);
+        $data->cmid = required_param('cmid', PARAM_INT);
         [$data->currentcategory, $data->questionbank_categories] = $this->get_questionbank_select();
         $course = $DB->get_record_sql("
                     SELECT c.*
@@ -193,22 +197,46 @@ class sessions {
                       JOIN {course} c ON c.id = cm.course
                      WHERE cm.id = ?", [$this->cmid], MUST_EXIST);
         $data->questionbank_url = (new moodle_url('/question/edit.php', ['courseid' => $course->id]))->out(false);
-        $data->questions = array_values($this->get_questions_for_category($data->currentcategory));
+        $data->questions = $this->get_questions_for_category($data->currentcategory);
+        $data->sessionquestions = []; // TODO get questions added to the session.
         return $data;
     }
 
     /**
-     * @param array $category
+     * @param string $category
      * @return array
+     * @throws coding_exception
      * @throws dml_exception
      */
-    private function get_questions_for_category(array $category): array {
-        global $DB;
+    public function get_questions_for_category(string $category): array {
+        global $DB, $OUTPUT;
         core_php_time_limit::raise(300);
+        // Get all the categories below the marked one, as they would be subcategories.
+        $categories = [];
+        $context = context_module::instance($this->cmid);
+        $contexts = $context->get_parent_contexts();
+        $contexts[$context->id] = $context;
+        $categoriesarray = helper::question_category_options($contexts, true, 0,
+            false, -1, false);
+        $asof = false;
+        foreach ($categoriesarray as $sistemcategory) {
+            foreach ($sistemcategory as $key => $subcategory) {
+                if ($key === $category) {
+                    $asof = true;
+                }
+                if ($asof) {
+                    $categories[] = $key;
+                }
+            }
+            if ($asof) {
+                break;
+            }
+        }
         $catstr = '';
         $params = [];
         $questions = [];
-        foreach ($category as $key => $str) {
+
+        foreach ($categories as $key => $str) {
             [$categoryid, $contextid] = explode(',', $str);
             $catstr .= ':cat_' . $key . ',';
             $params['cat_' . $key] = $categoryid;
@@ -246,11 +274,19 @@ class sessions {
             }
             $questionsrs->close();
         }
-        return $questions;
+        foreach ($questions as $key => $question) {
+            $icon = new pix_icon('icon', '', 'qtype_' . $question->qtype, [
+                'class' => 'icon',
+                'title' => ''
+            ]);
+            $question->icon = $icon->export_for_pix();
+            $questions[$key] = (array)$question;
+        }
+        return array_values($questions);
     }
 
     /**
-     * @return string
+     * @return array
      * @throws coding_exception
      * @throws dml_exception
      */
@@ -263,7 +299,8 @@ class sessions {
         $currentcategory = [];
         foreach ($categoriesarray as $sistemcategory) {
             foreach ($sistemcategory as $key => $category) {
-                $currentcategory[] = $key;
+                $currentcategory = $key;
+                break;
             }
             break;
         }
