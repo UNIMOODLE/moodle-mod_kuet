@@ -7,11 +7,11 @@
 <input type='hidden' id='show_per_page' />
 <div id="content_questions">
     {{#questions}}
-        <div class="question" data-id="{{id}}" data-type="{{qtype}}" data-contextid="{{contextid}}">
+        <div class="question" >
             <div class="add-question" data-action="add_question" data-questionnid="{{id}}">
                 {{#pix}}i/add, mod_jqshow{{/pix}}
             </div>
-            <input type="checkbox" class="select_question" id="{{id}}" name="question_{{id}}" />
+            <input type="checkbox" class="select_question" data-questionnid="{{id}}" data-type="{{qtype}}" data-contextid="{{contextid}}" name="question_{{id}}" />
             {{#icon}}
                 {{#pix}} {{key}}, {{component}}, {{alttext}} {{/pix}}
             {{/icon}}

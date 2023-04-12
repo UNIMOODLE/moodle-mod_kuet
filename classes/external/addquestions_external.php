@@ -26,15 +26,14 @@
 namespace mod_jqshow\external;
 
 use coding_exception;
-use context_course;
-use dml_exception;
+use core\invalid_persistent_exception;
 use external_api;
 use external_function_parameters;
+use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -42,6 +41,9 @@ require_once($CFG->libdir . '/externallib.php');
 
 class addquestions_external extends external_api {
 
+    /**
+     * @return external_function_parameters
+     */
     public static function add_questions_parameters(): external_function_parameters {
         return new external_function_parameters([
             'questions' => new external_multiple_structure(
@@ -57,16 +59,15 @@ class addquestions_external extends external_api {
     }
 
     /**
-     * @param int $courseid
-     * @param int $sessionid
+     * @param array $questions
      * @return array
-     * @throws dml_exception
+     * @throws invalid_persistent_exception
      * @throws coding_exception
      * @throws invalid_parameter_exception
      */
     public static function add_questions(array $questions): array {
         self::validate_parameters(
-            self::validate_parameters(self::add_questions_parameters()),
+            self::add_questions_parameters(),
             ['questions' => $questions]
         );
 
