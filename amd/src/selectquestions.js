@@ -17,21 +17,26 @@ let ACTION = {
 };
 
 let REGION = {
+    PANEL: '[data-region="questions-panel"]',
     NUMBERSELECT: '#number_select',
     SELECTQUESTION: '.select_question',
     CONTENTQUESTIONS: '#content_questions',
     PAGENAVIGATION: '#page_navigation',
-    CURRENTPAGE: '#current_page'
+    CURRENTPAGE: '#current_page',
+    SESSIONQUESTIONS: '[data-region="session-questions"]',
+    LOADING: '[data-region="overlay-icon-container"]'
 };
 
 let SERVICES = {
-    ADDQUESTIONS: 'mod_jqshow_addquestions'
+    ADDQUESTIONS: 'mod_jqshow_addquestions',
+    SESSIONQUESTIONS: 'mod_jqshow_sessionquestions'
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
+    QUESTIONSSELECTED: 'mod_jqshow/createsession/sessionquestions'
 };
 
 let cmId;
@@ -148,10 +153,25 @@ SelectQuestions.prototype.addQuestions = function(e) {
                             jQuery(REGION.CONTENTQUESTIONS).find(REGION.SELECTQUESTION).prop('checked', false);
                             jQuery(ACTION.SELECTALL).prop('checked', false);
                             jQuery(ACTION.SELECTVISIBLES).prop('checked', false);
-                            // TODO call the service that will reload the list of selected questions on the left hand side.
-                            jQuery(REGION.LOADING).remove();
+                            let request = {
+                                methodname: SERVICES.SESSIONQUESTIONS,
+                                args: {
+                                    jqshowid: jqshowId,
+                                    cmid: cmId,
+                                    sid: sId
+                                }
+                            };
+                            Ajax.call([request])[0].done(function(response) {
+                                Templates.render(TEMPLATES.QUESTIONSSELECTED, response).then(function(html, js) {
+                                    jQuery(REGION.SESSIONQUESTIONS).html(html);
+                                    Templates.runTemplateJS(js);
+                                    jQuery(REGION.LOADING).remove();
+                                }).fail(Notification.exception);
+                            });
                         } else {
+                            // TODO modal error.
                             alert('error');
+                            jQuery(REGION.LOADING).remove();
                         }
                     });
                 });

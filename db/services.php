@@ -27,6 +27,7 @@ use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
+use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\external\sessionspanel_external;
 use mod_jqshow\external\addquestions_external;
 use mod_jqshow\external\deletequestion_external;
@@ -100,6 +101,14 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_jqshow_sessionquestions' => [
+        'classname' => sessionquestions_external::class,
+        'methodname' => 'sessionquestions',
+        'description' => 'Get questions for session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
     'mod_jqshow_copyquestion' => [
         'classname' => copyquestion_external::class,
         'methodname' => 'copyquestion',
@@ -120,6 +129,7 @@ $services = [
             'mod_jqshow_addquestions',
             'mod_jqshow_reorderquestions',
             'mod_jqshow_deletequestion',
+            'mod_jqshow_sessionquestions',
             'mod_jqshow_copyquestion',
         ],
         'restrictedusers' => 0,
