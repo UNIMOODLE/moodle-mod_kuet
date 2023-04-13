@@ -148,6 +148,7 @@ SelectQuestions.prototype.addQuestions = function(e) {
                             jQuery(REGION.CONTENTQUESTIONS).find(REGION.SELECTQUESTION).prop('checked', false);
                             jQuery(ACTION.SELECTALL).prop('checked', false);
                             jQuery(ACTION.SELECTVISIBLES).prop('checked', false);
+                            // TODO call the service that will reload the list of selected questions on the left hand side.
                             jQuery(REGION.LOADING).remove();
                         } else {
                             alert('error');
