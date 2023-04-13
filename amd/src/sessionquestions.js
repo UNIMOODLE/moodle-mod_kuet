@@ -16,7 +16,8 @@ let ACTION = {
 
 let SERVICES = {
     COPYQUESTION: 'mod_jqshow_copyquestion',
-    DELETEQUESTION: 'mod_jqshow_deletequestion'
+    DELETEQUESTION: 'mod_jqshow_deletequestion',
+    SESSIONQUESTIONS: 'mod_jqshow_sessionquestions'
 };
 
 let REGION = {
@@ -66,7 +67,6 @@ SessionQuestions.prototype.copyQuestion = function(e) {
 SessionQuestions.prototype.deleteQuestion = function(e) {
     e.preventDefault();
     e.stopPropagation();
-    let questiontoremove = jQuery(e.currentTarget).parent().parent().parent();
     let questionId = jQuery(e.currentTarget).attr('data-questionnid');
     const stringkeys = [
         {key: 'deletequestion', component: 'mod_jqshow'},
@@ -97,8 +97,21 @@ SessionQuestions.prototype.deleteQuestion = function(e) {
                 };
                 Ajax.call([request])[0].done(function(response) {
                     if (response.deleted) {
-                        // Eliminar esa pregunta de la sesion.
-                        questiontoremove.remove();
+                        let request = {
+                            methodname: SERVICES.SESSIONQUESTIONS,
+                            args: {
+                                jqshowid: jqshowId,
+                                cmid: cmId,
+                                sid: sId
+                            }
+                        };
+                        Ajax.call([request])[0].done(function(response) {
+                            Templates.render(TEMPLATES.QUESTIONSSELECTED, response).then(function(html, js) {
+                                jQuery(REGION.SESSIONQUESTIONS).html(html);
+                                Templates.runTemplateJS(js);
+                                jQuery(REGION.LOADING).remove();
+                            }).fail(Notification.exception);
+                        });
                         jQuery(REGION.LOADING).remove();
                     } else {
                         jQuery(REGION.LOADING).remove();

@@ -95,6 +95,7 @@ class sessionquestions_external extends external_api {
         $data->position = $question->get('qorder');
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
+        $data->isvalid = $question->get('isvalid');
         $data->date = userdate($questiondb->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
         $coursecontext = context_course::instance($COURSE->id);
         $data->managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
@@ -116,6 +117,7 @@ class sessionquestions_external extends external_api {
                         'position' => new external_value(PARAM_INT, 'Question order'),
                         'name' => new external_value(PARAM_RAW, 'Name of question'),
                         'type' => new external_value(PARAM_RAW, 'Question type'),
+                        'isvalid' => new external_value(PARAM_RAW, 'Is question valid or missing config'),
                         'date' => new external_value(PARAM_RAW, 'Question date'),
                         'managesessions' => new external_value(PARAM_BOOL, 'Capability'),
                         'editquestionurl' => new external_value(PARAM_URL, 'Url for edit question')
