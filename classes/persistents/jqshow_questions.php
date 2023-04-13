@@ -92,7 +92,7 @@ class jqshow_questions extends persistent {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function add_not_valid_question(int $questionid, int $sessionid, int $jqshowid, string $qtype): bool {
+    public static function add_not_valid_question(int $questionid, int $sessionid, int $jqshowid, string $qtype) : bool {
         // TODO apply default values to make the question valid without the need for the teacher to edit it.
         global $USER;
         $order = parent::count_records(['sessionid' => $sessionid]) + 1;
@@ -120,5 +120,48 @@ class jqshow_questions extends persistent {
 
     public static function get_questions_of_session(int $sessionid) {
 
+    }
+
+    /**
+     * @param int $questionid
+     * @param int $qorder
+     * @return bool
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    public static function reorder_question(int $questionid, int $qorder) : bool {
+        try {
+            $a = new self($questionid);
+            $a->set('qorder', $qorder);
+            $a->update();
+        } catch (moodle_exception $e) {
+            throw $e;
+        }
+        return true;
+    }
+
+    /**
+     * @param int $sid
+     * @param int $qorder
+     * @return jqshow_questions array
+     * @throws dml_exception
+     */
+    public static function get_session_questions_to_reorder(int $sid, int $qorder) : array {
+        global $DB;
+
+        $sql = 'SELECT sq.*
+              FROM {' . static::TABLE . '} sq
+             WHERE sq.qorder > :qorder AND sq.sessionid = :sid ORDER BY sq.qorder ASC';
+
+        $persistents = [];
+
+        $recordset = $DB->get_recordset_sql($sql, ['qorder' => $qorder, 'sid' => $sid]);
+        foreach ($recordset as $record) {
+            $persistents[] = new static(0, $record);
+        }
+        $recordset->close();
+
+        return $persistents;
     }
 }

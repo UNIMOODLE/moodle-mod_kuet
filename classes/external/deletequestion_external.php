@@ -40,61 +40,62 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class addquestions_external extends external_api {
+class deletequestion_external extends external_api {
 
     /**
      * @return external_function_parameters
      */
-    public static function add_questions_parameters(): external_function_parameters {
-        return new external_function_parameters([
-            'questions' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'questionid' => new external_value(PARAM_INT, 'question id'),
-                        'sessionid' => new external_value(PARAM_INT, 'sessionid'),
-                        'jqshowid' => new external_value(PARAM_INT, 'jqshowid'),
-                        'qtype' => new external_value(PARAM_RAW, 'sessionid')
-                    ]
-                ), 'List of session questions', VALUE_DEFAULT, []
-            ),
-        ]);
+    public static function deletequestion_parameters(): external_function_parameters {
+        return new external_function_parameters(
+            [
+                'sid' => new external_value(PARAM_INT, 'session id'),
+                'qid' => new external_value(PARAM_INT, 'question id')
+            ]
+        );
     }
 
     /**
-     * @param array $questions
+     * @param int $sid
+     * @param int $qid
      * @return array
-     * @throws moodle_exception
-     * @throws coding_exception
      * @throws invalid_parameter_exception
-     * @throws invalid_persistent_exception
      */
-    public static function add_questions(array $questions): array {
+    public static function deletequestion(int $sid, int $qid): array {
         self::validate_parameters(
-            self::add_questions_parameters(),
-            ['questions' => $questions]
+            self::deletequestion_parameters(),
+            ['sid' => $sid, 'qid' => $qid]
         );
 
-        $added = true;
-        foreach ($questions as $question) {
-            $result = jqshow_questions::add_not_valid_question($question['questionid'], $question['sessionid'],
-                $question['jqshowid'], $question['qtype']);
-            if (false === $result) {
-                $added = false;
+        try {
+            $sqp = new jqshow_questions($qid);
+            $deletedorder = $sqp->get('qorder');
+            $deleted = $sqp->delete();
+            // Reorder the rest of the questions.
+            /** @var jqshow_questions[] $questionstoreorder */
+            $questionstoreorder = $sqp::get_session_questions_to_reorder($sid, $deletedorder);
+            if (!empty($questionstoreorder)) {
+                foreach ($questionstoreorder as $question) {
+                    $question->set('qorder', $deletedorder);
+                    $question->update();
+                    $deletedorder++;
+                }
             }
+        } catch (moodle_exception $e) {
+            $deleted = false;
         }
 
         return [
-            'added' => $added
+            'deleted' => $deleted
         ];
     }
 
     /**
      * @return external_single_structure
      */
-    public static function add_questions_returns(): external_single_structure {
+    public static function deletequestion_returns(): external_single_structure {
         return new external_single_structure(
             [
-                'added' => new external_value(PARAM_BOOL, 'false there was an error.'),
+                'deleted' => new external_value(PARAM_BOOL, 'false there was an error.'),
             ]
         );
     }
