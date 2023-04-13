@@ -28,8 +28,7 @@ let REGION = {
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
-    ERROR: 'core/notification_error',
-    QUESTIONSFORSELECT: 'mod_jqshow/createsession/contentquestions'
+    ERROR: 'core/notification_error'
 };
 
 let cmId;

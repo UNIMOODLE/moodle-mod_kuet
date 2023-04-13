@@ -33,6 +33,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\models\sessions;
+use moodle_exception;
 
 
 defined('MOODLE_INTERNAL') || die();
@@ -57,7 +58,7 @@ class selectquestionscategory_external extends external_api {
      * @param string $categorykey
      * @param int $cmid
      * @return array
-     * @throws \moodle_exception
+     * @throws moodle_exception
      * @throws dml_exception
      * @throws invalid_parameter_exception
      */
