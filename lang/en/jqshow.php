@@ -149,4 +149,6 @@ $string['selectone'] = 'Select questions';
 $string['selectone_desc'] = 'Select at least one question to add to the session.';
 $string['addquestions'] = 'Añadir preguntas';
 $string['addquestions_desc'] = 'Are you sure about adding {$a} questions to the session?';
+$string['deletequestion'] = 'Remove a question from the session';
+$string['deletequestion_desc'] = 'Are you sure about removing this question from the session?';
 

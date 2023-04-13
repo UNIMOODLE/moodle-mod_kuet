@@ -152,7 +152,7 @@ class jqshow_questions extends persistent {
 
         $sql = 'SELECT sq.*
               FROM {' . static::TABLE . '} sq
-             WHERE sq.qorder > :qorder AND sq.sessionid = :sid';
+             WHERE sq.qorder > :qorder AND sq.sessionid = :sid ORDER BY sq.qorder ASC';
 
         $persistents = [];
 

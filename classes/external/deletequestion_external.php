@@ -55,12 +55,10 @@ class deletequestion_external extends external_api {
     }
 
     /**
-     * @param array $questions
+     * @param int $sid
+     * @param int $qid
      * @return array
-     * @throws moodle_exception
-     * @throws coding_exception
      * @throws invalid_parameter_exception
-     * @throws invalid_persistent_exception
      */
     public static function deletequestion(int $sid, int $qid): array {
         self::validate_parameters(
@@ -75,9 +73,12 @@ class deletequestion_external extends external_api {
             // Reorder the rest of the questions.
             /** @var jqshow_questions[] $questionstoreorder */
             $questionstoreorder = $sqp::get_session_questions_to_reorder($sid, $deletedorder);
-            foreach ($questionstoreorder as $question) {
-                $question->set('qorder', $deletedorder);
-                $deletedorder++;
+            if (!empty($questionstoreorder)) {
+                foreach ($questionstoreorder as $question) {
+                    $question->set('qorder', $deletedorder);
+                    $question->update();
+                    $deletedorder++;
+                }
             }
         } catch (moodle_exception $e) {
             $deleted = false;
@@ -91,10 +92,10 @@ class deletequestion_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function reorderquestions_returns(): external_single_structure {
+    public static function deletequestion_returns(): external_single_structure {
         return new external_single_structure(
             [
-                'ordered' => new external_value(PARAM_BOOL, 'false there was an error.'),
+                'deleted' => new external_value(PARAM_BOOL, 'false there was an error.'),
             ]
         );
     }
