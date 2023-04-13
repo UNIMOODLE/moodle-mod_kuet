@@ -200,6 +200,10 @@ class sessions {
         $data->questionbank_url = (new moodle_url('/question/edit.php', ['courseid' => $course->id]))->out(false);
         $data->questions = $this->get_questions_for_category($data->currentcategory);
         $data->sessionquestions = []; // TODO get questions added to the session.
+        $data->resumeurl =
+            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $data->cmid, 'sid' => $data->sid, 'page' => 3]))->out(false);
+        $data->formurl =
+            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $data->cmid, 'sid' => $data->sid, 'page' => 1]))->out(false);
         return $data;
     }
 

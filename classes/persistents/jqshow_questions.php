@@ -47,7 +47,7 @@ class jqshow_questions extends persistent {
             'jqshowid' => array(
                 'type' => PARAM_INT,
             ),
-            'order' => array(
+            'qorder' => array(
                 'type' => PARAM_INT,
             ),
             'qtype' => array(
@@ -101,7 +101,7 @@ class jqshow_questions extends persistent {
         $data->questionid = $questionid;
         $data->sessionid = $sessionid;
         $data->jqshowid = $jqshowid;
-        $data->order = $order;
+        $data->qorder = $order;
         $data->qtype = $qtype;
         $data->hastimelimit = 0;
         $data->timelimit = 0;
@@ -109,7 +109,6 @@ class jqshow_questions extends persistent {
         $data->isvalid = $isvalid;
         $data->config = '';
         $data->usermodified = (int)$USER->id;
-        var_dump($data);
         try {
             $a = new self(0, $data);
             $a->create();

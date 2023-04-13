@@ -62,7 +62,7 @@
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Question Id"/>
         <FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Session id"/>
         <FIELD NAME="jqshowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Jqshow Id" />
-        <FIELD NAME="order" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Order of appearance of the question in the session" />
+        <FIELD NAME="qorder" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Order of appearance of the question in the session" />
         <FIELD NAME="qtype" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Type of question"/>
         <FIELD NAME="hastimelimit" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="timelimit" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Time to answer the question in seconds"/>
