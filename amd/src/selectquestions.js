@@ -109,11 +109,11 @@ SelectQuestions.prototype.addQuestions = function(e) {
         questionschekced.each(function callback(index, question) {
             // eslint-disable-next-line no-console
             console.log(jQuery(question).attr('data-questionnid'));
-            let questionid = jQuery(question).attr('data-questionnid');
             let questiondata = {
-                questionid: questionid,
+                questionid: jQuery(question).attr('data-questionnid'),
                 sessionid: sId,
-                jqshowid: jqshowId
+                jqshowid: jqshowId,
+                qtype: jQuery(question).attr('data-type')
             };
             questions.push(questiondata);
         });

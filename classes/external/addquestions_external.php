@@ -34,6 +34,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\persistents\jqshow_questions;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -50,8 +51,9 @@ class addquestions_external extends external_api {
                 new external_single_structure(
                     [
                         'questionid' => new external_value(PARAM_INT, 'question id'),
-                        'sessionid' => new external_value(PARAM_RAW, 'sessionid'),
-                        'jqshowid' => new external_value(PARAM_RAW, 'sessionid'),
+                        'sessionid' => new external_value(PARAM_INT, 'sessionid'),
+                        'jqshowid' => new external_value(PARAM_INT, 'jqshowid'),
+                        'qtype' => new external_value(PARAM_RAW, 'sessionid')
                     ]
                 ), 'List of course meta enrolment instances to create.', VALUE_DEFAULT, []
             ),
@@ -61,9 +63,10 @@ class addquestions_external extends external_api {
     /**
      * @param array $questions
      * @return array
-     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      * @throws coding_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      */
     public static function add_questions(array $questions): array {
         self::validate_parameters(
@@ -74,7 +77,7 @@ class addquestions_external extends external_api {
         $added = true;
         foreach ($questions as $question) {
             $result = jqshow_questions::add_not_valid_question($question['questionid'], $question['sessionid'],
-                $question['jqshowid']);
+                $question['jqshowid'], $question['qtype']);
             if (false === $result) {
                 $added = false;
             }
