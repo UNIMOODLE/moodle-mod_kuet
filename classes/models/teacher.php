@@ -107,7 +107,8 @@ class teacher extends user {
         $ds = new stdClass();
         $ds->name = $session->get('name');
         $ds->sessionid = $session->get('id');
-        $ds->questions_number = random_int(0, 10); // TODO get real questions number of session.
+        $jqshow = new jqshow($cmid);
+        $ds->questions_number = (new questions($jqshow->get_jqshow()->id, $cmid, $session->get('id')))->get_num_questions();
         $ds->managesessions = $managesessions;
         $ds->initsession = $initsession;
         $ds->initsessionurl =

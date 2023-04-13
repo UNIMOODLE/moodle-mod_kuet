@@ -8,7 +8,7 @@
         <div class="d-table-cell">{{#str}}question_actions, mod_jqshow{{/str}}</div>
     </div>
     {{#sessionquestions}}
-        <div class="d-table-row questions-list-data">
+        <div class="d-table-row questions-list-data {{^isvalid}}invalid-question{{/isvalid}}">
             <div class="d-table-cell"></div>
             <div class="d-table-cell">{{position}}</div>
             <div class="d-table-cell">{{name}}</div>

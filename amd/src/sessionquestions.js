@@ -17,7 +17,7 @@ let ACTION = {
 let SERVICES = {
     COPYQUESTION: 'mod_jqshow_copyquestion',
     DELETEQUESTION: 'mod_jqshow_deletequestion',
-    SESSIONQUESTIONS: 'mod_jqshow_sessionquestions',
+    SESSIONQUESTIONS: 'mod_jqshow_sessionquestions'
 };
 
 let REGION = {

@@ -15,48 +15,67 @@ body#page-mod-jqshow-sessions {
                 color: #FFFFFF;
                 padding: 1em;
             }
-            .questions-list-body {
-                width: 100%;
-                .d-table-cell {
-                    padding: 15px;
+            .session-questions {
+                max-height: 700px;
+                overflow-y: auto;
+                &::-webkit-scrollbar {
+                    width: 8px;
                 }
-                .questions-list-thead {
-                    font-weight: bold;
+                &::-webkit-scrollbar-track {
+                    background: #e0e0e0;
+                }
+                &::-webkit-scrollbar-thumb {
+                    background-color: #6a737b;
+                    border-radius: 4px;
+                }
+                .questions-list-body {
+                    width: 100%;
                     .d-table-cell {
-                        color: #2B2B2B !important;
+                        padding: 15px;
                     }
-                }
-                .questions-list-data {
-                    font-weight: normal;
-                    .d-table-cell {
-                        border-top: 1px solid #EDEBF4;
-                        color: #929292 !important;
-                        &.actions {
+                    .questions-list-thead {
+                        font-weight: bold;
+                        .d-table-cell {
+                            color: #2B2B2B !important;
+                        }
+                    }
+                    .questions-list-data {
+                        font-weight: normal;
+                        &.invalid-question {
+                            background-color: #f4d6d2;
+                            color: #691911;
+                            border-color: #f0c5c1;
+                        }
+                        .d-table-cell {
+                            border-top: 1px solid #EDEBF4;
+                            color: #929292 !important;
                             &.actions {
-                                .content-actions {
-                                    display: flex;
-                                    flex-flow: row nowrap;
-                                    justify-content: flex-start;
-                                    align-items: center;
-                                    .question-action {
-                                        background-color: black;
-                                        height: 32px;
-                                        width: 32px;
-                                        border-radius: 8px;
+                                &.actions {
+                                    .content-actions {
                                         display: flex;
-                                        justify-content: center;
+                                        flex-flow: row nowrap;
+                                        justify-content: flex-start;
                                         align-items: center;
-                                        margin: 0 7px;
-                                        .icon {
-                                            margin: 0 !important;
-                                        }
-                                        &:hover {
-                                            cursor: pointer;
+                                        .question-action {
+                                            background-color: black;
+                                            height: 32px;
+                                            width: 32px;
+                                            border-radius: 8px;
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: center;
+                                            margin: 0 7px;
+                                            .icon {
+                                                margin: 0 !important;
+                                            }
+                                            &:hover {
+                                                cursor: pointer;
+                                            }
                                         }
                                     }
-                                }
-                                .mobile-content-actions {
-                                    display: none;
+                                    .mobile-content-actions {
+                                        display: none;
+                                    }
                                 }
                             }
                         }
