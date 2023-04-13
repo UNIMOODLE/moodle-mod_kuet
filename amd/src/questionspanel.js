@@ -10,17 +10,10 @@ import Templates from 'core/templates';
 import Notification from 'core/notification';
 
 let ACTION = {
-    COPYQUESTION: '[data-action="copy_question"]',
-    DELETEQUESTION: '[data-action="delete_question"]',
     SELECTCATEGORY: '#id_movetocategory',
-    ADDQUESTIONS: '[data-action="add_questions"]',
-    ADDQUESTION: '[data-action="add_question"]',
-    SELECTTALL: '#selectall',
 };
 
 let SERVICES = {
-    COPYQUESTION: 'mod_jqshow_copyquestion',
-    DELETEQUESTION: 'mod_jqshow_deletequestion',
     SELECTCATEGORY: 'mod_jqshow_selectquestionscategory',
 };
 
@@ -57,8 +50,6 @@ function QuestionsPanel(selector) {
 QuestionsPanel.prototype.node = null;
 
 QuestionsPanel.prototype.initPanel = function() {
-    this.node.find(ACTION.COPYQUESTION).on('click', this.copyQuestion);
-    this.node.find(ACTION.DELETEQUESTION).on('click', this.deleteQuestion);
     this.node.find(ACTION.SELECTCATEGORY).on('change', this.selectCategory.bind(this));
 };
 
@@ -137,20 +128,6 @@ QuestionsPanel.prototype.selectCategory = function(e) {
             }).fail(Notification.exception);
         });
     }
-};
-
-QuestionsPanel.prototype.copyQuestion = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    let questionId = jQuery(e.currentTarget).attr('data-questionnid');
-    alert('copyQuestion ' + questionId);
-};
-
-QuestionsPanel.prototype.deleteQuestion = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    let questionId = jQuery(e.currentTarget).attr('data-questionnid');
-    alert('deleteQuestion ' + questionId);
 };
 
 export const initQuestionsPanel = (selector) => {
