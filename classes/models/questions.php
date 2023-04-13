@@ -57,4 +57,11 @@ class questions {
         }
         return $this->list;
     }
+
+    /**
+     * @return int
+     */
+    public function get_num_questions(): int {
+        return jqshow_questions::count_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid]);
+    }
 }
