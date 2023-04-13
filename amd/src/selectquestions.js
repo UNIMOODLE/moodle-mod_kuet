@@ -145,6 +145,9 @@ SelectQuestions.prototype.addQuestions = function(e) {
                     };
                     Ajax.call([request])[0].done(function(response) {
                         if (response) {
+                            jQuery(REGION.CONTENTQUESTIONS).find(REGION.SELECTQUESTION).prop('checked', false);
+                            jQuery(ACTION.SELECTALL).prop('checked', false);
+                            jQuery(ACTION.SELECTVISIBLES).prop('checked', false);
                             jQuery(REGION.LOADING).remove();
                         } else {
                             alert('error');
