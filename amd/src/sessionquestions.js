@@ -16,7 +16,8 @@ let ACTION = {
 
 let SERVICES = {
     COPYQUESTION: 'mod_jqshow_copyquestion',
-    DELETEQUESTION: 'mod_jqshow_deletequestion'
+    DELETEQUESTION: 'mod_jqshow_deletequestion',
+    SESSIONQUESTIONS: 'mod_jqshow_sessionquestions',
 };
 
 let REGION = {
@@ -52,13 +53,14 @@ function SessionQuestions(selector) {
 SessionQuestions.prototype.node = null;
 
 SessionQuestions.prototype.initPanel = function() {
-    this.node.find(ACTION.COPYQUESTION).on('click', this.copyQuestion);
-    this.node.find(ACTION.DELETEQUESTION).on('click', this.deleteQuestion);
+    this.node.find(ACTION.COPYQUESTION).on('click', this.copyQuestion.bind(this));
+    this.node.find(ACTION.DELETEQUESTION).on('click', this.deleteQuestion.bind(this));
 };
 
 SessionQuestions.prototype.copyQuestion = function(e) {
     e.preventDefault();
     e.stopPropagation();
+    let that = this;
     let questionId = jQuery(e.currentTarget).attr('data-questionnid');
     const stringkeys = [
         {key: 'copyquestion', component: 'mod_jqshow'},
@@ -88,8 +90,7 @@ SessionQuestions.prototype.copyQuestion = function(e) {
                 };
                 Ajax.call([request])[0].done(function(response) {
                     if (response.copied) {
-                        // TODO: Recargar las pregutnas.
-                        jQuery(REGION.LOADING).remove();
+                        that.reloadSessionQuestionsHtml();
                     } else {
                         jQuery(REGION.LOADING).remove();
                         alert('no se ha podido borrar la pregunta. intentalo de nuevo mas tarde.');
@@ -107,10 +108,27 @@ SessionQuestions.prototype.copyQuestion = function(e) {
     }).fail(Notification.exception);
 };
 
+SessionQuestions.prototype.reloadSessionQuestionsHtml = function() {
+    let request = {
+        methodname: SERVICES.SESSIONQUESTIONS,
+        args: {
+            jqshowid: jqshowId,
+            cmid: cmId,
+            sid: sId
+        }
+    };
+    Ajax.call([request])[0].done(function(response) {
+        Templates.render(TEMPLATES.QUESTIONSSELECTED, response).then(function(html, js) {
+            jQuery(REGION.SESSIONQUESTIONS).html(html);
+            Templates.runTemplateJS(js);
+            jQuery(REGION.LOADING).remove();
+        }).fail(Notification.exception);
+    }).fail(Notification.exception);
+}
 SessionQuestions.prototype.deleteQuestion = function(e) {
     e.preventDefault();
     e.stopPropagation();
-    let questiontoremove = jQuery(e.currentTarget).parent().parent().parent();
+    let that = this;
     let questionId = jQuery(e.currentTarget).attr('data-questionnid');
     const stringkeys = [
         {key: 'deletequestion', component: 'mod_jqshow'},
@@ -141,9 +159,7 @@ SessionQuestions.prototype.deleteQuestion = function(e) {
                 };
                 Ajax.call([request])[0].done(function(response) {
                     if (response.deleted) {
-                        // Eliminar esa pregunta de la sesion.
-                        questiontoremove.remove();
-                        jQuery(REGION.LOADING).remove();
+                        that.reloadSessionQuestionsHtml();
                     } else {
                         jQuery(REGION.LOADING).remove();
                         alert('no se ha podido borrar la pregunta. intentalo de nuevo mas tarde.');
