@@ -164,4 +164,14 @@ class jqshow_questions extends persistent {
 
         return $persistents;
     }
+
+    /**
+     * @param int $sid
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function delete_session_questions(int $sid) : bool {
+        global $DB;
+        return  $DB->delete_records(self::TABLE, ['sessionid' => $sid]);
+    }
 }

@@ -135,7 +135,7 @@ class sessions {
             $url = new moodle_url('/mod/jqshow/view.php', ['id' => $this->cmid]);
             redirect($url);
         } else if ($fromform = $mform->get_data()) {
-            self::save_session($fromform);
+            $sid = self::save_session($fromform);
             $url = new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $this->cmid, 'sid' => $sid,  'page' => 2]);
             redirect($url);
         }
@@ -348,11 +348,11 @@ class sessions {
 
     /**
      * @param object $data
-     * @return bool
+     * @return int
      * @throws coding_exception
      * @throws invalid_persistent_exception
      */
-    public static function save_session(object $data): bool {
+    public static function save_session(object $data): int {
         if (!empty($data->groupings)) {
             $values = array_values($data->groupings);
             $groupings = implode(',', $values);
@@ -368,9 +368,10 @@ class sessions {
         if ($update) {
             $session->update();
         } else {
-            $session->create();
+            $persistent = $session->create();
+            $id = $persistent->get('id');
         }
-        return true;
+        return $id;
     }
 
     /**
