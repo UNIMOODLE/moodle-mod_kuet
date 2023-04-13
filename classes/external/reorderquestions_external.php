@@ -40,22 +40,20 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class addquestions_external extends external_api {
+class reorderquestions_external extends external_api {
 
     /**
      * @return external_function_parameters
      */
-    public static function add_questions_parameters(): external_function_parameters {
+    public static function reorderquestions_parameters(): external_function_parameters {
         return new external_function_parameters([
             'questions' => new external_multiple_structure(
                 new external_single_structure(
                     [
-                        'questionid' => new external_value(PARAM_INT, 'question id'),
-                        'sessionid' => new external_value(PARAM_INT, 'sessionid'),
-                        'jqshowid' => new external_value(PARAM_INT, 'jqshowid'),
-                        'qtype' => new external_value(PARAM_RAW, 'sessionid')
+                        'qid' => new external_value(PARAM_INT, 'question id'),
+                        'qorder' => new external_value(PARAM_INT, 'new question order'),
                     ]
-                ), 'List of session questions', VALUE_DEFAULT, []
+                ), 'List of questions qith the new order.', VALUE_DEFAULT, []
             ),
         ]);
     }
@@ -68,7 +66,7 @@ class addquestions_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      */
-    public static function add_questions(array $questions): array {
+    public static function reorderquestions(array $questions): array {
         self::validate_parameters(
             self::add_questions_parameters(),
             ['questions' => $questions]
@@ -76,8 +74,7 @@ class addquestions_external extends external_api {
 
         $added = true;
         foreach ($questions as $question) {
-            $result = jqshow_questions::add_not_valid_question($question['questionid'], $question['sessionid'],
-                $question['jqshowid'], $question['qtype']);
+            $result = jqshow_questions::reorder_question($question['qid'], $question['qorder']);
             if (false === $result) {
                 $added = false;
             }
@@ -91,10 +88,10 @@ class addquestions_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function add_questions_returns(): external_single_structure {
+    public static function reorderquestions_returns(): external_single_structure {
         return new external_single_structure(
             [
-                'added' => new external_value(PARAM_BOOL, 'false there was an error.'),
+                'ordered' => new external_value(PARAM_BOOL, 'false there was an error.'),
             ]
         );
     }

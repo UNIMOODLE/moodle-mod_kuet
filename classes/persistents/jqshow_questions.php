@@ -117,4 +117,23 @@ class jqshow_questions extends persistent {
         }
         return true;
     }
+
+    /**
+     * @param int $questionid
+     * @param int $qorder
+     * @return bool
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    public static function reorder_question(int $questionid, int $qorder) : bool {
+        try {
+            $a = new self($questionid);
+            $a->set('qorder', $qorder);
+            $a->update();
+        } catch (moodle_exception $e) {
+            throw $e;
+        }
+        return true;
+    }
 }
