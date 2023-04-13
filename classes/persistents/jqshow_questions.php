@@ -118,6 +118,10 @@ class jqshow_questions extends persistent {
         return true;
     }
 
+    public static function get_questions_of_session(int $sessionid) {
+
+    }
+
     /**
      * @param int $questionid
      * @param int $qorder
