@@ -18,6 +18,7 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
+use moodle_exception;
 use stdClass;
 
 /**
@@ -46,7 +47,7 @@ class jqshow_questions extends persistent {
             'jqshowid' => array(
                 'type' => PARAM_INT,
             ),
-            'order' => array(
+            'qorder' => array(
                 'type' => PARAM_INT,
             ),
             'qtype' => array(
@@ -82,30 +83,42 @@ class jqshow_questions extends persistent {
     }
 
     /**
-     * @param $questionid
-     * @param $sessionid
-     * @param $jqshowid
+     * @param int $questionid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param string $qtype
      * @return bool
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
-    public static function add_not_valid_question($questionid, $sessionid, $jqshowid) : bool {
-        $order = parent::count_records(['sessionid' => $sessionid]);
+    public static function add_not_valid_question(int $questionid, int $sessionid, int $jqshowid, string $qtype): bool {
+        // TODO apply default values to make the question valid without the need for the teacher to edit it.
+        global $USER;
+        $order = parent::count_records(['sessionid' => $sessionid]) + 1;
         $isvalid = 0; // Teacher must configured the question for this session.
         $data = new stdClass();
         $data->questionid = $questionid;
         $data->sessionid = $sessionid;
         $data->jqshowid = $jqshowid;
+        $data->qorder = $order;
+        $data->qtype = $qtype;
+        $data->hastimelimit = 0;
+        $data->timelimit = 0;
+        $data->ignorecorrectanswer = 0;
         $data->isvalid = $isvalid;
-        $data->order = $order;
-
+        $data->config = '';
+        $data->usermodified = (int)$USER->id;
         try {
-//        $jq = new jqshow_questions(0, $data);
-//        $jq->create();
             $a = new self(0, $data);
             $a->create();
-        } catch (\moodle_exception $e) {
-            return false;
+        } catch (moodle_exception $e) {
+            throw $e;
         }
-
         return true;
+    }
+
+    public static function get_questions_of_session(int $sessionid) {
+
     }
 }

@@ -27,11 +27,13 @@ namespace mod_jqshow\models;
 
 use coding_exception;
 use context;
+use context_course;
 use context_module;
 use core\invalid_persistent_exception;
 use core_php_time_limit;
 use dml_exception;
 use mod_jqshow\forms\sessionform;
+use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
@@ -58,9 +60,9 @@ class sessions {
     /**
      * sessions constructor.
      * @param stdClass $jqshow
-     * @param $cmid
+     * @param int $cmid
      */
-    public function __construct(stdClass $jqshow, $cmid) {
+    public function __construct(stdClass $jqshow, int $cmid) {
         $this->jqshow = $jqshow;
         $this->cmid = $cmid;
     }
@@ -199,7 +201,43 @@ class sessions {
                      WHERE cm.id = ?", [$this->cmid], MUST_EXIST);
         $data->questionbank_url = (new moodle_url('/question/edit.php', ['courseid' => $course->id]))->out(false);
         $data->questions = $this->get_questions_for_category($data->currentcategory);
-        $data->sessionquestions = []; // TODO get questions added to the session.
+        $allquestions = (new questions($data->jqshowid, $data->cmid, $data->sid))->get_list();
+        $questiondata = [];
+        foreach ($allquestions as $question) {
+            $questiondata[] = $this->export_question($question);
+        }
+        $data->sessionquestions = $questiondata;
+        $data->resumeurl =
+            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $data->cmid, 'sid' => $data->sid, 'page' => 3]))->out(false);
+        $data->formurl =
+            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $data->cmid, 'sid' => $data->sid, 'page' => 1]))->out(false);
+        return $data;
+    }
+
+    /**
+     * @param jqshow_questions $question
+     * @return stdClass
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function export_question(jqshow_questions $question) {
+        global $DB, $COURSE;
+        $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
+        $data = new stdClass();
+        $data->questionnid = $question->get('id');
+        $data->position = $question->get('qorder');
+        $data->name = $questiondb->name;
+        $data->type = $question->get('qtype');
+        $data->date = userdate($questiondb->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
+        $coursecontext = context_course::instance($COURSE->id);
+        $data->managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
+        $data->editquestionurl = (new moodle_url('/mod/jqshow/editquestion.php', [
+            'cmid' => required_param('cmid', PARAM_INT),
+            'sid' => required_param('sid', PARAM_INT),
+            'qid' => $question->get('id')])
+        )->out(false);
+
         return $data;
     }
 
