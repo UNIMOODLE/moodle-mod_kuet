@@ -62,11 +62,15 @@ SelectQuestions.prototype.node = null;
 SelectQuestions.prototype.initPanel = function() {
     this.node.find(ACTION.SELECTALL).on('change', this.selectAll.bind(this));
     this.node.find(ACTION.SELECTVISIBLES).on('change', this.selectVisibles.bind(this));
-    this.node.find(ACTION.ADDQUESTIONS).on('click', this.addQuestions);
+    this.node.find(ACTION.ADDQUESTIONS).on('click', this.addQuestions.bind(this));
     this.node.find(ACTION.ADDQUESTION).on('click', this.addQuestion);
     this.node.find(REGION.SELECTQUESTION).on('change', this.selectQuestion.bind(this));
     this.countChecks();
     this.pagination();
+};
+
+SelectQuestions.prototype.countChecks = function(e) {
+    jQuery(REGION.NUMBERSELECT).html(jQuery(REGION.SELECTQUESTION + ':checked').length);
 };
 
 SelectQuestions.prototype.selectAll = function(e) {
@@ -86,6 +90,7 @@ SelectQuestions.prototype.selectVisibles = function(e) {
 SelectQuestions.prototype.addQuestions = function(e) {
     e.preventDefault();
     e.stopPropagation();
+    let that = this;
     let questionschekced = jQuery(REGION.SELECTQUESTION + ':checked');
     if (questionschekced.length < 1) {
         const stringkeys = [
@@ -165,6 +170,7 @@ SelectQuestions.prototype.addQuestions = function(e) {
                                 Templates.render(TEMPLATES.QUESTIONSSELECTED, response).then(function(html, js) {
                                     jQuery(REGION.SESSIONQUESTIONS).html(html);
                                     Templates.runTemplateJS(js);
+                                    that.countChecks();
                                     jQuery(REGION.LOADING).remove();
                                 }).fail(Notification.exception);
                             });
@@ -200,11 +206,6 @@ SelectQuestions.prototype.selectQuestion = function(e) {
     e.preventDefault();
     e.stopPropagation();
     this.countChecks();
-};
-
-SelectQuestions.prototype.countChecks = function(e) {
-    // TODO change for datastorage, para poder contabilizar todos los marcados tras la paginación.
-    jQuery(REGION.NUMBERSELECT).html(jQuery(REGION.SELECTQUESTION + ':checked').length);
 };
 
 SelectQuestions.prototype.pagination = function() {

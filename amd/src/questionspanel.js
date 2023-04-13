@@ -64,8 +64,7 @@ QuestionsPanel.prototype.selectCategory = function(e) {
         const stringkeys = [
             {key: 'changecategory', component: 'mod_jqshow'},
             {key: 'changecategory_desc', component: 'mod_jqshow'},
-            {key: 'confirm', component: 'mod_jqshow'},
-            {key: 'copysessionerror', component: 'mod_jqshow'},
+            {key: 'confirm', component: 'mod_jqshow'}
         ];
         getStrings(stringkeys).then((langStrings) => {
             const title = langStrings[0];
