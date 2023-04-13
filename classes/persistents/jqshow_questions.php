@@ -136,4 +136,28 @@ class jqshow_questions extends persistent {
         }
         return true;
     }
+
+    /**
+     * @param int $sid
+     * @param int $qorder
+     * @return jqshow_questions array
+     * @throws dml_exception
+     */
+    public static function get_session_questions_to_reorder(int $sid, int $qorder) : array {
+        global $DB;
+
+        $sql = 'SELECT sq.*
+              FROM {' . static::TABLE . '} sq
+             WHERE sq.qorder > :qorder AND sq.sessionid = :sid';
+
+        $persistents = [];
+
+        $recordset = $DB->get_recordset_sql($sql, ['qorder' => $qorder, 'sid' => $sid]);
+        foreach ($recordset as $record) {
+            $persistents[] = new static(0, $record);
+        }
+        $recordset->close();
+
+        return $persistents;
+    }
 }

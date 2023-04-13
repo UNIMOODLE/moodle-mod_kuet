@@ -29,6 +29,7 @@ use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
 use mod_jqshow\external\sessionspanel_external;
 use mod_jqshow\external\addquestions_external;
+use mod_jqshow\external\deletequestion_external;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -90,6 +91,14 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_jqshow_deletequestion' => [
+        'classname' => deletequestion_external::class,
+        'methodname' => 'deletequestion',
+        'description' => 'Removes a question from the session.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
 ];
 $services = [
     'JQShow' => [
@@ -101,6 +110,7 @@ $services = [
             'mod_jqshow_selectquestionscategory',
             'mod_jqshow_addquestions',
             'mod_jqshow_reorderquestions',
+            'mod_jqshow_deletequestion',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

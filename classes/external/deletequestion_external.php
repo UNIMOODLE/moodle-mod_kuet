@@ -40,22 +40,18 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class reorderquestions_external extends external_api {
+class deletequestion_external extends external_api {
 
     /**
      * @return external_function_parameters
      */
-    public static function reorderquestions_parameters(): external_function_parameters {
-        return new external_function_parameters([
-            'questions' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'qid' => new external_value(PARAM_INT, 'question id'),
-                        'qorder' => new external_value(PARAM_INT, 'new question order'),
-                    ]
-                ), 'List of questions qith the new order.', VALUE_DEFAULT, []
-            ),
-        ]);
+    public static function deletequestion_parameters(): external_function_parameters {
+        return new external_function_parameters(
+            [
+                'sid' => new external_value(PARAM_INT, 'session id'),
+                'qid' => new external_value(PARAM_INT, 'question id')
+            ]
+        );
     }
 
     /**
@@ -66,22 +62,29 @@ class reorderquestions_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      */
-    public static function reorderquestions(array $questions): array {
+    public static function deletequestion(int $sid, int $qid): array {
         self::validate_parameters(
-            self::reorderquestions_parameters(),
-            ['questions' => $questions]
+            self::deletequestion_parameters(),
+            ['sid' => $sid, 'qid' => $qid]
         );
 
-        $added = true;
-        foreach ($questions as $question) {
-            $result = jqshow_questions::reorder_question($question['qid'], $question['qorder']);
-            if (false === $result) {
-                $added = false;
+        try {
+            $sqp = new jqshow_questions($qid);
+            $deletedorder = $sqp->get('qorder');
+            $deleted = $sqp->delete();
+            // Reorder the rest of the questions.
+            /** @var jqshow_questions[] $questionstoreorder */
+            $questionstoreorder = $sqp::get_session_questions_to_reorder($sid, $deletedorder);
+            foreach ($questionstoreorder as $question) {
+                $question->set('qorder', $deletedorder);
+                $deletedorder++;
             }
+        } catch (moodle_exception $e) {
+            $deleted = false;
         }
 
         return [
-            'added' => $added
+            'deleted' => $deleted
         ];
     }
 
