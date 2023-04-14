@@ -91,7 +91,7 @@ class reorderquestions_external extends external_api {
     public static function reorderquestions_returns(): external_single_structure {
         return new external_single_structure(
             [
-                'ordered' => new external_value(PARAM_BOOL, 'false there was an error.'),
+                'added' => new external_value(PARAM_BOOL, 'false there was an error.'),
             ]
         );
     }

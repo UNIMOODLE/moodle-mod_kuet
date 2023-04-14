@@ -8,22 +8,26 @@ import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
+import SortableList from 'core/sortable_list';
 
 let ACTION = {
     COPYQUESTION: '[data-action="copy_question"]',
     DELETEQUESTION: '[data-action="delete_question"]',
+    QUESTION: '.question-item',
 };
 
 let SERVICES = {
     COPYQUESTION: 'mod_jqshow_copyquestion',
     DELETEQUESTION: 'mod_jqshow_deletequestion',
-    SESSIONQUESTIONS: 'mod_jqshow_sessionquestions'
+    SESSIONQUESTIONS: 'mod_jqshow_sessionquestions',
+    REORDER: 'mod_jqshow_reorderquestions'
 };
 
 let REGION = {
     PANEL: '[data-region="questions-panel"]',
     LOADING: '[data-region="overlay-icon-container"]',
-    SESSIONQUESTIONS: '[data-region="session-questions"]'
+    SESSIONQUESTIONS: '[data-region="session-questions"]',
+    QUESTIONLIST: '[data-region="question_list"]'
 };
 
 let TEMPLATES = {
@@ -36,6 +40,7 @@ let TEMPLATES = {
 let cmId;
 let sId;
 let jqshowId;
+let sortable;
 
 /**
  * @constructor
@@ -55,6 +60,10 @@ SessionQuestions.prototype.node = null;
 SessionQuestions.prototype.initPanel = function() {
     this.node.find(ACTION.COPYQUESTION).on('click', this.copyQuestion.bind(this));
     this.node.find(ACTION.DELETEQUESTION).on('click', this.deleteQuestion.bind(this));
+    if (!(sortable instanceof SortableList)) {
+        sortable = new SortableList(REGION.QUESTIONLIST);
+    }
+    jQuery(REGION.QUESTIONLIST + ' > ' + ACTION.QUESTION).on(SortableList.EVENTS.DROP, this.reorderQuestions.bind(this));
 };
 
 SessionQuestions.prototype.copyQuestion = function(e) {
@@ -176,6 +185,37 @@ SessionQuestions.prototype.deleteQuestion = function(e) {
         modal.show();
         // eslint-disable-next-line no-restricted-globals
     }).fail(Notification.exception);
+};
+
+SessionQuestions.prototype.reorderQuestions = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let that = this;
+    let allQuestions = jQuery(ACTION.QUESTION);
+    let newOrder = [];
+    let order = 1;
+    allQuestions.each(function callback(index, question) {
+        let questiondata = {
+            qid: jQuery(question).attr('data-questionnid'),
+            qorder: order
+        };
+        newOrder.push(questiondata);
+        order++;
+    });
+    newOrder.pop();
+    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+        let identifier = jQuery(REGION.PANEL);
+        identifier.append(html);
+    });
+    let request = {
+        methodname: SERVICES.REORDER,
+        args: {
+            questions: newOrder
+        }
+    };
+    Ajax.call([request])[0].done(function() {
+        that.reloadSessionQuestionsHtml();
+    });
 };
 
 export const initSessionQuestions = (selector) => {
