@@ -199,11 +199,14 @@ class sessionform extends moodleform {
      */
     public function validation($data, $files) : array {
         $errors = parent::validation($data, $files);
-        // Session name must be unique.
-        $sessions = jqshow_sessions::get_records(['name' => $data['name']]);
-        if (!empty($sessions)) {
-            $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
+        if (0 == $data['sessionid']) {
+            // Session name must be unique.
+            $sessions = jqshow_sessions::get_records(['name' => $data['name']]);
+            if (!empty($sessions)) {
+                $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
+            }
         }
+
         return $errors;
     }
 }
