@@ -136,6 +136,7 @@ $string['question_position'] = 'Position';
 $string['question_name'] = 'Name';
 $string['question_type'] = 'Type';
 $string['question_date'] = 'Dates';
+$string['question_isvalid'] = 'Is valid';
 $string['question_actions'] = 'Actions';
 $string['select_category'] = 'Select a category';
 $string['go_questionbank'] = 'Go to the question bank';
@@ -150,5 +151,6 @@ $string['selectone_desc'] = 'Select at least one question to add to the session.
 $string['addquestions'] = 'Añadir preguntas';
 $string['addquestions_desc'] = 'Are you sure about adding {$a} questions to the session?';
 $string['deletequestion'] = 'Remove a question from the session';
+$string['deletequestion_desc'] = 'Are you sure about removing this question from the session?';
 $string['deletequestion_desc'] = 'Are you sure about removing this question from the session?';
 
