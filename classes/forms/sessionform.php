@@ -27,8 +27,10 @@
 namespace mod_jqshow\forms;
 
 
+use coding_exception;
 use core\persistent;
 use core_reportbuilder\local\aggregation\count;
+use dml_exception;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodleform;
 
@@ -198,13 +200,19 @@ class sessionform extends moodleform {
      * @param array $data
      * @param array $files
      * @return array
+     * @throws dml_exception
+     * @throws coding_exception
      */
     public function validation($data, $files) : array {
+        global $DB;
         $errors = parent::validation($data, $files);
         // Session name must be unique.
         $haserror = false;
-        $sessions = jqshow_sessions::get_records(['name' => $data['name']]);
-        if (count($sessions) == 1) {
+        $comparescaleclause = $DB->sql_compare_text('name')  . ' =  ' . $DB->sql_compare_text(':name');
+        $sessions = $DB->get_records_sql("SELECT * FROM {jqshow_sessions} WHERE $comparescaleclause", ['name' => $data['name']]);
+        /* $sessions = jqshow_sessions::get_records(['name' => $data['name']]);
+        Error code: textconditionsnotallowed: https://tracker.moodle.org/browse/MDL-27629 */
+        if (count($sessions) === 1) {
             /** @var persistent $sesion */
             $sesion = $sessions[0];
             $haserror = $sesion->get('id') != $data['sessionid'];
