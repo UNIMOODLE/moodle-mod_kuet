@@ -70,7 +70,17 @@ SelectQuestions.prototype.initPanel = function() {
 };
 
 SelectQuestions.prototype.countChecks = function(e) {
-    jQuery(REGION.NUMBERSELECT).html(jQuery(REGION.SELECTQUESTION + ':checked').length);
+    let checksNumber = jQuery(REGION.SELECTQUESTION).length;
+    let checkedsNumber = jQuery(REGION.SELECTQUESTION + ':checked').length;
+    jQuery(REGION.NUMBERSELECT).html(checkedsNumber);
+    if (checkedsNumber < checksNumber) {
+        jQuery(ACTION.SELECTALL).prop('checked', false);
+    }
+    let checksNumberVisibles = jQuery('[style="display: flex;"] ' + REGION.SELECTQUESTION).length;
+    let checkedsNumberVisibles = jQuery('[style="display: flex;"] ' + REGION.SELECTQUESTION + ':checked').length;
+    if (checkedsNumberVisibles < checksNumberVisibles) {
+        jQuery(ACTION.SELECTVISIBLES).prop('checked', false);
+    }
 };
 
 SelectQuestions.prototype.selectAll = function(e) {
@@ -117,8 +127,6 @@ SelectQuestions.prototype.addQuestions = function(e) {
     } else {
         let questions = [];
         questionschekced.each(function callback(index, question) {
-            // eslint-disable-next-line no-console
-            console.log(jQuery(question).attr('data-questionnid'));
             let questiondata = {
                 questionid: jQuery(question).attr('data-questionnid'),
                 sessionid: sId,
@@ -190,8 +198,6 @@ SelectQuestions.prototype.addQuestions = function(e) {
             modal.show();
             // eslint-disable-next-line no-restricted-globals
         }).fail(Notification.exception);
-        // eslint-disable-next-line no-console
-        console.log(questions);
     }
 };
 

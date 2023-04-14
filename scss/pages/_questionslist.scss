@@ -43,10 +43,8 @@ body#page-mod-jqshow-sessions {
                         }
                         .questions-list-data {
                             font-weight: normal;
-                            &.invalid-question {
-                                background-color: #f4d6d2;
-                                color: #691911;
-                                border-color: #f0c5c1;
+                            .isvalid {
+                                text-align: center;
                             }
                             .d-table-cell {
                                 border-top: 1px solid #EDEBF4;

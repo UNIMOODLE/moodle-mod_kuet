@@ -4,7 +4,7 @@
         <div class="d-table-cell">{{#str}}question_position, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_type, mod_jqshow{{/str}}</div>
-        <div class="d-table-cell">{{#str}}question_isvalid, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell">{{#str}}question_date, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_actions, mod_jqshow{{/str}}</div>
     </div>
     {{#sessionquestions}}
@@ -13,7 +13,7 @@
             <div class="d-table-cell">{{position}}</div>
             <div class="d-table-cell">{{name}}</div>
             <div class="d-table-cell">{{type}}</div>
-            <div class="d-table-cell">{{^isvalid}}invalid-question{{/isvalid}}</div>
+            <div class="d-table-cell">{{date}}</div>
             <div class="d-table-cell actions">
                 {{#managesessions}}
                     <div class="content-actions">

@@ -124,7 +124,8 @@ SessionQuestions.prototype.reloadSessionQuestionsHtml = function() {
             jQuery(REGION.LOADING).remove();
         }).fail(Notification.exception);
     }).fail(Notification.exception);
-}
+};
+
 SessionQuestions.prototype.deleteQuestion = function(e) {
     e.preventDefault();
     e.stopPropagation();
