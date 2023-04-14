@@ -31,6 +31,7 @@ use coding_exception;
 use core\persistent;
 use core_reportbuilder\local\aggregation\count;
 use dml_exception;
+use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodleform;
 
@@ -124,7 +125,7 @@ class sessionform extends moodleform {
         $mform->addElement('date_time_selector', 'startdate',
             get_string('startdate', 'mod_jqshow'), ['optional' => true]);
 //        $mform->addHelpButton('startdate', 'startdate', 'mod_jqshow');
-        $mform->disabledIf('startdate', 'advancemode', 'eq', 'manual');
+        $mform->disabledIf('startdate', 'advancemode', 'eq', sessions::ADVANCE_MODE_MANUAL);
 
         // Closequiz.
 //        $mform->addElement('html', '<h2>' . get_string('closequiz', 'mod_jqshow') . '</h2>');
@@ -137,7 +138,7 @@ class sessionform extends moodleform {
         $mform->addElement('date_time_selector', 'enddate',
             get_string('enddate', 'mod_jqshow'), ['optional' => true]);
 //        $mform->addHelpButton('startdaenddatete', 'enddate', 'mod_jqshow');
-        $mform->disabledIf('enddate', 'advancemode', 'eq', 'manual');
+        $mform->disabledIf('enddate', 'advancemode', 'eq', sessions::ADVANCE_MODE_MANUAL);
 
         // Automaticstart.
         $mform->addElement('selectyesno', 'automaticstart', get_string('automaticstart', 'mod_jqshow'));

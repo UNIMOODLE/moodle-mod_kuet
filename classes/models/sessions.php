@@ -54,6 +54,20 @@ class sessions {
     /** @var jqshow_sessions[] list */
     protected array $list;
 
+    // Advanced modes.
+    const ADVANCE_MODE_MANUAL = 'manual';
+    const ADVANCE_MODE_PROGRAMMED = 'programmed';
+
+    // Game modes.
+    const GAME_MODE_INACTIVE = 'inactive';
+    const GAME_MODE_RACE = 'race';
+    const GAME_MODE_PODIUM = 'podium';
+
+    // Anonymous response.
+    const ANONYMOUS_ANSWERS = 0;
+    const ANONYMOUS_ALL_ANSWERS = 1;
+    const ANONYMOUS_ANSWERS_NO = 2;
+
     /**
      * sessions constructor.
      * @param stdClass $jqshow
@@ -89,18 +103,18 @@ class sessions {
     public function export_form(): Object {
         $sid = optional_param('sid', 0, PARAM_INT);    // Session id.
         $anonymousanswerchoices = [
-            0 => get_string('anonymiseresponses', 'mod_jqshow'),
-            1 => get_string('anonymiseallresponses', 'mod_jqshow'),
-            2 => get_string('noanonymiseresponses', 'mod_jqshow'),
+            self::ANONYMOUS_ANSWERS => get_string('anonymiseresponses', 'mod_jqshow'),
+            self::ANONYMOUS_ALL_ANSWERS => get_string('anonymiseallresponses', 'mod_jqshow'),
+            self::ANONYMOUS_ANSWERS_NO => get_string('noanonymiseresponses', 'mod_jqshow'),
         ];
         $advancemodechoices = [
-            'manual' => 'Manual',
-            'programmed' => 'Programado'
+            self::ADVANCE_MODE_MANUAL => get_string('manualmode', 'mod_jqshow'),
+            self::ADVANCE_MODE_PROGRAMMED => get_string('programmedmode', 'mod_jqshow')
         ];
         $gamemodechoices = [
-            'inactive' => 'Inactivo',
-            'race' => 'Carrera',
-            'podium' => 'Podio'
+            self::GAME_MODE_INACTIVE => get_string('inactivemode', 'mod_jqshow'),
+            self::GAME_MODE_RACE => get_string('racemode', 'mod_jqshow'),
+            self::GAME_MODE_PODIUM => get_string('podiummode', 'mod_jqshow'),
         ];
         $countdownchoices = [
             0 => 'Opcion1',

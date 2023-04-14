@@ -23,6 +23,7 @@ use invalid_parameter_exception;
 use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\sessionspanel_external;
+use mod_jqshow\models\sessions;
 use moodle_exception;
 use sessions_test;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -44,10 +45,10 @@ class sessionspanel_external_test extends advanced_testcase {
 
     public array $sessionmock = [
         'name' => 'Session Test External',
-        'anonymousanswer' => 0,
+        'anonymousanswer' => sessions::ANONYMOUS_ANSWERS,
         'allowguests' => 0,
-        'advancemode' => 'programmed',
-        'gamemode' => 'inactive',
+        'advancemode' => sessions::ADVANCE_MODE_PROGRAMMED,
+        'gamemode' => sessions::GAME_MODE_INACTIVE,
         'countdown' => 0,
         'randomquestions' => 0,
         'randomanswers' => 0,
