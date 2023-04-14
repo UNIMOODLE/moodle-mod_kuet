@@ -204,18 +204,13 @@ class sessionform extends moodleform {
      * @throws coding_exception
      */
     public function validation($data, $files) : array {
-        global $DB;
         $errors = parent::validation($data, $files);
         // Session name must be unique.
         $haserror = false;
-        $comparescaleclause = $DB->sql_compare_text('name')  . ' =  ' . $DB->sql_compare_text(':name');
-        $sessions = $DB->get_records_sql("SELECT * FROM {jqshow_sessions} WHERE $comparescaleclause", ['name' => $data['name']]);
-        /* $sessions = jqshow_sessions::get_records(['name' => $data['name']]);
-        Error code: textconditionsnotallowed: https://tracker.moodle.org/browse/MDL-27629 */
+        $sessions = jqshow_sessions::get_sessions_by_name($data['name']);
         if (count($sessions) === 1) {
-            /** @var persistent $sesion */
-            $sesion = $sessions[0];
-            $haserror = $sesion->get('id') != $data['sessionid'];
+            $sesion = reset($sessions);
+            $haserror = $sesion->id != $data['sessionid'];
         } else if (count($sessions) > 1) {
             $haserror = true;
         }

@@ -17,6 +17,7 @@ namespace mod_jqshow\persistents;
 use coding_exception;
 use core\persistent;
 use dml_exception;
+use stdClass;
 
 /**
  *
@@ -221,5 +222,17 @@ class jqshow_sessions extends persistent {
      */
     public function equals(self $other): bool {
         return $this->get('id') === $other->get('id');
+    }
+
+    /**
+     * Error code: textconditionsnotallowed: https://tracker.moodle.org/browse/MDL-27629
+     * @param string $name
+     * @return array
+     * @throws dml_exception
+     */
+    public static function get_sessions_by_name(string $name) : array {
+        global $DB;
+        $comparescaleclause = $DB->sql_compare_text('name')  . ' =  ' . $DB->sql_compare_text(':name');
+        return $DB->get_records_sql("SELECT * FROM {jqshow_sessions} WHERE $comparescaleclause", ['name' => $name]);
     }
 }
