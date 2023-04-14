@@ -25,6 +25,7 @@ use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\sessionspanel_external;
 use moodle_exception;
 use sessions_test;
+use mod_jqshow\persistents\jqshow_sessions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -42,7 +43,7 @@ require_once($CFG->dirroot . '/mod/jqshow/tests/sessions_test.php');
 class sessionspanel_external_test extends advanced_testcase {
 
     public array $sessionmock = [
-        'name' => 'Session Test',
+        'name' => 'Session Test External',
         'anonymousanswer' => 0,
         'allowguests' => 0,
         'advancemode' => 'programmed',
@@ -80,7 +81,16 @@ class sessionspanel_external_test extends advanced_testcase {
         $sessiontest = new sessions_test();
         $sessiontest->test_session($jqshow);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $this->assertTrue($sessiontest->sessions::save_session((object)$this->sessionmock));
+        $createdsid = $sessiontest->sessions::save_session((object)$this->sessionmock);
+        $allsessions = jqshow_sessions::get_records(['jqshowid' => $jqshow->id]);
+        $expectedids = 0;
+        foreach ($allsessions as $session) {
+            if ($session->get('name') == $this->sessionmock['name']) {
+                $expectedids = $session->get('id');
+                break;
+            }
+        }
+        $this->assertSame($expectedids, $createdsid);
         $result = sessionspanel_external::sessionspanel($jqshow->cmid);
         $this->assertIsArray($result);
         $this->assertCount(1, $result['activesessions']);

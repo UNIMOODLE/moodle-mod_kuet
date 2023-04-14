@@ -114,10 +114,13 @@ class sessions_test extends advanced_testcase {
      * @throws invalid_persistent_exception
      */
     public function test_session(stdClass $jqshow) {
+        $this->resetAfterTest(true);
         // TODO out of the test suite, move to generator.
         $this->sessionmock['jqshowid'] = $jqshow->id;
         $this->sessions = new sessions($jqshow, $jqshow->cmid);
-        $this->assertTrue($this->sessions::save_session((object)$this->sessionmock));
+        $createdsid = $this->sessions::save_session((object)$this->sessionmock);
+        $expecteds = jqshow_sessions::get_record(['jqshowid' => $jqshow->id]);
+        $this->assertSame($expecteds->get('id'), $createdsid);
         $list = $this->sessions->get_list();
         $this->assertIsArray($list);
         $this->assertCount(1, $list);

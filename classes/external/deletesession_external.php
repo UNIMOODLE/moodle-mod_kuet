@@ -33,6 +33,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 
 defined('MOODLE_INTERNAL') || die();
@@ -65,13 +66,14 @@ class deletesession_external extends external_api {
             ['courseid' => $courseid, 'sessionid' => $sessionid]
         );
         $coursecontext = context_course::instance($courseid);
+        $deleted = false;
         if ($coursecontext !== null && has_capability('mod/jqshow:managesessions', $coursecontext, $USER)) {
-            return [
-                'deleted' => jqshow_sessions::delete_session($sessionid)
-            ];
+            $ds = jqshow_sessions::delete_session($sessionid);
+            $dq = jqshow_questions::delete_session_questions($sessionid);
+            $deleted = $dq && $ds;
         }
         return [
-            'deleted' => false
+            'deleted' => $deleted
         ];
     }
 

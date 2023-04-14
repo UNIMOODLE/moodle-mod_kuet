@@ -154,4 +154,10 @@ $string['deletequestion'] = 'Remove a question from the session';
 $string['deletequestion_desc'] = 'Are you sure about removing this question from the session?';
 $string['copyquestion'] = 'Copy a question from the session';
 $string['copyquestion_desc'] = 'Are you sure about copying this question from the session?';
+$string['questionnameheader'] = 'Question name: "{$a}"';
+$string['questiontime'] = 'Question time';
+$string['notimelimit'] = 'No time limit';
+$string['gradesheader'] = 'Question grading';
+$string['nograding'] = 'Ignore correct answer and grading';
+$string['sessionalreadyexists'] = 'Session name already exists';
 

@@ -104,7 +104,7 @@ class jqshow_questions extends persistent {
         $data->qorder = $order;
         $data->qtype = $qtype;
         $data->hastimelimit = 0;
-        $data->timelimit = 0;
+        $data->timelimit = get_config('mod_jqshow', 'questiontime');
         $data->ignorecorrectanswer = 0;
         $data->isvalid = $isvalid;
         $data->config = '';
@@ -163,5 +163,15 @@ class jqshow_questions extends persistent {
         $recordset->close();
 
         return $persistents;
+    }
+
+    /**
+     * @param int $sid
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function delete_session_questions(int $sid) : bool {
+        global $DB;
+        return  $DB->delete_records(self::TABLE, ['sessionid' => $sid]);
     }
 }

@@ -40,7 +40,7 @@
                                         {{#pix}} i/copy_session, mod_jqshow {{/pix}}
                                     </div>
                                     <div class="session-action {{#issessionactive}}disabled{{/issessionactive}}"
-                                         {{#issessionactive}}data-action="delete_session"{{/issessionactive}}
+                                         {{^issessionactive}}data-action="delete_session"{{/issessionactive}}
                                          data-sessionid="{{sessionid}}">
                                         {{#pix}} i/delete_session, mod_jqshow {{/pix}}
                                     </div>
