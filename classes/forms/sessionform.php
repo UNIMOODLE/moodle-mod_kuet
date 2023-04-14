@@ -27,6 +27,8 @@
 namespace mod_jqshow\forms;
 
 
+use core\persistent;
+use core_reportbuilder\local\aggregation\count;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodleform;
 
@@ -199,12 +201,18 @@ class sessionform extends moodleform {
      */
     public function validation($data, $files) : array {
         $errors = parent::validation($data, $files);
-        if (0 == $data['sessionid']) {
-            // Session name must be unique.
-            $sessions = jqshow_sessions::get_records(['name' => $data['name']]);
-            if (!empty($sessions)) {
-                $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
-            }
+        // Session name must be unique.
+        $haserror = false;
+        $sessions = jqshow_sessions::get_records(['name' => $data['name']]);
+        if (count($sessions) == 1) {
+            /** @var persistent $sesion */
+            $sesion = $sessions[0];
+            $haserror = $sesion->get('id') != $data['sessionid'];
+        } else if (count($sessions) > 1) {
+            $haserror = true;
+        }
+        if ($haserror) {
+            $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
         }
 
         return $errors;
