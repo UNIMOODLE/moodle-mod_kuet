@@ -27,6 +27,7 @@
 namespace mod_jqshow\forms;
 
 
+use mod_jqshow\persistents\jqshow_sessions;
 use moodleform;
 
 class sessionform extends moodleform {
@@ -189,5 +190,20 @@ class sessionform extends moodleform {
         $mform->addElement('html', '</div>');
 
         $this->add_action_buttons(true, get_string('next', 'mod_jqshow'));
+    }
+
+    /**
+     * @param array $data
+     * @param array $files
+     * @return array
+     */
+    public function validation($data, $files) : array {
+        $errors = parent::validation($data, $files);
+        // Session name must be unique.
+        $sessions = jqshow_sessions::get_records(['name' => $data['name']]);
+        if (!empty($sessions)) {
+            $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
+        }
+        return $errors;
     }
 }

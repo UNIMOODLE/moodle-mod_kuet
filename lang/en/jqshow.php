@@ -158,4 +158,5 @@ $string['questiontime'] = 'Question time';
 $string['notimelimit'] = 'No time limit';
 $string['gradesheader'] = 'Question grading';
 $string['nograding'] = 'Ignore correct answer and grading';
+$string['sessionalreadyexists'] = 'Session name already exists';
 
