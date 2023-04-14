@@ -31,6 +31,7 @@ use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\external\sessionspanel_external;
 use mod_jqshow\external\addquestions_external;
 use mod_jqshow\external\deletequestion_external;
+use mod_jqshow\external\copyquestion_external;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -107,7 +108,15 @@ $functions = [
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
-    ]
+    ],
+    'mod_jqshow_copyquestion' => [
+        'classname' => copyquestion_external::class,
+        'methodname' => 'copyquestion',
+        'description' => 'Copies a question in a session.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
 ];
 $services = [
     'JQShow' => [
@@ -120,7 +129,8 @@ $services = [
             'mod_jqshow_addquestions',
             'mod_jqshow_reorderquestions',
             'mod_jqshow_deletequestion',
-            'mod_jqshow_sessionquestions'
+            'mod_jqshow_sessionquestions',
+            'mod_jqshow_copyquestion',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
