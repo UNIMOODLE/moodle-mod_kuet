@@ -63,14 +63,24 @@ SelectQuestions.prototype.initPanel = function() {
     this.node.find(ACTION.SELECTALL).on('change', this.selectAll.bind(this));
     this.node.find(ACTION.SELECTVISIBLES).on('change', this.selectVisibles.bind(this));
     this.node.find(ACTION.ADDQUESTIONS).on('click', this.addQuestions.bind(this));
-    this.node.find(ACTION.ADDQUESTION).on('click', this.addQuestion);
+    this.node.find(ACTION.ADDQUESTION).on('click', this.addQuestion.bind(this));
     this.node.find(REGION.SELECTQUESTION).on('change', this.selectQuestion.bind(this));
     this.countChecks();
     this.pagination();
 };
 
 SelectQuestions.prototype.countChecks = function(e) {
-    jQuery(REGION.NUMBERSELECT).html(jQuery(REGION.SELECTQUESTION + ':checked').length);
+    let checksNumber = jQuery(REGION.SELECTQUESTION).length;
+    let checkedsNumber = jQuery(REGION.SELECTQUESTION + ':checked').length;
+    jQuery(REGION.NUMBERSELECT).html(checkedsNumber);
+    if (checkedsNumber < checksNumber) {
+        jQuery(ACTION.SELECTALL).prop('checked', false);
+    }
+    let checksNumberVisibles = jQuery('[style="display: flex;"] ' + REGION.SELECTQUESTION).length;
+    let checkedsNumberVisibles = jQuery('[style="display: flex;"] ' + REGION.SELECTQUESTION + ':checked').length;
+    if (checkedsNumberVisibles < checksNumberVisibles) {
+        jQuery(ACTION.SELECTVISIBLES).prop('checked', false);
+    }
 };
 
 SelectQuestions.prototype.selectAll = function(e) {
@@ -117,8 +127,6 @@ SelectQuestions.prototype.addQuestions = function(e) {
     } else {
         let questions = [];
         questionschekced.each(function callback(index, question) {
-            // eslint-disable-next-line no-console
-            console.log(jQuery(question).attr('data-questionnid'));
             let questiondata = {
                 questionid: jQuery(question).attr('data-questionnid'),
                 sessionid: sId,
@@ -190,16 +198,58 @@ SelectQuestions.prototype.addQuestions = function(e) {
             modal.show();
             // eslint-disable-next-line no-restricted-globals
         }).fail(Notification.exception);
-        // eslint-disable-next-line no-console
-        console.log(questions);
     }
 };
 
 SelectQuestions.prototype.addQuestion = function(e) {
     e.preventDefault();
     e.stopPropagation();
-    let questionId = jQuery(e.currentTarget).attr('data-questionnid');
-    alert('addQuestion ' + questionId);
+    let that = this;
+    let questions = [];
+    let questiondata = {
+        questionid: jQuery(e.currentTarget).attr('data-questionnid'),
+        sessionid: sId,
+        jqshowid: jqshowId,
+        qtype: jQuery(e.currentTarget).attr('data-type')
+    };
+    questions.push(questiondata);
+    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+        let identifier = jQuery(REGION.PANEL);
+        identifier.append(html);
+    });
+    let request = {
+        methodname: SERVICES.ADDQUESTIONS,
+        args: {
+            questions: questions
+        }
+    };
+    Ajax.call([request])[0].done(function(response) {
+        if (response) {
+            jQuery(REGION.CONTENTQUESTIONS).find(REGION.SELECTQUESTION).prop('checked', false);
+            jQuery(ACTION.SELECTALL).prop('checked', false);
+            jQuery(ACTION.SELECTVISIBLES).prop('checked', false);
+            let request = {
+                methodname: SERVICES.SESSIONQUESTIONS,
+                args: {
+                    jqshowid: jqshowId,
+                    cmid: cmId,
+                    sid: sId
+                }
+            };
+            Ajax.call([request])[0].done(function(response) {
+                Templates.render(TEMPLATES.QUESTIONSSELECTED, response).then(function(html, js) {
+                    jQuery(REGION.SESSIONQUESTIONS).html(html);
+                    Templates.runTemplateJS(js);
+                    that.countChecks();
+                    jQuery(REGION.LOADING).remove();
+                }).fail(Notification.exception);
+            });
+        } else {
+            // TODO modal error.
+            alert('error');
+            jQuery(REGION.LOADING).remove();
+        }
+    });
 };
 
 SelectQuestions.prototype.selectQuestion = function(e) {
@@ -222,7 +272,7 @@ SelectQuestions.prototype.pagination = function() {
         while (numberOfPages > currentLink) {
             navigationHtml +=
                 '<div class="page-item" data-goto="' + currentLink + '">' +
-                    '<span class="page-link">' + (currentLink + 1) + '</span>' +
+                '<span class="page-link">' + (currentLink + 1) + '</span>' +
                 '</div>';
             currentLink++;
         }

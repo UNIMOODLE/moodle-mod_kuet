@@ -45,7 +45,7 @@ class questions {
     }
 
     public function set_list() {
-        $this->list = jqshow_questions::get_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid]);
+        $this->list = jqshow_questions::get_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid], 'qorder', 'ASC');
     }
 
     /**
