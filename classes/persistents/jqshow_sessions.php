@@ -115,16 +115,16 @@ class jqshow_sessions extends persistent {
 
     /**
      * @param int $sessionid
-     * @return bool
+     * @return int
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function duplicate_session(int $sessionid): bool {
+    public static function duplicate_session(int $sessionid): int {
         global $DB;
         $record = $DB->get_record(self::TABLE, ['id' => $sessionid]);
         unset($record->id);
         $record->name .= ' - ' . get_string('copy', 'mod_jqshow');
-        return $DB->insert_record(self::TABLE, $record, false);
+        return $DB->insert_record(self::TABLE, $record, true);
     }
 
     /**

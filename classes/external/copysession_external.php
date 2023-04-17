@@ -33,6 +33,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 
 defined('MOODLE_INTERNAL') || die();
@@ -65,13 +66,13 @@ class copysession_external extends external_api {
             ['courseid' => $courseid, 'sessionid' => $sessionid]
         );
         $coursecontext = context_course::instance($courseid);
+        $copied = false;
         if ($coursecontext !== null && has_capability('mod/jqshow:managesessions', $coursecontext, $USER)) {
-            return [
-                'copied' => jqshow_sessions::duplicate_session($sessionid)
-            ];
+            $newsessionid = jqshow_sessions::duplicate_session($sessionid);
+            $copied = jqshow_questions::copy_session_questions($sessionid, $newsessionid);
         }
         return [
-            'copied' => false
+            'copied' => $copied
         ];
     }
 

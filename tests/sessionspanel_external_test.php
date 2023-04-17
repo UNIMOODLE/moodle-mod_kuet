@@ -63,7 +63,8 @@ class sessionspanel_external_test extends advanced_testcase {
         'groupmode' => 0,
         'status' => 0,
         'sessionid' => 0,
-        'submitbutton' => 0
+        'submitbutton' => 0,
+        'hidegraderanking' => 0,
     ];
 
     /**

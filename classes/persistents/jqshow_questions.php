@@ -174,4 +174,27 @@ class jqshow_questions extends persistent {
         global $DB;
         return  $DB->delete_records(self::TABLE, ['sessionid' => $sid]);
     }
+
+    /**
+     * @param int $oldsid
+     * @param int $newsid
+     * @return bool
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     */
+    public static function copy_session_questions(int $oldsid, int $newsid) : bool {
+        $oldquestions = self::get_records(['sessionid' => $oldsid]);
+        foreach ($oldquestions as $oldquestion) {
+            $data = $oldquestion->to_record();
+            unset($data->id);
+            unset($data->sessionid);
+            unset($data->usermodified);
+            unset($data->timecreated);
+            unset($data->timemodified);
+            $data->sessionid = $newsid;
+            $newquestion = new self(0, $data);
+            $newquestion->create();
+        }
+        return true;
+    }
 }
