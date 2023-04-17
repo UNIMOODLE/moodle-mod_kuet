@@ -32,6 +32,7 @@ use mod_jqshow\external\sessionspanel_external;
 use mod_jqshow\external\addquestions_external;
 use mod_jqshow\external\deletequestion_external;
 use mod_jqshow\external\copyquestion_external;
+use mod_jqshow\external\editsessionsettings_external;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -117,6 +118,14 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_jqshow_editsessionsettings' => [
+        'classname' => editsessionsettings_external::class,
+        'methodname' => 'editsession',
+        'description' => 'Updatea session settings.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
 ];
 $services = [
     'JQShow' => [
@@ -131,6 +140,7 @@ $services = [
             'mod_jqshow_deletequestion',
             'mod_jqshow_sessionquestions',
             'mod_jqshow_copyquestion',
+            'mod_jqshow_editsessionsettings',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

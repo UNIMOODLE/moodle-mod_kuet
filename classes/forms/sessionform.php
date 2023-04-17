@@ -86,6 +86,12 @@ class sessionform extends moodleform {
             get_string('countdown', 'mod_jqshow'), $customdata['countdown']);
         $mform->setType('countdown', PARAM_INT);
 
+        // Hide grade and ranking between questions.
+        $mform->addElement('selectyesno', 'hidegraderanking',
+            get_string('hidegraderankingbtweenquestions', 'mod_jqshow'));
+        $mform->setType('hidegraderanking', PARAM_INT);
+        $mform->disabledIf('hidegraderanking', 'gamemode', 'neq', sessions::GAME_MODE_PODIUM);
+
         // Randomquestions.
         $mform->addElement('selectyesno', 'randomquestions', get_string('randomquestions', 'mod_jqshow'));
         $mform->setType('randomquestions', PARAM_INT);

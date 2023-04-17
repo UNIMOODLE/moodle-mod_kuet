@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_jqshow\persistents;
 use coding_exception;
+use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
 use stdClass;
@@ -97,6 +98,9 @@ class jqshow_sessions extends persistent {
             'status' => array(
                 'type' => PARAM_INT,
             ),
+            'hidegraderanking' => array(
+                'type' => PARAM_INT,
+            ),
             'usermodified' => array(
                 'type' => PARAM_INT,
             ),
@@ -123,6 +127,19 @@ class jqshow_sessions extends persistent {
         return $DB->insert_record(self::TABLE, $record, false);
     }
 
+    /**
+     * @param int $sessionid
+     * @param string $name
+     * @param string $value
+     * @return bool
+     * @throws invalid_persistent_exception
+     * @throws coding_exception
+     */
+    public static function edit_session_setting(int $sessionid, string $name, string $value): bool {
+        $persistent = new self($sessionid);
+        $persistent->set($name, $value);
+        return $persistent->update();
+    }
     /**
      * @param int $sessionid
      * @return bool

@@ -164,5 +164,6 @@ $string['manualmode'] = 'Manual';
 $string['programmedmode'] = 'Programado';
 $string['inactivemode'] = 'Inactive';
 $string['racemode'] = 'Race';
-$string['podiummode'] = 'Inactive';
+$string['podiummode'] = 'Podium';
+$string['hidegraderankingbtweenquestions'] = 'Hide grade and ranking between questions';
 

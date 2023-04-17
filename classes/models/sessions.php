@@ -60,7 +60,7 @@ class sessions {
 
     // Game modes.
     const GAME_MODE_INACTIVE = 'inactive';
-    const GAME_MODE_RACE = 'race';
+//    const GAME_MODE_RACE = 'race'; // Optativa.
     const GAME_MODE_PODIUM = 'podium';
 
     // Anonymous response.
@@ -113,7 +113,6 @@ class sessions {
         ];
         $gamemodechoices = [
             self::GAME_MODE_INACTIVE => get_string('inactivemode', 'mod_jqshow'),
-            self::GAME_MODE_RACE => get_string('racemode', 'mod_jqshow'),
             self::GAME_MODE_PODIUM => get_string('podiummode', 'mod_jqshow'),
         ];
         $countdownchoices = [
