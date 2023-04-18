@@ -38,4 +38,15 @@ class mod_jqshow_generator extends testing_module_generator {
         $record['showdescription'] = 1;
         return parent::create_instance($record, $options);
     }
+
+    /**
+     * @param stdClass $jqshow
+     * @return int
+     * @throws \core\invalid_persistent_exception
+     * @throws coding_exception
+     */
+    public function create_session(stdClass $jqshow, stdClass $sessionmock) {
+        $sessions = new \mod_jqshow\models\sessions($jqshow, $jqshow->cmid);
+        return $sessions::save_session($sessionmock);
+    }
 }
