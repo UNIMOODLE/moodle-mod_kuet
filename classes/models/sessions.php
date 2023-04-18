@@ -370,6 +370,8 @@ class sessions {
             $values = array_values($data->groupings);
             $groupings = implode(',', $values);
             $data->groupings = $groupings;
+        } else {
+            $data->groupings = '';
         }
         $id = $data->sessionid ?? 0;
         $update = false;

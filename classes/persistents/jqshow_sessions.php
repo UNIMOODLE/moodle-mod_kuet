@@ -100,6 +100,11 @@ class jqshow_sessions extends persistent {
             ),
             'hidegraderanking' => array(
                 'type' => PARAM_INT,
+                'default' => 0,
+            ),
+            'groupings' => array(
+                'type' => PARAM_RAW,
+                'null' => NULL_ALLOWED,
             ),
             'usermodified' => array(
                 'type' => PARAM_INT,
