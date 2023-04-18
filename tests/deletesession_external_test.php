@@ -22,7 +22,7 @@ use dml_exception;
 use invalid_parameter_exception;
 use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
-use sessions_test;
+use mod_jqshow\models\sessions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -38,7 +38,29 @@ require_once($CFG->dirroot . '/mod/jqshow/tests/sessions_test.php');
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class deletesession_external_test extends advanced_testcase {
-
+    public array $sessionmock = [
+        'name' => 'Session Test - DELETE',
+        'anonymousanswer' => 0,
+        'allowguests' => 0,
+        'advancemode' => sessions::ADVANCE_MODE_PROGRAMMED,
+        'gamemode' => sessions::GAME_MODE_INACTIVE,
+        'countdown' => 0,
+        'randomquestions' => 0,
+        'randomanswers' => 0,
+        'showfeedback' => 0,
+        'showfinalgrade' => 0,
+        'startdate' => 1680534000,
+        'enddate' => 1683133200,
+        'automaticstart' => 0,
+        'activetimelimit' => 0,
+        'timelimit' => 0,
+        'addtimequestionenable' => 0,
+        'groupmode' => 0,
+        'status' => 1,
+        'sessionid' => 0,
+        'submitbutton' => 0,
+        'hidegraderanking' => 0,
+    ];
     /**
      * @return true
      * @throws invalid_persistent_exception
@@ -52,20 +74,27 @@ class deletesession_external_test extends advanced_testcase {
         $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
-        $sessiontest = new sessions_test();
-        $sessiontest->test_session($jqshow);
-        $list = $sessiontest->sessions->get_list();
+//        $sessiontest = new sessions_test();
+        $sessiontest = new sessions($jqshow, $jqshow->cmid);
+        $this->sessionmock['jqshowid'] = $jqshow->id;
+//        $sessiontest->test_session($jqshow);
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $sessionid = $generator->create_session($jqshow, (object) $this->sessionmock);
+        $list = $sessiontest->get_list();
         $result = deletesession_external::deletesession($course->id, $list[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertTrue($result['deleted']);
-        $sessiontest->sessions->set_list();
-        $newlist = $sessiontest->sessions->get_list();
+        $sessiontest->set_list();
+        $newlist = $sessiontest->get_list();
         $this->assertCount(0, $newlist);
 
         $student = self::getDataGenerator()->create_and_enrol($course);
         self::setUser($student);
-        $sessiontest->test_session($jqshow);
-        $newlist = $sessiontest->sessions->get_list();
+//        $sessiontest->test_session($jqshow);
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $sessionid = $generator->create_session($jqshow, (object) $this->sessionmock);
+
+        $newlist = $sessiontest->get_list();
         $result = deletesession_external::deletesession($course->id, $newlist[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertFalse($result['deleted']);

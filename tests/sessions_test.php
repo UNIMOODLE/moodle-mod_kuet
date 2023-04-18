@@ -33,8 +33,8 @@ class sessions_test extends advanced_testcase {
         'name' => 'Session Test',
         'anonymousanswer' => 0,
         'allowguests' => 0,
-        'advancemode' => 'programmed',
-        'gamemode' => 'inactive',
+        'advancemode' => sessions::ADVANCE_MODE_PROGRAMMED,
+        'gamemode' => sessions::GAME_MODE_INACTIVE,
         'countdown' => 0,
         'randomquestions' => 0,
         'randomanswers' => 0,
@@ -63,8 +63,9 @@ class sessions_test extends advanced_testcase {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
-
-        $this->test_session($jqshow);
+        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
         return true;
     }
 
@@ -79,7 +80,9 @@ class sessions_test extends advanced_testcase {
         $course = self::getDataGenerator()->create_course();
         $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $this->test_session($jqshow);
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
+        $this->sessions = new sessions($jqshow, $jqshow->cmid);
         $list = $this->sessions->get_list();
         $list[0]::delete_session($list[0]->get('id'));
         $this->sessions->set_list();
@@ -99,7 +102,9 @@ class sessions_test extends advanced_testcase {
         $course = self::getDataGenerator()->create_course();
         $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $this->test_session($jqshow);
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator->create_session($jqshow, (object) $this->sessionmock);
+        $this->sessions = new sessions($jqshow, $jqshow->cmid);
         $list = $this->sessions->get_list();
         $list[0]::duplicate_session($list[0]->get('id'));
         $this->sessions->set_list();
@@ -114,12 +119,14 @@ class sessions_test extends advanced_testcase {
      * @throws coding_exception
      * @throws invalid_persistent_exception
      */
-    public function test_session(stdClass $jqshow) {
+    public function test_session() {
         $this->resetAfterTest(true);
-        // TODO out of the test suite, move to generator.
-        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $course = self::getDataGenerator()->create_course();
+        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
         $this->sessions = new sessions($jqshow, $jqshow->cmid);
-        $createdsid = $this->sessions::save_session((object)$this->sessionmock);
+        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
         $expecteds = jqshow_sessions::get_record(['jqshowid' => $jqshow->id]);
         $this->assertSame($expecteds->get('id'), $createdsid);
         $list = $this->sessions->get_list();

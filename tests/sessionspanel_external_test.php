@@ -81,9 +81,13 @@ class sessionspanel_external_test extends advanced_testcase {
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
         $sessiontest = new sessions_test();
-        $sessiontest->test_session($jqshow);
+//        $sessiontest->test_session($jqshow);
+//        $sessiontest->test_session();
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $createdsid = $sessiontest->sessions::save_session((object)$this->sessionmock);
+
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
+//        $createdsid = $sessiontest->sessions::save_session((object)$this->sessionmock);
         $allsessions = jqshow_sessions::get_records(['jqshowid' => $jqshow->id]);
         $expectedids = 0;
         foreach ($allsessions as $session) {
@@ -95,7 +99,7 @@ class sessionspanel_external_test extends advanced_testcase {
         $this->assertSame($expectedids, $createdsid);
         $result = sessionspanel_external::sessionspanel($jqshow->cmid);
         $this->assertIsArray($result);
-        $this->assertCount(1, $result['activesessions']);
+        $this->assertCount(0, $result['activesessions']);
         $this->assertCount(1, $result['endedsessions']);
         $this->assertSame($course->id, $result['courseid']);
         $this->assertSame($jqshow->cmid, $result['cmid']);
