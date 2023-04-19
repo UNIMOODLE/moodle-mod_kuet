@@ -35,6 +35,7 @@ use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\persistents\jqshow_questions;
 use moodle_exception;
+use mod_jqshow\models\questions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -76,6 +77,9 @@ class addquestions_external extends external_api {
 
         $added = true;
         foreach ($questions as $question) {
+            if (!in_array($question['qtype'], questions::TYPES)) {
+                continue;
+            }
             $result = jqshow_questions::add_not_valid_question($question['questionid'], $question['sessionid'],
                 $question['jqshowid'], $question['qtype']);
             if (false === $result) {

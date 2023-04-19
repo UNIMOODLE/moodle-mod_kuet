@@ -96,6 +96,7 @@ class sessionquestions_external extends external_api {
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
         $data->isvalid = $question->get('isvalid');
+        $data->issuitable = in_array($question->get('qtype'), questions::TYPES);
         $data->date = userdate($questiondb->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
         $coursecontext = context_course::instance($COURSE->id);
         $data->managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
@@ -104,7 +105,6 @@ class sessionquestions_external extends external_api {
             'sid' => $question->get('sessionid'),
             'qid' => $question->get('id')])
         )->out(false);
-
         return $data;
     }
 
