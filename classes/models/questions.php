@@ -32,6 +32,8 @@ defined('MOODLE_INTERNAL') || die();
 
 class questions {
 
+    const MULTIPLE_CHOICE = 'multichoice';
+    const TYPES = [self::MULTIPLE_CHOICE];
     protected int $jqshowid;
     protected int $cmid;
     protected int $sid;

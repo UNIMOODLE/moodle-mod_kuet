@@ -302,6 +302,7 @@ class sessions {
                 'title' => ''
             ]);
             $question->icon = $icon->export_for_pix();
+            $question->issuitable = in_array($question->qtype, questions::TYPES);
             $questions[$key] = (array)$question;
         }
         return array_values($questions);

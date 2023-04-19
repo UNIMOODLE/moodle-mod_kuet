@@ -166,4 +166,5 @@ $string['inactivemode'] = 'Inactive';
 $string['racemode'] = 'Race';
 $string['podiummode'] = 'Podium';
 $string['hidegraderankingbtweenquestions'] = 'Hide grade and ranking between questions';
+$string['question_nosuitable'] = 'No suitable with jqshow plugin.';
 
