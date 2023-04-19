@@ -464,7 +464,7 @@ class sessions {
             $data[] = [
                 'iconconfig' => 'timelimit',
                 'configname' => get_string('timelimit', 'mod_jqshow'),
-                'configvalue' => $sessiondata->get('timelimit') // TODO pass to hours, minuts and seconds.
+                'configvalue' => $sessiondata->get('timelimit') . 's' // TODO pass to hours, minuts and seconds.
             ];
         }
 

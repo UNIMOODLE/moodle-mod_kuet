@@ -73,6 +73,8 @@ class jqshow_sessions extends persistent {
             ),
             'enablestartdate' => array(
                 'type' => PARAM_INT,
+                'null' => NULL_ALLOWED,
+                'default' => '0'
             ),
             'startdate' => array(
                 'type' => PARAM_INT,
@@ -80,6 +82,8 @@ class jqshow_sessions extends persistent {
             ),
             'enableenddate' => array(
                 'type' => PARAM_INT,
+                'null' => NULL_ALLOWED,
+                'default' => '0'
             ),
             'enddate' => array(
                 'type' => PARAM_INT,
