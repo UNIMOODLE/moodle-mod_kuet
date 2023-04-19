@@ -135,6 +135,7 @@ $string['questions_bank'] = 'Question Bank';
 $string['question_position'] = 'Position';
 $string['question_name'] = 'Name';
 $string['question_type'] = 'Type';
+$string['question_time'] = 'Time';
 $string['question_date'] = 'Dates';
 $string['question_isvalid'] = 'Is valid';
 $string['question_actions'] = 'Actions';
@@ -167,4 +168,4 @@ $string['racemode'] = 'Race';
 $string['podiummode'] = 'Podium';
 $string['hidegraderankingbtweenquestions'] = 'Hide grade and ranking between questions';
 $string['question_nosuitable'] = 'No suitable with jqshow plugin.';
-
+$string['configuration'] = 'Configuration';

@@ -96,15 +96,17 @@ class sessionquestions_external extends external_api {
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
         $data->isvalid = $question->get('isvalid');
+        $data->time = $question->get('hastimelimit') ? $question->get('timelimit') . 's' : '-';
         $data->issuitable = in_array($question->get('qtype'), questions::TYPES);
         $data->date = userdate($questiondb->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
         $coursecontext = context_course::instance($COURSE->id);
         $data->managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
-        $data->editquestionurl = (new moodle_url('/mod/jqshow/editquestion.php', [
+        $args = [
             'cmid' => $cmid,
             'sid' => $question->get('sessionid'),
-            'qid' => $question->get('id')])
-        )->out(false);
+            'qid' => $question->get('id')];
+        $data->question_preview_url = (new moodle_url('mod/jqshow/questionpreview.php', $args))->out(false);
+        $data->editquestionurl = (new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false);
         return $data;
     }
 
@@ -118,8 +120,10 @@ class sessionquestions_external extends external_api {
                         'name' => new external_value(PARAM_RAW, 'Name of question'),
                         'type' => new external_value(PARAM_RAW, 'Question type'),
                         'isvalid' => new external_value(PARAM_RAW, 'Is question valid or missing config'),
+                        'time' => new external_value(PARAM_RAW, 'Time of question'),
                         'date' => new external_value(PARAM_RAW, 'Question date'),
                         'managesessions' => new external_value(PARAM_BOOL, 'Capability'),
+                        'question_preview_url' => new external_value(PARAM_URL, 'Url for preview'),
                         'editquestionurl' => new external_value(PARAM_URL, 'Url for edit question')
                     ], ''
                 ), ''
