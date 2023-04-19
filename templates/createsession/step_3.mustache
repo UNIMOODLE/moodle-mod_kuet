@@ -26,13 +26,13 @@
                 {{#pix}} i/settings, mod_jqshow {{/pix}}
                 {{#str}}configuration, mod_jqshow{{/str}}
             </h5>
-            <div class="session-questions" data-region="session-questions">
+            <div class="list-resume">
                 <ul class="list-group">
                     {{#config}}
                         <li class="list-group-item">
                             {{#pix}} s/{{iconconfig}}, mod_jqshow{{/pix}}
                             <div class="content-config">
-                                {{ configname }}
+                                <span class="configname">{{ configname }}</span>
                                 {{#configvalue}}
                                     <small>{{.}}</small>
                                 {{/configvalue}}

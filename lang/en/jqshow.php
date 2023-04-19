@@ -135,6 +135,7 @@ $string['questions_bank'] = 'Question Bank';
 $string['question_position'] = 'Position';
 $string['question_name'] = 'Name';
 $string['question_type'] = 'Type';
+$string['question_time'] = 'Time';
 $string['question_date'] = 'Dates';
 $string['question_isvalid'] = 'Is valid';
 $string['question_actions'] = 'Actions';

@@ -1,47 +1,66 @@
 <div class="questions-list-body d-table list-group" data-region="question_list">
     <div class="d-table-row questions-list-thead">
-        <div class="d-table-cell"></div>
+        {{^ispage3}}
+            <div class="d-table-cell"></div>
+        {{/ispage3}}
         <div class="d-table-cell">{{#str}}question_position, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_type, mod_jqshow{{/str}}</div>
+        {{#ispage3}}
+            <div class="d-table-cell">{{#str}}question_time, mod_jqshow{{/str}}</div>
+        {{/ispage3}}
         <div class="d-table-cell">{{#str}}question_date, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_actions, mod_jqshow{{/str}}</div>
     </div>
     {{#sessionquestions}}
         <div class="d-table-row questions-list-data question-item" data-questionnid="{{questionnid}}">
-            <div class="d-table-cell">
-                <span tabindex="0" role="button" aria-haspopup="true" data-drag-type="move">
-                    {{#pix}}i/dragger, mod_jqshow{{/pix}}
-                </span>
-            </div>
+            {{^ispage3}}
+                <div class="d-table-cell">
+                    <span tabindex="0" role="button" aria-haspopup="true" data-drag-type="move">
+                        {{#pix}}i/dragger, mod_jqshow{{/pix}}
+                    </span>
+                </div>
+            {{/ispage3}}
             <div class="d-table-cell">{{position}}</div>
             <div class="d-table-cell">{{name}}</div>
             <div class="d-table-cell">{{type}}</div>
+            {{#ispage3}}
+                <div class="d-table-cell">{{time}}</div>
+            {{/ispage3}}
             <div class="d-table-cell">{{date}}</div>
             <div class="d-table-cell actions">
-                {{#managesessions}}
-                    <div class="content-actions">
-                        <div class="question-action">
-                            <a href="{{editquestionurl}}">
-                                {{#pix}} i/edit_session, mod_jqshow {{/pix}}
-                            </a>
+                <div class="content-actions">
+                    {{^ispage3}}
+                        {{#managesessions}}
+                            <div class="question-action">
+                                <a href="{{editquestionurl}}">
+                                    {{#pix}} i/edit_session, mod_jqshow {{/pix}}
+                                </a>
+                            </div>
+                            <div class="question-action" data-action="copy_question" data-questionnid="{{questionnid}}">
+                                {{#pix}} i/copy_session, mod_jqshow {{/pix}}
+                            </div>
+                            <div class="question-action" data-action="delete_question" data-questionnid="{{questionnid}}">
+                                {{#pix}} i/delete_session, mod_jqshow {{/pix}}
+                            </div>
+                        {{/managesessions}}
+                    {{/ispage3}}
+                    {{#ispage3}}
+                        <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
+                            <a href="{{question_preview_url}}">{{#pix}} i/preview, mod_jqshow {{/pix}}</a>
                         </div>
-                        <div class="question-action" data-action="copy_question" data-questionnid="{{questionnid}}">
-                            {{#pix}} i/copy_session, mod_jqshow {{/pix}}
-                        </div>
-                        <div class="question-action" data-action="delete_question" data-questionnid="{{questionnid}}">
-                            {{#pix}} i/delete_session, mod_jqshow {{/pix}}
-                        </div>
-                    </div>
-                {{/managesessions}}
+                    {{/ispage3}}
+                </div>
             </div>
         </div>
     {{/sessionquestions}}
 </div>
 {{#js}}
-    require(['mod_jqshow/sessionquestions'],
-        function(SessionQuestions) {
-            SessionQuestions.initSessionQuestions('[data-region="questions-panel"]');
-        }
-    );
+    {{^ispage3}}
+        require(['mod_jqshow/sessionquestions'],
+            function(SessionQuestions) {
+                SessionQuestions.initSessionQuestions('[data-region="questions-panel"]');
+            }
+        );
+    {{/ispage3}}
 {{/js}}
