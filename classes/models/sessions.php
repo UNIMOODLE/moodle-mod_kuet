@@ -350,6 +350,10 @@ class sessions {
             $questiondata[] = sessionquestions_external::export_question($question, $this->cmid);
         }
         $data->sessionquestions = $questiondata;
+        $data->addquestions =
+            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $data->cmid, 'sid' => $data->sid, 'page' => 2]))->out(false);
+        $data->sessionsurl =
+            (new moodle_url('/mod/jqshow/view.php', ['id' => $data->cmid]))->out(false);
         return $data;
     }
 
@@ -359,7 +363,7 @@ class sessions {
      * @throws coding_exception
      */
     private function get_session_config(int $sid): array {
-        // TODO finish setting with all icons and session settings to be shown
+        // TODO finish setting with all icons and session settings to be shown.
         $sessiondata = new jqshow_sessions($sid);
         $data = [];
         $data[] = [

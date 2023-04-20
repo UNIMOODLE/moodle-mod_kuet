@@ -97,7 +97,7 @@ class sessionquestions_external extends external_api {
         $data->type = $question->get('qtype');
         $data->isvalid = $question->get('isvalid');
         $data->time = $question->get('hastimelimit') ? $question->get('timelimit') . 's' : '-';
-        $data->issuitable = in_array($question->get('qtype'), questions::TYPES);
+        $data->issuitable = in_array($question->get('qtype'), questions::TYPES, true);
         $data->date = userdate($questiondb->timemodified, get_string('strftimedatetimeshort', 'core_langconfig'));
         $coursecontext = context_course::instance($COURSE->id);
         $data->managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);

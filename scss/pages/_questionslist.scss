@@ -117,6 +117,7 @@ body#page-mod-jqshow-sessions {
                     }
                 }
                 .pagination {
+                    flex-flow: row wrap;
                     .page-item {
                         &:hover {
                             cursor: pointer;
