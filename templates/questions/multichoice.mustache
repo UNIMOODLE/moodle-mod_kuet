@@ -1,0 +1,30 @@
+<div class="container-fluid multichoice">
+    <div class="row">
+        <div class="content-indicators">
+            {{#managesession}}
+                <div class="users">
+                    {{#pix}}q/users, mod_jqshow{{/pix}}
+                    <span class="numusers">{{ numusers }}</span>
+                </div>
+            {{/managesession}}
+            {{#hastime}}
+                <div class="timer">
+                    {{#pix}}q/timer, mod_jqshow{{/pix}}
+                    <span class="seconds">{{ seconds }}</span>
+                </div>
+            {{/hastime}}
+        </div>
+        <div class="col-12 contain-statement">
+            <div class="statement-text">
+                {{{ questiontext }}}
+            </div>
+        </div>
+        <div class="col-12 containt-answers">
+            {{# answer }}
+                <div class="multichoice-answer" data-answerid="{{ answerid }}" data-action="multichoice-answer">
+                    {{{ answertext  }}}
+                </div>
+            {{/ answer }}
+        </div>
+    </div>
+</div>

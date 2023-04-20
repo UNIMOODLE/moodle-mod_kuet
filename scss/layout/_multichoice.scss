@@ -1,0 +1,67 @@
+.container-fluid.multichoice {
+    padding: 40px;
+    .content-indicators {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 1em;
+        .users,
+        .timer {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #212529;
+            .icon {
+                height: 20px;
+                width: auto;
+            }
+            .numusers,
+            .seconds {
+                font-weight: bold;
+                font-size: 25px;
+            }
+        }
+    }
+    .contain-statement {
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        .statement-text {
+            text-align: center;
+            width: 100%;
+            img {
+                margin: 1em;
+                max-width: 90% !important;
+            }
+        }
+    }
+    .containt-answers {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        align-items: center;
+        .multichoice-answer {
+            border-radius: 8px;
+            padding: 45px;
+            color: #fff;
+            margin: 12px;
+            display: flex;
+            flex-direction: column;
+            flex-basis: 43%;
+            background-color: #00B0E8;
+            text-align: center;
+        }
+        @for $i from 1 through length($answercolors) {
+            .multichoice-answer:nth-child(#{length($answercolors)}n+#{$i}) {
+                background: nth($answercolors, $i)
+            }
+        }
+    }
+}
