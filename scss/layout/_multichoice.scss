@@ -47,6 +47,7 @@
         flex-flow: row wrap;
         justify-content: center;
         align-items: center;
+        margin-top: 1em;
         .multichoice-answer {
             border-radius: 8px;
             padding: 45px;
@@ -57,10 +58,35 @@
             flex-basis: 43%;
             background-color: #00B0E8;
             text-align: center;
+            &:hover {
+                cursor: pointer;
+                transform: scale(1.03);
+                transition: transform .5s;
+            }
         }
         @for $i from 1 through length($answercolors) {
             .multichoice-answer:nth-child(#{length($answercolors)}n+#{$i}) {
                 background: nth($answercolors, $i)
+            }
+        }
+    }
+}
+@media (max-width: 991px) {
+    .container-fluid.multichoice {
+        padding: 15px;
+        .content-indicators {
+            .users,
+            .timer {
+                border: none;
+                .icon {
+                    height: 13px;
+                    width: auto;
+                }
+                .numusers,
+                .seconds {
+                    font-weight: bold;
+                    font-size: 18px;
+                }
             }
         }
     }

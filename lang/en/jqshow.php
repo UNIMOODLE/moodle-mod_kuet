@@ -170,3 +170,4 @@ $string['hidegraderankingbtweenquestions'] = 'Hide grade and ranking between que
 $string['question_nosuitable'] = 'No suitable with jqshow plugin.';
 $string['configuration'] = 'Configuration';
 $string['end'] = 'End';
+$string['question'] = 'Question';

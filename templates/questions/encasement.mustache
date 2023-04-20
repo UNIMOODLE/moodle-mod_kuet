@@ -3,15 +3,18 @@
         <div class="col-12 question-container">
             <div class="question-heading bg-primary">
                 <span class="session-index">
-                    {{ question_index_string }}
+                    <span class="question-text">{{#str}}question, mod_jqshow{{/str}}</span> {{ question_index_string }}
                 </span>
                 <div class="content-progress">
                     <div class="progress session-progress">
                         <div class="progress-bar" role="progressbar" style="width: {{sessionprogress}}%" aria-valuenow="{{sessionprogress}}" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                 </div>
-                <div class="question-zoom" data-action="question-zoom">
+                <div class="question-fullscreen" data-action="question-fullscreen">
                     {{#pix}}q/zoomin, mod_jqshow{{/pix}}
+                </div>
+                <div class="question-fullscreen" data-action="question-exit-fullscreen">
+                    {{#pix}}q/zoomout, mod_jqshow{{/pix}}
                 </div>
             </div>
             <div class="question-body">
@@ -22,3 +25,8 @@
         </div>
     </div>
 </div>
+{{#js}}
+    require(['mod_jqshow/fullscreen'], function(FullScreen) {
+        FullScreen.initFullScreen('[data-region="question-content"]');
+    });
+{{/js}}
