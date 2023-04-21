@@ -27,6 +27,7 @@ namespace mod_jqshow\models;
 use context_module;
 use dml_exception;
 use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_sessions;
 use qtype_multichoice;
 use question_answer;
 use question_bank;
@@ -79,6 +80,13 @@ class questions {
      */
     public static function export_multichoice(int $qid, int $cmid, int $sessionid, int $jqshowid, $preview = false) : object {
         $question2 = question_bank::load_question($qid);
+        $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
+        $jqshowquestion = jqshow_questions::get_record(['questionid' => $qid, 'jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
+        $time = $jqshowquestion->get('hastimelimit') ? $jqshowquestion->get('time') : get_config('mod_jqshow', 'questiontime');
+        $order = $jqshowquestion->get('qorder');
+        $a = new stdClass();
+        $a->num = $order;
+        $a->total = $numsessionquestions;
         $type = $question2->get_type_name();
         $answers = [];
         $feedbacks = [];
@@ -97,15 +105,15 @@ class questions {
             ];
         }
         $data = new stdClass();
-        $data->cmid  = $cmid;
+        $data->cmid = $cmid;
         $data->sessionid = $sessionid;
         $data->jqshowid = $jqshowid;
-        $data->question_index_string  = $preview === true ? 'preview' : '3 de 10'; // TODO.
-        $data->sessionprogress  = 33; // TODO.
+        $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+        $data->sessionprogress = round($order * 100 / $numsessionquestions);
         $data->questiontext = $question2->questiontext;
         $data->questiontextformat = $question2->questiontextformat;
-        $data->seconds = get_config('mod_jqshow', 'questiontime');
-        $data->hastime = !($data->seconds === false);
+        $data->hastime = $jqshowquestion->get('hastimelimit');
+        $data->seconds = $time;
         $data->preview = $preview;
         $data->numanswers = count($question2->answers);
         $data->name = $question2->name;

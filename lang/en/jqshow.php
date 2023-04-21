@@ -171,5 +171,6 @@ $string['question_nosuitable'] = 'No suitable with jqshow plugin.';
 $string['configuration'] = 'Configuration';
 $string['end'] = 'End';
 $string['questionidnotsent'] = 'questionidnotsent';
+$string['question_index_string'] = '{$a->num} of {$a->total}';
 $string['question'] = 'Question';
 $string['feedback'] = 'Feedback';
