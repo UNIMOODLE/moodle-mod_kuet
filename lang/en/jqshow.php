@@ -171,3 +171,4 @@ $string['question_nosuitable'] = 'No suitable with jqshow plugin.';
 $string['configuration'] = 'Configuration';
 $string['end'] = 'End';
 $string['question'] = 'Question';
+$string['feedback'] = 'Feedback';

@@ -1,4 +1,5 @@
 .question-content {
+    position: relative;
     .question-container {
         border-radius: 25px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
@@ -41,6 +42,8 @@
         }
         .question-body {
             min-height: 55vh;
+            position: relative;
+            z-index: 1;
         }
     }
 }

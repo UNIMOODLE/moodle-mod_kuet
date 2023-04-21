@@ -65,12 +65,15 @@ class renderer extends plugin_renderer_base {
         $data->question_index_string = '3 de 10';
         $data->sessionprogress = 33;
         $data->multichoice = true;
+        $data->sessionid = 1;
+        $data->cmid = 327;
+        $data->jqshowid = 1;
         $data->questiontext = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sit amet turpis id odio fringilla imperdiet. Nullam diam est, efficitur sed condimentum egestas, consectetur eu libero. <img src="https://atodomotor.blob.core.windows.net/contents/article/8062/enriquecruz.jpg">';
         $data->hastime = true;
         $data->seconds = 20;
         $data->managesession = true;
         $data->numusers = '12/20';
-        $data->answer = [
+        $data->answers = [
             0 => [
                 'answerid' => 1,
                 'answertext' => 'China' // HTML text.
