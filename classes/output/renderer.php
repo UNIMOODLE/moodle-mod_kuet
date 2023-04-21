@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_jqshow\output;
+use coding_exception;
+use mod_jqshow\output\views\question_preview;
 use mod_jqshow\output\views\sessions_view;
 use mod_jqshow\output\views\student_session_view;
 use mod_jqshow\output\views\teacher_session_view;
@@ -75,5 +77,16 @@ class renderer extends plugin_renderer_base {
     public function render_sessions_view(sessions_view $view): string {
         $data = $view->export_for_template($this);
         return $this->render_from_template('mod_jqshow/createsession/createsession', $data);
+    }
+
+    /**
+     * @param question_preview $view
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public function render_question_preview(question_preview $view): string {
+        $data = $view->export_for_template($this);
+        return $this->render_from_template($data->template, $data);
     }
 }

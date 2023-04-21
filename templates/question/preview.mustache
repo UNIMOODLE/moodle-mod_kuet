@@ -1,0 +1,19 @@
+<div>
+
+    <div>questiontext: </div>
+    {{questiontext}}
+    <div>name: </div>
+    {{name}}
+    <div>qtype: </div>
+    {{qtype}}
+    <div>ANSWERS: </div>
+    {{#answers}}
+        <div>id:{{answerid}} </div>
+        <div>ANSWER: {{answertext}}</div>
+        <div>feedback: {{feedback}}</div>
+    {{/answers}}
+    {{#feedbacks}}
+        <div>id:{{answerid}} </div>
+        <div>feedback: {{feedback}}</div>
+    {{/feedbacks}}
+</div>
