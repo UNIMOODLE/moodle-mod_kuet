@@ -24,10 +24,14 @@
  */
 
 namespace mod_jqshow\models;
-
+use context_module;
+use dml_exception;
 use mod_jqshow\persistents\jqshow_questions;
+use qtype_multichoice;
+use question_answer;
+use question_bank;
 use stdClass;
-
+require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 defined('MOODLE_INTERNAL') || die();
 
 class questions {
@@ -65,5 +69,51 @@ class questions {
      */
     public function get_num_questions(): int {
         return jqshow_questions::count_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid]);
+    }
+
+    /**
+     * @param int $qid
+     * @return object
+     * @throws dml_exception
+     */
+    public static function export_multichoice(int $qid, int $cmid, int $sessionid, int $jqshowid, $preview = false) : object {
+
+        $question2 = question_bank::load_question($qid);
+        $type = $question2->get_type_name();
+        $answers = [];
+        $feedbacks = [];
+        /** @var question_answer $response */
+        foreach ($question2->answers as $response) {
+            $answers[] = [
+                'answerid' => $response->id,
+                'answertext' => $response->answer,
+                'fraction' => $response->fraction,
+            ];
+            $feedbacks[] = [
+                'answerid' => $response->id,
+                'feedback' => $response->feedback,
+                'feedbackformat' => $response->feedbackformat,
+            ];
+        }
+        $data = new stdClass();
+        $data->cmid  = $cmid;
+        $data->sessionid = $sessionid;
+        $data->jqshowid = $jqshowid;
+        $data->question_index_string  = '3 de 10'; // TODO.
+        $data->sessionprogress  = 33; // TODO.
+        $data->questiontext = $question2->questiontext;
+        $data->questiontextformat = $question2->questiontextformat;
+        $data->seconds = get_config('mod_jqshow', 'questiontime');
+        $data->hastime = !($data->seconds === false);
+        $data->preview = $preview;
+        $data->numanswers = count($question2->answers);
+        $data->name = $question2->name;
+        $data->qtype = $question2->get_type_name();
+        $data->$type = true;
+        $data->answers = $answers;
+        $data->feedbacks = $feedbacks;
+        $data->template = 'mod_jqshow/questions/encasement';
+
+        return $data;
     }
 }

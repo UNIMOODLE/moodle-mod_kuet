@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_jqshow\output;
+use coding_exception;
+use mod_jqshow\output\views\question_preview;
 use mod_jqshow\output\views\sessions_view;
 use mod_jqshow\output\views\student_session_view;
 use mod_jqshow\output\views\teacher_session_view;
@@ -58,40 +60,8 @@ class renderer extends plugin_renderer_base {
      * @throws moodle_exception
      */
     public function render_teacher_view(teacher_view $view): string {
-        /*$data = $view->export_for_template($this);
-        return $this->render_from_template('mod_jqshow/sessions', $data);*/
-        $data = new \stdClass();
-        $data->questionid = 3;
-        $data->question_index_string = '3 de 10';
-        $data->sessionprogress = 33;
-        $data->multichoice = true;
-        $data->sessionid = 1;
-        $data->cmid = 327;
-        $data->jqshowid = 1;
-        $data->questiontext = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus sit amet turpis id odio fringilla imperdiet. Nullam diam est, efficitur sed condimentum egestas, consectetur eu libero. <img src="https://atodomotor.blob.core.windows.net/contents/article/8062/enriquecruz.jpg">';
-        $data->hastime = true;
-        $data->seconds = 20;
-        $data->managesession = true;
-        $data->numusers = '12/20';
-        $data->answers = [
-            0 => [
-                'answerid' => 1,
-                'answertext' => 'China' // HTML text.
-            ],
-            1 => [
-                'answerid' => 2,
-                'answertext' => 'Alemania'
-            ],
-            2 => [
-                'answerid' => 3,
-                'answertext' => 'Rusia'
-            ],
-            3 => [
-                'answerid' => 4,
-                'answertext' => 'Francia'
-            ]
-        ];
-        return $this->render_from_template('mod_jqshow/questions/encasement', $data);
+        $data = $view->export_for_template($this);
+        return $this->render_from_template('mod_jqshow/sessions', $data);
     }
 
     public function render_teacher_session_view(teacher_session_view $view): string {
@@ -107,5 +77,16 @@ class renderer extends plugin_renderer_base {
     public function render_sessions_view(sessions_view $view): string {
         $data = $view->export_for_template($this);
         return $this->render_from_template('mod_jqshow/createsession/createsession', $data);
+    }
+
+    /**
+     * @param question_preview $view
+     * @return string
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public function render_question_preview(question_preview $view): string {
+        $data = $view->export_for_template($this);
+        return $this->render_from_template($data->template, $data);
     }
 }

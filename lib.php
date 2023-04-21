@@ -249,3 +249,51 @@ function jqshow_extend_settings_navigation(settings_navigation $settings, naviga
     $navref->add_node($node, 'modedit');
 
 }
+function mod_jqshow_question_pluginfile($course, $context, $component, $filearea, $qubaid, $slot,
+                                        $args, $forcedownload, $options) {
+
+    $fs = get_file_storage();
+    $relative = implode('/', $args);
+//    $full = "/$context->id/$component/$filearea/$relative";
+    $full = "/53/$component/$filearea/$relative";
+
+    print_r($full);die();
+    if (!$file = $fs->get_file_by_hash(sha1($full)) or $file->is_directory()) {
+        send_file_not_found();
+    }
+//    send_stored_file($file, 0, 0, $forcedownload, $options);
+    print_r(__FUNCTION__);
+    print_r('-------------------------------------------------------------------------------');
+    print_r('context id');
+    print_r($context->id);
+    print_r('-------------------------------------------------------------------------------');
+    print_r('component');
+    print_r($component);
+
+    print_r('-------------------------------------------------------------------------------');
+    print_r('filearea');
+    print_r($filearea);
+
+    print_r('-------------------------------------------------------------------------------');
+    print_r('qubaid');
+    print_r($qubaid);
+
+    print_r('-------------------------------------------------------------------------------');
+    print_r('slot');
+    print_r($slot);
+
+    print_r('-------------------------------------------------------------------------------');
+    print_r('args');
+    print_r($args);
+
+    print_r('-------------------------------------------------------------------------------');
+    print_r('forcedownload');
+    print_r($forcedownload);
+
+    print_r('-------------------------------------------------------------------------------');
+    print_r('options');
+    print_r($options);
+    print_r(__FUNCTION__);
+
+    die();
+}
