@@ -64,8 +64,6 @@ MultiChoice.prototype.reply = function(e) {
         e.stopPropagation();
         answerId = jQuery(e.currentTarget).attr('data-answerid');
     }
-    // eslint-disable-next-line no-console
-    console.log(answerId);
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         that.node.append(html);
         dispatchEvent(that.endTimer);
@@ -88,7 +86,14 @@ MultiChoice.prototype.reply = function(e) {
                 jQuery(REGION.STATEMENTTEXT).css({'z-index': 3, 'padding': '15px'});
                 jQuery(REGION.TIMER).css('z-index', 3);
                 if (e !== undefined) {
-                    jQuery(e.currentTarget).css('z-index', 3);
+                    jQuery(e.currentTarget).css({'z-index': 3, 'pointer-events': 'none'});
+                }
+                if (response.correct_answers) {
+                    jQuery('.feedback-icon').css('display', 'flex');
+                    let correctAnswers = response.correct_answers.split(',');
+                    correctAnswers.forEach((answ) => {
+                        jQuery('[data-answerid="' + answ + '"] .incorrect').css('display', 'none');
+                    });
                 }
                 setTimeout(function() {
                     let contentHeight = jQuery(REGION.MULTICHOICE).outerHeight();

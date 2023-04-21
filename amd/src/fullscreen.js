@@ -56,7 +56,7 @@ FullScreen.prototype.fullScreen = function(e) {
 };
 
 FullScreen.prototype.exitFullScreen = function() {
-    jQuery(ACTION.EXPAND).css('display', 'flex');
+    jQuery(ACTION.EXPAND).css('display', 'block');
     jQuery(ACTION.COMPRESS).css('display', 'none');
     jQuery(REGION.BODY).removeClass('fullscreen');
     if (document.fullscreen) {

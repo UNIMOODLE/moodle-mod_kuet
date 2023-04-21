@@ -63,10 +63,31 @@
             background-color: #00B0E8;
             text-align: center;
             z-index: 1;
+            position: relative;
             &:hover {
                 cursor: pointer;
                 transform: scale(1.03);
                 transition: transform .5s;
+            }
+            .feedback-icons {
+                .feedback-icon {
+                    display: none;
+                    background-color: white;
+                    border-radius: 15px;
+                    height: 40px;
+                    width: 40px;
+                    flex-flow: row nowrap;
+                    justify-content: center;
+                    align-items: center;
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    .icon {
+                        margin: 0;
+                        height: 15px;
+                        width: auto;
+                    }
+                }
             }
         }
         @for $i from 1 through length($answercolors) {

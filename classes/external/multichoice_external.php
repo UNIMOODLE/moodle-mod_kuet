@@ -68,6 +68,7 @@ class multichoice_external extends external_api {
             'reply_status' => true,
             'statment_feedback' => 'Integer quis elit commodo, mollis lacus eget, aliquet est. Integer posuere, est in cursus pulvinar, nulla lorem aliquet odio, ut accumsan nulla justo sed nisi. Phasellus pellentesque, ante a congue consectetur, magna lorem sagittis risus, sed volutpat velit nisl vel justo. <img src="https://i.insider.com/5f6ce9a1c4049200115cb797?width=1136&format=jpeg">',
             'answer_feedback' => 'Suspendisse eu neque et felis imperdiet porttitor. Mauris luctus malesuada est quis consectetur. Nam sed aliquam eros. Nunc eu lacinia mauris. Vestibulum pulvinar est vitae dui sodales laoreet in nec arcu. Mauris efficitur, nisl porttitor commodo rhoncus, leo ante egestas ipsum, eget venenatis odio sem non neque. Vestibulum finibus molestie risus, vitae rhoncus nunc porttitor ut. Donec lacinia justo ac nulla venenatis cursus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut vestibulum ante a diam placerat tincidunt. Proin pellentesque nec odio quis molestie. Suspendisse potenti. Sed sagittis, erat egestas malesuada convallis, magna ex tincidunt nisi, sit amet facilisis diam dolor quis mi. Fusce scelerisque ligula in gravida malesuada. <img src="https://www.hyundaimotorgroup.com/image/upload/asset_library/MDA00000000000005779/259cfef1c1cb43d4897296e7b747993c.jpg">',
+            'correct_answers' => '1,4'
         ];
     }
 
@@ -77,6 +78,7 @@ class multichoice_external extends external_api {
                 'reply_status' => new external_value(PARAM_BOOL, 'Status of reply'),
                 'statment_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
+                'correct_answers' => new external_value(PARAM_RAW, 'correct ansewrs ids separated by commas', VALUE_OPTIONAL)
             ]
         );
     }

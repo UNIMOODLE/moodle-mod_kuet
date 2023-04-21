@@ -22,6 +22,10 @@
         <div class="col-12 containt-answers">
             {{# answers }}
                 <div class="multichoice-answer" data-answerid="{{ answerid }}" data-action="multichoice-answer">
+                    <div class="feedback-icons">
+                        <span class="feedback-icon correct">{{#pix}}q/correct, mod_jqshow{{/pix}}</span>
+                        <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_jqshow{{/pix}}</span>
+                    </div>
                     {{{ answertext  }}}
                 </div>
             {{/ answers }}
