@@ -78,10 +78,12 @@ class questions {
      * @return object
      * @throws dml_exception
      */
-    public static function export_multichoice(int $qid, int $cmid, int $sessionid, int $jqshowid, $preview = false) : object {
-        $question2 = question_bank::load_question($qid);
+    public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, $preview = false) : object {
+
+        $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
+        $question2 = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
-        $jqshowquestion = jqshow_questions::get_record(['questionid' => $qid, 'jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
+
         $time = $jqshowquestion->get('hastimelimit') ? $jqshowquestion->get('time') : get_config('mod_jqshow', 'questiontime');
         $order = $jqshowquestion->get('qorder');
         $a = new stdClass();

@@ -45,8 +45,9 @@ class question_preview implements renderable, templatable {
      * @param $sessionid
      * @param $jqshowid
      */
-    public function __construct(int $qid, $cmid, $sessionid, $jqshowid) {
+    public function __construct(int $qid, int $jqid, int $cmid, int $sessionid, int $jqshowid) {
         $this->qid = $qid;
+        $this->jqid = $jqid;
         $this->cmid = $cmid;
         $this->sessionid = $sessionid;
         $this->jqshowid = $jqshowid;
@@ -63,7 +64,7 @@ class question_preview implements renderable, templatable {
         $question = $DB->get_record('question', ['id' => $this->qid], 'qtype', MUST_EXIST);
         switch ($question->qtype){
             case 'multichoice':
-                $data = questions::export_multichoice($this->qid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                $data = questions::export_multichoice($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow');
