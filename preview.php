@@ -30,30 +30,22 @@ use mod_jqshow\output\views\question_preview;
 global $DB, $PAGE;
 
 $id = required_param('id', PARAM_INT);    // Course Module ID.
-$qid = optional_param('qid', 0, PARAM_INT);    // Question ID. mdl_question.
-$jqid = optional_param('jqid', 0, PARAM_INT);    // Id from mdl_jqshow_questions.
-$cid = required_param('cid', PARAM_INT);    // Question ID. mdl_question.
+$jqid = required_param('jqid', PARAM_INT);    // Id from mdl_jqshow_questions.
 $sid = required_param('sid', PARAM_INT);    // Jqshow session ID. mdl_jqshow_sessions.
-$jqshowid = required_param('jqsid', PARAM_INT);    // Jqshow session ID. mdl_jqshow_sessions.
+$jqshowid = required_param('jqsid', PARAM_INT);    // Jqshow session ID. mdl_jqshow.
+$cid = required_param('cid', PARAM_INT);    // Course ID. mdl_course.
 
-if ($jqid != 0) {
-    $jqquestion = $DB->get_record('jqshow_questions', ['id' => $qid], '*', MUST_EXIST);
-    $question = $DB->get_record('question', ['id' => $jqquestion->quesionid], '*', MUST_EXIST);
-} else if ($qid != 0) {
-    $question = $DB->get_record('question', ['id' => $qid], '*', MUST_EXIST);
-} else {
-    throw new moodle_exception('questionidnotsent', 'mod_jqshow');
-}
-
+$jqquestion = $DB->get_record('jqshow_questions', ['id' => $jqid], '*', MUST_EXIST);
+$question = $DB->get_record('question', ['id' => $jqquestion->questionid], '*', MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cid], '*', MUST_EXIST);
 $coursecontext = context_course::instance($course->id);
 
 if (!in_array($question->qtype, questions::TYPES)) {
     echo 'pregunta no compatible';
 }
-$view = new question_preview($qid, $id, $sid, $jqshowid);
+$view = new question_preview($jqquestion->questionid, $id, $sid, $jqshowid);
 $PAGE->set_context($coursecontext);
-$PAGE->set_url('/mod/jqshow/preview.php', ['id' => $id, 'qid' => $qid, 'cid' => $cid]);
+$PAGE->set_url('/mod/jqshow/preview.php', ['id' => $id, 'jqid' => $jqid, 'sid' => $sid, 'cid' => $cid, 'jqshowid' => $jqshowid]);
 $PAGE->set_heading($question->name);
 $PAGE->set_title($question->name);
 $output = $PAGE->get_renderer('mod_jqshow');
