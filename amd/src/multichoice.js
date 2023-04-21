@@ -58,11 +58,13 @@ MultiChoice.prototype.initMultichoice = function() {
 
 MultiChoice.prototype.reply = function(e) {
     let answerId = 0;
+    let questionId = 0;
     let that = this;
     if (e !== undefined) {
         e.preventDefault();
         e.stopPropagation();
         answerId = jQuery(e.currentTarget).attr('data-answerid');
+        questionId = jQuery(e.currentTarget).attr('data-questionid');
     }
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         that.node.append(html);
@@ -74,14 +76,17 @@ MultiChoice.prototype.reply = function(e) {
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,
+                questionid: questionId,
                 preview: true
             }
         };
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
-                jQuery(REGION.FEEDBACK).html(response.statment_feedback);
-                jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
-                jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+                if (response.hasfeedbacks) {
+                    jQuery(REGION.FEEDBACK).html(response.statment_feedback);
+                    jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
+                    jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+                }
                 jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
                 jQuery(REGION.STATEMENTTEXT).css({'z-index': 3, 'padding': '15px'});
                 jQuery(REGION.TIMER).css('z-index', 3);

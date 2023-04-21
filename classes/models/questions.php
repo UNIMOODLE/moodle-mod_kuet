@@ -32,6 +32,7 @@ use question_answer;
 use question_bank;
 use stdClass;
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
+require_once($CFG->dirroot. '/question/engine/bank.php');
 defined('MOODLE_INTERNAL') || die();
 
 class questions {
@@ -77,7 +78,6 @@ class questions {
      * @throws dml_exception
      */
     public static function export_multichoice(int $qid, int $cmid, int $sessionid, int $jqshowid, $preview = false) : object {
-
         $question2 = question_bank::load_question($qid);
         $type = $question2->get_type_name();
         $answers = [];
@@ -86,6 +86,7 @@ class questions {
         foreach ($question2->answers as $response) {
             $answers[] = [
                 'answerid' => $response->id,
+                'questionid' => $qid,
                 'answertext' => $response->answer,
                 'fraction' => $response->fraction,
             ];
@@ -99,7 +100,7 @@ class questions {
         $data->cmid  = $cmid;
         $data->sessionid = $sessionid;
         $data->jqshowid = $jqshowid;
-        $data->question_index_string  = '3 de 10'; // TODO.
+        $data->question_index_string  = $preview === true ? 'preview' : '3 de 10'; // TODO.
         $data->sessionprogress  = 33; // TODO.
         $data->questiontext = $question2->questiontext;
         $data->questiontextformat = $question2->questiontextformat;
@@ -108,7 +109,7 @@ class questions {
         $data->preview = $preview;
         $data->numanswers = count($question2->answers);
         $data->name = $question2->name;
-        $data->qtype = $question2->get_type_name();
+        $data->qtype = $type;
         $data->$type = true;
         $data->answers = $answers;
         $data->feedbacks = $feedbacks;

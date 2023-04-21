@@ -30,10 +30,12 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use question_bank;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
+require_once($CFG->dirroot. '/question/engine/bank.php');
 
 class multichoice_external extends external_api {
 
@@ -44,6 +46,7 @@ class multichoice_external extends external_api {
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
+                'questionid' => new external_value(PARAM_INT, 'id of question'),
                 'preview' => new external_value(PARAM_BOOL, 'preview or not for grade'),
             ]
         );
@@ -54,21 +57,47 @@ class multichoice_external extends external_api {
      * @param int $sessionid
      * @param int $jqshowid
      * @param int $cmid
+     * @param int $questionid
      * @param bool $preview
      * @return array
      * @throws invalid_parameter_exception
      */
-    public static function multichoice(int $answerid, int $sessionid, int $jqshowid, int $cmid, bool $preview): array {
-        global $USER;
+    public static function multichoice(
+        int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, bool $preview
+    ): array {
+        // TODO review and obtain images of the different feedbacks. Review correctfeedback and incorrectfeedback.
+        global $DB, $USER;
         self::validate_parameters(
             self::multichoice_parameters(),
-            ['answerid' => $answerid, 'sessionid' => $sessionid, 'jqshowid' => $jqshowid, 'cmid' => $cmid, 'preview' => $preview]
+            [
+                'answerid' => $answerid,
+                'sessionid' => $sessionid,
+                'jqshowid' => $jqshowid,
+                'cmid' => $cmid,
+                'questionid' => $questionid,
+                'preview' => $preview]
         );
+
+        $question = question_bank::load_question($questionid);
+        $correctanswers = '';
+        $answerfeedback = '';
+        foreach ($question->answers as $key => $answer) {
+            if ($answer->fraction !== '0.0000000') {
+                $correctanswers .= $answer->id . ',';
+            }
+            if ($key === $answerid && $answerfeedback === '') {
+                $answerfeedback = $answer->feedback;
+            }
+        }
+        $correctanswers = trim($correctanswers, ',');
+        $statmentfeedback = $question->generalfeedback;
+
         return [
             'reply_status' => true,
-            'statment_feedback' => 'Integer quis elit commodo, mollis lacus eget, aliquet est. Integer posuere, est in cursus pulvinar, nulla lorem aliquet odio, ut accumsan nulla justo sed nisi. Phasellus pellentesque, ante a congue consectetur, magna lorem sagittis risus, sed volutpat velit nisl vel justo. <img src="https://i.insider.com/5f6ce9a1c4049200115cb797?width=1136&format=jpeg">',
-            'answer_feedback' => 'Suspendisse eu neque et felis imperdiet porttitor. Mauris luctus malesuada est quis consectetur. Nam sed aliquam eros. Nunc eu lacinia mauris. Vestibulum pulvinar est vitae dui sodales laoreet in nec arcu. Mauris efficitur, nisl porttitor commodo rhoncus, leo ante egestas ipsum, eget venenatis odio sem non neque. Vestibulum finibus molestie risus, vitae rhoncus nunc porttitor ut. Donec lacinia justo ac nulla venenatis cursus. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Ut vestibulum ante a diam placerat tincidunt. Proin pellentesque nec odio quis molestie. Suspendisse potenti. Sed sagittis, erat egestas malesuada convallis, magna ex tincidunt nisi, sit amet facilisis diam dolor quis mi. Fusce scelerisque ligula in gravida malesuada. <img src="https://www.hyundaimotorgroup.com/image/upload/asset_library/MDA00000000000005779/259cfef1c1cb43d4897296e7b747993c.jpg">',
-            'correct_answers' => '1,4'
+            'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
+            'statment_feedback' => $statmentfeedback,
+            'answer_feedback' => $answerfeedback,
+            'correct_answers' => $correctanswers
         ];
     }
 
@@ -76,6 +105,7 @@ class multichoice_external extends external_api {
         return new external_single_structure(
             [
                 'reply_status' => new external_value(PARAM_BOOL, 'Status of reply'),
+                'hasfeedbacks' => new external_value(PARAM_BOOL, 'Has feedback'),
                 'statment_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
                 'correct_answers' => new external_value(PARAM_RAW, 'correct ansewrs ids separated by commas', VALUE_OPTIONAL)
