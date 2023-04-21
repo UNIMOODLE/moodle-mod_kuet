@@ -71,9 +71,19 @@ class jqshow_sessions extends persistent {
             'showfinalgrade' => array(
                 'type' => PARAM_INT,
             ),
+            'enablestartdate' => array(
+                'type' => PARAM_INT,
+                'null' => NULL_ALLOWED,
+                'default' => '0'
+            ),
             'startdate' => array(
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
+            ),
+            'enableenddate' => array(
+                'type' => PARAM_INT,
+                'null' => NULL_ALLOWED,
+                'default' => '0'
             ),
             'enddate' => array(
                 'type' => PARAM_INT,
@@ -114,7 +124,7 @@ class jqshow_sessions extends persistent {
             ),
             'timemodified' => array(
                 'type' => PARAM_INT,
-            ),
+            )
         );
     }
 

@@ -333,11 +333,151 @@ class sessions {
 
     /**
      * @return Object
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function export_session_resume(): Object {
         $data = new stdClass();
         $data->ispage3 = true;
-        $data->name = 'export_session_resume';
+        $data->sid = required_param('sid', PARAM_INT);
+        $data->cmid = required_param('cmid', PARAM_INT);
+        $data->jqshowid = $this->jqshow->id;
+        $data->config = $this->get_session_config($data->sid);
+        $allquestions = (new questions($data->jqshowid, $data->cmid, $data->sid))->get_list();
+        $questiondata = [];
+        foreach ($allquestions as $question) {
+            $questiondata[] = sessionquestions_external::export_question($question, $this->cmid);
+        }
+        $data->sessionquestions = $questiondata;
+        $data->addquestions =
+            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $data->cmid, 'sid' => $data->sid, 'page' => 2]))->out(false);
+        $data->sessionsurl =
+            (new moodle_url('/mod/jqshow/view.php', ['id' => $data->cmid]))->out(false);
+        return $data;
+    }
+
+    /**
+     * @param int $sid
+     * @return array
+     * @throws coding_exception
+     */
+    private function get_session_config(int $sid): array {
+        // TODO finish setting with all icons and session settings to be shown.
+        $sessiondata = new jqshow_sessions($sid);
+        $data = [];
+        $data[] = [
+            'iconconfig' => 'name',
+            'configname' => get_string('session_name', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('name')
+        ];
+        $anonymise = $sessiondata->get('anonymousanswer');
+        switch ($anonymise) {
+            case 0:
+            default:
+                $anonymisestr = get_string('anonymiseresponses', 'mod_jqshow');
+                break;
+            case 1:
+                $anonymisestr = get_string('anonymiseallresponses', 'mod_jqshow');
+                break;
+            case 2:
+                $anonymisestr = get_string('noanonymiseresponses', 'mod_jqshow');
+                break;
+        }
+        $data[] = [
+            'iconconfig' => 'anonymise',
+            'configname' => $anonymisestr
+        ];
+        $data[] = [
+            'iconconfig' => 'advancemode',
+            'configname' => get_string('advancemode', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('advancemode') === 'manual' ?
+                get_string('manualmode', 'mod_jqshow') :
+                get_string('programmedmode', 'mod_jqshow')
+        ];
+
+        $data[] = [
+            'iconconfig' => 'gamemode',
+            'configname' => get_string('gamemode', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('gamemode') === 'inactive' ?
+                get_string('inactivemode', 'mod_jqshow') :
+                get_string('podiummode', 'mod_jqshow')
+        ];
+
+        $data[] = [
+            'iconconfig' => 'countdown',
+            'configname' => get_string('countdown', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('countdown')
+        ];
+
+        if ($sessiondata->get('gamemode') === 'podium') {
+            $data[] = [
+                'iconconfig' => 'hidegraderanking',
+                'configname' => get_string('hidegraderankingbtweenquestions', 'mod_jqshow'),
+                'configvalue' => $sessiondata->get('hidegraderanking')
+            ];
+        }
+
+        $data[] = [
+            'iconconfig' => 'randomquestions',
+            'configname' => get_string('randomquestions', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('randomquestions') === 1 ? get_string('yes') : get_string('no')
+        ];
+
+        $data[] = [
+            'iconconfig' => 'randomanswers',
+            'configname' => get_string('randomanswers', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('randomanswers') === 1 ? get_string('yes') : get_string('no')
+        ];
+
+        $data[] = [
+            'iconconfig' => 'showfeedback',
+            'configname' => get_string('showfeedback', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('showfeedback') === 1 ? get_string('yes') : get_string('no')
+        ];
+
+        $data[] = [
+            'iconconfig' => 'showfinalgrade',
+            'configname' => get_string('showfinalgrade', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('showfinalgrade') === 1 ? get_string('yes') : get_string('no')
+        ];
+
+        if ($sessiondata->get('enablestartdate') === 1) {
+            $data[] = [
+                'iconconfig' => 'startdate',
+                'configname' => get_string('startdate', 'mod_jqshow'),
+                'configvalue' => userdate($sessiondata->get('startdate'), get_string('strftimedatetimeshort', 'core_langconfig'))
+            ];
+        }
+
+        if ($sessiondata->get('enableenddate') === 1) {
+            $data[] = [
+                'iconconfig' => 'enddate',
+                'configname' => get_string('enddate', 'mod_jqshow'),
+                'configvalue' => userdate($sessiondata->get('enddate'), get_string('strftimedatetimeshort', 'core_langconfig'))
+            ];
+        }
+
+        $data[] = [
+            'iconconfig' => 'automaticstart',
+            'configname' => get_string('automaticstart', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('automaticstart') === 1 ? get_string('yes') : get_string('no')
+        ];
+
+        if ($sessiondata->get('activetimelimit') === 1) {
+            $data[] = [
+                'iconconfig' => 'timelimit',
+                'configname' => get_string('timelimit', 'mod_jqshow'),
+                'configvalue' => $sessiondata->get('timelimit') . 's' // TODO pass to hours, minuts and seconds.
+            ];
+        }
+
+        $data[] = [
+            'iconconfig' => 'automaticstart',
+            'configname' => get_string('automaticstart', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('automaticstart') === 1 ? get_string('yes') : get_string('no')
+        ];
+
         return $data;
     }
 

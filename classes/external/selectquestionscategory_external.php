@@ -91,6 +91,7 @@ class selectquestionscategory_external extends external_api {
                         'name' => new external_value(PARAM_RAW, 'Name of question'),
                         'idnumber' => new external_value(PARAM_RAW, 'Idnumber of question', VALUE_OPTIONAL),
                         'contextid' => new external_value(PARAM_INT, 'Id of question context'),
+                        'issuitable' => new external_value(PARAM_BOOL, 'Compatible with jqshow'),
                         'icon' => new external_single_structure([
                             'key' => new external_value(PARAM_RAW, 'Image name'),
                             'component' => new external_value(PARAM_RAW, 'component of icon'),

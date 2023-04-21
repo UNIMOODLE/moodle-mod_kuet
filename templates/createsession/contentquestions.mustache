@@ -8,7 +8,7 @@
 <div id="content_questions">
     {{#questions}}
         <div class="question" >
-            <div class="add-question {{^issuitable}}noimage{{/issuitable}}"  {{^issuitable}}data-toggle="tooltip" title="{{#str}}question_nosuitable, mod_jqshow{{/str}}"{{/issuitable}} data-action="add_question" data-questionnid="{{id}}" data-type="{{qtype}}">
+            <div class="add-question {{^issuitable}}noimage{{/issuitable}}" {{^issuitable}}data-toggle="tooltip" title="{{#str}}question_nosuitable, mod_jqshow{{/str}}" {{/issuitable}} {{#issuitable}}data-action="add_question" data-questionnid="{{id}}" data-type="{{qtype}}" {{/issuitable}}>
                 {{#issuitable}}
                     {{#pix}}i/add, mod_jqshow{{/pix}}
                 {{/issuitable}}
@@ -16,7 +16,9 @@
                     {{#pix}}i/warning, core{{/pix}}
                 {{/issuitable}}
             </div>
-                <input {{^issuitable}} disabled {{/issuitable}} type="checkbox" class="select_question" data-questionnid="{{id}}" data-type="{{qtype}}" data-contextid="{{contextid}}" name="question_{{id}}" />
+            {{#issuitable}}
+                <input type="checkbox" class="select_question" data-questionnid="{{id}}" data-type="{{qtype}}" data-contextid="{{contextid}}" name="question_{{id}}" />
+            {{/issuitable}}
             {{#icon}}
                 {{#pix}} {{key}}, {{component}}, {{alttext}} {{/pix}}
             {{/icon}}

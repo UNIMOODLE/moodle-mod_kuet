@@ -19,4 +19,58 @@
         </div>
     </div>
 </div>
-{{name}}
+<div class="row summary-session">
+    <div class="col-12 col-lg-5 container">
+        <div class="resume-config">
+            <h5 class="titlecontainer bg-primary">
+                {{#pix}} i/settings, mod_jqshow {{/pix}}
+                {{#str}}configuration, mod_jqshow{{/str}}
+            </h5>
+            <div class="list-resume">
+                <ul class="list-group">
+                    {{#config}}
+                        <li class="list-group-item">
+                            {{#pix}} s/{{iconconfig}}, mod_jqshow{{/pix}}
+                            <div class="content-config">
+                                <span class="configname">{{ configname }}</span>
+                                {{#configvalue}}
+                                    <small>{{.}}</small>
+                                {{/configvalue}}
+                            </div>
+                        </li>
+                    {{/config}}
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-7 container">
+        <div class="questions-list">
+            <h5 class="titlecontainer bg-primary">
+                {{#pix}} i/questions_list, mod_jqshow {{/pix}}
+                {{#str}}questions_list, mod_jqshow{{/str}}
+            </h5>
+            <div class="session-questions" data-region="session-questions">
+                {{> mod_jqshow/createsession/sessionquestions }}
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <hr>
+        <div class="d-flex flex-nowrap align-items-center justify-content-center">
+            <div class="form-group fitem btn-cancel mr-3">
+            <span data-fieldtype="submit">
+                <a href="{{addquestions}}" class="btn btn-secondary">
+                    {{#str}}previous, moodle{{/str}}
+                </a>
+            </span>
+            </div>
+            <div class="form-group fitem">
+            <span data-fieldtype="submit">
+                <a href="{{sessionsurl}}" class="btn btn-primary">
+                    {{#str}}end, mod_jqshow{{/str}}
+                </a>
+            </span>
+            </div>
+        </div>
+    </div>
+</div>
