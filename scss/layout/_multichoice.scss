@@ -1,0 +1,162 @@
+.container-fluid.multichoice {
+    padding: 40px;
+    .content-indicators {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 1em;
+        .users,
+        .timer {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #212529;
+            background-color: white;
+            .icon {
+                height: 20px;
+                width: auto;
+            }
+            .numusers,
+            .seconds {
+                font-weight: bold;
+                font-size: 25px;
+            }
+        }
+    }
+    .contain-statement {
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        background-color: white;
+        border-radius: 25px;
+        z-index: 1;
+        .statement-text {
+            text-align: center;
+            width: 100%;
+            img {
+                margin: 1em;
+                max-width: 90% !important;
+            }
+        }
+    }
+    .containt-answers {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        align-items: center;
+        margin-top: 1em;
+        .multichoice-answer {
+            border-radius: 8px;
+            padding: 45px;
+            color: #fff;
+            margin: 12px;
+            display: flex;
+            flex-direction: column;
+            flex-basis: 43%;
+            background-color: #00B0E8;
+            text-align: center;
+            z-index: 1;
+            position: relative;
+            &:hover {
+                cursor: pointer;
+                transform: scale(1.03);
+                transition: transform .5s;
+            }
+            .feedback-icons {
+                .feedback-icon {
+                    display: none;
+                    background-color: white;
+                    border-radius: 15px;
+                    height: 40px;
+                    width: 40px;
+                    flex-flow: row nowrap;
+                    justify-content: center;
+                    align-items: center;
+                    position: absolute;
+                    top: 10px;
+                    left: 10px;
+                    .icon {
+                        margin: 0;
+                        height: 15px;
+                        width: auto;
+                    }
+                }
+            }
+        }
+        @for $i from 1 through length($answercolors) {
+            .multichoice-answer:nth-child(#{length($answercolors)}n+#{$i}) {
+                background: nth($answercolors, $i)
+            }
+        }
+    }
+    .containt-feedbacks {
+        display: none;
+        margin-top: 1em;
+        border-radius: 25px;
+        color: white;
+        padding: 30px;
+        text-align: center;
+        .feedback-title {
+            font-size: 30px;
+            .icon {
+                height: 25px;
+                width: auto;
+            }
+        }
+        .content-feedbacks {
+            hr {
+                border-color: white;
+            }
+            .content-feedback,
+            .content-feedback-answer {
+                img {
+                    margin: 1em;
+                    max-width: 90% !important;
+                }
+            }
+            .content-feedback {
+                font-size: 20px;
+            }
+            .content-feedback-answer {
+                font-size: 17px;
+            }
+        }
+    }
+    .feedback-background {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        z-index: 1;
+        border-radius: 0 0 25px 25px;
+        background-color: rgba(0, 0, 0, .6);
+    }
+}
+@media (max-width: 991px) {
+    .container-fluid.multichoice {
+        padding: 15px;
+        .content-indicators {
+            .users,
+            .timer {
+                border: none;
+                .icon {
+                    height: 13px;
+                    width: auto;
+                }
+                .numusers,
+                .seconds {
+                    font-weight: bold;
+                    font-size: 18px;
+                }
+            }
+        }
+    }
+}

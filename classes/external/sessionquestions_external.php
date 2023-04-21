@@ -102,10 +102,13 @@ class sessionquestions_external extends external_api {
         $coursecontext = context_course::instance($COURSE->id);
         $data->managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
         $args = [
-            'cmid' => $cmid,
+            'id' => $cmid,
+            'jqid' => $question->get('questionid'),
             'sid' => $question->get('sessionid'),
-            'qid' => $question->get('id')];
-        $data->question_preview_url = (new moodle_url('mod/jqshow/questionpreview.php', $args))->out(false);
+            'jqsid' => $question->get('jqshowid'),
+            'cid' => ($DB->get_record('jqshow', ['id' => $question->get('jqshowid')], 'course'))->course,
+         ];
+        $data->question_preview_url = (new moodle_url('/mod/jqshow/preview.php', $args))->out(false);
         $data->editquestionurl = (new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false);
         return $data;
     }

@@ -46,9 +46,11 @@
                         {{/managesessions}}
                     {{/ispage3}}
                     {{#ispage3}}
-                        <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
-                            <a href="{{question_preview_url}}">{{#pix}} i/preview, mod_jqshow {{/pix}}</a>
-                        </div>
+                        <a href="{{question_preview_url}}" target="_blank">
+                            <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
+                                {{#pix}} i/preview, mod_jqshow {{/pix}}
+                            </div>
+                        </a>
                     {{/ispage3}}
                 </div>
             </div>
