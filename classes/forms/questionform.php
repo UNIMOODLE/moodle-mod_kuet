@@ -43,28 +43,28 @@ class questionform extends \moodleform {
         $mform->addElement('header', 'timeheader', get_string('questiontime', 'mod_jqshow'));
 
 
-        $mform->addElement('checkbox', 'hastimelimit', get_string('notimelimit', 'mod_jqshow'));
-        $mform->setType('hastimelimit', PARAM_INT);
+        $mform->addElement('checkbox', 'hasnotimelimit', get_string('notimelimit', 'mod_jqshow'));
+        $mform->setType('hasnotimelimit', PARAM_INT);
 
         $objs = array();
         $objs[] =& $mform->createElement('text', 'timelimitvalue', null);
         $options = ['secs' => 'seconds', 'min' => 'minutes'];
         $objs[] =& $mform->createElement('select', 'timelimittype', null, $options);
-        $mform->addElement('group', 'timelimit', get_string('notimelimit', 'mod_jqshow'), $objs, ' ', false);
+        $mform->addElement('group', 'timelimit', get_string('timelimit', 'mod_jqshow'), $objs, ' ', false);
         $mform->setType('timelimitvalue', PARAM_INT);
         $mform->setType('timelimittype', PARAM_RAW);
-        $mform->disabledIf('timelimitvalue', 'hastimelimit', 'eq', 1);
-        $mform->disabledIf('timelimittype', 'hastimelimit', 'eq', 1);
+        $mform->disabledIf('timelimitvalue', 'hasnotimelimit', 'eq', 1);
+        $mform->disabledIf('timelimittype', 'hasnotimelimit', 'eq', 1);
 
         $mform->addElement('header', 'gradesheader', get_string('gradesheader', 'mod_jqshow'));
         $mform->addElement('checkbox', 'nograding', get_string('nograding', 'mod_jqshow'));
         $mform->setType('nograding', PARAM_INT);
 
-        $mform->addElement('hidden', 'cmid', $customdata['cmid']);
-        $mform->setType('cmid', PARAM_INT);
+        $mform->addElement('hidden', 'id', $customdata['id']);
+        $mform->setType('id', PARAM_INT);
 
-        $mform->addElement('hidden', 'qid', $customdata['qid']);
-        $mform->setType('qid', PARAM_INT);
+        $mform->addElement('hidden', 'jqid', $customdata['jqid']);
+        $mform->setType('jqid', PARAM_INT);
 
         $mform->addElement('hidden', 'sid', $customdata['sid']);
         $mform->setType('sid', PARAM_INT);

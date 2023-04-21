@@ -158,6 +158,7 @@ $string['copyquestion_desc'] = 'Are you sure about copying this question from th
 $string['questionnameheader'] = 'Question name: "{$a}"';
 $string['questiontime'] = 'Question time';
 $string['notimelimit'] = 'No time limit';
+$string['timelimit'] = 'Time limit';
 $string['gradesheader'] = 'Question grading';
 $string['nograding'] = 'Ignore correct answer and grading';
 $string['sessionalreadyexists'] = 'Session name already exists';

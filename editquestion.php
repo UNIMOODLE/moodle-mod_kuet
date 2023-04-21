@@ -29,32 +29,32 @@ use mod_jqshow\persistents\jqshow_questions;
 require_once('../../config.php');
 global $OUTPUT, $DB, $PAGE;
 
-$cmid = required_param('cmid', PARAM_INT);
+$cmid = required_param('id', PARAM_INT);
 $sid = required_param('sid', PARAM_INT);
-$qid = required_param('qid', PARAM_INT);
+$jqid = required_param('jqid', PARAM_INT);
 
 $cm = get_coursemodule_from_id('jqshow', $cmid, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
 
-$PAGE->set_url('/mod/jqshow/editquestion.php', ['cmid' => $cmid, 'sid' => $sid, 'qid' => $qid]);
+$PAGE->set_url('/mod/jqshow/editquestion.php', ['id' => $cmid, 'sid' => $sid, 'jqid' => $jqid]);
 require_login($course, false, $cm);
 
-$jqsquestion = new jqshow_questions($qid);
+$jqsquestion = new jqshow_questions($jqid);
 $question = $DB->get_record('question', ['id' => $jqsquestion->get('questionid')], '*', MUST_EXIST);
 $customdata = [
-    'cmid' => $cmid,
-    'qid' => $qid,
+    'id' => $cmid,
+    'jqid' => $jqid,
     'sid' => $sid,
     'qname' => $question->name,
     'qtype' => $jqsquestion->get('qtype'),
-    'hastimelimit' => $jqsquestion->get('hastimelimit'),
+    'hasnotimelimit' => !$jqsquestion->get('hastimelimit'),
     'timelimitvalue' => $jqsquestion->get('timelimit') > 60 ? round($jqsquestion->get('timelimit') / 60) :
         $jqsquestion->get('timelimit'),
     'timelimittype' => $jqsquestion->get('timelimit') > 60 ? 'min' : 'secs',
     ];
 $sesionurl = new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $sid, 'page' => 2]);
-$actionurl = new moodle_url('/mod/jqshow/editquestion.php', ['cmid' => $cmid, 'sid' => $sid, 'qid' => $qid]);
+$actionurl = new moodle_url('/mod/jqshow/editquestion.php', ['id' => $cmid, 'sid' => $sid, 'jqid' => $jqid]);
 $mform = new questionform($actionurl->out(false), $customdata);
 $mform->set_data($customdata);
 if ($mform->is_cancelled()) {
@@ -66,7 +66,8 @@ if ($mform->is_cancelled()) {
         $time = $fromform->{'timelimittype'} == 'min' ? $fromform->{'timelimitvalue'} * 60 : $fromform->{'timelimitvalue'};
         $jqsquestion->set('timelimit', $time);
     }
-    $hastimelimit = isset($fromform->{'hastimelimit'}) ? $fromform->{'hastimelimit'} : 0;
+    $hasnotimelimit = isset($fromform->{'hasnotimelimit'}) ? $fromform->{'hasnotimelimit'} : 0;
+    $hastimelimit = $hasnotimelimit ? 0 : 1;
     $jqsquestion->set('hastimelimit', $hastimelimit);
     if (isset($fromform->{'nograding'})) {
         $jqsquestion->set('ignorecorrectanswer', $fromform->{'nograding'});

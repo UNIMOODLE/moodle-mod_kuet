@@ -103,7 +103,7 @@ class sessionquestions_external extends external_api {
         $data->managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
         $args = [
             'id' => $cmid,
-            'jqid' => $question->get('questionid'),
+            'jqid' => $question->get('id'),
             'sid' => $question->get('sessionid'),
             'jqsid' => $question->get('jqshowid'),
             'cid' => ($DB->get_record('jqshow', ['id' => $question->get('jqshowid')], 'course'))->course,
