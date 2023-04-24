@@ -102,7 +102,7 @@ class questions {
         foreach ($question2->answers as $response) {
             $answers[] = [
                 'answerid' => $response->id,
-                'questionid' => $jqid,
+                'questionid' => $jqshowquestion->get('questionid'),
                 'answertext' => $response->answer,
                 'fraction' => $response->fraction,
             ];
