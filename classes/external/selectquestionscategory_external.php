@@ -92,6 +92,7 @@ class selectquestionscategory_external extends external_api {
                         'idnumber' => new external_value(PARAM_RAW, 'Idnumber of question', VALUE_OPTIONAL),
                         'contextid' => new external_value(PARAM_INT, 'Id of question context'),
                         'issuitable' => new external_value(PARAM_BOOL, 'Compatible with jqshow'),
+                        'questionpreview' => new external_value(PARAM_URL, 'Url for Moodle preview'),
                         'icon' => new external_single_structure([
                             'key' => new external_value(PARAM_RAW, 'Image name'),
                             'component' => new external_value(PARAM_RAW, 'component of icon'),

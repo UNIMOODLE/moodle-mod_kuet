@@ -43,7 +43,7 @@ $coursecontext = context_course::instance($course->id);
 if (!in_array($question->qtype, questions::TYPES)) {
     echo 'pregunta no compatible';
 }
-$view = new question_preview($jqquestion->questionid, $id, $sid, $jqshowid);
+$view = new question_preview($jqid, $id, $sid, $jqshowid);
 $PAGE->set_context($coursecontext);
 $PAGE->set_url('/mod/jqshow/preview.php', ['id' => $id, 'jqid' => $jqid, 'sid' => $sid, 'cid' => $cid, 'jqshowid' => $jqshowid]);
 $PAGE->set_heading($question->name);

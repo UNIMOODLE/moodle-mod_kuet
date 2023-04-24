@@ -24,7 +24,9 @@
             {{/icon}}
             <span class="question-text">{{name}}</span>
             {{#issuitable}}
-                {{#pix}}i/loupe, mod_jqshow{{/pix}}
+                <a href="{{questionpreview}}" target="_blank">
+                    {{#pix}}i/loupe, mod_jqshow{{/pix}}
+                </a>
             {{/issuitable}}
         </div>
     {{/questions}}

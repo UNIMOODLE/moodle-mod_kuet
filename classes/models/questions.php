@@ -24,6 +24,7 @@
  */
 
 namespace mod_jqshow\models;
+use coding_exception;
 use context_module;
 use dml_exception;
 use mod_jqshow\persistents\jqshow_questions;
@@ -75,7 +76,12 @@ class questions {
 
     /**
      * @param int $qid
+     * @param int $cmid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param bool $preview
      * @return object
+     * @throws coding_exception
      * @throws dml_exception
      */
     public static function export_multichoice(int $qid, int $cmid, int $sessionid, int $jqshowid, $preview = false) : object {

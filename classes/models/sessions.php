@@ -303,6 +303,8 @@ class sessions {
             ]);
             $question->icon = $icon->export_for_pix();
             $question->issuitable = in_array($question->qtype, questions::TYPES);
+            $question->questionpreview =
+                (new moodle_url('/question/bank/previewquestion/preview.php', ['id' => $key]))->out(false);
             $questions[$key] = (array)$question;
         }
         return array_values($questions);
