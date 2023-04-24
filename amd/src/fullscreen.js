@@ -45,7 +45,7 @@ FullScreen.prototype.fullScreen = function(e) {
     jQuery(REGION.BODY).addClass('fullscreen');
     jQuery(window).scrollTop(0);
     jQuery('html, body').animate({scrollTop: 0}, 500);
-    let element = document.getElementById("page-mod-jqshow-view"); // TODO review.
+    let element = document.getElementById("page-mod-jqshow-preview"); // TODO review.
     if (element.requestFullscreen) {
         element.requestFullscreen();
     } else if (element.webkitRequestFullscreen) { /* Safari */
