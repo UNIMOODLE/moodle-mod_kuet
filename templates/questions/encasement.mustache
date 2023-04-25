@@ -22,11 +22,18 @@
                     {{> mod_jqshow/questions/multichoice }}
                 {{/multichoice}}
             </div>
+            {{^preview}}
+                {{#programmedmode}}
+                    <div class="btn btn-primary m-3 float-right d-none" data-action="next-question" data-questionid="{{questionid}}">
+                        {{#str}}next{{/str}}
+                    </div>
+                {{/programmedmode}}
+            {{/preview}}
         </div>
     </div>
 </div>
 {{#js}}
-    require(['mod_jqshow/fullscreen'], function(FullScreen) {
-        FullScreen.initFullScreen('[data-region="question-content"]');
+    require(['mod_jqshow/question'], function(Question) {
+        Question.initQuestion('[data-region="question-content"]');
     });
 {{/js}}

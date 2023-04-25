@@ -31,6 +31,7 @@ let TEMPLATES = {
 
 let cmId;
 let sId;
+let questionid;
 let jqshowId;
 
 /**
@@ -41,6 +42,7 @@ function MultiChoice(selector) {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
+    questionid = this.node.attr('data-questionid');
     jqshowId = this.node.attr('data-jqshowid');
     this.initMultichoice();
 }
@@ -48,6 +50,7 @@ function MultiChoice(selector) {
 /** @type {jQuery} The jQuery node for the page region. */
 MultiChoice.prototype.node = null;
 MultiChoice.prototype.endTimer = new Event('endTimer');
+MultiChoice.prototype.questionEnd = new Event('questionEnd');
 
 MultiChoice.prototype.initMultichoice = function() {
     this.node.find(ACTION.REPLY).on('click', this.reply.bind(this));
@@ -58,13 +61,11 @@ MultiChoice.prototype.initMultichoice = function() {
 
 MultiChoice.prototype.reply = function(e) {
     let answerId = 0;
-    let questionId = 0;
     let that = this;
     if (e !== undefined) {
         e.preventDefault();
         e.stopPropagation();
         answerId = jQuery(e.currentTarget).attr('data-answerid');
-        questionId = jQuery(e.currentTarget).attr('data-questionid');
     }
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         that.node.append(html);
@@ -76,8 +77,8 @@ MultiChoice.prototype.reply = function(e) {
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,
-                questionid: questionId,
-                preview: true
+                questionid: questionid,
+                preview: false
             }
         };
         Ajax.call([request])[0].done(function(response) {
@@ -104,6 +105,7 @@ MultiChoice.prototype.reply = function(e) {
                     let contentHeight = jQuery(REGION.MULTICHOICE).outerHeight();
                     jQuery(REGION.FEEDBACKBACGROUND).css('height', contentHeight + 'px');
                 }, 15);
+                dispatchEvent(that.questionEnd);
             } else {
                 alert('error');
             }

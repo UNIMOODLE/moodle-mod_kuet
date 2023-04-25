@@ -90,7 +90,7 @@ class questions {
         $question2 = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
 
-        $time = $jqshowquestion->get('hastimelimit') ? $jqshowquestion->get('time') : get_config('mod_jqshow', 'questiontime');
+        $time = $jqshowquestion->get('hastimelimit') ? $jqshowquestion->get('timelimit') : get_config('mod_jqshow', 'questiontime');
         $order = $jqshowquestion->get('qorder');
         $a = new stdClass();
         $a->num = $order;
@@ -116,6 +116,7 @@ class questions {
         $data->cmid = $cmid;
         $data->sessionid = $sessionid;
         $data->jqshowid = $jqshowid;
+        $data->questionid = $jqshowquestion->get('questionid');
         $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
         $data->sessionprogress = round($order * 100 / $numsessionquestions);
         $data->questiontext = $question2->questiontext;
@@ -129,8 +130,6 @@ class questions {
         $data->$type = true;
         $data->answers = $answers;
         $data->feedbacks = $feedbacks;
-        $data->template = 'mod_jqshow/questions/encasement';
-
         return $data;
     }
 }

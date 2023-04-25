@@ -123,6 +123,29 @@ class jqshow_questions extends persistent {
     }
 
     /**
+     * @param int $sessionid
+     * @return jqshow_questions
+     */
+    public static function get_first_question_of_session(int $sessionid): jqshow_questions {
+        return self::get_record(['sessionid' => $sessionid, 'qorder' => 1], MUST_EXIST);
+    }
+
+    /**
+     * @param int $sessionid
+     * @param int $questionid
+     * @return false|jqshow_questions
+     * @throws coding_exception
+     */
+    public static function get_next_question_of_session(int $sessionid, int $questionid): ?jqshow_questions {
+        $current = self::get_record(['id' => $questionid, 'sessionid' => $sessionid], MUST_EXIST);
+        $nextsession = self::get_record(['sessionid' => $sessionid, 'qorder' => $current->get('qorder') + 1]);
+        if ($nextsession === false) {
+            return false;
+        }
+        return $nextsession;
+    }
+
+    /**
      * @param int $questionid
      * @param int $qorder
      * @return bool
@@ -186,11 +209,7 @@ class jqshow_questions extends persistent {
         $oldquestions = self::get_records(['sessionid' => $oldsid]);
         foreach ($oldquestions as $oldquestion) {
             $data = $oldquestion->to_record();
-            unset($data->id);
-            unset($data->sessionid);
-            unset($data->usermodified);
-            unset($data->timecreated);
-            unset($data->timemodified);
+            unset($data->id, $data->sessionid, $data->usermodified, $data->timecreated, $data->timemodified);
             $data->sessionid = $newsid;
             $newquestion = new self(0, $data);
             $newquestion->create();
