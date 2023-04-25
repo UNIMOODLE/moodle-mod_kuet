@@ -29,7 +29,7 @@ use stdClass;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class jqshow_sessions extends persistent {
-    const TABLE = 'jqshow_sessions';
+    public const TABLE = 'jqshow_sessions';
     /**
      * Return the definition of the properties of this model.
      *
@@ -157,6 +157,7 @@ class jqshow_sessions extends persistent {
         $persistent->set($name, $value);
         return $persistent->update();
     }
+
     /**
      * @param int $sessionid
      * @return bool
@@ -170,12 +171,11 @@ class jqshow_sessions extends persistent {
     /**
      * @param int $jqshowid
      * @return int
-     * @throws dml_exception
+     * @throws coding_exception
      */
     public static function get_active_session_id(int $jqshowid): int {
-        global $DB;
-        $activesession = $DB->get_record(self::TABLE, ['jqshowid' => $jqshowid, 'status' => 2], 'id');
-        return $activesession !== false ? $activesession->id : 0;
+        $activesession = self::get_record(['jqshowid' => $jqshowid, 'status' => 2]);
+        return $activesession !== false ? $activesession->get('id') : 0;
     }
 
     /**
@@ -184,6 +184,7 @@ class jqshow_sessions extends persistent {
      * @throws dml_exception
      */
     public static function get_next_session(int $jqshowid): int {
+        // TODO review.
         global $DB;
         $allsessions = $DB->get_records(self::TABLE, ['jqshowid' => $jqshowid, 'status' => 1], 'startdate DESC', 'startdate');
         $dates = [];
@@ -300,7 +301,7 @@ class jqshow_sessions extends persistent {
             'advancemode' => 'programmed',
             'automaticstart' => 1
         ];
-        return $DB->get_records_select('jqshow_sessions', $select, $params);
+        return $DB->get_records_select('jqshow_sessions', $select, $params, 'timecreated ASC');
     }
 
     /**

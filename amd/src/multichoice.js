@@ -48,6 +48,7 @@ function MultiChoice(selector) {
 /** @type {jQuery} The jQuery node for the page region. */
 MultiChoice.prototype.node = null;
 MultiChoice.prototype.endTimer = new Event('endTimer');
+MultiChoice.prototype.questionEnd = new Event('questionEnd');
 
 MultiChoice.prototype.initMultichoice = function() {
     this.node.find(ACTION.REPLY).on('click', this.reply.bind(this));
@@ -104,6 +105,7 @@ MultiChoice.prototype.reply = function(e) {
                     let contentHeight = jQuery(REGION.MULTICHOICE).outerHeight();
                     jQuery(REGION.FEEDBACKBACGROUND).css('height', contentHeight + 'px');
                 }, 15);
+                dispatchEvent(that.questionEnd);
             } else {
                 alert('error');
             }
