@@ -47,6 +47,8 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_title($strjqshow);
 
 if ($isteacher) {
+    // TODO add this call in a cron job or observer.
+    jqshow_sessions::check_automatic_sessions($jqshow->id);
     $view = new teacher_view();
 } else {
     $activessesion = jqshow_sessions::get_active_session_id($jqshow->id);

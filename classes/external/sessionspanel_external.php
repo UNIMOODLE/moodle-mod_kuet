@@ -79,6 +79,7 @@ class sessionspanel_external extends external_api {
             'courseid' => new external_value(PARAM_RAW, 'Course id'),
             'cmid' => new external_value(PARAM_INT, 'Course module id'),
             'createsessionurl' => new external_value(PARAM_URL, 'URL for create session'),
+            'hasactivesession' => new external_value(PARAM_BOOL, 'URL for create session'),
         ]);
     }
 
@@ -98,6 +99,10 @@ class sessionspanel_external extends external_api {
                     'viewreporturl' => new external_value(PARAM_URL, 'Url for view report of session'),
                     'editsessionurl' => new external_value(PARAM_URL, 'Url for edit session'),
                     'date' => new external_value(PARAM_RAW, 'Init and en date of session, or empty'),
+                    'status' => new external_value(PARAM_INT, 'Session status: active 1, initi 2 or finished 0'),
+                    'issessionstarted' => new external_value(PARAM_BOOL, 'Session status: active 1, initi 2 or finished 0'),
+                    'startedssionurl' => new external_value(PARAM_RAW, 'Session url', VALUE_OPTIONAL),
+                    'stringsession' => new external_value(PARAM_RAW, 'String for button')
                 ], ''
             ), ''
         );

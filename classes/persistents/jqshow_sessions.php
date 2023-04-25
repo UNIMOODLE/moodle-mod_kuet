@@ -112,10 +112,6 @@ class jqshow_sessions extends persistent {
                 'type' => PARAM_INT,
                 'default' => 0,
             ),
-            'groupings' => array(
-                'type' => PARAM_RAW,
-                'null' => NULL_ALLOWED,
-            ),
             'usermodified' => array(
                 'type' => PARAM_INT,
             ),
@@ -139,7 +135,13 @@ class jqshow_sessions extends persistent {
         $record = $DB->get_record(self::TABLE, ['id' => $sessionid]);
         unset($record->id);
         $record->name .= ' - ' . get_string('copy', 'mod_jqshow');
-        return $DB->insert_record(self::TABLE, $record, true);
+        $record->status = 1;
+        $record->automaticstart = 0;
+        $record->enablestartdate = 0;
+        $record->startdate = 0;
+        $record->enableenddate = 0;
+        $record->enddate = 0;
+        return $DB->insert_record(self::TABLE, $record);
     }
 
     /**
@@ -212,38 +214,41 @@ class jqshow_sessions extends persistent {
 
     /**
      * @param int $sid
-     * @return bool
+     * @return void
+     * @throws coding_exception
      * @throws dml_exception
+     * @throws invalid_persistent_exception
      */
-    public static function mark_session_started(int $sid): bool {
+    public static function mark_session_started(int $sid): void {
         global $DB;
-        $session = $DB->get_record(self::TABLE, ['id' => $sid], 'id, status');
-        $session->status = 2;
-        return $DB->update_record(self::TABLE, $session);
+        // All open sessions end, ensuring that no more than one session is logged on.
+        $activesession = $DB->get_records(self::TABLE, ['status' => 2]);
+        foreach ($activesession as $active) {
+            if ($sid !== $active->id) {
+                (new jqshow_sessions($active->id))->set('status', 0)->update();
+            }
+        }
+        (new jqshow_sessions($sid))->set('status', 2)->update();
     }
 
     /**
      * @param int $sid
-     * @return bool
-     * @throws dml_exception
+     * @return void
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
      */
-    public static function mark_session_active(int $sid): bool {
-        global $DB;
-        $session = $DB->get_record(self::TABLE, ['id' => $sid], 'id, status');
-        $session->status = 1;
-        return $DB->update_record(self::TABLE, $session);
+    public static function mark_session_active(int $sid): void {
+        (new jqshow_sessions($sid))->set('status', 1)->update();
     }
 
     /**
      * @param int $sid
-     * @return bool
-     * @throws dml_exception
+     * @return void
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
      */
-    public static function mark_session_finished(int $sid): bool {
-        global $DB;
-        $session = $DB->get_record(self::TABLE, ['id' => $sid], 'id, status');
-        $session->status = 0;
-        return $DB->update_record(self::TABLE, $session);
+    public static function mark_session_finished(int $sid): void {
+        (new jqshow_sessions($sid))->set('status', 0)->update();
     }
 
     /**
@@ -266,5 +271,76 @@ class jqshow_sessions extends persistent {
         global $DB;
         $comparescaleclause = $DB->sql_compare_text('name')  . ' =  ' . $DB->sql_compare_text(':name');
         return $DB->get_records_sql("SELECT * FROM {jqshow_sessions} WHERE $comparescaleclause", ['name' => $name]);
+    }
+
+    /**
+     * @param int $jqshowid
+     * @return array
+     * @throws dml_exception
+     */
+    private function get_active_sessions(int $jqshowid): array {
+        global $DB;
+        $select = "jqshowid = :jqshowid AND advancemode = :advancemode AND automaticstart = :automaticstart AND status != 0";
+        $params = [
+            'jqshowid' => $jqshowid
+        ];
+        return $DB->get_records_select('jqshow_sessions', $select, $params);
+    }
+
+    /**
+     * @param int $jqshowid
+     * @return array
+     * @throws dml_exception
+     */
+    private static function get_automaticstart_sessions(int $jqshowid): array {
+        global $DB;
+        $select = "jqshowid = :jqshowid AND advancemode = :advancemode AND automaticstart = :automaticstart AND status != 0";
+        $params = [
+            'jqshowid' => $jqshowid,
+            'advancemode' => 'programmed',
+            'automaticstart' => 1
+        ];
+        return $DB->get_records_select('jqshow_sessions', $select, $params);
+    }
+
+    /**
+     * @param int $jqshowid
+     * @return void
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws invalid_persistent_exception
+     */
+    public static function check_automatic_sessions(int $jqshowid): void {
+        $sessions = self::get_automaticstart_sessions($jqshowid);
+        $activesession = null;
+        $now = time();
+        foreach ($sessions as $session) {
+            if ($session->startdate !== 0 && $session->startdate < $now) { // If there is a start date and it has been met.
+                if ($session->enddate !== 0 && $session->enddate > $now) { // If there is an end date and it has not been met.
+                    if ($session->status !== 2) { // If not marked as started.
+                        (new jqshow_sessions($session->id))->set('status', 2)->update(); // We mark session as logged in.
+                        $session->status = 2;
+                    }
+                    $activesession = $session;
+                }
+                if ($session->enddate !== 0 && $session->enddate < $now) { // If there is an end date and it has been met.
+                    (new jqshow_sessions($session->id))->set('status', 0)->update(); // We mark the session as ended.
+                }
+            }
+        }
+        if ($activesession !== null) {
+            // There can only be one started session, and it will be the one chosen in the previous loop.
+            foreach ($sessions as $session) {
+                if ($session->status === 2 && $session->id !== $activesession->id) {
+                    // If the session has a current deadline we leave it as active.
+                    if ($session->startdate < $now || $session->enddate > $now) {
+                        (new jqshow_sessions($session->id))->set('status', 1)->update();
+                    } else {
+                        // In any other case, this session is closed.
+                        (new jqshow_sessions($session->id))->set('status', 0)->update();
+                    }
+                }
+            }
+        }
     }
 }

@@ -27,6 +27,7 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_course;
+use core\invalid_persistent_exception;
 use dml_exception;
 use external_api;
 use external_function_parameters;
@@ -55,8 +56,9 @@ class copysession_external extends external_api {
      * @param int $courseid
      * @param int $sessionid
      * @return array
-     * @throws dml_exception
+     * @throws invalid_persistent_exception
      * @throws coding_exception
+     * @throws dml_exception
      * @throws invalid_parameter_exception
      */
     public static function copysession(int $courseid, int $sessionid): array {
