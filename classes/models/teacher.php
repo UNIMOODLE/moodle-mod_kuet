@@ -119,9 +119,13 @@ class teacher extends user {
             (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->date = '';
         $ds->status = $session->get('status');
-        $ds->issessionactive = $ds->status === 2;
+        $ds->issessionstarted = $ds->status === 2;
+        if ($ds->issessionstarted) {
+            $ds->startedssionurl =
+                (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
+        }
         $ds->stringsession =
-            $ds->status === 2 ? get_string('sessionactive', 'mod_jqshow') : get_string('init_session', 'mod_jqshow');
+            $ds->status === 2 ? get_string('sessionstarted', 'mod_jqshow') : get_string('init_session', 'mod_jqshow');
         // TODO detect active session, rename and lock them all.
         $startdate = $session->get('startdate');
         if ($startdate !== 0) {
