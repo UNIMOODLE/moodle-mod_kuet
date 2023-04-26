@@ -51,7 +51,7 @@ class nextquestion_external extends external_api {
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
-                'questionid' => new external_value(PARAM_INT, 'question id of jqshow_questions')
+                'jqid' => new external_value(PARAM_INT, 'question id of jqshow_questions')
             ]
         );
     }
@@ -59,19 +59,19 @@ class nextquestion_external extends external_api {
     /**
      * @param int $cmid
      * @param int $sessionid
-     * @param int $questionid
+     * @param int $jqshowid
      * @return array
      * @throws coding_exception
      * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function nextquestion(int $cmid, int $sessionid, int $questionid): array {
+    public static function nextquestion(int $cmid, int $sessionid, int $jqid): array {
         self::validate_parameters(
             self::nextquestion_parameters(),
-            ['cmid' => $cmid, 'sessionid' => $sessionid, 'questionid' => $questionid]
+            ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid]
         );
-        $nextquestion = jqshow_questions::get_next_question_of_session($sessionid, $questionid);
+        $nextquestion = jqshow_questions::get_next_question_of_session($sessionid, $jqid);
         // TODO consider it to be the last question, and in that case send an end-of-session screen.
         switch ($nextquestion->get('qtype')) {
             case 'multichoice':
@@ -97,7 +97,8 @@ class nextquestion_external extends external_api {
             'cmid' => new external_value(PARAM_INT, 'Course module id'),
             'sessionid' => new external_value(PARAM_INT, 'Session id'),
             'jqshowid' => new external_value(PARAM_INT, 'jq show id'),
-            'questionid' => new external_value(PARAM_INT, 'question id of jqshow_questions'),
+            'questionid' => new external_value(PARAM_INT, 'id of jqshow'),
+            'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
             'question_index_string' => new external_value(PARAM_RAW, 'String for progress session'),
             'sessionprogress' => new external_value(PARAM_INT, 'Int for progress bar'),
             'questiontext' => new external_value(PARAM_RAW, 'Statement of question'),

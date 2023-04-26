@@ -101,7 +101,7 @@ Question.prototype.nextQuestion = function(e) {
             args: {
                 cmid: cmId,
                 sessionid: sId,
-                questionid: jQuery(e.currentTarget).attr('data-questionid')
+                jqid: jQuery(e.currentTarget).attr('data-jqid')
             }
         };
         // eslint-disable-next-line no-console
