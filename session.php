@@ -57,7 +57,6 @@ if ($isteacher) {
         $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
         run_server_background($server);
     }
-    jqshow_sessions::mark_session_started($sid);
     $view = new teacher_session_view();
 } else {
     $view = new student_session_view();

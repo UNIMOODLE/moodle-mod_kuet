@@ -26,6 +26,7 @@
 use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\multichoice_external;
+use mod_jqshow\external\nextquestion_external;
 use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
 use mod_jqshow\external\sessionquestions_external;
@@ -135,6 +136,14 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_jqshow_nextquestion' => [
+        'classname' => nextquestion_external::class,
+        'methodname' => 'nextquestion',
+        'description' => 'Next question of a session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
 ];
 $services = [
     'JQShow' => [
@@ -150,7 +159,8 @@ $services = [
             'mod_jqshow_sessionquestions',
             'mod_jqshow_copyquestion',
             'mod_jqshow_editsessionsettings',
-            'mod_jqshow_multichoice'
+            'mod_jqshow_multichoice',
+            'mod_jqshow_nextquestion'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

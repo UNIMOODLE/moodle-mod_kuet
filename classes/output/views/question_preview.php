@@ -19,6 +19,7 @@ use coding_exception;
 use dml_exception;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\persistents\jqshow_questions;
 use moodle_exception;
 use renderable;
 use stdClass;
@@ -35,6 +36,7 @@ use renderer_base;
 class question_preview implements renderable, templatable {
 
     protected int $qid;
+    protected int $jqid;
     protected int $cmid;
     protected int $sessionid;
     protected int $jqshowid;
@@ -42,9 +44,10 @@ class question_preview implements renderable, templatable {
 
     /**
      * @param int $qid
-     * @param $cmid
-     * @param $sessionid
-     * @param $jqshowid
+     * @param int $jqid
+     * @param int $cmid
+     * @param int $sessionid
+     * @param int $jqshowid
      */
     public function __construct(int $qid, int $jqid, int $cmid, int $sessionid, int $jqshowid, string $type) {
         $this->qid = $qid;
@@ -63,7 +66,6 @@ class question_preview implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        global $DB;
         switch ($this->type){
             case 'multichoice':
                 $data = questions::export_multichoice($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);

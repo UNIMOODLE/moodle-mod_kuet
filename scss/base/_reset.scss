@@ -5,4 +5,10 @@ body.path-mod-jqshow {
         outline-offset: unset !important;
         box-shadow: none !important;
     }
+    .session-content {
+        position: relative;
+    }
+    .overlay-icon-container {
+        z-index: 3000;
+    }
 }

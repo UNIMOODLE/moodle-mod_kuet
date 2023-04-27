@@ -40,6 +40,7 @@ class renderer extends plugin_renderer_base {
      * @throws moodle_exception
      */
     public function render_student_view(student_view $view): string {
+        // Rendered to the user when no session started.
         $data = $view->export_for_template($this);
         return $this->render_from_template('mod_jqshow/student', $data);
     }
@@ -50,6 +51,7 @@ class renderer extends plugin_renderer_base {
      * @throws moodle_exception
      */
     public function render_student_session_view(student_session_view $view): string {
+        // Rendered to the user when session started.
         $data = $view->export_for_template($this);
         return $this->render_from_template('mod_jqshow/session/student', $data);
     }

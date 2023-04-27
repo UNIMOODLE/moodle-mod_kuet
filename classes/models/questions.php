@@ -24,13 +24,10 @@
  */
 
 namespace mod_jqshow\models;
-use context_module;
+use coding_exception;
 use dml_exception;
-use mod_jqshow\output\views\question_preview;
 use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
 use qbank_previewquestion\question_preview_options;
-use qtype_multichoice;
 use question_answer;
 use question_attempt;
 use question_bank;
@@ -41,7 +38,6 @@ use context_user;
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 require_once($CFG->dirroot. '/question/engine/lib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
-// require_once($CFG->dirroot. '/question/bank/previewquestion/preview.php');
 defined('MOODLE_INTERNAL') || die();
 
 class questions {
@@ -83,7 +79,12 @@ class questions {
 
     /**
      * @param int $qid
+     * @param int $cmid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param bool $preview
      * @return object
+     * @throws coding_exception
      * @throws dml_exception
      */
     public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, $preview = false) : object {
@@ -91,7 +92,7 @@ class questions {
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
-        $time = $jqshowquestion->get('hastimelimit') ? $jqshowquestion->get('time') : get_config('mod_jqshow', 'questiontime');
+        $time = $jqshowquestion->get('hastimelimit') ? $jqshowquestion->get('timelimit') : get_config('mod_jqshow', 'questiontime');
         $order = $jqshowquestion->get('qorder');
         $a = new stdClass();
         $a->num = $order;
@@ -104,7 +105,7 @@ class questions {
             $text = self::get_text($response->answer, $response->answerformat, $response->id, $question);
             $answers[] = [
                 'answerid' => $response->id,
-                'questionid' => $jqid,
+                'questionid' => $jqshowquestion->get('questionid'),
                 'answertext' => $text,
                 'fraction' => $response->fraction,
             ];
@@ -118,6 +119,7 @@ class questions {
         $data->cmid = $cmid;
         $data->sessionid = $sessionid;
         $data->jqshowid = $jqshowid;
+        $data->questionid = $jqshowquestion->get('questionid');
         $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
         $data->sessionprogress = round($order * 100 / $numsessionquestions);
         $data->questiontext = $question->questiontext;

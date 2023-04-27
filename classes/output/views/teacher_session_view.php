@@ -17,6 +17,7 @@
 namespace mod_jqshow\output\views;
 use coding_exception;
 use dml_exception;
+use mod_jqshow\persistents\jqshow_sessions;
 use renderable;
 use stdClass;
 use templatable;
@@ -37,6 +38,7 @@ class teacher_session_view implements renderable, templatable {
      * @throws dml_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        // TODO refactor duplicate code for teacher and student.
         global $USER;
         $data = new stdClass();
         $data->cmid = required_param('cmid', PARAM_INT);
@@ -44,8 +46,18 @@ class teacher_session_view implements renderable, templatable {
         $data->isteacher = true;
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
-        $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
 
+        $session = new jqshow_sessions($data->sid);
+        if ($session->get('advancemode') === 'programmed') {
+            $data->programmedmode = true;
+        }
+
+        if ($session->get('advancemode') === 'manual') {
+            // SOCKETS!
+            jqshow_sessions::mark_session_started($data->sid);
+            $data->manualmode = true;
+            $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+        }
         return $data;
     }
 }

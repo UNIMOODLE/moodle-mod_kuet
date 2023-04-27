@@ -16,7 +16,12 @@
 
 namespace mod_jqshow\output\views;
 use coding_exception;
+use core\invalid_persistent_exception;
 use dml_exception;
+use mod_jqshow\models\questions;
+use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
 use renderable;
 use stdClass;
 use templatable;
@@ -36,16 +41,41 @@ class student_session_view implements renderable, templatable {
      * @return stdClass
      * @throws coding_exception
      * @throws dml_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        // TODO refactor duplicate code for teacher and student.
         global $USER;
         $data = new stdClass();
         $data->cmid = required_param('cmid', PARAM_INT);
         $data->sid = required_param('sid', PARAM_INT);
-        $data->isteacher = false;
+        $data->isteacher = true;
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
-        $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+        $session = new jqshow_sessions($data->sid);
+        if ($session->get('advancemode') === 'programmed') {
+            $firstquestion = jqshow_questions::get_first_question_of_session($data->sid);
+            switch ($firstquestion->get('qtype')) {
+                case 'multichoice':
+                    $data = questions::export_multichoice(
+                        $firstquestion->get('id'),
+                        $data->cmid,
+                        $data->sid,
+                        $firstquestion->get('jqshowid'));
+                    break;
+                default:
+                    throw new moodle_exception('question_nosuitable', 'mod_jqshow');
+            }
+            $data->programmedmode = true;
+        }
+
+        if ($session->get('advancemode') === 'manual') {
+            // TODO SOCKETS!
+            jqshow_sessions::mark_session_started($data->sid);
+            $data->manualmode = true;
+            $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+        }
         return $data;
     }
 }

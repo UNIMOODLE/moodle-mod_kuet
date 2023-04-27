@@ -46,6 +46,9 @@
             z-index: 1;
         }
     }
+    .overlay-icon-container {
+        z-index: 2;
+    }
 }
 @media (max-width: 991px) {
     .question-content {

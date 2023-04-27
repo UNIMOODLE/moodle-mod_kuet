@@ -1,23 +1,6 @@
-<h4>Profesor</h4>
-<div data-region="canvas" data-userid="{{userid}}" data-username="{{userfullname}}" data-isteacher="{{isteacher}}" data-cmid="{{cmid}}" data-sid="{{sid}}">
-    <div id="message-box"></div>
-    <div id="countusers">0</div>
-    <ul id="userlist">
+{{#manualmode}}
+    {{> mod_jqshow/session/manual/teachercanvas }}
+{{/manualmode}}
+{{#programmedmode}}
 
-    </ul>
-    <button id="teacher_send">Profesor envía</button>
-    <div id="teacher_messages"></div>
-</div>
-
-{{#js}}
-    require(['mod_jqshow/sockets'], function(Sockets) {
-        Sockets.initSockets('[data-region="canvas"]', {{port}});
-        /*window.onbeforeunload = function(e) {
-            // TODO review.
-            e.returnValue = confirm(
-            'Si sale de esta página se cerrará la conexión para todos los usuarios y perderá el' +
-            ' progreso si ésta no ha finalizado. ¿Desea salir?'
-            );
-        };*/
-    });
-{{/js}}
+{{/programmedmode}}

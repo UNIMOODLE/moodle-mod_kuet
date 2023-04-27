@@ -58,8 +58,6 @@ QuestionsPanel.prototype.selectCategory = function(e) {
     e.stopPropagation();
     let categoryKey = jQuery(e.currentTarget).val();
     let identifier = jQuery(REGION.CONTENTQUESTIONS);
-    // eslint-disable-next-line no-console
-    console.log(jQuery(REGION.SELECTQUESTION + ':checked').length);
     if (jQuery(REGION.SELECTQUESTION + ':checked').length > 0) {
         const stringkeys = [
             {key: 'changecategory', component: 'mod_jqshow'},
