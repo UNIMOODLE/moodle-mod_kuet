@@ -38,6 +38,7 @@ class question_preview implements renderable, templatable {
     protected int $cmid;
     protected int $sessionid;
     protected int $jqshowid;
+    protected string $type;
 
     /**
      * @param int $qid
@@ -45,12 +46,14 @@ class question_preview implements renderable, templatable {
      * @param $sessionid
      * @param $jqshowid
      */
-    public function __construct(int $qid, int $jqid, int $cmid, int $sessionid, int $jqshowid) {
+    public function __construct(int $qid, int $jqid, int $cmid, int $sessionid, int $jqshowid, string $type) {
         $this->qid = $qid;
         $this->jqid = $jqid;
         $this->cmid = $cmid;
         $this->sessionid = $sessionid;
         $this->jqshowid = $jqshowid;
+        $this->type = $type;
+
     }
 
     /**
@@ -61,8 +64,7 @@ class question_preview implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         global $DB;
-        $question = $DB->get_record('question', ['id' => $this->qid], 'qtype', MUST_EXIST);
-        switch ($question->qtype){
+        switch ($this->type){
             case 'multichoice':
                 $data = questions::export_multichoice($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
                 break;

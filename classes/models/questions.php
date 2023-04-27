@@ -26,14 +26,22 @@
 namespace mod_jqshow\models;
 use context_module;
 use dml_exception;
+use mod_jqshow\output\views\question_preview;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
+use qbank_previewquestion\question_preview_options;
 use qtype_multichoice;
 use question_answer;
+use question_attempt;
 use question_bank;
+use question_definition;
+use question_engine;
 use stdClass;
+use context_user;
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
+require_once($CFG->dirroot. '/question/engine/lib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
+// require_once($CFG->dirroot. '/question/bank/previewquestion/preview.php');
 defined('MOODLE_INTERNAL') || die();
 
 class questions {
@@ -81,23 +89,23 @@ class questions {
     public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, $preview = false) : object {
 
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
-        $question2 = question_bank::load_question($jqshowquestion->get('questionid'));
+        $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
-
         $time = $jqshowquestion->get('hastimelimit') ? $jqshowquestion->get('time') : get_config('mod_jqshow', 'questiontime');
         $order = $jqshowquestion->get('qorder');
         $a = new stdClass();
         $a->num = $order;
         $a->total = $numsessionquestions;
-        $type = $question2->get_type_name();
+        $type = $question->get_type_name();
         $answers = [];
         $feedbacks = [];
         /** @var question_answer $response */
-        foreach ($question2->answers as $response) {
+        foreach ($question->answers as $response) {
+            $text = self::get_text($response->answer, $response->answerformat, $response->id, $question);
             $answers[] = [
                 'answerid' => $response->id,
-                'questionid' => $qid,
-                'answertext' => $response->answer,
+                'questionid' => $jqid,
+                'answertext' => $text,
                 'fraction' => $response->fraction,
             ];
             $feedbacks[] = [
@@ -112,13 +120,13 @@ class questions {
         $data->jqshowid = $jqshowid;
         $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
         $data->sessionprogress = round($order * 100 / $numsessionquestions);
-        $data->questiontext = $question2->questiontext;
-        $data->questiontextformat = $question2->questiontextformat;
+        $data->questiontext = $question->questiontext;
+        $data->questiontextformat = $question->questiontextformat;
         $data->hastime = $jqshowquestion->get('hastimelimit');
         $data->seconds = $time;
         $data->preview = $preview;
-        $data->numanswers = count($question2->answers);
-        $data->name = $question2->name;
+        $data->numanswers = count($question->answers);
+        $data->name = $question->name;
         $data->qtype = $type;
         $data->$type = true;
         $data->answers = $answers;
@@ -126,5 +134,38 @@ class questions {
         $data->template = 'mod_jqshow/questions/encasement';
 
         return $data;
+    }
+
+    /**
+     * @param string $answertext
+     * @param int $answerformat
+     * @param int $answerid
+     * @param question_definition $question
+     * @return string
+     * @throws \dml_transaction_exception
+     */
+    public static function get_text(string $answertext, int $answerformat, int $answerid, question_definition $question) : string {
+        global $DB, $USER;
+        $maxvariant = min($question->get_num_variants(), 100);// QUESTION_PREVIEW_MAX_VARIANTS.
+        $options = new question_preview_options($question);
+        $options->load_user_defaults();
+        $options->set_from_request();
+        $quba = question_engine::make_questions_usage_by_activity(
+            'core_question_preview', context_user::instance($USER->id));
+        $quba->set_preferred_behaviour($options->behaviour);
+        $slot = $quba->add_question($question, $options->maxmark);
+        if ($options->variant) {
+            $options->variant = min($maxvariant, max(1, $options->variant));
+        } else {
+            $options->variant = rand(1, $maxvariant);
+        }
+        $quba->start_question($slot, $options->variant);
+        $transaction = $DB->start_delegated_transaction();
+        question_engine::save_questions_usage_by_activity($quba);
+        $transaction->allow_commit();
+
+        $qa = new question_attempt($question, $quba->get_id());
+        $qa->set_slot($slot);
+        return $qa->get_question()->format_text($answertext, $answerformat, $qa, 'question', 'answer', $answerid);
     }
 }
