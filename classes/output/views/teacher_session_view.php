@@ -16,8 +16,11 @@
 
 namespace mod_jqshow\output\views;
 use coding_exception;
+use core\invalid_persistent_exception;
 use dml_exception;
+use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
 use renderable;
 use stdClass;
 use templatable;
@@ -34,6 +37,8 @@ class teacher_session_view implements renderable, templatable {
     /**
      * @param renderer_base $output
      * @return stdClass
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      * @throws coding_exception
      * @throws dml_exception
      */
@@ -50,6 +55,8 @@ class teacher_session_view implements renderable, templatable {
         $session = new jqshow_sessions($data->sid);
         if ($session->get('advancemode') === 'programmed') {
             $data->programmedmode = true;
+            $data->config = sessions::get_session_config($data->sid);
+            $data->userresults = sessions::get_session_results($data->sid, $data->cmid);
         }
 
         if ($session->get('advancemode') === 'manual') {

@@ -2,5 +2,50 @@
     {{> mod_jqshow/session/manual/teachercanvas }}
 {{/manualmode}}
 {{#programmedmode}}
+    <div class="teacher-session-content" data-region="teacher-session-content">
+        <div class="row summary-session">
+            <div class="col-12 col-lg-4 container">
+                <div class="resume-config">
+                    <h5 class="titlecontainer bg-primary">
+                        {{#pix}} i/settings, mod_jqshow {{/pix}}
+                        {{#str}}session_info, mod_jqshow{{/str}}
+                    </h5>
+                    <div class="list-resume">
+                        <ul class="list-group">
+                            {{#config}}
+                                <li class="list-group-item">
+                                    {{#pix}} s/{{iconconfig}}, mod_jqshow{{/pix}}
+                                    <div class="content-config">
+                                        <span class="configname">{{ configname }}</span>
+                                        {{#configvalue}}
+                                            <small>{{.}}</small>
+                                        {{/configvalue}}
+                                    </div>
+                                </li>
+                            {{/config}}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-8 container">
+                <div class="users-results">
+                    <h5 class="titlecontainer bg-primary">
+                        {{#pix}} i/questions_list, mod_jqshow {{/pix}}
+                        {{#str}}results, mod_jqshow{{/str}}
+                    </h5>
+                    <div class="list-results" data-region="list-results" data-sid="{{sid}}" data-cmid="{{cmid}}">
+                        {{> mod_jqshow/session/listresults }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/programmedmode}}
 
+{{#programmedmode}}
+    {{#js}}
+        require(['mod_jqshow/teacher_programmedmode'], function(ProgrammedMode) {
+            ProgrammedMode.initProgrammedMode('[data-region="list-results"]');
+        });
+    {{/js}}
 {{/programmedmode}}

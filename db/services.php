@@ -25,6 +25,7 @@
 
 use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
+use mod_jqshow\external\getlistresults_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
 use mod_jqshow\external\reorderquestions_external;
@@ -144,6 +145,14 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_jqshow_getlistresults' => [
+        'classname' => getlistresults_external::class,
+        'methodname' => 'getlistresults',
+        'description' => 'Get list results of one session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ]
 ];
 $services = [
     'JQShow' => [
@@ -160,7 +169,8 @@ $services = [
             'mod_jqshow_copyquestion',
             'mod_jqshow_editsessionsettings',
             'mod_jqshow_multichoice',
-            'mod_jqshow_nextquestion'
+            'mod_jqshow_nextquestion',
+            'mod_jqshow_getlistresults'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

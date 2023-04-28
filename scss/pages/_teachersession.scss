@@ -1,0 +1,81 @@
+.teacher-session-content {
+    .summary-session {
+        .resume-config,
+        .users-results {
+            margin-top: 25px;
+            padding: 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,.06);
+            .titlecontainer {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                border-radius: 8px 8px 0 0;
+                color: #FFFFFF;
+                padding: 1em;
+            }
+        }
+        .resume-config {
+            .list-resume {
+                .list-group {
+                    border-radius: 0;
+                    .list-group-item {
+                        border: 0;
+                        border-bottom: 1px solid #EDEBF4;
+                        display: flex;
+                        flex-flow: row nowrap;
+                        justify-content: flex-start;
+                        align-items: center;
+                        img.icon {
+                            height: 20px;
+                            width: auto;
+                            margin-right: 18px;
+                        }
+                        .content-config {
+                            display: flex;
+                            flex-flow: column nowrap;
+                            .configname {
+                                font-size: 16px;
+                                font-weight: bold;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .users-results {
+            .list-results {
+                max-height: 700px;
+                overflow-y: auto;
+                &::-webkit-scrollbar {
+                    width: 8px;
+                }
+                &::-webkit-scrollbar-track {
+                    background: #e0e0e0;
+                }
+                &::-webkit-scrollbar-thumb {
+                    background-color: #6a737b;
+                    border-radius: 4px;
+                }
+                .list-results-body {
+                    width: 100%;
+                    .d-table-cell {
+                        padding: 15px;
+                    }
+                    .list-results-thead {
+                        font-weight: bold;
+                        .d-table-cell {
+                            color: #2B2B2B !important;
+                        }
+                    }
+                    .result-list-data {
+                        font-weight: normal;
+                        background-color: white;
+                        .d-table-cell {
+                            border-top: 1px solid #EDEBF4;
+                            color: #929292 !important;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -69,7 +69,7 @@ Question.prototype.fullScreen = function(e) {
     jQuery(window).scrollTop(0);
     jQuery('html, body').animate({scrollTop: 0}, 500);
     let element = document.getElementById("page-mod-jqshow-view");
-    if (element === undefined) {
+    if (element === undefined || element === null) {
         element = document.getElementById("page-mod-jqshow-preview");
     }
     if (element.requestFullscreen) {
@@ -101,7 +101,7 @@ Question.prototype.nextQuestion = function(e) {
             args: {
                 cmid: cmId,
                 sessionid: sId,
-                questionid: jQuery(e.currentTarget).attr('data-questionid')
+                jqid: jQuery(e.currentTarget).attr('data-jqid')
             }
         };
         // eslint-disable-next-line no-console
