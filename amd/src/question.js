@@ -69,7 +69,7 @@ Question.prototype.fullScreen = function(e) {
     jQuery(window).scrollTop(0);
     jQuery('html, body').animate({scrollTop: 0}, 500);
     let element = document.getElementById("page-mod-jqshow-view");
-    if (element === undefined) {
+    if (element === undefined || element === null) {
         element = document.getElementById("page-mod-jqshow-preview");
     }
     if (element.requestFullscreen) {
