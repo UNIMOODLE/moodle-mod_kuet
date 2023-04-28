@@ -97,12 +97,11 @@ SessionsPanel.prototype.copySession = function(e) {
                             };
                             // eslint-disable-next-line max-nested-callbacks
                             Ajax.call([requestPanel])[0].done(function(response) {
-                                let templatePanel = TEMPLATES.PANEL;
-                                // eslint-disable-next-line max-nested-callbacks
-                                Templates.render(templatePanel, response).then(function(html, js) {
+                                // eslint-disable-next-line max-nested-callbacks,promise/always-return
+                                Templates.render(TEMPLATES.PANEL, response).then((html, js) => {
                                     identifier.html(html);
                                     Templates.runTemplateJS(js);
-                                });
+                                }).fail(Notification.exception);
                             }).fail(Notification.exception);
                         } else {
                             Notification.exception({message: copysessionerror});
