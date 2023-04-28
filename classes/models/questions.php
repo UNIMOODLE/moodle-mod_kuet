@@ -25,15 +25,19 @@
 
 namespace mod_jqshow\models;
 use coding_exception;
-use context_module;
 use dml_exception;
+use dml_transaction_exception;
 use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
-use qtype_multichoice;
+use qbank_previewquestion\question_preview_options;
 use question_answer;
+use question_attempt;
 use question_bank;
+use question_definition;
+use question_engine;
 use stdClass;
+use context_user;
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
+require_once($CFG->dirroot. '/question/engine/lib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 defined('MOODLE_INTERNAL') || die();
 
@@ -87,23 +91,23 @@ class questions {
     public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, $preview = false) : object {
 
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
-        $question2 = question_bank::load_question($jqshowquestion->get('questionid'));
+        $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
-
         $time = $jqshowquestion->get('hastimelimit') ? $jqshowquestion->get('timelimit') : get_config('mod_jqshow', 'questiontime');
         $order = $jqshowquestion->get('qorder');
         $a = new stdClass();
         $a->num = $order;
         $a->total = $numsessionquestions;
-        $type = $question2->get_type_name();
+        $type = $question->get_type_name();
         $answers = [];
         $feedbacks = [];
         /** @var question_answer $response */
-        foreach ($question2->answers as $response) {
+        foreach ($question->answers as $response) {
+            $answertext = self::get_text($response->answer, $response->answerformat, $response->id, $question, 'answer');
             $answers[] = [
                 'answerid' => $response->id,
                 'questionid' => $jqshowquestion->get('questionid'),
-                'answertext' => $response->answer,
+                'answertext' => $answertext,
                 'fraction' => $response->fraction,
             ];
             $feedbacks[] = [
@@ -120,18 +124,58 @@ class questions {
         $data->jqid = $jqshowquestion->get('id');
         $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
         $data->sessionprogress = round($order * 100 / $numsessionquestions);
-        $data->questiontext = $question2->questiontext;
-        $data->questiontextformat = $question2->questiontextformat;
+        $data->questiontext =
+            self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
+        $data->questiontextformat = $question->questiontextformat;
         $data->hastime = $jqshowquestion->get('hastimelimit');
         $data->seconds = $time;
         $data->preview = $preview;
-        $data->numanswers = count($question2->answers);
-        $data->name = $question2->name;
+        $data->numanswers = count($question->answers);
+        $data->name = $question->name;
         $data->qtype = $type;
         $data->$type = true;
         $data->answers = $answers;
         $data->feedbacks = $feedbacks;
         $data->template = 'mod_jqshow/questions/encasement';
+
         return $data;
+    }
+
+    /**
+     * @param string $text
+     * @param int $textformat
+     * @param int $id
+     * @param question_definition $question
+     * @param string $filearea
+     * @return string
+     * @throws dml_transaction_exception
+     */
+    public static function get_text(
+        string $text, int $textformat, int $id, question_definition $question, string $filearea
+    ) : string {
+        global $DB, $USER;
+        $maxvariant = min($question->get_num_variants(), 100);// QUESTION_PREVIEW_MAX_VARIANTS.
+        $options = new question_preview_options($question);
+        $options->load_user_defaults();
+        $options->set_from_request();
+        $quba = question_engine::make_questions_usage_by_activity(
+            'core_question_preview', context_user::instance($USER->id));
+        $quba->set_preferred_behaviour($options->behaviour);
+        $slot = $quba->add_question($question, $options->maxmark);
+        if ($options->variant) {
+            $options->variant = min($maxvariant, max(1, $options->variant));
+        } else {
+            $options->variant = rand(1, $maxvariant);
+        }
+        $quba->start_question($slot, $options->variant);
+        $transaction = $DB->start_delegated_transaction();
+        /* TODO check, as one usage is saved for each of the images in the question,
+        and no more than 1 should be saved per question, as in the Moodle preview. */
+        question_engine::save_questions_usage_by_activity($quba);
+        $transaction->allow_commit();
+
+        $qa = new question_attempt($question, $quba->get_id());
+        $qa->set_slot($slot);
+        return $qa->get_question()->format_text($text, $textformat, $qa, 'question', $filearea, $id);
     }
 }

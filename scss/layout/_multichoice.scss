@@ -41,8 +41,9 @@
             text-align: center;
             width: 100%;
             img {
-                margin: 1em;
+                margin: 1em auto;
                 max-width: 90% !important;
+                height: auto;
             }
         }
     }
@@ -88,6 +89,11 @@
                         width: auto;
                     }
                 }
+            }
+            img {
+                margin: 1em auto;
+                max-width: 90% !important;
+                height: auto;
             }
         }
         @for $i from 1 through length($answercolors) {
