@@ -26,6 +26,7 @@
 namespace mod_jqshow\models;
 use coding_exception;
 use dml_exception;
+use dml_transaction_exception;
 use mod_jqshow\persistents\jqshow_questions;
 use qbank_previewquestion\question_preview_options;
 use question_answer;
@@ -102,11 +103,11 @@ class questions {
         $feedbacks = [];
         /** @var question_answer $response */
         foreach ($question->answers as $response) {
-            $text = self::get_text($response->answer, $response->answerformat, $response->id, $question);
+            $answertext = self::get_text($response->answer, $response->answerformat, $response->id, $question, 'answer');
             $answers[] = [
                 'answerid' => $response->id,
                 'questionid' => $jqshowquestion->get('questionid'),
-                'answertext' => $text,
+                'answertext' => $answertext,
                 'fraction' => $response->fraction,
             ];
             $feedbacks[] = [
@@ -120,9 +121,11 @@ class questions {
         $data->sessionid = $sessionid;
         $data->jqshowid = $jqshowid;
         $data->questionid = $jqshowquestion->get('questionid');
+        $data->jqid = $jqshowquestion->get('id');
         $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
         $data->sessionprogress = round($order * 100 / $numsessionquestions);
-        $data->questiontext = $question->questiontext;
+        $data->questiontext =
+            self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
         $data->hastime = $jqshowquestion->get('hastimelimit');
         $data->seconds = $time;
@@ -139,14 +142,17 @@ class questions {
     }
 
     /**
-     * @param string $answertext
-     * @param int $answerformat
-     * @param int $answerid
+     * @param string $text
+     * @param int $textformat
+     * @param int $id
      * @param question_definition $question
+     * @param string $filearea
      * @return string
-     * @throws \dml_transaction_exception
+     * @throws dml_transaction_exception
      */
-    public static function get_text(string $answertext, int $answerformat, int $answerid, question_definition $question) : string {
+    public static function get_text(
+        string $text, int $textformat, int $id, question_definition $question, string $filearea
+    ) : string {
         global $DB, $USER;
         $maxvariant = min($question->get_num_variants(), 100);// QUESTION_PREVIEW_MAX_VARIANTS.
         $options = new question_preview_options($question);
@@ -163,11 +169,13 @@ class questions {
         }
         $quba->start_question($slot, $options->variant);
         $transaction = $DB->start_delegated_transaction();
+        /* TODO check, as one usage is saved for each of the images in the question,
+        and no more than 1 should be saved per question, as in the Moodle preview. */
         question_engine::save_questions_usage_by_activity($quba);
         $transaction->allow_commit();
 
         $qa = new question_attempt($question, $quba->get_id());
         $qa->set_slot($slot);
-        return $qa->get_question()->format_text($answertext, $answerformat, $qa, 'question', 'answer', $answerid);
+        return $qa->get_question()->format_text($text, $textformat, $qa, 'question', $filearea, $id);
     }
 }

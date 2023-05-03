@@ -28,6 +28,7 @@ namespace mod_jqshow\models;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
+use core_availability\info_module;
 use core_php_time_limit;
 use dml_exception;
 use mod_jqshow\external\sessionquestions_external;
@@ -229,6 +230,7 @@ class sessions {
      * @return array
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
     public function get_questions_for_category(string $category): array {
         global $DB, $OUTPUT;
@@ -345,7 +347,7 @@ class sessions {
         $data->sid = required_param('sid', PARAM_INT);
         $data->cmid = required_param('cmid', PARAM_INT);
         $data->jqshowid = $this->jqshow->id;
-        $data->config = $this->get_session_config($data->sid);
+        $data->config = self::get_session_config($data->sid);
         $allquestions = (new questions($data->jqshowid, $data->cmid, $data->sid))->get_list();
         $questiondata = [];
         foreach ($allquestions as $question) {
@@ -364,7 +366,7 @@ class sessions {
      * @return array
      * @throws coding_exception
      */
-    private function get_session_config(int $sid): array {
+    public static function get_session_config(int $sid): array {
         // TODO finish setting with all icons and session settings to be shown.
         $sessiondata = new jqshow_sessions($sid);
         $data = [];
@@ -481,6 +483,37 @@ class sessions {
         ];
 
         return $data;
+    }
+
+    /**
+     * @param int $sid
+     * @param int $cmid
+     * @return array
+     * @throws moodle_exception
+     */
+    public static function get_session_results(int $sid, int $cmid): array {
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid);
+        $users = enrol_get_course_users($course->id, true);
+        $session = jqshow_sessions::get_record(['id' => $sid]);
+        $questions = (new questions($session->get('jqshowid'), $cmid, $sid))->get_list();
+        $students = [];
+        foreach ($users as $user) {
+            if (info_module::is_user_visible($cm, $user->id, false)) {
+                // TODO get the real values for this, at the moment it is fake for layout.
+                $student = new stdClass();
+                $student->userfullname = $user->firstname . ' ' . $user->lastname;
+                $student->correctanswers = rand(0, count($questions));
+                $student->incorrectanswers = count($questions) - $student->correctanswers;
+                $student->userpoints = rand(0, 1000);
+                $students[] = $student;
+            }
+        }
+        usort($students, static fn($a, $b) => $b->userpoints <=> $a->userpoints);
+        $position = 0;
+        foreach ($students as $student) {
+            $student->userposition = ++$position;
+        }
+        return $students;
     }
 
     /**

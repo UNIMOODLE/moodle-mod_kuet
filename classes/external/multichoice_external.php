@@ -25,11 +25,14 @@
 
 namespace mod_jqshow\external;
 
+use context_module;
+use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use mod_jqshow\models\questions;
 use question_bank;
 
 defined('MOODLE_INTERNAL') || die();
@@ -60,13 +63,14 @@ class multichoice_external extends external_api {
      * @param int $questionid
      * @param bool $preview
      * @return array
+     * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      */
     public static function multichoice(
         int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, bool $preview
     ): array {
-        // TODO review and obtain images of the different feedbacks. Review correctfeedback and incorrectfeedback.
-        global $DB, $USER;
+        // TODO Review correctfeedback and incorrectfeedback.
+        global $PAGE;
         self::validate_parameters(
             self::multichoice_parameters(),
             [
@@ -77,6 +81,8 @@ class multichoice_external extends external_api {
                 'questionid' => $questionid,
                 'preview' => $preview]
         );
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
 
         $question = question_bank::load_question($questionid);
         $correctanswers = '';
@@ -86,11 +92,18 @@ class multichoice_external extends external_api {
                 $correctanswers .= $answer->id . ',';
             }
             if ($key === $answerid && $answerfeedback === '') {
-                $answerfeedback = $answer->feedback;
+                // TODO images do not work.
+                $answerfeedback = questions::get_text(
+                    $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
+                );
             }
         }
         $correctanswers = trim($correctanswers, ',');
-        $statmentfeedback = $question->generalfeedback;
+
+        // TODO images do not work.
+        $statmentfeedback = questions::get_text(
+            $question->generalfeedback, 1, $question->id, $question, 'generalfeedback'
+        );
 
         return [
             'reply_status' => true,
