@@ -91,6 +91,7 @@ class jqshow_sessions extends persistent {
             ),
             'automaticstart' => array(
                 'type' => PARAM_INT,
+                'default' => 0
             ),
             'timelimit' => array(
                 'type' => PARAM_INT,
@@ -99,6 +100,7 @@ class jqshow_sessions extends persistent {
             'activetimelimit' => array(
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
+                'default' => null
             ),
             'groupings' => array(
                 'type' => PARAM_RAW,
