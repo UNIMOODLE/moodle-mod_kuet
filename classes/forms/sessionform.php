@@ -66,41 +66,52 @@ class sessionform extends moodleform {
         $mform->addElement('select', 'anonymousanswer',
             get_string('anonymousanswer', 'mod_jqshow'), $customdata['anonymousanswerchoices']);
         $mform->setType('anonymousanswer', PARAM_RAW);
+        $mform->addHelpButton('anonymousanswer', 'anonymousanswer', 'jqshow');
 
         // Allowguests.
         $mform->addElement('checkbox', 'allowguests', get_string('allowguests', 'mod_jqshow'));
         $mform->setType('allowguests', PARAM_INT);
+        $mform->addHelpButton('allowguests', 'allowguests', 'jqshow');
 
         // Sessionmode.
         $mform->addElement('select', 'sessionmode',
             get_string('sessionmode', 'mod_jqshow'), $customdata['sessionmodechoices']);
         $mform->setType('sessionmode', PARAM_RAW);
+        $mform->addHelpButton('sessionmode', 'sessionmode', 'jqshow');
 
         // Countdown.
         $mform->addElement('select', 'countdown',
             get_string('countdown', 'mod_jqshow'), $customdata['countdown']);
         $mform->setType('countdown', PARAM_INT);
+        $mform->addHelpButton('countdown', 'countdown', 'jqshow');
 
         // Hide grade and ranking between questions.
         $mform->addElement('checkbox', 'hidegraderanking', get_string('hidegraderankingbtweenquestions', 'mod_jqshow'));
         $mform->setType('hidegraderanking', PARAM_INT);
         $mform->disabledIf('hidegraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->addHelpButton('hidegraderanking', 'hidegraderanking', 'jqshow');
 
         // Randomquestions.
         $mform->addElement('checkbox', 'randomquestions', get_string('randomquestions', 'mod_jqshow'));
         $mform->setType('randomquestions', PARAM_INT);
+        $mform->addHelpButton('randomquestions', 'randomquestions', 'jqshow');
+        $mform->disabledIf('randomquestions', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->disabledIf('randomquestions', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
 
         // Randomanswers.
         $mform->addElement('checkbox', 'randomanswers', get_string('randomanswers', 'mod_jqshow'));
         $mform->setType('randomanswers', PARAM_INT);
+        $mform->addHelpButton('randomanswers', 'randomanswers', 'jqshow');
 
         // Showfeedback.
         $mform->addElement('checkbox', 'showfeedback', get_string('showfeedback', 'mod_jqshow'));
         $mform->setType('showfeedback', PARAM_INT);
+        $mform->addHelpButton('showfeedback', 'showfeedback', 'jqshow');
 
         // Showfinalgrade.
         $mform->addElement('checkbox', 'showfinalgrade', get_string('showfinalgrade', 'mod_jqshow'));
         $mform->setType('showfinalgrade', PARAM_INT);
+        $mform->addHelpButton('showfinalgrade', 'showfinalgrade', 'jqshow');
 
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
@@ -126,6 +137,7 @@ class sessionform extends moodleform {
             get_string('startdate', 'mod_jqshow'), ['optional' => true]);
         $mform->disabledIf('startdate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('startdate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->addHelpButton('startdate', 'startdate', 'jqshow');
 
         // Closequiz.
 //        $mform->addElement('html', '<h2>' . get_string('closequiz', 'mod_jqshow') . '</h2>');
@@ -141,6 +153,7 @@ class sessionform extends moodleform {
         $mform->disabledIf('enddate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('enddate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
         $mform->disabledIf('enddate', 'startdate[enabled]', 'notchecked');
+        $mform->addHelpButton('enddate', 'enddate', 'jqshow');
 
         // Automaticstart.
         $mform->addElement('checkbox', 'automaticstart', get_string('automaticstart', 'mod_jqshow'));
@@ -149,13 +162,15 @@ class sessionform extends moodleform {
         $mform->disabledIf('automaticstart', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
         $mform->disabledIf('automaticstart', 'startdate[enabled]', 'notchecked');
         $mform->disabledIf('automaticstart', 'enddate[enabled]', 'notchecked');
+        $mform->addHelpButton('automaticstart', 'automaticstart', 'jqshow');
 
 //        $mform->addElement('html', '<span  class="bold">' . get_string('timelimit', 'mod_jqshow') . '</span>');
-        // Automaticstart.
+        // Activetimelimit.
         $mform->addElement('checkbox', 'activetimelimit', get_string('activetimelimit', 'mod_jqshow'));
         $mform->setType('activetimelimit', PARAM_INT);
         $mform->disabledIf('activetimelimit', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('activetimelimit', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->addHelpButton('activetimelimit', 'activetimelimit', 'jqshow');
 
         // Timelimit.
         $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'));
@@ -163,14 +178,16 @@ class sessionform extends moodleform {
         $mform->disabledIf('timelimit', 'activetimelimit', 'eq', 0);
         $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->addHelpButton('timelimit', 'timelimit', 'jqshow');
 
         // Add time question enable.
-        $mform->addElement('checkbox', 'addtimequestion', get_string('addtimequestion', 'mod_jqshow'), 'asdasd');
+        $mform->addElement('checkbox', 'addtimequestion', get_string('addtimequestion', 'mod_jqshow'));
         $mform->setType('addtimequestion', PARAM_INT);
         $mform->disabledIf('addtimequestion', 'activetimelimit', 'eq', 1);
         $mform->disabledIf('activetimelimit', 'addtimequestion', 'eq', 1);
         $mform->disabledIf('addtimequestion', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('addtimequestion', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->addHelpButton('addtimequestion', 'addtimequestion', 'jqshow');
 
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
