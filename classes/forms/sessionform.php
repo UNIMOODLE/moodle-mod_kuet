@@ -68,7 +68,7 @@ class sessionform extends moodleform {
         $mform->setType('anonymousanswer', PARAM_RAW);
 
         // Allowguests.
-        $mform->addElement('selectyesno', 'allowguests', get_string('allowguests', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'allowguests', get_string('allowguests', 'mod_jqshow'));
         $mform->setType('allowguests', PARAM_INT);
 
         // Sessionmode.
@@ -82,25 +82,24 @@ class sessionform extends moodleform {
         $mform->setType('countdown', PARAM_INT);
 
         // Hide grade and ranking between questions.
-        $mform->addElement('selectyesno', 'hidegraderanking',
-            get_string('hidegraderankingbtweenquestions', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'hidegraderanking', get_string('hidegraderankingbtweenquestions', 'mod_jqshow'));
         $mform->setType('hidegraderanking', PARAM_INT);
         $mform->disabledIf('hidegraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
 
         // Randomquestions.
-        $mform->addElement('selectyesno', 'randomquestions', get_string('randomquestions', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'randomquestions', get_string('randomquestions', 'mod_jqshow'));
         $mform->setType('randomquestions', PARAM_INT);
 
         // Randomanswers.
-        $mform->addElement('selectyesno', 'randomanswers', get_string('randomanswers', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'randomanswers', get_string('randomanswers', 'mod_jqshow'));
         $mform->setType('randomanswers', PARAM_INT);
 
         // Showfeedback.
-        $mform->addElement('selectyesno', 'showfeedback', get_string('showfeedback', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'showfeedback', get_string('showfeedback', 'mod_jqshow'));
         $mform->setType('showfeedback', PARAM_INT);
 
         // Showfinalgrade.
-        $mform->addElement('selectyesno', 'showfinalgrade', get_string('showfinalgrade', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'showfinalgrade', get_string('showfinalgrade', 'mod_jqshow'));
         $mform->setType('showfinalgrade', PARAM_INT);
 
         $mform->addElement('html', '</div>');
@@ -119,7 +118,7 @@ class sessionform extends moodleform {
 //        $mform->addElement('html', '<h2>' . get_string('openquiz', 'mod_jqshow') . '</h2>');
 
         // Openquiz - enable.
-//        $mform->addElement('selectyesno', 'openquizenable', get_string('openquizenable', 'mod_jqshow'));
+//        $mform->addElement('checkbox', 'openquizenable', get_string('openquizenable', 'mod_jqshow'));
 //        $mform->setType('openquizenable', PARAM_INT);
 
         // Openquiz - Startdate.
@@ -132,7 +131,7 @@ class sessionform extends moodleform {
 //        $mform->addElement('html', '<h2>' . get_string('closequiz', 'mod_jqshow') . '</h2>');
 
         // Closequiz - enable.
-//        $mform->addElement('selectyesno', 'closequizenable', get_string('closequizenable', 'mod_jqshow'));
+//        $mform->addElement('checkbox', 'closequizenable', get_string('closequizenable', 'mod_jqshow'));
 //        $mform->setType('closequizenable', PARAM_INT);
 
         // Closequiz - enddate.
@@ -144,7 +143,7 @@ class sessionform extends moodleform {
         $mform->disabledIf('enddate', 'startdate[enabled]', 'notchecked');
 
         // Automaticstart.
-        $mform->addElement('selectyesno', 'automaticstart', get_string('automaticstart', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'automaticstart', get_string('automaticstart', 'mod_jqshow'));
         $mform->setType('automaticstart', PARAM_INT);
         $mform->disabledIf('automaticstart', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('automaticstart', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
@@ -153,7 +152,7 @@ class sessionform extends moodleform {
 
 //        $mform->addElement('html', '<span  class="bold">' . get_string('timelimit', 'mod_jqshow') . '</span>');
         // Automaticstart.
-        $mform->addElement('selectyesno', 'activetimelimit', get_string('activetimelimit', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'activetimelimit', get_string('activetimelimit', 'mod_jqshow'));
         $mform->setType('activetimelimit', PARAM_INT);
         $mform->disabledIf('activetimelimit', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('activetimelimit', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
@@ -166,12 +165,12 @@ class sessionform extends moodleform {
         $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
 
         // Add time question enable.
-        $mform->addElement('selectyesno', 'addtimequestionenable', get_string('addtimequestionenable', 'mod_jqshow'), 'asdasd');
-        $mform->setType('addtimequestionenable', PARAM_INT);
-        $mform->disabledIf('addtimequestionenable', 'activetimelimit', 'eq', 1);
-        $mform->disabledIf('activetimelimit', 'addtimequestionenable', 'eq', 1);
-        $mform->disabledIf('addtimequestionenable', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('addtimequestionenable', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->addElement('checkbox', 'addtimequestion', get_string('addtimequestion', 'mod_jqshow'), 'asdasd');
+        $mform->setType('addtimequestion', PARAM_INT);
+        $mform->disabledIf('addtimequestion', 'activetimelimit', 'eq', 1);
+        $mform->disabledIf('activetimelimit', 'addtimequestion', 'eq', 1);
+        $mform->disabledIf('addtimequestion', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->disabledIf('addtimequestion', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
 
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
