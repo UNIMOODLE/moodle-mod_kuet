@@ -55,14 +55,10 @@ class sessions {
     /** @var jqshow_sessions[] list */
     protected array $list;
 
-    // Advanced modes.
-    const ADVANCE_MODE_MANUAL = 'manual';
-    const ADVANCE_MODE_PROGRAMMED = 'programmed';
-
-    // Game modes.
-    const GAME_MODE_INACTIVE = 'inactive';
-//    const GAME_MODE_RACE = 'race'; // Optativa.
-    const GAME_MODE_PODIUM = 'podium';
+    // Session modes.
+    const INACTIVE_MANUAL = 'inactive_manual';
+    const PODIUM_MANUAL = 'podium_manual';
+    const PODIUM_PROGRAMMED = 'podium_programmed';
 
     // Anonymous response.
     const ANONYMOUS_ANSWERS = 0;
@@ -108,13 +104,10 @@ class sessions {
             self::ANONYMOUS_ALL_ANSWERS => get_string('anonymiseallresponses', 'mod_jqshow'),
             self::ANONYMOUS_ANSWERS_NO => get_string('noanonymiseresponses', 'mod_jqshow'),
         ];
-        $advancemodechoices = [
-            self::ADVANCE_MODE_MANUAL => get_string('manualmode', 'mod_jqshow'),
-            self::ADVANCE_MODE_PROGRAMMED => get_string('programmedmode', 'mod_jqshow')
-        ];
-        $gamemodechoices = [
-            self::GAME_MODE_INACTIVE => get_string('inactivemode', 'mod_jqshow'),
-            self::GAME_MODE_PODIUM => get_string('podiummode', 'mod_jqshow'),
+        $sessionmodechoices = [
+            self::INACTIVE_MANUAL => get_string('inactive_manual', 'mod_jqshow'),
+            self::PODIUM_MANUAL => get_string('podium_manual', 'mod_jqshow'),
+            self::PODIUM_PROGRAMMED => get_string('podium_programmed', 'mod_jqshow'),
         ];
         $countdownchoices = [
             0 => 'Opcion1',
@@ -136,8 +129,7 @@ class sessions {
             'cm' => $cm,
             'jqshowid' => $this->jqshow->id,
             'countdown' => $countdownchoices,
-            'gamemode' => $gamemodechoices,
-            'advancemode' => $advancemodechoices,
+            'sessionmodechoices' => $sessionmodechoices,
             'anonymousanswerchoices' => $anonymousanswerchoices,
             'groupingsselect' => $groupingsselect,
         ];
@@ -176,8 +168,7 @@ class sessions {
             'name' => $session->get('name'),
             'anonymousanswer' => $session->get('anonymousanswer'),
             'allowguests' => $session->get('allowguests'),
-            'advancemode' => $session->get('advancemode'),
-            'gamemode' => $session->get('gamemode'),
+            'sessionmode' => $session->get('sessionmode'),
             'countdown' => $session->get('countdown'),
             'randomquestions' => $session->get('randomquestions'),
             'randomanswers' => $session->get('randomanswers'),
@@ -392,20 +383,11 @@ class sessions {
             'iconconfig' => 'anonymise',
             'configname' => $anonymisestr
         ];
-        $data[] = [
-            'iconconfig' => 'advancemode',
-            'configname' => get_string('advancemode', 'mod_jqshow'),
-            'configvalue' => $sessiondata->get('advancemode') === 'manual' ?
-                get_string('manualmode', 'mod_jqshow') :
-                get_string('programmedmode', 'mod_jqshow')
-        ];
 
         $data[] = [
-            'iconconfig' => 'gamemode',
-            'configname' => get_string('gamemode', 'mod_jqshow'),
-            'configvalue' => $sessiondata->get('gamemode') === 'inactive' ?
-                get_string('inactivemode', 'mod_jqshow') :
-                get_string('podiummode', 'mod_jqshow')
+            'iconconfig' => 'sessionmode',
+            'configname' => get_string('sessionmode', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('sessionmode')
         ];
 
         $data[] = [
@@ -414,7 +396,8 @@ class sessions {
             'configvalue' => $sessiondata->get('countdown')
         ];
 
-        if ($sessiondata->get('gamemode') === 'podium') {
+//        if ($sessiondata->get('sessionmode') === 'podium') {
+        if (in_array($sessiondata->get('sessionmode'), [sessions::PODIUM_MANUAL, sessions::PODIUM_PROGRAMMED])) {
             $data[] = [
                 'iconconfig' => 'hidegraderanking',
                 'configname' => get_string('hidegraderankingbtweenquestions', 'mod_jqshow'),

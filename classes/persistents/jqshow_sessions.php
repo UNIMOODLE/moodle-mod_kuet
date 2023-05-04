@@ -18,6 +18,7 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
+use mod_jqshow\models\sessions;
 use stdClass;
 
 /**
@@ -49,11 +50,10 @@ class jqshow_sessions extends persistent {
             'allowguests' => array(
                 'type' => PARAM_INT,
             ),
-            'advancemode' => array(
+            'sessionmode' => array(
                 'type' => PARAM_RAW,
-            ),
-            'gamemode' => array(
-                'type' => PARAM_RAW,
+                'default' => sessions::INACTIVE_MANUAL,
+                'choices' => array(sessions::INACTIVE_MANUAL, sessions::PODIUM_PROGRAMMED, sessions::PODIUM_MANUAL)
             ),
             'countdown' => array(
                 'type' => PARAM_INT,
@@ -283,7 +283,7 @@ class jqshow_sessions extends persistent {
      */
     private function get_active_sessions(int $jqshowid): array {
         global $DB;
-        $select = "jqshowid = :jqshowid AND advancemode = :advancemode AND automaticstart = :automaticstart AND status != 0";
+        $select = "jqshowid = :jqshowid AND sessionmode = :sessionmode AND automaticstart = :automaticstart AND status != 0";
         $params = [
             'jqshowid' => $jqshowid
         ];
@@ -297,10 +297,10 @@ class jqshow_sessions extends persistent {
      */
     private static function get_automaticstart_sessions(int $jqshowid): array {
         global $DB;
-        $select = "jqshowid = :jqshowid AND advancemode = :advancemode AND automaticstart = :automaticstart AND status != 0";
+        $select = "jqshowid = :jqshowid AND sessionmode = :sessionmode AND automaticstart = :automaticstart AND status != 0";
         $params = [
             'jqshowid' => $jqshowid,
-            'advancemode' => 'programmed',
+            'sessionmode' => sessions::PODIUM_PROGRAMMED,
             'automaticstart' => 1
         ];
         return $DB->get_records_select('jqshow_sessions', $select, $params, 'timecreated ASC');

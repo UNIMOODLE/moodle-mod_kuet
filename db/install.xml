@@ -32,8 +32,7 @@
         <FIELD NAME="jqshowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="anonymousanswer" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="There are 3 types: 0 (partially) 1(totally) 2(not anonymous)"/>
         <FIELD NAME="allowguests" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Two options: true or false"/>
-        <FIELD NAME="advancemode" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="manual" SEQUENCE="false" COMMENT="Options:manual or scheduled"/>
-        <FIELD NAME="gamemode" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="inactive" SEQUENCE="false" COMMENT="Options:inactive,race or podium"/>
+        <FIELD NAME="sessionmode" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="inactive_manual" SEQUENCE="false" COMMENT="Options:inactive_manual,podium_manual,podium_programmed"/>
         <FIELD NAME="countdown" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Time in seconds between questions. Only for scheduled mode"/>
         <FIELD NAME="randomquestions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options: 0 or 1"/>
         <FIELD NAME="randomanswers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options:0 or 1"/>

@@ -182,3 +182,7 @@ $string['corrects'] = 'Corrects';
 $string['incorrects'] = 'Incorrects';
 $string['points'] = 'Points';
 $string['onlyinactivemodevalid'] = 'Only inactive game mode is valid with manual advance mode.';
+$string['inactive_manual'] = ' Inactive + manual';
+$string['podium_manual'] = ' Podium + manual';
+$string['podium_programmed'] = ' Podium + programmed';
+$string['sessionmode'] = ' Session mode';

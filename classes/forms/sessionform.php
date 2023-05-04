@@ -71,15 +71,10 @@ class sessionform extends moodleform {
         $mform->addElement('selectyesno', 'allowguests', get_string('allowguests', 'mod_jqshow'));
         $mform->setType('allowguests', PARAM_INT);
 
-        // Advancemode.
-        $mform->addElement('select', 'advancemode',
-            get_string('advancemode', 'mod_jqshow'), $customdata['advancemode']);
-        $mform->setType('advancemode', PARAM_RAW);
-
-        // Gamemode.
-        $mform->addElement('select', 'gamemode',
-            get_string('gamemode', 'mod_jqshow'), $customdata['gamemode']);
-        $mform->setType('gamemode', PARAM_RAW);
+        // Sessionmode.
+        $mform->addElement('select', 'sessionmode',
+            get_string('sessionmode', 'mod_jqshow'), $customdata['sessionmodechoices']);
+        $mform->setType('sessionmode', PARAM_RAW);
 
         // Countdown.
         $mform->addElement('select', 'countdown',
@@ -90,7 +85,7 @@ class sessionform extends moodleform {
         $mform->addElement('selectyesno', 'hidegraderanking',
             get_string('hidegraderankingbtweenquestions', 'mod_jqshow'));
         $mform->setType('hidegraderanking', PARAM_INT);
-        $mform->disabledIf('hidegraderanking', 'gamemode', 'neq', sessions::GAME_MODE_PODIUM);
+        $mform->disabledIf('hidegraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
 
         // Randomquestions.
         $mform->addElement('selectyesno', 'randomquestions', get_string('randomquestions', 'mod_jqshow'));
@@ -130,8 +125,8 @@ class sessionform extends moodleform {
         // Openquiz - Startdate.
         $mform->addElement('date_selector', 'startdate',
             get_string('startdate', 'mod_jqshow'), ['optional' => true]);
-//        $mform->addHelpButton('startdate', 'startdate', 'mod_jqshow');
-        $mform->disabledIf('startdate', 'advancemode', 'eq', sessions::ADVANCE_MODE_MANUAL);
+        $mform->disabledIf('startdate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->disabledIf('startdate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
 
         // Closequiz.
 //        $mform->addElement('html', '<h2>' . get_string('closequiz', 'mod_jqshow') . '</h2>');
@@ -143,15 +138,16 @@ class sessionform extends moodleform {
         // Closequiz - enddate.
         $mform->addElement('date_selector', 'enddate',
             get_string('enddate', 'mod_jqshow'), ['optional' => true]);
-//        $mform->addHelpButton('startdaenddatete', 'enddate', 'mod_jqshow');
-        $mform->disabledIf('enddate', 'advancemode', 'eq', sessions::ADVANCE_MODE_MANUAL);
+//        $mform->addHelpButton('enddate', 'enddate', 'mod_jqshow');
+        $mform->disabledIf('enddate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->disabledIf('enddate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
         $mform->disabledIf('enddate', 'startdate[enabled]', 'notchecked');
-//        $mform->disabledIf('startdate', 'enddate[enabled]', 'notchecked');
 
         // Automaticstart.
         $mform->addElement('selectyesno', 'automaticstart', get_string('automaticstart', 'mod_jqshow'));
         $mform->setType('automaticstart', PARAM_INT);
-        $mform->disabledIf('automaticstart', 'advancemode', 'eq', sessions::ADVANCE_MODE_MANUAL);
+        $mform->disabledIf('automaticstart', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->disabledIf('automaticstart', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
         $mform->disabledIf('automaticstart', 'startdate[enabled]', 'notchecked');
         $mform->disabledIf('automaticstart', 'enddate[enabled]', 'notchecked');
 
@@ -159,20 +155,23 @@ class sessionform extends moodleform {
         // Automaticstart.
         $mform->addElement('selectyesno', 'activetimelimit', get_string('activetimelimit', 'mod_jqshow'));
         $mform->setType('activetimelimit', PARAM_INT);
-        $mform->disabledIf('activetimelimit', 'advancemode', 'eq', sessions::ADVANCE_MODE_MANUAL);
+        $mform->disabledIf('activetimelimit', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->disabledIf('activetimelimit', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
 
         // Timelimit.
         $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'));
         $mform->setType('timelimit', PARAM_INT);
         $mform->disabledIf('timelimit', 'activetimelimit', 'eq', 0);
-        $mform->disabledIf('timelimit', 'advancemode', 'eq', sessions::ADVANCE_MODE_MANUAL);
+        $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
 
         // Add time question enable.
         $mform->addElement('selectyesno', 'addtimequestionenable', get_string('addtimequestionenable', 'mod_jqshow'), 'asdasd');
         $mform->setType('addtimequestionenable', PARAM_INT);
         $mform->disabledIf('addtimequestionenable', 'activetimelimit', 'eq', 1);
         $mform->disabledIf('activetimelimit', 'addtimequestionenable', 'eq', 1);
-        $mform->disabledIf('addtimequestionenable', 'advancemode', 'eq', sessions::ADVANCE_MODE_MANUAL);
+        $mform->disabledIf('addtimequestionenable', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->disabledIf('addtimequestionenable', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
 
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
@@ -233,11 +232,6 @@ class sessionform extends moodleform {
             $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
         }
 
-        // Advance mode and game mode. Only valid: inactive-manual, podio-manual, podio-programmed.
-//        if ($data['advancemode'] == sessions::ADVANCE_MODE_MANUAL &&  $data['gamemode'] != sessions::GAME_MODE_INACTIVE) {
-        if ($data['gamemode'] == sessions::GAME_MODE_INACTIVE &&  $data['advancemode'] != sessions::ADVANCE_MODE_MANUAL) {
-            $errors['gamemode'] = get_string('onlyinactivemodevalid', 'mod_jqshow');
-        }
         return $errors;
     }
 }

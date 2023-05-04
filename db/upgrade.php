@@ -35,61 +35,6 @@ defined('MOODLE_INTERNAL') || die();
  * @throws upgrade_exception
  */
 function xmldb_jqshow_upgrade($oldversion) {
-    global $DB;
 
-    if ($oldversion < 2023032901) {
-        $dbman = $DB->get_manager();
-        // Define field status to be added to jqshow_sessions.
-        $table = new xmldb_table('jqshow_sessions');
-        $field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '1', null, null, null, '1', 'groupmode');
-
-        // Conditionally launch add field status.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Jqshow savepoint reached.
-        upgrade_mod_savepoint(true, 2023032901, 'jqshow');
-    }
-
-    if ($oldversion < 2023032902) {
-        $dbman = $DB->get_manager();
-        // Define field status to be added to jqshow_sessions.
-        $table = new xmldb_table('jqshow_sessions');
-        $field = new xmldb_field('enablestartdate', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'startdate');
-
-        // Conditionally launch add field status.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-        $field = new xmldb_field('enableenddate', XMLDB_TYPE_INTEGER, '1', null, null, null, '0', 'enddate');
-        // Conditionally launch add field status.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Jqshow savepoint reached.
-        upgrade_mod_savepoint(true, 2023032902, 'jqshow');
-    }
-    if ($oldversion < 2023033102) {
-        $dbman = $DB->get_manager();
-        // Define field groupmode to be dropped from jqshow_sessions.
-        $table = new xmldb_table('jqshow_sessions');
-        $field = new xmldb_field('groupmode');
-
-        // Conditionally launch drop field groupmode.
-        if ($dbman->field_exists($table, $field)) {
-            $dbman->drop_field($table, $field);
-        }
-
-        $field = new xmldb_field('groupings', XMLDB_TYPE_TEXT, null, null, null, null, null, 'activetimelimit');
-        // Conditionally launch add field groupings.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Jqshow savepoint reached.
-        upgrade_mod_savepoint(true, 2023033102, 'jqshow');
-    }
     return true;
 }
