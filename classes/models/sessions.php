@@ -177,7 +177,6 @@ class sessions {
             'startdate' => $session->get('startdate'),
             'enddate' => $session->get('enddate'),
             'automaticstart' => $session->get('automaticstart'),
-            'activetimelimit' => $session->get('activetimelimit'),
             'timelimit' => $session->get('timelimit')
         ];
     }
@@ -400,7 +399,7 @@ class sessions {
         if (in_array($sessiondata->get('sessionmode'), [sessions::PODIUM_MANUAL, sessions::PODIUM_PROGRAMMED])) {
             $data[] = [
                 'iconconfig' => 'hidegraderanking',
-                'configname' => get_string('hidegraderankingbtweenquestions', 'mod_jqshow'),
+                'configname' => get_string('hidegraderanking', 'mod_jqshow'),
                 'configvalue' => $sessiondata->get('hidegraderanking')
             ];
         }
@@ -429,7 +428,7 @@ class sessions {
             'configvalue' => $sessiondata->get('showfinalgrade') === 1 ? get_string('yes') : get_string('no')
         ];
 
-        if ($sessiondata->get('enablestartdate') === 1) {
+        if ($sessiondata->get('startdate') != 0) {
             $data[] = [
                 'iconconfig' => 'startdate',
                 'configname' => get_string('startdate', 'mod_jqshow'),
@@ -437,7 +436,7 @@ class sessions {
             ];
         }
 
-        if ($sessiondata->get('enableenddate') === 1) {
+        if ($sessiondata->get('enddate') != 0) {
             $data[] = [
                 'iconconfig' => 'enddate',
                 'configname' => get_string('enddate', 'mod_jqshow'),
@@ -451,7 +450,7 @@ class sessions {
             'configvalue' => $sessiondata->get('automaticstart') === 1 ? get_string('yes') : get_string('no')
         ];
 
-        if ($sessiondata->get('activetimelimit') === 1) {
+        if ($sessiondata->get('timelimit') != 0) {
             $data[] = [
                 'iconconfig' => 'timelimit',
                 'configname' => get_string('timelimit', 'mod_jqshow'),

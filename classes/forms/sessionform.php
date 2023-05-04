@@ -86,7 +86,7 @@ class sessionform extends moodleform {
         $mform->addHelpButton('countdown', 'countdown', 'jqshow');
 
         // Hide grade and ranking between questions.
-        $mform->addElement('checkbox', 'hidegraderanking', get_string('hidegraderankingbtweenquestions', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'hidegraderanking', get_string('hidegraderanking', 'mod_jqshow'));
         $mform->setType('hidegraderanking', PARAM_INT);
         $mform->disabledIf('hidegraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->addHelpButton('hidegraderanking', 'hidegraderanking', 'jqshow');
@@ -165,26 +165,18 @@ class sessionform extends moodleform {
         $mform->addHelpButton('automaticstart', 'automaticstart', 'jqshow');
 
 //        $mform->addElement('html', '<span  class="bold">' . get_string('timelimit', 'mod_jqshow') . '</span>');
-        // Activetimelimit.
-        $mform->addElement('checkbox', 'activetimelimit', get_string('activetimelimit', 'mod_jqshow'));
-        $mform->setType('activetimelimit', PARAM_INT);
-        $mform->disabledIf('activetimelimit', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('activetimelimit', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->addHelpButton('activetimelimit', 'activetimelimit', 'jqshow');
-
-        // Timelimit.
-        $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'));
+        // Time limit.
+        $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'),
+            array('optional' => true));
         $mform->setType('timelimit', PARAM_INT);
-        $mform->disabledIf('timelimit', 'activetimelimit', 'eq', 0);
+        $mform->addHelpButton('timelimit', 'timelimit', 'mod_jqshow');
         $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->addHelpButton('timelimit', 'timelimit', 'jqshow');
 
         // Add time question enable.
         $mform->addElement('checkbox', 'addtimequestion', get_string('addtimequestion', 'mod_jqshow'));
         $mform->setType('addtimequestion', PARAM_INT);
-        $mform->disabledIf('addtimequestion', 'activetimelimit', 'eq', 1);
-        $mform->disabledIf('activetimelimit', 'addtimequestion', 'eq', 1);
+        $mform->disabledIf('addtimequestion', 'timelimit[enabled]', 'checked');
         $mform->disabledIf('addtimequestion', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('addtimequestion', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
         $mform->addHelpButton('addtimequestion', 'addtimequestion', 'jqshow');

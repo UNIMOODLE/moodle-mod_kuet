@@ -46,9 +46,11 @@ class jqshow_sessions extends persistent {
             ),
             'anonymousanswer' => array(
                 'type' => PARAM_INT,
+                'default' => 0,
             ),
             'allowguests' => array(
                 'type' => PARAM_INT,
+                'default' => 0,
             ),
             'sessionmode' => array(
                 'type' => PARAM_RAW,
@@ -59,31 +61,29 @@ class jqshow_sessions extends persistent {
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
             ),
+            'hidegraderanking' => array(
+                'type' => PARAM_INT,
+                'default' => 0,
+            ),
             'randomquestions' => array(
                 'type' => PARAM_INT,
+                'default' => 0,
             ),
             'randomanswers' => array(
                 'type' => PARAM_INT,
+                'default' => 0,
             ),
             'showfeedback' => array(
                 'type' => PARAM_INT,
+                'default' => 0,
             ),
             'showfinalgrade' => array(
                 'type' => PARAM_INT,
-            ),
-            'enablestartdate' => array(
-                'type' => PARAM_INT,
-                'null' => NULL_ALLOWED,
-                'default' => '0'
+                'default' => 0,
             ),
             'startdate' => array(
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'enableenddate' => array(
-                'type' => PARAM_INT,
-                'null' => NULL_ALLOWED,
-                'default' => '0'
             ),
             'enddate' => array(
                 'type' => PARAM_INT,
@@ -97,10 +97,9 @@ class jqshow_sessions extends persistent {
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
             ),
-            'activetimelimit' => array(
+            'addtimequestion' => array(
                 'type' => PARAM_INT,
-                'null' => NULL_ALLOWED,
-                'default' => null
+                'default' => 0
             ),
             'groupings' => array(
                 'type' => PARAM_RAW,
@@ -109,10 +108,6 @@ class jqshow_sessions extends persistent {
             ),
             'status' => array(
                 'type' => PARAM_INT,
-            ),
-            'hidegraderanking' => array(
-                'type' => PARAM_INT,
-                'default' => 0,
             ),
             'usermodified' => array(
                 'type' => PARAM_INT,
@@ -139,9 +134,7 @@ class jqshow_sessions extends persistent {
         $record->name .= ' - ' . get_string('copy', 'mod_jqshow');
         $record->status = 1;
         $record->automaticstart = 0;
-        $record->enablestartdate = 0;
         $record->startdate = 0;
-        $record->enableenddate = 0;
         $record->enddate = 0;
         return $DB->insert_record(self::TABLE, $record);
     }

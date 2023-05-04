@@ -56,7 +56,6 @@ class sessionspanel_external_test extends advanced_testcase {
         'startdate' => 1680534000,
         'enddate' => 1683133200,
         'automaticstart' => 0,
-        'activetimelimit' => 0,
         'timelimit' => 0,
         'addtimequestion' => 0,
         'groupmode' => 0,
