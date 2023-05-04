@@ -119,13 +119,13 @@ class sessionquestions_external extends external_api {
             'sessionquestions' => new external_multiple_structure(
                 new external_single_structure(
                     [
-                        'questionnid'   => new external_value(PARAM_INT, 'Question id'),
+                        'questionnid' => new external_value(PARAM_INT, 'Question id'),
                         'position' => new external_value(PARAM_INT, 'Question order'),
                         'name' => new external_value(PARAM_RAW, 'Name of question'),
                         'type' => new external_value(PARAM_RAW, 'Question type'),
                         'isvalid' => new external_value(PARAM_RAW, 'Is question valid or missing config'),
                         'time' => new external_value(PARAM_RAW, 'Time of question'),
-                        'date' => new external_value(PARAM_RAW, 'Question date'),
+                        'version' => new external_value(PARAM_RAW, 'Question version'),
                         'managesessions' => new external_value(PARAM_BOOL, 'Capability'),
                         'question_preview_url' => new external_value(PARAM_URL, 'Url for preview'),
                         'editquestionurl' => new external_value(PARAM_URL, 'Url for edit question')

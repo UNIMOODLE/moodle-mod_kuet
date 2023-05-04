@@ -37,9 +37,14 @@
                                     {{#pix}} i/edit_session, mod_jqshow {{/pix}}
                                 </a>
                             </div>
-                            <div class="question-action" data-action="copy_question" data-questionnid="{{questionnid}}">
-                                {{#pix}} i/copy_session, mod_jqshow {{/pix}}
+                            <div class="question-action" data-action="preview_question" data-questionnid="{{questionnid}}">
+                                <a href="{{question_preview_url}}" target="_blank">
+                                    <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
+                                        {{#pix}} i/preview, mod_jqshow {{/pix}}
+                                    </div>
+                                </a>
                             </div>
+
                             <div class="question-action" data-action="delete_question" data-questionnid="{{questionnid}}">
                                 {{#pix}} i/delete_session, mod_jqshow {{/pix}}
                             </div>

@@ -11,13 +11,11 @@ import Notification from 'core/notification';
 import SortableList from 'core/sortable_list';
 
 let ACTION = {
-    COPYQUESTION: '[data-action="copy_question"]',
     DELETEQUESTION: '[data-action="delete_question"]',
     QUESTION: '.question-item',
 };
 
 let SERVICES = {
-    COPYQUESTION: 'mod_jqshow_copyquestion',
     DELETEQUESTION: 'mod_jqshow_deletequestion',
     SESSIONQUESTIONS: 'mod_jqshow_sessionquestions',
     REORDER: 'mod_jqshow_reorderquestions'
@@ -58,63 +56,11 @@ function SessionQuestions(selector) {
 SessionQuestions.prototype.node = null;
 
 SessionQuestions.prototype.initPanel = function() {
-    this.node.find(ACTION.COPYQUESTION).on('click', this.copyQuestion.bind(this));
     this.node.find(ACTION.DELETEQUESTION).on('click', this.deleteQuestion.bind(this));
     if (!(sortable instanceof SortableList)) {
         sortable = new SortableList(REGION.QUESTIONLIST);
     }
     jQuery(REGION.QUESTIONLIST + ' > ' + ACTION.QUESTION).on(SortableList.EVENTS.DROP, this.reorderQuestions.bind(this));
-};
-
-SessionQuestions.prototype.copyQuestion = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    let that = this;
-    let questionId = jQuery(e.currentTarget).attr('data-questionnid');
-    const stringkeys = [
-        {key: 'copyquestion', component: 'mod_jqshow'},
-        {key: 'copyquestion_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'}
-    ];
-    getStrings(stringkeys).then((langStrings) => {
-        const title = langStrings[0];
-        const message = langStrings[1];
-        const buttonText = langStrings[2];
-        return ModalFactory.create({
-            title: title,
-            body: message,
-            type: ModalFactory.types.SAVE_CANCEL
-        }).then(modal => {
-            modal.setSaveButtonText(buttonText);
-            modal.getRoot().on(ModalEvents.save, () => {
-                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
-                    let identifier = jQuery(REGION.PANEL);
-                    identifier.append(html);
-                });
-                let request = {
-                    methodname: SERVICES.COPYQUESTION,
-                    args: {
-                        qid: questionId,
-                    }
-                };
-                Ajax.call([request])[0].done(function(response) {
-                    if (response.copied) {
-                        that.reloadSessionQuestionsHtml();
-                    } else {
-                        jQuery(REGION.LOADING).remove();
-                        alert('no se ha podido borrar la pregunta. intentalo de nuevo mas tarde.');
-                    }
-                });
-            });
-            modal.getRoot().on(ModalEvents.hidden, () => {
-                modal.destroy();
-            });
-            return modal;
-        });
-    }).done(function(modal) {
-        modal.show();
-        // eslint-disable-next-line no-restricted-globals
-    }).fail(Notification.exception);
 };
 
 SessionQuestions.prototype.reloadSessionQuestionsHtml = function() {
