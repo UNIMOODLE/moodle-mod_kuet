@@ -297,6 +297,8 @@ class sessions {
             $question->issuitable = in_array($question->qtype, questions::TYPES);
             $question->questionpreview =
                 (new moodle_url('/question/bank/previewquestion/preview.php', ['id' => $key]))->out(false);
+            $question->questionedit =
+                (new moodle_url('/question/bank/editquestion/question.php', ['id' => $key, 'cmid' => $this->cmid]))->out(false);
             $questions[$key] = (array)$question;
         }
         return array_values($questions);
