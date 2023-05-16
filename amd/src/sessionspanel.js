@@ -17,7 +17,8 @@ let ACTION = {
 let SERVICES = {
     SESSIONSPANEL: 'mod_jqshow_sessionspanel',
     COPYSESSION: 'mod_jqshow_copysession',
-    DELETESESSION: 'mod_jqshow_deletesession'
+    DELETESESSION: 'mod_jqshow_deletesession',
+    STARTSESSION: 'mod_jqshow_startsession'
 };
 
 let REGION = {
@@ -208,7 +209,18 @@ SessionsPanel.prototype.initSession = function(e) {
         }).then(modal => {
             modal.setSaveButtonText(buttonText);
             modal.getRoot().on(ModalEvents.save, () => {
-                window.location.replace(M.cfg.wwwroot + '/mod/jqshow/session.php?cmid=' + cmId + '&sid=' + sessionId);
+                let request = {
+                    methodname: SERVICES.STARTSESSION,
+                    args: {
+                        cmid: cmId,
+                        sessionid: sessionId
+                    }
+                };
+                Ajax.call([request])[0].done(function(response) {
+                    if (response.started === true) {
+                        window.location.replace(M.cfg.wwwroot + '/mod/jqshow/session.php?cmid=' + cmId + '&sid=' + sessionId);
+                    }
+                }).fail(Notification.exception);
             });
             modal.getRoot().on(ModalEvents.hidden, () => {
                 modal.destroy();

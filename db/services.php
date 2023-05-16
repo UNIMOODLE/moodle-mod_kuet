@@ -25,6 +25,7 @@
 
 use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
+use mod_jqshow\external\finishsession_external;
 use mod_jqshow\external\getlistresults_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
@@ -36,6 +37,7 @@ use mod_jqshow\external\addquestions_external;
 use mod_jqshow\external\deletequestion_external;
 use mod_jqshow\external\copyquestion_external;
 use mod_jqshow\external\editsessionsettings_external;
+use mod_jqshow\external\startsession_external;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -152,6 +154,22 @@ $functions = [
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_finishsession' => [
+        'classname' => finishsession_external::class,
+        'methodname' => 'finishsession',
+        'description' => 'Finish session',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_startsession' => [
+        'classname' => startsession_external::class,
+        'methodname' => 'startsession',
+        'description' => 'Start session',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -170,7 +188,9 @@ $services = [
             'mod_jqshow_editsessionsettings',
             'mod_jqshow_multichoice',
             'mod_jqshow_nextquestion',
-            'mod_jqshow_getlistresults'
+            'mod_jqshow_getlistresults',
+            'mod_jqshow_finishsession',
+            'mod_jqshow_startsession'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

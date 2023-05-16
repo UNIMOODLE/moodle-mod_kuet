@@ -51,15 +51,14 @@ class teacher_session_view implements renderable, templatable {
         $data->isteacher = true;
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
-
         $session = new jqshow_sessions($data->sid);
+        jqshow_sessions::mark_session_started($data->sid);
         if ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED) {
             $data->programmedmode = true;
             $data->config = sessions::get_session_config($data->sid);
             $data->userresults = sessions::get_session_results($data->sid, $data->cmid);
         } else {
             // SOCKETS!
-            jqshow_sessions::mark_session_started($data->sid);
             $data->manualmode = true;
             $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
         }
