@@ -53,10 +53,8 @@ if ($isteacher) {
         throw new moodle_exception('multiplesessionerror', 'mod_jqshow', '', [],
             get_string('multiplesessionerror', 'mod_jqshow'));
     }
-    if ($activesession === 0) {
-        $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
-        run_server_background($server);
-    }
+    $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
+    run_server_background($server);
     $view = new teacher_session_view();
 } else {
     $view = new student_session_view();

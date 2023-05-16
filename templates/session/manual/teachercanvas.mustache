@@ -1,5 +1,9 @@
-<h4>Profesor</h4>
 <div data-region="canvas" data-userid="{{userid}}" data-username="{{userfullname}}" data-isteacher="{{isteacher}}" data-cmid="{{cmid}}" data-sid="{{sid}}">
+    {{#waitingroom}}
+        {{> mod_jqshow/session/manual/waitingroom/teacher }}
+    {{/waitingroom}}
+
+
     <div id="message-box"></div>
     <div id="countusers">0</div>
     <ul id="userlist">

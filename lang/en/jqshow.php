@@ -203,3 +203,5 @@ $string['enddate_help'] = 'Session will end automatically at this date. End date
 $string['automaticstart_help'] = 'Session will start automatically at this date. Only available after choosing an start/end date.';
 $string['timelimit_help'] = 'Total time for the session';
 $string['addtimequestion_help'] = 'The total session time will be the sum of the questions time.';
+$string['waitingroom'] = 'Waiting room';
+$string['waitingroom_info'] = 'Check that everything is correct before starting the session.';
