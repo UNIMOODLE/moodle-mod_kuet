@@ -1,7 +1,9 @@
 <div class="questions-list-body d-table list-group" data-region="question_list">
     <div class="d-table-row questions-list-thead">
         {{^ispage3}}
-            <div class="d-table-cell"></div>
+            {{^waitingroom}}
+                <div class="d-table-cell"></div>
+            {{/waitingroom}}
         {{/ispage3}}
         <div class="d-table-cell">{{#str}}question_position, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
@@ -15,11 +17,13 @@
     {{#sessionquestions}}
         <div class="d-table-row questions-list-data question-item" data-questionnid="{{questionnid}}">
             {{^ispage3}}
-                <div class="d-table-cell">
-                    <span tabindex="0" role="button" aria-haspopup="true" data-drag-type="move">
-                        {{#pix}}i/dragger, mod_jqshow{{/pix}}
-                    </span>
-                </div>
+                {{^waitingroom}}
+                    <div class="d-table-cell">
+                        <span tabindex="0" role="button" aria-haspopup="true" data-drag-type="move">
+                            {{#pix}}i/dragger, mod_jqshow{{/pix}}
+                        </span>
+                    </div>
+                {{/waitingroom}}
             {{/ispage3}}
             <div class="d-table-cell">{{position}}</div>
             <div class="d-table-cell">{{name}}</div>
@@ -57,6 +61,13 @@
                             </div>
                         </a>
                     {{/ispage3}}
+                    {{#waitingroom}}
+                        <a href="{{question_preview_url}}" target="_blank">
+                            <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
+                                {{#pix}} i/preview, mod_jqshow {{/pix}}
+                            </div>
+                        </a>
+                    {{/waitingroom}}
                 </div>
             </div>
         </div>
@@ -64,10 +75,12 @@
 </div>
 {{#js}}
     {{^ispage3}}
-        require(['mod_jqshow/sessionquestions'],
-            function(SessionQuestions) {
-                SessionQuestions.initSessionQuestions('[data-region="questions-panel"]');
-            }
-        );
+        {{^waitingroom}}
+            require(['mod_jqshow/sessionquestions'],
+                function(SessionQuestions) {
+                    SessionQuestions.initSessionQuestions('[data-region="questions-panel"]');
+                }
+            );
+        {{/waitingroom}}
     {{/ispage3}}
 {{/js}}

@@ -55,6 +55,8 @@ class student_session_view implements renderable, templatable {
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
         $session = new jqshow_sessions($data->sid);
+        // TODO detect if the session is still active, and if not, paint a session ended message.
+        // TODO get progress from the student's session and paint the question they are asked.
         if ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED) {
             $firstquestion = jqshow_questions::get_first_question_of_session($data->sid);
             switch ($firstquestion->get('qtype')) {
@@ -71,7 +73,6 @@ class student_session_view implements renderable, templatable {
             $data->programmedmode = true;
         } else {
             // TODO SOCKETS!
-            jqshow_sessions::mark_session_started($data->sid);
             $data->manualmode = true;
             $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
         }
