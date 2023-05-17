@@ -61,11 +61,15 @@ class teacher_session_view implements renderable, templatable {
             $data->userresults = sessions::get_session_results($data->sid, $data->cmid);
         } else {
             // SOCKETS!
+            // Always start with waitingroom.
             [$course, $cm] = get_course_and_cm_from_cmid($data->cmid, 'jqshow');
             $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
             $data->manualmode = true;
             $data->waitingroom = true;
             $data->config = sessions::get_session_config($data->sid);
+            $data->sessionname = $data->config[0]['configvalue'];
+            unset($data->config[0]);
+            $data->config = array_values($data->config);
             $allquestions = (new questions($jqshow->id, $data->cmid, $data->sid))->get_list();
             $questiondata = [];
             foreach ($allquestions as $question) {

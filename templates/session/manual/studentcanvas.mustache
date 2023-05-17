@@ -1,18 +1,16 @@
-<div data-region="canvas" data-userid="{{userid}}" data-username="{{userfullname}}" data-isteacher="{{isteacher}}" data-cmid="{{cmid}}" data-sid="{{sid}}">
+<div data-region="student-canvas" data-userid="{{userid}}" data-username="{{userfullname}}" data-cmid="{{cmid}}" data-sid="{{sid}}">
     {{#waitingroom}}
         {{> mod_jqshow/session/manual/waitingroom/student }}
     {{/waitingroom}}
 
 
     <div id="message-box"></div>
-    <div id="countusers">0</div>
-    <button id="student_send">Estudiante envía</button>
     <div id="student_messages"></div>
 </div>
 
 {{#js}}
-    require(['mod_jqshow/sockets'], function(Sockets) {
-        Sockets.initSockets('[data-region="canvas"]', {{port}});
+    require(['mod_jqshow/studentsockets'], function(Sockets) {
+        Sockets.studentInitSockets('[data-region="student-canvas"]', {{port}});
         /*window.onbeforeunload = function(e) {
             // TODO review.
             e.returnValue = confirm(

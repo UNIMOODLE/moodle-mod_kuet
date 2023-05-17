@@ -34,6 +34,10 @@ require_once(__DIR__ . '/websockets.php');
 
 class server extends websockets {
 
+    protected $students = [];
+    protected $teacher = [];
+    protected $sidusers = [];
+
     /**
      * @param $user
      * @param $message
@@ -43,7 +47,7 @@ class server extends websockets {
     protected function process($user, $message) {
         $data = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
         $responsetext = $this->get_response_from_action($user, $data['action'], $data);
-        foreach ($this->users as $usersaved) {
+        foreach ($this->sidusers[$data['sid']] as $usersaved) {
             fwrite($usersaved->socket, $responsetext, strlen($responsetext));
         }
     }
@@ -51,19 +55,34 @@ class server extends websockets {
     /**
      * @param $user
      * @return void
-     * @throws JsonException
      */
     protected function connected($user) {
+        // TODO log user connected. This function is called by handshake.
+    }
+
+    /**
+     * @param $socket
+     * @param $ip
+     * @return void
+     * @throws JsonException
+     * This function is called after handshake, by websockets.php.
+     */
+    protected function connect($socket, $ip) {
+        $user = new websocketuser(uniqid('u', true), $socket, $ip);
+        // Add the user to the list of all users on the socket.
+        $this->users[$user->usersocketid] = $user;
+        $this->sockets[$user->usersocketid] = $socket;
+
         $response = $this->mask(
             json_encode([
-                'action' => 'newuser',
-                'userid' => $user->id ?? '',
-                'count' => count($this->users)
+                'action' => 'connect',
+                'usersocketid' => $user->usersocketid
             ], JSON_THROW_ON_ERROR)
         );
-        foreach ($this->users as $usersaved) {
-            fwrite($usersaved->socket, $response, strlen($response));
-        }
+        // We return the usersocketid only to the new user so that responds by identifying with newuser.
+        fwrite($user->socket, $response, strlen($response));
+
+        $this->connecting($user);
     }
 
     /**
@@ -73,16 +92,19 @@ class server extends websockets {
      * @throws dml_exception
      */
     protected function closed($user) {
+        unset($this->sidusers[$user->sid][$user->usersocketid],
+            $this->students[$user->sid][$user->usersocketid]);
         $response = $this->mask(
             json_encode([
                 'action' => 'userdisconnected',
-                'id' => $user->id,
+                'usersocketid' => $user->usersocketid,
                 'message' => '<span style="color: red">El estudiante ' . $user->dataname . ' se ha desconectado</span>',
-                'count' => count($this->users)
+                'count' => count($this->students[$user->sid])
             ], JSON_THROW_ON_ERROR));
-        foreach ($this->users as $usersaved) {
+        foreach ($this->sidusers[$user->sid] as $usersaved) {
             fwrite($usersaved->socket, $response, strlen($response));
         }
+        // TODO close only conections of same sid.
         if ($user->isteacher) {
             // END session, close sockets and server.
             foreach ($this->sockets as $socket) {
@@ -95,40 +117,56 @@ class server extends websockets {
     }
 
     /**
-     * @param websocketuser $user
-     * @param string $useraction
-     * @param array $data
-     * @return string
+     * @param websocketuser $user // The user who sent the message.
+     * @param string $useraction // The action it requires.
+     * @param array $data // Body of the message.
+     * @return string // Json enconde.
      * @throws JsonException
      */
     protected function get_response_from_action(websocketuser $user, string $useraction, array $data): string {
         // Prepare data to be sent to client.
         switch ($useraction) {
             case 'newuser':
-                $this->users[$user->id]->dataname = $data['name'];
-                $this->users[$user->id]->dataid = $data['id'];
-                $this->users[$user->id]->sid = $data['sid'];
-                $this->users[$user->id]->cmid = $data['cmid'];
+                $this->users[$user->usersocketid]->dataname = $data['name'];
+                $this->users[$user->usersocketid]->userid = $data['userid'];
+                $this->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
+                $this->users[$user->usersocketid]->sid = $data['sid'];
+                $this->users[$user->usersocketid]->cmid = $data['cmid'];
                 $user->cmid = $data['cmid'];
                 $user->sid = $data['sid'];
                 if ($data['isteacher']) {
                     $user->isteacher = true;
-                    $this->users[$user->id]->isteacher = true;
+                    $this->users[$user->usersocketid]->isteacher = true;
+                    // TODO control that there is only one teacher.
+                    $this->teacher[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
+                    $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
+                    return $this->mask(
+                        json_encode([
+                            'action' => 'newteacher',
+                            'name' => $data['name'] ?? '',
+                            'userid' => $user->id ?? '',
+                            'message' => '<span style="color: green">El profesor ' . $user->dataname . ' se ha conectado</span>',
+                            'count' => count($this->sidusers[$data['sid']]),
+                        ], JSON_THROW_ON_ERROR)
+                    );
                 }
+                $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
+                $this->students[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
                 return $this->mask(
                     json_encode([
                         'action' => 'newuser',
                         'name' => $data['name'] ?? '',
-                        'userid' => $user->id ?? '',
+                        'userid' => $user->userid ?? '',
+                        'usersocketid' => $user->usersocketid ?? '',
                         'message' => '<span style="color: green">El estudiante ' . $user->dataname . ' se ha conectado</span>',
-                        'count' => count($this->users),
+                        'count' => count($this->students[$data['sid']]),
                     ], JSON_THROW_ON_ERROR)
                 );
             case 'countusers':
                 return $this->mask(
                     json_encode([
                         'action' => 'countusers',
-                        'count' => count($this->users),
+                        'count' => count($this->students[$data['sid']]),
                     ], JSON_THROW_ON_ERROR)
                 );
             case 'teacherSend':

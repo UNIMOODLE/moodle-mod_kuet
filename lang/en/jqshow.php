@@ -205,3 +205,4 @@ $string['timelimit_help'] = 'Total time for the session';
 $string['addtimequestion_help'] = 'The total session time will be the sum of the questions time.';
 $string['waitingroom'] = 'Waiting room';
 $string['waitingroom_info'] = 'Check that everything is correct before starting the session.';
+$string['participants'] = 'Participants';

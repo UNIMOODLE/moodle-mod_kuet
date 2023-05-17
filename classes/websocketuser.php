@@ -28,15 +28,15 @@ namespace mod_jqshow;
 class websocketuser {
 
     public $socket;
-    public $id;
+    public $usersocketid;
     public $ip;
     public $headers = [];
     public $dataname; // Moodle Username.
-    public $dataid; // Moodle userid.
     public $isteacher;
     public $handshake = false;
     public $cmid;
     public $sid;
+    public $userid;
 
     /**
      * @param $id
@@ -44,7 +44,7 @@ class websocketuser {
      * @param $ip
      */
     public function __construct($id, $socket, $ip) {
-        $this->id = $id;
+        $this->usersocketid = $id;
         $this->socket = $socket;
         $this->ip = $ip;
         $this->handshake = true;

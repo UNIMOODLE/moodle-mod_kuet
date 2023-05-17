@@ -148,6 +148,19 @@ abstract class websockets {
     }
 
     /**
+     * @param $msg
+     * @return void
+     */
+    public function send_message($msg) {
+        foreach ($this->sockets as $key => $changedsocket) {
+            $this->stderr($msg);
+            if ($key !== 'm') {
+                fwrite($changedsocket, $msg);
+            }
+        }
+    }
+
+    /**
      * @return void
      */
     protected function tick() {
@@ -212,20 +225,6 @@ abstract class websockets {
             $text .= $data[$i] ^ $masks[$i % 4];
         }
         return $text;
-    }
-
-    /**
-     * @param $msg
-     * @return void
-     */
-    public function send_message($msg) {
-        // TODO prepare for one user.
-        foreach ($this->sockets as $key => $changedsocket) {
-            $this->stderr($msg);
-            if ($key !== 'm') {
-                fwrite($changedsocket, $msg);
-            }
-        }
     }
 
     /**
@@ -299,17 +298,7 @@ abstract class websockets {
         }
     }
 
-    /**
-     * @param $socket
-     * @param $ip
-     * @return void
-     */
-    protected function connect($socket, $ip) {
-        $user = new websocketuser(uniqid('u', true), $socket, $ip);
-        $this->users[$user->id] = $user;
-        $this->sockets[$user->id] = $socket;
-        $this->connecting($user);
-    }
+
 
     /**
      * @param $socket
@@ -320,9 +309,9 @@ abstract class websockets {
     protected function disconnect($socket, $triggerclosed = true, $sockerrno = null) {
         $disconnecteduser = $this->get_user_by_socket($socket);
         if ($disconnecteduser !== null) {
-            unset($this->users[$disconnecteduser->id]);
-            if (array_key_exists($disconnecteduser->id, $this->sockets)) {
-                unset($this->sockets[$disconnecteduser->id]);
+            unset($this->users[$disconnecteduser->usersocketid]);
+            if (array_key_exists($disconnecteduser->usersocketid, $this->sockets)) {
+                unset($this->sockets[$disconnecteduser->usersocketid]);
             }
             if (!is_null($sockerrno)) {
                 socket_clear_error($socket);
