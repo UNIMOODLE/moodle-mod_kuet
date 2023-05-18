@@ -2,15 +2,24 @@
 /* eslint-disable no-unused-vars */ // TODO remove.
 
 import jQuery from 'jquery';
+import Templates from 'core/templates';
+import Notification from 'core/notification';
 
 let REGION = {
     MESSAGEBOX: '#message-box',
-    USERLIST: '#userlist',
+    USERLIST: '[data-region="active-users"]',
     COUNTUSERS: '#countusers'
 };
 
 let ACTION = {
 
+};
+
+let TEMPLATES = {
+    LOADING: 'core/overlay_loading',
+    SUCCESS: 'core/notification_success',
+    ERROR: 'core/notification_error',
+    PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant'
 };
 
 let portUrl = '8080';
@@ -32,6 +41,7 @@ Sockets.prototype.root = null;
 let userid = null;
 let usersocketid = null;
 let username = null;
+let userimage = null;
 let messageBox = null;
 let userlist = null;
 let countusers = null;
@@ -41,6 +51,7 @@ let sid = null;
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
     username = this.root[0].dataset.username;
+    userimage = this.root[0].dataset.userimage;
     cmid = this.root[0].dataset.cmid;
     sid = this.root[0].dataset.sid;
     messageBox = this.root.find(REGION.MESSAGEBOX);
@@ -52,6 +63,7 @@ Sockets.prototype.initSockets = function() {
     );
 
     Sockets.prototype.webSocket.onopen = function(event) {
+        // TODO delete.
         messageBox.append(
             '<div class="system_msg" style="color:#bbbbbb">' +
             'Bienvenido a Jam Quiz Show ' + username + '!</div>'
@@ -66,9 +78,12 @@ Sockets.prototype.initSockets = function() {
                 // The server has returned the connected status, it is time to identify yourself.
                 if (response.usersocketid !== undefined) {
                     usersocketid = response.usersocketid;
+                    // eslint-disable-next-line no-console
+                    console.log(response.usersocketid);
                     let msg = {
-                        'id': userid,
+                        'userid': userid,
                         'name': username,
+                        'pic': userimage,
                         'cmid': cmid,
                         'sid': sid,
                         'usersocketid': usersocketid,
@@ -77,9 +92,23 @@ Sockets.prototype.initSockets = function() {
                     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 }
                 break;
-            case 'newuser':
-                // TODO Append new user to waitroom.
+            case 'newuser': {
+                let identifier = jQuery(REGION.USERLIST);
+                let data = response.students;
+                identifier.html('');
+                jQuery.each(data, function (i, student) {
+                    let templateContext = {
+                        'usersocketid': student.usersocketid,
+                        'userimage': student.picture,
+                        'userfullname': student.name,
+                    };
+                    Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html, js) {
+                        identifier.append(html);
+                    }).fail(Notification.exception);
+                });
+                countusers.html(response.count);
                 break;
+            }
             case 'countusers':
                 countusers.html(response.count);
                 break;

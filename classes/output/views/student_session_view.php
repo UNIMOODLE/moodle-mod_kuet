@@ -27,6 +27,8 @@ use renderable;
 use stdClass;
 use templatable;
 use renderer_base;
+use user_picture;
+
 /**
  *
  * @package     mod_jqshow
@@ -47,13 +49,20 @@ class student_session_view implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         // TODO refactor duplicate code for teacher and student.
-        global $USER;
+        global $USER, $PAGE;
         $data = new stdClass();
         $data->cmid = required_param('cmid', PARAM_INT);
         $data->sid = required_param('sid', PARAM_INT);
         $data->isteacher = true;
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
+        /*$picturefields = explode(',', implode(',', \core_user\fields::get_picture_fields()));
+        $user = new stdclass();
+        $user->id = $USER->id;
+        $user = username_load_fields_from_object($user, $USER, null, $picturefields);*/
+        $userpicture = new user_picture($USER);
+        $userpicture->size = 1;
+        $data->userimage = $userpicture->get_url($PAGE)->out(false);
         $session = new jqshow_sessions($data->sid);
         // TODO detect if the session is still active, and if not, paint a session ended message.
         // TODO get progress from the student's session and paint the question they are asked.
@@ -72,8 +81,12 @@ class student_session_view implements renderable, templatable {
             }
             $data->programmedmode = true;
         } else {
-            // TODO SOCKETS!
+            // SOCKETS!
+            // Always start with waitingroom.
             $data->manualmode = true;
+            $data->waitingroom = true;
+            $data->config = sessions::get_session_config($data->sid);
+            $data->sessionname = $data->config[0]['configvalue'];
             $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
         }
 

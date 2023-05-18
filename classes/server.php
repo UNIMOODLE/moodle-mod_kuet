@@ -128,13 +128,14 @@ class server extends websockets {
         switch ($useraction) {
             case 'newuser':
                 $this->users[$user->usersocketid]->dataname = $data['name'];
+                $this->users[$user->usersocketid]->picture = $data['pic'];
                 $this->users[$user->usersocketid]->userid = $data['userid'];
                 $this->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
                 $this->users[$user->usersocketid]->sid = $data['sid'];
                 $this->users[$user->usersocketid]->cmid = $data['cmid'];
                 $user->cmid = $data['cmid'];
                 $user->sid = $data['sid'];
-                if ($data['isteacher']) {
+                if (isset($data['isteacher']) && $data['isteacher'] === true) {
                     $user->isteacher = true;
                     $this->users[$user->usersocketid]->isteacher = true;
                     // TODO control that there is only one teacher.
@@ -150,37 +151,38 @@ class server extends websockets {
                         ], JSON_THROW_ON_ERROR)
                     );
                 }
+                $this->users[$user->usersocketid]->isteacher = false;
                 $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
                 $this->students[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
+                $studentsdata = [];
+                foreach ($this->students[$data['sid']] as $key => $student) {
+                    $studentsdata[$key]['picture'] = $student->picture;
+                    $studentsdata[$key]['usersocketid'] = $student->usersocketid;
+                    $studentsdata[$key]['name'] = $student->dataname;
+                }
                 return $this->mask(
                     json_encode([
                         'action' => 'newuser',
+                        'students' => array_values($studentsdata),
+                        'count' => count($this->students[$data['sid']])
+                    ], JSON_THROW_ON_ERROR)
+                );
+                /*return $this->mask(
+                    json_encode([
+                        'action' => 'newuser',
                         'name' => $data['name'] ?? '',
+                        'pic' => $data['pic'] ?? '',
                         'userid' => $user->userid ?? '',
                         'usersocketid' => $user->usersocketid ?? '',
                         'message' => '<span style="color: green">El estudiante ' . $user->dataname . ' se ha conectado</span>',
                         'count' => count($this->students[$data['sid']]),
                     ], JSON_THROW_ON_ERROR)
-                );
+                );*/
             case 'countusers':
                 return $this->mask(
                     json_encode([
                         'action' => 'countusers',
                         'count' => count($this->students[$data['sid']]),
-                    ], JSON_THROW_ON_ERROR)
-                );
-            case 'teacherSend':
-                return $this->mask(
-                    json_encode([
-                        'action' => 'teacherSend',
-                        'message' => '<span style="color: orange">El Profesor ha pulsado el botón</span>'
-                    ], JSON_THROW_ON_ERROR)
-                );
-            case 'studentSend':
-                return $this->mask(
-                    json_encode([
-                        'action' => 'studentSend',
-                        'message' => '<span style="color: blue">El estudiante ' . $data['name'] . ' ha pulsado el botón</span>'
                     ], JSON_THROW_ON_ERROR)
                 );
             case 'shutdownTest':

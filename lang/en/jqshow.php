@@ -206,3 +206,5 @@ $string['addtimequestion_help'] = 'The total session time will be the sum of the
 $string['waitingroom'] = 'Waiting room';
 $string['waitingroom_info'] = 'Check that everything is correct before starting the session.';
 $string['participants'] = 'Participants';
+$string['waitingroom_message'] = 'Hold on, we\'re leaving in no time...';
+$string['ready_users'] = 'Ready participants';
