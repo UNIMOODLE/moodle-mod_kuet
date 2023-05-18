@@ -64,6 +64,7 @@ class student_session_view implements renderable, templatable {
         $userpicture->size = 1;
         $data->userimage = $userpicture->get_url($PAGE)->out(false);
         $session = new jqshow_sessions($data->sid);
+        $data->jqshowid = $session->get('jqshowid');
         // TODO detect if the session is still active, and if not, paint a session ended message.
         // TODO get progress from the student's session and paint the question they are asked.
         if ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED) {

@@ -135,6 +135,7 @@ Sockets.prototype.initSockets = function() {
     };
 
     Sockets.prototype.webSocket.onclose = function() {
+        // TODO redirect to sessions panel.
         messageBox.append('<div class="system_msg">Connection Closed</div>');
     };
 };

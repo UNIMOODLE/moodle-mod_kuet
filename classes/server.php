@@ -104,15 +104,16 @@ class server extends websockets {
         foreach ($this->sidusers[$user->sid] as $usersaved) {
             fwrite($usersaved->socket, $response, strlen($response));
         }
-        // TODO close only conections of same sid.
         if ($user->isteacher) {
-            // END session, close sockets and server.
-            foreach ($this->sockets as $socket) {
-                stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
-                fclose($socket);
+            foreach ($this->sidusers[$user->sid] as $socket) {
+                $this->disconnect($socket->socket);
+                fclose($socket->socket);
+                unset($this->students[$user->sid], $this->sidusers[$user->sid]);
             }
             jqshow_sessions::mark_session_finished((int)$user->sid);
-            die();
+            if ((count($this->sockets) === 0) || (count($this->users) === 0)) {
+                die(); // No one is connected to the socket. It closes and will be reopened by the first teacher who logs in.
+            }
         }
     }
 

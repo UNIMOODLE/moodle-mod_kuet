@@ -55,9 +55,11 @@ class editsessionsettings_external extends external_api {
     /**
      * @param int $courseid
      * @param int $sessionid
+     * @param string $name
+     * @param string $value
      * @return array
-     * @throws dml_exception
      * @throws coding_exception
+     * @throws dml_exception
      * @throws invalid_parameter_exception
      */
     public static function editsession(int $courseid, int $sessionid, string $name, string $value): array {

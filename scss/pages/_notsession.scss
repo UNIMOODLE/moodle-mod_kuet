@@ -4,7 +4,8 @@ body#page-mod-jqshow-view {
             #region-main {
                 [role="main"] {
                     .container {
-                        &.no-session-start {
+                        &.no-session-start,
+                        &.session-closed {
                             background-color: white;
                             box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
                             border-radius: 8px;

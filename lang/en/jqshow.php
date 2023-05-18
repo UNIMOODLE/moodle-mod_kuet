@@ -208,3 +208,5 @@ $string['waitingroom_info'] = 'Check that everything is correct before starting 
 $string['participants'] = 'Participants';
 $string['waitingroom_message'] = 'Hold on, we\'re leaving in no time...';
 $string['ready_users'] = 'Ready participants';
+$string['session_closed'] = 'Session ended by the teacher';
+$string['session_closed_info'] = 'The teacher has ended the session. If there are more sessions for this activity, you can view them by logging back into the activity.';

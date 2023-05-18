@@ -4,22 +4,25 @@
 import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
+import Ajax from 'core/ajax';
 
 let REGION = {
     MESSAGEBOX: '#message-box',
     USERLIST: '[data-region="active-users"]',
-    COUNTUSERS: '#countusers'
+    COUNTUSERS: '#countusers',
+    ROOT: '[data-region="student-canvas"]'
 };
 
-let ACTION = {
-
+let SERVICES = {
+    SESSIONFIINISHED: 'mod_jqshow_sessionfinished',
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant'
+    PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
+    SESSIONFIINISHED: 'mod_jqshow/session/manual/closeconnection',
 };
 
 let portUrl = '8080';
@@ -47,11 +50,13 @@ let userlist = null;
 let countusers = null;
 let cmid = null;
 let sid = null;
+let jqshowid = null;
 
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
     username = this.root[0].dataset.username;
     userimage = this.root[0].dataset.userimage;
+    jqshowid = this.root[0].dataset.jqshowid;
     cmid = this.root[0].dataset.cmid;
     sid = this.root[0].dataset.sid;
     messageBox = this.root.find(REGION.MESSAGEBOX);
@@ -83,7 +88,7 @@ Sockets.prototype.initSockets = function() {
                     let msg = {
                         'userid': userid,
                         'name': username,
-                        'pic': userimage,
+                        'pic': userimage, // TODO encrypt.
                         'cmid': cmid,
                         'sid': sid,
                         'usersocketid': usersocketid,
@@ -127,7 +132,19 @@ Sockets.prototype.initSockets = function() {
     };
 
     Sockets.prototype.webSocket.onclose = function() {
-        messageBox.append('<div class="system_msg">Connection Closed</div>');
+        let request = {
+            methodname: SERVICES.SESSIONFIINISHED,
+            args: {
+                jqshowid: jqshowid,
+                cmid: cmid
+            }
+        };
+        Ajax.call([request])[0].done(function(response) {
+            Templates.render(TEMPLATES.SESSIONFIINISHED, response).then(function(html, js) {
+                jQuery(REGION.ROOT).html(html);
+                Templates.runTemplateJS(js);
+            }).fail(Notification.exception);
+        });
     };
 };
 

@@ -239,6 +239,7 @@ abstract class websockets {
             $write = $except = null;
             $this->tick_core();
             $this->tick();
+            // TODO check when there are no sockets, it throws warnings.
             stream_select($read, $write, $except, 10);
             if (in_array($this->master, $read, true)) {
                 $client = stream_socket_accept($this->master, 20);
