@@ -7,13 +7,11 @@
     data-userimage="{{userimage}}"
     data-jqshowid="{{jqshowid}}"
 >
+    <div id="message-box"></div>
     {{#waitingroom}}
         {{> mod_jqshow/session/manual/waitingroom/teacher }}
     {{/waitingroom}}
 
-
-    <div id="message-box"></div>
-    <div id="teacher_messages"></div>
 </div>
 
 {{#js}}

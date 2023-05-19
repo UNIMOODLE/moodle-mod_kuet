@@ -23,6 +23,7 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_jqshow\external\activesession_external;
 use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\finishsession_external;
@@ -179,6 +180,14 @@ $functions = [
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_activesession' => [
+        'classname' => activesession_external::class,
+        'methodname' => 'activesession',
+        'description' => 'Active session',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -200,7 +209,8 @@ $services = [
             'mod_jqshow_getlistresults',
             'mod_jqshow_finishsession',
             'mod_jqshow_startsession',
-            'mod_jqshow_sessionfinished'
+            'mod_jqshow_sessionfinished',
+            'mod_jqshow_activesession'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

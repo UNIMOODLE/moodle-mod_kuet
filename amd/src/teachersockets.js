@@ -4,6 +4,10 @@
 import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
+import {get_string as getString, get_strings as getStrings} from 'core/str';
+import ModalFactory from 'core/modal_factory';
+import ModalEvents from 'core/modal_events';
+import Ajax from 'core/ajax';
 
 let REGION = {
     MESSAGEBOX: '#message-box',
@@ -14,6 +18,10 @@ let REGION = {
 let ACTION = {
     BACKSESSION: '[data-action="back-session"]',
     INITSESSION: '[data-action="init-session"]',
+};
+
+let SERVICES = {
+    ACTIVESESSION: 'mod_jqshow_activesession'
 };
 
 let TEMPLATES = {
@@ -33,8 +41,33 @@ let portUrl = '8080'; // It is rewritten in the constructor.
 function Sockets(region, port) {
     this.root = jQuery(region);
     portUrl = port;
+    this.measuringSpeed();
     this.initSockets();
 }
+
+Sockets.prototype.measuringSpeed = function() {
+    let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (connection) {
+        let typeConnection = connection.effectiveType;
+        let speedMbps = connection.downlink;
+        // eslint-disable-next-line no-console
+        console.log("Type of Connection: " + typeConnection, "Estimated speed: " + speedMbps + " Mbps");
+        if (speedMbps < 1) {
+            let reason = {
+                effectiveType: connection.effectiveType,
+                downlink: connection.downlink
+            };
+            getString('lowspeed', 'mod_jqshow', reason).done((s) => {
+                messageBox.append(
+                    '<div class="alert alert-danger" role="alert">' + s + '</div>'
+                );
+            });
+        }
+    } else {
+        // eslint-disable-next-line no-console
+        console.log("Connection speed detection is not supported in this browser.");
+    }
+};
 
 /** @type {jQuery} The jQuery node for the page region. */
 Sockets.prototype.root = null;
@@ -64,11 +97,6 @@ Sockets.prototype.initSockets = function() {
     Sockets.prototype.webSocket = new WebSocket(
         'wss://' + M.cfg.wwwroot.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
     );
-
-    Sockets.prototype.backSession = function() {
-        // eslint-disable-next-line no-console
-        console.log('back');
-    };
 
     Sockets.prototype.webSocket.onopen = function(event) {
         messageBox.append(
@@ -130,14 +158,66 @@ Sockets.prototype.initSockets = function() {
         messageBox[0].scrollTop = messageBox[0].scrollHeight;
     };
 
-    Sockets.prototype.webSocket.onerror = function(ev) {
-        messageBox.append('<div class="system_error">Error Occurred - ' + ev.data + '</div>');
+    Sockets.prototype.webSocket.onerror = function() {
+        getString('system_error', 'mod_jqshow').done((s) => {
+            messageBox.append(
+                '<div class="alert alert-danger" role="alert">' + s + '</div>'
+            );
+        });
     };
 
-    Sockets.prototype.webSocket.onclose = function() {
-        // TODO redirect to sessions panel.
-        messageBox.append('<div class="system_msg">Connection Closed</div>');
+    Sockets.prototype.webSocket.onclose = function(ev) {
+        let reason = {
+            reason: ev.reason,
+            code: ev.code
+        };
+        getString('connection_closed', 'mod_jqshow', reason).done((s) => {
+            messageBox.append(
+                '<div class="alert alert-warning" role="alert">' + s + '</div>'
+            );
+            setTimeout(() => {
+                // ... window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
+            }, 5000);
+        });
     };
+};
+
+Sockets.prototype.backSession = function() {
+    const stringkeys = [
+        {key: 'backtopanelfromsession', component: 'mod_jqshow'},
+        {key: 'backtopanelfromsession_desc', component: 'mod_jqshow'},
+        {key: 'confirm', component: 'mod_jqshow'}
+    ];
+    getStrings(stringkeys).then((langStrings) => {
+        return ModalFactory.create({
+            title: langStrings[0],
+            body: langStrings[1],
+            type: ModalFactory.types.SAVE_CANCEL
+        }).then(modal => {
+            modal.setSaveButtonText(langStrings[2]);
+            modal.getRoot().on(ModalEvents.save, () => {
+                let request = {
+                    methodname: SERVICES.ACTIVESESSION,
+                    args: {
+                        cmid: cmid,
+                        sessionid: sid
+                    }
+                };
+                Ajax.call([request])[0].done(function() {
+                    window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
+                }).fail(Notification.exception);
+            });
+            modal.getRoot().on(ModalEvents.hidden, () => {
+                modal.destroy();
+            });
+            return modal;
+        });
+    }).done(function(modal) {
+        modal.show();
+        // eslint-disable-next-line no-restricted-globals
+    }).fail(Notification.exception);
+    // eslint-disable-next-line no-console
+    console.log('back');
 };
 
 Sockets.prototype.sendMessageSocket = function(msg) {
