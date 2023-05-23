@@ -229,13 +229,14 @@ class sessionform extends moodleform {
         $errors = parent::validation($data, $files);
         // Session name must be unique.
         $haserror = false;
-        $sessions = jqshow_sessions::get_sessions_by_name($data['name']);
+        $sessions = jqshow_sessions::get_sessions_by_name($data['name'], $data['jqshowid']);
         if (count($sessions) === 1) {
             $sesion = reset($sessions);
             $haserror = $sesion->id != $data['sessionid'];
         } else if (count($sessions) > 1) {
             $haserror = true;
         }
+
         if ($haserror) {
             $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
         }
