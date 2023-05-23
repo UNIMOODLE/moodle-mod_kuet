@@ -19,6 +19,7 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
 use mod_jqshow\models\questions;
+use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
@@ -54,7 +55,9 @@ class student_session_view implements renderable, templatable {
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
         $session = new jqshow_sessions($data->sid);
-        if ($session->get('advancemode') === 'programmed') {
+        // TODO detect if the session is still active, and if not, paint a session ended message.
+        // TODO get progress from the student's session and paint the question they are asked.
+        if ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED) {
             $firstquestion = jqshow_questions::get_first_question_of_session($data->sid);
             switch ($firstquestion->get('qtype')) {
                 case 'multichoice':
@@ -68,14 +71,12 @@ class student_session_view implements renderable, templatable {
                     throw new moodle_exception('question_nosuitable', 'mod_jqshow');
             }
             $data->programmedmode = true;
-        }
-
-        if ($session->get('advancemode') === 'manual') {
+        } else {
             // TODO SOCKETS!
-            jqshow_sessions::mark_session_started($data->sid);
             $data->manualmode = true;
             $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
         }
+
         return $data;
     }
 }

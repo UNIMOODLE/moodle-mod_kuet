@@ -26,6 +26,7 @@
 namespace mod_jqshow\external;
 
 use coding_exception;
+use context_module;
 use dml_exception;
 use external_api;
 use external_function_parameters;
@@ -59,7 +60,7 @@ class nextquestion_external extends external_api {
     /**
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $jqid
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -67,10 +68,13 @@ class nextquestion_external extends external_api {
      * @throws moodle_exception
      */
     public static function nextquestion(int $cmid, int $sessionid, int $jqid): array {
+        global $PAGE;
         self::validate_parameters(
             self::nextquestion_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid]
         );
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
         $nextquestion = jqshow_questions::get_next_question_of_session($sessionid, $jqid);
         // TODO consider it to be the last question, and in that case send an end-of-session screen.
         switch ($nextquestion->get('qtype')) {

@@ -1,0 +1,180 @@
+body#page-mod-jqshow-view {
+    .content-header {
+        .more-info-session {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: flex-start;
+            align-items: center;
+            border-radius: 8px;
+            .icon {
+                height: 18px;
+                width: auto;
+            }
+            .sessionname {
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: flex-start;
+                align-items: center;
+                width: 50%;
+                padding: 18px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+                .sessionname-text {
+                    display: flex;
+                    flex-flow: column nowrap;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #2b2b2b;
+                    text-align: left;
+                    margin-left: 15px;
+                    span {
+                        font-size: 13px;
+                        font-weight: normal;
+                        color: #929292;
+                    }
+                }
+            }
+            .numusers {
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: flex-start;
+                align-items: center;
+                width: 50%;
+                border-left: 1px solid #edebf4;
+                padding: 18px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+                .countusers {
+                    display: flex;
+                    flex-flow: column nowrap;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #2b2b2b;
+                    text-align: left;
+                    margin-left: 15px;
+                    .participants {
+                        font-size: 13px;
+                        font-weight: normal;
+                        color: #929292;
+                    }
+                }
+            }
+        }
+        .session-controller {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: flex-end;
+            align-items: center;
+            .btn {
+                margin-left: 1em;
+            }
+        }
+    }
+    .teacher-waiting-room {
+        .resume-config,
+        .questions-list {
+            margin-top: 25px;
+            padding: 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,.06);
+            .titlecontainer {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                border-radius: 8px 8px 0 0;
+                color: #FFFFFF;
+                padding: 1em;
+            }
+        }
+        .resume-config {
+            .list-resume {
+                .list-group {
+                    border-radius: 0;
+                    .list-group-item {
+                        border: 0;
+                        border-bottom: 1px solid #EDEBF4;
+                        display: flex;
+                        flex-flow: row nowrap;
+                        justify-content: flex-start;
+                        align-items: center;
+                        img.icon {
+                            height: 20px;
+                            width: auto;
+                            margin-right: 18px;
+                        }
+                        .content-config {
+                            display: flex;
+                            flex-flow: column nowrap;
+                            .configname {
+                                font-size: 16px;
+                                font-weight: bold;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        .questions-list {
+            .session-questions {
+                max-height: 700px;
+                overflow-y: auto;
+                &::-webkit-scrollbar {
+                    width: 8px;
+                }
+                &::-webkit-scrollbar-track {
+                    background: #e0e0e0;
+                }
+                &::-webkit-scrollbar-thumb {
+                    background-color: #6a737b;
+                    border-radius: 4px;
+                }
+                .questions-list-body {
+                    width: 100%;
+                    .d-table-cell {
+                        padding: 15px;
+                    }
+                    .questions-list-thead {
+                        font-weight: bold;
+                        .d-table-cell {
+                            color: #2B2B2B !important;
+                        }
+                    }
+                    .questions-list-data {
+                        font-weight: normal;
+                        background-color: white;
+                        .isvalid {
+                            text-align: center;
+                        }
+                        .d-table-cell {
+                            border-top: 1px solid #EDEBF4;
+                            color: #929292 !important;
+                            &.actions {
+                                .content-actions {
+                                    display: flex;
+                                    flex-flow: row nowrap;
+                                    justify-content: flex-start;
+                                    align-items: center;
+                                    .question-action {
+                                        background-color: black;
+                                        height: 32px;
+                                        width: 32px;
+                                        border-radius: 8px;
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        margin: 0 7px;
+                                        .icon {
+                                            margin: 0 !important;
+                                        }
+                                        &:hover {
+                                            cursor: pointer;
+                                        }
+                                    }
+                                }
+                                .mobile-content-actions {
+                                    display: none;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

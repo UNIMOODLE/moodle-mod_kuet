@@ -90,7 +90,6 @@ class sessionquestions_external extends external_api {
     public static function export_question(jqshow_questions $question, int $cmid): stdClass {
         global $DB, $COURSE;
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
-        $questionversion = $DB->get_field('question_versions', 'version', ['questionid' => $question->get('questionid')]);
         $data = new stdClass();
         $data->questionnid = $question->get('id');
         $data->position = $question->get('qorder');
@@ -99,7 +98,7 @@ class sessionquestions_external extends external_api {
         $data->isvalid = $question->get('isvalid');
         $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
         $data->issuitable = in_array($question->get('qtype'), questions::TYPES, true);
-        $data->version = $questionversion;
+        $data->version = $DB->get_field('question_versions', 'version', ['questionid' => $question->get('questionid')]);
         $coursecontext = context_course::instance($COURSE->id);
         $data->managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
         $args = [

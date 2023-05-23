@@ -18,6 +18,8 @@ namespace mod_jqshow\output\views;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
+use mod_jqshow\external\sessionquestions_external;
+use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
@@ -44,27 +46,41 @@ class teacher_session_view implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         // TODO refactor duplicate code for teacher and student.
-        global $USER;
+        global $USER, $DB;
         $data = new stdClass();
         $data->cmid = required_param('cmid', PARAM_INT);
         $data->sid = required_param('sid', PARAM_INT);
         $data->isteacher = true;
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
-
         $session = new jqshow_sessions($data->sid);
-        if ($session->get('advancemode') === 'programmed') {
+        jqshow_sessions::mark_session_started($data->sid);
+        if ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED) {
             $data->programmedmode = true;
             $data->config = sessions::get_session_config($data->sid);
             $data->userresults = sessions::get_session_results($data->sid, $data->cmid);
-        }
-
-        if ($session->get('advancemode') === 'manual') {
+        } else {
             // SOCKETS!
-            jqshow_sessions::mark_session_started($data->sid);
+            // Always start with waitingroom.
+            [$course, $cm] = get_course_and_cm_from_cmid($data->cmid, 'jqshow');
+            $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
             $data->manualmode = true;
+            $data->waitingroom = true;
+            $data->config = sessions::get_session_config($data->sid);
+            $data->sessionname = $data->config[0]['configvalue'];
+            unset($data->config[0]);
+            $data->config = array_values($data->config);
+            $allquestions = (new questions($jqshow->id, $data->cmid, $data->sid))->get_list();
+            $questiondata = [];
+            foreach ($allquestions as $question) {
+                $questionexport = sessionquestions_external::export_question($question, $data->cmid);
+                $questionexport->managesessions = false;
+                $questiondata[] = $questionexport;
+            }
+            $data->sessionquestions = $questiondata;
             $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
         }
+
         return $data;
     }
 }
