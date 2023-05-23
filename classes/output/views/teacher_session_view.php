@@ -54,6 +54,7 @@ class teacher_session_view implements renderable, templatable {
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
         $session = new jqshow_sessions($data->sid);
+        $data->jqshowid = $session->get('jqshowid');
         jqshow_sessions::mark_session_started($data->sid);
         if ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED) {
             $data->programmedmode = true;

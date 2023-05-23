@@ -23,6 +23,7 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_jqshow\external\activesession_external;
 use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\finishsession_external;
@@ -31,6 +32,7 @@ use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
 use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
+use mod_jqshow\external\sessionfinished_external;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\external\sessionspanel_external;
 use mod_jqshow\external\addquestions_external;
@@ -170,6 +172,22 @@ $functions = [
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_sessionfinished' => [
+        'classname' => sessionfinished_external::class,
+        'methodname' => 'sessionfinished',
+        'description' => 'Session closed',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_activesession' => [
+        'classname' => activesession_external::class,
+        'methodname' => 'activesession',
+        'description' => 'Active session',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -190,7 +208,9 @@ $services = [
             'mod_jqshow_nextquestion',
             'mod_jqshow_getlistresults',
             'mod_jqshow_finishsession',
-            'mod_jqshow_startsession'
+            'mod_jqshow_startsession',
+            'mod_jqshow_sessionfinished',
+            'mod_jqshow_activesession'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

@@ -26,7 +26,8 @@
 namespace mod_jqshow\external;
 
 use coding_exception;
-use context_course;
+use context_module;
+use core\invalid_persistent_exception;
 use dml_exception;
 use external_api;
 use external_function_parameters;
@@ -39,53 +40,49 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class editsessionsettings_external extends external_api {
+class activesession_external extends external_api {
 
-    public static function editsession_parameters(): external_function_parameters {
+    public static function activesession_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'courseid' => new external_value(PARAM_INT, 'course id'),
-                'sessionid' => new external_value(PARAM_INT, 'id of session to copy'),
-                'name' => new external_value(PARAM_RAW, 'element to edit'),
-                'value' => new external_value(PARAM_RAW, 'new value')
+                'cmid' => new external_value(PARAM_INT, 'course module id'),
+                'sessionid' => new external_value(PARAM_INT, 'id of session to copy')
             ]
         );
     }
 
     /**
-     * @param int $courseid
+     * @param int $cmid
      * @param int $sessionid
-     * @param string $name
-     * @param string $value
      * @return array
      * @throws coding_exception
-     * @throws dml_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      */
-    public static function editsession(int $courseid, int $sessionid, string $name, string $value): array {
+    public static function activesession(int $cmid, int $sessionid): array {
         global $USER;
         self::validate_parameters(
-            self::editsession_parameters(),
-            ['courseid' => $courseid, 'sessionid' => $sessionid, 'name' => $name, 'value' => $value]
+            self::activesession_parameters(),
+            ['cmid' => $cmid, 'sessionid' => $sessionid]
         );
-        $coursecontext = context_course::instance($courseid);
-        if ($coursecontext !== null && has_capability('mod/jqshow:managesessions', $coursecontext, $USER)) {
-            return [
-                'updated' => jqshow_sessions::duplicate_session($sessionid)
-            ];
+        $cmcontext = context_module::instance($cmid);
+        $active = false;
+        if ($cmcontext !== null && has_capability('mod/jqshow:managesessions', $cmcontext, $USER)) {
+            jqshow_sessions::mark_session_active($sessionid);
+            $active = true;
         }
         return [
-            'updated' => false
+            'active' => $active
         ];
     }
 
     /**
      * @return external_single_structure
      */
-    public static function editsession_returns(): external_single_structure {
+    public static function activesession_returns(): external_single_structure {
         return new external_single_structure(
             [
-                'updated' => new external_value(PARAM_BOOL, 'updated'),
+                'active' => new external_value(PARAM_BOOL, 'finished'),
             ]
         );
     }

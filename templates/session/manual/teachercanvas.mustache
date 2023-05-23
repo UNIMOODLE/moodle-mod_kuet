@@ -1,11 +1,17 @@
-<div data-region="teacher-canvas" data-userid="{{userid}}" data-username="{{userfullname}}" data-cmid="{{cmid}}" data-sid="{{sid}}">
+<div
+    data-region="teacher-canvas"
+    data-userid="{{userid}}"
+    data-username="{{userfullname}}"
+    data-cmid="{{cmid}}"
+    data-sid="{{sid}}"
+    data-userimage="{{userimage}}"
+    data-jqshowid="{{jqshowid}}"
+>
+    <div id="message-box"></div>
     {{#waitingroom}}
         {{> mod_jqshow/session/manual/waitingroom/teacher }}
     {{/waitingroom}}
 
-
-    <div id="message-box"></div>
-    <div id="teacher_messages"></div>
 </div>
 
 {{#js}}

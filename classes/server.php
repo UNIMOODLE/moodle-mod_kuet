@@ -16,12 +16,14 @@
 
 declare(strict_types=1);
 
+use core\invalid_persistent_exception;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\websocketuser;
 
 define('CLI_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/websockets.php');
+require_once(__DIR__ . '/../lib.php');
 
 /**
  *
@@ -37,6 +39,7 @@ class server extends websockets {
     protected $students = [];
     protected $teacher = [];
     protected $sidusers = [];
+    protected $password = 'elktkktagqes';
 
     /**
      * @param $user
@@ -45,10 +48,13 @@ class server extends websockets {
      * @throws JsonException
      */
     protected function process($user, $message) {
+        // Sends a message to all users on the socket belonging to the same "sid" session.
         $data = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
         $responsetext = $this->get_response_from_action($user, $data['action'], $data);
-        foreach ($this->sidusers[$data['sid']] as $usersaved) {
-            fwrite($usersaved->socket, $responsetext, strlen($responsetext));
+        if ($responsetext !== '') {
+            foreach ($this->sidusers[$data['sid']] as $usersaved) {
+                fwrite($usersaved->socket, $responsetext, strlen($responsetext));
+            }
         }
     }
 
@@ -74,11 +80,12 @@ class server extends websockets {
         $this->sockets[$user->usersocketid] = $socket;
 
         $response = $this->mask(
-            json_encode([
+            encrypt($this->password, json_encode([
                 'action' => 'connect',
                 'usersocketid' => $user->usersocketid
-            ], JSON_THROW_ON_ERROR)
+            ], JSON_THROW_ON_ERROR))
         );
+        $this->stdout($response);
         // We return the usersocketid only to the new user so that responds by identifying with newuser.
         fwrite($user->socket, $response, strlen($response));
 
@@ -89,30 +96,33 @@ class server extends websockets {
      * @param $user
      * @return void
      * @throws JsonException
-     * @throws dml_exception
+     * @throws invalid_persistent_exception
+     * @throws coding_exception
      */
     protected function closed($user) {
         unset($this->sidusers[$user->sid][$user->usersocketid],
             $this->students[$user->sid][$user->usersocketid]);
         $response = $this->mask(
-            json_encode([
+            encrypt($this->password, json_encode([
                 'action' => 'userdisconnected',
                 'usersocketid' => $user->usersocketid,
-                'message' => '<span style="color: red">El estudiante ' . $user->dataname . ' se ha desconectado</span>',
+                'message' =>
+                    '<span style="color: red">' . get_string('userdisconnected', 'mod_jqshow', $user->dataname) . '</span>',
                 'count' => count($this->students[$user->sid])
-            ], JSON_THROW_ON_ERROR));
+            ], JSON_THROW_ON_ERROR)));
         foreach ($this->sidusers[$user->sid] as $usersaved) {
             fwrite($usersaved->socket, $response, strlen($response));
         }
-        // TODO close only conections of same sid.
         if ($user->isteacher) {
-            // END session, close sockets and server.
-            foreach ($this->sockets as $socket) {
-                stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
-                fclose($socket);
+            foreach ($this->sidusers[$user->sid] as $socket) {
+                $this->disconnect($socket->socket);
+                fclose($socket->socket);
+                unset($this->students[$user->sid], $this->sidusers[$user->sid]);
             }
             jqshow_sessions::mark_session_finished((int)$user->sid);
-            die();
+            if ((count($this->sockets) === 0) || (count($this->users) === 0)) {
+                die(); // No one is connected to the socket. It closes and will be reopened by the first teacher who logs in.
+            }
         }
     }
 
@@ -128,61 +138,66 @@ class server extends websockets {
         switch ($useraction) {
             case 'newuser':
                 $this->users[$user->usersocketid]->dataname = $data['name'];
+                $this->users[$user->usersocketid]->picture = $data['pic'];
                 $this->users[$user->usersocketid]->userid = $data['userid'];
                 $this->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
                 $this->users[$user->usersocketid]->sid = $data['sid'];
                 $this->users[$user->usersocketid]->cmid = $data['cmid'];
                 $user->cmid = $data['cmid'];
                 $user->sid = $data['sid'];
-                if ($data['isteacher']) {
+                if (isset($data['isteacher']) && $data['isteacher'] === true) {
+                    if (count($this->teacher[$data['sid']]) === 1) {
+                        // There can only be one teacher in each session to avoid conflicts of functionality.
+                        $response = $this->mask(
+                            encrypt($this->password, json_encode([
+                                'action' => 'alreadyteacher',
+                                'message' => get_string('alreadyteacher', 'mod_jqshow')
+                            ], JSON_THROW_ON_ERROR)
+                        ));
+                        $usersocket = $this->get_socket_by_user($user);
+                        fwrite($usersocket, $response, strlen($response));
+                        $this->disconnect($this->users[$user->usersocketid]->socket);
+                        fclose($usersocket);
+                        unset($this->users[$user->usersocketid]);
+                        return '';
+                    }
                     $user->isteacher = true;
                     $this->users[$user->usersocketid]->isteacher = true;
-                    // TODO control that there is only one teacher.
                     $this->teacher[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
                     $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
                     return $this->mask(
-                        json_encode([
+                        encrypt($this->password, json_encode([
                             'action' => 'newteacher',
                             'name' => $data['name'] ?? '',
                             'userid' => $user->id ?? '',
                             'message' => '<span style="color: green">El profesor ' . $user->dataname . ' se ha conectado</span>',
                             'count' => count($this->sidusers[$data['sid']]),
-                        ], JSON_THROW_ON_ERROR)
+                        ], JSON_THROW_ON_ERROR))
                     );
                 }
+                $this->users[$user->usersocketid]->isteacher = false;
                 $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
                 $this->students[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
+                $studentsdata = [];
+                foreach ($this->students[$data['sid']] as $key => $student) {
+                    $studentsdata[$key]['picture'] = $student->picture;
+                    $studentsdata[$key]['usersocketid'] = $student->usersocketid;
+                    $studentsdata[$key]['name'] = $student->dataname;
+                }
                 return $this->mask(
-                    json_encode([
-                        'action' => 'newuser',
-                        'name' => $data['name'] ?? '',
-                        'userid' => $user->userid ?? '',
-                        'usersocketid' => $user->usersocketid ?? '',
-                        'message' => '<span style="color: green">El estudiante ' . $user->dataname . ' se ha conectado</span>',
-                        'count' => count($this->students[$data['sid']]),
-                    ], JSON_THROW_ON_ERROR)
-                );
+                    encrypt($this->password, json_encode([
+                            'action' => 'newuser',
+                            'students' => array_values($studentsdata),
+                            'count' => count($this->students[$data['sid']])
+                        ], JSON_THROW_ON_ERROR)
+                    ));
             case 'countusers':
                 return $this->mask(
-                    json_encode([
-                        'action' => 'countusers',
-                        'count' => count($this->students[$data['sid']]),
-                    ], JSON_THROW_ON_ERROR)
-                );
-            case 'teacherSend':
-                return $this->mask(
-                    json_encode([
-                        'action' => 'teacherSend',
-                        'message' => '<span style="color: orange">El Profesor ha pulsado el botón</span>'
-                    ], JSON_THROW_ON_ERROR)
-                );
-            case 'studentSend':
-                return $this->mask(
-                    json_encode([
-                        'action' => 'studentSend',
-                        'message' => '<span style="color: blue">El estudiante ' . $data['name'] . ' ha pulsado el botón</span>'
-                    ], JSON_THROW_ON_ERROR)
-                );
+                    encrypt($this->password, json_encode([
+                            'action' => 'countusers',
+                            'count' => count($this->students[$data['sid']]),
+                        ], JSON_THROW_ON_ERROR)
+                    ));
             case 'shutdownTest':
                 foreach ($this->sockets as $socket) {
                     stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
