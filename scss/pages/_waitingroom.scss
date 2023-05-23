@@ -68,6 +68,18 @@ body#page-mod-jqshow-view {
             }
         }
     }
+    [data-region="student-canvas"] {
+        .content-header {
+            .more-info-session {
+                .sessionname {
+                    width: 75%;
+                }
+                .numusers {
+                    width: 25%;
+                }
+            }
+        }
+    }
     .teacher-waiting-room {
         .resume-config,
         .questions-list {
@@ -174,6 +186,64 @@ body#page-mod-jqshow-view {
                         }
                     }
                 }
+            }
+        }
+    }
+    .student-waiting-room {
+        margin-top: 20px;
+        .content-waiting-room {
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,.06);
+            padding: 52px 100px;
+            .waiting-room-title {
+                h2 {
+                    text-align: center;
+                }
+            }
+            .waiting-room-participants {
+                margin-top: 50px;
+                .waiting-room-subtitle {
+                    h5 {
+                        text-align: center;
+                        font-weight: normal;
+                        font-size: 22px;
+                        display: flex;
+                        flex-flow: row nowrap;
+                        justify-content: center;
+                        align-items: center;
+                        .icon {
+                            height: 20px;
+                            width: auto;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .participants {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+        justify-content: center;
+        .participant {
+            display: flex;
+            flex-flow: row nowrap;
+            border-radius: 34px;
+            justify-content: flex-start;
+            align-items: center;
+            height: 45px;
+            padding: 7px;
+            margin: 12px 9px 0 9px;
+            img {
+                border-radius: 50%;
+                height: 32px;
+                width: auto;
+                margin-right: 8px;
+            }
+            .user-fullname {
+                font-size: 16px;
+                color: white;
+                margin-right: 8px;
             }
         }
     }

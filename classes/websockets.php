@@ -86,8 +86,6 @@ abstract class websockets {
         if ($this->master === false || $errno > 0) {
             throw new UnexpectedValueException("Main socket error ($errno): $errstr");
         }
-        /* TODO review for enable crypto in SSL.
-        stream_socket_enable_crypto($this->master, true, STREAM_CRYPTO_METHOD_TLSv1_2_SERVER);*/
 
         $this->sockets['m'] = $this->master;
         $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: " . $this->master);
@@ -247,8 +245,14 @@ abstract class websockets {
                 }
                 $ip = stream_socket_get_name( $client, true );
                 $this->stderr("Connection attempt from $ip\n");
-
                 stream_set_blocking($client, true);
+                // TODO review stream_socket_enable_crypto.
+                /* if (!stream_socket_enable_crypto($client, true, STREAM_CRYPTO_METHOD_TLSv1_2_SERVER)) {
+                    $this->stderr('Error enabling TLS encryption on the connection.');
+                    fclose($client);
+                    continue;
+                }
+                $this->stderr('Enabled TLS encryption.');*/
                 $headers = fread($client, 1500);
                 $this->handshake($client, $headers);
                 stream_set_blocking($client, false);
@@ -424,12 +428,26 @@ abstract class websockets {
     }
 
     /**
+     * @param $user
+     * @return mixed|null
+     */
+    protected function get_socket_by_user($user) {
+        foreach ($this->sockets as $key => $socket) {
+            if ($key === $user->usersocketid) {
+                return $socket;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @param $message
      * @return void
      */
     public function stdout($message) {
         if ($this->interactive) {
-            debugging("$message\n");
+            // debugging("$message\n");
+            echo "$message\n";
         }
     }
 
@@ -533,6 +551,7 @@ abstract class websockets {
     }
 
     /**
+     * // Review logic of this method to take advantage of what can, and eliminate, no longer used.
      * @param $message
      * @param $user
      * @return false|int|mixed|string

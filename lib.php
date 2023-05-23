@@ -247,5 +247,60 @@ function jqshow_extend_settings_navigation(settings_navigation $settings, naviga
         $url,
         navigation_node::TYPE_SETTING, null, 'mmod_jqshow_reports');
     $navref->add_node($node, 'modedit');
-
 }
+
+/**
+ * @param $password
+ * @param $text
+ * @return string|null
+ */
+function encrypt($password, $text) {
+    $base64 = base64_encode($text);
+    $arr = str_split($base64);
+    $arrpass = str_split($password);
+    $lastpassletter = 0;
+    $encrypted = '';
+    foreach ($arr as $value) {
+        $letter = $value;
+        $passwordletter = $arrpass[$lastpassletter];
+        $temp = get_letter_from_alphabet_for_letter($passwordletter, $letter);
+        if ($temp !== null) {
+            $encrypted .= $temp;
+        } else {
+            return null;
+        }
+        if ($lastpassletter === (count($arrpass) - 1)) {
+            $lastpassletter = 0;
+        } else {
+            $lastpassletter++;
+        }
+    }
+    return $encrypted;
+}
+
+
+/**
+ * @param $letter
+ * @param $lettertochange
+ * @return mixed|null
+ */
+function get_letter_from_alphabet_for_letter($letter, $lettertochange) {
+    // TODO it is possible that new characters will pop up as errors. In this case, add here and in js.
+    $abc = 'abcdefghijklmnopqrstuvwxyz0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ/+-*';
+    $posletter = strpos($abc, $letter);
+    if ($posletter === false) {
+        // echo 'Password letter ' . $letter . ' not allowed.';
+        return null;
+    }
+    $poslettertochange = strpos($abc, $lettertochange);
+    if ($poslettertochange === false) {
+        // echo 'Password letter ' . $letter . ' not allowed.';
+        return null;
+    }
+    $part1 = substr($abc, $posletter, strlen($abc));
+    $part2 = substr($abc, 0, $posletter);
+    $newabc = $part1 . $part2;
+    $temp = str_split($newabc);
+    return $temp[$poslettertochange];
+}
+
