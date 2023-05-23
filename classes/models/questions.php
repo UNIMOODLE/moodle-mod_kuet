@@ -28,6 +28,7 @@ use coding_exception;
 use dml_exception;
 use dml_transaction_exception;
 use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_sessions;
 use qbank_previewquestion\question_preview_options;
 use question_answer;
 use question_attempt;
@@ -92,6 +93,7 @@ class questions {
      * @throws dml_transaction_exception
      */
     public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
+        $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
@@ -130,7 +132,7 @@ class questions {
         $data->questiontext =
             self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
-        $data->hastime = $jqshowquestion->get('timelimit') > 0;
+        $data->hastime = $session->get('countdown') && $jqshowquestion->get('timelimit') > 0;
         $data->seconds = $time;
         $data->preview = $preview;
         $data->numanswers = count($question->answers);
