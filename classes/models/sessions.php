@@ -533,6 +533,7 @@ class sessions {
         } else {
             $data->groupings = '';
         }
+        $data->addtimequestion = isset($data->addtimequestion) ? $data->addtimequestion : 0;
         $id = $data->sessionid ?? 0;
         $update = false;
         if (!empty($id)) {
