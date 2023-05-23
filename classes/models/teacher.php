@@ -107,6 +107,7 @@ class teacher extends user {
         $ds = new stdClass();
         $ds->name = $session->get('name');
         $ds->sessionid = $session->get('id');
+        $ds->sessionmode = get_string($session->get('sessionmode'), 'mod_jqshow');
         $jqshow = new jqshow($cmid);
         $ds->questions_number = (new questions($jqshow->get_jqshow()->id, $cmid, $session->get('id')))->get_num_questions();
         $ds->managesessions = $managesessions;
