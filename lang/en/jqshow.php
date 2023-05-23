@@ -215,3 +215,5 @@ $string['connection_closed'] = 'Connection Closed {$a->reason} - {$a->code}';
 $string['backtopanelfromsession'] = 'Back to the sessions panel?';
 $string['backtopanelfromsession_desc'] = 'If you come back, the session will not be initialised, and you can start it again at any time. Do you want to return to the session panel?';
 $string['lowspeed'] = 'Your internet connection seems slow or unstable ({$a->downlink} Mbps, {$a->effectiveType}). This may cause unexpected behaviour, or sudden closure of the session.<br>We recommend that you do not init session until you have a good internet connection.';
+$string['alreadyteacher'] = 'There is already a teacher imparting this session, so you cannot connect. Please wait for the current session to end before you can enter.';
+$string['userdisconnected'] = 'User {$a} has been disconnected.';

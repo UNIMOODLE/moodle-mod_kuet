@@ -36,15 +36,17 @@ use question_definition;
 use question_engine;
 use stdClass;
 use context_user;
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 require_once($CFG->dirroot. '/question/engine/lib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
-defined('MOODLE_INTERNAL') || die();
+
 
 class questions {
 
-    const MULTIPLE_CHOICE = 'multichoice';
-    const TYPES = [self::MULTIPLE_CHOICE];
+    public const MULTIPLE_CHOICE = 'multichoice';
+    public const TYPES = [self::MULTIPLE_CHOICE];
     protected int $jqshowid;
     protected int $cmid;
     protected int $sid;
@@ -79,7 +81,7 @@ class questions {
     }
 
     /**
-     * @param int $qid
+     * @param int $jqid
      * @param int $cmid
      * @param int $sessionid
      * @param int $jqshowid
@@ -87,9 +89,9 @@ class questions {
      * @return object
      * @throws coding_exception
      * @throws dml_exception
+     * @throws dml_transaction_exception
      */
-    public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, $preview = false) : object {
-
+    public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);

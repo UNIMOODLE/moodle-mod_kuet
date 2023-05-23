@@ -36,7 +36,23 @@ function Sockets(region, port) {
     this.root = jQuery(region);
     portUrl = port;
     this.initSockets();
+    this.disableDevTools();
 }
+
+Sockets.prototype.disableDevTools = function() {
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
+    document.onkeydown = (e) => {
+        return !(event.keyCode === 123 ||
+            this.ctrlShiftKey(e, 'I') ||
+            this.ctrlShiftKey(e, 'J') ||
+            this.ctrlShiftKey(e, 'C') ||
+            (e.ctrlKey && e.keyCode === 'U'.charCodeAt(0)));
+    };
+};
+
+Sockets.prototype.ctrlShiftKey = function(e, keyCode) {
+    return e.ctrlKey && e.shiftKey && e.keyCode === keyCode.charCodeAt(0);
+};
 
 /** @type {jQuery} The jQuery node for the page region. */
 Sockets.prototype.root = null;
@@ -51,6 +67,8 @@ let countusers = null;
 let cmid = null;
 let sid = null;
 let jqshowid = null;
+const password = 'elktkktagqes';
+const abc = 'abcdefghijklmnopqrstuvwxyz0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ/+-*';
 
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
@@ -68,23 +86,19 @@ Sockets.prototype.initSockets = function() {
     );
 
     Sockets.prototype.webSocket.onopen = function(event) {
-        // TODO delete.
-        messageBox.append(
-            '<div class="system_msg" style="color:#bbbbbb">' +
-            'Bienvenido a Jam Quiz Show ' + username + '!</div>'
-        );
+        /* TODO call service to get all the quiz questions,
+            and generate an iterator to call .next() each time the socket/professor says so. */
     };
 
     Sockets.prototype.webSocket.onmessage = function(ev) {
-        let response = JSON.parse(ev.data); // PHP sends Json data.
+        let msgDecrypt = Sockets.prototype.decrypt(password, ev.data);
+        let response = JSON.parse(msgDecrypt); // PHP sends Json data.
         let resAction = response.action; // Message type.
         switch (resAction) {
             case 'connect':
                 // The server has returned the connected status, it is time to identify yourself.
                 if (response.usersocketid !== undefined) {
                     usersocketid = response.usersocketid;
-                    // eslint-disable-next-line no-console
-                    console.log(response.usersocketid);
                     let msg = {
                         'userid': userid,
                         'name': username,
@@ -150,6 +164,94 @@ Sockets.prototype.initSockets = function() {
 
 Sockets.prototype.sendMessageSocket = function(msg) {
     this.webSocket.send(msg);
+};
+
+Sockets.prototype.decrypt = function(password, text) {
+    const arr = text.split('');
+    const arrPass = password.split('');
+    let lastPassLetter = 0;
+    let decrypted = '';
+    for (let i = 0; i < arr.length; i++) {
+        const letter = arr[i];
+        const passwordLetter = arrPass[lastPassLetter];
+        const temp = this.getInvertedLetterFromAlphabetForLetter(passwordLetter, letter);
+        if (temp) {
+            decrypted += temp;
+        } else {
+            return null;
+        }
+        if (lastPassLetter === (arrPass.length - 1)) {
+            lastPassLetter = 0;
+        } else {
+            lastPassLetter++;
+        }
+    }
+    return atob(decrypted);
+};
+
+Sockets.prototype.getInvertedLetterFromAlphabetForLetter = function(letter, letterToChange) {
+    const posLetter = abc.indexOf(letter);
+    if (posLetter == -1) {
+        // eslint-disable-next-line no-console
+        console.log('Password letter ' + letter + ' not allowed.');
+        return null;
+    }
+
+    const part1 = abc.substring(posLetter, abc.length);
+    const part2 = abc.substring(0, posLetter);
+    const newABC = '' + part1 + '' + part2;
+    const posLetterToChange = newABC.indexOf(letterToChange);
+
+    if (posLetterToChange == -1) {
+        // eslint-disable-next-line no-console
+        console.log('Password letter ' + letter + ' not allowed.');
+        return null;
+    }
+
+    return abc.split('')[posLetterToChange];
+};
+
+Sockets.prototype.encrypt = function(password, text) {
+    const base64 = btoa(text);
+    const arr = base64.split('');
+    const arrPass = password.split('');
+    let lastPassLetter = 0;
+    let encrypted = '';
+    for (let i = 0; i < arr.length; i++) {
+        const letter = arr[i];
+        const passwordLetter = arrPass[lastPassLetter];
+        const temp = this.getLetterFromAlphabetForLetter(passwordLetter, letter);
+        if (temp) {
+            encrypted += temp;
+        } else {
+            return null;
+        }
+        if (lastPassLetter === (arrPass.length - 1)) {
+            lastPassLetter = 0;
+        } else {
+            lastPassLetter++;
+        }
+    }
+    return encrypted;
+};
+
+Sockets.prototype.getLetterFromAlphabetForLetter = function(letter, letterToChange) {
+    const posLetter = abc.indexOf(letter);
+    if (posLetter == -1) {
+        // eslint-disable-next-line no-console
+        console.log('Password letter ' + letter + ' not allowed.');
+        return null;
+    }
+    const posLetterToChange = abc.indexOf(letterToChange);
+    if (posLetterToChange == -1) {
+        // eslint-disable-next-line no-console
+        console.log('Password letter ' + letter + ' not allowed.');
+        return null;
+    }
+    const part1 = abc.substring(posLetter, abc.length);
+    const part2 = abc.substring(0, posLetter);
+    const newABC = '' + part1 + '' + part2;
+    return newABC.split('')[posLetterToChange];
 };
 
 export const studentInitSockets = (region, port) => {
