@@ -80,8 +80,7 @@ class sessionform extends moodleform {
         $mform->addHelpButton('sessionmode', 'sessionmode', 'jqshow');
 
         // Countdown.
-        $mform->addElement('select', 'countdown',
-            get_string('countdown', 'mod_jqshow'), $customdata['countdown']);
+        $mform->addElement('checkbox', 'countdown', get_string('countdown', 'mod_jqshow'));
         $mform->setType('countdown', PARAM_INT);
         $mform->addHelpButton('countdown', 'countdown', 'jqshow');
 
