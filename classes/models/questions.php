@@ -93,7 +93,8 @@ class questions {
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
-        $time = $jqshowquestion->get('hastimelimit') ? $jqshowquestion->get('timelimit') : get_config('mod_jqshow', 'questiontime');
+        $time = $jqshowquestion->get('timelimit') > 0 ? $jqshowquestion->get('timelimit') :
+            get_config('mod_jqshow', 'questiontime');
         $order = $jqshowquestion->get('qorder');
         $a = new stdClass();
         $a->num = $order;
@@ -127,7 +128,7 @@ class questions {
         $data->questiontext =
             self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
-        $data->hastime = $jqshowquestion->get('hastimelimit');
+        $data->hastime = $jqshowquestion->get('timelimit') > 0;
         $data->seconds = $time;
         $data->preview = $preview;
         $data->numanswers = count($question->answers);

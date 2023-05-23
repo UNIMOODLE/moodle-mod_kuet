@@ -18,6 +18,7 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
+use mod_jqshow\models\sessions;
 use moodle_exception;
 use stdClass;
 
@@ -52,9 +53,6 @@ class jqshow_questions extends persistent {
             ),
             'qtype' => array(
                 'type' => PARAM_RAW,
-            ),
-            'hastimelimit' => array(
-                'type' => PARAM_INT,
             ),
             'timelimit' => array(
                 'type' => PARAM_INT,
@@ -96,6 +94,7 @@ class jqshow_questions extends persistent {
         // TODO apply default values to make the question valid without the need for the teacher to edit it.
         global $USER;
         $order = parent::count_records(['sessionid' => $sessionid]) + 1;
+        $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $isvalid = 0; // Teacher must configured the question for this session.
         $data = new stdClass();
         $data->questionid = $questionid;
@@ -103,8 +102,7 @@ class jqshow_questions extends persistent {
         $data->jqshowid = $jqshowid;
         $data->qorder = $order;
         $data->qtype = $qtype;
-        $data->hastimelimit = 0;
-        $data->timelimit = get_config('mod_jqshow', 'questiontime');
+        $data->timelimit = $session->get('addtimequestion') > 0 ? get_config('mod_jqshow', 'questiontime') : 0;
         $data->ignorecorrectanswer = 0;
         $data->isvalid = $isvalid;
         $data->config = '';
@@ -116,10 +114,6 @@ class jqshow_questions extends persistent {
             throw $e;
         }
         return true;
-    }
-
-    public static function get_questions_of_session(int $sessionid) {
-
     }
 
     /**

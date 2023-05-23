@@ -97,7 +97,7 @@ class sessionquestions_external extends external_api {
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
         $data->isvalid = $question->get('isvalid');
-        $data->time = $question->get('hastimelimit') ? $question->get('timelimit') . 's' : '-';
+        $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
         $data->issuitable = in_array($question->get('qtype'), questions::TYPES, true);
         $data->version = $questionversion;
         $coursecontext = context_course::instance($COURSE->id);

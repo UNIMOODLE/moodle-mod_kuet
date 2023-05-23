@@ -42,19 +42,15 @@ class questionform extends \moodleform {
 
         $mform->addElement('header', 'timeheader', get_string('questiontime', 'mod_jqshow'));
 
+        if ($customdata['sessionlimittimebyquestionsenabled']) {
+            $mform->addElement('html', '<div class=" alert alert-warning">');
+            $mform->addElement('html', '<div>' . get_string('sessionlimittimebyquestionsenabled', 'mod_jqshow'). '</div>');
+            $mform->addElement('html', '</div>');
+        }
 
-        $mform->addElement('checkbox', 'hasnotimelimit', get_string('notimelimit', 'mod_jqshow'));
-        $mform->setType('hasnotimelimit', PARAM_INT);
-
-        $objs = array();
-        $objs[] =& $mform->createElement('text', 'timelimitvalue', null);
-        $options = ['secs' => 'seconds', 'min' => 'minutes'];
-        $objs[] =& $mform->createElement('select', 'timelimittype', null, $options);
-        $mform->addElement('group', 'timelimit', get_string('timelimit', 'mod_jqshow'), $objs, ' ', false);
-        $mform->setType('timelimitvalue', PARAM_INT);
-        $mform->setType('timelimittype', PARAM_RAW);
-        $mform->disabledIf('timelimitvalue', 'hasnotimelimit', 'eq', 1);
-        $mform->disabledIf('timelimittype', 'hasnotimelimit', 'eq', 1);
+        $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'), array('optional' => true), 'asd');
+        $mform->setType('timelimit', PARAM_INT);
+        $mform->addHelpButton('timelimit', 'qtimelimit', 'jqshow');
 
         $mform->addElement('header', 'gradesheader', get_string('gradesheader', 'mod_jqshow'));
         $mform->addElement('checkbox', 'nograding', get_string('nograding', 'mod_jqshow'));

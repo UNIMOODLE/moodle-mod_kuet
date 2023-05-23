@@ -25,6 +25,7 @@
 
 use mod_jqshow\forms\questionform;
 use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_sessions;
 
 require_once('../../config.php');
 global $OUTPUT, $DB, $PAGE;
@@ -42,17 +43,19 @@ require_login($course, false, $cm);
 
 $jqsquestion = new jqshow_questions($jqid);
 $question = $DB->get_record('question', ['id' => $jqsquestion->get('questionid')], '*', MUST_EXIST);
+
+$session = jqshow_sessions::get_record(['id' => $sid]);
 $customdata = [
     'id' => $cmid,
     'jqid' => $jqid,
     'sid' => $sid,
     'qname' => $question->name,
     'qtype' => $jqsquestion->get('qtype'),
-    'hasnotimelimit' => !$jqsquestion->get('hastimelimit'),
-    'timelimitvalue' => $jqsquestion->get('timelimit') > 60 ? round($jqsquestion->get('timelimit') / 60) :
-        $jqsquestion->get('timelimit'),
-    'timelimittype' => $jqsquestion->get('timelimit') > 60 ? 'min' : 'secs',
+    'timelimit' => $jqsquestion->get('timelimit'),
+    'sessionlimittimebyquestionsenabled' => $session->get('addtimequestion'),
+    'nograding' => $jqsquestion->get('ignorecorrectanswer'),
     ];
+
 $sesionurl = new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $sid, 'page' => 2]);
 $actionurl = new moodle_url('/mod/jqshow/editquestion.php', ['id' => $cmid, 'sid' => $sid, 'jqid' => $jqid]);
 $mform = new questionform($actionurl->out(false), $customdata);
@@ -61,17 +64,11 @@ if ($mform->is_cancelled()) {
     redirect($sesionurl);
 } else if ($fromform = $mform->get_data()) {
     // Save new data.
-    // Convert time in secs.
-    if (isset($fromform->{'timelimitvalue'})) {
-        $time = $fromform->{'timelimittype'} == 'min' ? $fromform->{'timelimitvalue'} * 60 : $fromform->{'timelimitvalue'};
-        $jqsquestion->set('timelimit', $time);
+    if (isset($fromform->{'timelimit'})) {
+        $jqsquestion->set('timelimit', $fromform->{'timelimit'});
     }
-    $hasnotimelimit = isset($fromform->{'hasnotimelimit'}) ? $fromform->{'hasnotimelimit'} : 0;
-    $hastimelimit = $hasnotimelimit ? 0 : 1;
-    $jqsquestion->set('hastimelimit', $hastimelimit);
-    if (isset($fromform->{'nograding'})) {
-        $jqsquestion->set('ignorecorrectanswer', $fromform->{'nograding'});
-    }
+    $nograding = isset($fromform->{'nograding'}) ? $fromform->{'nograding'} : 0;
+    $jqsquestion->set('ignorecorrectanswer', $nograding);
     $jqsquestion->update();
     redirect($sesionurl);
 }
