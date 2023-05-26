@@ -1,0 +1,82 @@
+body#page-mod-jqshow-view {
+    #page-wrapper {
+        #page-content {
+            #region-main {
+                [role="main"] {
+                    .container {
+                        &.no-session-start,
+                        &.session-closed {
+                            background-color: white;
+                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                            border-radius: 8px;
+                            margin-top: 40px;
+                            padding: 30px;
+                            max-width: 945px;
+                            .containt-desktop,
+                            .containt-mobile {
+                                display: flex;
+                                flex-flow: row nowrap;
+                                justify-content: space-around;
+                                align-items: center;
+                                .content-text {
+                                    text-align: center;
+                                    display: flex;
+                                    flex-flow: column nowrap;
+                                    justify-content: center;
+                                    align-items: center;
+                                    h2 {
+                                        text-align: center;
+                                        max-width: 350px;
+                                    }
+                                    p {
+                                        font-size: 22px;
+                                        max-width: 300px;
+                                    }
+                                }
+                            }
+                            .containt-mobile {
+                                display: none;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+@media (max-width: 991px) {
+    body#page-mod-jqshow-view {
+        #page-wrapper {
+            #page-content {
+                #region-main {
+                    [role="main"] {
+                        .container {
+                            &.no-session-start {
+                                .containt-mobile {
+                                    display: flex;
+                                    flex-flow: column nowrap;
+                                    justify-content: center;
+                                    align-items: center;
+                                    text-align: center;
+                                    .content-image {
+                                        margin: 20px 0;
+                                        img {
+                                            width: 100%;
+                                        }
+                                    }
+                                    .btn.btn-primary {
+                                        width: 100%;
+                                        border-radius: 8px;
+                                    }
+                                }
+                                .containt-desktop {
+                                    display: none;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

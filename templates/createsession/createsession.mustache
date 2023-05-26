@@ -1,0 +1,13 @@
+<div class="container-fluid">
+    {{#ispage1}}
+        {{> mod_jqshow/createsession/step_1 }}
+    {{/ispage1}}
+    {{#ispage2}}
+        <div data-region="questions-panel" data-sid="{{sid}}" data-cmid="{{cmid}}" data-jqshowid="{{jqshowid}}">
+            {{> mod_jqshow/createsession/step_2 }}
+        </div>
+    {{/ispage2}}
+    {{#ispage3}}
+        {{> mod_jqshow/createsession/step_3 }}
+    {{/ispage3}}
+</div>

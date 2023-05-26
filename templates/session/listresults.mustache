@@ -1,0 +1,18 @@
+<div class="list-results-body d-table list-group">
+    <div class="d-table-row list-results-thead">
+        <div class="d-table-cell">{{#str}}question_position, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell">{{#str}}students, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell">{{#str}}corrects, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell">{{#str}}incorrects, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell">{{#str}}points, mod_jqshow{{/str}}</div>
+    </div>
+    {{#userresults}}
+        <div class="d-table-row result-list-data result-item" data-userid="{{userid}}">
+            <div class="d-table-cell">{{userposition}}</div>
+            <div class="d-table-cell">{{userfullname}}</div>
+            <div class="d-table-cell">{{correctanswers}}</div>
+            <div class="d-table-cell">{{incorrectanswers}}</div>
+            <div class="d-table-cell">{{userpoints}}</div>
+        </div>
+    {{/userresults}}
+</div>

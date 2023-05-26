@@ -1,0 +1,27 @@
+body.path-mod-jqshow {
+    #page-wrapper {
+        #page-content {
+            #region-main {
+                [role="main"] {
+                    > h2 {
+                        display: none;
+                    }
+                    .container-fluid {
+                        small {
+                            font-size: 13px;
+                            color: #929292;
+                        }
+                        .row {
+                            margin-right: 0;
+                            margin-left: 0;
+                        }
+                        .disabled {
+                            pointer-events: none;
+                            opacity: .5;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

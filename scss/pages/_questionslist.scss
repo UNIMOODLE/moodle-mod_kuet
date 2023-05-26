@@ -1,0 +1,130 @@
+body#page-mod-jqshow-sessions {
+    [data-region="questions-panel"] {
+        position: relative;
+        .questions-configuration {
+            .container {
+                padding: 0;
+            }
+            .questions-list,
+            .questions-bank {
+                margin-top: 25px;
+                padding: 0;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,.06);
+                .titlecontainer {
+                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                    border-radius: 8px 8px 0 0;
+                    color: #FFFFFF;
+                    padding: 1em;
+                }
+                .session-questions {
+                    max-height: 700px;
+                    overflow-y: auto;
+                    &::-webkit-scrollbar {
+                        width: 8px;
+                    }
+                    &::-webkit-scrollbar-track {
+                        background: #e0e0e0;
+                    }
+                    &::-webkit-scrollbar-thumb {
+                        background-color: #6a737b;
+                        border-radius: 4px;
+                    }
+                    .questions-list-body {
+                        width: 100%;
+                        .d-table-cell {
+                            padding: 15px;
+                        }
+                        .questions-list-thead {
+                            font-weight: bold;
+                            .d-table-cell {
+                                color: #2B2B2B !important;
+                            }
+                        }
+                        .questions-list-data {
+                            font-weight: normal;
+                            background-color: white;
+                            .isvalid {
+                                text-align: center;
+                            }
+                            .d-table-cell {
+                                border-top: 1px solid #EDEBF4;
+                                color: #929292 !important;
+                                &.actions {
+                                    .content-actions {
+                                        display: flex;
+                                        flex-flow: row nowrap;
+                                        justify-content: flex-start;
+                                        align-items: center;
+                                        .question-action {
+                                            background-color: black;
+                                            height: 32px;
+                                            width: 32px;
+                                            border-radius: 8px;
+                                            display: flex;
+                                            justify-content: center;
+                                            align-items: center;
+                                            margin: 0 7px;
+                                            .icon {
+                                                margin: 0 !important;
+                                            }
+                                            &:hover {
+                                                cursor: pointer;
+                                            }
+                                        }
+                                    }
+                                    .mobile-content-actions {
+                                        display: none;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .questions-list {
+                margin-right: 15px;
+            }
+            .questions-bank {
+                .form-group {
+                    padding: 15px;
+                }
+                .btn-primary {
+                    margin-left: 15px;
+                }
+                .content-question {
+                    padding: 15px;
+                    .question {
+                        display: flex;
+                        flex-flow: row nowrap;
+                        justify-content: flex-start;
+                        align-items: center;
+                        .add-question {
+                            img {
+                                width: 13px;
+                                height: 13px;
+                            }
+                            &:hover {
+                                cursor: pointer;
+                            }
+                        }
+                        input {
+                            margin-right: 15px;
+                        }
+                        .question-text {
+                            width: 90%;
+                        }
+                    }
+                }
+                .pagination {
+                    flex-flow: row wrap;
+                    .page-item {
+                        &:hover {
+                            cursor: pointer;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

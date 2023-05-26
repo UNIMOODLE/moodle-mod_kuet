@@ -1,0 +1,14 @@
+body.path-mod-jqshow {
+    *:focus {
+        outline-style: none !important;
+        outline-color: transparent !important;
+        outline-offset: unset !important;
+        box-shadow: none !important;
+    }
+    .session-content {
+        position: relative;
+    }
+    .overlay-icon-container {
+        z-index: 3000;
+    }
+}

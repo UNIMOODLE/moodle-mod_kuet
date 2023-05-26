@@ -1,0 +1,79 @@
+<div class="content-header">
+    <div class="content-title">
+        <h2>{{#str}}questionsconfiguration, mod_jqshow{{/str}}</h2>
+        <small>{{#str}}questionsconfiguration_info, mod_jqshow{{/str}}</small>
+    </div>
+    <div class="session-steps">
+        <div class="step step1">
+            <div class="timeline timeline-r"></div>
+            <span class="step-text"></span>
+        </div>
+        <div class="step step2 current">
+            <div class="timeline timeline-r"></div>
+            <div class="timeline timeline-l"></div>
+            <span class="step-text bg-primary">2</span>
+        </div>
+        <div class="step step3">
+            <div class="timeline timeline-l"></div>
+            <span class="step-text"></span>
+        </div>
+    </div>
+</div>
+<div class="row questions-configuration">
+    <div class="col-12 col-lg-7 container">
+        <div class="questions-list">
+            <h5 class="titlecontainer bg-primary">
+                {{#pix}} i/questions_list, mod_jqshow {{/pix}}
+                {{#str}}questions_list, mod_jqshow{{/str}}
+            </h5>
+            <div class="session-questions" data-region="session-questions">
+                {{> mod_jqshow/createsession/sessionquestions }}
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-lg-5 container">
+        <div class="questions-bank">
+            <h5 class="titlecontainer bg-primary">
+                {{#pix}} i/questions_list, mod_jqshow {{/pix}}
+                {{#str}}questions_bank, mod_jqshow{{/str}}
+            </h5>
+            <div class="form-group">
+                <label for="exampleFormControlSelect1">{{#str}}select_category, mod_jqshow{{/str}}</label>
+                {{{questionbank_categories}}}
+                <a class="btn btn-primary" href="{{questionbank_url}}" target="_blank">
+                    {{#str}}go_questionbank, mod_jqshow{{/str}}
+                </a>
+            </div>
+            <hr>
+            <div class="content-question" data-region="content-question">
+                {{> mod_jqshow/createsession/contentquestions }}
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <hr>
+        <div class="d-flex flex-nowrap align-items-center justify-content-center">
+            <div class="form-group fitem btn-cancel mr-3">
+                <span data-fieldtype="submit">
+                    <a href="{{formurl}}" class="btn btn-secondary">
+                        {{#str}}previous, moodle{{/str}}
+                    </a>
+                </span>
+            </div>
+            <div class="form-group fitem">
+                <span data-fieldtype="submit">
+                    <a href="{{resumeurl}}" class="btn btn-primary">
+                        {{#str}}next, moodle{{/str}}
+                    </a>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{{#js}}
+    require(['mod_jqshow/questionspanel'],
+        function(QuestionsPanel) {
+            QuestionsPanel.initQuestionsPanel('[data-region="questions-panel"]');
+        }
+    );
+{{/js}}

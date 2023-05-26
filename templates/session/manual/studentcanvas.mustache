@@ -1,0 +1,30 @@
+<div
+    data-region="student-canvas"
+    data-userid="{{userid}}"
+    data-username="{{userfullname}}"
+    data-cmid="{{cmid}}"
+    data-sid="{{sid}}"
+    data-userimage="{{userimage}}"
+    data-jqshowid="{{jqshowid}}"
+>
+    {{#waitingroom}}
+        {{> mod_jqshow/session/manual/waitingroom/student }}
+    {{/waitingroom}}
+
+
+    <div id="message-box"></div>
+    <div id="student_messages"></div>
+</div>
+
+{{#js}}
+    require(['mod_jqshow/studentsockets'], function(Sockets) {
+        Sockets.studentInitSockets('[data-region="student-canvas"]', {{port}});
+        /*window.onbeforeunload = function(e) {
+            // TODO review.
+            e.returnValue = confirm(
+                'Si sale de esta página se cerrará la conexión y perderá el' +
+                ' progreso si no ha finalizado. ¿Desea salir?'
+            );
+        };*/
+    });
+{{/js}}

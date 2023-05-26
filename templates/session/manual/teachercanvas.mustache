@@ -1,0 +1,28 @@
+<div
+    data-region="teacher-canvas"
+    data-userid="{{userid}}"
+    data-username="{{userfullname}}"
+    data-cmid="{{cmid}}"
+    data-sid="{{sid}}"
+    data-userimage="{{userimage}}"
+    data-jqshowid="{{jqshowid}}"
+>
+    <div id="message-box"></div>
+    {{#waitingroom}}
+        {{> mod_jqshow/session/manual/waitingroom/teacher }}
+    {{/waitingroom}}
+
+</div>
+
+{{#js}}
+    require(['mod_jqshow/teachersockets'], function(Sockets) {
+        Sockets.teacherInitSockets('[data-region="teacher-canvas"]', {{port}});
+        /*window.onbeforeunload = function(e) {
+            // TODO review.
+            e.returnValue = confirm(
+            'Si sale de esta página se cerrará la conexión para todos los usuarios y perderá el' +
+            ' progreso si ésta no ha finalizado. ¿Desea salir?'
+        );
+        };*/
+    });
+{{/js}}

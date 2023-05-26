@@ -1,0 +1,36 @@
+<div class="container no-session-start">
+    <div class="containt-desktop">
+        <div class="content-image">
+            <img src="{{notsessionimage}}" alt="{{#str}}nosession, mod_jqshow{{/str}}" />
+        </div>
+        <div class="content-text">
+            <h2>{{#str}}notactivesession, mod_jqshow{{/str}}</h2>
+            <p>{{#str}}notactivesessionawait, mod_jqshow{{/str}}</p>
+            {{#hasnextsession}}
+                <div class="alert alert-primary" role="alert">
+                    <b>{{#str}}nextsession, mod_jqshow{{/str}}</b> {{nextsessiontime}}
+                </div>
+            {{/hasnextsession}}
+            <a class="btn btn-primary">
+                {{#str}}reports, mod_jqshow{{/str}}
+            </a>
+        </div>
+    </div>
+    <div class="containt-mobile">
+        <h2>{{#str}}notactivesession, mod_jqshow{{/str}}</h2>
+        <div class="content-image">
+            <img src="{{notsessionimage}}" alt="{{#str}}nosession, mod_jqshow{{/str}}" />
+        </div>
+        <div class="content-text">
+            <p>{{#str}}notactivesessionawait, mod_jqshow{{/str}}</p>
+            {{#hasnextsession}}
+                <div class="alert alert-primary" role="alert">
+                    <b>{{#str}}nextsession, mod_jqshow{{/str}}</b> {{nextsessiontime}}
+                </div>
+            {{/hasnextsession}}
+            <a class="btn btn-primary">
+                {{#str}}reports, mod_jqshow{{/str}}
+            </a>
+        </div>
+    </div>
+</div>

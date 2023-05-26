@@ -1,0 +1,36 @@
+<div class="container session-closed">
+    <div class="containt-desktop">
+        <div class="content-image">
+            <img src="{{sessionclosedimage}}" alt="{{#str}}session_closed, mod_jqshow{{/str}}" />
+        </div>
+        <div class="content-text">
+            <h2>{{#str}}session_closed, mod_jqshow{{/str}}</h2>
+            <p>{{#str}}session_closed_info, mod_jqshow{{/str}}</p>
+            {{#hasnextsession}}
+                <div class="alert alert-primary" role="alert">
+                    <b>{{#str}}nextsession, mod_jqshow{{/str}}</b> {{nextsessiontime}}
+                </div>
+            {{/hasnextsession}}
+            <a class="btn btn-primary">
+                {{#str}}reports, mod_jqshow{{/str}}
+            </a>
+        </div>
+    </div>
+    <div class="containt-mobile">
+        <h2>{{#str}}session_closed, mod_jqshow{{/str}}</h2>
+        <div class="content-image">
+            <img src="{{sessionclosedimage}}" alt="{{#str}}session_closed, mod_jqshow{{/str}}" />
+        </div>
+        <div class="content-text">
+            <p>{{#str}}session_closed_info, mod_jqshow{{/str}}</p>
+            {{#hasnextsession}}
+                <div class="alert alert-primary" role="alert">
+                    <b>{{#str}}nextsession, mod_jqshow{{/str}}</b> {{nextsessiontime}}
+                </div>
+            {{/hasnextsession}}
+            <a class="btn btn-primary">
+                {{#str}}reports, mod_jqshow{{/str}}
+            </a>
+        </div>
+    </div>
+</div>
