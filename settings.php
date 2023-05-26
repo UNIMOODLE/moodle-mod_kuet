@@ -25,7 +25,7 @@
 
 // This line protects the file from being accessed by a URL directly.
 defined('MOODLE_INTERNAL') || die();
-global $PAGE, $CFG;
+global $PAGE, $CFG, $ADMIN;
 
 if ($ADMIN->fulltree) {
     $settings = new theme_boost_admin_settingspage_tabs('modsettingjqshow', get_string('configtitle', 'mod_jqshow'));

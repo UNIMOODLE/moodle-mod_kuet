@@ -23,20 +23,27 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace mod_jqshow\models;
 use core_user;
+use dml_exception;
+use lang_string;
+use stdClass;
+
 abstract class user {
 
     /** @var stdClass User */
     protected $user;
 
+    /**
+     * @param int $userid
+     * @throws dml_exception
+     */
     public function __construct(int $userid) {
         $this->user = core_user::get_user($userid);
     }
 
     /**
-     * @return \lang_string|string
+     * @return lang_string|string
      */
     public function get_fullname() {
         return fullname($this->user);

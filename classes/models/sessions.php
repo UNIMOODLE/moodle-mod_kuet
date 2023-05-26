@@ -31,6 +31,7 @@ use core\invalid_persistent_exception;
 use core_availability\info_module;
 use core_php_time_limit;
 use dml_exception;
+use Exception;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\forms\sessionform;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -76,7 +77,7 @@ class sessions {
     }
 
     /**
-     *
+     * @return void
      */
     public function set_list() {
         $this->list = jqshow_sessions::get_records(['jqshowid' => $this->jqshow->id]);
@@ -397,8 +398,7 @@ class sessions {
             'configvalue' => $sessiondata->get('countdown')
         ];
 
-//        if ($sessiondata->get('sessionmode') === 'podium') {
-        if (in_array($sessiondata->get('sessionmode'), [sessions::PODIUM_MANUAL, sessions::PODIUM_PROGRAMMED])) {
+        if (in_array($sessiondata->get('sessionmode'), [self::PODIUM_MANUAL, self::PODIUM_PROGRAMMED], true)) {
             $data[] = [
                 'iconconfig' => 'hidegraderanking',
                 'configname' => get_string('hidegraderanking', 'mod_jqshow'),
@@ -474,6 +474,7 @@ class sessions {
      * @param int $cmid
      * @return array
      * @throws moodle_exception
+     * @throws Exception
      */
     public static function get_session_results(int $sid, int $cmid): array {
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
@@ -486,9 +487,9 @@ class sessions {
                 // TODO get the real values for this, at the moment it is fake for layout.
                 $student = new stdClass();
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
-                $student->correctanswers = rand(0, count($questions));
+                $student->correctanswers = random_int(0, count($questions));
                 $student->incorrectanswers = count($questions) - $student->correctanswers;
-                $student->userpoints = rand(0, 1000);
+                $student->userpoints = random_int(0, 1000);
                 $students[] = $student;
             }
         }
@@ -533,7 +534,7 @@ class sessions {
         } else {
             $data->groupings = '';
         }
-        $data->addtimequestion = isset($data->addtimequestion) ? $data->addtimequestion : 0;
+        $data->addtimequestion = $data->addtimequestion ?? 0;
         $id = $data->sessionid ?? 0;
         $update = false;
         if (!empty($id)) {

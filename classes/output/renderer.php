@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ *
+ * @package     mod_jqshow
+ * @author      3&Punt <tresipunt.com>
+ * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
+ * @copyright   3iPunt <https://www.tresipunt.com/>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_jqshow\output;
 use coding_exception;
 use mod_jqshow\output\views\question_preview;
@@ -24,14 +33,7 @@ use moodle_exception;
 use plugin_renderer_base;
 use mod_jqshow\output\views\student_view;
 use mod_jqshow\output\views\teacher_view;
-/**
- *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+
 class renderer extends plugin_renderer_base {
 
     /**

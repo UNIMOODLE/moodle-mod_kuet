@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */ // TODO remove.
 
 import jQuery from 'jquery';
 import Templates from 'core/templates';
@@ -50,7 +49,7 @@ function Sockets(region, port) {
 Sockets.prototype.cleanMessages = function() {
     setInterval(function() {
         messageBox.find(':first-child').remove();
-    }, 5000);
+    }, 10000);
 };
 
 Sockets.prototype.disableDevTools = function(){
@@ -100,9 +99,7 @@ Sockets.prototype.root = null;
 let userid = null;
 let usersocketid = null;
 let username = null;
-let userimage = null;
 let messageBox = null;
-let userlist = null;
 let countusers = null;
 let cmid = null;
 let sid = null;
@@ -112,11 +109,9 @@ const abc = 'abcdefghijklmnopqrstuvwxyz0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ/+-*
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
     username = this.root[0].dataset.username;
-    userimage = this.root[0].dataset.userimage;
     cmid = this.root[0].dataset.cmid;
     sid = this.root[0].dataset.sid;
     messageBox = this.root.find(REGION.MESSAGEBOX);
-    userlist = this.root.find(REGION.USERLIST);
     countusers = this.root.find(REGION.COUNTUSERS);
 
     this.root.find(ACTION.BACKSESSION).on('click', this.backSession);
@@ -125,7 +120,7 @@ Sockets.prototype.initSockets = function() {
         'wss://' + M.cfg.wwwroot.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
     );
 
-    Sockets.prototype.webSocket.onopen = function(event) {
+    Sockets.prototype.webSocket.onopen = function() {
         /* TODO call service to get all the quiz questions,
             and generate an iterator to call .next() each time the socket/professor says so. */
     };
@@ -161,7 +156,7 @@ Sockets.prototype.initSockets = function() {
                         'userimage': student.picture,
                         'userfullname': student.name,
                     };
-                    Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html, js) {
+                    Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html) {
                         identifier.append(html);
                     }).fail(Notification.exception);
                 });

@@ -289,12 +289,10 @@ function get_letter_from_alphabet_for_letter($letter, $lettertochange) {
     $abc = 'abcdefghijklmnopqrstuvwxyz0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ/+-*';
     $posletter = strpos($abc, $letter);
     if ($posletter === false) {
-        // echo 'Password letter ' . $letter . ' not allowed.';
         return null;
     }
     $poslettertochange = strpos($abc, $lettertochange);
     if ($poslettertochange === false) {
-        // echo 'Password letter ' . $letter . ' not allowed.';
         return null;
     }
     $part1 = substr($abc, $posletter, strlen($abc));

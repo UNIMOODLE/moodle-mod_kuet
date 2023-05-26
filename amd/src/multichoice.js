@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */ // TODO remove.
 
 import jQuery from 'jquery';
 import Ajax from 'core/ajax';

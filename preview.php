@@ -23,11 +23,12 @@
  */
 
 require_once('../../config.php');
+global $CFG;
 require_once('lib.php');
 require_once($CFG->dirroot . '/question/engine/bank.php');
+
 use mod_jqshow\models\questions;
 use mod_jqshow\output\views\question_preview;
-use qbank_previewquestion\question_preview_options;
 
 global $DB, $PAGE, $USER;
 
@@ -41,16 +42,15 @@ $jqquestion = $DB->get_record('jqshow_questions', ['id' => $jqid], '*', MUST_EXI
 $question = $DB->get_record('question', ['id' => $jqquestion->questionid], '*', MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cid], '*', MUST_EXIST);
 $coursecontext = context_course::instance($course->id);
+require_login($course, false);
 
-
-//$question = question_bank::load_question($jqquestion->questionid);
 $question = question_bank::load_question((int) $question->id);
 
-if (!in_array($jqquestion->qtype, questions::TYPES)) {
-    echo 'pregunta no compatible';
+if (!in_array($jqquestion->qtype, questions::TYPES, true)) {
+    throw new moodle_exception('incompatible_question', 'mod_jqshow');
 }
 
-$view = new question_preview($jqquestion->questionid, $jqid, $id, $sid, $jqshowid, $jqquestion->qtype);
+$view = new question_preview($jqquestion->questionid, $jqid, $id, $sid, $jqshowid);
 $PAGE->set_context($coursecontext);
 $PAGE->set_url('/mod/jqshow/preview.php', ['id' => $id, 'jqid' => $jqid, 'sid' => $sid, 'cid' => $cid, 'jqshowid' => $jqshowid]);
 $PAGE->set_heading($question->name);

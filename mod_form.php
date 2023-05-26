@@ -14,12 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');    //  It must be included from a Moodle page.
-}
-
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
 /**
+ * Capability definitions for the quiz module.
  *
  * @package     mod_jqshow
  * @author      3&Punt <tresipunt.com>
@@ -27,17 +23,21 @@ require_once($CFG->dirroot.'/course/moodleform_mod.php');
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot.'/course/moodleform_mod.php');
+
 class mod_jqshow_mod_form extends moodleform_mod {
 
-    public function definition()
-    {
-        global $CFG;
-
+    /**
+     * @return void
+     * @throws coding_exception
+     */
+    public function definition() {
         $mform =& $this->_form;
-
-        $mform->addElement('text', 'name', get_string('name', 'jqshow'), array('size'=>'64'));
+        $mform->addElement('text', 'name', get_string('name', 'jqshow'), ['size' => '64']);
         $mform->setType('name', PARAM_TEXT);
-//        $mform->addRule('name', null, 'required', null, 'client');
 
         $this->standard_intro_elements(get_string('introduction', 'jqshow'));
 
@@ -56,26 +56,34 @@ class mod_jqshow_mod_form extends moodleform_mod {
 
         // Badges.
         $mform->addElement('header', 'badges', get_string('badges', 'badges'));
-        $mform->addElement('text', 'badgepositions', get_string('badgepositions', 'jqshow'), array('size'=>'5'));
+        $mform->addElement('text', 'badgepositions', get_string('badgepositions', 'jqshow'), ['size' => '5']);
         $mform->addHelpButton('badgepositions', 'badgepositions', 'jqshow');
         $mform->addRule('badgepositions', get_string('badgepositionsrule', 'jqshow'), 'numeric', null, 'server');
         $mform->setType('badgepositions', PARAM_INT);
         $this->add_action_buttons();
     }
+
     /**
      * Add custom completion rules.
      *
      * @return array Array of string IDs of added items, empty array if none
+     * @throws coding_exception
      */
     public function add_completion_rules() {
         $mform =& $this->_form;
 
-        $mform->addElement('advcheckbox', 'completionanswerall', get_string('completionansweralllabel', 'jqshow'), get_string('completionansweralldesc', 'jqshow'));
+        $mform->addElement(
+            'advcheckbox',
+            'completionanswerall',
+            get_string('completionansweralllabel', 'jqshow'),
+            get_string('completionansweralldesc', 'jqshow')
+        );
         // Enable this completion rule by default.
         $mform->setDefault('completionanswerall', 0);
         $mform->setType('completionanswerall', PARAM_INT);
-        return array('completionanswerall');
+        return ['completionanswerall'];
     }
+
     /**
      * Determines if completion is enabled for this module.
      *

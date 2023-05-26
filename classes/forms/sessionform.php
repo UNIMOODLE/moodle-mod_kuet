@@ -23,13 +23,9 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace mod_jqshow\forms;
 
-
 use coding_exception;
-use core\persistent;
-use core_reportbuilder\local\aggregation\count;
 use dml_exception;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -38,7 +34,8 @@ use moodleform;
 class sessionform extends moodleform {
 
     /**
-     * @inheritDoc
+     * @return void
+     * @throws coding_exception
      */
     protected function definition() {
         global $OUTPUT;

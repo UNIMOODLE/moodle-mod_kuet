@@ -14,6 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ *
+ * @package     mod_jqshow
+ * @author      3&Punt <tresipunt.com>
+ * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
+ * @copyright   3iPunt <https://www.tresipunt.com/>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 namespace mod_jqshow\output\views;
 use coding_exception;
 use core\invalid_persistent_exception;
@@ -27,14 +36,7 @@ use renderable;
 use stdClass;
 use templatable;
 use renderer_base;
-/**
- *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+
 class teacher_session_view implements renderable, templatable {
     /**
      * @param renderer_base $output
@@ -81,7 +83,6 @@ class teacher_session_view implements renderable, templatable {
             $data->sessionquestions = $questiondata;
             $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
         }
-
         return $data;
     }
 }

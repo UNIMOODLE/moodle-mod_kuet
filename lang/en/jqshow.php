@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Strings for component 'jqshow'
+ * Capability definitions for the quiz module.
  *
  * @package     mod_jqshow
  * @author      3&Punt <tresipunt.com>
@@ -53,7 +52,7 @@ $string['generalsettings'] = 'General settings';
 $string['sslcertificates'] = 'SSL Certificates';
 $string['certificate'] = 'Certificate';
 $string['certificate_desc'] = '.crt or .pem file of a valid SSL certificate for the server. This file may already be generated on the server, or you can create unique ones for this mod using tools such as <a href="https://zerossl.com" target="_blank">zerossl.com</a>.';
-$string['privatekey'] = 'Privaste Key';
+$string['privatekey'] = 'Private Key';
 $string['privatekey_desc'] = '.pem or .key file of a valid SSL Private Key for the server. This file may already be generated on the server, or you can create unique ones for this mod using tools such as <a href="https://zerossl.com" target="_blank">zerossl.com</a>.';
 $string['testssl'] = 'Connection test';
 $string['testssl_desc'] = 'Socket connection test with SSL certificates';
@@ -198,7 +197,6 @@ $string['showfeedback_help'] = 'After answering each question a feedback will be
 $string['showfinalgrade_help'] = 'Final grade will appear after finishing the session.';
 $string['startdate_help'] = 'Session will start automatically at this date. Start date only will be available with programmed sessions.';
 $string['enddate_help'] = 'Session will end automatically at this date. End date only will be available with programmed sessions.';
-$string['enddate_help'] = 'Session will end automatically at this date. End date only will be available with programmed sessions.';
 $string['automaticstart_help'] = 'Session will start automatically at this date. Only available after choosing an start/end date.';
 $string['timelimit_help'] = 'Total time for the session';
 $string['addtimequestion_help'] = 'The total session time will be the sum of the questions time.';
@@ -218,3 +216,4 @@ $string['alreadyteacher'] = 'There is already a teacher imparting this session, 
 $string['userdisconnected'] = 'User {$a} has been disconnected.';
 $string['qtimelimit_help'] = 'Time to answer the question. Useful when session time is the sum of the questions time.';
 $string['sessionlimittimebyquestionsenabled'] = 'This session has time limit. The total time limit will be the sum of the questions time.';
+$string['incompatible_question'] = 'Question not compatible';

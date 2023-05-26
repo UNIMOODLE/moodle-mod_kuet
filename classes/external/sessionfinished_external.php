@@ -30,7 +30,6 @@ use context_module;
 use dml_exception;
 use external_api;
 use external_function_parameters;
-use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
@@ -38,7 +37,6 @@ use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
 use stdClass;
-
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;

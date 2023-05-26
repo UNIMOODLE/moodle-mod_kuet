@@ -25,11 +25,8 @@
 
 namespace mod_jqshow\external;
 
-use coding_exception;
-use core\invalid_persistent_exception;
 use external_api;
 use external_function_parameters;
-use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
@@ -55,7 +52,6 @@ class copyquestion_external extends external_api {
     }
 
     /**
-     * @param int $sid
      * @param int $qid
      * @return array
      * @throws invalid_parameter_exception

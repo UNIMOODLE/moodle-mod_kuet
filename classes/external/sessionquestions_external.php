@@ -133,5 +133,4 @@ class sessionquestions_external extends external_api {
             )
         ]);
     }
-
 }

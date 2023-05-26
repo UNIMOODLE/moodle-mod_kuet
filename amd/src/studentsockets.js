@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */ // TODO remove.
 
 import jQuery from 'jquery';
 import Templates from 'core/templates';
@@ -62,7 +61,6 @@ let usersocketid = null;
 let username = null;
 let userimage = null;
 let messageBox = null;
-let userlist = null;
 let countusers = null;
 let cmid = null;
 let sid = null;
@@ -78,14 +76,13 @@ Sockets.prototype.initSockets = function() {
     cmid = this.root[0].dataset.cmid;
     sid = this.root[0].dataset.sid;
     messageBox = this.root.find(REGION.MESSAGEBOX);
-    userlist = this.root.find(REGION.USERLIST);
     countusers = this.root.find(REGION.COUNTUSERS);
 
     Sockets.prototype.webSocket = new WebSocket(
         'wss://' + M.cfg.wwwroot.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
     );
 
-    Sockets.prototype.webSocket.onopen = function(event) {
+    Sockets.prototype.webSocket.onopen = function() {
         /* TODO call service to get all the quiz questions,
             and generate an iterator to call .next() each time the socket/professor says so. */
     };
@@ -121,7 +118,7 @@ Sockets.prototype.initSockets = function() {
                         'userimage': student.picture,
                         'userfullname': student.name,
                     };
-                    Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html, js) {
+                    Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html) {
                         identifier.append(html);
                     }).fail(Notification.exception);
                 });

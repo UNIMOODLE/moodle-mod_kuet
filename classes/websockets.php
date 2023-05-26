@@ -13,9 +13,17 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-declare(strict_types=1);
 
-use mod_jqshow\websocketuser;
+/**
+ *
+ * @package     mod_jqshow
+ * @author      3&Punt <tresipunt.com>
+ * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
+ * @copyright   3iPunt <https://www.tresipunt.com/>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+declare(strict_types=1);
 
 define('CLI_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
@@ -91,6 +99,10 @@ abstract class websockets {
         $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: " . $this->master);
     }
 
+    /**
+     * @param stored_file $file
+     * @return string
+     */
     protected function get_filepath_for_file(stored_file $file): string {
         return sprintf(
             '%s%s%s%s',
@@ -206,6 +218,10 @@ abstract class websockets {
         return $header . $text;
     }
 
+    /**
+     * @param $text
+     * @return string
+     */
     public function unmask($text) {
         $length = @ord($text[1]) & 127;
         if ($length === 126) {
@@ -226,7 +242,7 @@ abstract class websockets {
     }
 
     /**
-     * Main processing loop
+     * @return mixed
      */
     public function run() {
         while (true) {
@@ -302,8 +318,6 @@ abstract class websockets {
         }
     }
 
-
-
     /**
      * @param $socket
      * @param $triggerclosed
@@ -318,7 +332,7 @@ abstract class websockets {
                 unset($this->sockets[$disconnecteduser->usersocketid]);
             }
             if (!is_null($sockerrno)) {
-                socket_clear_error($socket);
+                $this->stdout($sockerrno);
             }
             if ($triggerclosed) {
                 $this->stdout("Client disconnected. ".$disconnecteduser->socket);
@@ -399,7 +413,7 @@ abstract class websockets {
      * @return string
      */
     protected function process_protocol($protocol) {
-        return "";
+        return '';
         /* return either "Sec-WebSocket-Protocol: SelectedProtocolFromClientList\r\n" or return an empty string.
         The carriage return/newline combo must appear at the end of a non-empty string, and must not
         appear at the beginning of the string nor in an otherwise empty string, or it will be considered part of
@@ -446,7 +460,6 @@ abstract class websockets {
      */
     public function stdout($message) {
         if ($this->interactive) {
-            // debugging("$message\n");
             echo "$message\n";
         }
     }
@@ -551,12 +564,12 @@ abstract class websockets {
     }
 
     /**
-     * // Review logic of this method to take advantage of what can, and eliminate, no longer used.
+     * TODO Review logic of this method to take advantage of what can, and eliminate, no longer used.
      * @param $message
      * @param $user
      * @return false|int|mixed|string
      */
-    protected function deframe($message, &$user) {
+    protected function deframe($message, $user) {
         $headers = $this->extract_headers($message);
         $pongreply = false;
         $willclose = false;
@@ -622,7 +635,7 @@ abstract class websockets {
             'opcode'  => ord($message[0]) & 15,
             'hasmask' => $message[1] & chr(128),
             'length'  => 0,
-            'mask'    => ""];
+            'mask'    => ''];
         $header['length'] = (ord($message[1]) >= 128) ? ord($message[1]) - 128 : ord($message[1]);
 
         if ($header['length'] === 126) {

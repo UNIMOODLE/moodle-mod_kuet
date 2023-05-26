@@ -69,5 +69,4 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
             return new TestSockets(region, port);
         },
     };
-
 });

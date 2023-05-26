@@ -14,13 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_jqshow\output\views;
-use coding_exception;
-use mod_jqshow\models\sessions;
-use renderable;
-use stdClass;
-use templatable;
-use renderer_base;
 /**
  *
  * @package     mod_jqshow
@@ -29,6 +22,17 @@ use renderer_base;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace mod_jqshow\output\views;
+use coding_exception;
+use core\invalid_persistent_exception;
+use mod_jqshow\models\sessions;
+use moodle_exception;
+use renderable;
+use stdClass;
+use templatable;
+use renderer_base;
+
 class sessions_view implements renderable, templatable {
 
     /** @var stdClass jqshow */
@@ -50,6 +54,8 @@ class sessions_view implements renderable, templatable {
     /**
      * @param renderer_base $output
      * @return stdClass
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      * @throws coding_exception
      */
     public function export_for_template(renderer_base $output): stdClass {

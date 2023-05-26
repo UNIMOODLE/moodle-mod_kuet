@@ -14,12 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use core_course\external\helper_for_get_mods_by_courses;
-
-defined('MOODLE_INTERNAL') || die;
-global $CFG;
-require_once("$CFG->libdir/externallib.php");
-
 /**
  *
  * @package     mod_jqshow
@@ -28,6 +22,13 @@ require_once("$CFG->libdir/externallib.php");
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use core_course\external\helper_for_get_mods_by_courses;
+
+defined('MOODLE_INTERNAL') || die;
+global $CFG;
+require_once($CFG->libdir . '/externallib.php');
+
 class mod_jqshow_external extends external_api {
 
     /**
@@ -35,7 +36,7 @@ class mod_jqshow_external extends external_api {
      * @return external_function_parameters
      * @since Moodle 3.3
      */
-    public static function get_jqshows_by_courses_parameters() {
+    public static function get_jqshows_by_courses_parameters(): external_function_parameters {
         return new external_function_parameters (
             [
                 'courseids' => new external_multiple_structure(
@@ -54,7 +55,6 @@ class mod_jqshow_external extends external_api {
      * @since Moodle 3.3
      */
     public static function get_jqshows_by_courses($courseids = []) {
-
         $warnings = [];
         $returnedjqshows = [];
         $params = [

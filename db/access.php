@@ -27,7 +27,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-
     'mod/jqshow:addinstance' => [
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',

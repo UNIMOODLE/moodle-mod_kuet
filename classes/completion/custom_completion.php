@@ -18,17 +18,18 @@ declare(strict_types=1);
 
 namespace mod_jqshow\completion;
 
+use coding_exception;
 use core_completion\activity_custom_completion;
+use dml_exception;
+use moodle_exception;
 
 /**
- * Activity custom completion subclass for the jqshow activity.
  *
- * Class for defining mod_jqshow's custom completion rules and fetching the completion statuses
- * of the custom completion rules for a given jqshow instance and a user.
- *
- * @package mod_jqshow
- * @copyright Simey Lameze <simey@moodle.com>
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package     mod_jqshow
+ * @author      3&Punt <tresipunt.com>
+ * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
+ * @copyright   3iPunt <https://www.tresipunt.com/>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class custom_completion extends activity_custom_completion {
 
@@ -37,22 +38,20 @@ class custom_completion extends activity_custom_completion {
      *
      * @param string $rule The completion rule.
      * @return int The completion state.
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public function get_state(string $rule): int {
         global $DB;
 
         $this->validate_rule($rule);
-
-        $userid = $this->userid;
         $jqshowid = $this->cm->instance;
 
-        if (!$jqshow = $DB->get_record('jqshow', ['id' => $jqshowid])) {
-            throw new \moodle_exception('Unable to find jqshow with id ' . $jqshowid);
+        if (!$DB->get_record('jqshow', ['id' => $jqshowid])) {
+            throw new moodle_exception('Unable to find jqshow with id ' . $jqshowid);
         }
-
         // TODO: get status.
-
-//        return $status ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
         return COMPLETION_INCOMPLETE;
     }
 
@@ -71,9 +70,9 @@ class custom_completion extends activity_custom_completion {
      * Returns an associative array of the descriptions of custom completion rules.
      *
      * @return array
+     * @throws coding_exception
      */
     public function get_custom_rule_descriptions(): array {
-
         $completionanswerall = $this->cm->customdata['customcompletionrules']['completionanswerall'] ?? 0;
         return [
             'completionanswerall' => get_string('completiondetail:answerall', 'jqshow', $completionanswerall),

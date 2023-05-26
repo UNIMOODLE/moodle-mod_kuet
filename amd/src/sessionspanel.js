@@ -119,7 +119,6 @@ SessionsPanel.prototype.copySession = function(e) {
         modal.show();
         // eslint-disable-next-line no-restricted-globals
     }).fail(Notification.exception);
-
 };
 
 SessionsPanel.prototype.deleteSession = function(e) {

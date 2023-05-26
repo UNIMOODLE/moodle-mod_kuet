@@ -13,14 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-namespace mod_jqshow\persistents;
-use coding_exception;
-use core\invalid_persistent_exception;
-use core\persistent;
-use dml_exception;
-use mod_jqshow\models\sessions;
-use moodle_exception;
-use stdClass;
 
 /**
  *
@@ -30,6 +22,15 @@ use stdClass;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace mod_jqshow\persistents;
+use coding_exception;
+use core\invalid_persistent_exception;
+use core\persistent;
+use dml_exception;
+use moodle_exception;
+use stdClass;
+
 class jqshow_questions extends persistent {
     const TABLE = 'jqshow_questions';
     /**
@@ -161,18 +162,15 @@ class jqshow_questions extends persistent {
     /**
      * @param int $sid
      * @param int $qorder
-     * @return jqshow_questions array
+     * @return array array
      * @throws dml_exception
      */
     public static function get_session_questions_to_reorder(int $sid, int $qorder) : array {
         global $DB;
-
         $sql = 'SELECT sq.*
               FROM {' . static::TABLE . '} sq
              WHERE sq.qorder > :qorder AND sq.sessionid = :sid ORDER BY sq.qorder ASC';
-
         $persistents = [];
-
         $recordset = $DB->get_recordset_sql($sql, ['qorder' => $qorder, 'sid' => $sid]);
         foreach ($recordset as $record) {
             $persistents[] = new static(0, $record);

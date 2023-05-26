@@ -28,7 +28,6 @@ namespace mod_jqshow\external;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
-use dml_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;

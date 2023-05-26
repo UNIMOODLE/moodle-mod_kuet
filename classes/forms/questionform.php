@@ -25,12 +25,18 @@
 
 namespace mod_jqshow\forms;
 
+use coding_exception;
+
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
 class questionform extends \moodleform {
+    /**
+     * @return void
+     * @throws coding_exception
+     */
     public function definition() {
         $mform =& $this->_form;
         $customdata = $this->_customdata;
@@ -38,7 +44,6 @@ class questionform extends \moodleform {
         $mform->addElement('html', '<div class="row">');
         $mform->addElement('html', '<h4 style="margin:0 auto;">'.$customdata['qname'].'('. $customdata['qtype'] .')'.'</h4>');
         $mform->addElement('html', '</div>');
-
 
         $mform->addElement('header', 'timeheader', get_string('questiontime', 'mod_jqshow'));
 

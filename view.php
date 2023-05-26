@@ -25,6 +25,7 @@
 
 require_once('../../config.php');
 require_once('lib.php');
+
 use mod_jqshow\output\views\student_view;
 use mod_jqshow\output\views\teacher_view;
 use mod_jqshow\persistents\jqshow_sessions;

@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-declare(strict_types=1);
-
-use mod_jqshow\websocketuser;
-
-define('CLI_SCRIPT', true);
-require_once(__DIR__ . '/../../../config.php');
-require_once(__DIR__ . '/websockets.php');
-
 /**
  *
  * @package     mod_jqshow
@@ -30,6 +22,14 @@ require_once(__DIR__ . '/websockets.php');
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+declare(strict_types=1);
+
+use mod_jqshow\websocketuser;
+
+define('CLI_SCRIPT', true);
+require_once(__DIR__ . '/../../../config.php');
+require_once(__DIR__ . '/websockets.php');
 
 class testserver extends websockets {
 

@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */ // TODO remove.
 
 import jQuery from 'jquery';
 import {get_strings as getStrings} from 'core/str';
@@ -69,7 +68,7 @@ SelectQuestions.prototype.initPanel = function() {
     this.pagination();
 };
 
-SelectQuestions.prototype.countChecks = function(e) {
+SelectQuestions.prototype.countChecks = function() {
     let checksNumber = jQuery(REGION.SELECTQUESTION).length;
     let checkedsNumber = jQuery(REGION.SELECTQUESTION + ':checked').length;
     jQuery(REGION.NUMBERSELECT).html(checkedsNumber);
@@ -245,7 +244,7 @@ SelectQuestions.prototype.addQuestion = function(e) {
                 }).fail(Notification.exception);
             });
         } else {
-            // TODO modal error.
+            // TODO modal or notification error.
             alert('error');
             jQuery(REGION.LOADING).remove();
         }

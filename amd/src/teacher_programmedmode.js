@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */ // TODO remove.
 
 import jQuery from 'jquery';
 import Ajax from 'core/ajax';
@@ -29,7 +28,6 @@ let TEMPLATES = {
 
 let cmId;
 let sId;
-let courseId;
 
 /**
  * @constructor

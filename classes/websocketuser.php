@@ -13,8 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-declare(strict_types=1);
-namespace mod_jqshow;
 
 /**
  *
@@ -24,6 +22,9 @@ namespace mod_jqshow;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+declare(strict_types=1);
+namespace mod_jqshow;
 
 class websocketuser {
 

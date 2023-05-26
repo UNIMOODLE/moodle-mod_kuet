@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_jqshow;
-use cm_info;
-use dml_exception;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
-use moodle_exception;
-use stdClass;
-
 /**
  *
  * @package     mod_jqshow
@@ -30,6 +22,15 @@ use stdClass;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace mod_jqshow;
+use cm_info;
+use dml_exception;
+use mod_jqshow\models\sessions;
+use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
+use stdClass;
+
 class jqshow {
     /** @var cm_info cm */
     protected $cm;
@@ -75,12 +76,9 @@ class jqshow {
      * @throws dml_exception
      */
     protected function set_sessions() {
-//        $this->activesessions = jqshow_sessions::get_records(['jqshowid' => $this->cm->instance, 'status' => 1]);
-//        $this->inactivesessions = jqshow_sessions::get_records(['jqshowid' => $this->cm->instance, 'status' => 0]);
         if (is_null($this->jqshow)) {
             $this->set_jqshow();
         }
-
         $this->sessions = new sessions($this->jqshow, $this->cm->id);
     }
 

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Capability definitions for the quiz module.
  *
  * @package     mod_jqshow
  * @author      3&Punt <tresipunt.com>
@@ -23,16 +24,10 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// This line protects the file from being accessed by a URL directly.
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * @param $oldversion
- * @throws ddl_exception
- * @throws ddl_table_missing_exception
- * @throws downgrade_exception
- * @throws moodle_exception
- * @throws upgrade_exception
+ * @return true
  */
 function xmldb_jqshow_upgrade($oldversion) {
 

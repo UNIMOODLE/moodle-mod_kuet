@@ -24,6 +24,7 @@
  */
 
 namespace mod_jqshow\models;
+
 use coding_exception;
 use dml_exception;
 use dml_transaction_exception;
@@ -37,15 +38,14 @@ use question_definition;
 use question_engine;
 use stdClass;
 use context_user;
+
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 require_once($CFG->dirroot. '/question/engine/lib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
-
 class questions {
-
     public const MULTIPLE_CHOICE = 'multichoice';
     public const TYPES = [self::MULTIPLE_CHOICE];
     protected int $jqshowid;
@@ -54,12 +54,20 @@ class questions {
     /** @var jqshow_questions[] list */
     protected array $list;
 
+    /**
+     * @param int $jqshowid
+     * @param int $cmid
+     * @param int $sid
+     */
     public function __construct(int $jqshowid, int $cmid, int $sid) {
         $this->jqshowid = $jqshowid;
         $this->cmid = $cmid;
         $this->sid = $sid;
     }
 
+    /**
+     * @return void
+     */
     public function set_list() {
         $this->list = jqshow_questions::get_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid], 'qorder', 'ASC');
     }
@@ -159,7 +167,7 @@ class questions {
         string $text, int $textformat, int $id, question_definition $question, string $filearea
     ) : string {
         global $DB, $USER;
-        $maxvariant = min($question->get_num_variants(), 100);// QUESTION_PREVIEW_MAX_VARIANTS.
+        $maxvariant = min($question->get_num_variants(), 100); // QUESTION_PREVIEW_MAX_VARIANTS.
         $options = new question_preview_options($question);
         $options->load_user_defaults();
         $options->set_from_request();

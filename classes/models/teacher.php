@@ -56,7 +56,6 @@ class teacher extends user {
             default:
                 break;
         }
-
         return $data;
     }
 
