@@ -7,6 +7,8 @@ import {get_string as getString, get_strings as getStrings} from 'core/str';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Ajax from 'core/ajax';
+import Encryptor from 'mod_jqshow/encryptor';
+import Database from 'mod_jqshow/database';
 
 let REGION = {
     MESSAGEBOX: '#message-box',
@@ -20,7 +22,10 @@ let ACTION = {
 };
 
 let SERVICES = {
-    ACTIVESESSION: 'mod_jqshow_activesession'
+    ACTIVESESSION: 'mod_jqshow_activesession',
+    GETALLQUESTIONS: 'mod_jqshow_session_getallquestions',
+    NEXTQUESTION: 'mod_jqshow_nextquestion',
+    FIRSTQUESTION: 'mod_jqshow_firstquestion'
 };
 
 let TEMPLATES = {
@@ -91,6 +96,42 @@ Sockets.prototype.measuringSpeed = function() {
     }
 };
 
+Sockets.prototype.backSession = function() {
+    const stringkeys = [
+        {key: 'backtopanelfromsession', component: 'mod_jqshow'},
+        {key: 'backtopanelfromsession_desc', component: 'mod_jqshow'},
+        {key: 'confirm', component: 'mod_jqshow'}
+    ];
+    getStrings(stringkeys).then((langStrings) => {
+        return ModalFactory.create({
+            title: langStrings[0],
+            body: langStrings[1],
+            type: ModalFactory.types.SAVE_CANCEL
+        }).then(modal => {
+            modal.setSaveButtonText(langStrings[2]);
+            modal.getRoot().on(ModalEvents.save, () => {
+                let request = {
+                    methodname: SERVICES.ACTIVESESSION,
+                    args: {
+                        cmid: cmid,
+                        sessionid: sid
+                    }
+                };
+                Ajax.call([request])[0].done(function() {
+                    window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
+                }).fail(Notification.exception);
+            });
+            modal.getRoot().on(ModalEvents.hidden, () => {
+                modal.destroy();
+            });
+            return modal;
+        });
+    }).done(function(modal) {
+        modal.show();
+        // eslint-disable-next-line no-restricted-globals
+    }).fail(Notification.exception);
+};
+
 /* ****************** */
 
 /** @type {jQuery} The jQuery node for the page region. */
@@ -99,37 +140,89 @@ Sockets.prototype.root = null;
 let userid = null;
 let usersocketid = null;
 let username = null;
+let userimage = null;
 let messageBox = null;
 let countusers = null;
 let cmid = null;
 let sid = null;
-const password = 'elktkktagqes';
-const abc = 'abcdefghijklmnopqrstuvwxyz0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ/+-*';
+let db = null;
+let questionsJqids = [];
+let currentQuestionJqid = null;
+// eslint-disable-next-line no-unused-vars
+let nextQuestionJqid = null;
 
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
     username = this.root[0].dataset.username;
+    userimage = this.root[0].dataset.userimage;
     cmid = this.root[0].dataset.cmid;
     sid = this.root[0].dataset.sid;
     messageBox = this.root.find(REGION.MESSAGEBOX);
     countusers = this.root.find(REGION.COUNTUSERS);
-
+    let that = this;
     this.root.find(ACTION.BACKSESSION).on('click', this.backSession);
 
+    db = Database.initDb(sid, userid);
     Sockets.prototype.webSocket = new WebSocket(
         'wss://' + M.cfg.wwwroot.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
     );
 
-    Sockets.prototype.webSocket.onopen = function() {
-        /* TODO call service to get all the quiz questions,
-            and generate an iterator to call .next() each time the socket/professor says so. */
+    Sockets.prototype.webSocket.onopen = function() { // Waitingroom.
+        /* The first and second questions are obtained.
+        When the teacher clicks on init session, the teacher will send the first question over the socket to all
+        students, and will get the 3rd question. When a student answers a question, a service will be called to save the answer
+        and progress, and the teacher will be informed via the socket. When the teacher clicks on next question,
+        the 2nd question will be sent by socket to all students, and the 4th question will be obtained.
+        The questions will be stored in the teacher's data storage, you can even store the user's answers so that you
+        don't have to call a service at the end for the ranking.
+        */
+
+        let request = {
+            methodname: SERVICES.FIRSTQUESTION,
+            args: {
+                cmid: cmid,
+                sessionid: sid
+            }
+        };
+        Ajax.call([request])[0].done(function(firstquestion) {
+            let data = {
+                jqid: firstquestion.jqid,
+                value: firstquestion
+            };
+            db.add('questions', data);
+            questionsJqids.push(firstquestion.jqid);
+            currentQuestionJqid = firstquestion.jqid;
+            // eslint-disable-next-line no-console
+            console.log('firstquestion', data);
+            let request = {
+                methodname: SERVICES.NEXTQUESTION,
+                args: {
+                    cmid: cmid,
+                    sessionid: sid,
+                    jqid: firstquestion.jqid
+                }
+            };
+            Ajax.call([request])[0].done(function(nextquestion) {
+                let data = {
+                    jqid: nextquestion.jqid,
+                    created: new Date(),
+                    value: nextquestion
+                };
+                db.add('questions', data);
+                nextQuestionJqid = nextquestion.jqid;
+                // eslint-disable-next-line no-console
+                console.log('nextquestion', data);
+
+                that.root.find(ACTION.INITSESSION).on('click', that.initSession);
+            }).fail(Notification.exception);
+        }).fail(Notification.exception);
     };
 
     Sockets.prototype.webSocket.onmessage = function(ev) {
-        let msgDecrypt = Sockets.prototype.decrypt(password, ev.data);
+        // TODO Refactor.
+        let msgDecrypt = Encryptor.decrypt(ev.data);
         let response = JSON.parse(msgDecrypt); // PHP sends Json data.
-        let resAction = response.action; // Message type.
-        switch (resAction) {
+        switch (response.action) {
             case 'connect':
                 // The server has returned the connected status, it is time to identify yourself.
                 if (response.usersocketid !== undefined) {
@@ -137,6 +230,7 @@ Sockets.prototype.initSockets = function() {
                     let msg = {
                         'userid': userid,
                         'name': username,
+                        'pic': userimage, // TODO encrypt.
                         'isteacher': true,
                         'cmid': cmid,
                         'sid': sid,
@@ -165,6 +259,9 @@ Sockets.prototype.initSockets = function() {
             }
             case 'countusers':
                 countusers.html(response.count);
+                break;
+            case 'questionEnd':
+                messageBox.append('<div>' + response.message + '</div>');
                 break;
             case 'userdisconnected':
                 jQuery('[data-userid="' + response.usersocketid + '"]').remove();
@@ -206,10 +303,10 @@ Sockets.prototype.initSockets = function() {
     };
 };
 
-Sockets.prototype.backSession = function() {
+Sockets.prototype.initSession = function() {
     const stringkeys = [
-        {key: 'backtopanelfromsession', component: 'mod_jqshow'},
-        {key: 'backtopanelfromsession_desc', component: 'mod_jqshow'},
+        {key: 'init_session', component: 'mod_jqshow'},
+        {key: 'init_session_desc', component: 'mod_jqshow'},
         {key: 'confirm', component: 'mod_jqshow'}
     ];
     getStrings(stringkeys).then((langStrings) => {
@@ -220,16 +317,19 @@ Sockets.prototype.backSession = function() {
         }).then(modal => {
             modal.setSaveButtonText(langStrings[2]);
             modal.getRoot().on(ModalEvents.save, () => {
-                let request = {
-                    methodname: SERVICES.ACTIVESESSION,
-                    args: {
-                        cmid: cmid,
-                        sessionid: sid
-                    }
+                let firstQuestion = db.get('questions', currentQuestionJqid);
+                // eslint-disable-next-line no-console
+                console.log(firstQuestion);
+                firstQuestion.onsuccess = function() {
+                    // eslint-disable-next-line no-console
+                    console.log(firstQuestion.result);
+                    let msg = {
+                        'action': 'question',
+                        'sid': sid,
+                        'context': firstQuestion.result
+                    };
+                    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 };
-                Ajax.call([request])[0].done(function() {
-                    window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
-                }).fail(Notification.exception);
             });
             modal.getRoot().on(ModalEvents.hidden, () => {
                 modal.destroy();
@@ -244,94 +344,6 @@ Sockets.prototype.backSession = function() {
 
 Sockets.prototype.sendMessageSocket = function(msg) {
     this.webSocket.send(msg);
-};
-
-Sockets.prototype.decrypt = function(password, text) {
-    const arr = text.split('');
-    const arrPass = password.split('');
-    let lastPassLetter = 0;
-    let decrypted = '';
-    for (let i = 0; i < arr.length; i++) {
-        const letter = arr[i];
-        const passwordLetter = arrPass[lastPassLetter];
-        const temp = this.getInvertedLetterFromAlphabetForLetter(passwordLetter, letter);
-        if (temp) {
-            decrypted += temp;
-        } else {
-            return null;
-        }
-        if (lastPassLetter === (arrPass.length - 1)) {
-            lastPassLetter = 0;
-        } else {
-            lastPassLetter++;
-        }
-    }
-    return atob(decrypted);
-};
-
-Sockets.prototype.getInvertedLetterFromAlphabetForLetter = function(letter, letterToChange) {
-    const posLetter = abc.indexOf(letter);
-    if (posLetter == -1) {
-        // eslint-disable-next-line no-console
-        console.log('Password letter ' + letter + ' not allowed.');
-        return null;
-    }
-
-    const part1 = abc.substring(posLetter, abc.length);
-    const part2 = abc.substring(0, posLetter);
-    const newABC = '' + part1 + '' + part2;
-    const posLetterToChange = newABC.indexOf( letterToChange );
-
-    if (posLetterToChange == -1) {
-        // eslint-disable-next-line no-console
-        console.log('Password letter ' + letter + ' not allowed.');
-        return null;
-    }
-
-    return abc.split('')[posLetterToChange];
-};
-
-Sockets.prototype.encrypt = function(password, text) {
-    const base64 = btoa(text);
-    const arr = base64.split('');
-    const arrPass = password.split('');
-    let lastPassLetter = 0;
-    let encrypted = '';
-    for (let i = 0; i < arr.length; i++) {
-        const letter = arr[i];
-        const passwordLetter = arrPass[lastPassLetter];
-        const temp = this.getLetterFromAlphabetForLetter( passwordLetter, letter );
-        if (temp) {
-            encrypted += temp;
-        } else {
-            return null;
-        }
-        if (lastPassLetter === (arrPass.length - 1)) {
-            lastPassLetter = 0;
-        } else {
-            lastPassLetter++;
-        }
-    }
-    return encrypted;
-};
-
-Sockets.prototype.getLetterFromAlphabetForLetter = function(letter, letterToChange) {
-    const posLetter = abc.indexOf(letter);
-    if (posLetter == -1) {
-        // eslint-disable-next-line no-console
-        console.log('Password letter ' + letter + ' not allowed.');
-        return null;
-    }
-    const posLetterToChange = abc.indexOf(letterToChange);
-    if (posLetterToChange == -1) {
-        // eslint-disable-next-line no-console
-        console.log('Password letter ' + letter + ' not allowed.');
-        return null;
-    }
-    const part1 = abc.substring(posLetter, abc.length);
-    const part2 = abc.substring(0, posLetter);
-    const newABC = '' + part1 + '' + part2;
-    return newABC.split('')[posLetterToChange];
 };
 
 export const teacherInitSockets = (region, port) => {

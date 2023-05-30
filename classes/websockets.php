@@ -163,7 +163,6 @@ abstract class websockets {
      */
     public function send_message($msg) {
         foreach ($this->sockets as $key => $changedsocket) {
-            $this->stderr($msg);
             if ($key !== 'm') {
                 fwrite($changedsocket, $msg);
             }
@@ -260,7 +259,7 @@ abstract class websockets {
                     continue;
                 }
                 $ip = stream_socket_get_name( $client, true );
-                $this->stderr("Connection attempt from $ip\n");
+                $this->stdout("Connection attempt from $ip\n");
                 stream_set_blocking($client, true);
                 // TODO review stream_socket_enable_crypto.
                 /* if (!stream_socket_enable_crypto($client, true, STREAM_CRYPTO_METHOD_TLSv1_2_SERVER)) {
@@ -276,7 +275,7 @@ abstract class websockets {
                 $foundsocket = array_search($this->master, $read, true);
                 unset($read[$foundsocket]);
 
-                $this->stderr("Handshake $ip\n");
+                $this->stdout("Handshake $ip\n");
 
                 if ($client < 0) {
                     $this->stderr("Failed: socket_accept()");
@@ -292,7 +291,7 @@ abstract class websockets {
                 $buffer = stream_get_contents($socket);
                 if ($buffer === false || strlen($buffer) <= 8) { // TODO review detect disconnect for min buffer lenght.
                     $this->disconnect($socket);
-                    $this->stderr("Client disconnected. TCP connection lost: " . $socket);
+                    $this->stdout("Client disconnected. TCP connection lost: " . $socket);
                     @fclose($socket);
                     $foundsocket = array_search($socket, $this->sockets, true);
                     unset($this->sockets[$foundsocket]);
@@ -310,7 +309,6 @@ abstract class websockets {
                             $this->handshake($user, $buffer);
                         } else {
                             $this->process($user, $unmasked);
-                            echo "\nReceived a Message from $ip:\n\"$unmasked\" \n";
                         }
                     }
                 }

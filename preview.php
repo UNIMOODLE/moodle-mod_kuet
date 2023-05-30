@@ -39,16 +39,16 @@ $jqshowid = required_param('jqsid', PARAM_INT);    // Jqshow session ID. mdl_jqs
 $cid = required_param('cid', PARAM_INT);    // Course ID. mdl_course.
 
 $jqquestion = $DB->get_record('jqshow_questions', ['id' => $jqid], '*', MUST_EXIST);
+if (!in_array($jqquestion->qtype, questions::TYPES, true)) {
+    throw new moodle_exception('incompatible_question', 'mod_jqshow');
+}
+
 $question = $DB->get_record('question', ['id' => $jqquestion->questionid], '*', MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cid], '*', MUST_EXIST);
 $coursecontext = context_course::instance($course->id);
 require_login($course, false);
 
 $question = question_bank::load_question((int) $question->id);
-
-if (!in_array($jqquestion->qtype, questions::TYPES, true)) {
-    throw new moodle_exception('incompatible_question', 'mod_jqshow');
-}
 
 $view = new question_preview($jqquestion->questionid, $jqid, $id, $sid, $jqshowid);
 $PAGE->set_context($coursecontext);

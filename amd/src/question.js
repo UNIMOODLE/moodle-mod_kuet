@@ -55,6 +55,7 @@ Question.prototype.initQuestion = function() {
         }
     });
     addEventListener('questionEnd', () => {
+        // TODO this button is only for programmed mode, in manual mode the teacher controls.
         jQuery(ACTION.NEXTQUESTION).removeClass('d-none');
     }, false);
 };

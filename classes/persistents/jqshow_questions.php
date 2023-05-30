@@ -133,11 +133,11 @@ class jqshow_questions extends persistent {
      */
     public static function get_next_question_of_session(int $sessionid, int $questionid): ?jqshow_questions {
         $current = self::get_record(['id' => $questionid, 'sessionid' => $sessionid], MUST_EXIST);
-        $nextsession = self::get_record(['sessionid' => $sessionid, 'qorder' => $current->get('qorder') + 1]);
-        if ($nextsession === false) {
+        $nextquestion = self::get_record(['sessionid' => $sessionid, 'qorder' => $current->get('qorder') + 1]);
+        if ($nextquestion === false) {
             return false;
         }
-        return $nextsession;
+        return $nextquestion;
     }
 
     /**

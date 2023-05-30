@@ -36,6 +36,7 @@ use renderable;
 use stdClass;
 use templatable;
 use renderer_base;
+use user_picture;
 
 class teacher_session_view implements renderable, templatable {
     /**
@@ -48,13 +49,16 @@ class teacher_session_view implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         // TODO refactor duplicate code for teacher and student.
-        global $USER, $DB;
+        global $USER, $DB, $PAGE;
         $data = new stdClass();
         $data->cmid = required_param('cmid', PARAM_INT);
         $data->sid = required_param('sid', PARAM_INT);
         $data->isteacher = true;
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
+        $userpicture = new user_picture($USER);
+        $userpicture->size = 1;
+        $data->userimage = $userpicture->get_url($PAGE)->out(false);
         $session = new jqshow_sessions($data->sid);
         $data->jqshowid = $session->get('jqshowid');
         jqshow_sessions::mark_session_started($data->sid);

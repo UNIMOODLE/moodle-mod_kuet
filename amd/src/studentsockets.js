@@ -4,6 +4,7 @@ import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import Ajax from 'core/ajax';
+import Encryptor from 'mod_jqshow/encryptor';
 
 let REGION = {
     MESSAGEBOX: '#message-box',
@@ -22,6 +23,7 @@ let TEMPLATES = {
     ERROR: 'core/notification_error',
     PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
     SESSIONFIINISHED: 'mod_jqshow/session/manual/closeconnection',
+    QUESTION: 'mod_jqshow/questions/encasement'
 };
 
 let portUrl = '8080';
@@ -36,6 +38,8 @@ function Sockets(region, port) {
     portUrl = port;
     this.initSockets();
     this.disableDevTools();
+    this.initEvents();
+    // TODO escuchar eventos de respuesta enviada, para enviárselo al socket. Este evento será invocado por
 }
 
 Sockets.prototype.disableDevTools = function() {
@@ -65,8 +69,7 @@ let countusers = null;
 let cmid = null;
 let sid = null;
 let jqshowid = null;
-const password = 'elktkktagqes';
-const abc = 'abcdefghijklmnopqrstuvwxyz0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ/+-*';
+let currentCuestionJqid = null;
 
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
@@ -83,12 +86,11 @@ Sockets.prototype.initSockets = function() {
     );
 
     Sockets.prototype.webSocket.onopen = function() {
-        /* TODO call service to get all the quiz questions,
-            and generate an iterator to call .next() each time the socket/professor says so. */
+
     };
 
     Sockets.prototype.webSocket.onmessage = function(ev) {
-        let msgDecrypt = Sockets.prototype.decrypt(password, ev.data);
+        let msgDecrypt = Encryptor.decrypt(ev.data);
         let response = JSON.parse(msgDecrypt); // PHP sends Json data.
         let resAction = response.action; // Message type.
         switch (resAction) {
@@ -128,6 +130,20 @@ Sockets.prototype.initSockets = function() {
             case 'countusers':
                 countusers.html(response.count);
                 break;
+            case 'question':
+                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                    let identifier = jQuery(REGION.ROOT);
+                    identifier.append(html);
+                    // eslint-disable-next-line no-console
+                    console.log(response.context.value);
+                    currentCuestionJqid = response.context.jqid;
+                    Templates.render(TEMPLATES.QUESTION, response.context.value).then(function(html, js) {
+                        identifier.html(html);
+                        Templates.runTemplateJS(js);
+                        jQuery(REGION.LOADING).remove();
+                    }).fail(Notification.exception);
+                });
+                break;
             case 'userdisconnected':
                 jQuery('[data-userid="' + response.usersocketid + '"]').remove();
                 countusers.html(response.count);
@@ -159,96 +175,26 @@ Sockets.prototype.initSockets = function() {
     };
 };
 
+Sockets.prototype.initEvents = function() {
+    addEventListener('questionEnd', () => {
+        // TODO get the result and score of the user's response and send it to the socket for the teacher to receive.
+        // TODO there is no way to get the note yet, it can be stored in dataSotarge with id->currentsid so that it can pick it up.
+        let msg = {
+            'userid': userid,
+            'sid': sid,
+            'usersocketid': usersocketid,
+            'jqid': currentCuestionJqid,
+            'answer': '', // TODO get pulsed response.
+            'points': '', // TODO obtain total score.
+            'oft': true, // IMPORTANT: Only for teacher.
+            'action': 'questionEnd',
+        };
+        Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+    }, false);
+};
+
 Sockets.prototype.sendMessageSocket = function(msg) {
     this.webSocket.send(msg);
-};
-
-Sockets.prototype.decrypt = function(password, text) {
-    const arr = text.split('');
-    const arrPass = password.split('');
-    let lastPassLetter = 0;
-    let decrypted = '';
-    for (let i = 0; i < arr.length; i++) {
-        const letter = arr[i];
-        const passwordLetter = arrPass[lastPassLetter];
-        const temp = this.getInvertedLetterFromAlphabetForLetter(passwordLetter, letter);
-        if (temp) {
-            decrypted += temp;
-        } else {
-            return null;
-        }
-        if (lastPassLetter === (arrPass.length - 1)) {
-            lastPassLetter = 0;
-        } else {
-            lastPassLetter++;
-        }
-    }
-    return atob(decrypted);
-};
-
-Sockets.prototype.getInvertedLetterFromAlphabetForLetter = function(letter, letterToChange) {
-    const posLetter = abc.indexOf(letter);
-    if (posLetter == -1) {
-        // eslint-disable-next-line no-console
-        console.log('Password letter ' + letter + ' not allowed.');
-        return null;
-    }
-
-    const part1 = abc.substring(posLetter, abc.length);
-    const part2 = abc.substring(0, posLetter);
-    const newABC = '' + part1 + '' + part2;
-    const posLetterToChange = newABC.indexOf(letterToChange);
-
-    if (posLetterToChange == -1) {
-        // eslint-disable-next-line no-console
-        console.log('Password letter ' + letter + ' not allowed.');
-        return null;
-    }
-
-    return abc.split('')[posLetterToChange];
-};
-
-Sockets.prototype.encrypt = function(password, text) {
-    const base64 = btoa(text);
-    const arr = base64.split('');
-    const arrPass = password.split('');
-    let lastPassLetter = 0;
-    let encrypted = '';
-    for (let i = 0; i < arr.length; i++) {
-        const letter = arr[i];
-        const passwordLetter = arrPass[lastPassLetter];
-        const temp = this.getLetterFromAlphabetForLetter(passwordLetter, letter);
-        if (temp) {
-            encrypted += temp;
-        } else {
-            return null;
-        }
-        if (lastPassLetter === (arrPass.length - 1)) {
-            lastPassLetter = 0;
-        } else {
-            lastPassLetter++;
-        }
-    }
-    return encrypted;
-};
-
-Sockets.prototype.getLetterFromAlphabetForLetter = function(letter, letterToChange) {
-    const posLetter = abc.indexOf(letter);
-    if (posLetter == -1) {
-        // eslint-disable-next-line no-console
-        console.log('Password letter ' + letter + ' not allowed.');
-        return null;
-    }
-    const posLetterToChange = abc.indexOf(letterToChange);
-    if (posLetterToChange == -1) {
-        // eslint-disable-next-line no-console
-        console.log('Password letter ' + letter + ' not allowed.');
-        return null;
-    }
-    const part1 = abc.substring(posLetter, abc.length);
-    const part2 = abc.substring(0, posLetter);
-    const newABC = '' + part1 + '' + part2;
-    return newABC.split('')[posLetterToChange];
 };
 
 export const studentInitSockets = (region, port) => {

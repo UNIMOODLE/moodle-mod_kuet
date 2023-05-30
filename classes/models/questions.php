@@ -90,7 +90,7 @@ class questions {
     }
 
     /**
-     * @param int $jqid
+     * @param int $jqid // jqshow_question id
      * @param int $cmid
      * @param int $sessionid
      * @param int $jqshowid

@@ -25,26 +25,27 @@
 
 namespace mod_jqshow\external;
 
-use coding_exception;
 use context_module;
-use core\invalid_persistent_exception;
+use dml_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\models\questions;
+use mod_jqshow\persistents\jqshow_questions;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class activesession_external extends external_api {
+class session_getallquestions_external extends external_api {
 
     /**
      * @return external_function_parameters
      */
-    public static function activesession_parameters(): external_function_parameters {
+    public static function session_getallquestions_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
@@ -54,38 +55,44 @@ class activesession_external extends external_api {
     }
 
     /**
+     * This method is too slow if the volume of questions in the session is too high. Do not use.
      * @param int $cmid
      * @param int $sessionid
      * @return array
-     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      * @throws invalid_parameter_exception
-     * @throws invalid_persistent_exception
      */
-    public static function activesession(int $cmid, int $sessionid): array {
-        global $USER;
+    public static function session_getallquestions(int $cmid, int $sessionid): array {
+        global $DB, $PAGE;
         self::validate_parameters(
-            self::activesession_parameters(),
+            self::session_getallquestions_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid]
         );
-        $cmcontext = context_module::instance($cmid);
-        $active = false;
-        if ($cmcontext !== null && has_capability('mod/jqshow:managesessions', $cmcontext, $USER)) {
-            jqshow_sessions::mark_session_active($sessionid);
-            $active = true;
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'jqshow');
+        $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], 'id', MUST_EXIST);
+        $allquestions = (new questions($jqshow->id, $cmid, $sessionid))->get_list();
+        $questiondata = [];
+        foreach ($allquestions as $question) {
+            $jqid = $question->get('id');
+            switch ((new jqshow_questions($jqid))->get('qtype')){
+                case 'multichoice':
+                    $questiondata[] = questions::export_multichoice($jqid, $cmid, $sessionid, $jqshow->id, false);
+                    break;
+                default:
+                    throw new moodle_exception('question_nosuitable', 'mod_jqshow');
+            }
         }
-        return [
-            'active' => $active
-        ];
+        return $questiondata;
     }
 
     /**
      * @return external_single_structure
      */
-    public static function activesession_returns(): external_single_structure {
-        return new external_single_structure(
-            [
-                'active' => new external_value(PARAM_BOOL, 'finished'),
-            ]
-        );
+    public static function session_getallquestions_returns() {
+        // TODO.
+        return null;
     }
 }
