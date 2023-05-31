@@ -50,5 +50,10 @@ class websocketuser {
         $this->ip = $ip;
         $this->handshake = true;
     }
+
+    public function update_user($data) {
+        $this->cmid = $data['cmid'];
+        $this->sid = $data['sid'];
+    }
 }
 

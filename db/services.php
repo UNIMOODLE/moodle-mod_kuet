@@ -27,11 +27,13 @@ use mod_jqshow\external\activesession_external;
 use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\finishsession_external;
+use mod_jqshow\external\firstquestion_external;
 use mod_jqshow\external\getlistresults_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
 use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
+use mod_jqshow\external\session_getallquestions_external;
 use mod_jqshow\external\sessionfinished_external;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\external\sessionspanel_external;
@@ -149,6 +151,14 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_jqshow_firstquestion' => [
+        'classname' => firstquestion_external::class,
+        'methodname' => 'firstquestion',
+        'description' => 'First question of a session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
     'mod_jqshow_getlistresults' => [
         'classname' => getlistresults_external::class,
         'methodname' => 'getlistresults',
@@ -188,6 +198,14 @@ $functions = [
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_session_getallquestions' => [
+        'classname' => session_getallquestions_external::class,
+        'methodname' => 'session_getallquestions',
+        'description' => 'Gets all questions and answers from a session to send to users in manual modes.',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -206,11 +224,13 @@ $services = [
             'mod_jqshow_editsessionsettings',
             'mod_jqshow_multichoice',
             'mod_jqshow_nextquestion',
+            'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',
             'mod_jqshow_finishsession',
             'mod_jqshow_startsession',
             'mod_jqshow_sessionfinished',
-            'mod_jqshow_activesession'
+            'mod_jqshow_activesession',
+            'mod_jqshow_session_getallquestions'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
