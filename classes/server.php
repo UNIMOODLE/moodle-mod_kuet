@@ -24,8 +24,6 @@
 
 declare(strict_types=1);
 
-use core\invalid_persistent_exception;
-use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\websocketuser;
 
 define('CLI_SCRIPT', true);
@@ -116,18 +114,22 @@ class server extends websockets {
                     '<span style="color: red">' . get_string('userdisconnected', 'mod_jqshow', $user->dataname) . '</span>',
                 'count' => isset($this->students[$user->sid]) ? count($this->students[$user->sid]) : 0
             ], JSON_THROW_ON_ERROR)));
-        foreach ($this->sidusers[$user->sid] as $usersaved) {
-            fwrite($usersaved->socket, $response, strlen($response));
+        if (isset($this->sidusers[$user->sid])) {
+            foreach ($this->sidusers[$user->sid] as $usersaved) {
+                fwrite($usersaved->socket, $response, strlen($response));
+            }
         }
         if ($user->isteacher) {
             unset($this->teacher[$user->sid]);
-            foreach ($this->sidusers[$user->sid] as $socket) {
-                $this->disconnect($socket->socket);
-                fclose($socket->socket);
-                unset($this->students[$user->sid], $this->sidusers[$user->sid]);
+            if (isset($this->sidusers[$user->sid])) {
+                foreach ($this->sidusers[$user->sid] as $socket) {
+                    $this->disconnect($socket->socket);
+                    fclose($socket->socket);
+                    unset($this->students[$user->sid], $this->sidusers[$user->sid]);
+                    // TODO control the end of manual sessions in another way.
+                    // jqshow_sessions::mark_session_finished((int)$user->sid);
+                }
             }
-            // TODO control the end of manual sessions in another way.
-            // jqshow_sessions::mark_session_finished((int)$user->sid);
         }
         if ((count($this->sockets) === 0) || (count($this->users) === 0)) {
             die(); // No one is connected to the socket. It closes and will be reopened by the first teacher who logs in.

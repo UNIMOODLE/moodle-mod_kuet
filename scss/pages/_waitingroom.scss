@@ -63,6 +63,14 @@ body#page-mod-jqshow-view {
             flex-flow: row nowrap;
             justify-content: flex-end;
             align-items: center;
+            .disabled {
+                pointer-events: none;
+                cursor: none;
+                opacity: .3;
+            }
+            .hidden {
+                display: none;
+            }
             .btn {
                 margin-left: 1em;
             }
@@ -225,6 +233,27 @@ body#page-mod-jqshow-view {
         flex-flow: row wrap;
         align-items: center;
         justify-content: center;
+        &[data-region="active-users"] {
+            margin-bottom: 1em;
+        }
+        &.forteacher {
+            flex-flow: row nowrap;
+            width: 100%;
+            max-height: 70px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            &::-webkit-scrollbar {
+                width: 8px;
+                height: 4px;
+            }
+            &::-webkit-scrollbar-track {
+                background: #e0e0e0;
+            }
+            &::-webkit-scrollbar-thumb {
+                background-color: #6a737b;
+                border-radius: 4px;
+            }
+        }
         .participant {
             display: flex;
             flex-flow: row nowrap;

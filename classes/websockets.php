@@ -25,7 +25,6 @@
 
 declare(strict_types=1);
 
-define('CLI_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 global $CFG;
 require_once(__DIR__ . '/websocketuser.php');
@@ -96,7 +95,7 @@ abstract class websockets {
         }
 
         $this->sockets['m'] = $this->master;
-        $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: " . $this->master);
+        $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: $this->master\n");
     }
 
     /**
@@ -259,7 +258,7 @@ abstract class websockets {
                     continue;
                 }
                 $ip = stream_socket_get_name( $client, true );
-                $this->stdout("Connection attempt from $ip\n");
+                $this->stdout("Connection attempt from $ip");
                 stream_set_blocking($client, true);
                 // TODO review stream_socket_enable_crypto.
                 /* if (!stream_socket_enable_crypto($client, true, STREAM_CRYPTO_METHOD_TLSv1_2_SERVER)) {
@@ -275,7 +274,7 @@ abstract class websockets {
                 $foundsocket = array_search($this->master, $read, true);
                 unset($read[$foundsocket]);
 
-                $this->stdout("Handshake $ip\n");
+                $this->stdout("Handshake $ip");
 
                 if ($client < 0) {
                     $this->stderr("Failed: socket_accept()");
@@ -283,7 +282,7 @@ abstract class websockets {
                 }
 
                 $this->connect($client, $ip);
-                $this->stdout("Client connected. " . $client);
+                $this->stdout("Client connected. $client\n");
             }
 
             foreach ($read as $socket) {

@@ -39,7 +39,6 @@ function Sockets(region, port) {
     this.initSockets();
     this.disableDevTools();
     this.initEvents();
-    // TODO escuchar eventos de respuesta enviada, para enviárselo al socket. Este evento será invocado por
 }
 
 Sockets.prototype.disableDevTools = function() {
@@ -134,8 +133,6 @@ Sockets.prototype.initSockets = function() {
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.ROOT);
                     identifier.append(html);
-                    // eslint-disable-next-line no-console
-                    console.log(response.context.value);
                     currentCuestionJqid = response.context.jqid;
                     Templates.render(TEMPLATES.QUESTION, response.context.value).then(function(html, js) {
                         identifier.html(html);
