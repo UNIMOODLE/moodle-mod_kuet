@@ -54,7 +54,6 @@ class student_session_view implements renderable, templatable {
         $data = new stdClass();
         $data->cmid = required_param('cmid', PARAM_INT);
         $data->sid = required_param('sid', PARAM_INT);
-        $data->isteacher = true;
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
         $userpicture = new user_picture($USER);

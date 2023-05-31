@@ -17,18 +17,21 @@
                     {{#pix}}q/zoomout, mod_jqshow{{/pix}}
                 </div>
             </div>
-            <div class="question-body">
+            <div class="question-body container-fluid px-0">
                 {{#multichoice}}
                     {{> mod_jqshow/questions/multichoice }}
                 {{/multichoice}}
+                {{#isteacher}}
+                    {{> mod_jqshow/session/manual/teachercontrolpanel }}
+                {{/isteacher}}
             </div>
-            {{^preview}}
-                {{#programmedmode}}
+            {{#programmedmode}}
+                {{^preview}}
                     <div class="btn btn-primary m-3 float-right d-none" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
                         {{#str}}next{{/str}}
                     </div>
-                {{/programmedmode}}
-            {{/preview}}
+                {{/preview}}
+            {{/programmedmode}}
         </div>
     </div>
 </div>

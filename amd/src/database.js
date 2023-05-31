@@ -48,7 +48,7 @@ Db.prototype.update = function(storeName, value) {
 };
 
 Db.prototype.get = function(storeName, id) {
-    let store = this.getObjectStore(storeName, 'readwrite');
+    let store = this.getObjectStore(storeName, 'readonly');
     return store.get(id);
 };
 
@@ -73,6 +73,11 @@ Db.prototype.clearObjectStore = function(storeName) {
         // eslint-disable-next-line no-console
         console.error("clearObjectStore:", evt.target.errorCode);
     };
+};
+
+Db.prototype.deleteDatabase = function() {
+    indexedDb.close();
+    return window.indexedDB.deleteDatabase(dbName);
 };
 
 export const initDb = (sid, userid) => {

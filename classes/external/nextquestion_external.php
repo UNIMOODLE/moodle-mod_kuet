@@ -28,6 +28,7 @@ namespace mod_jqshow\external;
 use coding_exception;
 use context_module;
 use dml_exception;
+use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -52,7 +53,8 @@ class nextquestion_external extends external_api {
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
-                'jqid' => new external_value(PARAM_INT, 'question id of jqshow_questions')
+                'jqid' => new external_value(PARAM_INT, 'question id of jqshow_questions'),
+                'manual' => new external_value(PARAM_BOOL, 'Mode of session', VALUE_OPTIONAL)
             ]
         );
     }
@@ -61,17 +63,19 @@ class nextquestion_external extends external_api {
      * @param int $cmid
      * @param int $sessionid
      * @param int $jqid
+     * @param bool $manual
      * @return array
      * @throws coding_exception
      * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function nextquestion(int $cmid, int $sessionid, int $jqid): array {
-        global $PAGE;
+    public static function nextquestion(int $cmid, int $sessionid, int $jqid, bool $manual = false): array {
+        global $PAGE, $USER;
         self::validate_parameters(
             self::nextquestion_parameters(),
-            ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid]
+            ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid, 'manual' => $manual]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
@@ -88,7 +92,7 @@ class nextquestion_external extends external_api {
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow');
         }
-        $data->programmedmode = true;
+        $data->programmedmode = $manual === false;
         return (array)$data;
     }
 
@@ -97,6 +101,7 @@ class nextquestion_external extends external_api {
      */
     public static function nextquestion_returns(): external_single_structure {
         // TODO adapt to any type of question.
+        // TODO exporter for reuse.
         return new external_single_structure([
             'cmid' => new external_value(PARAM_INT, 'Course module id'),
             'sessionid' => new external_value(PARAM_INT, 'Session id'),
@@ -113,7 +118,7 @@ class nextquestion_external extends external_api {
             'numanswers' => new external_value(PARAM_INT, 'Num of answer for multichoice', VALUE_OPTIONAL),
             'name' => new external_value(PARAM_RAW, 'Name of question'),
             'qtype' => new external_value(PARAM_RAW, 'Type of question'),
-            'programmedmode' => new external_value(PARAM_BOOL, 'Mode programmed', VALUE_OPTIONAL),
+            'programmedmode' => new external_value(PARAM_BOOL, 'Mode programmed'),
             'manualmode' => new external_value(PARAM_BOOL, 'Mode manual', VALUE_OPTIONAL),
             'port' => new external_value(PARAM_RAW, 'Port for sockets', VALUE_OPTIONAL),
             'multichoice' => new external_value(PARAM_BOOL, 'Type of question for mustache', VALUE_OPTIONAL),

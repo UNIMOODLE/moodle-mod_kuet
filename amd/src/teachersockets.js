@@ -206,13 +206,13 @@ Sockets.prototype.initSockets = function() {
                 args: {
                     cmid: cmid,
                     sessionid: sid,
-                    jqid: firstquestion.jqid
+                    jqid: firstquestion.jqid,
+                    manual: true
                 }
             };
             Ajax.call([request])[0].done(function(nextquestion) {
                 let data = {
                     jqid: nextquestion.jqid,
-                    created: new Date(),
                     value: nextquestion
                 };
                 db.add('questions', data);
@@ -337,6 +337,7 @@ Sockets.prototype.initSession = function() {
                         let identifier = jQuery(REGION.TEACHERCANVAS);
                         identifier.append(html);
                         currentCuestionJqid = firstQuestion.result.jqid;
+                        firstQuestion.result.value.isteacher = true;
                         Templates.render(TEMPLATES.QUESTION, firstQuestion.result.value).then(function(html, js) {
                             identifier.html(html);
                             jQuery(REGION.TEACHERCANVASCONTENT).find('.content-title h2').html(langStrings[3]);
@@ -384,10 +385,15 @@ Sockets.prototype.endSession = function() {
                     }
                 };
                 Ajax.call([request])[0].done(function(response) {
-                    // eslint-disable-next-line no-console
-                    console.log(response);
                     if (response.finished === true) {
-                        window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
+                        let deleteDb = db.deleteDatabase();
+                        deleteDb.onerror = function(event) {
+                            // eslint-disable-next-line no-console
+                            console.error("Error deleting database.", event);
+                        };
+                        deleteDb.onsuccess = function() {
+                            window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
+                        };
                     } else {
                         Notification.alert('Error', langStrings[3], langStrings[2]);
                     }
