@@ -233,8 +233,10 @@ abstract class websockets {
             $data = substr($text, 6);
         }
         $text = "";
-        for ($i = 0, $imax = strlen($data); $i < $imax; ++$i) {
-            $text .= $data[$i] ^ $masks[$i % 4];
+        if ($data !== false) {
+            for ($i = 0, $imax = strlen($data); $i < $imax; ++$i) {
+                $text .= $data[$i] ^ $masks[$i % 4];
+            }
         }
         return $text;
     }
