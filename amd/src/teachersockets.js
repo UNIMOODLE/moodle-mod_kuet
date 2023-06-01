@@ -13,26 +13,33 @@ import Database from 'mod_jqshow/database';
 let REGION = {
     MESSAGEBOX: '#message-box',
     USERLIST: '[data-region="active-users"]',
-    COUNTUSERS: '#countusers'
+    COUNTUSERS: '#countusers',
+    TEACHERCANVASCONTENT: '[data-region="teacher-canvas-content"]', // This root.
+    TEACHERCANVAS: '[data-region="teacher-canvas"]',
+    TEACHERPANEL: '[data-region="teacher-panel"]',
+    SESSIONCONTROLER: '[data-region="session-controller"]',
 };
 
 let ACTION = {
     BACKSESSION: '[data-action="back-session"]',
     INITSESSION: '[data-action="init-session"]',
+    ENDSESSION: '[data-action="end-session"]'
 };
 
 let SERVICES = {
     ACTIVESESSION: 'mod_jqshow_activesession',
     GETALLQUESTIONS: 'mod_jqshow_session_getallquestions',
     NEXTQUESTION: 'mod_jqshow_nextquestion',
-    FIRSTQUESTION: 'mod_jqshow_firstquestion'
+    FIRSTQUESTION: 'mod_jqshow_firstquestion',
+    FINISHSESSION: 'mod_jqshow_finishsession'
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant'
+    PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
+    QUESTION: 'mod_jqshow/questions/encasement'
 };
 
 let portUrl = '8080'; // It is rewritten in the constructor.
@@ -45,10 +52,11 @@ let portUrl = '8080'; // It is rewritten in the constructor.
 function Sockets(region, port) {
     this.root = jQuery(region);
     portUrl = port;
-    this.measuringSpeed();
+    this.measuringSpeed(); // TODO extend to the whole mod.
     this.disableDevTools(); // TODO extend to the whole mod.
     this.initSockets();
     this.cleanMessages();
+    this.initListeners();
 }
 
 Sockets.prototype.cleanMessages = function() {
@@ -147,9 +155,11 @@ let cmid = null;
 let sid = null;
 let db = null;
 let questionsJqids = [];
-let currentQuestionJqid = null;
 // eslint-disable-next-line no-unused-vars
+let waitingRoom = true;
+let currentQuestionJqid = null;
 let nextQuestionJqid = null;
+let currentCuestionJqid = null;
 
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
@@ -192,29 +202,11 @@ Sockets.prototype.initSockets = function() {
             db.add('questions', data);
             questionsJqids.push(firstquestion.jqid);
             currentQuestionJqid = firstquestion.jqid;
-            // eslint-disable-next-line no-console
-            console.log('firstquestion', data);
-            let request = {
-                methodname: SERVICES.NEXTQUESTION,
-                args: {
-                    cmid: cmid,
-                    sessionid: sid,
-                    jqid: firstquestion.jqid
-                }
-            };
-            Ajax.call([request])[0].done(function(nextquestion) {
-                let data = {
-                    jqid: nextquestion.jqid,
-                    created: new Date(),
-                    value: nextquestion
-                };
-                db.add('questions', data);
-                nextQuestionJqid = nextquestion.jqid;
-                // eslint-disable-next-line no-console
-                console.log('nextquestion', data);
-
-                that.root.find(ACTION.INITSESSION).on('click', that.initSession);
-            }).fail(Notification.exception);
+            that.setCurrentQuestion(firstquestion.jqid);
+            that.getNextQuestion(firstquestion.jqid);
+            that.root.find(ACTION.INITSESSION).removeClass('disabled');
+            that.root.find(ACTION.INITSESSION).on('click', that.initSession);
+            that.root.find(ACTION.ENDSESSION).on('click', that.endSession);
         }).fail(Notification.exception);
     };
 
@@ -260,7 +252,7 @@ Sockets.prototype.initSockets = function() {
             case 'countusers':
                 countusers.html(response.count);
                 break;
-            case 'questionEnd':
+            case 'studentQuestionEnd':
                 messageBox.append('<div>' + response.message + '</div>');
                 break;
             case 'userdisconnected':
@@ -303,11 +295,100 @@ Sockets.prototype.initSockets = function() {
     };
 };
 
+Sockets.prototype.setCurrentQuestion = function(currentQuestion) {
+    let data = {
+        state: 'currentQuestion',
+        value: currentQuestion
+    };
+    db.update('statequestions', data);
+};
+
+Sockets.prototype.setNextQuestion = function(nextQuestion) {
+    let data = {
+        state: 'nextQuestion',
+        value: nextQuestion
+    };
+    db.update('statequestions', data);
+};
+
+Sockets.prototype.getNextQuestion = function(jqid) {
+    let that = this;
+    let request = {
+        methodname: SERVICES.NEXTQUESTION,
+        args: {
+            cmid: cmid,
+            sessionid: sid,
+            jqid: jqid,
+            manual: true
+        }
+    };
+    nextQuestionJqid = null;
+    Ajax.call([request])[0].done(function(nextquestion) {
+        let data = {
+            jqid: nextquestion.jqid,
+            value: nextquestion
+        };
+        db.add('questions', data);
+        nextQuestionJqid = nextquestion.jqid;
+        that.setNextQuestion(nextquestion.jqid);
+    }).fail(Notification.exception);
+};
+
+Sockets.prototype.initListeners = function() {
+    let that = this;
+    addEventListener('nextQuestion', () => {
+        that.nextQuestion();
+    }, false);
+    addEventListener('teacherQuestionEndSelf', () => {
+        that.questionEnd();
+    }, false);
+};
+
+Sockets.prototype.nextQuestion = function() {
+    let that = this;
+    if (nextQuestionJqid === null) {
+        this.getNextQuestion(currentCuestionJqid);
+    }
+    let nextQuestion = db.get('questions', nextQuestionJqid);
+    nextQuestion.onsuccess = function() {
+        let msg = {
+            'action': 'question',
+            'sid': sid,
+            'context': nextQuestion.result
+        };
+        Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+            let identifier = jQuery(REGION.TEACHERCANVAS);
+            identifier.append(html);
+            currentCuestionJqid = nextQuestion.result.jqid;
+            that.setCurrentQuestion(nextQuestion.result.jqid);
+            that.getNextQuestion(nextQuestion.result.jqid);
+            nextQuestion.result.value.isteacher = true;
+            Templates.render(TEMPLATES.QUESTION, nextQuestion.result.value).then(function(html, js) {
+                identifier.html(html);
+                Templates.runTemplateJS(js);
+                jQuery(REGION.LOADING).remove();
+            }).fail(Notification.exception);
+        });
+    };
+};
+
+Sockets.prototype.questionEnd = function() {
+    let msg = {
+        'action': 'teacherQuestionEnd',
+        'sid': sid,
+        'jqid': currentCuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
 Sockets.prototype.initSession = function() {
     const stringkeys = [
         {key: 'init_session', component: 'mod_jqshow'},
         {key: 'init_session_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'}
+        {key: 'confirm', component: 'mod_jqshow'},
+        {key: 'sessionstarted', component: 'mod_jqshow'},
+        {key: 'sessionstarted_info', component: 'mod_jqshow'}
     ];
     getStrings(stringkeys).then((langStrings) => {
         return ModalFactory.create({
@@ -318,18 +399,79 @@ Sockets.prototype.initSession = function() {
             modal.setSaveButtonText(langStrings[2]);
             modal.getRoot().on(ModalEvents.save, () => {
                 let firstQuestion = db.get('questions', currentQuestionJqid);
-                // eslint-disable-next-line no-console
-                console.log(firstQuestion);
                 firstQuestion.onsuccess = function() {
-                    // eslint-disable-next-line no-console
-                    console.log(firstQuestion.result);
                     let msg = {
                         'action': 'question',
                         'sid': sid,
                         'context': firstQuestion.result
                     };
                     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                        let identifier = jQuery(REGION.TEACHERCANVAS);
+                        identifier.append(html);
+                        currentCuestionJqid = firstQuestion.result.jqid;
+                        firstQuestion.result.value.isteacher = true;
+                        Templates.render(TEMPLATES.QUESTION, firstQuestion.result.value).then(function(html, js) {
+                            identifier.html(html);
+                            jQuery(REGION.TEACHERCANVASCONTENT).find('.content-title h2').html(langStrings[3]);
+                            jQuery(REGION.TEACHERCANVASCONTENT).find('.content-title small').html(langStrings[4]);
+                            jQuery(ACTION.BACKSESSION).remove();
+                            jQuery(ACTION.INITSESSION).remove();
+                            jQuery(ACTION.ENDSESSION).removeClass('hidden').removeClass('disabled');
+                            waitingRoom = false;
+                            Templates.runTemplateJS(js);
+                            jQuery(REGION.LOADING).remove();
+                        }).fail(Notification.exception);
+                    });
                 };
+            });
+            modal.getRoot().on(ModalEvents.hidden, () => {
+                modal.destroy();
+            });
+            return modal;
+        });
+    }).done(function(modal) {
+        modal.show();
+        // eslint-disable-next-line no-restricted-globals
+    }).fail(Notification.exception);
+};
+
+Sockets.prototype.endSession = function() {
+    const stringkeys = [
+        {key: 'end_session', component: 'mod_jqshow'},
+        {key: 'end_session_manual_desc', component: 'mod_jqshow'},
+        {key: 'confirm', component: 'mod_jqshow'},
+        {key: 'end_session_error', component: 'mod_jqshow'}
+    ];
+    getStrings(stringkeys).then((langStrings) => {
+        return ModalFactory.create({
+            title: langStrings[0],
+            body: langStrings[1],
+            type: ModalFactory.types.SAVE_CANCEL
+        }).then(modal => {
+            modal.setSaveButtonText(langStrings[2]);
+            modal.getRoot().on(ModalEvents.save, () => {
+                let request = {
+                    methodname: SERVICES.FINISHSESSION,
+                    args: {
+                        cmid: cmid,
+                        sessionid: sid
+                    }
+                };
+                Ajax.call([request])[0].done(function(response) {
+                    if (response.finished === true) {
+                        let deleteDb = db.deleteDatabase();
+                        deleteDb.onerror = function(event) {
+                            // eslint-disable-next-line no-console
+                            console.error("Error deleting database.", event);
+                        };
+                        deleteDb.onsuccess = function() {
+                            window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
+                        };
+                    } else {
+                        Notification.alert('Error', langStrings[3], langStrings[2]);
+                    }
+                }).fail(Notification.exception);
             });
             modal.getRoot().on(ModalEvents.hidden, () => {
                 modal.destroy();

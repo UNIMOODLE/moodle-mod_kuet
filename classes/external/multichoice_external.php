@@ -45,7 +45,7 @@ class multichoice_external extends external_api {
     public static function multichoice_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'answerid' => new external_value(PARAM_INT, 'answer id'),
+                'answerid' => new external_value(PARAM_INT, 'answer id', VALUE_OPTIONAL),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),

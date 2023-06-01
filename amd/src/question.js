@@ -104,8 +104,6 @@ Question.prototype.nextQuestion = function(e) {
                 jqid: jQuery(e.currentTarget).attr('data-jqid')
             }
         };
-        // eslint-disable-next-line no-console
-        console.log(request);
         Ajax.call([request])[0].done(function(response) {
             let templateQuestions = TEMPLATES.QUESTION;
             Templates.render(templateQuestions, response).then(function(html, js) {

@@ -66,7 +66,7 @@ class firstquestion_external extends external_api {
      * @throws moodle_exception
      */
     public static function firstquestion(int $cmid, int $sessionid): array {
-        global $PAGE;
+        global $PAGE, $USER;
         self::validate_parameters(
             self::firstquestion_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid]
@@ -85,7 +85,7 @@ class firstquestion_external extends external_api {
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow');
         }
-        $data->programmedmode = true;
+        $data->programmedmode = false;
         return (array)$data;
     }
 

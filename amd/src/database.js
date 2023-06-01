@@ -33,7 +33,9 @@ Db.prototype.openDb = function() {
         let questions = evt.currentTarget.result.createObjectStore(
             'questions', {keyPath: 'jqid'});
         questions.createIndex('jqid', 'jqid', {unique: true});
-        evt.currentTarget.result.createObjectStore('currentcuestion');
+
+        let statequestions = evt.currentTarget.result.createObjectStore('statequestions', {keyPath: 'state'});
+        statequestions.createIndex('state', 'state', {unique: true});
     };
 };
 
@@ -48,7 +50,7 @@ Db.prototype.update = function(storeName, value) {
 };
 
 Db.prototype.get = function(storeName, id) {
-    let store = this.getObjectStore(storeName, 'readwrite');
+    let store = this.getObjectStore(storeName, 'readonly');
     return store.get(id);
 };
 
@@ -73,6 +75,11 @@ Db.prototype.clearObjectStore = function(storeName) {
         // eslint-disable-next-line no-console
         console.error("clearObjectStore:", evt.target.errorCode);
     };
+};
+
+Db.prototype.deleteDatabase = function() {
+    indexedDb.close();
+    return window.indexedDB.deleteDatabase(dbName);
 };
 
 export const initDb = (sid, userid) => {

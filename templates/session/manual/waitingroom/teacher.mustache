@@ -1,37 +1,4 @@
-<div class="row content-header">
-    <div class="content-title col-5">
-        <h2>{{#str}}waitingroom, mod_jqshow{{/str}}</h2>
-        <small>{{#str}}waitingroom_info, mod_jqshow{{/str}}</small>
-    </div>
-    <div class="more-info-session col-5">
-        <div class="sessionname">
-            {{#pix}}s/name, mod_jqshow{{/pix}}
-            <div class="sessionname-text">
-                {{#str}}session_name_placeholder, mod_jqshow{{/str}}
-                <span>{{sessionname}}</span>
-            </div>
-        </div>
-        <div class="numusers">
-            {{#pix}}s/users, mod_jqshow{{/pix}}
-            <div class="countusers">
-                <span id="countusers">0</span>
-                <span class="participants">{{#str}}participants, mod_jqshow{{/str}}</span>
-            </div>
-        </div>
-    </div>
-    <div class="session-controller col-2">
-        <button class="btn btn-secondary" data-action="back-session">
-            {{#str}}back{{/str}}
-        </button>
-        <button class="btn btn-primary" data-action="init-session">
-            {{#str}}init_session, mod_jqshow{{/str}}
-        </button>
-    </div>
-</div>
 <div class="row teacher-waiting-room">
-    <div class="col-12 participants" data-region="active-users">
-
-    </div>
     <div class="col-12 col-lg-5 container">
         <div class="resume-config">
             <h5 class="titlecontainer bg-primary">

@@ -92,6 +92,7 @@ class sessionspanel_external extends external_api {
                 [
                     'name'   => new external_value(PARAM_RAW, 'Name of session'),
                     'sessionid' => new external_value(PARAM_INT, 'Id of session'),
+                    'sessionmode' => new external_value(PARAM_RAW, 'Mode of session'),
                     'questions_number' => new external_value(PARAM_INT, 'Number of question for session'),
                     'managesessions' => new external_value(PARAM_BOOL, 'Capability'),
                     'initsession' => new external_value(PARAM_BOOL, 'Capability'),
