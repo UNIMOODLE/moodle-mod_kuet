@@ -56,6 +56,7 @@ function Sockets(region, port) {
     this.disableDevTools(); // TODO extend to the whole mod.
     this.initSockets();
     this.cleanMessages();
+    this.initListeners();
 }
 
 Sockets.prototype.cleanMessages = function() {
@@ -154,10 +155,10 @@ let cmid = null;
 let sid = null;
 let db = null;
 let questionsJqids = [];
+// eslint-disable-next-line no-unused-vars
+let waitingRoom = true;
 let currentQuestionJqid = null;
-// eslint-disable-next-line no-unused-vars
 let nextQuestionJqid = null;
-// eslint-disable-next-line no-unused-vars
 let currentCuestionJqid = null;
 
 Sockets.prototype.initSockets = function() {
@@ -201,26 +202,11 @@ Sockets.prototype.initSockets = function() {
             db.add('questions', data);
             questionsJqids.push(firstquestion.jqid);
             currentQuestionJqid = firstquestion.jqid;
-            let request = {
-                methodname: SERVICES.NEXTQUESTION,
-                args: {
-                    cmid: cmid,
-                    sessionid: sid,
-                    jqid: firstquestion.jqid,
-                    manual: true
-                }
-            };
-            Ajax.call([request])[0].done(function(nextquestion) {
-                let data = {
-                    jqid: nextquestion.jqid,
-                    value: nextquestion
-                };
-                db.add('questions', data);
-                nextQuestionJqid = nextquestion.jqid;
-                that.root.find(ACTION.INITSESSION).removeClass('disabled');
-                that.root.find(ACTION.INITSESSION).on('click', that.initSession);
-                that.root.find(ACTION.ENDSESSION).on('click', that.endSession);
-            }).fail(Notification.exception);
+            that.setCurrentQuestion(firstquestion.jqid);
+            that.getNextQuestion(firstquestion.jqid);
+            that.root.find(ACTION.INITSESSION).removeClass('disabled');
+            that.root.find(ACTION.INITSESSION).on('click', that.initSession);
+            that.root.find(ACTION.ENDSESSION).on('click', that.endSession);
         }).fail(Notification.exception);
     };
 
@@ -266,7 +252,7 @@ Sockets.prototype.initSockets = function() {
             case 'countusers':
                 countusers.html(response.count);
                 break;
-            case 'questionEnd':
+            case 'studentQuestionEnd':
                 messageBox.append('<div>' + response.message + '</div>');
                 break;
             case 'userdisconnected':
@@ -309,6 +295,93 @@ Sockets.prototype.initSockets = function() {
     };
 };
 
+Sockets.prototype.setCurrentQuestion = function(currentQuestion) {
+    let data = {
+        state: 'currentQuestion',
+        value: currentQuestion
+    };
+    db.update('statequestions', data);
+};
+
+Sockets.prototype.setNextQuestion = function(nextQuestion) {
+    let data = {
+        state: 'nextQuestion',
+        value: nextQuestion
+    };
+    db.update('statequestions', data);
+};
+
+Sockets.prototype.getNextQuestion = function(jqid) {
+    let that = this;
+    let request = {
+        methodname: SERVICES.NEXTQUESTION,
+        args: {
+            cmid: cmid,
+            sessionid: sid,
+            jqid: jqid,
+            manual: true
+        }
+    };
+    nextQuestionJqid = null;
+    Ajax.call([request])[0].done(function(nextquestion) {
+        let data = {
+            jqid: nextquestion.jqid,
+            value: nextquestion
+        };
+        db.add('questions', data);
+        nextQuestionJqid = nextquestion.jqid;
+        that.setNextQuestion(nextquestion.jqid);
+    }).fail(Notification.exception);
+};
+
+Sockets.prototype.initListeners = function() {
+    let that = this;
+    addEventListener('nextQuestion', () => {
+        that.nextQuestion();
+    }, false);
+    addEventListener('teacherQuestionEndSelf', () => {
+        that.questionEnd();
+    }, false);
+};
+
+Sockets.prototype.nextQuestion = function() {
+    let that = this;
+    if (nextQuestionJqid === null) {
+        this.getNextQuestion(currentCuestionJqid);
+    }
+    let nextQuestion = db.get('questions', nextQuestionJqid);
+    nextQuestion.onsuccess = function() {
+        let msg = {
+            'action': 'question',
+            'sid': sid,
+            'context': nextQuestion.result
+        };
+        Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+            let identifier = jQuery(REGION.TEACHERCANVAS);
+            identifier.append(html);
+            currentCuestionJqid = nextQuestion.result.jqid;
+            that.setCurrentQuestion(nextQuestion.result.jqid);
+            that.getNextQuestion(nextQuestion.result.jqid);
+            nextQuestion.result.value.isteacher = true;
+            Templates.render(TEMPLATES.QUESTION, nextQuestion.result.value).then(function(html, js) {
+                identifier.html(html);
+                Templates.runTemplateJS(js);
+                jQuery(REGION.LOADING).remove();
+            }).fail(Notification.exception);
+        });
+    };
+};
+
+Sockets.prototype.questionEnd = function() {
+    let msg = {
+        'action': 'teacherQuestionEnd',
+        'sid': sid,
+        'jqid': currentCuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
 Sockets.prototype.initSession = function() {
     const stringkeys = [
         {key: 'init_session', component: 'mod_jqshow'},
@@ -345,6 +418,7 @@ Sockets.prototype.initSession = function() {
                             jQuery(ACTION.BACKSESSION).remove();
                             jQuery(ACTION.INITSESSION).remove();
                             jQuery(ACTION.ENDSESSION).removeClass('hidden').removeClass('disabled');
+                            waitingRoom = false;
                             Templates.runTemplateJS(js);
                             jQuery(REGION.LOADING).remove();
                         }).fail(Notification.exception);

@@ -1,6 +1,6 @@
 <div class="content-control-panel">
-    <div class="collapse show width h-100" id="control-panel">
-        <div class="teacher-control-panel h-100">
+    <div class="collapse show width" id="control-panel">
+        <div class="teacher-control-panel" data-region="teacher_control_panel">
             <h5>{{#str}}controlpanel, mod_jqshow{{/str}}</h5>
             <div class="separator">
                 <span>{{#str}}control, mod_jqshow{{/str}}</span>
@@ -50,7 +50,7 @@
                 </div>
                 <div class="custom-control custom-switch">
                     <input id="showhide_responses" type="checkbox"
-                           data-action="responses"
+                           data-action="showhide_responses"
                            class="custom-control-input"
                            checked >
                     <label for="showhide_responses" class="custom-control-label"
@@ -67,7 +67,7 @@
                 </div>
                 <div class="custom-control custom-switch">
                     <input id="showhide_statistics" type="checkbox"
-                           data-action="responses"
+                           data-action="showhide_statistics"
                            class="custom-control-input"
                            checked >
                     <label for="showhide_statistics" class="custom-control-label"
@@ -84,7 +84,7 @@
                 </div>
                 <div class="custom-control custom-switch">
                     <input id="showhide_feedback" type="checkbox"
-                           data-action="responses"
+                           data-action="showhide_feedback"
                            class="custom-control-input"
                            checked >
                     <label for="showhide_feedback" class="custom-control-label"
@@ -119,3 +119,9 @@
         {{#pix}}i/collapse, mod_jqshow{{/pix}}
     </button>
 </div>
+
+{{#js}}
+    require(['mod_jqshow/teachercontrolpanel'], function(ControlPanel) {
+        ControlPanel.teacherControlPanel('[data-region="teacher_control_panel"]', {{jqid}});
+    });
+{{/js}}

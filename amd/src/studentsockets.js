@@ -28,6 +28,7 @@ let TEMPLATES = {
 
 let portUrl = '8080';
 
+
 /**
  * @constructor
  * @param {String} region
@@ -38,7 +39,7 @@ function Sockets(region, port) {
     portUrl = port;
     this.initSockets();
     this.disableDevTools();
-    this.initEvents();
+    this.initListeners();
 }
 
 Sockets.prototype.disableDevTools = function() {
@@ -141,6 +142,9 @@ Sockets.prototype.initSockets = function() {
                     }).fail(Notification.exception);
                 });
                 break;
+            case 'teacherQuestionEnd':
+                dispatchEvent(new Event('teacherQuestionEnd_' + response.jqid));
+                break;
             case 'userdisconnected':
                 jQuery('[data-userid="' + response.usersocketid + '"]').remove();
                 countusers.html(response.count);
@@ -172,8 +176,8 @@ Sockets.prototype.initSockets = function() {
     };
 };
 
-Sockets.prototype.initEvents = function() {
-    addEventListener('questionEnd', () => {
+Sockets.prototype.initListeners = function() {
+    addEventListener('studentQuestionEnd', () => {
         // TODO get the result and score of the user's response and send it to the socket for the teacher to receive.
         // TODO there is no way to get the note yet, it can be stored in dataSotarge with id->currentsid so that it can pick it up.
         let msg = {
@@ -184,7 +188,7 @@ Sockets.prototype.initEvents = function() {
             'answer': '', // TODO get pulsed response.
             'points': '', // TODO obtain total score.
             'oft': true, // IMPORTANT: Only for teacher.
-            'action': 'questionEnd',
+            'action': 'studentQuestionEnd',
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
     }, false);

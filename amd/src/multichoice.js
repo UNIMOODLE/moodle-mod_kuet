@@ -32,6 +32,7 @@ let cmId;
 let sId;
 let questionid;
 let jqshowId;
+let jqid;
 
 /**
  * @constructor
@@ -43,19 +44,23 @@ function MultiChoice(selector) {
     cmId = this.node.attr('data-cmid');
     questionid = this.node.attr('data-questionid');
     jqshowId = this.node.attr('data-jqshowid');
+    jqid = this.node.attr('data-jqid');
     this.initMultichoice();
 }
 
 /** @type {jQuery} The jQuery node for the page region. */
 MultiChoice.prototype.node = null;
 MultiChoice.prototype.endTimer = new Event('endTimer');
-MultiChoice.prototype.questionEnd = new Event('questionEnd');
+MultiChoice.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
 
 MultiChoice.prototype.initMultichoice = function() {
     this.node.find(ACTION.REPLY).on('click', this.reply.bind(this));
     addEventListener('timeFinish', () => {
         this.reply();
-    }, false);
+    }, {once: true});
+    addEventListener('teacherQuestionEnd_' + jqid, () => {
+        this.reply();
+    }, {once: true});
 };
 
 MultiChoice.prototype.reply = function(e) {
@@ -104,7 +109,7 @@ MultiChoice.prototype.reply = function(e) {
                     let contentHeight = jQuery(REGION.MULTICHOICE).outerHeight();
                     jQuery(REGION.FEEDBACKBACGROUND).css('height', contentHeight + 'px');
                 }, 15);
-                dispatchEvent(that.questionEnd);
+                dispatchEvent(that.studentQuestionEnd);
             } else {
                 alert('error');
             }

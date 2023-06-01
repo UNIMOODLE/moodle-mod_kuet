@@ -97,7 +97,7 @@
                     box-shadow: 0 0 10px rgba(0, 0, 0, .06);
                     border-radius: 0 0 8px 8px;
                     width: 260px;
-                    padding: 30px;
+                    padding: 30px 0 30px 30px;
                     h5 {
                         margin-bottom: 30px;
                     }
@@ -125,7 +125,7 @@
                         flex-flow: row nowrap;
                         justify-content: flex-start;
                         align-items: center;
-                        margin-bottom: 15px;
+                        margin: 0 30px 15px 0;
                         .control-action-icon,
                         .showhide-action-icon {
                             height: 30px;
@@ -143,6 +143,7 @@
                         }
                         span {
                             font-size: 14px;
+                            white-space: nowrap;
                         }
                     }
                     .control-action {
@@ -158,11 +159,12 @@
                     }
                     .endsession {
                         background-color: #f84015;
-                        width: 100%;
+                        width: calc(100% - 30px);
                         padding: 8px;
                         cursor: pointer;
                         border: none;
                         transition: opacity .3s ease-in-out;
+                        margin-right: 30px;
                         &:hover {
                             opacity: .7;
                             transition: opacity .3s ease-in-out;

@@ -138,10 +138,10 @@ class server extends websockets {
 
     protected function get_response_from_action_for_teacher(websocketuser $user, string $useraction, array $data): string {
         switch ($useraction) {
-            case 'questionEnd':
+            case 'studentQuestionEnd':
                 return $this->mask(
                     encrypt($this->password, json_encode([
-                            'action' => 'questionEnd',
+                            'action' => 'studentQuestionEnd',
                             'onlyforteacher' => true,
                             'context' => $data,
                             'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta' // TODO delete.
@@ -181,6 +181,13 @@ class server extends websockets {
                     encrypt($this->password, json_encode([
                             'action' => 'question',
                             'context' => $data['context'],
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'teacherQuestionEnd':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'teacherQuestionEnd',
+                            'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'shutdownTest':

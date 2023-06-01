@@ -33,7 +33,9 @@ Db.prototype.openDb = function() {
         let questions = evt.currentTarget.result.createObjectStore(
             'questions', {keyPath: 'jqid'});
         questions.createIndex('jqid', 'jqid', {unique: true});
-        evt.currentTarget.result.createObjectStore('currentcuestion');
+
+        let statequestions = evt.currentTarget.result.createObjectStore('statequestions', {keyPath: 'state'});
+        statequestions.createIndex('state', 'state', {unique: true});
     };
 };
 
