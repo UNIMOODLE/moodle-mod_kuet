@@ -17,7 +17,8 @@ let ACTION = {
     SHOWHIDE_STATISTICS: '[data-action="showhide_statistics"]',
     SHOWHIDE_FEEDBACK: '[data-action="showhide_feedback"]',
     IMPROVISE: '[data-action="improvise"]',
-    VOTE: '[data-action="vote"]'
+    VOTE: '[data-action="vote"]',
+    ENDSESSION: '[data-action="endsession"]'
 };
 
 TeacherControlPanel.prototype.root = null;
@@ -40,6 +41,7 @@ const pauseEvent = new Event('pauseTime');
 const resendEvent = new Event('resend');
 const jumpEvent = new Event('jumpTo');
 const finishquestionEventSelf = new Event('teacherQuestionEndSelf');
+const endSession = new Event('endSession');
 let finishquestionEvent = null;
 
 TeacherControlPanel.prototype.initControlPanel = function() {
@@ -48,6 +50,7 @@ TeacherControlPanel.prototype.initControlPanel = function() {
     this.root.find(ACTION.RESEND).on('click', this.resend);
     this.root.find(ACTION.JUMP).on('click', this.jump);
     this.root.find(ACTION.FINISHQUESTION).on('click', this.finishquestion);
+    this.root.find(ACTION.ENDSESSION).on('click', this.endsession);
 };
 
 TeacherControlPanel.prototype.next = function() {
@@ -69,6 +72,10 @@ TeacherControlPanel.prototype.jump = function() {
 TeacherControlPanel.prototype.finishquestion = function() {
     dispatchEvent(finishquestionEventSelf);
     dispatchEvent(finishquestionEvent);
+};
+
+TeacherControlPanel.prototype.endsession = function() {
+    dispatchEvent(endSession);
 };
 
 export const teacherControlPanel = (region, jqid) => {

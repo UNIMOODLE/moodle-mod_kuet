@@ -47,14 +47,16 @@ class server extends websockets {
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
         $data = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
-        if (isset($data['oft']) && $data['oft'] === true) { // Only for teacher.
+        if (isset($data['oft']) && $data['oft'] === true) {
+            // Only for teacher.
             $responsetext = $this->get_response_from_action_for_teacher($user, $data['action'], $data);
             if ($responsetext !== '' && isset($this->sidusers[$data['sid']])) {
                 foreach ($this->teacher[$data['sid']] as $teacher) {
                     fwrite($teacher->socket, $responsetext, strlen($responsetext));
                 }
             }
-        } else if (isset($data['ofs']) && $data['ofs'] === true) { // Only for student.
+        } else if (isset($data['ofs']) && $data['ofs'] === true) {
+            // Only for student.
             $responsetext = $this->get_response_from_action_for_student($user, $data['action'], $data);
             if ($responsetext !== '') {
                 foreach ($this->sockets as $key => $socket) {

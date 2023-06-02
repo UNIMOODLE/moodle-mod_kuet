@@ -306,6 +306,9 @@ Sockets.prototype.initListeners = function() {
     addEventListener('teacherQuestionEndSelf', () => {
         that.questionEnd();
     }, false);
+    addEventListener('endSession', () => {
+        that.endSession();
+    }, {once: true});
 };
 
 Sockets.prototype.setCurrentQuestion = function(currentQuestion) {

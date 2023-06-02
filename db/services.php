@@ -28,6 +28,7 @@ use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\finishsession_external;
 use mod_jqshow\external\firstquestion_external;
+use mod_jqshow\external\getactivesession_external;
 use mod_jqshow\external\getlistresults_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
@@ -199,6 +200,14 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_jqshow_getactivesession' => [
+        'classname' => getactivesession_external::class,
+        'methodname' => 'getactivesession',
+        'description' => 'Get Active session of Jqshow id',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
     'mod_jqshow_session_getallquestions' => [
         'classname' => session_getallquestions_external::class,
         'methodname' => 'session_getallquestions',
@@ -230,6 +239,7 @@ $services = [
             'mod_jqshow_startsession',
             'mod_jqshow_sessionfinished',
             'mod_jqshow_activesession',
+            'mod_jqshow_getactivesession',
             'mod_jqshow_session_getallquestions'
         ],
         'restrictedusers' => 0,
