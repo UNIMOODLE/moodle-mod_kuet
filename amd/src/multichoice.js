@@ -18,6 +18,7 @@ let REGION = {
     FEEDBACKBACGROUND: '[data-region="feedback-background"]',
     STATEMENTTEXT: '[data-region="statement-text"]',
     TIMER: '[data-region="question-timer"]',
+    NEXT: '[data-action="next-question"]'
 };
 
 let SERVICES = {
@@ -95,6 +96,7 @@ MultiChoice.prototype.reply = function(e) {
                 jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
                 jQuery(REGION.STATEMENTTEXT).css({'z-index': 3, 'padding': '15px'});
                 jQuery(REGION.TIMER).css('z-index', 3);
+                jQuery(REGION.NEXT).removeClass('d-none');
                 if (e !== undefined) {
                     jQuery(e.currentTarget).css({'z-index': 3, 'pointer-events': 'none'});
                 }

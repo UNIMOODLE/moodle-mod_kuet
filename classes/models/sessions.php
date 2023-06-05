@@ -34,6 +34,7 @@ use dml_exception;
 use Exception;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\forms\sessionform;
+use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
@@ -62,9 +63,9 @@ class sessions {
     const PODIUM_PROGRAMMED = 'podium_programmed';
 
     // Anonymous response.
-    const ANONYMOUS_ANSWERS = 0;
-    const ANONYMOUS_ALL_ANSWERS = 1;
-    const ANONYMOUS_ANSWERS_NO = 2;
+    const ANONYMOUS_ANSWERS_NO = 0;
+    const ANONYMOUS_ANSWERS = 1;
+    const ANONYMOUS_ALL_ANSWERS = 2;
 
     /**
      * sessions constructor.
@@ -101,9 +102,8 @@ class sessions {
     public function export_form(): Object {
         $sid = optional_param('sid', 0, PARAM_INT);    // Session id.
         $anonymousanswerchoices = [
-            self::ANONYMOUS_ANSWERS => get_string('anonymiseresponses', 'mod_jqshow'),
-            self::ANONYMOUS_ALL_ANSWERS => get_string('anonymiseallresponses', 'mod_jqshow'),
             self::ANONYMOUS_ANSWERS_NO => get_string('noanonymiseresponses', 'mod_jqshow'),
+            self::ANONYMOUS_ANSWERS => get_string('anonymiseresponses', 'mod_jqshow')
         ];
         $sessionmodechoices = [
             self::INACTIVE_MANUAL => get_string('inactive_manual', 'mod_jqshow'),
@@ -484,12 +484,23 @@ class sessions {
         $students = [];
         foreach ($users as $user) {
             if (info_module::is_user_visible($cm, $user->id, false)) {
-                // TODO get the real values for this, at the moment it is fake for layout.
+                $answers = jqshow_questions_responses::get_session_responses_for_user(
+                    $user->id, $session->get('id'), $session->get('jqshowid')
+                );
+                $correctanswers = 0;
+                $incorrectanswers = 0;
+                foreach ($answers as $answer) {
+                    if ($answer->get('result') === 1) {
+                        $correctanswers++;
+                    } else {
+                        $incorrectanswers++;
+                    }
+                }
                 $student = new stdClass();
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
-                $student->correctanswers = random_int(0, count($questions));
-                $student->incorrectanswers = count($questions) - $student->correctanswers;
-                $student->userpoints = random_int(0, 1000);
+                $student->correctanswers = $correctanswers;
+                $student->incorrectanswers = $incorrectanswers;
+                $student->userpoints = (int)($correctanswers * (1000 / count($questions))); // TODO how are the points obtained?
                 $students[] = $student;
             }
         }

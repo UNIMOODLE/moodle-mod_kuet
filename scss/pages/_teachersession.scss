@@ -1,8 +1,10 @@
 .teacher-session-content {
     .summary-session {
+        [data-action="end_session"] {
+            margin-bottom: 25px;
+        }
         .resume-config,
         .users-results {
-            margin-top: 25px;
             padding: 0;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,.06);

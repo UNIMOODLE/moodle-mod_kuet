@@ -35,7 +35,9 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\models\questions;
+use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -66,7 +68,7 @@ class firstquestion_external extends external_api {
      * @throws moodle_exception
      */
     public static function firstquestion(int $cmid, int $sessionid): array {
-        global $PAGE, $USER;
+        global $PAGE;
         self::validate_parameters(
             self::firstquestion_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid]
@@ -85,7 +87,8 @@ class firstquestion_external extends external_api {
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow');
         }
-        $data->programmedmode = false;
+        $session = new jqshow_sessions($sessionid);
+        $data->programmedmode = $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED;
         return (array)$data;
     }
 
