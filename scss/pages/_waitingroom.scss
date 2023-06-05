@@ -239,6 +239,7 @@ body#page-mod-jqshow-view {
         &.forteacher {
             flex-flow: row nowrap;
             width: 100%;
+            min-height: 57px;
             max-height: 70px;
             overflow-x: auto;
             overflow-y: hidden;
@@ -275,5 +276,9 @@ body#page-mod-jqshow-view {
                 margin-right: 8px;
             }
         }
+    }
+    .resume-config,
+    .questions-list {
+        margin-top: 0 !important;
     }
 }

@@ -34,3 +34,8 @@
         </div>
     </div>
 </div>
+{{#js}}
+    require(['mod_jqshow/check_activesession'], function(CheckActiveSession) {
+        CheckActiveSession.checkActiveSession({{cmid}}, {{jqshowid}});
+    });
+{{/js}}

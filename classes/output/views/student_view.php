@@ -51,6 +51,8 @@ class student_view implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         global $OUTPUT;
         $data = new stdClass();
+        $data->cmid = $this->cmid;
+        $data->jqshowid = $this->jqshowid;
         $data->notsessionimage = $OUTPUT->image_url('f/not_session', 'mod_jqshow')->out(false);
         $nextsession = jqshow_sessions::get_next_session($this->jqshowid);
         if ($nextsession !== 0) {

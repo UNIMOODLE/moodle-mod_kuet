@@ -47,11 +47,23 @@ class server extends websockets {
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
         $data = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
-        if (isset($data['oft']) && $data['oft'] === true) { // Only for teacher.
+        if (isset($data['oft']) && $data['oft'] === true) {
+            // Only for teacher.
             $responsetext = $this->get_response_from_action_for_teacher($user, $data['action'], $data);
             if ($responsetext !== '' && isset($this->sidusers[$data['sid']])) {
                 foreach ($this->teacher[$data['sid']] as $teacher) {
                     fwrite($teacher->socket, $responsetext, strlen($responsetext));
+                }
+            }
+        } else if (isset($data['ofs']) && $data['ofs'] === true) {
+            // Only for student.
+            $responsetext = $this->get_response_from_action_for_student($user, $data['action'], $data);
+            if ($responsetext !== '') {
+                foreach ($this->sockets as $key => $socket) {
+                    if ($key === $data['usersocketid']) {
+                        fwrite($socket, $responsetext, strlen($responsetext));
+                        break;
+                    }
                 }
             }
         } else { // All users in this sid.
@@ -136,6 +148,13 @@ class server extends websockets {
         }
     }
 
+    /**
+     * @param websocketuser $user
+     * @param string $useraction
+     * @param array $data
+     * @return string
+     * @throws JsonException
+     */
     protected function get_response_from_action_for_teacher(websocketuser $user, string $useraction, array $data): string {
         switch ($useraction) {
             case 'studentQuestionEnd':
@@ -145,6 +164,27 @@ class server extends websockets {
                             'onlyforteacher' => true,
                             'context' => $data,
                             'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta' // TODO delete.
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * @param websocketuser $user
+     * @param string $useraction
+     * @param array $data
+     * @return string
+     * @throws JsonException
+     */
+    protected function get_response_from_action_for_student(websocketuser $user, string $useraction, array $data): string {
+        switch ($useraction) {
+            case 'normalizeUser':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'question',
+                            'context' => $data['context'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             default:
@@ -273,6 +313,7 @@ class server extends websockets {
         return $this->mask(
             encrypt($this->password, json_encode([
                 'action' => 'newuser',
+                'usersocketid' => $user->usersocketid,
                 'students' => array_values($studentsdata),
                 'count' => count($this->students[$data['sid']])
             ], JSON_THROW_ON_ERROR)
