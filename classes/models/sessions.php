@@ -500,7 +500,7 @@ class sessions {
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
                 $student->correctanswers = $correctanswers;
                 $student->incorrectanswers = $incorrectanswers;
-                $student->userpoints = (int)($correctanswers * (1000 / count($questions))); // TODO how are the points obtained?
+                $student->userpoints = (int)($correctanswers * (1000 / count($questions))); // TODO apply pdf formula for scoring.
                 $students[] = $student;
             }
         }

@@ -114,20 +114,21 @@ class questions {
         $type = $question->get_type_name();
         $answers = [];
         $feedbacks = [];
-        /** @var question_answer $response */
         foreach ($question->answers as $response) {
-            $answertext = self::get_text($response->answer, $response->answerformat, $response->id, $question, 'answer');
-            $answers[] = [
-                'answerid' => $response->id,
-                'questionid' => $jqshowquestion->get('questionid'),
-                'answertext' => $answertext,
-                'fraction' => $response->fraction,
-            ];
-            $feedbacks[] = [
-                'answerid' => $response->id,
-                'feedback' => $response->feedback,
-                'feedbackformat' => $response->feedbackformat,
-            ];
+            if (assert($response instanceof question_answer)) {
+                $answertext = self::get_text($response->answer, $response->answerformat, $response->id, $question, 'answer');
+                $answers[] = [
+                    'answerid' => $response->id,
+                    'questionid' => $jqshowquestion->get('questionid'),
+                    'answertext' => $answertext,
+                    'fraction' => $response->fraction,
+                ];
+                $feedbacks[] = [
+                    'answerid' => $response->id,
+                    'feedback' => $response->feedback,
+                    'feedbackformat' => $response->feedbackformat,
+                ];
+            }
         }
         $data = new stdClass();
         $data->cmid = $cmid;
@@ -147,6 +148,9 @@ class questions {
         $data->name = $question->name;
         $data->qtype = $type;
         $data->$type = true;
+        if ($session->get('randomanswers') === 1) {
+            shuffle($answers);
+        }
         $data->answers = $answers;
         $data->feedbacks = $feedbacks;
         $data->template = 'mod_jqshow/questions/encasement';

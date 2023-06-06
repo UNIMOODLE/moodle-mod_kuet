@@ -101,6 +101,7 @@ class multichoice_external extends external_api {
         foreach ($question->answers as $key => $answer) {
             if ($answer->fraction !== '0.0000000') {
                 $correctanswers .= $answer->id . ',';
+                // TODO obtain the value of the answer to score the question.
             }
             if (isset($answerid) && $key === $answerid && $answerfeedback === '') {
                 // TODO images do not work.
