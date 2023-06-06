@@ -30,6 +30,7 @@ use dml_exception;
 use dml_transaction_exception;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\persistents\jqshow_user_progress;
 use qbank_previewquestion\question_preview_options;
 use question_answer;
 use question_attempt;
@@ -101,16 +102,13 @@ class questions {
      * @throws dml_transaction_exception
      */
     public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
+        global $USER;
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
         $time = $jqshowquestion->get('timelimit') > 0 ? $jqshowquestion->get('timelimit') :
             get_config('mod_jqshow', 'questiontime');
-        $order = $jqshowquestion->get('qorder');
-        $a = new stdClass();
-        $a->num = $order;
-        $a->total = $numsessionquestions;
         $type = $question->get_type_name();
         $answers = [];
         $feedbacks = [];
@@ -136,8 +134,29 @@ class questions {
         $data->jqshowid = $jqshowid;
         $data->questionid = $jqshowquestion->get('questionid');
         $data->jqid = $jqshowquestion->get('id');
-        $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
-        $data->sessionprogress = round($order * 100 / $numsessionquestions);
+        if ($session->get('sessionmode') !== sessions::INACTIVE_MANUAL &&
+            $session->get('sessionmode') !== sessions::PODIUM_MANUAL) {
+            $progress = jqshow_user_progress::get_session_progress_for_user(
+                $USER->id, $session->get('id'), $session->get('jqshowid')
+            );
+            if ($progress !== false) {
+                $dataprogress = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                $dataorder = explode(',', $dataprogress->questionsorder);
+                $order = (int)array_search($dataprogress->currentquestion, $dataorder, false);
+                $a = new stdClass();
+                $a->num = $order + 1;
+                $a->total = $numsessionquestions;
+                $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+                $data->sessionprogress = round(($order + 1) * 100 / $numsessionquestions);
+            }
+        } else {
+            $order = $jqshowquestion->get('qorder');
+            $a = new stdClass();
+            $a->num = $order;
+            $a->total = $numsessionquestions;
+            $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+            $data->sessionprogress = round($order * 100 / $numsessionquestions);
+        }
         $data->questiontext =
             self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;

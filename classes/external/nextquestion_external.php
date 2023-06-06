@@ -27,6 +27,7 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_module;
+use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
 use external_api;
@@ -35,6 +36,8 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use JsonException;
+use mod_jqshow\helpers\progress;
 use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
 use moodle_exception;
@@ -65,6 +68,8 @@ class nextquestion_external extends external_api {
      * @param int $jqid
      * @param bool $manual
      * @return array
+     * @throws JsonException
+     * @throws invalid_persistent_exception
      * @throws coding_exception
      * @throws dml_exception
      * @throws dml_transaction_exception
@@ -80,6 +85,9 @@ class nextquestion_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $nextquestion = jqshow_questions::get_next_question_of_session($sessionid, $jqid);
+        progress::set_progress(
+            $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
+        );
         // TODO consider it to be the last question, and in that case send an end-of-session screen.
         switch ($nextquestion->get('qtype')) {
             case 'multichoice':

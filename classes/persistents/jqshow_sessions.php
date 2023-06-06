@@ -40,89 +40,85 @@ class jqshow_sessions extends persistent {
      * @return array
      */
     protected static function define_properties() {
-        return array(
-            'name' => array(
+        return [
+            'name' => [
                 'type' => PARAM_RAW,
-            ),
-            'jqshowid' => array(
+            ],
+            'jqshowid' => [
                 'type' => PARAM_INT,
-            ),
-            'anonymousanswer' => array(
-                'type' => PARAM_INT,
-                'default' => 0,
-            ),
-            'allowguests' => array(
+            ],
+            'anonymousanswer' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'sessionmode' => array(
+            ],
+            'sessionmode' => [
                 'type' => PARAM_RAW,
                 'default' => sessions::INACTIVE_MANUAL,
-                'choices' => array(sessions::INACTIVE_MANUAL, sessions::PODIUM_PROGRAMMED, sessions::PODIUM_MANUAL)
-            ),
-            'countdown' => array(
+                'choices' => [sessions::INACTIVE_MANUAL, sessions::PODIUM_PROGRAMMED, sessions::PODIUM_MANUAL]
+            ],
+            'countdown' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
                 'default' => 0,
-            ),
-            'hidegraderanking' => array(
+            ],
+            'hidegraderanking' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'randomquestions' => array(
+            ],
+            'randomquestions' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'randomanswers' => array(
+            ],
+            'randomanswers' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'showfeedback' => array(
+            ],
+            'showfeedback' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'showfinalgrade' => array(
+            ],
+            'showfinalgrade' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'startdate' => array(
+            ],
+            'startdate' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'enddate' => array(
+            ],
+            'enddate' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'automaticstart' => array(
+            ],
+            'automaticstart' => [
                 'type' => PARAM_INT,
                 'default' => 0
-            ),
-            'timelimit' => array(
+            ],
+            'timelimit' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'addtimequestion' => array(
+            ],
+            'addtimequestion' => [
                 'type' => PARAM_INT,
                 'default' => 0
-            ),
-            'groupings' => array(
+            ],
+            'groupings' => [
                 'type' => PARAM_RAW,
                 'null' => NULL_ALLOWED,
                 'default' => null,
-            ),
-            'status' => array(
+            ],
+            'status' => [
                 'type' => PARAM_INT,
-            ),
-            'usermodified' => array(
+            ],
+            'usermodified' => [
                 'type' => PARAM_INT,
-            ),
-            'timecreated' => array(
+            ],
+            'timecreated' => [
                 'type' => PARAM_INT,
-            ),
-            'timemodified' => array(
+            ],
+            'timemodified' => [
                 'type' => PARAM_INT,
-            )
-        );
+            ]
+        ];
     }
 
     /**

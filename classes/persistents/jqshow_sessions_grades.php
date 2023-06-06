@@ -35,20 +35,20 @@ class jqshow_sessions_grades extends persistent {
      * @return array
      */
     protected static function define_properties() {
-        return array(
-            'jqshow' => array(
+        return [
+            'jqshow' => [
                 'type' => PARAM_INT,
-            ),
-            'session' => array(
+            ],
+            'session' => [
                 'type' => PARAM_INT,
-            ),
-            'userid' => array(
+            ],
+            'userid' => [
                 'type' => PARAM_INT,
-            ),
-            'grade' => array(
+            ],
+            'grade' => [
                 'type' => PARAM_FLOAT,
-            )
-        );
+            ]
+        ];
     }
 
     /**

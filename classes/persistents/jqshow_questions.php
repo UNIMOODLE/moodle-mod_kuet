@@ -28,6 +28,8 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
+use JsonException;
+use mod_jqshow\models\sessions;
 use moodle_exception;
 use stdClass;
 
@@ -39,46 +41,46 @@ class jqshow_questions extends persistent {
      * @return array
      */
     protected static function define_properties() {
-        return array(
-            'questionid' => array(
+        return [
+            'questionid' => [
                 'type' => PARAM_INT,
-            ),
-            'sessionid' => array(
+            ],
+            'sessionid' => [
                 'type' => PARAM_INT,
-            ),
-            'jqshowid' => array(
+            ],
+            'jqshowid' => [
                 'type' => PARAM_INT,
-            ),
-            'qorder' => array(
+            ],
+            'qorder' => [
                 'type' => PARAM_INT,
-            ),
-            'qtype' => array(
+            ],
+            'qtype' => [
                 'type' => PARAM_RAW,
-            ),
-            'timelimit' => array(
+            ],
+            'timelimit' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'ignorecorrectanswer' => array(
+            ],
+            'ignorecorrectanswer' => [
                 'type' => PARAM_INT,
-            ),
-            'isvalid' => array(
+            ],
+            'isvalid' => [
                 'type' => PARAM_INT,
-            ),
-            'config' => array(
+            ],
+            'config' => [
                 'type' => PARAM_RAW,
                 'null' => NULL_ALLOWED,
-            ),
-            'usermodified' => array(
+            ],
+            'usermodified' => [
                 'type' => PARAM_INT,
-            ),
-            'timecreated' => array(
+            ],
+            'timecreated' => [
                 'type' => PARAM_INT,
-            ),
-            'timemodified' => array(
+            ],
+            'timemodified' => [
                 'type' => PARAM_INT,
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -129,15 +131,44 @@ class jqshow_questions extends persistent {
      * @param int $sessionid
      * @param int $questionid
      * @return false|jqshow_questions
+     * @throws JsonException
      * @throws coding_exception
      */
     public static function get_next_question_of_session(int $sessionid, int $questionid): ?jqshow_questions {
-        $current = self::get_record(['id' => $questionid, 'sessionid' => $sessionid], MUST_EXIST);
-        $nextquestion = self::get_record(['sessionid' => $sessionid, 'qorder' => $current->get('qorder') + 1]);
-        if ($nextquestion === false) {
-            return false;
+        global $USER;
+        $session = jqshow_sessions::get_record(['id' => $sessionid], MUST_EXIST);
+        if ($session->get('sessionmode') !== sessions::INACTIVE_MANUAL &&
+            $session->get('sessionmode') !== sessions::PODIUM_MANUAL) {
+            $progress = jqshow_user_progress::get_session_progress_for_user(
+                $USER->id, $session->get('id'), $session->get('jqshowid')
+            );
+            if ($progress !== false) {
+                $data = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                $order = explode(',', $data->questionsorder);
+                $current = array_search($data->currentquestion, $order, false);
+                if ($current !== false && isset($order[$current + 1])) {
+                    $nextquestion = self::get_record(['sessionid' => $sessionid, 'id' => $order[$current + 1]]);
+                } else {
+                    // TODO end os session.
+                    die('End session');
+                }
+            }
+        } else {
+            $current = self::get_record(['id' => $questionid, 'sessionid' => $sessionid], MUST_EXIST);
+            $nextquestion = self::get_record(['sessionid' => $sessionid, 'qorder' => $current->get('qorder') + 1]);
+            if ($nextquestion === false) {
+                return false;
+            }
         }
         return $nextquestion;
+    }
+
+    /**
+     * @param int $jqid
+     * @return false|jqshow_questions
+     */
+    public static function get_question_by_jqid(int $jqid): ?jqshow_questions {
+        return self::get_record(['id' => $jqid], MUST_EXIST);
     }
 
     /**

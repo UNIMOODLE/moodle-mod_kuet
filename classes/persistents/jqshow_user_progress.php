@@ -28,15 +28,13 @@ namespace mod_jqshow\persistents;
 use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
-use moodle_exception;
 use stdClass;
 
-class jqshow_questions_responses extends persistent {
-    public const TABLE = 'jqshow_questions_responses';
+class jqshow_user_progress extends persistent {
+    public const TABLE = 'jqshow_user_progress';
+
     /**
-     * Return the definition of the properties of this model.
-     *
-     * @return array
+     * @return array[]
      */
     protected static function define_properties() {
         return [
@@ -46,19 +44,13 @@ class jqshow_questions_responses extends persistent {
             'session' => [
                 'type' => PARAM_INT,
             ],
-            'jqid' => [
-                'type' => PARAM_INT,
-            ],
             'userid' => [
                 'type' => PARAM_INT,
             ],
-            'anonymise' => [
+            'randomquestion' => [
                 'type' => PARAM_INT,
             ],
-            'result' => [
-                'type' => PARAM_INT,
-            ],
-            'response' => [
+            'other' => [
                 'type' => PARAM_RAW,
             ]
         ];
@@ -68,51 +60,36 @@ class jqshow_questions_responses extends persistent {
      * @param int $userid
      * @param int $jqshowid
      * @param int $sessionid
-     * @return jqshow_sessions_grades[]
-     */
-    public static function get_session_responses_for_user(int $userid, int $sessionid, int $jqshowid): array {
-        return self::get_records(['userid' => $userid, 'session' => $sessionid, 'jqshow' => $jqshowid]);
-    }
-
-    /**
-     * @param int $session
-     * @param int $userid
      * @return false|static
      */
-    public static function get_grade_for_session_user(int $session, int $userid) {
-        return self::get_record(['session' => $session, 'userid' => $userid]);
+    public static function get_session_progress_for_user(int $userid, int $sessionid, int $jqshowid) {
+        return self::get_record(['userid' => $userid, 'session' => $sessionid, 'jqshow' => $jqshowid]);
     }
 
     /**
-     * @param int $jqshow
+     * @param int $jqshowid
      * @param int $session
-     * @param int $jqid
      * @param int $userid
-     * @param int $result
-     * @param string $response
+     * @param string $other
      * @return bool
      * @throws coding_exception
      * @throws invalid_persistent_exception
-     * @throws moodle_exception
      */
-    public static function add_response(int $jqshow, int $session, int $jqid, int $userid, int $result, string $response): bool {
+    public static function add_progress(int $jqshowid, int $session, int $userid, string $other): bool {
         $sessiondata = jqshow_sessions::get_record(['id' => $session], MUST_EXIST);
-        $record = self::get_record(['jqshow' => $jqshow, 'session' => $session, 'jqid' => $jqid, 'userid' => $userid]);
+        $record = self::get_record(['jqshow' => $jqshowid, 'session' => $session, 'userid' => $userid]);
         try {
             if ($record === false) {
                 $data = new stdClass();
-                $data->jqshow = $jqshow;
+                $data->jqshow = $jqshowid;
                 $data->session = $session;
-                $data->jqid = $jqid;
                 $data->userid = $userid;
-                $data->anonymise = $sessiondata->get('anonymousanswer');
-                $data->result = $result;
-                $data->response = $response;
+                $data->randomquestion = $sessiondata->get('randomquestions');
+                $data->other = $other;
                 $a = new self(0, $data);
                 $a->create();
             } else {
-                $record->set('result', $result);
-                $record->set('response', $response);
+                $record->set('other', $other);
                 $record->update();
             }
         } catch (moodle_exception $e) {

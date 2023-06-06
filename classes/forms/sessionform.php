@@ -65,11 +65,6 @@ class sessionform extends moodleform {
         $mform->setType('anonymousanswer', PARAM_RAW);
         $mform->addHelpButton('anonymousanswer', 'anonymousanswer', 'jqshow');
 
-        // Allowguests.
-        $mform->addElement('checkbox', 'allowguests', get_string('allowguests', 'mod_jqshow'));
-        $mform->setType('allowguests', PARAM_INT);
-        $mform->addHelpButton('allowguests', 'allowguests', 'jqshow');
-
         // Sessionmode.
         $mform->addElement('select', 'sessionmode',
             get_string('sessionmode', 'mod_jqshow'), $customdata['sessionmodechoices']);

@@ -32,7 +32,6 @@ class sessions_test extends advanced_testcase {
     public array $sessionmock = [
         'name' => 'Session Test',
         'anonymousanswer' => 0,
-        'allowguests' => 0,
         'sessionmode' => sessions::PODIUM_MANUAL,
         'countdown' => 0,
         'randomquestions' => 0,

@@ -168,7 +168,6 @@ class sessions {
             'sessionid' => $session->get('id'),
             'name' => $session->get('name'),
             'anonymousanswer' => $session->get('anonymousanswer'),
-            'allowguests' => $session->get('allowguests'),
             'sessionmode' => $session->get('sessionmode'),
             'countdown' => $session->get('countdown'),
             'randomquestions' => $session->get('randomquestions'),
