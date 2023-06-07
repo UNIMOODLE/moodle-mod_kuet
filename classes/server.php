@@ -223,6 +223,13 @@ class server extends websockets {
                             'context' => $data['context'],
                         ], JSON_THROW_ON_ERROR)
                     ));
+            case 'endSession':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'endSession',
+                            'context' => $data['context'],
+                        ], JSON_THROW_ON_ERROR)
+                    ));
             case 'teacherQuestionEnd':
                 return $this->mask(
                     encrypt($this->password, json_encode([

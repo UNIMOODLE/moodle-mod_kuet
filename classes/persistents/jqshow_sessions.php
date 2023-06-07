@@ -54,7 +54,12 @@ class jqshow_sessions extends persistent {
             'sessionmode' => [
                 'type' => PARAM_RAW,
                 'default' => sessions::INACTIVE_MANUAL,
-                'choices' => [sessions::INACTIVE_MANUAL, sessions::PODIUM_PROGRAMMED, sessions::PODIUM_MANUAL]
+                'choices' => [sessions::INACTIVE_MANUAL,
+                    sessions::INACTIVE_PROGRAMMED,
+                    sessions::PODIUM_MANUAL,
+                    sessions::PODIUM_PROGRAMMED,
+                    sessions::RACE_MANUAL,
+                    sessions::RACE_PROGRAMMED]
             ],
             'countdown' => [
                 'type' => PARAM_INT,

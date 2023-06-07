@@ -28,6 +28,7 @@ namespace mod_jqshow\persistents;
 use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
+use dml_exception;
 use moodle_exception;
 use stdClass;
 
@@ -119,5 +120,15 @@ class jqshow_questions_responses extends persistent {
             throw $e;
         }
         return true;
+    }
+
+    /**
+     * @param int $sid
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function delete_question_resonses(int $sid): bool {
+        global $DB;
+        return  $DB->delete_records(self::TABLE, ['session' => $sid]);
     }
 }

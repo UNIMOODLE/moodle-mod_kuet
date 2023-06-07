@@ -5,7 +5,8 @@ body#page-mod-jqshow-view {
                 [role="main"] {
                     .container {
                         &.no-session-start,
-                        &.session-closed {
+                        &.session-closed,
+                        &.end-session {
                             background-color: white;
                             box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
                             border-radius: 8px;
@@ -18,6 +19,11 @@ body#page-mod-jqshow-view {
                                 flex-flow: row nowrap;
                                 justify-content: space-around;
                                 align-items: center;
+                                .content-image {
+                                    img {
+                                        max-width: 500px;
+                                    }
+                                }
                                 .content-text {
                                     text-align: center;
                                     display: flex;
@@ -51,7 +57,9 @@ body#page-mod-jqshow-view {
                 #region-main {
                     [role="main"] {
                         .container {
-                            &.no-session-start {
+                            &.no-session-start,
+                            &.session-closed,
+                            &.end-session {
                                 .containt-mobile {
                                     display: flex;
                                     flex-flow: column nowrap;

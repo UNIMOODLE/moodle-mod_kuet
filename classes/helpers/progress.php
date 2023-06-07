@@ -28,7 +28,6 @@ namespace mod_jqshow\helpers;
 use coding_exception;
 use core\invalid_persistent_exception;
 use JsonException;
-use mod_jqshow\external\selectquestionscategory_external;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -58,49 +57,58 @@ class progress {
         int $currentquestionjqid
     ) {
         $session = jqshow_sessions::get_record(['id' => $sessionid] );
-        if ($session->get('sessionmode') !== sessions::INACTIVE_MANUAL &&
-            $session->get('sessionmode') !== sessions::PODIUM_MANUAL) {
-            $record = jqshow_user_progress::get_session_progress_for_user(
-                $userid, $sessionid, $jqshowid
-            );
-            switch ([$record !== false, $session->get('randomquestions')]) {
-                case [false, 1]:  // New order of questions for one user.
-                    $data = new stdClass();
-                    $data->questionsorder = self::shuffle_order($jqshowid, $cmid, $sessionid);
-                    if ($currentquestionjqid === 0) {
-                        $firstquestion = explode(',', $data->questionsorder);
-                        $data->currentquestion = reset($firstquestion);
-                    } else {
+        switch ($session->get('sessionmode')) {
+            case sessions::INACTIVE_PROGRAMMED:
+            case sessions::PODIUM_PROGRAMMED:
+            case sessions::RACE_PROGRAMMED:
+                $record = jqshow_user_progress::get_session_progress_for_user(
+                    $userid, $sessionid, $jqshowid
+                );
+                switch ([$record !== false, $session->get('randomquestions')]) {
+                    case [false, 1]:  // New order of questions for one user.
+                        $data = new stdClass();
+                        $data->questionsorder = self::shuffle_order($jqshowid, $cmid, $sessionid);
+                        if ($currentquestionjqid === 0) {
+                            $firstquestion = explode(',', $data->questionsorder);
+                            $data->currentquestion = reset($firstquestion);
+                        } else {
+                            $data->currentquestion = $currentquestionjqid;
+                        }
+                        break;
+                    case [true, 1]:
+                    case [true, 0]: // Order records already exist, so it is retained.
+                        $data = json_decode($record->get('other'), false);
                         $data->currentquestion = $currentquestionjqid;
-                    }
-                    break;
-                case [true, 1]:
-                case [true, 0]: // Order records already exist, so it is retained.
-                    $data = json_decode($record->get('other'), false);
-                    $data->currentquestion = $currentquestionjqid;
-                    break;
-                case [false, 0]: // New order, but no need to randomise.
-                    $order = (new questions($jqshowid, $cmid, $sessionid))->get_list();
-                    $neworder = '';
-                    foreach ($order as $question) {
-                        $neworder .= $question->get('id') . ',';
-                    }
-                    $neworder = trim($neworder, ',');
-                    $data = new stdClass();
-                    $data->questionsorder = $neworder;
-                    if ($currentquestionjqid === 0) {
-                        $firstquestion = explode(',', $data->questionsorder);
-                        $data->currentquestion = reset($firstquestion);
-                    } else {
+                        break;
+                    case [false, 0]: // New order, but no need to randomise.
+                        $order = (new questions($jqshowid, $cmid, $sessionid))->get_list();
+                        $neworder = '';
+                        foreach ($order as $question) {
+                            $neworder .= $question->get('id') . ',';
+                        }
+                        $neworder = trim($neworder, ',');
+                        $data = new stdClass();
+                        $data->questionsorder = $neworder;
+                        if ($currentquestionjqid === 0) {
+                            $firstquestion = explode(',', $data->questionsorder);
+                            $data->currentquestion = reset($firstquestion);
+                        } else {
+                            $data->currentquestion = $currentquestionjqid;
+                        }
+                        break;
+                    default:
+                        $data = new stdClass();
                         $data->currentquestion = $currentquestionjqid;
-                    }
-                    break;
-                default:
-                    $data = new stdClass();
-                    $data->currentquestion = $currentquestionjqid;
-                    break;
-            }
-            jqshow_user_progress::add_progress($jqshowid, $sessionid, $userid, json_encode($data, JSON_THROW_ON_ERROR));
+                        break;
+                }
+                jqshow_user_progress::add_progress($jqshowid, $sessionid, $userid, json_encode($data, JSON_THROW_ON_ERROR));
+                break;
+            case sessions::INACTIVE_MANUAL:
+            case sessions::PODIUM_MANUAL:
+            case sessions::RACE_MANUAL:
+            default:
+                // Student progress in these modes is set manually by the teacher.
+                break;
         }
     }
 

@@ -67,46 +67,62 @@ class student_session_view implements renderable, templatable {
         $data->userimage = $userpicture->get_url($PAGE)->out(false);
         $session = new jqshow_sessions($data->sid);
         $data->jqshowid = $session->get('jqshowid');
-        // TODO detect if the session is still active, and if not, paint a session ended message.
-        if ($session->get('sessionmode') !== sessions::INACTIVE_MANUAL &&
-            $session->get('sessionmode') !== sessions::PODIUM_MANUAL) {
-            $progress = jqshow_user_progress::get_session_progress_for_user(
-                $USER->id, $session->get('id'), $session->get('jqshowid')
-            );
-            if ($progress !== false) {
-                $progressdata = json_decode($progress->get('other'), false);
-                $question = jqshow_questions::get_question_by_jqid($progressdata->currentquestion);
-            } else {
-                progress::set_progress(
-                    $session->get('jqshowid'), $session->get('id'), $USER->id, $data->cmid, 0
-                );
-                $newprogress = jqshow_user_progress::get_session_progress_for_user(
+        if ($session->get('status') !== 2) {
+            throw new moodle_exception('notactivesession', 'mod_jqshow');
+        }
+        switch ($session->get('sessionmode')) {
+            case sessions::INACTIVE_PROGRAMMED:
+            case sessions::PODIUM_PROGRAMMED:
+            case sessions::RACE_PROGRAMMED:
+                $progress = jqshow_user_progress::get_session_progress_for_user(
                     $USER->id, $session->get('id'), $session->get('jqshowid')
                 );
-                $newprogressdata = json_decode($newprogress->get('other'), false);
-                $question = jqshow_questions::get_question_by_jqid($newprogressdata->currentquestion);
-                // $question = jqshow_questions::get_first_question_of_session($data->sid);
-            }
-            switch ($question->get('qtype')) {
-                case 'multichoice':
-                    $data = questions::export_multichoice(
-                        $question->get('id'),
-                        $data->cmid,
-                        $data->sid,
-                        $question->get('jqshowid'));
-                    break;
-                default:
-                    throw new moodle_exception('question_nosuitable', 'mod_jqshow');
-            }
-            $data->programmedmode = true;
-        } else {
-            // SOCKETS!
-            // Always start with waitingroom, and the socket will place you in the appropriate question if it has started.
-            $data->manualmode = true;
-            $data->waitingroom = true;
-            $data->config = sessions::get_session_config($data->sid);
-            $data->sessionname = $data->config[0]['configvalue'];
-            $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+                if ($progress !== false) {
+                    $progressdata = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    if (isset($progressdata->endSession)) {
+                        $data = questions::export_endsession(
+                            $data->cmid,
+                            $data->sid);
+                        $data->programmedmode = true;
+                        break;
+                    }
+                    $question = jqshow_questions::get_question_by_jqid($progressdata->currentquestion);
+                } else {
+                    progress::set_progress(
+                        $session->get('jqshowid'), $session->get('id'), $USER->id, $data->cmid, 0
+                    );
+                    $newprogress = jqshow_user_progress::get_session_progress_for_user(
+                        $USER->id, $session->get('id'), $session->get('jqshowid')
+                    );
+                    $newprogressdata = json_decode($newprogress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $question = jqshow_questions::get_question_by_jqid($newprogressdata->currentquestion);
+                }
+                switch ($question->get('qtype')) {
+                    case 'multichoice':
+                        $data = questions::export_multichoice(
+                            $question->get('id'),
+                            $data->cmid,
+                            $data->sid,
+                            $question->get('jqshowid'));
+                        break;
+                    default:
+                        throw new moodle_exception('question_nosuitable', 'mod_jqshow');
+                }
+                $data->programmedmode = true;
+                break;
+            case sessions::INACTIVE_MANUAL:
+            case sessions::PODIUM_MANUAL:
+            case sessions::RACE_MANUAL:
+                // SOCKETS!
+                // Always start with waitingroom, and the socket will place you in the appropriate question if it has started.
+                $data->manualmode = true;
+                $data->waitingroom = true;
+                $data->config = sessions::get_session_config($data->sid);
+                $data->sessionname = $data->config[0]['configvalue'];
+                $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+                break;
+            default:
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
         }
         return $data;
     }

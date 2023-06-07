@@ -28,6 +28,8 @@ namespace mod_jqshow\persistents;
 use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
+use dml_exception;
+use moodle_exception;
 use stdClass;
 
 class jqshow_user_progress extends persistent {
@@ -36,7 +38,7 @@ class jqshow_user_progress extends persistent {
     /**
      * @return array[]
      */
-    protected static function define_properties() {
+    protected static function define_properties(): array {
         return [
             'jqshow' => [
                 'type' => PARAM_INT,
@@ -74,6 +76,7 @@ class jqshow_user_progress extends persistent {
      * @return bool
      * @throws coding_exception
      * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public static function add_progress(int $jqshowid, int $session, int $userid, string $other): bool {
         $sessiondata = jqshow_sessions::get_record(['id' => $session], MUST_EXIST);
@@ -96,5 +99,15 @@ class jqshow_user_progress extends persistent {
             throw $e;
         }
         return true;
+    }
+
+    /**
+     * @param int $sid
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function delete_session_user_progress(int $sid): bool {
+        global $DB;
+        return  $DB->delete_records(self::TABLE, ['session' => $sid]);
     }
 }

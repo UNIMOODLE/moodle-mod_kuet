@@ -40,7 +40,10 @@ use JsonException;
 use mod_jqshow\helpers\progress;
 use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -85,20 +88,31 @@ class nextquestion_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $nextquestion = jqshow_questions::get_next_question_of_session($sessionid, $jqid);
-        progress::set_progress(
-            $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
-        );
-        // TODO consider it to be the last question, and in that case send an end-of-session screen.
-        switch ($nextquestion->get('qtype')) {
-            case 'multichoice':
-                $data = questions::export_multichoice(
-                    $nextquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $nextquestion->get('jqshowid'));
-                break;
-            default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow');
+        if ($nextquestion !== false) {
+            progress::set_progress(
+                $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
+            );
+            switch ($nextquestion->get('qtype')) {
+                case 'multichoice':
+                    $data = questions::export_multichoice(
+                        $nextquestion->get('id'),
+                        $cmid,
+                        $sessionid,
+                        $nextquestion->get('jqshowid'));
+                    break;
+                default:
+                    throw new moodle_exception('question_nosuitable', 'mod_jqshow');
+            }
+        } else {
+            $session = new jqshow_sessions($sessionid);
+            $finishdata = new stdClass();
+            $finishdata->endSession = 1;
+            jqshow_user_progress::add_progress(
+                $session->get('jqshowid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
+            );
+            $data = questions::export_endsession(
+                $cmid,
+                $sessionid);
         }
         $data->programmedmode = $manual === false;
         return (array)$data;
@@ -114,17 +128,17 @@ class nextquestion_external extends external_api {
             'cmid' => new external_value(PARAM_INT, 'Course module id'),
             'sessionid' => new external_value(PARAM_INT, 'Session id'),
             'jqshowid' => new external_value(PARAM_INT, 'jq show id'),
-            'questionid' => new external_value(PARAM_INT, 'id of jqshow'),
-            'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
-            'question_index_string' => new external_value(PARAM_RAW, 'String for progress session'),
-            'sessionprogress' => new external_value(PARAM_INT, 'Int for progress bar'),
-            'questiontext' => new external_value(PARAM_RAW, 'Statement of question'),
-            'questiontextformat' => new external_value(PARAM_RAW, 'Format of statement'),
-            'hastime' => new external_value(PARAM_BOOL, 'Question has time'),
+            'questionid' => new external_value(PARAM_INT, 'id of jqshow', VALUE_OPTIONAL),
+            'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions', VALUE_OPTIONAL),
+            'question_index_string' => new external_value(PARAM_RAW, 'String for progress session', VALUE_OPTIONAL),
+            'sessionprogress' => new external_value(PARAM_INT, 'Int for progress bar', VALUE_OPTIONAL),
+            'questiontext' => new external_value(PARAM_RAW, 'Statement of question', VALUE_OPTIONAL),
+            'questiontextformat' => new external_value(PARAM_RAW, 'Format of statement', VALUE_OPTIONAL),
+            'hastime' => new external_value(PARAM_BOOL, 'Question has time', VALUE_OPTIONAL),
             'seconds' => new external_value(PARAM_INT, 'Seconds of question', VALUE_OPTIONAL),
             'preview' => new external_value(PARAM_BOOL, 'Is preview or not', VALUE_OPTIONAL),
             'numanswers' => new external_value(PARAM_INT, 'Num of answer for multichoice', VALUE_OPTIONAL),
-            'name' => new external_value(PARAM_RAW, 'Name of question'),
+            'name' => new external_value(PARAM_RAW, 'Name of question', VALUE_OPTIONAL),
             'qtype' => new external_value(PARAM_RAW, 'Type of question'),
             'programmedmode' => new external_value(PARAM_BOOL, 'Mode programmed'),
             'manualmode' => new external_value(PARAM_BOOL, 'Mode manual', VALUE_OPTIONAL),
@@ -148,7 +162,11 @@ class nextquestion_external extends external_api {
                         'feedbackformat' => new external_value(PARAM_INT, 'Format of feedback')
                     ], ''
                 ), '', VALUE_OPTIONAL
-            )
+            ),
+            'endsession' => new external_value(PARAM_BOOL, 'Type of question for mustache', VALUE_OPTIONAL),
+            'endsessionimage' => new external_value(PARAM_RAW, 'Image for endsesion', VALUE_OPTIONAL),
+            'courselink' => new external_value(PARAM_URL, 'Url of course', VALUE_OPTIONAL),
+            'reportlink' => new external_value(PARAM_URL, 'Url of session report', VALUE_OPTIONAL),
         ]);
     }
 }

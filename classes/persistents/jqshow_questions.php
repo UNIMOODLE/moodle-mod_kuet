@@ -34,7 +34,7 @@ use moodle_exception;
 use stdClass;
 
 class jqshow_questions extends persistent {
-    const TABLE = 'jqshow_questions';
+    public const TABLE = 'jqshow_questions';
     /**
      * Return the definition of the properties of this model.
      *
@@ -133,32 +133,40 @@ class jqshow_questions extends persistent {
      * @return false|jqshow_questions
      * @throws JsonException
      * @throws coding_exception
+     * @throws moodle_exception
      */
-    public static function get_next_question_of_session(int $sessionid, int $questionid): ?jqshow_questions {
+    public static function get_next_question_of_session(int $sessionid, int $questionid) {
         global $USER;
         $session = jqshow_sessions::get_record(['id' => $sessionid], MUST_EXIST);
-        if ($session->get('sessionmode') !== sessions::INACTIVE_MANUAL &&
-            $session->get('sessionmode') !== sessions::PODIUM_MANUAL) {
-            $progress = jqshow_user_progress::get_session_progress_for_user(
-                $USER->id, $session->get('id'), $session->get('jqshowid')
-            );
-            if ($progress !== false) {
-                $data = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
-                $order = explode(',', $data->questionsorder);
-                $current = array_search($data->currentquestion, $order, false);
-                if ($current !== false && isset($order[$current + 1])) {
-                    $nextquestion = self::get_record(['sessionid' => $sessionid, 'id' => $order[$current + 1]]);
-                } else {
-                    // TODO end os session.
-                    die('End session');
+        switch ($session->get('sessionmode')) {
+            case sessions::INACTIVE_PROGRAMMED:
+            case sessions::PODIUM_PROGRAMMED:
+            case sessions::RACE_PROGRAMMED:
+                $progress = jqshow_user_progress::get_session_progress_for_user(
+                    $USER->id, $session->get('id'), $session->get('jqshowid')
+                );
+                if ($progress !== false) {
+                    $data = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $order = explode(',', $data->questionsorder);
+                    $current = array_search($data->currentquestion, $order, false);
+                    if ($current !== false && isset($order[$current + 1])) {
+                        $nextquestion = self::get_record(['sessionid' => $sessionid, 'id' => $order[$current + 1]]);
+                    } else {
+                        $nextquestion = false;
+                    }
                 }
-            }
-        } else {
-            $current = self::get_record(['id' => $questionid, 'sessionid' => $sessionid], MUST_EXIST);
-            $nextquestion = self::get_record(['sessionid' => $sessionid, 'qorder' => $current->get('qorder') + 1]);
-            if ($nextquestion === false) {
-                return false;
-            }
+                break;
+            case sessions::INACTIVE_MANUAL:
+            case sessions::PODIUM_MANUAL:
+            case sessions::RACE_MANUAL:
+                $current = self::get_record(['id' => $questionid, 'sessionid' => $sessionid], MUST_EXIST);
+                $nextquestion = self::get_record(['sessionid' => $sessionid, 'qorder' => $current->get('qorder') + 1]);
+                if ($nextquestion === false) {
+                    return false;
+                }
+                break;
+            default:
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
         }
         return $nextquestion;
     }

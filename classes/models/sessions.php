@@ -58,14 +58,16 @@ class sessions {
     protected array $list;
 
     // Session modes.
-    const INACTIVE_MANUAL = 'inactive_manual';
-    const PODIUM_MANUAL = 'podium_manual';
-    const PODIUM_PROGRAMMED = 'podium_programmed';
+    public const INACTIVE_MANUAL = 'inactive_manual';
+    public const INACTIVE_PROGRAMMED = 'inactive_programmed';
+    public const PODIUM_MANUAL = 'podium_manual';
+    public const PODIUM_PROGRAMMED = 'podium_programmed';
+    public const RACE_MANUAL = 'race_manual';
+    public const RACE_PROGRAMMED = 'race_programmed';
 
     // Anonymous response.
-    const ANONYMOUS_ANSWERS_NO = 0;
-    const ANONYMOUS_ANSWERS = 1;
-    const ANONYMOUS_ALL_ANSWERS = 2;
+    public const ANONYMOUS_ANSWERS_NO = 0;
+    public const ANONYMOUS_ANSWERS = 1;
 
     /**
      * sessions constructor.
@@ -107,8 +109,11 @@ class sessions {
         ];
         $sessionmodechoices = [
             self::INACTIVE_MANUAL => get_string('inactive_manual', 'mod_jqshow'),
+            self::INACTIVE_PROGRAMMED => get_string('inactive_programmed', 'mod_jqshow'),
             self::PODIUM_MANUAL => get_string('podium_manual', 'mod_jqshow'),
             self::PODIUM_PROGRAMMED => get_string('podium_programmed', 'mod_jqshow'),
+            self::RACE_MANUAL => get_string('race_manual', 'mod_jqshow'),
+            self::RACE_PROGRAMMED => get_string('race_programmed', 'mod_jqshow'),
         ];
         $countdownchoices = [
             0 => 'Opcion1',
@@ -499,7 +504,7 @@ class sessions {
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
                 $student->correctanswers = $correctanswers;
                 $student->incorrectanswers = $incorrectanswers;
-                $student->userpoints = (int)($correctanswers * (1000 / count($questions))); // TODO apply pdf formula for scoring.
+                $student->userpoints = (int)($correctanswers * (1000 / count($questions)));
                 $students[] = $student;
             }
         }

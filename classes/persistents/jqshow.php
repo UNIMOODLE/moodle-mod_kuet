@@ -24,59 +24,40 @@
  */
 
 namespace mod_jqshow\persistents;
-
 use core\persistent;
-use dml_exception;
 
-class jqshow_sessions_grades extends persistent {
-    const TABLE = 'jqshow_sessions_grades';
+class jqshow extends persistent {
+    public const TABLE = 'jqshow';
+
     /**
-     * Return the definition of the properties of this model.
-     *
-     * @return array
+     * @return array[]
      */
     protected static function define_properties() {
         return [
-            'jqshow' => [
+            'course' => [
                 'type' => PARAM_INT,
             ],
-            'session' => [
+            'name' => [
+                'type' => PARAM_RAW,
+            ],
+            'intro' => [
+                'type' => PARAM_RAW,
+            ],
+            'introformat' => [
                 'type' => PARAM_INT,
             ],
-            'userid' => [
+            'teamgrade' => [
+                'type' => PARAM_RAW,
+            ],
+            'badgepositions' => [
                 'type' => PARAM_INT,
             ],
-            'grade' => [
-                'type' => PARAM_FLOAT,
+            'completionanswerall' => [
+                'type' => PARAM_INT,
+            ],
+            'usermodified' => [
+                'type' => PARAM_INT,
             ]
         ];
-    }
-
-    /**
-     * @param int $jqshowid
-     * @param int $userid
-     * @return jqshow_sessions_grades[]
-     */
-    public static function get_grades_for_user(int $jqshowid, int $userid): array {
-        return self::get_records(['jqshow' => $jqshowid, 'userid' => $userid]);
-    }
-
-    /**
-     * @param int $session
-     * @param int $userid
-     * @return jqshow_sessions_grades
-     */
-    public static function get_grade_for_session_user(int $session, int $userid): jqshow_sessions_grades {
-        return self::get_record(['session' => $session, 'userid' => $userid], MUST_EXIST);
-    }
-
-    /**
-     * @param int $sid
-     * @return bool
-     * @throws dml_exception
-     */
-    public static function delete_session_grades(int $sid): bool {
-        global $DB;
-        return  $DB->delete_records(self::TABLE, ['session' => $sid]);
     }
 }
