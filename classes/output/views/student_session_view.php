@@ -33,6 +33,7 @@ use mod_jqshow\helpers\progress;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
@@ -74,6 +75,7 @@ class student_session_view implements renderable, templatable {
                 if ($progress !== false) {
                     $progressdata = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
                     if (isset($progressdata->endSession)) {
+                        // END SESSION, no more question.
                         $data = questions::export_endsession(
                             $cmid,
                             $sid);
@@ -98,6 +100,12 @@ class student_session_view implements renderable, templatable {
                             $cmid,
                             $sid,
                             $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data = questions::export_multichoice_response($data, $response->get('response'));
+                        }
                         break;
                     default:
                         throw new moodle_exception('question_nosuitable', 'mod_jqshow');

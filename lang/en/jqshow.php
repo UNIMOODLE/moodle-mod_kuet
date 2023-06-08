@@ -249,3 +249,5 @@ $string['sessiontime_help'] = 'The set time shall be divided by the number of qu
 $string['question_time'] = 'Time per question';
 $string['question_time_help'] = 'A set time will be set for each question (you can do this after adding the question to the session). A default time will be set to allocate to those questions that do not have a defined time.';
 $string['timemode_help'] = '<b>No time:</b> No time to finish the session<br><b>Total session time:</b> The set time shall be divided by the number of questions, and equal time shall be allocated to all questions.<br><b>Time per question:</b> A set time will be set for each question (you can do this after adding the question to the session). A default time will be set to allocate to those questions that do not have a defined time.';
+$string['exitquestion'] = 'Exit the question';
+$string['exitquestion_desc'] = 'If you leave the question, it will be marked as unanswered. Are you sure you want to leave?';

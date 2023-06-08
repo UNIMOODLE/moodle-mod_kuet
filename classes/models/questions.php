@@ -26,8 +26,12 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
+use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
+use invalid_parameter_exception;
+use JsonException;
+use mod_jqshow\external\multichoice_external;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -118,9 +122,10 @@ class questions {
      * @param int $jqshowid
      * @param bool $preview
      * @return object
+     * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
      * @throws dml_transaction_exception
+     * @throws moodle_exception
      */
     public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
         global $USER;
@@ -219,6 +224,39 @@ class questions {
         $data->feedbacks = $feedbacks;
         $data->template = 'mod_jqshow/questions/encasement';
         $data->programmedmode = ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED);
+        return $data;
+    }
+
+    /**
+     * @param stdClass $data
+     * @param string $response
+     * @return stdClass
+     * @throws JsonException
+     * @throws invalid_persistent_exception
+     * @throws invalid_parameter_exception
+     * @throws coding_exception
+     * @throws dml_transaction_exception
+     * @throws moodle_exception
+     */
+    public static function export_multichoice_response(stdClass $data, string $response): stdClass {
+        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $data->answered = true;
+        $dataanswer = multichoice_external::multichoice(
+            $responsedata->answerid,
+            $data->sessionid,
+            $data->jqshowid,
+            $data->cmid,
+            $responsedata->questionid,
+            $responsedata->timeleft, true
+        );
+        $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
+        $dataanswer['answerid'] = $responsedata->answerid;
+        $data->seconds = $responsedata->timeleft;
+        $data->statment_feedback = $dataanswer['statment_feedback'];
+        $data->answer_feedback = $dataanswer['answer_feedback'];
+        $data->correct_answers = $dataanswer['correct_answers'];
+        $data->programmedmode = $dataanswer['programmedmode'];
+        $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
         return $data;
     }
 

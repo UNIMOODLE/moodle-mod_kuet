@@ -28,6 +28,7 @@ namespace mod_jqshow\helpers;
 use coding_exception;
 use core\invalid_persistent_exception;
 use JsonException;
+use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use moodle_exception;
@@ -44,6 +45,7 @@ class responses {
      * @param string $statmentfeedback
      * @param string $answerfeedback
      * @param int $userid
+     * @param int $timeleft
      * @return void
      * @throws JsonException
      * @throws coding_exception
@@ -58,7 +60,8 @@ class responses {
         int $jqshowid,
         string $statmentfeedback,
         string $answerfeedback,
-        int $userid
+        int $userid,
+        int $timeleft
     ) {
         if ($answerid === 0) {
             $result = 2; // Not answered.
@@ -79,7 +82,9 @@ class responses {
         $response->questionid = $questionid;
         $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
         $response->correct_answers = $correctanswers;
-        $response->answerid = $answerid ?? 0;
+        $response->answerid = $answerid;
+        $response->timeleft = $timeleft;
+        $response->type = questions::MULTIPLE_CHOICE;
         jqshow_questions_responses::add_response(
             $jqshowid, $sessionid, $jqid->get('id'), $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
         );
