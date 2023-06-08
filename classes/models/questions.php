@@ -94,6 +94,24 @@ class questions {
     }
 
     /**
+     * @return int
+     * @throws coding_exception
+     */
+    public function get_sumt_questions_times(): int {
+        $questions = $this->get_list();
+        $sessiontimedefault = (new jqshow_sessions($this->sid))->get('questiontime');
+        $time = 0;
+        foreach ($questions as $question) {
+            if ($question->get('timelimit') !== 0) {
+                $time = $question->get('timelimit') + $time;
+            } else {
+                $time = $sessiontimedefault + $time;
+            }
+        }
+        return $time;
+    }
+
+    /**
      * @param int $jqid // jqshow_question id
      * @param int $cmid
      * @param int $sessionid
@@ -110,8 +128,6 @@ class questions {
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
-        $time = $jqshowquestion->get('timelimit') > 0 ? $jqshowquestion->get('timelimit') :
-            get_config('mod_jqshow', 'questiontime');
         $type = $question->get_type_name();
         $answers = [];
         $feedbacks = [];
@@ -171,8 +187,26 @@ class questions {
         $data->questiontext =
             self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
-        $data->hastime = $session->get('countdown') && $jqshowquestion->get('timelimit') > 0;
-        $data->seconds = $time;
+        switch ($session->get('timemode')) {
+            case sessions::NO_TIME:
+            default:
+                $data->hastime = false;
+                $data->seconds = 0;
+                break;
+            case sessions::SESSION_TIME:
+                $data->hastime = true;
+                $numquestion = jqshow_questions::count_records(
+                    ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
+                );
+                $data->seconds = round((int)$session->get('sessiontime') / $numquestion);
+                break;
+            case sessions::QUESTION_TIME:
+                $data->hastime = true;
+                $data->seconds =
+                    $jqshowquestion->get('timelimit') !== 0 ? $jqshowquestion->get('timelimit') : $session->get('questiontime');
+                break;
+        }
+        $data->countdown = $session->get('countdown');
         $data->preview = $preview;
         $data->numanswers = count($question->answers);
         $data->name = $question->name;
@@ -185,7 +219,6 @@ class questions {
         $data->feedbacks = $feedbacks;
         $data->template = 'mod_jqshow/questions/encasement';
         $data->programmedmode = ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED);
-
         return $data;
     }
 

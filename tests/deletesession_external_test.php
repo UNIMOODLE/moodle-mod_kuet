@@ -51,7 +51,6 @@ class deletesession_external_test extends advanced_testcase {
         'enddate' => 1683133200,
         'automaticstart' => 0,
         'timelimit' => 0,
-        'addtimequestion' => 0,
         'groupmode' => 0,
         'status' => 1,
         'sessionid' => 0,

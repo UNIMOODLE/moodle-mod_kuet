@@ -79,15 +79,17 @@ class sessionform extends moodleform {
         // Hide grade and ranking between questions.
         $mform->addElement('checkbox', 'hidegraderanking', get_string('hidegraderanking', 'mod_jqshow'));
         $mform->setType('hidegraderanking', PARAM_INT);
-        $mform->disabledIf('hidegraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('hidegraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('hidegraderanking', 'sessionmode', 'eq', sessions::INACTIVE_PROGRAMMED);
         $mform->addHelpButton('hidegraderanking', 'hidegraderanking', 'jqshow');
 
         // Randomquestions.
         $mform->addElement('checkbox', 'randomquestions', get_string('randomquestions', 'mod_jqshow'));
         $mform->setType('randomquestions', PARAM_INT);
         $mform->addHelpButton('randomquestions', 'randomquestions', 'jqshow');
-        $mform->disabledIf('randomquestions', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('randomquestions', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->hideIf('randomquestions', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('randomquestions', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->hideIf('randomquestions', 'sessionmode', 'eq', sessions::RACE_MANUAL);
 
         // Randomanswers.
         $mform->addElement('checkbox', 'randomanswers', get_string('randomanswers', 'mod_jqshow'));
@@ -123,54 +125,55 @@ class sessionform extends moodleform {
 //        $mform->addElement('checkbox', 'openquizenable', get_string('openquizenable', 'mod_jqshow'));
 //        $mform->setType('openquizenable', PARAM_INT);
 
-        // Openquiz - Startdate.
-        $mform->addElement('date_selector', 'startdate',
-            get_string('startdate', 'mod_jqshow'), ['optional' => true]);
-        $mform->disabledIf('startdate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('startdate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->addHelpButton('startdate', 'startdate', 'jqshow');
-
-        // Closequiz.
-//        $mform->addElement('html', '<h2>' . get_string('closequiz', 'mod_jqshow') . '</h2>');
-
-        // Closequiz - enable.
-//        $mform->addElement('checkbox', 'closequizenable', get_string('closequizenable', 'mod_jqshow'));
-//        $mform->setType('closequizenable', PARAM_INT);
-
-        // Closequiz - enddate.
-        $mform->addElement('date_selector', 'enddate',
-            get_string('enddate', 'mod_jqshow'), ['optional' => true]);
-//        $mform->addHelpButton('enddate', 'enddate', 'mod_jqshow');
-        $mform->disabledIf('enddate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('enddate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->disabledIf('enddate', 'startdate[enabled]', 'notchecked');
-        $mform->addHelpButton('enddate', 'enddate', 'jqshow');
 
         // Automaticstart.
         $mform->addElement('checkbox', 'automaticstart', get_string('automaticstart', 'mod_jqshow'));
         $mform->setType('automaticstart', PARAM_INT);
-        $mform->disabledIf('automaticstart', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('automaticstart', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->disabledIf('automaticstart', 'startdate[enabled]', 'notchecked');
-        $mform->disabledIf('automaticstart', 'enddate[enabled]', 'notchecked');
+        $mform->hideIf('automaticstart', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('automaticstart', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->hideIf('automaticstart', 'sessionmode', 'eq', sessions::RACE_MANUAL);
         $mform->addHelpButton('automaticstart', 'automaticstart', 'jqshow');
 
-//        $mform->addElement('html', '<span  class="bold">' . get_string('timelimit', 'mod_jqshow') . '</span>');
-        // Time limit.
-        $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'),
-            array('optional' => true));
-        $mform->setType('timelimit', PARAM_INT);
-        $mform->addHelpButton('timelimit', 'timelimit', 'mod_jqshow');
-        $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        // Openquiz - Startdate.
+        $mform->addElement('date_time_selector', 'startdate',
+            get_string('startdate', 'mod_jqshow'), ['optional' => false]);
+        $mform->hideIf('startdate', 'automaticstart', 'notchecked');
+        $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::RACE_MANUAL);
+        $mform->addHelpButton('startdate', 'startdate', 'jqshow');
 
-        // Add time question enable.
-        $mform->addElement('checkbox', 'addtimequestion', get_string('addtimequestion', 'mod_jqshow'));
-        $mform->setType('addtimequestion', PARAM_INT);
-        $mform->disabledIf('addtimequestion', 'timelimit[enabled]', 'checked');
-        $mform->disabledIf('addtimequestion', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('addtimequestion', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->addHelpButton('addtimequestion', 'addtimequestion', 'jqshow');
+        // Closequiz - enddate.
+        $mform->addElement('date_time_selector', 'enddate',
+            get_string('enddate', 'mod_jqshow'), ['optional' => true]);
+        $mform->hideIf('enddate', 'automaticstart', 'notchecked');
+        $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::RACE_MANUAL);
+        $mform->hideIf('enddate', 'startdate[enabled]', 'notchecked');
+        $mform->addHelpButton('enddate', 'enddate', 'jqshow');
+
+
+        // Time mode.
+        $mform->addElement('select', 'timemode',
+            get_string('timemode', 'mod_jqshow'), $customdata['timemode']);
+        $mform->setType('timemode', PARAM_INT);
+        $mform->addHelpButton('timemode', 'timemode', 'mod_jqshow');
+
+
+        $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_jqshow'),
+            ['units' => [MINSECS, 1], 'optional' => false]);
+        $mform->setType('sessiontime', PARAM_INT);
+        $mform->addHelpButton('sessiontime', 'sessiontime', 'mod_jqshow');
+        $mform->hideIf('sessiontime', 'timemode', 'eq', sessions::NO_TIME);
+        $mform->hideIf('sessiontime', 'timemode', 'eq', sessions::QUESTION_TIME);
+
+        $mform->addElement('duration', 'questiontime', get_string('question_time', 'mod_jqshow'),
+            ['units' => [MINSECS, 1], 'optional' => false]);
+        $mform->setType('questiontime', PARAM_INT);
+        $mform->addHelpButton('question_time_help', 'questiontime', 'mod_jqshow');
+        $mform->hideIf('questiontime', 'timemode', 'eq', sessions::NO_TIME);
+        $mform->hideIf('questiontime', 'timemode', 'eq', sessions::SESSION_TIME);
 
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
@@ -179,7 +182,6 @@ class sessionform extends moodleform {
         // In case mode group activates.
         if (!empty($customdata['groupingsselect'])) {
             // Header.
-    //        $mform->addElement('header', 'accessrestrictions', get_string('accessrestrictions', 'mod_jqshow'));
             $mform->addElement('html', '<div class="col-12 formcontainer">');
             $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
                 $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
@@ -216,14 +218,14 @@ class sessionform extends moodleform {
      * @throws dml_exception
      * @throws coding_exception
      */
-    public function validation($data, $files) : array {
+    public function validation($data, $files): array {
         $errors = parent::validation($data, $files);
         // Session name must be unique.
         $haserror = false;
         $sessions = jqshow_sessions::get_sessions_by_name($data['name'], $data['jqshowid']);
         if (count($sessions) === 1) {
             $sesion = reset($sessions);
-            $haserror = $sesion->id != $data['sessionid'];
+            $haserror = (int)$sesion->id !== (int)$data['sessionid'];
         } else if (count($sessions) > 1) {
             $haserror = true;
         }

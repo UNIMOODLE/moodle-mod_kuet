@@ -98,13 +98,20 @@ class jqshow_sessions extends persistent {
                 'type' => PARAM_INT,
                 'default' => 0
             ],
-            'timelimit' => [
+            'timemode' => [
+                'type' => PARAM_INT,
+                'default' => sessions::NO_TIME,
+                'choices' => [sessions::NO_TIME,
+                    sessions::SESSION_TIME,
+                    sessions::QUESTION_TIME]
+            ],
+            'sessiontime' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
             ],
-            'addtimequestion' => [
+            'questiontime' => [
                 'type' => PARAM_INT,
-                'default' => 0
+                'null' => NULL_ALLOWED,
             ],
             'groupings' => [
                 'type' => PARAM_RAW,

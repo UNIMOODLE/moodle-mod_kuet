@@ -24,6 +24,7 @@
  */
 
 use mod_jqshow\forms\questionform;
+use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 
@@ -52,7 +53,7 @@ $customdata = [
     'qname' => $question->name,
     'qtype' => $jqsquestion->get('qtype'),
     'timelimit' => $jqsquestion->get('timelimit'),
-    'sessionlimittimebyquestionsenabled' => $session->get('addtimequestion'),
+    'sessionlimittimebyquestionsenabled' => $session->get('timemode') === sessions::QUESTION_TIME,
     'nograding' => $jqsquestion->get('ignorecorrectanswer'),
     ];
 

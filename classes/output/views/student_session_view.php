@@ -57,17 +57,11 @@ class student_session_view implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         // TODO refactor duplicate code for teacher and student.
         global $USER, $PAGE;
-        $data = new stdClass();
-        $data->cmid = required_param('cmid', PARAM_INT);
-        $data->sid = required_param('sid', PARAM_INT);
-        $data->userid = $USER->id;
-        $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
-        $userpicture = new user_picture($USER);
-        $userpicture->size = 1;
-        $data->userimage = $userpicture->get_url($PAGE)->out(false);
-        $session = new jqshow_sessions($data->sid);
-        $data->jqshowid = $session->get('jqshowid');
+        $cmid = required_param('cmid', PARAM_INT);
+        $sid = required_param('sid', PARAM_INT);
+        $session = new jqshow_sessions($sid);
         if ($session->get('status') !== 2) {
+            // TODO session layaout not active or redirect to cmid view.
             throw new moodle_exception('notactivesession', 'mod_jqshow');
         }
         switch ($session->get('sessionmode')) {
@@ -81,15 +75,15 @@ class student_session_view implements renderable, templatable {
                     $progressdata = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
                     if (isset($progressdata->endSession)) {
                         $data = questions::export_endsession(
-                            $data->cmid,
-                            $data->sid);
+                            $cmid,
+                            $sid);
                         $data->programmedmode = true;
                         break;
                     }
                     $question = jqshow_questions::get_question_by_jqid($progressdata->currentquestion);
                 } else {
                     progress::set_progress(
-                        $session->get('jqshowid'), $session->get('id'), $USER->id, $data->cmid, 0
+                        $session->get('jqshowid'), $session->get('id'), $USER->id, $cmid, 0
                     );
                     $newprogress = jqshow_user_progress::get_session_progress_for_user(
                         $USER->id, $session->get('id'), $session->get('jqshowid')
@@ -101,8 +95,8 @@ class student_session_view implements renderable, templatable {
                     case 'multichoice':
                         $data = questions::export_multichoice(
                             $question->get('id'),
-                            $data->cmid,
-                            $data->sid,
+                            $cmid,
+                            $sid,
                             $question->get('jqshowid'));
                         break;
                     default:
@@ -115,9 +109,18 @@ class student_session_view implements renderable, templatable {
             case sessions::RACE_MANUAL:
                 // SOCKETS!
                 // Always start with waitingroom, and the socket will place you in the appropriate question if it has started.
+                $data = new stdClass();
+                $data->cmid = $cmid;
+                $data->sid = $sid;
+                $data->jqshowid = $session->get('jqshowid');
+                $data->userid = $USER->id;
+                $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
+                $userpicture = new user_picture($USER);
+                $userpicture->size = 1;
+                $data->userimage = $userpicture->get_url($PAGE)->out(false);
                 $data->manualmode = true;
                 $data->waitingroom = true;
-                $data->config = sessions::get_session_config($data->sid);
+                // $data->config = sessions::get_session_config($data->sid);
                 $data->sessionname = $data->config[0]['configvalue'];
                 $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
                 break;

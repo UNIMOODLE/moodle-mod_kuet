@@ -8,7 +8,7 @@
                 </div>
             {{/managesession}}
             {{#hastime}}
-                <div class="timer" data-region="question-timer">
+                <div class="timer {{^countdown}}d-none{{/countdown}}" data-region="question-timer">
                     {{#pix}}q/timer, mod_jqshow{{/pix}}
                     <span class="seconds" data-region="seconds">{{ seconds }}</span>
                 </div>
