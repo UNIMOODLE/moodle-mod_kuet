@@ -131,6 +131,7 @@ Sockets.prototype.initSockets = function() {
                 countusers.html(response.count);
                 break;
             case 'question':
+            case 'endSession':
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.ROOT);
                     identifier.append(html);

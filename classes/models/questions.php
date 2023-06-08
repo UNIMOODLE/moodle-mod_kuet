@@ -28,8 +28,12 @@ namespace mod_jqshow\models;
 use coding_exception;
 use dml_exception;
 use dml_transaction_exception;
+use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\persistents\jqshow_user_progress;
+use moodle_exception;
+use moodle_url;
 use qbank_previewquestion\question_preview_options;
 use question_answer;
 use question_attempt;
@@ -101,33 +105,31 @@ class questions {
      * @throws dml_transaction_exception
      */
     public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
+        global $USER;
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
         $time = $jqshowquestion->get('timelimit') > 0 ? $jqshowquestion->get('timelimit') :
             get_config('mod_jqshow', 'questiontime');
-        $order = $jqshowquestion->get('qorder');
-        $a = new stdClass();
-        $a->num = $order;
-        $a->total = $numsessionquestions;
         $type = $question->get_type_name();
         $answers = [];
         $feedbacks = [];
-        /** @var question_answer $response */
         foreach ($question->answers as $response) {
-            $answertext = self::get_text($response->answer, $response->answerformat, $response->id, $question, 'answer');
-            $answers[] = [
-                'answerid' => $response->id,
-                'questionid' => $jqshowquestion->get('questionid'),
-                'answertext' => $answertext,
-                'fraction' => $response->fraction,
-            ];
-            $feedbacks[] = [
-                'answerid' => $response->id,
-                'feedback' => $response->feedback,
-                'feedbackformat' => $response->feedbackformat,
-            ];
+            if (assert($response instanceof question_answer)) {
+                $answertext = self::get_text($response->answer, $response->answerformat, $response->id, $question, 'answer');
+                $answers[] = [
+                    'answerid' => $response->id,
+                    'questionid' => $jqshowquestion->get('questionid'),
+                    'answertext' => $answertext,
+                    'fraction' => $response->fraction,
+                ];
+                $feedbacks[] = [
+                    'answerid' => $response->id,
+                    'feedback' => $response->feedback,
+                    'feedbackformat' => $response->feedbackformat,
+                ];
+            }
         }
         $data = new stdClass();
         $data->cmid = $cmid;
@@ -135,8 +137,37 @@ class questions {
         $data->jqshowid = $jqshowid;
         $data->questionid = $jqshowquestion->get('questionid');
         $data->jqid = $jqshowquestion->get('id');
-        $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
-        $data->sessionprogress = round($order * 100 / $numsessionquestions);
+        switch ($session->get('sessionmode')) {
+            case sessions::INACTIVE_PROGRAMMED:
+            case sessions::PODIUM_PROGRAMMED:
+            case sessions::RACE_PROGRAMMED:
+                $progress = jqshow_user_progress::get_session_progress_for_user(
+                    $USER->id, $session->get('id'), $session->get('jqshowid')
+                );
+                if ($progress !== false) {
+                    $dataprogress = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $dataorder = explode(',', $dataprogress->questionsorder);
+                    $order = (int)array_search($dataprogress->currentquestion, $dataorder, false);
+                    $a = new stdClass();
+                    $a->num = $order + 1;
+                    $a->total = $numsessionquestions;
+                    $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+                    $data->sessionprogress = round(($order + 1) * 100 / $numsessionquestions);
+                }
+                break;
+            case sessions::INACTIVE_MANUAL:
+            case sessions::PODIUM_MANUAL:
+            case sessions::RACE_MANUAL:
+                $order = $jqshowquestion->get('qorder');
+                $a = new stdClass();
+                $a->num = $order;
+                $a->total = $numsessionquestions;
+                $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+                $data->sessionprogress = round($order * 100 / $numsessionquestions);
+                break;
+            default:
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+        }
         $data->questiontext =
             self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
@@ -147,10 +178,54 @@ class questions {
         $data->name = $question->name;
         $data->qtype = $type;
         $data->$type = true;
+        if ($session->get('randomanswers') === 1) {
+            shuffle($answers);
+        }
         $data->answers = $answers;
         $data->feedbacks = $feedbacks;
         $data->template = 'mod_jqshow/questions/encasement';
+        $data->programmedmode = ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED);
 
+        return $data;
+    }
+
+    /**
+     * @param int $cmid
+     * @param int $sessionid
+     * @return stdClass
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public static function export_endsession(int $cmid, int $sessionid): object {
+        global $OUTPUT, $USER;
+        $session = new jqshow_sessions($sessionid);
+        $jqshow = new jqshow($session->get('jqshowid'));
+        $data = new stdClass();
+        // TODO refactor.
+        switch ($session->get('sessionmode')) {
+            case sessions::INACTIVE_PROGRAMMED:
+            case sessions::INACTIVE_MANUAL:
+                $data->cmid = $cmid;
+                $data->sessionid = $sessionid;
+                $data->jqshowid = $session->get('jqshowid');
+                $data->endsessionimage = $OUTPUT->image_url('f/end_session', 'mod_jqshow')->out(false);
+                $data->qtype = 'endsession';
+                $data->endsession = true;
+                $data->courselink = (new moodle_url('/course/view.php', ['id' => $jqshow->get('course')]))->out(false);
+                // TODO complete where reports are available.
+                $data->reportlink = (new moodle_url('/', ['user' => $USER->id, 'session' => $sessionid]))->out(false);
+                break;
+            case sessions::PODIUM_PROGRAMMED:
+            case sessions::PODIUM_MANUAL:
+                // TODO export Podium layout for all users.
+                break;
+            case sessions::RACE_PROGRAMMED:
+            case sessions::RACE_MANUAL:
+                // TODO not yet designed.
+                break;
+            default:
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+        }
         return $data;
     }
 

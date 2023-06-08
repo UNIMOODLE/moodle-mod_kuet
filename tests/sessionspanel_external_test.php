@@ -46,7 +46,6 @@ class sessionspanel_external_test extends advanced_testcase {
     public array $sessionmock = [
         'name' => 'Session Test External',
         'anonymousanswer' => sessions::ANONYMOUS_ANSWERS,
-        'allowguests' => 0,
         'sessionmode' => sessions::PODIUM_MANUAL,
         'countdown' => 0,
         'randomquestions' => 0,

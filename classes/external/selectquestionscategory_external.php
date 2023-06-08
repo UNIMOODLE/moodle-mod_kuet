@@ -62,12 +62,12 @@ class selectquestionscategory_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function selectquestionscategory(string $categorykey, int $cmid): array {
-        global $DB;
+        global $DB, $COURSE;
         self::validate_parameters(
             self::selectquestionscategory_parameters(),
             ['categorykey' => $categorykey, 'cmid' => $cmid]
         );
-        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'jqshow');
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'jqshow', $COURSE);
         $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
         return ['questions' => (new sessions($jqshow, $cmid))->get_questions_for_category($categorykey)];
     }

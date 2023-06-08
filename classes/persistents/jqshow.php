@@ -23,9 +23,41 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_jqshow\persistents;
+use core\persistent;
 
-$plugin->version = 2023060600;
-$plugin->requires = 2022112801; // Moodle 4.1.1
-$plugin->component = 'mod_jqshow';
-$plugin->cron = 0;
+class jqshow extends persistent {
+    public const TABLE = 'jqshow';
+
+    /**
+     * @return array[]
+     */
+    protected static function define_properties() {
+        return [
+            'course' => [
+                'type' => PARAM_INT,
+            ],
+            'name' => [
+                'type' => PARAM_RAW,
+            ],
+            'intro' => [
+                'type' => PARAM_RAW,
+            ],
+            'introformat' => [
+                'type' => PARAM_INT,
+            ],
+            'teamgrade' => [
+                'type' => PARAM_RAW,
+            ],
+            'badgepositions' => [
+                'type' => PARAM_INT,
+            ],
+            'completionanswerall' => [
+                'type' => PARAM_INT,
+            ],
+            'usermodified' => [
+                'type' => PARAM_INT,
+            ]
+        ];
+    }
+}
