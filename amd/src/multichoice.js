@@ -4,9 +4,6 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
-import ModalFactory from 'core/modal_factory';
-import ModalEvents from 'core/modal_events';
-import {get_strings as getStrings} from 'core/str';
 
 let ACTION = {
     REPLY: '[data-action="multichoice-answer"]'
