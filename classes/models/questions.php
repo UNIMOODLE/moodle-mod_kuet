@@ -26,8 +26,12 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
+use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
+use invalid_parameter_exception;
+use JsonException;
+use mod_jqshow\external\multichoice_external;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -94,15 +98,34 @@ class questions {
     }
 
     /**
+     * @return int
+     * @throws coding_exception
+     */
+    public function get_sumt_questions_times(): int {
+        $questions = $this->get_list();
+        $sessiontimedefault = (new jqshow_sessions($this->sid))->get('questiontime');
+        $time = 0;
+        foreach ($questions as $question) {
+            if ($question->get('timelimit') !== 0) {
+                $time = $question->get('timelimit') + $time;
+            } else {
+                $time = $sessiontimedefault + $time;
+            }
+        }
+        return $time;
+    }
+
+    /**
      * @param int $jqid // jqshow_question id
      * @param int $cmid
      * @param int $sessionid
      * @param int $jqshowid
      * @param bool $preview
      * @return object
+     * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
      * @throws dml_transaction_exception
+     * @throws moodle_exception
      */
     public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
         global $USER;
@@ -110,8 +133,6 @@ class questions {
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
-        $time = $jqshowquestion->get('timelimit') > 0 ? $jqshowquestion->get('timelimit') :
-            get_config('mod_jqshow', 'questiontime');
         $type = $question->get_type_name();
         $answers = [];
         $feedbacks = [];
@@ -171,8 +192,31 @@ class questions {
         $data->questiontext =
             self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
-        $data->hastime = $session->get('countdown') && $jqshowquestion->get('timelimit') > 0;
-        $data->seconds = $time;
+        switch ($session->get('timemode')) {
+            case sessions::NO_TIME:
+            default:
+                if ($jqshowquestion->get('timelimit') !== 0) {
+                    $data->hastime = true;
+                    $data->seconds = $jqshowquestion->get('timelimit');
+                } else {
+                    $data->hastime = false;
+                    $data->seconds = 0;
+                }
+                break;
+            case sessions::SESSION_TIME:
+                $data->hastime = true;
+                $numquestion = jqshow_questions::count_records(
+                    ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
+                );
+                $data->seconds = round((int)$session->get('sessiontime') / $numquestion);
+                break;
+            case sessions::QUESTION_TIME:
+                $data->hastime = true;
+                $data->seconds =
+                    $jqshowquestion->get('timelimit') !== 0 ? $jqshowquestion->get('timelimit') : $session->get('questiontime');
+                break;
+        }
+        $data->countdown = $session->get('countdown');
         $data->preview = $preview;
         $data->numanswers = count($question->answers);
         $data->name = $question->name;
@@ -185,7 +229,39 @@ class questions {
         $data->feedbacks = $feedbacks;
         $data->template = 'mod_jqshow/questions/encasement';
         $data->programmedmode = ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED);
+        return $data;
+    }
 
+    /**
+     * @param stdClass $data
+     * @param string $response
+     * @return stdClass
+     * @throws JsonException
+     * @throws invalid_persistent_exception
+     * @throws invalid_parameter_exception
+     * @throws coding_exception
+     * @throws dml_transaction_exception
+     * @throws moodle_exception
+     */
+    public static function export_multichoice_response(stdClass $data, string $response): stdClass {
+        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $data->answered = true;
+        $dataanswer = multichoice_external::multichoice(
+            $responsedata->answerid,
+            $data->sessionid,
+            $data->jqshowid,
+            $data->cmid,
+            $responsedata->questionid,
+            $responsedata->timeleft, true
+        );
+        $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
+        $dataanswer['answerid'] = $responsedata->answerid;
+        $data->seconds = $responsedata->timeleft;
+        $data->statment_feedback = $dataanswer['statment_feedback'];
+        $data->answer_feedback = $dataanswer['answer_feedback'];
+        $data->correct_answers = $dataanswer['correct_answers'];
+        $data->programmedmode = $dataanswer['programmedmode'];
+        $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
         return $data;
     }
 

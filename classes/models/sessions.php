@@ -34,6 +34,7 @@ use dml_exception;
 use Exception;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\forms\sessionform;
+use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
@@ -68,6 +69,11 @@ class sessions {
     // Anonymous response.
     public const ANONYMOUS_ANSWERS_NO = 0;
     public const ANONYMOUS_ANSWERS = 1;
+
+    // Time mode.
+    public const NO_TIME = 0;
+    public const SESSION_TIME = 1;
+    public const QUESTION_TIME = 2;
 
     /**
      * sessions constructor.
@@ -115,6 +121,11 @@ class sessions {
             self::RACE_MANUAL => get_string('race_manual', 'mod_jqshow'),
             self::RACE_PROGRAMMED => get_string('race_programmed', 'mod_jqshow'),
         ];
+        $timemode = [
+            self::NO_TIME => get_string('no_time', 'mod_jqshow'),
+            self::SESSION_TIME => get_string('session_time', 'mod_jqshow'),
+            self::QUESTION_TIME => get_string('question_time', 'mod_jqshow'),
+        ];
         $countdownchoices = [
             0 => 'Opcion1',
             1 => 'Opcion2',
@@ -136,6 +147,7 @@ class sessions {
             'jqshowid' => $this->jqshow->id,
             'countdown' => $countdownchoices,
             'sessionmodechoices' => $sessionmodechoices,
+            'timemode' => $timemode,
             'anonymousanswerchoices' => $anonymousanswerchoices,
             'groupingsselect' => $groupingsselect,
         ];
@@ -175,6 +187,7 @@ class sessions {
             'anonymousanswer' => $session->get('anonymousanswer'),
             'sessionmode' => $session->get('sessionmode'),
             'countdown' => $session->get('countdown'),
+            'hidegraderanking' => $session->get('hidegraderanking'),
             'randomquestions' => $session->get('randomquestions'),
             'randomanswers' => $session->get('randomanswers'),
             'showfeedback' => $session->get('showfeedback'),
@@ -182,7 +195,9 @@ class sessions {
             'startdate' => $session->get('startdate'),
             'enddate' => $session->get('enddate'),
             'automaticstart' => $session->get('automaticstart'),
-            'timelimit' => $session->get('timelimit')
+            'timemode' => $session->get('timemode'),
+            'sessiontime' => $session->get('sessiontime'),
+            'questiontime' => $session->get('questiontime')
         ];
     }
 
@@ -434,7 +449,7 @@ class sessions {
             'configvalue' => $sessiondata->get('showfinalgrade') === 1 ? get_string('yes') : get_string('no')
         ];
 
-        if ($sessiondata->get('startdate') != 0) {
+        if ($sessiondata->get('startdate') !== 0) {
             $data[] = [
                 'iconconfig' => 'startdate',
                 'configname' => get_string('startdate', 'mod_jqshow'),
@@ -442,7 +457,7 @@ class sessions {
             ];
         }
 
-        if ($sessiondata->get('enddate') != 0) {
+        if ($sessiondata->get('enddate') !== 0) {
             $data[] = [
                 'iconconfig' => 'enddate',
                 'configname' => get_string('enddate', 'mod_jqshow'),
@@ -456,13 +471,35 @@ class sessions {
             'configvalue' => $sessiondata->get('automaticstart') === 1 ? get_string('yes') : get_string('no')
         ];
 
-        if ($sessiondata->get('timelimit') != 0) {
-            $data[] = [
-                'iconconfig' => 'timelimit',
-                'configname' => get_string('timelimit', 'mod_jqshow'),
-                'configvalue' => $sessiondata->get('timelimit') . 's' // TODO pass to hours, minuts and seconds.
-            ];
+        switch ($sessiondata->get('timemode')) {
+            case self::NO_TIME:
+            default:
+                $timemodestring = get_string('no_time', 'mod_jqshow');
+                break;
+            case self::SESSION_TIME:
+                $numquestion = jqshow_questions::count_records(
+                    ['sessionid' => $sessiondata->get('id'), 'jqshowid' => $sessiondata->get('jqshowid')]
+                );
+                $timeperquestion = round((int)$sessiondata->get('sessiontime') / $numquestion);
+                $timemodestring = get_string(
+                    'session_time_resume', 'mod_jqshow', userdate($sessiondata->get('sessiontime'), '%Mm %Ss')
+                    ) . '<br>' .
+                    get_string('question_time', 'mod_jqshow') . ': ' .
+                    $timeperquestion . 's';
+                break;
+            case self::QUESTION_TIME:
+                $cmid = required_param('cmid', PARAM_INT);
+                $totaltime =
+                    (new questions($sessiondata->get('jqshowid'), $cmid, $sessiondata->get('id')))->get_sumt_questions_times();
+                $timemodestring = get_string('question_time', 'mod_jqshow') . '<br>' .
+                get_string('session_time_resume', 'mod_jqshow', userdate($totaltime, '%Mm %Ss'));
+                break;
         }
+        $data[] = [
+            'iconconfig' => 'timelimit',
+            'configname' => get_string('timemode', 'mod_jqshow'),
+            'configvalue' => $timemodestring
+        ];
 
         $data[] = [
             'iconconfig' => 'automaticstart',
@@ -493,9 +530,12 @@ class sessions {
                 );
                 $correctanswers = 0;
                 $incorrectanswers = 0;
+                $notanswers = 0;
                 foreach ($answers as $answer) {
                     if ($answer->get('result') === 1) {
                         $correctanswers++;
+                    } else if ($answer->get('result') === 2) {
+                        $notanswers++;
                     } else {
                         $incorrectanswers++;
                     }
@@ -504,6 +544,7 @@ class sessions {
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
                 $student->correctanswers = $correctanswers;
                 $student->incorrectanswers = $incorrectanswers;
+                $student->notanswers = $notanswers;
                 $student->userpoints = (int)($correctanswers * (1000 / count($questions)));
                 $students[] = $student;
             }
@@ -549,7 +590,6 @@ class sessions {
         } else {
             $data->groupings = '';
         }
-        $data->addtimequestion = $data->addtimequestion ?? 0;
         $id = $data->sessionid ?? 0;
         $update = false;
         if (!empty($id)) {

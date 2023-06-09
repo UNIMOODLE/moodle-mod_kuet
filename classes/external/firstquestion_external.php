@@ -117,6 +117,7 @@ class firstquestion_external extends external_api {
             'programmedmode' => new external_value(PARAM_BOOL, 'Mode programmed', VALUE_OPTIONAL),
             'manualmode' => new external_value(PARAM_BOOL, 'Mode manual', VALUE_OPTIONAL),
             'port' => new external_value(PARAM_RAW, 'Port for sockets', VALUE_OPTIONAL),
+            'countdown' => new external_value(PARAM_BOOL, 'Show or hide timer', VALUE_OPTIONAL),
             'multichoice' => new external_value(PARAM_BOOL, 'Type of question for mustache', VALUE_OPTIONAL),
             'answers' => new external_multiple_structure(
                 new external_single_structure(

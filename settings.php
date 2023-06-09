@@ -36,13 +36,8 @@ if ($ADMIN->fulltree) {
         get_string('jqshow_header', 'mod_jqshow'), '');
     $page->add($setting);
 
-    $setting = new admin_setting_configtext('mod_jqshow/questiontime',
-        get_string('questiontime', 'mod_jqshow'),
-        get_string('questiontime_desc', 'mod_jqshow'), '40', PARAM_INT);
-    $page->add($setting);
 
     $settings->add($page);
-
 
     $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes);
     $page = new admin_settingpage('mod_jqshow_ssl', get_string('sslcertificates', 'mod_jqshow'));

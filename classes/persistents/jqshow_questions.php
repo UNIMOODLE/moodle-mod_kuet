@@ -105,7 +105,7 @@ class jqshow_questions extends persistent {
         $data->jqshowid = $jqshowid;
         $data->qorder = $order;
         $data->qtype = $qtype;
-        $data->timelimit = $session->get('addtimequestion') > 0 ? get_config('mod_jqshow', 'questiontime') : 0;
+        $data->timelimit = 0; // TODO.
         $data->ignorecorrectanswer = 0;
         $data->isvalid = $isvalid;
         $data->config = '';

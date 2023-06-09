@@ -57,6 +57,7 @@ class multichoice_external extends external_api {
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
                 'questionid' => new external_value(PARAM_INT, 'id of question'),
+                'timeleft' => new external_value(PARAM_INT, 'Time left of question, if question has time, else 0.'),
                 'preview' => new external_value(PARAM_BOOL, 'preview or not for grade'),
             ]
         );
@@ -68,6 +69,7 @@ class multichoice_external extends external_api {
      * @param int $jqshowid
      * @param int $cmid
      * @param int $questionid
+     * @param int $timeleft
      * @param bool $preview
      * @return array
      * @throws JsonException
@@ -78,7 +80,7 @@ class multichoice_external extends external_api {
      * @throws moodle_exception
      */
     public static function multichoice(
-        int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, bool $preview
+        int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $timeleft, bool $preview
     ): array {
         // TODO Review correctfeedback and incorrectfeedback.
         global $PAGE, $USER;
@@ -90,6 +92,7 @@ class multichoice_external extends external_api {
                 'jqshowid' => $jqshowid,
                 'cmid' => $cmid,
                 'questionid' => $questionid,
+                'timeleft' => $timeleft,
                 'preview' => $preview]
         );
         $contextmodule = context_module::instance($cmid);
@@ -119,7 +122,15 @@ class multichoice_external extends external_api {
 
         if ($preview === false) {
             responses::multichoice_response(
-            $answerid ?? 0, $correctanswers, $questionid, $sessionid, $jqshowid, $statmentfeedback, $answerfeedback, $USER->id
+                $answerid,
+                $correctanswers,
+                $questionid,
+                $sessionid,
+                $jqshowid,
+                $statmentfeedback,
+                $answerfeedback,
+                $USER->id,
+                $timeleft
             );
         }
         $session = new jqshow_sessions($sessionid);
@@ -129,7 +140,9 @@ class multichoice_external extends external_api {
             'statment_feedback' => $statmentfeedback,
             'answer_feedback' => $answerfeedback,
             'correct_answers' => $correctanswers,
-            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED)
+            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::RACE_PROGRAMMED)
         ];
     }
 

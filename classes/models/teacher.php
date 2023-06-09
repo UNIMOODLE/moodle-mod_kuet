@@ -108,7 +108,18 @@ class teacher extends user {
         $ds->sessionid = $session->get('id');
         $ds->sessionmode = get_string($session->get('sessionmode'), 'mod_jqshow');
         $jqshow = new jqshow($cmid);
-        $ds->questions_number = (new questions($jqshow->get_jqshow()->id, $cmid, $session->get('id')))->get_num_questions();
+        $questions = new questions($jqshow->get_jqshow()->id, $cmid, $session->get('id'));
+        if ($session->get('timemode') === sessions::NO_TIME) {
+            $ds->timemode = get_string('no_time', 'mod_jqshow');
+            $ds->sessiontime = '';
+        } else if ($session->get('timemode') === sessions::SESSION_TIME) {
+            $ds->timemode = get_string('session_time', 'mod_jqshow');
+            $ds->sessiontime = userdate($session->get('sessiontime'), '%Mm %Ss');
+        } else if ($session->get('timemode') === sessions::QUESTION_TIME) {
+            $ds->timemode = get_string('question_time', 'mod_jqshow');
+            $ds->sessiontime = userdate($questions->get_sumt_questions_times(), '%Mm %Ss');
+        }
+        $ds->questions_number = $questions->get_num_questions();
         $ds->managesessions = $managesessions;
         $ds->initsession = $initsession;
         $ds->initsessionurl =
