@@ -195,8 +195,13 @@ class questions {
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
             default:
-                $data->hastime = false;
-                $data->seconds = 0;
+                if ($jqshowquestion->get('timelimit') !== 0) {
+                    $data->hastime = true;
+                    $data->seconds = $jqshowquestion->get('timelimit');
+                } else {
+                    $data->hastime = false;
+                    $data->seconds = 0;
+                }
                 break;
             case sessions::SESSION_TIME:
                 $data->hastime = true;

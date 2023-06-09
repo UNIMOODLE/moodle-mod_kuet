@@ -47,7 +47,7 @@ class questionform extends \moodleform {
         $mform->addElement('html', '</div>');
 
         $mform->addElement('header', 'timeheader', get_string('questiontime', 'mod_jqshow'));
-        if ($customdata['sessionlimittimebyquestionsenabled'] === true) {
+        if ($customdata['sessionlimittimebyquestionsenabled'] === true || $customdata['notimelimit'] === true) {
             $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'),
                 ['units' => [MINSECS, 1], 'optional' => true], 'asd');
             $mform->setType('timelimit', PARAM_INT);
@@ -59,7 +59,7 @@ class questionform extends \moodleform {
             $mform->addElement('html', '<div class=" alert alert-warning">');
             $mform->addElement('html', '<div>' .
                 get_string('sessionlimittimebyquestionsenabled', 'mod_jqshow', $timelimit) .
-            '</div>');
+                '</div>');
             $mform->addElement('html', '</div>');
         }
 

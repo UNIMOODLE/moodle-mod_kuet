@@ -54,6 +54,7 @@ $customdata = [
     'qtype' => $jqsquestion->get('qtype'),
     'timelimit' => $jqsquestion->get('timelimit'),
     'sessionlimittimebyquestionsenabled' => $session->get('timemode') === sessions::QUESTION_TIME,
+    'notimelimit' => $session->get('timemode') === sessions::NO_TIME,
     'nograding' => $jqsquestion->get('ignorecorrectanswer'),
     ];
 

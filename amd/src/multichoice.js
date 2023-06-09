@@ -73,7 +73,7 @@ MultiChoice.prototype.initMultichoice = function() {
     addEventListener('teacherQuestionEnd_' + jqid, () => {
         this.reply();
     }, {once: true});
-    addEventListener('beforeunload' + jqid, () => {
+    addEventListener('beforeunload' + jqid, () => { // TODO delete this listener, not work.
         const stringkeys = [
             {key: 'exitquestion', component: 'mod_jqshow'},
             {key: 'exitquestion_desc', component: 'mod_jqshow'},
@@ -101,8 +101,6 @@ MultiChoice.prototype.initMultichoice = function() {
             modal.show();
         }).fail(Notification.exception);
     }, {once: true});
-    // eslint-disable-next-line no-console
-    console.log(jQuery(REGION.SECONDS).length);
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
             that.reply();
@@ -132,7 +130,7 @@ MultiChoice.prototype.reply = function(e) {
                 jqshowid: jqshowId,
                 cmid: cmId,
                 questionid: questionid,
-                timeleft: timeLeft !== null ? timeLeft : 0,
+                timeleft: timeLeft || 0,
                 preview: false
             }
         };

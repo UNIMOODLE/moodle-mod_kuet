@@ -74,6 +74,7 @@ class sessionform extends moodleform {
         // Countdown.
         $mform->addElement('checkbox', 'countdown', get_string('countdown', 'mod_jqshow'));
         $mform->setType('countdown', PARAM_INT);
+        $mform->setDefault('countdown', 1);
         $mform->addHelpButton('countdown', 'countdown', 'jqshow');
 
         // Hide grade and ranking between questions.
@@ -99,6 +100,7 @@ class sessionform extends moodleform {
         // Showfeedback.
         $mform->addElement('checkbox', 'showfeedback', get_string('showfeedback', 'mod_jqshow'));
         $mform->setType('showfeedback', PARAM_INT);
+        $mform->setDefault('showfeedback', 1);
         $mform->addHelpButton('showfeedback', 'showfeedback', 'jqshow');
 
         // Showfinalgrade.
