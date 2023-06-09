@@ -26,6 +26,7 @@
 namespace mod_jqshow\helpers;
 
 use coding_exception;
+use context_course;
 use core\invalid_persistent_exception;
 use JsonException;
 use mod_jqshow\models\questions;
@@ -62,31 +63,36 @@ class responses {
         string $answerfeedback,
         int $userid,
         int $timeleft
-    ) {
-        if ($answerid === 0) {
-            $result = 2; // Not answered.
-        } else if ($correctanswers !== '') {
-            $correctids = explode(',', $correctanswers);
-            if (in_array($answerid, $correctids, false)) {
-                $result = 1; // Correct.
+    ): void {
+        global $COURSE;
+        $coursecontext = context_course::instance($COURSE->id);
+        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        if (!$isteacher) {
+            if ($answerid === 0) {
+                $result = 2; // Not answered.
+            } else if ($correctanswers !== '') {
+                $correctids = explode(',', $correctanswers);
+                if (in_array($answerid, $correctids, false)) {
+                    $result = 1; // Correct.
+                } else {
+                    $result = 0; // Incorrect.
+                }
             } else {
-                $result = 0; // Incorrect.
+                $result = 3; // Invalid response.
             }
-        } else {
-            $result = 3; // Invalid response.
+            $jqid = jqshow_questions::get_record(
+                ['questionid' => $questionid, 'sessionid' => $sessionid, 'jqshowid' => $jqshowid],
+                MUST_EXIST);
+            $response = new stdClass(); // For snapshot.
+            $response->questionid = $questionid;
+            $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
+            $response->correct_answers = $correctanswers;
+            $response->answerid = $answerid;
+            $response->timeleft = $timeleft;
+            $response->type = questions::MULTIPLE_CHOICE;
+            jqshow_questions_responses::add_response(
+                $jqshowid, $sessionid, $jqid->get('id'), $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+            );
         }
-        $jqid = jqshow_questions::get_record(
-            ['questionid' => $questionid, 'sessionid' => $sessionid, 'jqshowid' => $jqshowid],
-            MUST_EXIST);
-        $response = new stdClass(); // For snapshot.
-        $response->questionid = $questionid;
-        $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
-        $response->correct_answers = $correctanswers;
-        $response->answerid = $answerid;
-        $response->timeleft = $timeleft;
-        $response->type = questions::MULTIPLE_CHOICE;
-        jqshow_questions_responses::add_response(
-            $jqshowid, $sessionid, $jqid->get('id'), $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
-        );
     }
 }

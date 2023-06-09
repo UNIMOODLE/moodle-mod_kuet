@@ -73,34 +73,13 @@ MultiChoice.prototype.initMultichoice = function() {
     addEventListener('teacherQuestionEnd_' + jqid, () => {
         this.reply();
     }, {once: true});
-    addEventListener('beforeunload' + jqid, () => { // TODO delete this listener, not work.
-        const stringkeys = [
-            {key: 'exitquestion', component: 'mod_jqshow'},
-            {key: 'exitquestion_desc', component: 'mod_jqshow'},
-            {key: 'confirm', component: 'mod_jqshow'}
-        ];
-        return getStrings(stringkeys).then((langStrings) => {
-            const title = langStrings[0];
-            const confirmMessage = langStrings[1];
-            const buttonText = langStrings[2];
-            return ModalFactory.create({
-                title: title,
-                body: confirmMessage,
-                type: ModalFactory.types.SAVE_CANCEL
-            }).then(modal => {
-                modal.setSaveButtonText(buttonText);
-                modal.getRoot().on(ModalEvents.save, () => {
-                    MultiChoice.prototype.reply();
-                });
-                modal.getRoot().on(ModalEvents.hidden, () => {
-                    modal.destroy();
-                });
-                return modal;
-            });
-        }).done(function(modal) {
-            modal.show();
-        }).fail(Notification.exception);
-    }, {once: true});
+    window.addEventListener('beforeunload' + jqid, () => { // TODO delete this listener, not work.
+        if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
+            that.reply();
+            return 'Because the question is overdue and an attempt has been made to reload the page,' +
+                ' the question has remained unanswered.';
+        }
+    });
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
             that.reply();

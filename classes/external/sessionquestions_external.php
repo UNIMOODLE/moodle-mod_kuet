@@ -35,7 +35,9 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\models\questions;
+use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -96,7 +98,24 @@ class sessionquestions_external extends external_api {
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
         $data->isvalid = $question->get('isvalid');
-        $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
+        $session = new jqshow_sessions($question->get('sessionid'));
+        switch ($session->get('timemode')) {
+            case sessions::NO_TIME:
+            default:
+                $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
+                break;
+            case sessions::SESSION_TIME:
+                $numquestion = jqshow_questions::count_records(
+                    ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
+                );
+                $timeperquestion = round((int)$session->get('sessiontime') / $numquestion);
+                $data->time = ($timeperquestion > 0) ? $timeperquestion . 's' : '-';
+                break;
+            case sessions::QUESTION_TIME:
+                $data->time =
+                    ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : $session->get('questiontime') . 's';
+                break;
+        }
         $data->issuitable = in_array($question->get('qtype'), questions::TYPES, true);
         $data->version = $DB->get_field('question_versions', 'version', ['questionid' => $question->get('questionid')]);
         $coursecontext = context_course::instance($COURSE->id);

@@ -540,6 +540,8 @@ Sockets.prototype.normalizeUser = function(usersocketid) {
     let currentQuestion = db.get('statequestions', 'currentQuestion');
     currentQuestion.onsuccess = function() {
         let currentQuestiondata = db.get('questions', currentQuestion.result.value);
+        /* TODO check if there is an answer for this question and this user, and if so, add the answer to the
+            context with export_multichoice_response(). */
         currentQuestiondata.onsuccess = function() {
             let msg = {
                 'action': 'normalizeUser',

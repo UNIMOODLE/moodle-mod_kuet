@@ -117,11 +117,14 @@ class teacher extends user {
             $ds->sessiontime = userdate($session->get('sessiontime'), '%Mm %Ss');
         } else if ($session->get('timemode') === sessions::QUESTION_TIME) {
             $ds->timemode = get_string('question_time', 'mod_jqshow');
-            $ds->sessiontime = userdate($questions->get_sumt_questions_times(), '%Mm %Ss');
+            $ds->sessiontime = userdate($questions->get_sum_questions_times(), '%Mm %Ss');
         }
         $ds->questions_number = $questions->get_num_questions();
         $ds->managesessions = $managesessions;
         $ds->initsession = $initsession;
+        if ($questions->get_num_questions() === 0) {
+            $ds->initsession = false;
+        }
         $ds->initsessionurl =
             (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->viewreporturl =
@@ -148,6 +151,7 @@ class teacher extends user {
             $enddate = userdate($enddate, get_string('strftimedatetimeshort', 'core_langconfig'));
             $ds->date .= ' - ' . $enddate;
         }
+
         return $ds;
     }
 

@@ -490,7 +490,7 @@ class sessions {
             case self::QUESTION_TIME:
                 $cmid = required_param('cmid', PARAM_INT);
                 $totaltime =
-                    (new questions($sessiondata->get('jqshowid'), $cmid, $sessiondata->get('id')))->get_sumt_questions_times();
+                    (new questions($sessiondata->get('jqshowid'), $cmid, $sessiondata->get('id')))->get_sum_questions_times();
                 $timemodestring = get_string('question_time', 'mod_jqshow') . '<br>' .
                 get_string('session_time_resume', 'mod_jqshow', userdate($totaltime, '%Mm %Ss'));
                 break;
@@ -501,11 +501,6 @@ class sessions {
             'configvalue' => $timemodestring
         ];
 
-        $data[] = [
-            'iconconfig' => 'automaticstart',
-            'configname' => get_string('automaticstart', 'mod_jqshow'),
-            'configvalue' => $sessiondata->get('automaticstart') === 1 ? get_string('yes') : get_string('no')
-        ];
 
         return $data;
     }
@@ -595,6 +590,9 @@ class sessions {
         if (!empty($id)) {
             $update = true;
             $data->{'id'} = $id;
+        }
+        if (!isset($data->automaticstart) || $data->automaticstart === 0) {
+            $data->startdate = 0;
         }
         $session = new jqshow_sessions($id, $data);
         if ($update) {

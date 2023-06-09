@@ -101,7 +101,7 @@ class questions {
      * @return int
      * @throws coding_exception
      */
-    public function get_sumt_questions_times(): int {
+    public function get_sum_questions_times(): int {
         $questions = $this->get_list();
         $sessiontimedefault = (new jqshow_sessions($this->sid))->get('questiontime');
         $time = 0;
