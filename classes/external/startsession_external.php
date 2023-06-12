@@ -72,8 +72,11 @@ class startsession_external extends external_api {
         $cmcontext = context_module::instance($cmid);
         $started = false;
         if ($cmcontext !== null && has_capability('mod/jqshow:managesessions', $cmcontext, $USER)) {
-            jqshow_sessions::mark_session_started($sessionid);
-            $started = true;
+            $session = new jqshow_sessions($sessionid);
+            if (jqshow_sessions::get_active_session_id($session->get('jqshowid')) === 0) {
+                jqshow_sessions::mark_session_started($sessionid);
+                $started = true;
+            }
         }
         return [
             'started' => $started

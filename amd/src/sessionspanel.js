@@ -198,15 +198,12 @@ SessionsPanel.prototype.initSession = function(e) {
         {key: 'confirm', component: 'mod_jqshow'}
     ];
     getStrings(stringkeys).then((langStrings) => {
-        const title = langStrings[0];
-        const confirmMessage = langStrings[1];
-        const buttonText = langStrings[2];
         return ModalFactory.create({
-            title: title,
-            body: confirmMessage,
+            title: langStrings[0],
+            body: langStrings[1],
             type: ModalFactory.types.SAVE_CANCEL
         }).then(modal => {
-            modal.setSaveButtonText(buttonText);
+            modal.setSaveButtonText(langStrings[2]);
             modal.getRoot().on(ModalEvents.save, () => {
                 let request = {
                     methodname: SERVICES.STARTSESSION,
@@ -218,6 +215,36 @@ SessionsPanel.prototype.initSession = function(e) {
                 Ajax.call([request])[0].done(function(response) {
                     if (response.started === true) {
                         window.location.replace(M.cfg.wwwroot + '/mod/jqshow/session.php?cmid=' + cmId + '&sid=' + sessionId);
+                    } else {
+                        const stringkeyserror = [
+                            {key: 'error_initsession', component: 'mod_jqshow'},
+                            {key: 'error_initsession_desc', component: 'mod_jqshow'},
+                            {key: 'confirm', component: 'mod_jqshow'}
+                        ];
+                        getStrings(stringkeyserror).then((langStringsError) => {
+                            return ModalFactory.create({
+                                title: langStringsError[0],
+                                body: langStringsError[1],
+                                type: ModalFactory.types.ALERT,
+                                buttons: {
+                                    cancel: langStringsError[2],
+                                },
+                                removeOnClose: true,
+                                // eslint-disable-next-line max-nested-callbacks
+                            }).then(modalError => {
+                                modalError.getRoot().on(ModalEvents.save, () => {
+                                    location.reload();
+                                });
+                                modalError.getRoot().on(ModalEvents.hidden, () => {
+                                    modalError.destroy();
+                                    location.reload();
+                                });
+                                return modalError;
+                            });
+                        }).done(function(modalError) {
+                            modalError.show();
+                            // eslint-disable-next-line no-restricted-globals
+                        }).fail(Notification.exception);
                     }
                 }).fail(Notification.exception);
             });

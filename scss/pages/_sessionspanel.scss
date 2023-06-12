@@ -46,6 +46,18 @@ body#page-mod-jqshow-view {
                                 }
                                 .sessions-list-data {
                                     font-weight: normal;
+                                    &.session-started {
+                                        background-color: #d7e4d6;
+                                        color: #1c3f1a;
+                                    }
+                                    &.session-warning {
+                                        background-color: #fcefdc;
+                                        color: #7d5a29;
+                                    }
+                                    &.session-conflict {
+                                        background-color: #f4d6d2;
+                                        color: #691911;
+                                    }
                                     .d-table-cell {
                                         border-top: 1px solid #EDEBF4;
                                         color: #929292 !important;
@@ -91,9 +103,19 @@ body#page-mod-jqshow-view {
                                             display: flex;
                                             justify-content: center;
                                             align-items: center;
+                                            margin: 0 auto;
                                             &:hover {
                                                 cursor: pointer;
                                                 text-decoration: none;
+                                            }
+                                        }
+                                        .icon-warning {
+                                            display: block;
+                                            text-align: center;
+                                            img {
+                                                height: 28px;
+                                                width: auto;
+                                                margin: 0;
                                             }
                                         }
                                     }

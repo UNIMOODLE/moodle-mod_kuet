@@ -26,6 +26,7 @@
 namespace mod_jqshow\forms;
 
 use coding_exception;
+use DateTime;
 use dml_exception;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -137,8 +138,10 @@ class sessionform extends moodleform {
         $mform->addHelpButton('automaticstart', 'automaticstart', 'jqshow');
 
         // Openquiz - Startdate.
+        $date = new DateTime();
+        $date->setTime($date->format('H'), ceil($date->format('i') / 10) * 10, 0);
         $mform->addElement('date_time_selector', 'startdate',
-            get_string('startdate', 'mod_jqshow'), ['optional' => false]);
+            get_string('startdate', 'mod_jqshow'), ['optional' => false, 'defaulttime' => $date->getTimestamp()]);
         $mform->hideIf('startdate', 'automaticstart', 'notchecked');
         $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
@@ -147,7 +150,7 @@ class sessionform extends moodleform {
 
         // Closequiz - enddate.
         $mform->addElement('date_time_selector', 'enddate',
-            get_string('enddate', 'mod_jqshow'), ['optional' => true]);
+            get_string('enddate', 'mod_jqshow'), ['optional' => false, 'defaulttime' => $date->getTimestamp() + 3600]);
         $mform->hideIf('enddate', 'automaticstart', 'notchecked');
         $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
@@ -223,19 +226,25 @@ class sessionform extends moodleform {
     public function validation($data, $files): array {
         $errors = parent::validation($data, $files);
         // Session name must be unique.
-        $haserror = false;
+        $haserrorname = false;
         $sessions = jqshow_sessions::get_sessions_by_name($data['name'], $data['jqshowid']);
         if (count($sessions) === 1) {
             $sesion = reset($sessions);
-            $haserror = (int)$sesion->id !== (int)$data['sessionid'];
+            $haserrorname = (int)$sesion->id !== (int)$data['sessionid'];
         } else if (count($sessions) > 1) {
-            $haserror = true;
+            $haserrorname = true;
         }
-
-        if ($haserror) {
+        if ($haserrorname) {
             $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
         }
-
+        if ((int)$data['automaticstart'] === 1) {
+            if ((int)$data['startdate'] <= time()) {
+                $errors['startdate'] = get_string('previousstarterror', 'mod_jqshow');
+            }
+            if ((int)$data['startdate'] >= (int)$data['enddate']) {
+                $errors['enddate'] = get_string('startminorend', 'mod_jqshow');
+            }
+        }
         return $errors;
     }
 }
