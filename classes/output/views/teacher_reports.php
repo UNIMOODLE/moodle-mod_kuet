@@ -25,7 +25,10 @@
 
 namespace mod_jqshow\output\views;
 
+use mod_jqshow\helpers\reports;
 use mod_jqshow\jqshow;
+use mod_jqshow\models\sessions;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use renderable;
 use renderer_base;
@@ -36,9 +39,11 @@ class teacher_reports implements renderable, templatable {
 
     public int $jqshowid;
     public int $cmid;
-    public function __construct(int $cmid, int $jqshowid) {
+    public int $sid;
+    public function __construct(int $cmid, int $jqshowid, int $sid) {
         $this->jqshowid = $jqshowid;
         $this->cmid = $cmid;
+        $this->sid = $sid;
     }
 
     /**
@@ -51,7 +56,20 @@ class teacher_reports implements renderable, templatable {
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
         $data->cmid = $this->cmid;
-        $data->endedsessions = $jqshow->get_completed_sessions();
+        if ($this->sid === 0) {
+            $data->allreports = true;
+            $data->endedsessions = $jqshow->get_completed_sessions();
+        } else {
+            $data->onereport = true;
+            $session = new jqshow_sessions($this->sid);
+            $mode = $session->get('sessionmode');
+            if ($mode !== sessions::INACTIVE_PROGRAMMED || $mode !== sessions::INACTIVE_MANUAL) {
+                $data->showfinalranking = true;
+            }
+            $data->config = sessions::get_session_config($this->sid);
+            $data->sessionquestions = reports::get_questions_data_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
+            $data->rankingusers = reports::get_ranking_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
+        }
 
         return $data;
     }

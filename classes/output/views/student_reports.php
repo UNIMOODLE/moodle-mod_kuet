@@ -25,8 +25,6 @@
 
 namespace mod_jqshow\output\views;
 
-use coding_exception;
-use dml_exception;
 use mod_jqshow\jqshow;
 use moodle_exception;
 use renderable;
@@ -38,16 +36,16 @@ class student_reports implements renderable, templatable {
 
     public int $jqshowid;
     public int $cmid;
-    public function __construct(int $cmid, int $jqshowid) {
+    public int $sid;
+    public function __construct(int $cmid, int $jqshowid, int $sid) {
         $this->jqshowid = $jqshowid;
         $this->cmid = $cmid;
+        $this->sid = $sid;
     }
 
     /**
      * @param renderer_base $output
      * @return stdClass
-     * @throws coding_exception
-     * @throws dml_exception
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
@@ -55,7 +53,12 @@ class student_reports implements renderable, templatable {
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
         $data->cmid = $this->cmid;
-        $data->endedsessions = $jqshow->get_completed_sessions();
+        if ($this->sid === 0) {
+            $data->allreports = true;
+            $data->endedsessions = $jqshow->get_completed_sessions();
+        } else {
+            $data->onereport = true;
+        }
 
         return $data;
     }

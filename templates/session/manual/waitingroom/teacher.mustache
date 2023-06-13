@@ -5,21 +5,7 @@
                 {{#pix}} i/settings, mod_jqshow {{/pix}}
                 {{#str}}configuration, mod_jqshow{{/str}}
             </h5>
-            <div class="list-resume">
-                <ul class="list-group">
-                    {{#config}}
-                        <li class="list-group-item">
-                            {{#pix}} s/{{iconconfig}}, mod_jqshow{{/pix}}
-                            <div class="content-config">
-                                <span class="configname">{{ configname }}</span>
-                                {{#configvalue}}
-                                    <small>{{.}}</small>
-                                {{/configvalue}}
-                            </div>
-                        </li>
-                    {{/config}}
-                </ul>
-            </div>
+            {{> mod_jqshow/session/sessionresume }}
         </div>
     </div>
     <div class="col-12 col-lg-7 container">

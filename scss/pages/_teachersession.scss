@@ -15,34 +15,6 @@
                 padding: 1em;
             }
         }
-        .resume-config {
-            .list-resume {
-                .list-group {
-                    border-radius: 0;
-                    .list-group-item {
-                        border: 0;
-                        border-bottom: 1px solid #EDEBF4;
-                        display: flex;
-                        flex-flow: row nowrap;
-                        justify-content: flex-start;
-                        align-items: center;
-                        img.icon {
-                            height: 20px;
-                            width: auto;
-                            margin-right: 18px;
-                        }
-                        .content-config {
-                            display: flex;
-                            flex-flow: column nowrap;
-                            .configname {
-                                font-size: 16px;
-                                font-weight: bold;
-                            }
-                        }
-                    }
-                }
-            }
-        }
         .users-results {
             .list-results {
                 max-height: 700px;

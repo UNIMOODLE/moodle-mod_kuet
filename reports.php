@@ -24,7 +24,6 @@
  */
 
 use mod_jqshow\output\views\student_reports;
-use mod_jqshow\output\views\student_view;
 use mod_jqshow\output\views\teacher_reports;
 use mod_jqshow\persistents\jqshow;
 
@@ -32,13 +31,14 @@ require_once('../../config.php');
 
 global $CFG, $PAGE, $DB, $COURSE, $USER;
 
-$id = required_param('cmid', PARAM_INT);    // Course Module ID.
+$cmid = required_param('cmid', PARAM_INT);    // Course Module ID.
+$sid = optional_param('sid', 0, PARAM_INT);    // Session id.
 
-$cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
+$cm = get_coursemodule_from_id('jqshow', $cmid, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $jqshow = jqshow::get_record(['id' => $cm->instance], MUST_EXIST);
 
-$PAGE->set_url('/mod/jqshow/view.php', ['id' => $id]);
+$PAGE->set_url('/mod/jqshow/reports.php', ['cmid' => $cmid]);
 require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $cmcontext);
@@ -47,15 +47,16 @@ $isteacher = has_capability('mod/jqshow:startsession', $coursecontext);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_title(get_string('reports', 'jqshow'));
 $PAGE->set_cacheable(false);
-$PAGE->add_body_class('jqshow-reports');
 $PAGE->navbar->add(get_string('reports', 'jqshow'));
 
 navigation_node::override_active_url(new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cm->id, 'return' => 1]));
 
 if ($isteacher) {
-    $view = new teacher_reports($id, $jqshow->get('id'));
+    $PAGE->add_body_classes(['jqshow-reports', 'jqshow-reports jqshow-teacher-reports']);
+    $view = new teacher_reports($cmid, $jqshow->get('id'), $sid);
 } else {
-    $view = new student_reports($cm->id, $jqshow->get('id'));
+    $PAGE->add_body_classes(['jqshow-reports', 'jqshow-student-reports']);
+    $view = new student_reports($cm->id, $jqshow->get('id'), $sid);
 }
 
 $output = $PAGE->get_renderer('mod_jqshow');

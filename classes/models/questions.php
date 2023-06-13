@@ -56,6 +56,13 @@ require_once($CFG->dirroot. '/question/engine/bank.php');
 class questions {
     public const MULTIPLE_CHOICE = 'multichoice';
     public const TYPES = [self::MULTIPLE_CHOICE];
+
+    public const FAILURE = 0;
+    public const SUCCESS = 1;
+    public const NORESPONSE = 2;
+    public const NOTEVALUABLE = 3;
+    public const INVALID = 4;
+
     protected int $jqshowid;
     protected int $cmid;
     protected int $sid;

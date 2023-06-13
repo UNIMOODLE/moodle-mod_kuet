@@ -387,22 +387,11 @@ class sessions {
             'configname' => get_string('session_name', 'mod_jqshow'),
             'configvalue' => $sessiondata->get('name')
         ];
-        $anonymise = $sessiondata->get('anonymousanswer');
-        switch ($anonymise) {
-            case 0:
-            default:
-                $anonymisestr = get_string('anonymiseresponses', 'mod_jqshow');
-                break;
-            case 1:
-                $anonymisestr = get_string('anonymiseallresponses', 'mod_jqshow');
-                break;
-            case 2:
-                $anonymisestr = get_string('noanonymiseresponses', 'mod_jqshow');
-                break;
-        }
+
         $data[] = [
             'iconconfig' => 'anonymise',
-            'configname' => $anonymisestr
+            'configname' => get_string('anonymousanswer', 'mod_jqshow'),
+            'configvalue' => $sessiondata->get('anonymousanswer') === 1 ? get_string('yes') : get_string('no')
         ];
 
         $data[] = [
@@ -414,7 +403,7 @@ class sessions {
         $data[] = [
             'iconconfig' => 'countdown',
             'configname' => get_string('countdown', 'mod_jqshow'),
-            'configvalue' => $sessiondata->get('countdown')
+            'configvalue' => $sessiondata->get('countdown') === 1 ? get_string('yes') : get_string('no')
         ];
 
         if (in_array($sessiondata->get('sessionmode'), [self::PODIUM_MANUAL, self::PODIUM_PROGRAMMED], true)) {
@@ -501,7 +490,6 @@ class sessions {
             'configvalue' => $timemodestring
         ];
 
-
         return $data;
     }
 
@@ -536,6 +524,8 @@ class sessions {
                     }
                 }
                 $student = new stdClass();
+                $student->id = $user->id;
+                $student->userid = $user->id;
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
                 $student->correctanswers = $correctanswers;
                 $student->incorrectanswers = $incorrectanswers;

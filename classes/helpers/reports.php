@@ -1,0 +1,127 @@
+<?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ *
+ * @package     mod_jqshow
+ * @author      3&Punt <tresipunt.com>
+ * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
+ * @copyright   3iPunt <https://www.tresipunt.com/>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace mod_jqshow\helpers;
+
+use coding_exception;
+use dml_exception;
+use mod_jqshow\models\questions;
+use mod_jqshow\models\sessions;
+use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_questions_responses;
+use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
+use moodle_url;
+use stdClass;
+use user_picture;
+
+class reports {
+
+    /**
+     * @param int $jqshowid
+     * @param int $cmid
+     * @param int $sid
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function get_questions_data_for_teacher_report(int $jqshowid, int $cmid, int $sid): array {
+        global $DB;
+        $session = new jqshow_sessions($sid);
+        $questions = (new questions($jqshowid, $cmid, $sid))->get_list();
+        $questionsdata = [];
+        foreach ($questions as $question) {
+            $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
+            $data = new stdClass();
+            $data->questionnid = $question->get('id');
+            $data->position = $question->get('qorder');
+            $data->name = $questiondb->name;
+            $data->type = $question->get('qtype');
+            $data->success = jqshow_questions_responses::count_records([
+                'jqshow' => $jqshowid,
+                'session' => $sid,
+                'jqid' => $question->get('id'),
+                'result' => questions::SUCCESS
+            ]);
+            $data->failures = jqshow_questions_responses::count_records([
+                'jqshow' => $jqshowid,
+                'session' => $sid,
+                'jqid' => $question->get('id'),
+                'result' => questions::FAILURE
+            ]);
+            $data->noresponse = jqshow_questions_responses::count_records([
+                'jqshow' => $jqshowid,
+                'session' => $sid,
+                'jqid' => $question->get('id'),
+                'result' => questions::NORESPONSE
+            ]);
+            switch ($session->get('timemode')) {
+                case sessions::NO_TIME:
+                default:
+                    $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
+                    break;
+                case sessions::SESSION_TIME:
+                    $numquestion = jqshow_questions::count_records(
+                        ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
+                    );
+                    $timeperquestion = round((int)$session->get('sessiontime') / $numquestion);
+                    $data->time = ($timeperquestion > 0) ? $timeperquestion . 's' : '-';
+                    break;
+                case sessions::QUESTION_TIME:
+                    $data->time =
+                        ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : $session->get('questiontime') . 's';
+                    break;
+            }
+
+            $questionsdata[] = $data;
+        }
+        return $questionsdata;
+    }
+
+    /**
+     * @param int $jqshowid
+     * @param int $cmid
+     * @param int $sid
+     * @return array
+     * @throws moodle_exception
+     */
+    public static function get_ranking_for_teacher_report(int $jqshowid, int $cmid, int $sid): array {
+        global $DB, $PAGE;
+        $results = sessions::get_session_results($sid, $cmid);
+        foreach ($results as $user) {
+            $userdata = $DB->get_record('user', ['id' => $user->userid]);
+            if ($userdata !== false) {
+                $userpicture = new user_picture($userdata);
+                $userpicture->size = 1;
+                $user->userimage = $userpicture->get_url($PAGE)->out(false);
+                $user->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $user->userid]))->out(false);
+                $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
+                    ['cmid' => $cmid, 'sid' => $sid, 'userid' => $user->userid]))->out(false);
+            }
+        }
+        return $results;
+    }
+
+}

@@ -1,4 +1,4 @@
-body#page-mod-jqshow-view.jqshow-reports {
+body#page-mod-jqshow-reports.jqshow-reports {
     .sessions-list {
         margin-top: 25px;
         padding: 0;
@@ -59,6 +59,122 @@ body#page-mod-jqshow-view.jqshow-reports {
                             cursor: pointer;
                             text-decoration: none;
                         }
+                    }
+                }
+            }
+        }
+    }
+    .resume-config {
+        margin-top: 25px;
+        padding: 0;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,.06);
+        .titlecontainer {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+            border-radius: 8px 8px 0 0;
+            color: #FFFFFF;
+            padding: 1em;
+        }
+        .list-group {
+            display: flex;
+            flex-flow: row wrap;
+            li.list-group-item {
+                width: 16.6%;
+            }
+        }
+    }
+    .questions-list,
+    .ranking-list {
+        margin-top: 25px;
+        padding: 0;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,.06);
+        .titlecontainer {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+            border-radius: 8px 8px 0 0;
+            color: #FFFFFF;
+            padding: 1em;
+        }
+        .session-questions,
+        .ranking-users {
+            max-height: 700px;
+            overflow-y: auto;
+            &::-webkit-scrollbar {
+                width: 8px;
+            }
+            &::-webkit-scrollbar-track {
+                background: #e0e0e0;
+            }
+            &::-webkit-scrollbar-thumb {
+                background-color: #6a737b;
+                border-radius: 4px;
+            }
+            .questions-list-body,
+            .ranking-users-body {
+                width: 100%;
+                .questions-list-thead,
+                .ranking-users-thead {
+                    font-weight: bold;
+                    .d-table-cell {
+                        color: #2B2B2B !important;
+                    }
+                }
+                .questions-list-data,
+                .ranking-users-data {
+                    font-weight: normal;
+                    .d-table-cell {
+                        border-top: 1px solid #EDEBF4;
+                        color: #929292 !important;
+                        &.viewreport {
+                            a {
+                                width: 125px;
+                                height: 32px;
+                                color: white;
+                                background-color: black;
+                                border-radius: 8px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                margin: 0 auto;
+                                &:hover {
+                                    cursor: pointer;
+                                    text-decoration: none;
+                                }
+                            }
+                        }
+                    }
+                }
+                .d-table-cell {
+                    padding: 15px;
+                    vertical-align: middle;
+                }
+                .participant {
+                    display: flex;
+                    flex-flow: row nowrap;
+                    border-radius: 34px;
+                    justify-content: flex-start;
+                    align-items: center;
+                    height: 38px;
+                    margin: 0;
+                    a {
+                        &:hover {
+                            text-decoration: none !important;
+                            cursor: pointer;
+                            span {
+                                text-decoration: none;
+                            }
+                        }
+                    }
+                    img {
+                        border-radius: 50%;
+                        height: 38px;
+                        width: auto;
+                        margin-right: 10px;
+                    }
+                    .user-fullname {
+                        font-size: 16px;
+                        color: black;
+                        margin-right: 8px;
                     }
                 }
             }
