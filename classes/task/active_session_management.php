@@ -96,7 +96,16 @@ class active_session_management extends scheduled_task {
                     break;
                 }
             }
-            // TODO check if there are two active sessions after the previous process, and if so close the oldest one.
+            $activesessions = jqshow_sessions::get_records(['jqshowid' => $jqshow->get('id'), 'status' => 2], 'timemodified');
+            if (count($activesessions) > 1) {
+                array_shift($activesessions);
+                foreach ($activesessions as $activesession) {
+                    (new jqshow_sessions($activesession->get('id')))->set('status', 0)->update();
+                    $a->sessionid = $activesession->get('id');
+                    $a->jqshowid = $activesession->get('jqshowid');
+                    mtrace(get_string('sessionfinishedformoreone', 'mod_jqshow', $a));
+                }
+            }
         }
     }
 }

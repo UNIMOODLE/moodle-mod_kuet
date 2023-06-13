@@ -261,5 +261,6 @@ $string['previousstarterror'] = 'The start date cannot be less than the current 
 $string['sessionmanualactivated'] = 'The session {$a->sessionid} is active in jqshowid -> {$a->jqshowid}. The remainder of the session is omitted until the end of this session.';
 $string['sessionactivated'] = 'Session {$a->sessionid} activated for jqshowid {$a->jqshowid}';
 $string['sessionfinished'] = 'Session {$a->sessionid} finished for jqshowid {$a->jqshowid}';
+$string['sessionfinishedformoreone'] = 'Session {$a->sessionid} finished for jqshowid {$a->jqshowid} because more than one session is active.';
 $string['error_initsession'] = 'Error init session';
 $string['error_initsession_desc'] = 'The session could not be started, either because a session has already been started or because of a specific error. Please refresh the page and try again.';
