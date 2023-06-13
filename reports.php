@@ -23,19 +23,20 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once('../../config.php');
-require_once('lib.php');
-
+use mod_jqshow\output\views\student_reports;
 use mod_jqshow\output\views\student_view;
-use mod_jqshow\output\views\teacher_view;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\output\views\teacher_reports;
+use mod_jqshow\persistents\jqshow;
+
+require_once('../../config.php');
 
 global $CFG, $PAGE, $DB, $COURSE, $USER;
-$id = required_param('id', PARAM_INT);    // Course Module ID.
+
+$id = required_param('cmid', PARAM_INT);    // Course Module ID.
 
 $cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-$jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
+$jqshow = jqshow::get_record(['id' => $cm->instance], MUST_EXIST);
 
 $PAGE->set_url('/mod/jqshow/view.php', ['id' => $id]);
 require_login($course, false, $cm);
@@ -44,16 +45,17 @@ require_capability('mod/jqshow:view', $cmcontext);
 $coursecontext = context_course::instance($COURSE->id);
 $isteacher = has_capability('mod/jqshow:startsession', $coursecontext);
 $PAGE->set_heading($course->fullname);
-$PAGE->set_title(get_string('modulename', 'jqshow'));
+$PAGE->set_title(get_string('reports', 'jqshow'));
+$PAGE->set_cacheable(false);
+$PAGE->add_body_class('jqshow-reports');
+$PAGE->navbar->add(get_string('reports', 'jqshow'));
+
+navigation_node::override_active_url(new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cm->id, 'return' => 1]));
 
 if ($isteacher) {
-    $view = new teacher_view();
+    $view = new teacher_reports($id, $jqshow->get('id'));
 } else {
-    $activessesion = jqshow_sessions::get_active_session_id($jqshow->id);
-    if ($activessesion !== 0) {
-        redirect((new moodle_url('/mod/jqshow/session.php', ['cmid' => $cm->id, 'sid' => $activessesion]))->out(false));
-    }
-    $view = new student_view($jqshow->id, $cm->id);
+    $view = new student_reports($cm->id, $jqshow->get('id'));
 }
 
 $output = $PAGE->get_renderer('mod_jqshow');

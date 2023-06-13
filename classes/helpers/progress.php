@@ -87,13 +87,12 @@ class progress {
                             break;
                         case [false, 0]: // New order, but no need to randomise.
                             $order = (new questions($jqshowid, $cmid, $sessionid))->get_list();
-                            $neworder = '';
+                            $keys = '';
                             foreach ($order as $question) {
-                                $neworder .= $question->get('id') . ',';
+                                $keys .= $question->get('id') . ',';
                             }
-                            $neworder = trim($neworder, ',');
                             $data = new stdClass();
-                            $data->questionsorder = $neworder;
+                            $data->questionsorder = trim($keys, ',');
                             if ($currentquestionjqid === 0) {
                                 $firstquestion = explode(',', $data->questionsorder);
                                 $data->currentquestion = reset($firstquestion);

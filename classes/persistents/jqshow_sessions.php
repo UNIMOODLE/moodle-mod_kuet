@@ -324,7 +324,7 @@ class jqshow_sessions extends persistent {
      * @throws invalid_persistent_exception
      */
     public static function check_automatic_sessions(int $jqshowid): void {
-        // TODO review operation and adjust to session logic.
+        // TODO this logic is obsolete, now in cron task.
         $sessions = self::get_automaticstart_sessions($jqshowid);
         $activesession = null;
         $now = time();

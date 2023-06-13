@@ -23,9 +23,40 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_jqshow\output\views;
 
-$plugin->version = 2023061300;
-$plugin->requires = 2022112801; // Moodle 4.1.1
-$plugin->component = 'mod_jqshow';
-$plugin->cron = 0;
+use coding_exception;
+use dml_exception;
+use mod_jqshow\jqshow;
+use moodle_exception;
+use renderable;
+use renderer_base;
+use stdClass;
+use templatable;
+
+class student_reports implements renderable, templatable {
+
+    public int $jqshowid;
+    public int $cmid;
+    public function __construct(int $cmid, int $jqshowid) {
+        $this->jqshowid = $jqshowid;
+        $this->cmid = $cmid;
+    }
+
+    /**
+     * @param renderer_base $output
+     * @return stdClass
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function export_for_template(renderer_base $output): stdClass {
+        $jqshow = new jqshow($this->cmid);
+        $data = new stdClass();
+        $data->jqshowid = $this->jqshowid;
+        $data->cmid = $this->cmid;
+        $data->endedsessions = $jqshow->get_completed_sessions();
+
+        return $data;
+    }
+}
