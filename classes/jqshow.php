@@ -33,7 +33,7 @@ use stdClass;
 
 class jqshow {
     /** @var cm_info cm */
-    protected $cm;
+    public $cm;
     /** @var mixed course */
     public $course;
     /** @var sessions */

@@ -27,7 +27,7 @@
                     <div class="d-table-cell"></div>
                 </div>
                 {{#activesessions}}
-                    <div class="d-table-row sessions-list-data">
+                    <div class="d-table-row sessions-list-data {{#hasconflict}}session-conflict{{/hasconflict}} {{#haswarning}}session-warning{{/haswarning}} {{#issessionstarted}}session-started{{/issessionstarted}}">
                         <div class="d-table-cell">{{name}}</div>
                         <div class="d-table-cell">{{sessionmode}}</div>
                         <div class="d-table-cell">{{timemode}}</div>
@@ -71,19 +71,33 @@
                         </div>
                         <div class="d-table-cell initsession">
                             {{#initsession}}
-                                <div class="{{^issessionstarted}}{{#hasactivesession}}disabled{{/hasactivesession}}{{/issessionstarted}}"
+                                <div class="{{#hasactivesession}}disabled{{/hasactivesession}}"
                                         {{^hasactivesession}}data-action="init_session"{{/hasactivesession}}
                                         data-sessionid="{{sessionid}}"
                                 >
-                                    {{#issessionstarted}}
-                                        <a href="{{startedssionurl}}">
-                                    {{/issessionstarted}}
                                     + <span>{{stringsession}}</span>
-                                    {{#issessionstarted}}
-                                        </a>
-                                    {{/issessionstarted}}
                                 </div>
                             {{/initsession}}
+                            {{#issessionstarted}}
+                                <div
+                                     {{^hasactivesession}}data-action="init_session"{{/hasactivesession}}
+                                     data-sessionid="{{sessionid}}"
+                                >
+                                    <a href="{{startedssionurl}}">
+                                        + <span>{{stringsession}}</span>
+                                    </a>
+                                </div>
+                            {{/issessionstarted}}
+                            {{#hasconflict}}
+                                <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionconflict, mod_jqshow{{/str}}">
+                                    {{#pix}} i/danger, mod_jqshow {{/pix}}
+                                </span>
+                            {{/hasconflict}}
+                            {{#haswarning}}
+                                <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionwarning, mod_jqshow{{/str}}">
+                                    {{#pix}} i/warning, mod_jqshow {{/pix}}
+                                </span>
+                            {{/haswarning}}
                         </div>
                     </div>
                 {{/activesessions}}
@@ -143,11 +157,9 @@
                             {{/managesessions}}
                         </div>
                         <div class="d-table-cell viewreport-session">
-                            {{#initsession}}
-                                <a href="{{viewreporturl}}">
-                                    + <span>{{#str}}viewreport_session, mod_jqshow{{/str}}</span>
-                                </a>
-                            {{/initsession}}
+                            <a href="{{viewreporturl}}">
+                                + <span>{{#str}}viewreport_session, mod_jqshow{{/str}}</span>
+                            </a>
                         </div>
                     </div>
                 {{/endedsessions}}

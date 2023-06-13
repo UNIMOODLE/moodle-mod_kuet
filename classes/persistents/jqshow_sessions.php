@@ -229,6 +229,7 @@ class jqshow_sessions extends persistent {
      */
     public static function mark_session_started(int $sid): void {
         global $DB;
+        // TODO check operation, there is now a cron job that normalises this.
         // All open sessions end, ensuring that no more than one session is logged on.
         $activesession = $DB->get_records(self::TABLE, ['status' => 2]);
         foreach ($activesession as $active) {

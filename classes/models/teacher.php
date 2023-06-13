@@ -27,6 +27,7 @@ namespace mod_jqshow\models;
 
 use coding_exception;
 use context_course;
+use core\event\course_information_viewed;
 use dml_exception;
 use mod_jqshow\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -83,10 +84,12 @@ class teacher extends user {
                 $inactives[] = $ds;
             }
         }
+        $actives = $this->get_sessions_conflicts($actives);
         $data = new stdClass();
         $data->activesessions = $actives;
         $data->endedsessions = $inactives;
         $data->courseid = $jqshow->course->id;
+        $data->jqshowid = $jqshow->cm->instance;
         $data->cmid = $cmid;
         $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
         $data->hasactivesession = jqshow_sessions::get_active_session_id(($jqshow->get_jqshow())->id) !== 0;
@@ -122,16 +125,12 @@ class teacher extends user {
         $ds->questions_number = $questions->get_num_questions();
         $ds->managesessions = $managesessions;
         $ds->initsession = $initsession;
-        if ($questions->get_num_questions() === 0) {
-            $ds->initsession = false;
-        }
         $ds->initsessionurl =
             (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->viewreporturl =
             (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->editsessionurl =
             (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
-        $ds->date = '';
         $ds->status = $session->get('status');
         $ds->issessionstarted = $ds->status === 2;
         if ($ds->issessionstarted) {
@@ -140,19 +139,55 @@ class teacher extends user {
         }
         $ds->stringsession =
             $ds->status === 2 ? get_string('sessionstarted', 'mod_jqshow') : get_string('init_session', 'mod_jqshow');
-        // TODO detect active session, rename and lock them all.
-        $startdate = $session->get('startdate');
-        if ($startdate !== 0) {
-            $startdate = userdate($startdate, get_string('strftimedatetimeshort', 'core_langconfig'));
-            $ds->date = $startdate;
+        $ds->date = '';
+        if ($session->get('automaticstart') === 1) {
+            $ds->automaticstart = true;
+            $startdate = $session->get('startdate');
+            if ($startdate !== 0) {
+                $ds->startdate = $startdate;
+                $startdate = userdate($startdate, get_string('strftimedatetimeshort', 'core_langconfig'));
+                $ds->date = $startdate;
+            }
+            $enddate = $session->get('enddate');
+            if ($enddate !== 0) {
+                $ds->enddate = $enddate;
+                $enddate = userdate($enddate, get_string('strftimedatetimeshort', 'core_langconfig'));
+                $ds->date .= ' - ' . $enddate;
+            }
+            if ($ds->issessionstarted !== true && $ds->startdate < time() && $ds->enddate > time()) {
+                $ds->haswarning = true;
+            }
         }
-        $enddate = $session->get('enddate');
-        if ($enddate !== 0) {
-            $enddate = userdate($enddate, get_string('strftimedatetimeshort', 'core_langconfig'));
-            $ds->date .= ' - ' . $enddate;
+        if ($ds->date !== '' || $ds->issessionstarted === true || $questions->get_num_questions() === 0) {
+            $ds->initsession = false;
         }
-
         return $ds;
+    }
+
+    /**
+     * @param array $sessions
+     * @return array
+     */
+    private function get_sessions_conflicts(array $sessions): array {
+        foreach ($sessions as $key => $session) {
+            $timestamps[$key] = $session->startdate;
+        }
+        array_multisort($timestamps, SORT_ASC, $sessions);
+        foreach ($sessions as $session1) {
+            foreach ($sessions as $session2) {
+                if (($session1->automaticstart && $session2->automaticstart) && ($session1->sessionid !== $session2->sessionid)) {
+                    if ($session1->startdate < $session2->startdate && $session1->enddate > $session2->startdate) {
+                        $session2->hasconflict = true;
+                        $session2->initsession = false;
+                    }
+                    if ($session2->startdate < $session1->startdate && $session2->enddate > $session1->startdate) {
+                        $session1->hasconflict = true;
+                        $session1->initsession = false;
+                    }
+                }
+            }
+        }
+        return $sessions;
     }
 
     /**
