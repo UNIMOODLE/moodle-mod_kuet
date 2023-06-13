@@ -1,4 +1,4 @@
-<div data-region="reports" data-jqshowid="{{jqshowid}}" data-cmid="{{cmid}}">
+<div data-region="reports" data-jqshowid="{{jqshowid}}" data-cmid="{{cmid}}" class="position-relative">
     {{#allreports}}
         <h2>{{#str}}reports, mod_jqshow{{/str}}</h2>
         <small>{{#str}}reports_info, mod_jqshow{{/str}}</small>
@@ -7,6 +7,13 @@
         <h2>{{#str}}sessionreport, mod_jqshow{{/str}}</h2>
         <small>{{#str}}sessionreport_info, mod_jqshow{{/str}}</small>
     {{/onereport}}
+    {{#userreport}}
+        <h2>{{#str}}userreport, mod_jqshow{{/str}}</h2>
+        <small class="d-block mb-2">{{#str}}userreport_info, mod_jqshow{{/str}}</small>
+        <a class="btn btn-primary" href="{{backurl}}">
+            {{#str}}back{{/str}}
+        </a>
+    {{/userreport}}
     <div class="row">
         {{#allreports}}
             <div class="col-12 completed-sessions sessions-list">
@@ -61,5 +68,19 @@
                 {{> mod_jqshow/reports/teacher_ranking }}
             </div>
         {{/onereport}}
+        {{#userreport}}
+            <div class="col-12 col-lg-12 container">
+                <div class="resume-config">
+                    <h5 class="titlecontainer bg-primary">
+                        {{#pix}} i/settings, mod_jqshow {{/pix}}
+                        {{#str}}session_info, mod_jqshow{{/str}}
+                    </h5>
+                    {{> mod_jqshow/session/sessionresume }}
+                </div>
+            </div>
+            <div class="col-12 col-lg-12 container">
+                {{> mod_jqshow/reports/student_questions }}
+            </div>
+        {{/userreport}}
     </div>
 </div>

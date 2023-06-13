@@ -30,6 +30,7 @@ use mod_jqshow\jqshow;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
+use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
@@ -40,10 +41,19 @@ class teacher_reports implements renderable, templatable {
     public int $jqshowid;
     public int $cmid;
     public int $sid;
-    public function __construct(int $cmid, int $jqshowid, int $sid) {
+    public int $userid;
+
+    /**
+     * @param int $cmid
+     * @param int $jqshowid
+     * @param int $sid
+     * @param int $userid
+     */
+    public function __construct(int $cmid, int $jqshowid, int $sid, int $userid) {
         $this->jqshowid = $jqshowid;
         $this->cmid = $cmid;
         $this->sid = $sid;
+        $this->userid = $userid;
     }
 
     /**
@@ -59,7 +69,7 @@ class teacher_reports implements renderable, templatable {
         if ($this->sid === 0) {
             $data->allreports = true;
             $data->endedsessions = $jqshow->get_completed_sessions();
-        } else {
+        } else if ($this->userid === 0) {
             $data->onereport = true;
             $session = new jqshow_sessions($this->sid);
             $mode = $session->get('sessionmode');
@@ -68,7 +78,13 @@ class teacher_reports implements renderable, templatable {
             }
             $data->config = sessions::get_session_config($this->sid);
             $data->sessionquestions = reports::get_questions_data_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
-            $data->rankingusers = reports::get_ranking_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
+            $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
+        } else {
+            $data->userreport = true;
+            $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $this->cmid, 'sid' => $this->sid]))->out(false);
+            $data->config = sessions::get_session_config($this->sid);
+            $data->sessionquestions =
+                reports::get_questions_data_for_user_report($this->jqshowid, $this->cmid, $this->sid, $this->userid);
         }
 
         return $data;

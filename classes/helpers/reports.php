@@ -77,37 +77,21 @@ class reports {
                 'jqid' => $question->get('id'),
                 'result' => questions::NORESPONSE
             ]);
-            switch ($session->get('timemode')) {
-                case sessions::NO_TIME:
-                default:
-                    $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
-                    break;
-                case sessions::SESSION_TIME:
-                    $numquestion = jqshow_questions::count_records(
-                        ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
-                    );
-                    $timeperquestion = round((int)$session->get('sessiontime') / $numquestion);
-                    $data->time = ($timeperquestion > 0) ? $timeperquestion . 's' : '-';
-                    break;
-                case sessions::QUESTION_TIME:
-                    $data->time =
-                        ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : $session->get('questiontime') . 's';
-                    break;
-            }
-
+            $data->time = self::get_time_string($session, $question);
             $questionsdata[] = $data;
         }
         return $questionsdata;
     }
 
     /**
-     * @param int $jqshowid
      * @param int $cmid
      * @param int $sid
      * @return array
+     * @throws coding_exception
+     * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_ranking_for_teacher_report(int $jqshowid, int $cmid, int $sid): array {
+    public static function get_ranking_for_teacher_report(int $cmid, int $sid): array {
         global $DB, $PAGE;
         $results = sessions::get_session_results($sid, $cmid);
         foreach ($results as $user) {
@@ -122,6 +106,82 @@ class reports {
             }
         }
         return $results;
+    }
+
+    /**
+     * @param int $jqshowid
+     * @param int $cmid
+     * @param int $sid
+     * @param int $userid
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function get_questions_data_for_user_report(int $jqshowid, int $cmid, int $sid, int $userid): array {
+        global $DB;
+        $session = new jqshow_sessions($sid);
+        $questions = (new questions($jqshowid, $cmid, $sid))->get_list();
+        $questionsdata = [];
+        foreach ($questions as $question) {
+            $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
+            $response = jqshow_questions_responses::get_record([
+                'jqshow' => $jqshowid,
+                'session' => $sid,
+                'jqid' => $question->get('id'),
+                'userid' => $userid,
+            ]);
+            $data = new stdClass();
+            $data->questionnid = $question->get('id');
+            $data->position = $question->get('qorder');
+            $data->name = $questiondb->name;
+            $data->type = $question->get('qtype');
+            if ($response === false) {
+                $data->response = 'noresponse';
+            } else {
+                switch ($response->get('result')) {
+                    case questions::FAILURE:
+                        $data->response = 'failure';
+                        $data->responsestr = get_string('failure', 'mod_jqshow');
+                        break;
+                    case questions::SUCCESS:
+                        $data->response = 'success';
+                        $data->responsestr = get_string('success', 'mod_jqshow');
+                        break;
+                    case questions::NORESPONSE:
+                    default:
+                        $data->response = 'noresponse';
+                        $data->responsestr = get_string('noresponse', 'mod_jqshow');
+                        break;
+                    case questions::NOTEVALUABLE:
+                        $data->response = 'noevaluable';
+                        $data->responsestr = get_string('noevaluable', 'mod_jqshow');
+                        break;
+                    case questions::INVALID:
+                        $data->response = 'invalid';
+                        $data->responsestr = get_string('invalid', 'mod_jqshow');
+                        break;
+                }
+            }
+            $data->time = self::get_time_string($session, $question);
+            $questionsdata[] = $data;
+        }
+        return $questionsdata;
+    }
+
+    public static function get_time_string(jqshow_sessions $session, jqshow_questions $question): string {
+        switch ($session->get('timemode')) {
+            case sessions::NO_TIME:
+            default:
+                return ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
+            case sessions::SESSION_TIME:
+                $numquestion = jqshow_questions::count_records(
+                    ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
+                );
+                $timeperquestion = round((int)$session->get('sessiontime') / $numquestion);
+                return ($timeperquestion > 0) ? $timeperquestion . 's' : '-';
+            case sessions::QUESTION_TIME:
+                return ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : $session->get('questiontime') . 's';
+        }
     }
 
 }
