@@ -149,7 +149,7 @@ MultiChoice.prototype.answered = function(response) {
             setTimeout(function() {
                 let contentHeight = jQuery(REGION.MULTICHOICE).outerHeight();
                 jQuery(REGION.FEEDBACKBACGROUND).css('height', contentHeight + 'px');
-            }, 15);
+            }, 100);
         });
     }
 };

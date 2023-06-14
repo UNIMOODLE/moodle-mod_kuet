@@ -53,6 +53,8 @@ TeacherControlPanel.prototype.initControlPanel = function() {
     this.root.find(ACTION.ENDSESSION).on('click', this.endsession);
 };
 
+// TODO prevent default and stop propagations.
+
 TeacherControlPanel.prototype.next = function() {
     dispatchEvent(nextEvent);
 };

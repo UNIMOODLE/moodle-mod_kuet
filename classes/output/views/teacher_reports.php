@@ -35,6 +35,7 @@ use renderable;
 use renderer_base;
 use stdClass;
 use templatable;
+use user_picture;
 
 class teacher_reports implements renderable, templatable {
 
@@ -62,6 +63,7 @@ class teacher_reports implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+        global $DB, $PAGE;
         $jqshow = new jqshow($this->cmid);
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
@@ -81,6 +83,12 @@ class teacher_reports implements renderable, templatable {
             $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
         } else {
             $data->userreport = true;
+            $userdata = $DB->get_record('user', ['id' => $this->userid]);
+            $userpicture = new user_picture($userdata);
+            $userpicture->size = 1;
+            $data->userimage = $userpicture->get_url($PAGE)->out(false);
+            $data->userfullname = $userdata->firstname . ' ' . $userdata->lastname;
+            $data->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $this->userid]))->out(false);
             $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $this->cmid, 'sid' => $this->sid]))->out(false);
             $data->config = sessions::get_session_config($this->sid);
             $data->sessionquestions =

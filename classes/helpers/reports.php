@@ -29,6 +29,7 @@ use coding_exception;
 use dml_exception;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -52,6 +53,8 @@ class reports {
         $session = new jqshow_sessions($sid);
         $questions = (new questions($jqshowid, $cmid, $sid))->get_list();
         $questionsdata = [];
+        $jqshow = new jqshow($jqshowid);
+        $users = enrol_get_course_users($jqshow->get('course'), true);
         foreach ($questions as $question) {
             $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
             $data = new stdClass();
@@ -71,12 +74,7 @@ class reports {
                 'jqid' => $question->get('id'),
                 'result' => questions::FAILURE
             ]);
-            $data->noresponse = jqshow_questions_responses::count_records([
-                'jqshow' => $jqshowid,
-                'session' => $sid,
-                'jqid' => $question->get('id'),
-                'result' => questions::NORESPONSE
-            ]);
+            $data->noresponse = count($users) - ($data->success + $data->failures);
             $data->time = self::get_time_string($session, $question);
             $questionsdata[] = $data;
         }
@@ -137,6 +135,7 @@ class reports {
             $data->type = $question->get('qtype');
             if ($response === false) {
                 $data->response = 'noresponse';
+                $data->responsestr = get_string('noresponse', 'mod_jqshow');
             } else {
                 switch ($response->get('result')) {
                     case questions::FAILURE:
@@ -163,11 +162,20 @@ class reports {
                 }
             }
             $data->time = self::get_time_string($session, $question);
+            $data->cmid = $cmid;
+            $data->sessionid = $sid;
+            $data->userid = $userid;
             $questionsdata[] = $data;
         }
         return $questionsdata;
     }
 
+    /**
+     * @param jqshow_sessions $session
+     * @param jqshow_questions $question
+     * @return string
+     * @throws coding_exception
+     */
     public static function get_time_string(jqshow_sessions $session, jqshow_questions $question): string {
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:

@@ -15,7 +15,7 @@ let REGION = {
 
 let SERVICES = {
     SESSIONFIINISHED: 'mod_jqshow_sessionfinished',
-    USERQUESTIONRESPONSE: 'mod_jqshow_session_getuserquestionresponse'
+    USERQUESTIONRESPONSE: 'mod_jqshow_getuserquestionresponse'
 };
 
 let TEMPLATES = {
@@ -141,18 +141,15 @@ Sockets.prototype.initSockets = function() {
                         args: {
                             jqid: response.context.jqid,
                             cmid: cmid,
-                            sid: sid
+                            sid: sid,
+                            uid: 0
                         }
                     };
                     Ajax.call([request])[0].done(function(answer) {
-                        // eslint-disable-next-line no-console
-                        console.log(answer, response.context.value);
                         const questionData = {
                             ...response.context.value,
                             ...answer
                         };
-                        // eslint-disable-next-line no-console
-                        console.log(questionData);
                         Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
                             identifier.html(html);
                             Templates.runTemplateJS(js);

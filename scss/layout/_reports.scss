@@ -1,4 +1,42 @@
 body#page-mod-jqshow-reports.jqshow-reports {
+    .content-info {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: center;
+        .participant {
+            display: flex;
+            flex-flow: row nowrap;
+            border-radius: 34px;
+            justify-content: flex-start;
+            align-items: center;
+            height: 70px;
+            margin: 0;
+            a {
+                &:hover {
+                    text-decoration: none !important;
+                    cursor: pointer;
+                    span {
+                        text-decoration: none;
+                    }
+                }
+            }
+            img {
+                border-radius: 50%;
+                height: 70px;
+                width: auto;
+                margin-right: 10px;
+            }
+            .user-fullname {
+                font-size: 24px;
+                color: black;
+                margin-right: 8px;
+            }
+        }
+        .back-report {
+
+        }
+    }
     .sessions-list {
         margin-top: 25px;
         padding: 0;

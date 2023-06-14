@@ -54,7 +54,8 @@ class getuserquestionresponse_external extends external_api {
             [
                 'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
-                'sid' => new external_value(PARAM_INT, 'session id')
+                'sid' => new external_value(PARAM_INT, 'session id'),
+                'uid' => new external_value(PARAM_INT, 'user id', VALUE_OPTIONAL)
             ]
         );
     }
@@ -63,21 +64,23 @@ class getuserquestionresponse_external extends external_api {
      * @param int $jqid
      * @param int $cmid
      * @param int $sid
+     * @param int $uid
      * @return array
      * @throws JsonException
      * @throws coding_exception
-     * @throws invalid_persistent_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function getuserquestionresponse(int $jqid, int $cmid, int $sid): array {
+    public static function getuserquestionresponse(int $jqid, int $cmid, int $sid, int $uid = 0): array {
         self::validate_parameters(
             self::getuserquestionresponse_parameters(),
-            ['jqid' => $jqid, 'cmid' => $cmid, 'sid' => $sid]
+            ['jqid' => $jqid, 'cmid' => $cmid, 'sid' => $sid, 'uid' => $uid]
         );
         global $USER;
-        $response = jqshow_questions_responses::get_question_response_for_user($USER->id, $sid, $jqid);
+        $userid = $uid === 0 ? $USER->id : $uid;
+        $response = jqshow_questions_responses::get_question_response_for_user($userid, $sid, $jqid);
         if ($response !== false) {
             $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
             $data = new stdClass();

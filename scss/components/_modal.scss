@@ -1,0 +1,37 @@
+.modal.show {
+    .modal_jqshow {
+        max-width: 95%;
+        .modal-content {
+            border-radius: 15px;
+            padding: 20px;
+            .modal_jqshow_header {
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: none;
+                padding: 0;
+                margin-bottom: 1em;
+                .modal-title {
+                    font-size: 23px;
+                    font-weight: normal !important;
+                    display: flex;
+                    flex-flow: row nowrap;
+                    justify-content: flex-start;
+                    align-items: center;
+                    .icon {
+                        height: 20px;
+                        width: auto;
+                        margin-right: 1em;
+                    }
+                }
+            }
+            .modal-body {
+                padding: 0;
+                .question-fullscreen {
+                    display: none;
+                }
+            }
+        }
+    }
+}

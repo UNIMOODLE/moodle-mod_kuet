@@ -56,7 +56,7 @@ if ($isteacher) {
     $PAGE->add_body_classes(['jqshow-reports', 'jqshow-reports jqshow-teacher-reports']);
     $view = new teacher_reports($cmid, $jqshow->get('id'), $sid, $userid);
 } else {
-    if ($userid !== $USER->id) {
+    if ($userid !== 0 && $userid !== $USER->id) {
         throw new moodle_exception('otheruserreport', 'mod_jqshow');
     }
     $PAGE->add_body_classes(['jqshow-reports', 'jqshow-student-reports']);

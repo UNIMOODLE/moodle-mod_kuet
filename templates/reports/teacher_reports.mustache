@@ -10,46 +10,10 @@
     {{#userreport}}
         <h2>{{#str}}userreport, mod_jqshow{{/str}}</h2>
         <small class="d-block mb-2">{{#str}}userreport_info, mod_jqshow{{/str}}</small>
-        <a class="btn btn-primary" href="{{backurl}}">
-            {{#str}}back{{/str}}
-        </a>
     {{/userreport}}
     <div class="row">
         {{#allreports}}
-            <div class="col-12 completed-sessions sessions-list">
-                <div class="sessions-list-header bg-primary">
-                    <div class="sessions-list-header-title">
-                        {{#pix}} i/sessions_list, mod_jqshow {{/pix}}
-                        <h5>{{#str}}completed_sessions, mod_jqshow{{/str}}</h5>
-                    </div>
-                </div>
-                <div class="sessions-list-body d-table">
-                    <div class="d-table-row sessions-list-thead">
-                        <div class="d-table-cell">{{#str}}session_name, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell">{{#str}}sessionmode, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell">{{#str}}timemode, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}sessiontime, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}questions_number, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}session_date, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell"></div>
-                    </div>
-                    {{#endedsessions}}
-                        <div class="d-table-row sessions-list-data">
-                            <div class="d-table-cell">{{name}}</div>
-                            <div class="d-table-cell">{{sessionmode}}</div>
-                            <div class="d-table-cell">{{timemode}}</div>
-                            <div class="d-table-cell text-center">{{sessiontime}}</div>
-                            <div class="d-table-cell text-center">{{questions_number}}</div>
-                            <div class="d-table-cell text-center">{{date}}</div>
-                            <div class="d-table-cell viewreport-session">
-                                <a href="{{viewreporturl}}">
-                                    + <span>{{#str}}viewreport_session, mod_jqshow{{/str}}</span>
-                                </a>
-                            </div>
-                        </div>
-                    {{/endedsessions}}
-                </div>
-            </div>
+            {{> mod_jqshow/reports/allreports }}
         {{/allreports}}
         {{#onereport}}
             <div class="col-12 col-lg-12 container">
@@ -69,6 +33,24 @@
             </div>
         {{/onereport}}
         {{#userreport}}
+            <div class="col-12 col-lg-12 container mt-3">
+                <div class="content-info">
+                    <div class="participant" data-userid="{{userid}}">
+                        <a href="{{userprofileurl}}" target="_blank">
+                            <img src="{{userimage}}" alt="{{userfullname}}">
+                            <span class="user-fullname">
+                                {{userfullname}}
+                            </span>
+                        </a>
+                    </div>
+                    <a class="btn btn-primary back-report" href="{{backurl}}">
+                        {{#str}}back{{/str}}
+                    </a>
+                </div>
+            </div>
+            <div class="col-12 col-lg-12 container">
+                {{> mod_jqshow/reports/student_questions }}
+            </div>
             <div class="col-12 col-lg-12 container">
                 <div class="resume-config">
                     <h5 class="titlecontainer bg-primary">
@@ -77,9 +59,6 @@
                     </h5>
                     {{> mod_jqshow/session/sessionresume }}
                 </div>
-            </div>
-            <div class="col-12 col-lg-12 container">
-                {{> mod_jqshow/reports/student_questions }}
             </div>
         {{/userreport}}
     </div>

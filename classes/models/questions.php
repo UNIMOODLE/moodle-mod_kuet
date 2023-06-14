@@ -174,13 +174,23 @@ class questions {
                 );
                 if ($progress !== false) {
                     $dataprogress = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
-                    $dataorder = explode(',', $dataprogress->questionsorder);
-                    $order = (int)array_search($dataprogress->currentquestion, $dataorder, false);
+                    if (!isset($dataprogress->endSession)) {
+                        $dataorder = explode(',', $dataprogress->questionsorder);
+                        $order = (int)array_search($dataprogress->currentquestion, $dataorder, false);
+                        $a = new stdClass();
+                        $a->num = $order + 1;
+                        $a->total = $numsessionquestions;
+                        $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+                        $data->sessionprogress = round(($order + 1) * 100 / $numsessionquestions);
+                    }
+                }
+                if (!isset($data->question_index_string)) {
+                    $order = $jqshowquestion->get('qorder');
                     $a = new stdClass();
-                    $a->num = $order + 1;
+                    $a->num = $order;
                     $a->total = $numsessionquestions;
                     $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
-                    $data->sessionprogress = round(($order + 1) * 100 / $numsessionquestions);
+                    $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 }
                 break;
             case sessions::INACTIVE_MANUAL:

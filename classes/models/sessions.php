@@ -513,16 +513,14 @@ class sessions {
                 );
                 $correctanswers = 0;
                 $incorrectanswers = 0;
-                $notanswers = 0;
                 foreach ($answers as $answer) {
                     if ($answer->get('result') === 1) {
                         $correctanswers++;
-                    } else if ($answer->get('result') === 2) {
-                        $notanswers++;
-                    } else {
+                    } else if ($answer->get('result') === 0) {
                         $incorrectanswers++;
                     }
                 }
+                $notanswers = count($questions) - ($correctanswers + $incorrectanswers);
                 $student = new stdClass();
                 $student->id = $user->id;
                 $student->userid = $user->id;
@@ -583,6 +581,7 @@ class sessions {
         }
         if (!isset($data->automaticstart) || $data->automaticstart === 0) {
             $data->startdate = 0;
+            $data->enddate = 0;
         }
         $session = new jqshow_sessions($id, $data);
         if ($update) {

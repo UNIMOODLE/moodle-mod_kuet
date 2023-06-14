@@ -1,4 +1,4 @@
-<div class="questions-list">
+<div class="questions-list" data-region="question-list">
     <h5 class="titlecontainer bg-primary">
         {{#pix}} i/questions_list, mod_jqshow {{/pix}}
         {{#str}}questions, mod_jqshow{{/str}}
@@ -25,7 +25,7 @@
                     <div class="d-table-cell text-center">{{type}}</div>
                     <div class="d-table-cell text-center">{{time}}</div>
                     <div class="d-table-cell text-center viewquestion">
-                        <div data-userid="{{userid}}" data-sessionid="{{sessionid}}" data-questionnid="{{questionnid}}">
+                        <div data-action="seeanswer" data-userid="{{userid}}" data-sessionid="{{sessionid}}" data-questionnid="{{questionnid}}" data-cmid="{{cmid}}">
                             + <span>{{#str}}viewquestion_user, mod_jqshow{{/str}}</span>
                         </div>
                     </div>
@@ -34,3 +34,9 @@
         </div>
     </div>
 </div>
+
+{{#js}}
+    require(['mod_jqshow/user_report'], function(userReport) {
+        userReport.userReport('[data-region="question-list"]');
+    });
+{{/js}}
