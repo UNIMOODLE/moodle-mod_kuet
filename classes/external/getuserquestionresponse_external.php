@@ -36,6 +36,7 @@ use external_value;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\models\questions;
+use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use moodle_exception;
 use stdClass;
@@ -81,20 +82,33 @@ class getuserquestionresponse_external extends external_api {
         global $USER;
         $userid = $uid === 0 ? $USER->id : $uid;
         $response = jqshow_questions_responses::get_question_response_for_user($userid, $sid, $jqid);
+        $data = new stdClass();
+        $data->sessionid = $sid;
+        $data->cmid = $cmid;
         if ($response !== false) {
-            $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-            $data = new stdClass();
-            $data->sessionid = $sid;
-            $data->jqshowid = $jqid;
-            $data->cmid = $cmid;
-            switch ($other->type) {
-                case 'multichoice':
-                    return (array)questions::export_multichoice_response($data, $response->get('response'));
-                default:
-                    return [];
-            }
+            $json = $response->get('response');
+            $other = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+            $data->jqshowid = $response->get('jqshow');
+        } else if ($uid !== 0) { // It is a response review, where there is no response for the user. Mock required.
+            $question = new jqshow_questions($jqid);
+            $other = new stdClass();
+            $other->questionid = $question->get('questionid');
+            $other->hasfeedbacks = false;
+            $other->correct_answers = '';
+            $other->answerid = 0;
+            $other->timeleft = 0;
+            $other->type = $question->get('qtype');
+            $json = json_encode($other, JSON_THROW_ON_ERROR);
+            $data->jqshowid = $question->get('jqshowid');
+        } else {
+            return [];
         }
-        return [];
+        switch ($other->type) {
+            case 'multichoice':
+                return (array)questions::export_multichoice_response($data, $json);
+            default:
+                return [];
+        }
     }
 
     /**

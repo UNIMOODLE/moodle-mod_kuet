@@ -78,11 +78,14 @@ class teacher_reports implements renderable, templatable {
             if ($mode !== sessions::INACTIVE_PROGRAMMED || $mode !== sessions::INACTIVE_MANUAL) {
                 $data->showfinalranking = true;
             }
+            $data->sessionname = $session->get('name');
             $data->config = sessions::get_session_config($this->sid);
             $data->sessionquestions = reports::get_questions_data_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
             $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
         } else {
+            $session = new jqshow_sessions($this->sid);
             $data->userreport = true;
+            $data->sessionname = $session->get('name');
             $userdata = $DB->get_record('user', ['id' => $this->userid]);
             $userpicture = new user_picture($userdata);
             $userpicture->size = 1;

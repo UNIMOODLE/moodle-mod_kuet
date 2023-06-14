@@ -27,6 +27,7 @@ namespace mod_jqshow\helpers;
 
 use coding_exception;
 use dml_exception;
+use JsonException;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow;
@@ -112,6 +113,7 @@ class reports {
      * @param int $sid
      * @param int $userid
      * @return array
+     * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
      */
@@ -133,41 +135,78 @@ class reports {
             $data->position = $question->get('qorder');
             $data->name = $questiondb->name;
             $data->type = $question->get('qtype');
+            $questiontimestr = self::get_time_string($session, $question);
             if ($response === false) {
                 $data->response = 'noresponse';
                 $data->responsestr = get_string('noresponse', 'mod_jqshow');
+                $data->time = $questiontimestr . ' / ' . $questiontimestr; // Or 0?
             } else {
                 switch ($response->get('result')) {
                     case questions::FAILURE:
                         $data->response = 'failure';
                         $data->responsestr = get_string('failure', 'mod_jqshow');
+                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                     case questions::SUCCESS:
                         $data->response = 'success';
                         $data->responsestr = get_string('success', 'mod_jqshow');
+                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                     case questions::NORESPONSE:
                     default:
                         $data->response = 'noresponse';
                         $data->responsestr = get_string('noresponse', 'mod_jqshow');
+                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                     case questions::NOTEVALUABLE:
                         $data->response = 'noevaluable';
                         $data->responsestr = get_string('noevaluable', 'mod_jqshow');
+                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                     case questions::INVALID:
                         $data->response = 'invalid';
                         $data->responsestr = get_string('invalid', 'mod_jqshow');
+                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                 }
             }
-            $data->time = self::get_time_string($session, $question);
             $data->cmid = $cmid;
             $data->sessionid = $sid;
             $data->userid = $userid;
             $questionsdata[] = $data;
         }
         return $questionsdata;
+    }
+
+    /**
+     * @param jqshow_sessions $session
+     * @param jqshow_questions $question
+     * @param jqshow_questions_responses $response
+     * @return string
+     * @throws JsonException
+     * @throws coding_exception
+     */
+    public static function get_user_time_in_question(
+        jqshow_sessions $session, jqshow_questions $question, jqshow_questions_responses $response
+    ) {
+        $responsedata = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+        $usertimelast = $responsedata->timeleft;
+        switch ($session->get('timemode')) {
+            case sessions::NO_TIME:
+            default:
+                $questiontime = ($question->get('timelimit') > 0) ? $question->get('timelimit') : 0;
+                break;
+            case sessions::SESSION_TIME:
+                $numquestion = jqshow_questions::count_records(
+                    ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
+                );
+                $questiontime = round((int)$session->get('sessiontime') / $numquestion);
+                break;
+            case sessions::QUESTION_TIME:
+                $questiontime = ($question->get('timelimit') > 0) ? $question->get('timelimit') : $session->get('questiontime');
+        }
+        $usertime = ($questiontime - $usertimelast) !== 0 ? ($questiontime - $usertimelast) : 1;
+        return $usertime . 's / ' . $questiontime . 's';
     }
 
     /**

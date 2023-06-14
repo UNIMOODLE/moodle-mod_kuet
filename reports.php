@@ -23,6 +23,7 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\output\notification;
 use mod_jqshow\output\views\student_reports;
 use mod_jqshow\output\views\teacher_reports;
 use mod_jqshow\persistents\jqshow;
@@ -56,11 +57,15 @@ if ($isteacher) {
     $PAGE->add_body_classes(['jqshow-reports', 'jqshow-reports jqshow-teacher-reports']);
     $view = new teacher_reports($cmid, $jqshow->get('id'), $sid, $userid);
 } else {
-    if ($userid !== 0 && $userid !== $USER->id) {
+    if ((int)$userid !== 0 && (int)$userid !== (int)$USER->id) {
+        redirect(
+            (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid, 'userid' => $USER->id]))->out(false),
+            null, notification::NOTIFY_ERROR
+        );
         throw new moodle_exception('otheruserreport', 'mod_jqshow');
     }
     $PAGE->add_body_classes(['jqshow-reports', 'jqshow-student-reports']);
-    $view = new student_reports($cm->id, $jqshow->get('id'), $sid, $USER->id);
+    $view = new student_reports($cm->id, $jqshow->get('id'), $sid);
 }
 
 $output = $PAGE->get_renderer('mod_jqshow');

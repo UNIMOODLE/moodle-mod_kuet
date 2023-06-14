@@ -305,8 +305,8 @@ class questions {
                 $data->qtype = 'endsession';
                 $data->endsession = true;
                 $data->courselink = (new moodle_url('/course/view.php', ['id' => $jqshow->get('course')]))->out(false);
-                // TODO complete where reports are available.
-                $data->reportlink = (new moodle_url('/', ['user' => $USER->id, 'session' => $sessionid]))->out(false);
+                $data->reportlink = (new moodle_url('/mod/jqshow/reports.php',
+                    ['cmid' => $cmid, 'sid' => $sessionid, 'userid' => $USER->id]))->out(false);
                 break;
             case sessions::PODIUM_PROGRAMMED:
             case sessions::PODIUM_MANUAL:

@@ -3,10 +3,10 @@
         <h2>{{#str}}reports, mod_jqshow{{/str}}</h2>
         <small>{{#str}}reports_info, mod_jqshow{{/str}}</small>
     {{/allreports}}
-    {{#onereport}}
-        <h2>{{#str}}sessionreport, mod_jqshow{{/str}}</h2>
-        <small>{{#str}}sessionreport_info, mod_jqshow{{/str}}</small>
-    {{/onereport}}
+    {{#userreport}}
+        <h2>{{#str}}userreport, mod_jqshow{{/str}} - {{sessionname}}</h2>
+        <small class="d-block mb-2">{{#str}}userreport_info, mod_jqshow{{/str}}</small>
+    {{/userreport}}
     <div class="row">
         <div class="col-12 completed-sessions sessions-list">
             {{#allreports}}
@@ -43,6 +43,26 @@
                     {{/endedsessions}}
                 </div>
             {{/allreports}}
+            {{#userreport}}
+                <div class="col-12 col-lg-12 container mt-3">
+                    <div class="content-info">
+                        <div class="participant" data-userid="{{userid}}">
+                            <a href="{{userprofileurl}}" target="_blank">
+                                <img src="{{userimage}}" alt="{{userfullname}}">
+                                <span class="user-fullname">
+                                    {{userfullname}}
+                                </span>
+                            </a>
+                        </div>
+                        <a class="btn btn-primary back-report" href="{{backurl}}">
+                            {{#str}}back{{/str}}
+                        </a>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-12 container">
+                    {{> mod_jqshow/reports/student_questions }}
+                </div>
+            {{/userreport}}
         </div>
     </div>
 </div>
