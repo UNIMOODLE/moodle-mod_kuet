@@ -46,6 +46,9 @@ body#page-mod-jqshow-view {
                                 }
                                 .sessions-list-data {
                                     font-weight: normal;
+                                    &:nth-child(even) {
+                                        background-color: rgba(0,0,0,.03);
+                                    }
                                     &.session-started {
                                         background-color: #d7e4d6;
                                         color: #1c3f1a;

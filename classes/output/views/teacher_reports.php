@@ -96,6 +96,29 @@ class teacher_reports implements renderable, templatable {
             $data->config = sessions::get_session_config($this->sid);
             $data->sessionquestions =
                 reports::get_questions_data_for_user_report($this->jqshowid, $this->cmid, $this->sid, $this->userid);
+            $data->numquestions = count($data->sessionquestions);
+            $data->noresponse = 0;
+            $data->success = 0;
+            $data->failures = 0;
+            $data->noevaluable = 0;
+            foreach ($data->sessionquestions as $question) {
+                switch ($question->response) {
+                    case 'failure':
+                        $data->failures++;
+                        break;
+                    case 'success':
+                        $data->success++;
+                        break;
+                    case 'noresponse':
+                        $data->noresponse++;
+                        break;
+                    case 'noevaluable':
+                        $data->noevaluable++;
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
 
         return $data;

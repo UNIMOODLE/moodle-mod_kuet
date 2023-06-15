@@ -160,6 +160,9 @@ body#page-mod-jqshow-reports.jqshow-reports {
                 .questions-list-data,
                 .ranking-users-data {
                     font-weight: normal;
+                    &:nth-child(even) {
+                        background-color: rgba(0,0,0,.03);
+                    }
                     .d-table-cell {
                         border-top: 1px solid #EDEBF4;
                         color: #929292 !important;
@@ -254,5 +257,8 @@ body#page-mod-jqshow-reports.jqshow-reports {
                 }
             }
         }
+    }
+    .alert {
+        border-radius: unset;
     }
 }

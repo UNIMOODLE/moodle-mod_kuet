@@ -130,6 +130,9 @@ body#page-mod-jqshow-view {
                     .questions-list-data {
                         font-weight: normal;
                         background-color: white;
+                        &:nth-child(even) {
+                            background-color: rgba(0,0,0,.03);
+                        }
                         .isvalid {
                             text-align: center;
                         }

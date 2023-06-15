@@ -76,9 +76,32 @@ class student_reports implements renderable, templatable {
             $data->userimage = $userpicture->get_url($PAGE)->out(false);
             $data->userfullname = $userdata->firstname . ' ' . $userdata->lastname;
             $data->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $USER->id]))->out(false);
-            $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $this->cmid, 'sid' => $this->sid]))->out(false);
+            $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $this->cmid]))->out(false);
             $data->sessionquestions =
                 reports::get_questions_data_for_user_report($this->jqshowid, $this->cmid, $this->sid, $USER->id);
+            $data->numquestions = count($data->sessionquestions);
+            $data->noresponse = 0;
+            $data->success = 0;
+            $data->failures = 0;
+            $data->noevaluable = 0;
+            foreach ($data->sessionquestions as $question) {
+                switch ($question->response) {
+                    case 'failure':
+                        $data->failures++;
+                        break;
+                    case 'success':
+                        $data->success++;
+                        break;
+                    case 'noresponse':
+                        $data->noresponse++;
+                        break;
+                    case 'noevaluable':
+                        $data->noevaluable++;
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
         return $data;
     }

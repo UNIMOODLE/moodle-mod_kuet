@@ -68,13 +68,10 @@ UserReport.prototype.seeAnswer = function(e) {
                 }
             };
             Ajax.call([requestAnswer])[0].done(function(answer) {
-                // TODO if no response is saved, mockear noresponse.
                 const questionData = {
                     ...question,
                     ...answer
                 };
-                // eslint-disable-next-line no-console
-                console.log(questionData);
                 Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
                     ModalFactory.create({
                         classes: 'modal_jqshow',

@@ -25,10 +25,10 @@
                     {{> mod_jqshow/session/sessionresume }}
                 </div>
             </div>
-            <div class="col-12 col-lg-12 container">
+            <div class="col-12 col-lg-6 container">
                 {{> mod_jqshow/reports/teacher_questions }}
             </div>
-            <div class="col-12 col-lg-12 container">
+            <div class="col-12 col-lg-6 container">
                 {{> mod_jqshow/reports/teacher_ranking }}
             </div>
         {{/onereport}}
@@ -46,6 +46,23 @@
                     <a class="btn btn-primary back-report" href="{{backurl}}">
                         {{#str}}back{{/str}}
                     </a>
+                </div>
+            </div>
+            <div class="d-flex flex-row justify-content-center w-100 mt-4">
+                <div class="alert alert-info rounded-left mb-0" role="alert">
+                    <b>{{#str}}questions_number, mod_jqshow{{/str}}:</b> {{ numquestions }}
+                </div>
+                <div class="alert alert-success rounded-0 mb-0" role="alert">
+                    <b>{{#str}}success, mod_jqshow{{/str}}:</b> {{ success }}
+                </div>
+                <div class="alert alert-danger rounded-0 mb-0" role="alert">
+                    <b>{{#str}}failures, mod_jqshow{{/str}}:</b> {{ failures }}
+                </div>
+                <div class="alert alert-warning rounded-0 mb-0" role="alert">
+                    <b>{{#str}}noresponse, mod_jqshow{{/str}}:</b> {{ noresponse }}
+                </div>
+                <div class="alert alert-dark rounded-right mb-0" role="alert">
+                    <b>{{#str}}noevaluable, mod_jqshow{{/str}}:</b> {{ noevaluable }}
                 </div>
             </div>
             <div class="col-12 col-lg-12 container">
