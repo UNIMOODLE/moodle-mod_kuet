@@ -258,6 +258,35 @@ body#page-mod-jqshow-reports.jqshow-reports {
             }
         }
     }
+    .question-report {
+        margin-top: 1em;
+        .question-preview {
+            width: 125px;
+            height: 32px;
+            color: white;
+            background-color: black;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 8px auto;
+            &:hover {
+                cursor: pointer;
+                text-decoration: none;
+            }
+        }
+        .card {
+            &.correct {
+                background-color: #d7e4d6;
+            }
+            &.incorrect {
+                background-color: #f4d6d2;
+            }
+            &.partial {
+                background-color: #fcefdc;
+            }
+        }
+    }
     .alert {
         border-radius: unset;
     }
