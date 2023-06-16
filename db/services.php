@@ -30,6 +30,7 @@ use mod_jqshow\external\finishsession_external;
 use mod_jqshow\external\firstquestion_external;
 use mod_jqshow\external\getactivesession_external;
 use mod_jqshow\external\getlistresults_external;
+use mod_jqshow\external\getquestion_external;
 use mod_jqshow\external\getuserquestionresponse_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
@@ -217,10 +218,18 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
-    'mod_jqshow_session_getuserquestionresponse' => [
+    'mod_jqshow_getuserquestionresponse' => [
         'classname' => getuserquestionresponse_external::class,
         'methodname' => 'getuserquestionresponse',
         'description' => 'Get context or response for one user.',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getquestion' => [
+        'classname' => getquestion_external::class,
+        'methodname' => 'getquestion',
+        'description' => 'Get question.',
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
@@ -250,7 +259,8 @@ $services = [
             'mod_jqshow_activesession',
             'mod_jqshow_getactivesession',
             'mod_jqshow_session_getallquestions',
-            'mod_jqshow_session_getuserquestionresponse'
+            'mod_jqshow_getuserquestionresponse',
+            'mod_jqshow_getquestion'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

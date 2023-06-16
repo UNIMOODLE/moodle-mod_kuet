@@ -1,0 +1,264 @@
+body#page-mod-jqshow-reports.jqshow-reports {
+    .content-info {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: center;
+        .participant {
+            display: flex;
+            flex-flow: row nowrap;
+            border-radius: 34px;
+            justify-content: flex-start;
+            align-items: center;
+            height: 70px;
+            margin: 0;
+            a {
+                &:hover {
+                    text-decoration: none !important;
+                    cursor: pointer;
+                    span {
+                        text-decoration: none;
+                    }
+                }
+            }
+            img {
+                border-radius: 50%;
+                height: 70px;
+                width: auto;
+                margin-right: 10px;
+            }
+            .user-fullname {
+                font-size: 24px;
+                color: black;
+                margin-right: 8px;
+            }
+        }
+        .back-report {
+
+        }
+    }
+    .sessions-list {
+        margin-top: 25px;
+        padding: 0;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+        background-color: white;
+        .sessions-list-header {
+            padding: 20px;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+            max-height: 60px;
+            .sessions-list-header-title {
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: flex-start;
+                align-items: center;
+                color: white;
+                h5 {
+                    margin-bottom: 0;
+                }
+            }
+            .create-session {
+                background-color: white;
+            }
+        }
+        .sessions-list-body {
+            width: 100%;
+            .sessions-list-thead {
+                font-weight: bold;
+                .d-table-cell {
+                    color: #2B2B2B !important;
+                }
+            }
+            .sessions-list-data {
+                font-weight: normal;
+                .d-table-cell {
+                    border-top: 1px solid #EDEBF4;
+                    color: #929292 !important;
+                }
+            }
+            .d-table-cell {
+                padding: 15px;
+                &.viewreport-session {
+                    div, a {
+                        width: 125px;
+                        height: 32px;
+                        color: white;
+                        background-color: black;
+                        border-radius: 8px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        margin: 0 auto;
+                        &:hover {
+                            cursor: pointer;
+                            text-decoration: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .resume-config {
+        margin-top: 25px;
+        padding: 0;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,.06);
+        .titlecontainer {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+            border-radius: 8px 8px 0 0;
+            color: #FFFFFF;
+            padding: 1em;
+        }
+        .list-group {
+            display: flex;
+            flex-flow: row wrap;
+            li.list-group-item {
+                width: 16.6%;
+            }
+        }
+    }
+    .questions-list,
+    .ranking-list {
+        margin-top: 25px;
+        padding: 0;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,.06);
+        .titlecontainer {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+            border-radius: 8px 8px 0 0;
+            color: #FFFFFF;
+            padding: 1em;
+        }
+        .session-questions,
+        .ranking-users {
+            max-height: 700px;
+            overflow-y: auto;
+            &::-webkit-scrollbar {
+                width: 8px;
+            }
+            &::-webkit-scrollbar-track {
+                background: #e0e0e0;
+            }
+            &::-webkit-scrollbar-thumb {
+                background-color: #6a737b;
+                border-radius: 4px;
+            }
+            .questions-list-body,
+            .ranking-users-body {
+                width: 100%;
+                .questions-list-thead,
+                .ranking-users-thead {
+                    font-weight: bold;
+                    .d-table-cell {
+                        color: #2B2B2B !important;
+                    }
+                }
+                .questions-list-data,
+                .ranking-users-data {
+                    font-weight: normal;
+                    &:nth-child(even) {
+                        background-color: rgba(0,0,0,.03);
+                    }
+                    .d-table-cell {
+                        border-top: 1px solid #EDEBF4;
+                        color: #929292 !important;
+                        &.viewreport,
+                        &.viewquestion {
+                            a, div {
+                                width: 125px;
+                                height: 32px;
+                                color: white;
+                                background-color: black;
+                                border-radius: 8px;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                margin: 0 auto;
+                                &:hover {
+                                    cursor: pointer;
+                                    text-decoration: none;
+                                }
+                            }
+                        }
+                        .failure,
+                        .success,
+                        .noresponse,
+                        .noevaluable,
+                        .invalid {
+                            padding: 6px;
+                            span {
+                                font-weight: bold;
+                                font-size: 14px;
+                            }
+                        }
+                        .failure {
+                            background-color: #ffeaea;
+                            span {
+                                color: #f35b5b;
+                            }
+                        }
+                        .success {
+                            background-color: #ebf9f4;
+                            span {
+                                color: #2fb182;
+                            }
+                        }
+                        .noresponse,
+                        .noevaluable {
+                            background-color: #fff7e6;
+                            span {
+                                color: #feac16;
+                            }
+                        }
+                        .invalid {
+                            background-color: #d9d9d9;
+                            span {
+                                color: #000;
+                            }
+                        }
+                    }
+                }
+                .d-table-cell {
+                    padding: 15px;
+                    vertical-align: middle;
+                }
+                .participant {
+                    display: flex;
+                    flex-flow: row nowrap;
+                    border-radius: 34px;
+                    justify-content: flex-start;
+                    align-items: center;
+                    height: 38px;
+                    margin: 0;
+                    a {
+                        &:hover {
+                            text-decoration: none !important;
+                            cursor: pointer;
+                            span {
+                                text-decoration: none;
+                            }
+                        }
+                    }
+                    img {
+                        border-radius: 50%;
+                        height: 38px;
+                        width: auto;
+                        margin-right: 10px;
+                    }
+                    .user-fullname {
+                        font-size: 16px;
+                        color: black;
+                        margin-right: 8px;
+                    }
+                }
+            }
+        }
+    }
+    .alert {
+        border-radius: unset;
+    }
+}

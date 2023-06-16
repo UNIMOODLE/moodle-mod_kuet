@@ -112,10 +112,6 @@ MultiChoice.prototype.reply = function(e) {
         };
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
-                if (response.hasfeedbacks) {
-                    jQuery(REGION.FEEDBACK).html(response.statment_feedback);
-                    jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
-                }
                 if (e !== undefined) {
                     jQuery(e.currentTarget).css({'z-index': 3, 'pointer-events': 'none'});
                 }
@@ -132,6 +128,8 @@ MultiChoice.prototype.reply = function(e) {
 
 MultiChoice.prototype.answered = function(response) {
     if (response.hasfeedbacks) {
+        jQuery(REGION.FEEDBACK).html(response.statment_feedback);
+        jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
     }
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
@@ -146,10 +144,11 @@ MultiChoice.prototype.answered = function(response) {
         let correctAnswers = response.correct_answers.split(',');
         correctAnswers.forEach((answ) => {
             jQuery('[data-answerid="' + answ + '"] .incorrect').css('display', 'none');
-            setTimeout(function() {
+            jQuery(REGION.FEEDBACKBACGROUND).css('height', '100%');
+            /*setTimeout(function() {
                 let contentHeight = jQuery(REGION.MULTICHOICE).outerHeight();
                 jQuery(REGION.FEEDBACKBACGROUND).css('height', contentHeight + 'px');
-            }, 15);
+            }, 100);*/
         });
     }
 };

@@ -25,7 +25,9 @@
 
 namespace mod_jqshow;
 use cm_info;
+use coding_exception;
 use dml_exception;
+use mod_jqshow\helpers\sessions as sessions_helper;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
@@ -91,5 +93,24 @@ class jqshow {
             $this->set_sessions();
         }
         return $this->sessions->get_list();
+    }
+
+    /**
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function get_completed_sessions(): array {
+        if (is_null($this->sessions)) {
+            $this->set_sessions();
+        }
+        $completed = [];
+        foreach ($this->sessions->get_list() as $session) {
+            if ($session->get('status') === 0) {
+                $completed[] = sessions_helper::get_data_session($session, $this->cm->id, false, false);
+            }
+        }
+        return $completed;
     }
 }

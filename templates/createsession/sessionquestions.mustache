@@ -42,11 +42,9 @@
                                 </a>
                             </div>
                             <div class="question-action" data-action="preview_question" data-questionnid="{{questionnid}}">
-                                <a href="{{question_preview_url}}" target="_blank">
-                                    <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
-                                        {{#pix}} i/preview, mod_jqshow {{/pix}}
-                                    </div>
-                                </a>
+                                <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
+                                    {{#pix}} i/preview, mod_jqshow {{/pix}}
+                                </div>
                             </div>
 
                             <div class="question-action" data-action="delete_question" data-questionnid="{{questionnid}}">
@@ -55,18 +53,14 @@
                         {{/managesessions}}
                     {{/ispage3}}
                     {{#ispage3}}
-                        <a href="{{question_preview_url}}" target="_blank">
-                            <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
-                                {{#pix}} i/preview, mod_jqshow {{/pix}}
-                            </div>
-                        </a>
+                        <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
+                            {{#pix}} i/preview, mod_jqshow {{/pix}}
+                        </div>
                     {{/ispage3}}
                     {{#waitingroom}}
-                        <a href="{{question_preview_url}}" target="_blank">
-                            <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
-                                {{#pix}} i/preview, mod_jqshow {{/pix}}
-                            </div>
-                        </a>
+                        <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
+                            {{#pix}} i/preview, mod_jqshow {{/pix}}
+                        </div>
                     {{/waitingroom}}
                 </div>
             </div>

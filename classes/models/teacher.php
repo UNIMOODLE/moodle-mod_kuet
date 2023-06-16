@@ -27,7 +27,6 @@ namespace mod_jqshow\models;
 
 use coding_exception;
 use context_course;
-use core\event\course_information_viewed;
 use dml_exception;
 use mod_jqshow\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -77,7 +76,7 @@ class teacher extends user {
         $managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
         $initsession = has_capability('mod/jqshow:startsession', $coursecontext);
         foreach ($sessions as $session) {
-            $ds = $this->get_data_session($session, $cmid, $managesessions, $initsession);
+            $ds = \mod_jqshow\helpers\sessions::get_data_session($session, $cmid, $managesessions, $initsession);
             if ((int)$session->get('status') !== 0) {
                 $actives[] = $ds;
             } else {
@@ -94,74 +93,6 @@ class teacher extends user {
         $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
         $data->hasactivesession = jqshow_sessions::get_active_session_id(($jqshow->get_jqshow())->id) !== 0;
         return $data;
-    }
-
-    /**
-     * @param jqshow_sessions $session
-     * @param int $cmid
-     * @param bool $managesessions
-     * @param bool $initsession
-     * @return stdClass
-     * @throws coding_exception
-     * @throws moodle_exception
-     */
-    private function get_data_session(jqshow_sessions $session, int $cmid, bool $managesessions, bool $initsession): stdClass {
-        $ds = new stdClass();
-        $ds->name = $session->get('name');
-        $ds->sessionid = $session->get('id');
-        $ds->sessionmode = get_string($session->get('sessionmode'), 'mod_jqshow');
-        $jqshow = new jqshow($cmid);
-        $questions = new questions($jqshow->get_jqshow()->id, $cmid, $session->get('id'));
-        if ($session->get('timemode') === sessions::NO_TIME) {
-            $ds->timemode = get_string('no_time', 'mod_jqshow');
-            $ds->sessiontime = '';
-        } else if ($session->get('timemode') === sessions::SESSION_TIME) {
-            $ds->timemode = get_string('session_time', 'mod_jqshow');
-            $ds->sessiontime = userdate($session->get('sessiontime'), '%Mm %Ss');
-        } else if ($session->get('timemode') === sessions::QUESTION_TIME) {
-            $ds->timemode = get_string('question_time', 'mod_jqshow');
-            $ds->sessiontime = userdate($questions->get_sum_questions_times(), '%Mm %Ss');
-        }
-        $ds->questions_number = $questions->get_num_questions();
-        $ds->managesessions = $managesessions;
-        $ds->initsession = $initsession;
-        $ds->initsessionurl =
-            (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
-        $ds->viewreporturl =
-            (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
-        $ds->editsessionurl =
-            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
-        $ds->status = $session->get('status');
-        $ds->issessionstarted = $ds->status === 2;
-        if ($ds->issessionstarted) {
-            $ds->startedssionurl =
-                (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
-        }
-        $ds->stringsession =
-            $ds->status === 2 ? get_string('sessionstarted', 'mod_jqshow') : get_string('init_session', 'mod_jqshow');
-        $ds->date = '';
-        if ($session->get('automaticstart') === 1) {
-            $ds->automaticstart = true;
-            $startdate = $session->get('startdate');
-            if ($startdate !== 0) {
-                $ds->startdate = $startdate;
-                $startdate = userdate($startdate, get_string('strftimedatetimeshort', 'core_langconfig'));
-                $ds->date = $startdate;
-            }
-            $enddate = $session->get('enddate');
-            if ($enddate !== 0) {
-                $ds->enddate = $enddate;
-                $enddate = userdate($enddate, get_string('strftimedatetimeshort', 'core_langconfig'));
-                $ds->date .= ' - ' . $enddate;
-            }
-            if ($ds->issessionstarted !== true && $ds->startdate < time() && $ds->enddate > time()) {
-                $ds->haswarning = true;
-            }
-        }
-        if ($ds->date !== '' || $ds->issessionstarted === true || $questions->get_num_questions() === 0) {
-            $ds->initsession = false;
-        }
-        return $ds;
     }
 
     /**

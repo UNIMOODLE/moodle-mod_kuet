@@ -1,0 +1,43 @@
+<div class="ranking-list">
+    <h5 class="titlecontainer bg-primary">
+        {{#pix}} i/vote, mod_jqshow {{/pix}}
+        {{#str}}ranking, mod_jqshow{{/str}}
+    </h5>
+    <div class="ranking-users" data-region="ranking-users">
+        <div class="ranking-users-body d-table list-group" data-region="ranking_users">
+            <div class="d-table-row ranking-users-thead">
+                <div class="d-table-cell">{{#str}}question_position, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell">{{#str}}participant, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}score, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}success, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}failures, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}noresponse, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center"></div>
+            </div>
+            {{#rankingusers}}
+                <div class="d-table-row ranking-users-data user-item" data-userid="{{userid}}">
+                    <div class="d-table-cell">{{userposition}}º</div>
+                    <div class="d-table-cell">
+                        <div class="participant" data-userid="{{userid}}">
+                            <a href="{{userprofileurl}}" target="_blank">
+                                <img src="{{userimage}}" alt="{{userfullname}}">
+                                <span class="user-fullname">
+                                    {{userfullname}}
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="d-table-cell text-center">{{userpoints}}</div>
+                    <div class="d-table-cell text-center">{{correctanswers}}</div>
+                    <div class="d-table-cell text-center">{{incorrectanswers}}</div>
+                    <div class="d-table-cell text-center">{{notanswers}}</div>
+                    <div class="d-table-cell text-center viewreport">
+                        <a href="{{viewreporturl}}">
+                            + <span>{{#str}}viewreport_user, mod_jqshow{{/str}}</span>
+                        </a>
+                    </div>
+                </div>
+            {{/rankingusers}}
+        </div>
+    </div>
+</div>

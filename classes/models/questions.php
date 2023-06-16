@@ -56,6 +56,13 @@ require_once($CFG->dirroot. '/question/engine/bank.php');
 class questions {
     public const MULTIPLE_CHOICE = 'multichoice';
     public const TYPES = [self::MULTIPLE_CHOICE];
+
+    public const FAILURE = 0;
+    public const SUCCESS = 1;
+    public const NORESPONSE = 2;
+    public const NOTEVALUABLE = 3;
+    public const INVALID = 4;
+
     protected int $jqshowid;
     protected int $cmid;
     protected int $sid;
@@ -167,13 +174,23 @@ class questions {
                 );
                 if ($progress !== false) {
                     $dataprogress = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
-                    $dataorder = explode(',', $dataprogress->questionsorder);
-                    $order = (int)array_search($dataprogress->currentquestion, $dataorder, false);
+                    if (!isset($dataprogress->endSession)) {
+                        $dataorder = explode(',', $dataprogress->questionsorder);
+                        $order = (int)array_search($dataprogress->currentquestion, $dataorder, false);
+                        $a = new stdClass();
+                        $a->num = $order + 1;
+                        $a->total = $numsessionquestions;
+                        $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+                        $data->sessionprogress = round(($order + 1) * 100 / $numsessionquestions);
+                    }
+                }
+                if (!isset($data->question_index_string)) {
+                    $order = $jqshowquestion->get('qorder');
                     $a = new stdClass();
-                    $a->num = $order + 1;
+                    $a->num = $order;
                     $a->total = $numsessionquestions;
                     $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
-                    $data->sessionprogress = round(($order + 1) * 100 / $numsessionquestions);
+                    $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 }
                 break;
             case sessions::INACTIVE_MANUAL:
@@ -288,8 +305,8 @@ class questions {
                 $data->qtype = 'endsession';
                 $data->endsession = true;
                 $data->courselink = (new moodle_url('/course/view.php', ['id' => $jqshow->get('course')]))->out(false);
-                // TODO complete where reports are available.
-                $data->reportlink = (new moodle_url('/', ['user' => $USER->id, 'session' => $sessionid]))->out(false);
+                $data->reportlink = (new moodle_url('/mod/jqshow/reports.php',
+                    ['cmid' => $cmid, 'sid' => $sessionid, 'userid' => $USER->id]))->out(false);
                 break;
             case sessions::PODIUM_PROGRAMMED:
             case sessions::PODIUM_MANUAL:
