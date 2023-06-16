@@ -40,89 +40,97 @@ class jqshow_sessions extends persistent {
      * @return array
      */
     protected static function define_properties() {
-        return array(
-            'name' => array(
+        return [
+            'name' => [
                 'type' => PARAM_RAW,
-            ),
-            'jqshowid' => array(
+            ],
+            'jqshowid' => [
                 'type' => PARAM_INT,
-            ),
-            'anonymousanswer' => array(
-                'type' => PARAM_INT,
-                'default' => 0,
-            ),
-            'allowguests' => array(
+            ],
+            'anonymousanswer' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'sessionmode' => array(
+            ],
+            'sessionmode' => [
                 'type' => PARAM_RAW,
                 'default' => sessions::INACTIVE_MANUAL,
-                'choices' => array(sessions::INACTIVE_MANUAL, sessions::PODIUM_PROGRAMMED, sessions::PODIUM_MANUAL)
-            ),
-            'countdown' => array(
+                'choices' => [sessions::INACTIVE_MANUAL,
+                    sessions::INACTIVE_PROGRAMMED,
+                    sessions::PODIUM_MANUAL,
+                    sessions::PODIUM_PROGRAMMED,
+                    sessions::RACE_MANUAL,
+                    sessions::RACE_PROGRAMMED]
+            ],
+            'countdown' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
                 'default' => 0,
-            ),
-            'hidegraderanking' => array(
+            ],
+            'hidegraderanking' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'randomquestions' => array(
+            ],
+            'randomquestions' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'randomanswers' => array(
+            ],
+            'randomanswers' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'showfeedback' => array(
+            ],
+            'showfeedback' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'showfinalgrade' => array(
+            ],
+            'showfinalgrade' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'startdate' => array(
+            ],
+            'startdate' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'enddate' => array(
+            ],
+            'enddate' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'automaticstart' => array(
+            ],
+            'automaticstart' => [
                 'type' => PARAM_INT,
                 'default' => 0
-            ),
-            'timelimit' => array(
+            ],
+            'timemode' => [
+                'type' => PARAM_INT,
+                'default' => sessions::NO_TIME,
+                'choices' => [sessions::NO_TIME,
+                    sessions::SESSION_TIME,
+                    sessions::QUESTION_TIME]
+            ],
+            'sessiontime' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'addtimequestion' => array(
+            ],
+            'questiontime' => [
                 'type' => PARAM_INT,
-                'default' => 0
-            ),
-            'groupings' => array(
+                'null' => NULL_ALLOWED,
+            ],
+            'groupings' => [
                 'type' => PARAM_RAW,
                 'null' => NULL_ALLOWED,
                 'default' => null,
-            ),
-            'status' => array(
+            ],
+            'status' => [
                 'type' => PARAM_INT,
-            ),
-            'usermodified' => array(
+            ],
+            'usermodified' => [
                 'type' => PARAM_INT,
-            ),
-            'timecreated' => array(
+            ],
+            'timecreated' => [
                 'type' => PARAM_INT,
-            ),
-            'timemodified' => array(
+            ],
+            'timemodified' => [
                 'type' => PARAM_INT,
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -221,6 +229,7 @@ class jqshow_sessions extends persistent {
      */
     public static function mark_session_started(int $sid): void {
         global $DB;
+        // TODO check operation, there is now a cron job that normalises this.
         // All open sessions end, ensuring that no more than one session is logged on.
         $activesession = $DB->get_records(self::TABLE, ['status' => 2]);
         foreach ($activesession as $active) {
@@ -315,7 +324,7 @@ class jqshow_sessions extends persistent {
      * @throws invalid_persistent_exception
      */
     public static function check_automatic_sessions(int $jqshowid): void {
-        // TODO review operation and adjust to session logic.
+        // TODO this logic is obsolete, now in cron task.
         $sessions = self::get_automaticstart_sessions($jqshowid);
         $activesession = null;
         $now = time();

@@ -64,14 +64,14 @@ class session_getallquestions_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function session_getallquestions(int $cmid, int $sessionid): array {
-        global $DB, $PAGE;
+        global $DB, $PAGE, $COURSE;
         self::validate_parameters(
             self::session_getallquestions_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
-        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'jqshow');
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'jqshow', $COURSE);
         $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], 'id', MUST_EXIST);
         $allquestions = (new questions($jqshow->id, $cmid, $sessionid))->get_list();
         $questiondata = [];

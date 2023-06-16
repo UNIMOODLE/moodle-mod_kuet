@@ -15,6 +15,7 @@ let REGION = {
 
 let SERVICES = {
     SESSIONFIINISHED: 'mod_jqshow_sessionfinished',
+    USERQUESTIONRESPONSE: 'mod_jqshow_getuserquestionresponse'
 };
 
 let TEMPLATES = {
@@ -131,6 +132,33 @@ Sockets.prototype.initSockets = function() {
                 countusers.html(response.count);
                 break;
             case 'question':
+                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                    let identifier = jQuery(REGION.ROOT);
+                    identifier.append(html);
+                    currentCuestionJqid = response.context.jqid;
+                    let request = {
+                        methodname: SERVICES.USERQUESTIONRESPONSE,
+                        args: {
+                            jqid: response.context.jqid,
+                            cmid: cmid,
+                            sid: sid,
+                            uid: 0
+                        }
+                    };
+                    Ajax.call([request])[0].done(function(answer) {
+                        const questionData = {
+                            ...response.context.value,
+                            ...answer
+                        };
+                        Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
+                            identifier.html(html);
+                            Templates.runTemplateJS(js);
+                            jQuery(REGION.LOADING).remove();
+                        }).fail(Notification.exception);
+                    });
+                });
+                break;
+            case 'endSession':
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.ROOT);
                     identifier.append(html);

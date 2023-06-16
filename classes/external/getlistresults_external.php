@@ -77,6 +77,7 @@ class getlistresults_external extends external_api {
                         'userfullname'   => new external_value(PARAM_RAW, 'Name of user'),
                         'correctanswers' => new external_value(PARAM_INT, 'Num of correct answer'),
                         'incorrectanswers' => new external_value(PARAM_INT, 'Num of incorrect answer'),
+                        'notanswers' => new external_value(PARAM_INT, 'Num of incorrect answer'),
                         'userpoints' => new external_value(PARAM_INT, 'Total points of user'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points')
                     ], ''

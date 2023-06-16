@@ -236,6 +236,9 @@ Sockets.prototype.initSockets = function() {
                 let identifier = jQuery(REGION.USERLIST);
                 let data = response.students;
                 identifier.html('');
+                if (waitingRoom === false) {
+                    Sockets.prototype.normalizeUser(response.usersocketid);
+                }
                 jQuery.each(data, function(i, student) {
                     let templateContext = {
                         'usersocketid': student.usersocketid,
@@ -295,6 +298,19 @@ Sockets.prototype.initSockets = function() {
     };
 };
 
+Sockets.prototype.initListeners = function() {
+    let that = this;
+    addEventListener('nextQuestion', () => {
+        that.nextQuestion();
+    }, false);
+    addEventListener('teacherQuestionEndSelf', () => {
+        that.questionEnd();
+    }, false);
+    addEventListener('endSession', () => {
+        that.endSession();
+    }, {once: true});
+};
+
 Sockets.prototype.setCurrentQuestion = function(currentQuestion) {
     let data = {
         state: 'currentQuestion',
@@ -307,6 +323,16 @@ Sockets.prototype.setNextQuestion = function(nextQuestion) {
     let data = {
         state: 'nextQuestion',
         value: nextQuestion
+    };
+    db.update('statequestions', data);
+};
+
+Sockets.prototype.setEndSession = function(endData) {
+    db.delete('statequestions', 'nextQuestion');
+    db.delete('statequestions', 'currentQuestion');
+    let data = {
+        state: 'endSession',
+        value: endData
     };
     db.update('statequestions', data);
 };
@@ -324,65 +350,24 @@ Sockets.prototype.getNextQuestion = function(jqid) {
     };
     nextQuestionJqid = null;
     Ajax.call([request])[0].done(function(nextquestion) {
-        let data = {
-            jqid: nextquestion.jqid,
-            value: nextquestion
-        };
-        db.add('questions', data);
-        nextQuestionJqid = nextquestion.jqid;
-        that.setNextQuestion(nextquestion.jqid);
+        if (nextquestion.endsession !== true) {
+            let data = {
+                jqid: nextquestion.jqid,
+                value: nextquestion
+            };
+            db.add('questions', data);
+            nextQuestionJqid = nextquestion.jqid;
+            that.setNextQuestion(nextquestion.jqid);
+        } else {
+            // End session.
+            nextQuestionJqid = null;
+            that.setEndSession(nextquestion);
+        }
     }).fail(Notification.exception);
 };
 
-Sockets.prototype.initListeners = function() {
-    let that = this;
-    addEventListener('nextQuestion', () => {
-        that.nextQuestion();
-    }, false);
-    addEventListener('teacherQuestionEndSelf', () => {
-        that.questionEnd();
-    }, false);
-};
-
-Sockets.prototype.nextQuestion = function() {
-    let that = this;
-    if (nextQuestionJqid === null) {
-        this.getNextQuestion(currentCuestionJqid);
-    }
-    let nextQuestion = db.get('questions', nextQuestionJqid);
-    nextQuestion.onsuccess = function() {
-        let msg = {
-            'action': 'question',
-            'sid': sid,
-            'context': nextQuestion.result
-        };
-        Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
-        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
-            let identifier = jQuery(REGION.TEACHERCANVAS);
-            identifier.append(html);
-            currentCuestionJqid = nextQuestion.result.jqid;
-            that.setCurrentQuestion(nextQuestion.result.jqid);
-            that.getNextQuestion(nextQuestion.result.jqid);
-            nextQuestion.result.value.isteacher = true;
-            Templates.render(TEMPLATES.QUESTION, nextQuestion.result.value).then(function(html, js) {
-                identifier.html(html);
-                Templates.runTemplateJS(js);
-                jQuery(REGION.LOADING).remove();
-            }).fail(Notification.exception);
-        });
-    };
-};
-
-Sockets.prototype.questionEnd = function() {
-    let msg = {
-        'action': 'teacherQuestionEnd',
-        'sid': sid,
-        'jqid': currentCuestionJqid
-    };
-    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
-};
-
 Sockets.prototype.initSession = function() {
+    db.delete('statequestions', 'endSession');
     const stringkeys = [
         {key: 'init_session', component: 'mod_jqshow'},
         {key: 'init_session_desc', component: 'mod_jqshow'},
@@ -482,6 +467,90 @@ Sockets.prototype.endSession = function() {
         modal.show();
         // eslint-disable-next-line no-restricted-globals
     }).fail(Notification.exception);
+};
+
+Sockets.prototype.nextQuestion = function() {
+    let that = this;
+    if (nextQuestionJqid === null) {
+        this.getNextQuestion(currentCuestionJqid);
+    }
+    let nextQuestion = db.get('statequestions', 'nextQuestion');
+    nextQuestion.onsuccess = function() {
+        if (nextQuestion.result !== undefined) {
+            let nextQuestionData = db.get('questions', nextQuestion.result.value);
+            nextQuestionData.onsuccess = function() {
+                let msg = {
+                    'action': 'question',
+                    'sid': sid,
+                    'context': nextQuestionData.result
+                };
+                Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                    let identifier = jQuery(REGION.TEACHERCANVAS);
+                    identifier.append(html);
+                    currentCuestionJqid = nextQuestionData.result.jqid;
+                    // The following question is marked as current.
+                    that.setCurrentQuestion(nextQuestionData.result.jqid);
+                    // And get the next question to store it.
+                    that.getNextQuestion(nextQuestionData.result.jqid);
+                    nextQuestionData.result.value.isteacher = true;
+                    Templates.render(TEMPLATES.QUESTION, nextQuestionData.result.value).then(function(html, js) {
+                        identifier.html(html);
+                        Templates.runTemplateJS(js);
+                        jQuery(REGION.LOADING).remove();
+                    }).fail(Notification.exception);
+                });
+            };
+        } else {
+            let endSession = db.get('statequestions', 'endSession');
+            endSession.onsuccess = function() {
+                let msg = {
+                    'action': 'endSession',
+                    'sid': sid,
+                    'context': endSession.result
+                };
+                Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                    let identifier = jQuery(REGION.TEACHERCANVAS);
+                    identifier.append(html);
+                    currentCuestionJqid = null;
+                    that.setEndSession(endSession.result);
+                    endSession.result.value.isteacher = true;
+                    Templates.render(TEMPLATES.QUESTION, endSession.result.value).then(function(html, js) {
+                        identifier.html(html);
+                        Templates.runTemplateJS(js);
+                        jQuery(REGION.LOADING).remove();
+                    }).fail(Notification.exception);
+                });
+            };
+        }
+    };
+};
+
+Sockets.prototype.questionEnd = function() {
+    let msg = {
+        'action': 'teacherQuestionEnd',
+        'sid': sid,
+        'jqid': currentCuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.normalizeUser = function(usersocketid) {
+    let currentQuestion = db.get('statequestions', 'currentQuestion');
+    currentQuestion.onsuccess = function() {
+        let currentQuestiondata = db.get('questions', currentQuestion.result.value);
+        currentQuestiondata.onsuccess = function() {
+            let msg = {
+                'action': 'normalizeUser',
+                'sid': sid,
+                'ofs': true, // Only for student.
+                'usersocketid': usersocketid,
+                'context': currentQuestiondata.result
+            };
+            Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        };
+    };
 };
 
 Sockets.prototype.sendMessageSocket = function(msg) {

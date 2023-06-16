@@ -28,57 +28,59 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
+use JsonException;
+use mod_jqshow\models\sessions;
 use moodle_exception;
 use stdClass;
 
 class jqshow_questions extends persistent {
-    const TABLE = 'jqshow_questions';
+    public const TABLE = 'jqshow_questions';
     /**
      * Return the definition of the properties of this model.
      *
      * @return array
      */
     protected static function define_properties() {
-        return array(
-            'questionid' => array(
+        return [
+            'questionid' => [
                 'type' => PARAM_INT,
-            ),
-            'sessionid' => array(
+            ],
+            'sessionid' => [
                 'type' => PARAM_INT,
-            ),
-            'jqshowid' => array(
+            ],
+            'jqshowid' => [
                 'type' => PARAM_INT,
-            ),
-            'qorder' => array(
+            ],
+            'qorder' => [
                 'type' => PARAM_INT,
-            ),
-            'qtype' => array(
+            ],
+            'qtype' => [
                 'type' => PARAM_RAW,
-            ),
-            'timelimit' => array(
+            ],
+            'timelimit' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'ignorecorrectanswer' => array(
+            ],
+            'ignorecorrectanswer' => [
                 'type' => PARAM_INT,
-            ),
-            'isvalid' => array(
+            ],
+            'isvalid' => [
                 'type' => PARAM_INT,
-            ),
-            'config' => array(
+            ],
+            'config' => [
                 'type' => PARAM_RAW,
                 'null' => NULL_ALLOWED,
-            ),
-            'usermodified' => array(
+            ],
+            'usermodified' => [
                 'type' => PARAM_INT,
-            ),
-            'timecreated' => array(
+            ],
+            'timecreated' => [
                 'type' => PARAM_INT,
-            ),
-            'timemodified' => array(
+            ],
+            'timemodified' => [
                 'type' => PARAM_INT,
-            ),
-        );
+            ],
+        ];
     }
 
     /**
@@ -103,7 +105,7 @@ class jqshow_questions extends persistent {
         $data->jqshowid = $jqshowid;
         $data->qorder = $order;
         $data->qtype = $qtype;
-        $data->timelimit = $session->get('addtimequestion') > 0 ? get_config('mod_jqshow', 'questiontime') : 0;
+        $data->timelimit = 0; // TODO.
         $data->ignorecorrectanswer = 0;
         $data->isvalid = $isvalid;
         $data->config = '';
@@ -129,15 +131,52 @@ class jqshow_questions extends persistent {
      * @param int $sessionid
      * @param int $questionid
      * @return false|jqshow_questions
+     * @throws JsonException
      * @throws coding_exception
+     * @throws moodle_exception
      */
-    public static function get_next_question_of_session(int $sessionid, int $questionid): ?jqshow_questions {
-        $current = self::get_record(['id' => $questionid, 'sessionid' => $sessionid], MUST_EXIST);
-        $nextquestion = self::get_record(['sessionid' => $sessionid, 'qorder' => $current->get('qorder') + 1]);
-        if ($nextquestion === false) {
-            return false;
+    public static function get_next_question_of_session(int $sessionid, int $questionid) {
+        global $USER;
+        $session = jqshow_sessions::get_record(['id' => $sessionid], MUST_EXIST);
+        switch ($session->get('sessionmode')) {
+            case sessions::INACTIVE_PROGRAMMED:
+            case sessions::PODIUM_PROGRAMMED:
+            case sessions::RACE_PROGRAMMED:
+                $progress = jqshow_user_progress::get_session_progress_for_user(
+                    $USER->id, $session->get('id'), $session->get('jqshowid')
+                );
+                if ($progress !== false) {
+                    $data = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $order = explode(',', $data->questionsorder);
+                    $current = array_search($data->currentquestion, $order, false);
+                    if ($current !== false && isset($order[$current + 1])) {
+                        $nextquestion = self::get_record(['sessionid' => $sessionid, 'id' => $order[$current + 1]]);
+                    } else {
+                        $nextquestion = false;
+                    }
+                }
+                break;
+            case sessions::INACTIVE_MANUAL:
+            case sessions::PODIUM_MANUAL:
+            case sessions::RACE_MANUAL:
+                $current = self::get_record(['id' => $questionid, 'sessionid' => $sessionid], MUST_EXIST);
+                $nextquestion = self::get_record(['sessionid' => $sessionid, 'qorder' => $current->get('qorder') + 1]);
+                if ($nextquestion === false) {
+                    return false;
+                }
+                break;
+            default:
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
         }
         return $nextquestion;
+    }
+
+    /**
+     * @param int $jqid
+     * @return false|jqshow_questions
+     */
+    public static function get_question_by_jqid(int $jqid): ?jqshow_questions {
+        return self::get_record(['id' => $jqid], MUST_EXIST);
     }
 
     /**

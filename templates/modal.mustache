@@ -1,0 +1,18 @@
+{{< core/modal }}
+    {{$classes}}modal_jqshow{{/classes}}
+    {{$headerclasses}}modal_jqshow_header{{/headerclasses}}
+    {{$header}}
+        <h5 id="{{uniqid}}-modal-title" class="modal-title" data-region="title">
+            {{$title}}
+                {{#pix}}i/eye, mod_jqshow{{/pix}}
+                {{#str}} viewquestion_user, mod_jqshow {{/str}}
+            {{/title}}
+        </h5>
+    {{/header}}
+    {{$body}}
+        {{{body}}}
+    {{/body}}
+    {{$footer}}
+        <button type="button" class="btn btn-secondary" data-action="cancel">{{#str}} cancel {{/str}}</button>
+    {{/footer}}
+{{/ core/modal }}

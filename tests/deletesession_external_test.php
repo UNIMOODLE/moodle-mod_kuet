@@ -41,7 +41,6 @@ class deletesession_external_test extends advanced_testcase {
     public array $sessionmock = [
         'name' => 'Session Test - DELETE',
         'anonymousanswer' => 0,
-        'allowguests' => 0,
         'sessionmode' => sessions::PODIUM_MANUAL,
         'countdown' => 0,
         'randomquestions' => 0,
@@ -52,7 +51,6 @@ class deletesession_external_test extends advanced_testcase {
         'enddate' => 1683133200,
         'automaticstart' => 0,
         'timelimit' => 0,
-        'addtimequestion' => 0,
         'groupmode' => 0,
         'status' => 1,
         'sessionid' => 0,

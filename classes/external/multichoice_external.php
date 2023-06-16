@@ -25,14 +25,21 @@
 
 namespace mod_jqshow\external;
 
+use coding_exception;
 use context_module;
+use core\invalid_persistent_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use JsonException;
+use mod_jqshow\helpers\responses;
 use mod_jqshow\models\questions;
+use mod_jqshow\models\sessions;
+use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
 use question_bank;
 
 defined('MOODLE_INTERNAL') || die();
@@ -50,6 +57,7 @@ class multichoice_external extends external_api {
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
                 'questionid' => new external_value(PARAM_INT, 'id of question'),
+                'timeleft' => new external_value(PARAM_INT, 'Time left of question, if question has time, else 0.'),
                 'preview' => new external_value(PARAM_BOOL, 'preview or not for grade'),
             ]
         );
@@ -61,16 +69,21 @@ class multichoice_external extends external_api {
      * @param int $jqshowid
      * @param int $cmid
      * @param int $questionid
+     * @param int $timeleft
      * @param bool $preview
      * @return array
+     * @throws JsonException
+     * @throws coding_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public static function multichoice(
-        int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, bool $preview
+        int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $timeleft, bool $preview
     ): array {
         // TODO Review correctfeedback and incorrectfeedback.
-        global $PAGE;
+        global $PAGE, $USER;
         self::validate_parameters(
             self::multichoice_parameters(),
             [
@@ -79,6 +92,7 @@ class multichoice_external extends external_api {
                 'jqshowid' => $jqshowid,
                 'cmid' => $cmid,
                 'questionid' => $questionid,
+                'timeleft' => $timeleft,
                 'preview' => $preview]
         );
         $contextmodule = context_module::instance($cmid);
@@ -90,8 +104,9 @@ class multichoice_external extends external_api {
         foreach ($question->answers as $key => $answer) {
             if ($answer->fraction !== '0.0000000') {
                 $correctanswers .= $answer->id . ',';
+                // TODO obtain the value of the answer to score the question.
             }
-            if ($key === $answerid && $answerfeedback === '') {
+            if (isset($answerid) && $key === $answerid && $answerfeedback === '') {
                 // TODO images do not work.
                 $answerfeedback = questions::get_text(
                     $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
@@ -105,12 +120,29 @@ class multichoice_external extends external_api {
             $question->generalfeedback, 1, $question->id, $question, 'generalfeedback'
         );
 
+        if ($preview === false) {
+            responses::multichoice_response(
+                $answerid,
+                $correctanswers,
+                $questionid,
+                $sessionid,
+                $jqshowid,
+                $statmentfeedback,
+                $answerfeedback,
+                $USER->id,
+                $timeleft
+            );
+        }
+        $session = new jqshow_sessions($sessionid);
         return [
             'reply_status' => true,
             'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
             'statment_feedback' => $statmentfeedback,
             'answer_feedback' => $answerfeedback,
-            'correct_answers' => $correctanswers
+            'correct_answers' => $correctanswers,
+            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::RACE_PROGRAMMED)
         ];
     }
 
@@ -121,7 +153,8 @@ class multichoice_external extends external_api {
                 'hasfeedbacks' => new external_value(PARAM_BOOL, 'Has feedback'),
                 'statment_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
-                'correct_answers' => new external_value(PARAM_RAW, 'correct ansewrs ids separated by commas', VALUE_OPTIONAL)
+                'correct_answers' => new external_value(PARAM_RAW, 'correct ansewrs ids separated by commas', VALUE_OPTIONAL),
+                'programmedmode' => new external_value(PARAM_BOOL, 'Program mode for controls'),
             ]
         );
     }

@@ -1,8 +1,10 @@
 .teacher-session-content {
     .summary-session {
+        [data-action="end_session"] {
+            margin-bottom: 25px;
+        }
         .resume-config,
         .users-results {
-            margin-top: 25px;
             padding: 0;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0,0,0,.06);
@@ -11,34 +13,6 @@
                 border-radius: 8px 8px 0 0;
                 color: #FFFFFF;
                 padding: 1em;
-            }
-        }
-        .resume-config {
-            .list-resume {
-                .list-group {
-                    border-radius: 0;
-                    .list-group-item {
-                        border: 0;
-                        border-bottom: 1px solid #EDEBF4;
-                        display: flex;
-                        flex-flow: row nowrap;
-                        justify-content: flex-start;
-                        align-items: center;
-                        img.icon {
-                            height: 20px;
-                            width: auto;
-                            margin-right: 18px;
-                        }
-                        .content-config {
-                            display: flex;
-                            flex-flow: column nowrap;
-                            .configname {
-                                font-size: 16px;
-                                font-weight: bold;
-                            }
-                        }
-                    }
-                }
             }
         }
         .users-results {

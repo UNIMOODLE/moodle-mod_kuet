@@ -3,10 +3,13 @@
 @import 'base/reset';
 @import 'components/forms';
 @import 'components/fullscreen';
+@import 'components/modal';
+@import 'layout/listresume';
 @import 'layout/multichoice';
 @import 'layout/questions_encasement';
 @import 'layout/view';
-@import 'pages/notsession';
+@import 'layout/reports';
+@import 'layout/sessionpage';
 @import 'pages/questionslist';
 @import 'pages/resumesession';
 @import 'pages/sessionspanel';

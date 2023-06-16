@@ -18,6 +18,8 @@ let REGION = {
     FEEDBACKBACGROUND: '[data-region="feedback-background"]',
     STATEMENTTEXT: '[data-region="statement-text"]',
     TIMER: '[data-region="question-timer"]',
+    SECONDS: '[data-region="seconds"]',
+    NEXT: '[data-action="next-question"]'
 };
 
 let SERVICES = {
@@ -33,19 +35,25 @@ let sId;
 let questionid;
 let jqshowId;
 let jqid;
+let questionEnd = false;
 
 /**
  * @constructor
  * @param {String} selector
+ * @param {String} jsonresponse
  */
-function MultiChoice(selector) {
+function MultiChoice(selector, jsonresponse = '') {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
     questionid = this.node.attr('data-questionid');
     jqshowId = this.node.attr('data-jqshowid');
     jqid = this.node.attr('data-jqid');
-    this.initMultichoice();
+    if (jsonresponse !== '') {
+        this.answered(JSON.parse(jsonresponse));
+    } else {
+        this.initMultichoice();
+    }
 }
 
 /** @type {jQuery} The jQuery node for the page region. */
@@ -55,12 +63,27 @@ MultiChoice.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
 
 MultiChoice.prototype.initMultichoice = function() {
     this.node.find(ACTION.REPLY).on('click', this.reply.bind(this));
+    let that = this;
     addEventListener('timeFinish', () => {
         this.reply();
     }, {once: true});
     addEventListener('teacherQuestionEnd_' + jqid, () => {
         this.reply();
     }, {once: true});
+    window.addEventListener('beforeunload' + jqid, () => { // TODO delete this listener, not work.
+        if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
+            that.reply();
+            return 'Because the question is overdue and an attempt has been made to reload the page,' +
+                ' the question has remained unanswered.';
+        }
+    });
+    window.onbeforeunload = function() {
+        if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
+            that.reply();
+            return 'Because the question is overdue and an attempt has been made to reload the page,' +
+                ' the question has remained unanswered.';
+        }
+    };
 };
 
 MultiChoice.prototype.reply = function(e) {
@@ -74,6 +97,7 @@ MultiChoice.prototype.reply = function(e) {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         that.node.append(html);
         dispatchEvent(that.endTimer);
+        let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
             methodname: SERVICES.REPLY,
             args: {
@@ -82,33 +106,17 @@ MultiChoice.prototype.reply = function(e) {
                 jqshowid: jqshowId,
                 cmid: cmId,
                 questionid: questionid,
+                timeleft: timeLeft || 0,
                 preview: false
             }
         };
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
-                if (response.hasfeedbacks) {
-                    jQuery(REGION.FEEDBACK).html(response.statment_feedback);
-                    jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
-                    jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
-                }
-                jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
-                jQuery(REGION.STATEMENTTEXT).css({'z-index': 3, 'padding': '15px'});
-                jQuery(REGION.TIMER).css('z-index', 3);
                 if (e !== undefined) {
                     jQuery(e.currentTarget).css({'z-index': 3, 'pointer-events': 'none'});
                 }
-                if (response.correct_answers) {
-                    jQuery('.feedback-icon').css('display', 'flex');
-                    let correctAnswers = response.correct_answers.split(',');
-                    correctAnswers.forEach((answ) => {
-                        jQuery('[data-answerid="' + answ + '"] .incorrect').css('display', 'none');
-                    });
-                }
-                setTimeout(function() {
-                    let contentHeight = jQuery(REGION.MULTICHOICE).outerHeight();
-                    jQuery(REGION.FEEDBACKBACGROUND).css('height', contentHeight + 'px');
-                }, 15);
+                that.answered(response);
+                questionEnd = true;
                 dispatchEvent(that.studentQuestionEnd);
             } else {
                 alert('error');
@@ -118,6 +126,33 @@ MultiChoice.prototype.reply = function(e) {
     });
 };
 
-export const initMultiChoice = (selector) => {
-    return new MultiChoice(selector);
+MultiChoice.prototype.answered = function(response) {
+    if (response.hasfeedbacks) {
+        jQuery(REGION.FEEDBACK).html(response.statment_feedback);
+        jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
+        jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+    }
+    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
+    jQuery(REGION.STATEMENTTEXT).css({'z-index': 3, 'padding': '15px'});
+    jQuery(REGION.TIMER).css('z-index', 3);
+    jQuery(REGION.NEXT).removeClass('d-none');
+    if (response.answerid) {
+        jQuery('[data-answerid="' + response.answerid + '"]').css({'z-index': 3, 'pointer-events': 'none'});
+    }
+    if (response.correct_answers) {
+        jQuery('.feedback-icon').css('display', 'flex');
+        let correctAnswers = response.correct_answers.split(',');
+        correctAnswers.forEach((answ) => {
+            jQuery('[data-answerid="' + answ + '"] .incorrect').css('display', 'none');
+            jQuery(REGION.FEEDBACKBACGROUND).css('height', '100%');
+            /*setTimeout(function() {
+                let contentHeight = jQuery(REGION.MULTICHOICE).outerHeight();
+                jQuery(REGION.FEEDBACKBACGROUND).css('height', contentHeight + 'px');
+            }, 100);*/
+        });
+    }
+};
+
+export const initMultiChoice = (selector, jsonresponse) => {
+    return new MultiChoice(selector, jsonresponse);
 };
