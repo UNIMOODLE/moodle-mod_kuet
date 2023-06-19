@@ -397,7 +397,7 @@ class sessions {
         $data[] = [
             'iconconfig' => 'sessionmode',
             'configname' => get_string('sessionmode', 'mod_jqshow'),
-            'configvalue' => $sessiondata->get('sessionmode')
+            'configvalue' => get_string($sessiondata->get('sessionmode'), 'mod_jqshow')
         ];
 
         $data[] = [
@@ -520,14 +520,13 @@ class sessions {
                         $incorrectanswers++;
                     }
                 }
-                $notanswers = count($questions) - ($correctanswers + $incorrectanswers);
                 $student = new stdClass();
                 $student->id = $user->id;
                 $student->userid = $user->id;
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
                 $student->correctanswers = $correctanswers;
                 $student->incorrectanswers = $incorrectanswers;
-                $student->notanswers = $notanswers;
+                $student->notanswers = count($questions) - ($correctanswers + $incorrectanswers);
                 $student->userpoints = (int)($correctanswers * (1000 / count($questions)));
                 $students[] = $student;
             }

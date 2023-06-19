@@ -46,7 +46,8 @@ require_capability('mod/jqshow:managesessions', $coursecontext);
 $sid = optional_param('sid', 0, PARAM_INT);
 $activesession = jqshow_sessions::get_active_session_id($jqshow->id);
 if ($activesession !== 0 && $activesession === $sid) {
-    throw new moodle_exception('erroreditsessionactive', 'mod_jqshow', (new moodle_url('/mod/jqshow/view.php', ['id' => $id])));
+    throw new moodle_exception('erroreditsessionactive', 'mod_jqshow', (new moodle_url('/mod/jqshow/view.php', ['id' => $id])),
+        [], get_string('erroreditsessionactive', 'mod_jqshow'));
 }
 
 $PAGE->set_title(get_string('modulename', 'jqshow'));

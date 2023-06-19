@@ -26,7 +26,9 @@
 namespace mod_jqshow\helpers;
 
 use coding_exception;
+use context_module;
 use dml_exception;
+use enrol_self\self_test;
 use JsonException;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
@@ -36,6 +38,7 @@ use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
+use question_bank;
 use stdClass;
 use user_picture;
 
@@ -48,6 +51,7 @@ class reports {
      * @return array
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
     public static function get_questions_data_for_teacher_report(int $jqshowid, int $cmid, int $sid): array {
         global $DB;
@@ -77,6 +81,9 @@ class reports {
             ]);
             $data->noresponse = count($users) - ($data->success + $data->failures);
             $data->time = self::get_time_string($session, $question);
+            $data->questionreporturl = (new moodle_url('/mod/jqshow/reports.php',
+                ['cmid' => $cmid, 'sid' => $sid, 'jqid' => $question->get('id')]
+            ))->out(false);
             $questionsdata[] = $data;
         }
         return $questionsdata;
@@ -229,6 +236,150 @@ class reports {
             case sessions::QUESTION_TIME:
                 return ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : $session->get('questiontime') . 's';
         }
+    }
+
+    /**
+     * @param int $cmid
+     * @param int $sid
+     * @param int $jqid
+     * @return stdClass
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_question_report(int $cmid, int $sid, int $jqid): stdClass {
+        global $DB, $USER;
+        $session = new jqshow_sessions($sid);
+        $question = new jqshow_questions($jqid);
+        $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
+        $data = new stdClass();
+        $data->questionreport = true;
+        $data->sessionid = $sid;
+        $data->jqid = $jqid;
+        $data->cmid = $cmid;
+        $data->jqshowid = $question->get('jqshowid');
+        $data->questionnid = $question->get('id');
+        $data->position = $question->get('qorder');
+        $data->type = $question->get('qtype');
+        $questiondata = question_bank::load_question($questiondb->id);
+        $data->questiontext = $questiondata->questiontext;
+        $answers = [];
+        $correctanswers = [];
+        switch ($data->type) {
+            case 'multichoice':
+                foreach ($questiondata->answers as $key => $answer) {
+                    $answers[$key]['answertext'] = $answer->answer;
+                    $answers[$key]['answerid'] = $key;
+                    if ($answer->fraction === '0.0000000') {
+                        $answers[$key]['result'] = 'incorrect';
+                        $answers[$key]['resultstr'] = get_string('incorrect', 'mod_jqshow');
+                        $answers[$key]['fraction'] = '0';
+                    } else if ($answer->fraction === '1.0000000') {
+                        $answers[$key]['result'] = 'correct';
+                        $answers[$key]['resultstr'] = get_string('correct', 'mod_jqshow');
+                        $answers[$key]['fraction'] = '1';
+                    } else {
+                        $answers[$key]['result'] = 'partial';
+                        $answers[$key]['resultstr'] = get_string('partial', 'mod_jqshow');
+                        $answers[$key]['fraction'] = $answer->fraction;
+                    }
+                    $answers[$key]['numticked'] = 0;
+                    if ($answer->fraction !== '0.0000000') {
+                        $correctanswers[$key]['response'] = $answer->answer;
+                        $correctanswers[$key]['score'] = round($answer->fraction, 1);
+                    }
+                }
+                $responses = jqshow_questions_responses::get_question_responses($sid, $data->jqshowid, $jqid);
+                foreach ($responses as $response) {
+                    $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                    if ($other->answerid !== 0) {
+                        $answers[$other->answerid]['numticked']++;
+                    }
+                    // TODO obtain the average time to respond to each option ticked. ???
+                }
+                $data->answers = array_values($answers);
+                break;
+            default:
+                break;
+        }
+        $data->correctanswers = array_values($correctanswers);
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid);
+        $users = enrol_get_course_users($course->id, true);
+        $data->numusers = count($users);
+        $data->numcorrect = jqshow_questions_responses::count_records(
+            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => 1]
+        );
+        $data->numincorrect = jqshow_questions_responses::count_records(
+            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => 0]
+        );
+        $data->numnoresponse = $data->numusers - ($data->numcorrect + $data->numincorrect);
+        $data->percent_correct = ($data->numcorrect / $data->numusers) * 100;
+        $data->percent_incorrect = ($data->numincorrect / $data->numusers) * 100;
+        $data->percent_noresponse = ($data->numnoresponse / $data->numusers) * 100;
+        $cmcontext = context_module::instance($cmid);
+        if ($session->get('anonymousanswer') === 1 && has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+            $data->hasranking = true;
+            $data->questionranking =
+                self::get_ranking_for_question($users, $data->answers, $session, $question, $cmid, $sid, $jqid);
+        }
+        return $data;
+    }
+
+    /**
+     * @param array $users
+     * @param array $answers
+     * @param jqshow_sessions $session
+     * @param jqshow_questions $question
+     * @param int $cmid
+     * @param int $sid
+     * @param int $jqid
+     * @return array
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_ranking_for_question(
+        array $users, array $answers, jqshow_sessions $session, jqshow_questions $question, int $cmid, int $sid, int $jqid
+    ): array {
+        global $DB, $PAGE;
+        $results = [];
+        foreach ($users as $user) {
+            $userdata = $DB->get_record('user', ['id' => $user->id]);
+            if ($userdata !== false) {
+                $userpicture = new user_picture($userdata);
+                $userpicture->size = 1;
+                $user->userimage = $userpicture->get_url($PAGE)->out(false);
+                $user->userfullname = $userdata->firstname . ' ' . $userdata->lastname;
+                $user->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $userdata->id]))->out(false);
+                $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
+                    ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userdata->id]))->out(false);
+                $response = jqshow_questions_responses::get_record(['userid' => $userdata->id, 'session' => $sid, 'jqid' => $jqid]);
+                if ($response !== false && $response->get('result') !== 2) {
+                    $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                    foreach ($answers as $answer) {
+                        if ($answer['answerid'] === $other->answerid) {
+                            $user->response = $answer['result'];
+                            $user->responsestr = get_string($answer['result'], 'mod_jqshow');
+                            $user->answertext = $answer['answertext'];
+                            $user->userpoints = $answer['fraction'];
+                            $user->score_moment = $answer['score_moment'] . '??';
+                            $user->time = self::get_user_time_in_question($session, $question, $response);
+                        }
+                    }
+                } else {
+                    $questiontimestr = self::get_time_string($session, $question);
+                    $user->responsestr = get_string('noresponse', 'mod_jqshow');
+                    $user->userpoints = 0;
+                    $user->answertext = '-';
+                    $user->score_moment = 0;
+                    $user->time = $questiontimestr . ' / ' . $questiontimestr; // Or 0?
+                }
+                $results[] = $user;
+            }
+        }
+        return $results;
     }
 
 }

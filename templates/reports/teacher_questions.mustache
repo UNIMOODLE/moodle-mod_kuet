@@ -13,6 +13,7 @@
                 <div class="d-table-cell text-center">{{#str}}failures, mod_jqshow{{/str}}</div>
                 <div class="d-table-cell text-center">{{#str}}noresponse, mod_jqshow{{/str}}</div>
                 <div class="d-table-cell text-center">{{#str}}question_time, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center"></div>
             </div>
             {{#sessionquestions}}
                 <div class="d-table-row questions-list-data question-item" data-questionnid="{{questionnid}}">
@@ -23,6 +24,11 @@
                     <div class="d-table-cell text-center">{{failures}}</div>
                     <div class="d-table-cell text-center">{{noresponse}}</div>
                     <div class="d-table-cell text-center">{{time}}</div>
+                    <div class="d-table-cell text-center viewreport">
+                        <a href="{{questionreporturl}}" target="_blank">
+                            + <span>{{#str}}questionreport, mod_jqshow{{/str}}</span>
+                        </a>
+                    </div>
                 </div>
             {{/sessionquestions}}
         </div>

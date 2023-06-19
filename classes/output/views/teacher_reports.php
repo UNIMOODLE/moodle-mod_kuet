@@ -25,9 +25,14 @@
 
 namespace mod_jqshow\output\views;
 
+use coding_exception;
+use context_module;
+use dml_exception;
+use JsonException;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\jqshow;
 use mod_jqshow\models\sessions;
+use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
@@ -43,36 +48,44 @@ class teacher_reports implements renderable, templatable {
     public int $cmid;
     public int $sid;
     public int $userid;
+    public int $jqid;
 
     /**
      * @param int $cmid
      * @param int $jqshowid
      * @param int $sid
      * @param int $userid
+     * @param int $jqid
      */
-    public function __construct(int $cmid, int $jqshowid, int $sid, int $userid) {
+    public function __construct(int $cmid, int $jqshowid, int $sid, int $userid, int $jqid) {
         $this->jqshowid = $jqshowid;
         $this->cmid = $cmid;
         $this->sid = $sid;
         $this->userid = $userid;
+        $this->jqid = $jqid;
     }
 
     /**
      * @param renderer_base $output
      * @return stdClass
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        global $DB, $PAGE;
+        // TODO refactor.
+        global $DB, $PAGE, $USER;
         $jqshow = new jqshow($this->cmid);
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
         $data->cmid = $this->cmid;
-        if ($this->sid === 0) {
+        $cmcontext = context_module::instance($this->cmid);
+        if ($this->sid === 0) { // All sessions.
             $data->allreports = true;
             $data->endedsessions = $jqshow->get_completed_sessions();
-        } else if ($this->userid === 0) {
-            $data->onereport = true;
+        } else if ($this->userid === 0 && $this->jqid === 0) { // One session.
+            $data->sessionreport = true;
             $session = new jqshow_sessions($this->sid);
             $mode = $session->get('sessionmode');
             if ($mode !== sessions::INACTIVE_PROGRAMMED || $mode !== sessions::INACTIVE_MANUAL) {
@@ -81,9 +94,18 @@ class teacher_reports implements renderable, templatable {
             $data->sessionname = $session->get('name');
             $data->config = sessions::get_session_config($this->sid);
             $data->sessionquestions = reports::get_questions_data_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
-            $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
-        } else {
+            if ($session->get('anonymousanswer') === 1 && has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                $data->hasranking = true;
+                $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
+            }
+        } else if ($this->userid === 0 && $this->jqid !== 0) { // Question report.
+            $data = reports::get_question_report($this->cmid, $this->sid, $this->jqid);
+        } else { // User report.
             $session = new jqshow_sessions($this->sid);
+            if ($session->get('anonymousanswer') === 1 && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                throw new moodle_exception('anonymousanswers', 'mod_jqshow', '',
+                    [], get_string('anonymousanswers', 'mod_jqshow'));
+            }
             $data->userreport = true;
             $data->sessionname = $session->get('name');
             $userdata = $DB->get_record('user', ['id' => $this->userid]);

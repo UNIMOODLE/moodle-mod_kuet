@@ -27,6 +27,7 @@ namespace mod_jqshow\models;
 
 use coding_exception;
 use core\invalid_persistent_exception;
+use core_availability\info_module;
 use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
@@ -34,6 +35,7 @@ use JsonException;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
@@ -204,7 +206,8 @@ class questions {
                 $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
         $data->questiontext =
             self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
@@ -317,7 +320,8 @@ class questions {
                 // TODO not yet designed.
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
         return $data;
     }

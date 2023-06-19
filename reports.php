@@ -35,6 +35,7 @@ global $CFG, $PAGE, $DB, $COURSE, $USER;
 $cmid = required_param('cmid', PARAM_INT);    // Course Module ID.
 $sid = optional_param('sid', 0, PARAM_INT);    // Session id.
 $userid = optional_param('userid', 0, PARAM_INT);
+$jqid = optional_param('jqid', 0, PARAM_INT);
 
 $cm = get_coursemodule_from_id('jqshow', $cmid, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
@@ -55,14 +56,15 @@ navigation_node::override_active_url(new moodle_url('/mod/jqshow/reports.php', [
 
 if ($isteacher) {
     $PAGE->add_body_classes(['jqshow-reports', 'jqshow-reports jqshow-teacher-reports']);
-    $view = new teacher_reports($cmid, $jqshow->get('id'), $sid, $userid);
+    $view = new teacher_reports($cmid, $jqshow->get('id'), $sid, $userid, $jqid);
 } else {
     if ((int)$userid !== 0 && (int)$userid !== (int)$USER->id) {
         redirect(
             (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid, 'userid' => $USER->id]))->out(false),
             null, notification::NOTIFY_ERROR
         );
-        throw new moodle_exception('otheruserreport', 'mod_jqshow');
+        throw new moodle_exception('otheruserreport', 'mod_jqshow', '',
+            [], get_string('otheruserreport', 'mod_jqshow'));
     }
     $PAGE->add_body_classes(['jqshow-reports', 'jqshow-student-reports']);
     $view = new student_reports($cm->id, $jqshow->get('id'), $sid);
