@@ -8,6 +8,7 @@ import ModalEvents from 'core/modal_events';
 import ModalJqshow from 'mod_jqshow/modal';
 import Ajax from 'core/ajax';
 import Notification from 'core/notification';
+import {get_string as getString} from 'core/str';
 
 let REGION = {
     ROOT: '[data-region="question-list"]', // This root.
@@ -72,19 +73,22 @@ UserReport.prototype.seeAnswer = function(e) {
                     ...question,
                     ...answer
                 };
-                Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
-                    ModalFactory.create({
-                        classes: 'modal_jqshow',
-                        body: html,
-                        footer: '',
-                        type: ModalJqshow.TYPE
-                    }).then(modal => {
-                        modal.getRoot().on(ModalEvents.hidden, function() {
-                            modal.destroy();
-                        });
-                        jQuery(REGION.LOADING).remove();
-                        modal.show();
-                        Templates.runTemplateJS(js);
+                getString('viewquestion_user', 'mod_jqshow').done((title) => {
+                    Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
+                        ModalFactory.create({
+                            classes: 'modal_jqshow',
+                            body: html,
+                            title: title,
+                            footer: '',
+                            type: ModalJqshow.TYPE
+                        }).then(modal => {
+                            modal.getRoot().on(ModalEvents.hidden, function() {
+                                modal.destroy();
+                            });
+                            jQuery(REGION.LOADING).remove();
+                            modal.show();
+                            Templates.runTemplateJS(js);
+                        }).fail(Notification.exception);
                     }).fail(Notification.exception);
                 }).fail(Notification.exception);
             });

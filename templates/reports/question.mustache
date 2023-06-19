@@ -1,0 +1,126 @@
+<div class="col-12 question-report" data-region="question-report">
+    <!-- First data -->
+    <div class="d-flex justify-content-center">
+        <div class="card ml-2">
+            <div class="card-body">
+                <h5 class="card-title">{{#str}}question, mod_jqshow{{/str}}: {{position}}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{type}}</h6>
+                <div class="card-text">
+                    {{{questiontext}}}
+                </div>
+                <div class="question-preview" data-action="question-preview" data-sessionid="{{sessionid}}" data-questionnid="{{jqid}}" data-cmid="{{cmid}}">
+                    + <span>{{#str}}preview, mod_jqshow{{/str}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="card ml-2">
+            <div class="card-body">
+                <h5 class="card-title">{{#str}}correct_answers, mod_jqshow{{/str}}</h5>
+                <ul>
+                    {{#correctanswers}}
+                        <li>{{response}}: <b>{{score}}pt</b></li>
+                    {{/correctanswers}}
+                </ul>
+            </div>
+        </div>
+        <div class="card ml-2">
+            <div class="card-body">
+                <div class="card-text">
+                    <div class="alert alert-info mb-0" role="alert">
+                        <b>{{#str}}student_number, mod_jqshow{{/str}}: {{numusers}}</b>
+                    </div>
+                    <div class="alert alert-success mb-0" role="alert">
+                        <b>{{ percent_correct }}{{#str}}percent_correct, mod_jqshow{{/str}} ({{numcorrect}})</b>
+                    </div>
+                    <div class="alert alert-danger mb-0" role="alert">
+                        <b>{{ percent_incorrect }}{{#str}}percent_incorrect, mod_jqshow{{/str}} ({{numincorrect}})</b>
+                    </div>
+                    <div class="alert alert-warning mb-0" role="alert">
+                        <b>{{ percent_noresponse }}{{#str}}percent_noresponse, mod_jqshow{{/str}} ({{numnoresponse}})</b>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Second data -->
+    <div class="mt-3">
+        {{#answers}}
+            <div class="card mb-2 {{result}}">
+                <div class="card-body">
+                    <h5 class="card-title">{{{ answertext }}}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                    <span>
+                        {{resultstr}}
+                    </span>
+                    </h6>
+                    <div class="card-text">
+                        <div class="alert alert-info mb-0" role="alert">
+                            <b>{{#str}}response_number, mod_jqshow{{/str}}: {{numticked}}</b>
+                        </div>
+                    </div>
+                    <div class="card-text">
+                        <div class="alert alert-warning mb-0" role="alert">
+                            <b>{{#str}}average_time, mod_jqshow{{/str}}: {{averagetime}}</b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {{/answers}}
+    </div>
+    <!-- Ranking question data -->
+    <div class="col-12 col-lg-12 container">
+        <div class="ranking-list">
+            <h5 class="titlecontainer bg-primary">
+                {{#pix}} i/vote, mod_jqshow {{/pix}}
+                {{#str}}ranking, mod_jqshow{{/str}}
+            </h5>
+            <div class="ranking-users" data-region="ranking-users">
+                <div class="ranking-users-body d-table list-group" data-region="ranking_users">
+                    <div class="d-table-row ranking-users-thead">
+                        <div class="d-table-cell">{{#str}}participant, mod_jqshow{{/str}}</div>
+                        <div class="d-table-cell">{{#str}}response, mod_jqshow{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}status, mod_jqshow{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}score, mod_jqshow{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}score_moment, mod_jqshow{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}time, mod_jqshow{{/str}}</div>
+                        <div class="d-table-cell text-center"></div>
+                    </div>
+                    {{#questionranking}}
+                        <div class="d-table-row ranking-users-data user-item" data-userid="{{userid}}">
+                            <div class="d-table-cell">
+                                <div class="participant" data-userid="{{userid}}">
+                                    <a href="{{userprofileurl}}" target="_blank">
+                                        <img src="{{userimage}}" alt="{{userfullname}}">
+                                        <span class="user-fullname">
+                                            {{userfullname}}
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="d-table-cell">{{answertext}}</div>
+                            <div class="d-table-cell text-center">
+                                <div class="{{response}}">
+                                    <span>{{responsestr}}</span>
+                                </div>
+                            </div>
+                            <div class="d-table-cell text-center">{{userpoints}}</div>
+                            <div class="d-table-cell text-center">{{score_moment}}</div>
+                            <div class="d-table-cell text-center">{{time}}</div>
+                            <div class="d-table-cell text-center viewreport">
+                                <a href="{{viewreporturl}}">
+                                    + <span>{{#str}}viewreport_user, mod_jqshow{{/str}}</span>
+                                </a>
+                            </div>
+                        </div>
+                    {{/questionranking}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{{#js}}
+    require(['mod_jqshow/question_report'], function(questionReport) {
+        questionReport.questionReport('[data-region="question-report"]');
+    });
+{{/js}}

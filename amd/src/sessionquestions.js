@@ -1,7 +1,7 @@
 "use strict";
 
 import jQuery from 'jquery';
-import {get_strings as getStrings} from 'core/str';
+import {get_string as getString, get_strings as getStrings} from 'core/str';
 import Ajax from 'core/ajax';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
@@ -85,20 +85,23 @@ SessionQuestions.prototype.questionPreview = function(e) {
         };
         Ajax.call([request])[0].done(function(question) {
             Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
-                ModalFactory.create({
-                    classes: 'modal_jqshow',
-                    body: html,
-                    footer: '',
-                    type: ModalJqshow.TYPE
-                }).then(modal => {
-                    modal.getRoot().on(ModalEvents.hidden, function() {
-                        modal.destroy();
-                    });
-                    jQuery(REGION.LOADING).remove();
-                    modal.show();
-                    Templates.runTemplateJS(js);
+                getString('preview', 'mod_jqshow').done((title) => {
+                    ModalFactory.create({
+                        classes: 'modal_jqshow',
+                        body: html,
+                        title: title,
+                        footer: '',
+                        type: ModalJqshow.TYPE
+                    }).then(modal => {
+                        modal.getRoot().on(ModalEvents.hidden, function() {
+                            modal.destroy();
+                        });
+                        jQuery(REGION.LOADING).remove();
+                        modal.show();
+                        Templates.runTemplateJS(js);
+                    }).fail(Notification.exception);
                 }).fail(Notification.exception);
-            }).fail(Notification.exception);
+            });
         });
     });
 };
