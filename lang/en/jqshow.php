@@ -32,6 +32,7 @@ $string['jqshow:addinstance'] = 'Add a new Jam Quiz Show package';
 $string['jqshow:view'] = 'View Jam Quiz Show';
 $string['jqshow:managesessions'] = 'Manage Sessions';
 $string['jqshow:startsession'] = 'Initialise Sessions';
+$string['jqshow:viewanonymousanswers'] = 'View anonymous answers';
 $string['name'] = 'Name';
 $string['introduction'] = 'Description';
 $string['jqshow_header'] = 'JAM Quiz Show settings';

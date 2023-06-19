@@ -26,6 +26,7 @@
 namespace mod_jqshow\helpers;
 
 use coding_exception;
+use context_module;
 use dml_exception;
 use enrol_self\self_test;
 use JsonException;
@@ -248,7 +249,7 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_question_report(int $cmid, int $sid, int $jqid): stdClass {
-        global $DB;
+        global $DB, $USER;
         $session = new jqshow_sessions($sid);
         $question = new jqshow_questions($jqid);
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
@@ -316,7 +317,12 @@ class reports {
         $data->percent_correct = ($data->numcorrect / $data->numusers) * 100;
         $data->percent_incorrect = ($data->numincorrect / $data->numusers) * 100;
         $data->percent_noresponse = ($data->numnoresponse / $data->numusers) * 100;
-        $data->questionranking = self::get_ranking_for_question($users, $data->answers, $session, $question, $cmid, $sid, $jqid);
+        $cmcontext = context_module::instance($cmid);
+        if ($session->get('anonymousanswer') === 1 && has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+            $data->hasranking = true;
+            $data->questionranking =
+                self::get_ranking_for_question($users, $data->answers, $session, $question, $cmid, $sid, $jqid);
+        }
         return $data;
     }
 

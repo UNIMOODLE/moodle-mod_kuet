@@ -26,6 +26,7 @@
 namespace mod_jqshow\output\views;
 
 use coding_exception;
+use context_module;
 use dml_exception;
 use JsonException;
 use mod_jqshow\helpers\reports;
@@ -74,7 +75,7 @@ class teacher_reports implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         // TODO refactor.
-        global $DB, $PAGE;
+        global $DB, $PAGE, $USER;
         $jqshow = new jqshow($this->cmid);
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
@@ -92,7 +93,11 @@ class teacher_reports implements renderable, templatable {
             $data->sessionname = $session->get('name');
             $data->config = sessions::get_session_config($this->sid);
             $data->sessionquestions = reports::get_questions_data_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
-            $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
+            $cmcontext = context_module::instance($this->cmid);
+            if ($session->get('anonymousanswer') === 1 && has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                $data->hasranking = true;
+                $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
+            }
         } else if ($this->userid === 0 && $this->jqid !== 0) { // Question report.
             $data = reports::get_question_report($this->cmid, $this->sid, $this->jqid);
         } else {
