@@ -40,7 +40,8 @@ $cid = required_param('cid', PARAM_INT);    // Course ID. mdl_course.
 
 $jqquestion = $DB->get_record('jqshow_questions', ['id' => $jqid], '*', MUST_EXIST);
 if (!in_array($jqquestion->qtype, questions::TYPES, true)) {
-    throw new moodle_exception('incompatible_question', 'mod_jqshow');
+    throw new moodle_exception('incompatible_question', 'mod_jqshow', '',
+        [], get_string('incompatible_question', 'mod_jqshow'));
 }
 
 $question = $DB->get_record('question', ['id' => $jqquestion->questionid], '*', MUST_EXIST);

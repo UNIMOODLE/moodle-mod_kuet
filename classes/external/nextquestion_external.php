@@ -101,7 +101,8 @@ class nextquestion_external extends external_api {
                         $nextquestion->get('jqshowid'));
                     break;
                 default:
-                    throw new moodle_exception('question_nosuitable', 'mod_jqshow');
+                    throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                        [], get_string('question_nosuitable', 'mod_jqshow'));
             }
         } else {
             $session = new jqshow_sessions($sessionid);

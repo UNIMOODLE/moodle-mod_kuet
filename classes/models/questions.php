@@ -206,7 +206,8 @@ class questions {
                 $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
         $data->questiontext =
             self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
@@ -319,7 +320,8 @@ class questions {
                 // TODO not yet designed.
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
         return $data;
     }

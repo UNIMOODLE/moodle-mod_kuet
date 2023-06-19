@@ -166,7 +166,8 @@ class jqshow_questions extends persistent {
                 }
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
         return $nextquestion;
     }
