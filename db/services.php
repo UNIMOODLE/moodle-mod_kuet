@@ -33,6 +33,7 @@ use mod_jqshow\external\getactivesession_external;
 use mod_jqshow\external\getlistresults_external;
 use mod_jqshow\external\getquestion_external;
 use mod_jqshow\external\getuserquestionresponse_external;
+use mod_jqshow\external\jumptoquestion_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
 use mod_jqshow\external\reorderquestions_external;
@@ -242,6 +243,14 @@ $functions = [
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_jumptoquestion' => [
+        'classname' => jumptoquestion_external::class,
+        'methodname' => 'jumptoquestion',
+        'description' => 'Get question from order in session.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -270,7 +279,8 @@ $services = [
             'mod_jqshow_session_getallquestions',
             'mod_jqshow_getuserquestionresponse',
             'mod_jqshow_getquestion',
-            'mod_jqshow_deleteresponses'
+            'mod_jqshow_deleteresponses',
+            'mod_jqshow_jumptoquestion'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

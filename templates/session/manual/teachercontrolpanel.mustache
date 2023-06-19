@@ -30,11 +30,22 @@
                 </div>
                 <span>{{#str}}resend, mod_jqshow{{/str}}</span>
             </div>
-            <div class="control-action" data-action="jump">
-                <div class="control-action-icon bg-primary">
-                    {{#pix}}i/jump, mod_jqshow{{/pix}}
+            <div class="dropdown show">
+                <div class="control-action dropdown-toggle" role="button" id="jumpTo" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <div class="control-action-icon bg-primary">
+                        {{#pix}}i/jump, mod_jqshow{{/pix}}
+                    </div>
+                    <span>{{#str}}jump, mod_jqshow{{/str}}</span>
                 </div>
-                <span>{{#str}}jump, mod_jqshow{{/str}}</span>
+                <div class="dropdown-menu" aria-labelledby="jumpTo">
+                    <form class="form-inline">
+                        <div class="form-group ml-2 mr-2 mb-2">
+                            <label for="jumpToNumber" class="sr-only">{{#str}}question_number, mod_jqshow{{/str}}</label>
+                            <input type="number" class="form-control" id="jumpToNumber" data-input="jumpto" data-numquestions="{{numquestions}}" placeholder="{{#str}}question_number, mod_jqshow{{/str}}" min="1" max="{{numquestions}}">
+                        </div>
+                        <div data-action="jump" class="btn btn-primary mb-2 mr-2">{{#str}}jump, mod_jqshow{{/str}}</div>
+                    </form>
+                </div>
             </div>
             <div class="control-action" data-action="finishquestion">
                 <div class="control-action-icon bg-primary">

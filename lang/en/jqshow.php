@@ -99,6 +99,7 @@ $string['completed_sessions'] = 'Completed sessions';
 $string['create_session'] = 'Create session';
 $string['session_name'] = 'Session Name';
 $string['questions_number'] = 'No. of questions';
+$string['question_number'] = 'No. of question';
 $string['session_date'] = 'Date';
 $string['session_actions'] = 'Actions';
 $string['init_session'] = 'Init Session';

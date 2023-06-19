@@ -32,7 +32,8 @@ let SERVICES = {
     NEXTQUESTION: 'mod_jqshow_nextquestion',
     FIRSTQUESTION: 'mod_jqshow_firstquestion',
     FINISHSESSION: 'mod_jqshow_finishsession',
-    DELETERESPONSES: 'mod_jqshow_deleteresponses'
+    DELETERESPONSES: 'mod_jqshow_deleteresponses',
+    JUMPTOQUESTION: 'mod_jqshow_jumptoquestion'
 };
 
 let TEMPLATES = {
@@ -156,7 +157,6 @@ let cmid = null;
 let sid = null;
 let db = null;
 let questionsJqids = [];
-// eslint-disable-next-line no-unused-vars
 let waitingRoom = true;
 let currentQuestionJqid = null;
 let nextQuestionJqid = null;
@@ -317,6 +317,9 @@ Sockets.prototype.initListeners = function() {
     }, false);
     addEventListener('resendSelf', () => {
         that.resendSelf();
+    }, false);
+    addEventListener('jumpTo', (e) => {
+        that.jumpTo(e.detail.jumpTo);
     }, false);
     addEventListener('teacherQuestionEndSelf', () => {
         that.questionEnd();
@@ -591,6 +594,46 @@ Sockets.prototype.resendSelf = function() {
                 });
             };
         }
+    }).fail(Notification.exception);
+};
+
+Sockets.prototype.jumpTo = function(questionNumber) {
+    let that = this;
+    let request = {
+        methodname: SERVICES.JUMPTOQUESTION,
+        args: {
+            cmid: cmid,
+            sessionid: sid,
+            position: questionNumber,
+            manual: true
+        }
+    };
+    nextQuestionJqid = null;
+    Ajax.call([request])[0].done(function(question) {
+        let data = {
+            jqid: question.jqid,
+            value: question
+        };
+        db.add('questions', data);
+        currentQuestionJqid = question.jqid;
+        that.getNextQuestion(question.jqid);
+        let msg = {
+            'action': 'question',
+            'sid': sid,
+            'context': question
+        };
+        // TODO review, because it only works for teacher, student with blank screen.
+        Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+            let identifier = jQuery(REGION.TEACHERCANVAS);
+            identifier.append(html);
+            question.isteacher = true;
+            Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
+                identifier.html(html);
+                Templates.runTemplateJS(js);
+                jQuery(REGION.LOADING).remove();
+            }).fail(Notification.exception);
+        });
     }).fail(Notification.exception);
 };
 

@@ -5,6 +5,7 @@ import jQuery from 'jquery';
 
 let REGION = {
     CONTROLPANEL: '[data-region="teacher_control_panel"]', // This root.
+    JUMPTOINPUT: '[data-input="jumpto"]',
 };
 
 let ACTION = {
@@ -41,7 +42,6 @@ const nextEvent = new Event('nextQuestion');
 const pauseEvent = new Event('pauseQuestionSelf');
 const playEvent = new Event('playQuestionSelf');
 const resendEvent = new Event('resendSelf');
-const jumpEvent = new Event('jumpTo');
 const finishquestionEventSelf = new Event('teacherQuestionEndSelf');
 const endSession = new Event('endSession');
 let finishquestionEvent = null;
@@ -79,7 +79,16 @@ TeacherControlPanel.prototype.resend = function() {
 };
 
 TeacherControlPanel.prototype.jump = function() {
-    dispatchEvent(jumpEvent);
+    let numquestion = jQuery(REGION.JUMPTOINPUT).data('numquestions');
+    let value = jQuery(REGION.JUMPTOINPUT).val();
+    if (value > numquestion || value < 1) {
+        jQuery(REGION.JUMPTOINPUT).val('');
+    } else {
+        let jumpEvent = new CustomEvent('jumpTo', {
+            "detail": {"jumpTo": value}
+        });
+        dispatchEvent(jumpEvent);
+    }
 };
 
 TeacherControlPanel.prototype.finishquestion = function() {

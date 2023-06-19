@@ -27,33 +27,40 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_module;
+use core\invalid_persistent_exception;
 use dml_exception;
+use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use JsonException;
+use mod_jqshow\helpers\progress;
 use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class firstquestion_external extends external_api {
+class jumptoquestion_external extends external_api {
 
     /**
      * @return external_function_parameters
      */
-    public static function firstquestion_parameters(): external_function_parameters {
+    public static function jumptoquestion_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
+                'position' => new external_value(PARAM_INT, 'Order of question'),
+                'manual' => new external_value(PARAM_BOOL, 'Mode of session', VALUE_OPTIONAL)
             ]
         );
     }
@@ -61,62 +68,80 @@ class firstquestion_external extends external_api {
     /**
      * @param int $cmid
      * @param int $sessionid
+     * @param int $position
+     * @param bool $manual
      * @return array
+     * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function firstquestion(int $cmid, int $sessionid): array {
-        global $PAGE;
+    public static function jumptoquestion(int $cmid, int $sessionid, int $position, bool $manual = false): array {
+        global $PAGE, $USER;
         self::validate_parameters(
-            self::firstquestion_parameters(),
-            ['cmid' => $cmid, 'sessionid' => $sessionid]
+            self::jumptoquestion_parameters(),
+            ['cmid' => $cmid, 'sessionid' => $sessionid, 'position' => $position]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
-        $firstquestion = jqshow_questions::get_first_question_of_session($sessionid);
-        switch ($firstquestion->get('qtype')) {
-            case 'multichoice':
-                $data = questions::export_multichoice(
-                    $firstquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $firstquestion->get('jqshowid'));
-                break;
-            default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                    [], get_string('question_nosuitable', 'mod_jqshow'));
+        $question = jqshow_questions::get_question_by_position($sessionid, $position);
+        if ($question !== false) {
+            progress::set_progress(
+                $question->get('jqshowid'), $sessionid, $USER->id, $cmid, $question->get('id')
+            );
+            switch ($question->get('qtype')) {
+                case 'multichoice':
+                    $data = questions::export_multichoice(
+                        $question->get('id'),
+                        $cmid,
+                        $sessionid,
+                        $question->get('jqshowid'));
+                    break;
+                default:
+                    throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                        [], get_string('question_nosuitable', 'mod_jqshow'));
+            }
+        } else {
+            $session = new jqshow_sessions($sessionid);
+            $finishdata = new stdClass();
+            $finishdata->endSession = 1;
+            jqshow_user_progress::add_progress(
+                $session->get('jqshowid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
+            );
+            $data = questions::export_endsession(
+                $cmid,
+                $sessionid);
         }
-        $session = new jqshow_sessions($sessionid);
-        $data->programmedmode = $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED;
+        $data->programmedmode = $manual === false;
         return (array)$data;
     }
 
     /**
      * @return external_single_structure
      */
-    public static function firstquestion_returns(): external_single_structure {
+    public static function jumptoquestion_returns(): external_single_structure {
         // TODO adapt to any type of question.
         // TODO exporter for reuse.
         return new external_single_structure([
             'cmid' => new external_value(PARAM_INT, 'Course module id'),
             'sessionid' => new external_value(PARAM_INT, 'Session id'),
             'jqshowid' => new external_value(PARAM_INT, 'jq show id'),
-            'questionid' => new external_value(PARAM_INT, 'id of jqshow'),
-            'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
-            'question_index_string' => new external_value(PARAM_RAW, 'String for progress session'),
+            'questionid' => new external_value(PARAM_INT, 'id of jqshow', VALUE_OPTIONAL),
+            'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions', VALUE_OPTIONAL),
+            'question_index_string' => new external_value(PARAM_RAW, 'String for progress session', VALUE_OPTIONAL),
             'numquestions' => new external_value(PARAM_INT, 'Total number of questions', VALUE_OPTIONAL),
-            'sessionprogress' => new external_value(PARAM_INT, 'Int for progress bar'),
-            'questiontext' => new external_value(PARAM_RAW, 'Statement of question'),
-            'questiontextformat' => new external_value(PARAM_RAW, 'Format of statement'),
-            'hastime' => new external_value(PARAM_BOOL, 'Question has time'),
+            'sessionprogress' => new external_value(PARAM_INT, 'Int for progress bar', VALUE_OPTIONAL),
+            'questiontext' => new external_value(PARAM_RAW, 'Statement of question', VALUE_OPTIONAL),
+            'questiontextformat' => new external_value(PARAM_RAW, 'Format of statement', VALUE_OPTIONAL),
+            'hastime' => new external_value(PARAM_BOOL, 'Question has time', VALUE_OPTIONAL),
             'seconds' => new external_value(PARAM_INT, 'Seconds of question', VALUE_OPTIONAL),
             'preview' => new external_value(PARAM_BOOL, 'Is preview or not', VALUE_OPTIONAL),
             'numanswers' => new external_value(PARAM_INT, 'Num of answer for multichoice', VALUE_OPTIONAL),
-            'name' => new external_value(PARAM_RAW, 'Name of question'),
+            'name' => new external_value(PARAM_RAW, 'Name of question', VALUE_OPTIONAL),
             'qtype' => new external_value(PARAM_RAW, 'Type of question'),
-            'programmedmode' => new external_value(PARAM_BOOL, 'Mode programmed', VALUE_OPTIONAL),
+            'programmedmode' => new external_value(PARAM_BOOL, 'Mode programmed'),
             'manualmode' => new external_value(PARAM_BOOL, 'Mode manual', VALUE_OPTIONAL),
             'port' => new external_value(PARAM_RAW, 'Port for sockets', VALUE_OPTIONAL),
             'countdown' => new external_value(PARAM_BOOL, 'Show or hide timer', VALUE_OPTIONAL),
@@ -139,7 +164,11 @@ class firstquestion_external extends external_api {
                         'feedbackformat' => new external_value(PARAM_INT, 'Format of feedback')
                     ], ''
                 ), '', VALUE_OPTIONAL
-            )
+            ),
+            'endsession' => new external_value(PARAM_BOOL, 'Type of question for mustache', VALUE_OPTIONAL),
+            'endsessionimage' => new external_value(PARAM_RAW, 'Image for endsesion', VALUE_OPTIONAL),
+            'courselink' => new external_value(PARAM_URL, 'Url of course', VALUE_OPTIONAL),
+            'reportlink' => new external_value(PARAM_URL, 'Url of session report', VALUE_OPTIONAL),
         ]);
     }
 }

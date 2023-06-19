@@ -108,6 +108,7 @@ class getquestion_external extends external_api {
             'questionid' => new external_value(PARAM_INT, 'id of jqshow'),
             'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
             'question_index_string' => new external_value(PARAM_RAW, 'String for progress session'),
+            'numquestions' => new external_value(PARAM_INT, 'Total number of questions', VALUE_OPTIONAL),
             'sessionprogress' => new external_value(PARAM_INT, 'Int for progress bar'),
             'questiontext' => new external_value(PARAM_RAW, 'Statement of question'),
             'questiontextformat' => new external_value(PARAM_RAW, 'Format of statement'),
