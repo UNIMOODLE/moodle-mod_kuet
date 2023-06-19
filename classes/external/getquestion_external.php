@@ -86,7 +86,8 @@ class getquestion_external extends external_api {
                 $data = questions::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow');
+                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                    [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $session = new jqshow_sessions($sessionid);
         $data->programmedmode = in_array($session->get('sessionmode'),

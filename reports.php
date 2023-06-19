@@ -63,7 +63,8 @@ if ($isteacher) {
             (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid, 'userid' => $USER->id]))->out(false),
             null, notification::NOTIFY_ERROR
         );
-        throw new moodle_exception('otheruserreport', 'mod_jqshow');
+        throw new moodle_exception('otheruserreport', 'mod_jqshow', '',
+            [], get_string('otheruserreport', 'mod_jqshow'));
     }
     $PAGE->add_body_classes(['jqshow-reports', 'jqshow-student-reports']);
     $view = new student_reports($cm->id, $jqshow->get('id'), $sid);

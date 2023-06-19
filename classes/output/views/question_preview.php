@@ -69,7 +69,8 @@ class question_preview implements renderable, templatable {
                 $data = questions::export_multichoice($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
                 break;
             default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow');
+                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                    [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         return $data;
     }

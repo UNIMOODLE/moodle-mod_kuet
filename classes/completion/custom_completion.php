@@ -49,7 +49,8 @@ class custom_completion extends activity_custom_completion {
         $jqshowid = $this->cm->instance;
 
         if (!$DB->get_record('jqshow', ['id' => $jqshowid])) {
-            throw new moodle_exception('Unable to find jqshow with id ' . $jqshowid);
+            throw new moodle_exception('jqshownotexist', 'mod_jqshow', '',
+                [], get_string('jqshownotexist', 'mod_jqshow', $jqshowid));
         }
         // TODO: get status.
         return COMPLETION_INCOMPLETE;

@@ -300,3 +300,5 @@ $string['response'] = 'Response';
 $string['score_moment'] = 'Momentum score';
 $string['time'] = 'Time';
 $string['status'] = 'Status';
+$string['anonymousanswers'] = 'The answers to this questionnaire are anonymous.';
+$string['jqshownotexist'] = 'Unable to find jqshow with id {$a}';
