@@ -1,4 +1,4 @@
-<div class="questions-list-body d-table list-group" data-region="question_list">
+<div class="questions-list-body d-table list-group" data-region="question_list" data-sid="{{sid}}" data-cmid="{{cmid}}" data-jqshowid="{{jqshowid}}">
     <div class="d-table-row questions-list-thead">
         {{^ispage3}}
             {{^waitingroom}}
@@ -68,13 +68,9 @@
     {{/sessionquestions}}
 </div>
 {{#js}}
-    {{^ispage3}}
-        {{^waitingroom}}
-            require(['mod_jqshow/sessionquestions'],
-                function(SessionQuestions) {
-                    SessionQuestions.initSessionQuestions('[data-region="questions-panel"]');
-                }
-            );
-        {{/waitingroom}}
-    {{/ispage3}}
+    require(['mod_jqshow/sessionquestions'],
+        function(SessionQuestions) {
+            SessionQuestions.initSessionQuestions('[data-region="question_list"]');
+        }
+    );
 {{/js}}

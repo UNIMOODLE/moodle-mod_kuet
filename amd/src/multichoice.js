@@ -70,6 +70,17 @@ MultiChoice.prototype.initMultichoice = function() {
     addEventListener('teacherQuestionEnd_' + jqid, () => {
         this.reply();
     }, {once: true});
+    addEventListener('pauseQuestion_' + jqid, () => {
+        this.pauseQuestion();
+    }, false);
+    addEventListener('playQuestion_' + jqid, () => {
+        this.playQuestion();
+    }, false);
+    addEventListener('teacherQuestionEnd_' + jqid, () => {
+        this.reply();
+    }, {once: true});
+
+    // TODO test well, and add/replace alternative methods.
     window.addEventListener('beforeunload' + jqid, () => { // TODO delete this listener, not work.
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
             that.reply();
@@ -145,12 +156,22 @@ MultiChoice.prototype.answered = function(response) {
         correctAnswers.forEach((answ) => {
             jQuery('[data-answerid="' + answ + '"] .incorrect').css('display', 'none');
             jQuery(REGION.FEEDBACKBACGROUND).css('height', '100%');
-            /*setTimeout(function() {
-                let contentHeight = jQuery(REGION.MULTICHOICE).outerHeight();
-                jQuery(REGION.FEEDBACKBACGROUND).css('height', contentHeight + 'px');
-            }, 100);*/
         });
     }
+};
+
+MultiChoice.prototype.pauseQuestion = function() {
+    dispatchEvent(new Event('pauseQuestion'));
+    jQuery(REGION.TIMER).css('z-index', 3);
+    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
+    jQuery(ACTION.REPLY).css('pointer-events', 'none');
+};
+
+MultiChoice.prototype.playQuestion = function() {
+    dispatchEvent(new Event('playQuestion'));
+    jQuery(REGION.TIMER).css('z-index', 1);
+    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
+    jQuery(ACTION.REPLY).css('pointer-events', 'auto');
 };
 
 export const initMultiChoice = (selector, jsonresponse) => {

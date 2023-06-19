@@ -31,7 +31,8 @@ let SERVICES = {
     GETALLQUESTIONS: 'mod_jqshow_session_getallquestions',
     NEXTQUESTION: 'mod_jqshow_nextquestion',
     FIRSTQUESTION: 'mod_jqshow_firstquestion',
-    FINISHSESSION: 'mod_jqshow_finishsession'
+    FINISHSESSION: 'mod_jqshow_finishsession',
+    DELETERESPONSES: 'mod_jqshow_deleteresponses'
 };
 
 let TEMPLATES = {
@@ -159,7 +160,6 @@ let questionsJqids = [];
 let waitingRoom = true;
 let currentQuestionJqid = null;
 let nextQuestionJqid = null;
-let currentCuestionJqid = null;
 
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
@@ -268,6 +268,12 @@ Sockets.prototype.initSockets = function() {
                     '<div class="alert alert-danger" role="alert">' + response.message + '</div>'
                 );
                 break;
+            case 'pauseQuestion':
+                dispatchEvent(new Event('pauseQuestion_' + response.jqid));
+                break;
+            case 'playQuestion':
+                dispatchEvent(new Event('playQuestion_' + response.jqid));
+                break;
             default:
                 break;
         }
@@ -302,6 +308,15 @@ Sockets.prototype.initListeners = function() {
     let that = this;
     addEventListener('nextQuestion', () => {
         that.nextQuestion();
+    }, false);
+    addEventListener('pauseQuestionSelf', () => {
+        that.pauseQuestion();
+    }, false);
+    addEventListener('playQuestionSelf', () => {
+        that.playQuestion();
+    }, false);
+    addEventListener('resendSelf', () => {
+        that.resendSelf();
     }, false);
     addEventListener('teacherQuestionEndSelf', () => {
         that.questionEnd();
@@ -394,7 +409,7 @@ Sockets.prototype.initSession = function() {
                     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                         let identifier = jQuery(REGION.TEACHERCANVAS);
                         identifier.append(html);
-                        currentCuestionJqid = firstQuestion.result.jqid;
+                        currentQuestionJqid = firstQuestion.result.jqid;
                         firstQuestion.result.value.isteacher = true;
                         Templates.render(TEMPLATES.QUESTION, firstQuestion.result.value).then(function(html, js) {
                             identifier.html(html);
@@ -472,7 +487,7 @@ Sockets.prototype.endSession = function() {
 Sockets.prototype.nextQuestion = function() {
     let that = this;
     if (nextQuestionJqid === null) {
-        this.getNextQuestion(currentCuestionJqid);
+        this.getNextQuestion(currentQuestionJqid);
     }
     let nextQuestion = db.get('statequestions', 'nextQuestion');
     nextQuestion.onsuccess = function() {
@@ -488,7 +503,7 @@ Sockets.prototype.nextQuestion = function() {
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.TEACHERCANVAS);
                     identifier.append(html);
-                    currentCuestionJqid = nextQuestionData.result.jqid;
+                    currentQuestionJqid = nextQuestionData.result.jqid;
                     // The following question is marked as current.
                     that.setCurrentQuestion(nextQuestionData.result.jqid);
                     // And get the next question to store it.
@@ -513,7 +528,7 @@ Sockets.prototype.nextQuestion = function() {
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.TEACHERCANVAS);
                     identifier.append(html);
-                    currentCuestionJqid = null;
+                    currentQuestionJqid = null;
                     that.setEndSession(endSession.result);
                     endSession.result.value.isteacher = true;
                     Templates.render(TEMPLATES.QUESTION, endSession.result.value).then(function(html, js) {
@@ -527,11 +542,63 @@ Sockets.prototype.nextQuestion = function() {
     };
 };
 
+Sockets.prototype.pauseQuestion = function() {
+    let msg = {
+        'action': 'pauseQuestion',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.playQuestion = function() {
+    let msg = {
+        'action': 'playQuestion',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.resendSelf = function() {
+    let request = {
+        methodname: SERVICES.DELETERESPONSES,
+        args: {
+            cmid: cmid,
+            sessionid: sid,
+            jqid: currentQuestionJqid
+        }
+    };
+    Ajax.call([request])[0].done(function(response) {
+        if (response.deleted === true) {
+            let currentQuestionData = db.get('questions', currentQuestionJqid);
+            currentQuestionData.onsuccess = function() {
+                let msg = {
+                    'action': 'question',
+                    'sid': sid,
+                    'context': currentQuestionData.result
+                };
+                Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                    let identifier = jQuery(REGION.TEACHERCANVAS);
+                    identifier.append(html);
+                    currentQuestionData.result.value.isteacher = true;
+                    Templates.render(TEMPLATES.QUESTION, currentQuestionData.result.value).then(function(html, js) {
+                        identifier.html(html);
+                        Templates.runTemplateJS(js);
+                        jQuery(REGION.LOADING).remove();
+                    }).fail(Notification.exception);
+                });
+            };
+        }
+    }).fail(Notification.exception);
+};
+
 Sockets.prototype.questionEnd = function() {
     let msg = {
         'action': 'teacherQuestionEnd',
         'sid': sid,
-        'jqid': currentCuestionJqid
+        'jqid': currentQuestionJqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };

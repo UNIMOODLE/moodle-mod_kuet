@@ -10,6 +10,7 @@ let REGION = {
 let ACTION = {
     NEXT: '[data-action="next"]',
     PAUSE: '[data-action="pause"]',
+    PLAY: '[data-action="play"]',
     RESEND: '[data-action="resend"]',
     JUMP: '[data-action="jump"]',
     FINISHQUESTION: '[data-action="finishquestion"]',
@@ -37,8 +38,9 @@ function TeacherControlPanel(region, jqid) {
 }
 
 const nextEvent = new Event('nextQuestion');
-const pauseEvent = new Event('pauseTime');
-const resendEvent = new Event('resend');
+const pauseEvent = new Event('pauseQuestionSelf');
+const playEvent = new Event('playQuestionSelf');
+const resendEvent = new Event('resendSelf');
 const jumpEvent = new Event('jumpTo');
 const finishquestionEventSelf = new Event('teacherQuestionEndSelf');
 const endSession = new Event('endSession');
@@ -47,6 +49,7 @@ let finishquestionEvent = null;
 TeacherControlPanel.prototype.initControlPanel = function() {
     this.root.find(ACTION.NEXT).on('click', this.next);
     this.root.find(ACTION.PAUSE).on('click', this.pause);
+    this.root.find(ACTION.PLAY).on('click', this.play);
     this.root.find(ACTION.RESEND).on('click', this.resend);
     this.root.find(ACTION.JUMP).on('click', this.jump);
     this.root.find(ACTION.FINISHQUESTION).on('click', this.finishquestion);
@@ -59,8 +62,16 @@ TeacherControlPanel.prototype.next = function() {
     dispatchEvent(nextEvent);
 };
 
-TeacherControlPanel.prototype.pause = function() {
+TeacherControlPanel.prototype.pause = function(e) {
     dispatchEvent(pauseEvent);
+    jQuery(ACTION.PAUSE).addClass('d-none');
+    jQuery(ACTION.PLAY).removeClass('d-none');
+};
+
+TeacherControlPanel.prototype.play = function(e) {
+    dispatchEvent(playEvent);
+    jQuery(ACTION.PAUSE).removeClass('d-none');
+    jQuery(ACTION.PLAY).addClass('d-none');
 };
 
 TeacherControlPanel.prototype.resend = function() {

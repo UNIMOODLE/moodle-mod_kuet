@@ -237,6 +237,20 @@ class server extends websockets {
                             'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));
+            case 'pauseQuestion':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'pauseQuestion',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'playQuestion':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'playQuestion',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
             case 'shutdownTest':
                 foreach ($this->sockets as $socket) {
                     stream_socket_shutdown($socket, STREAM_SHUT_RDWR);

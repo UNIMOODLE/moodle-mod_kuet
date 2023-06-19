@@ -231,6 +231,7 @@ $string['controlpanel'] = 'Control panel';
 $string['control'] = 'Control';
 $string['next'] = 'Next';
 $string['pause'] = 'Pause';
+$string['play'] = 'Play';
 $string['resend'] = 'Reenviar';
 $string['jump'] = 'Jump';
 $string['finishquestion'] = 'Finish the question';

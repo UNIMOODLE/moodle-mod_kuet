@@ -24,7 +24,7 @@ let SERVICES = {
 };
 
 let REGION = {
-    ROOT: '[data-region="questions-panel"]',
+    ROOT: '[data-region="question_list"]',
     PANEL: '[data-region="questions-panel"]',
     LOADING: '[data-region="overlay-icon-container"]',
     SESSIONQUESTIONS: '[data-region="session-questions"]',

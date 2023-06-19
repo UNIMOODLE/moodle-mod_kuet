@@ -25,6 +25,7 @@
 
 use mod_jqshow\external\activesession_external;
 use mod_jqshow\external\copysession_external;
+use mod_jqshow\external\deleteresponses_external;
 use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\finishsession_external;
 use mod_jqshow\external\firstquestion_external;
@@ -233,6 +234,14 @@ $functions = [
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_deleteresponses' => [
+        'classname' => deleteresponses_external::class,
+        'methodname' => 'deleteresponses',
+        'description' => 'Delete all responses for one question',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -260,7 +269,8 @@ $services = [
             'mod_jqshow_getactivesession',
             'mod_jqshow_session_getallquestions',
             'mod_jqshow_getuserquestionresponse',
-            'mod_jqshow_getquestion'
+            'mod_jqshow_getquestion',
+            'mod_jqshow_deleteresponses'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

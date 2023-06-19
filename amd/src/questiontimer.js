@@ -21,6 +21,7 @@ function QuestionTimer(selector) {
 QuestionTimer.prototype.node = null;
 QuestionTimer.prototype.timeValue = null;
 QuestionTimer.prototype.countDown = null;
+QuestionTimer.prototype.isPaused = false;
 QuestionTimer.prototype.timeFinish = new Event('timeFinish');
 
 QuestionTimer.prototype.initTimer = function() {
@@ -33,10 +34,18 @@ QuestionTimer.prototype.initTimer = function() {
         } else {
             this.node.find(REGION.SECONDS).html(this.timeValue);
         }
-        this.timeValue -= 1;
+        if (!this.isPaused) {
+            this.timeValue -= 1;
+        }
     }, 1000);
     addEventListener('endTimer', () => {
         clearInterval(this.countDown);
+    }, false);
+    addEventListener('pauseQuestion', () => {
+        this.isPaused = true;
+    }, false);
+    addEventListener('playQuestion', () => {
+        this.isPaused = false;
     }, false);
 };
 
