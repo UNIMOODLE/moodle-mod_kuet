@@ -158,6 +158,12 @@ Sockets.prototype.initSockets = function() {
                     });
                 });
                 break;
+            case 'pauseQuestion':
+                dispatchEvent(new Event('pauseQuestion_' + response.jqid));
+                break;
+            case 'playQuestion':
+                dispatchEvent(new Event('playQuestion_' + response.jqid));
+                break;
             case 'endSession':
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.ROOT);

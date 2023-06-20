@@ -137,11 +137,23 @@ class jqshow_questions_responses extends persistent {
     }
 
     /**
+     * @param int $cmid
+     * @param int $sid
+     * @param int $jqid
+     * @return bool
+     * @throws dml_exception
+     */
+    public static function delete_question_resonses(int $jqshow, int $sid, int $jqid): bool {
+        global $DB;
+        return  $DB->delete_records(self::TABLE, ['jqshow' => $jqshow, 'session' => $sid, 'jqid' => $jqid]);
+    }
+
+    /**
      * @param int $sid
      * @return bool
      * @throws dml_exception
      */
-    public static function delete_question_resonses(int $sid): bool {
+    public static function delete_questions_resonses(int $sid): bool {
         global $DB;
         return  $DB->delete_records(self::TABLE, ['session' => $sid]);
     }

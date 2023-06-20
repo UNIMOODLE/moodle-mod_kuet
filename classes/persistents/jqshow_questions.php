@@ -173,6 +173,15 @@ class jqshow_questions extends persistent {
     }
 
     /**
+     * @param int $sid
+     * @param int $order
+     * @return false|jqshow_questions
+     */
+    public static function get_question_by_position(int $sid, int $order) {
+        return self::get_record(['sessionid' => $sid, 'qorder' => $order]);
+    }
+
+    /**
      * @param int $jqid
      * @return false|jqshow_questions
      */
