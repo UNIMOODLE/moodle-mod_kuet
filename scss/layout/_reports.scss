@@ -185,6 +185,15 @@ body#page-mod-jqshow-reports.jqshow-reports {
                                 }
                             }
                         }
+                        &.actions {
+                            a, div {
+                                width: 32px;
+                                margin: unset;
+                                .icon {
+                                    margin: 0;
+                                }
+                            }
+                        }
                         .failure,
                         .incorrect,
                         .success,

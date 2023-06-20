@@ -129,12 +129,14 @@
                                 <div class="d-table-cell text-center">{{score_moment}}</div>
                                 <div class="d-table-cell text-center">{{time}}</div>
                                 <div class="d-table-cell text-center actions">
-                                    <div class="mb-2" data-action="seeanswer" data-userid="{{id}}" data-sessionid="{{sessionid}}" data-questionnid="{{questionnid}}" data-cmid="{{cmid}}">
-                                        + <span>{{#str}}viewquestion_user, mod_jqshow{{/str}}</span>
-                                    </div>
-                                    <a href="{{viewreporturl}}">
-                                        + <span>{{#str}}viewreport_user, mod_jqshow{{/str}}</span>
-                                    </a>
+                                    <span class="d-flex align-items-cente justify-content-center">
+                                        <div class="mr-2" title="{{#str}}viewquestion_user, mod_jqshow{{/str}}" data-action="seeanswer" data-userid="{{id}}" data-sessionid="{{sessionid}}" data-questionnid="{{questionnid}}" data-cmid="{{cmid}}">
+                                            {{#pix}}i/preview, mod_jqshow{{/pix}}
+                                        </div>
+                                        <a href="{{viewreporturl}}" title="{{#str}}viewreport_user, mod_jqshow{{/str}}">
+                                            {{#pix}}i/vote, mod_jqshow{{/pix}}
+                                        </a>
+                                    </span>
                                 </div>
                             </div>
                         {{/questionranking}}
