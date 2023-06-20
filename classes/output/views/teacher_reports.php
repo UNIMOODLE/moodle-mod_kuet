@@ -94,7 +94,12 @@ class teacher_reports implements renderable, templatable {
             $data->sessionname = $session->get('name');
             $data->config = sessions::get_session_config($this->sid);
             $data->sessionquestions = reports::get_questions_data_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
-            if ($session->get('anonymousanswer') === 1 && has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+            if ($session->get('anonymousanswer') === 1) {
+                if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                    $data->hasranking = true;
+                    $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
+                }
+            } else {
                 $data->hasranking = true;
                 $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
             }

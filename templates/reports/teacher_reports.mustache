@@ -39,6 +39,9 @@
             {{/hasranking}}
         {{/sessionreport}}
         {{#questionreport}}
+            <a class="btn btn-primary back-report ml-auto" href="{{backurl}}">
+                {{#str}}back{{/str}}
+            </a>
             {{> mod_jqshow/reports/question }}
         {{/questionreport}}
         {{#userreport}}
