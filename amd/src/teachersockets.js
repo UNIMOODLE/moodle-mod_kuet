@@ -620,9 +620,8 @@ Sockets.prototype.jumpTo = function(questionNumber) {
         let msg = {
             'action': 'question',
             'sid': sid,
-            'context': question
+            'context': data
         };
-        // TODO review, because it only works for teacher, student with blank screen.
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
         Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
             let identifier = jQuery(REGION.TEACHERCANVAS);
