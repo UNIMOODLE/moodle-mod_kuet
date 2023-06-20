@@ -38,6 +38,7 @@ use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
+use pix_icon;
 use question_bank;
 use stdClass;
 use user_picture;
@@ -264,9 +265,11 @@ class reports {
         $data->type = $question->get('qtype');
         $questiondata = question_bank::load_question($questiondb->id);
         $data->questiontext = $questiondata->questiontext;
+        $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
         $answers = [];
         $correctanswers = [];
         switch ($data->type) {
+            // TODO recfactor.
             case 'multichoice':
                 foreach ($questiondata->answers as $key => $answer) {
                     $answers[$key]['answertext'] = $answer->answer;
@@ -284,6 +287,27 @@ class reports {
                         $answers[$key]['resultstr'] = get_string('partial', 'mod_jqshow');
                         $answers[$key]['fraction'] = $answer->fraction;
                     }
+                    if ($answers[$key]['result'] !== 'incorrect') {
+                        $icon = new pix_icon('i/correct', get_string('correct', 'mod_jqshow'), 'mod_jqshow', [
+                            'class' => 'icon',
+                            'title' => get_string('correct', 'mod_jqshow')
+                        ]);
+                        $usersicon = new pix_icon('i/correct_users', '', 'mod_jqshow', [
+                            'class' => 'icon',
+                            'title' => ''
+                        ]);
+                    } else {
+                        $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_jqshow'), 'mod_jqshow', [
+                            'class' => 'icon',
+                            'title' => get_string('incorrect', 'mod_jqshow')
+                        ]);
+                        $usersicon = new pix_icon('i/incorrect_users', '', 'mod_jqshow', [
+                            'class' => 'icon',
+                            'title' => ''
+                        ]);
+                    }
+                    $answers[$key]['resulticon'] = $icon->export_for_pix();
+                    $answers[$key]['usersicon'] = $usersicon->export_for_pix();
                     $answers[$key]['numticked'] = 0;
                     if ($answer->fraction !== '0.0000000') {
                         $correctanswers[$key]['response'] = $answer->answer;
@@ -318,7 +342,13 @@ class reports {
         $data->percent_incorrect = ($data->numincorrect / $data->numusers) * 100;
         $data->percent_noresponse = ($data->numnoresponse / $data->numusers) * 100;
         $cmcontext = context_module::instance($cmid);
-        if ($session->get('anonymousanswer') === 1 && has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+        if ($session->get('anonymousanswer') === 1) {
+            if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                $data->hasranking = true;
+                $data->questionranking =
+                    self::get_ranking_for_question($users, $data->answers, $session, $question, $cmid, $sid, $jqid);
+            }
+        } else {
             $data->hasranking = true;
             $data->questionranking =
                 self::get_ranking_for_question($users, $data->answers, $session, $question, $cmid, $sid, $jqid);
@@ -370,6 +400,7 @@ class reports {
                     }
                 } else {
                     $questiontimestr = self::get_time_string($session, $question);
+                    $user->response = 'noresponse';
                     $user->responsestr = get_string('noresponse', 'mod_jqshow');
                     $user->userpoints = 0;
                     $user->answertext = '-';
