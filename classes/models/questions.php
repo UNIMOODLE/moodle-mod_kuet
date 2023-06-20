@@ -26,6 +26,7 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
+use context_module;
 use core\invalid_persistent_exception;
 use core_availability\info_module;
 use dml_exception;
@@ -203,10 +204,12 @@ class questions {
                 $a->num = $order;
                 $a->total = $numsessionquestions;
                 $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+                $data->numquestions = $numsessionquestions;
                 $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
         $data->questiontext =
             self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
@@ -309,6 +312,11 @@ class questions {
                 $data->courselink = (new moodle_url('/course/view.php', ['id' => $jqshow->get('course')]))->out(false);
                 $data->reportlink = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $cmid, 'sid' => $sessionid, 'userid' => $USER->id]))->out(false);
+                $cmcontext = context_module::instance($cmid);
+                if ($session->get('sessionmode') === sessions::INACTIVE_MANUAL &&
+                    has_capability('mod/jqshow:startsession', $cmcontext)) {
+                    jqshow_sessions::mark_session_finished($sessionid);
+                }
                 break;
             case sessions::PODIUM_PROGRAMMED:
             case sessions::PODIUM_MANUAL:
@@ -319,7 +327,8 @@ class questions {
                 // TODO not yet designed.
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
         return $data;
     }

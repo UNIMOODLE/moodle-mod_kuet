@@ -397,7 +397,7 @@ class sessions {
         $data[] = [
             'iconconfig' => 'sessionmode',
             'configname' => get_string('sessionmode', 'mod_jqshow'),
-            'configvalue' => $sessiondata->get('sessionmode')
+            'configvalue' => get_string($sessiondata->get('sessionmode'), 'mod_jqshow')
         ];
 
         $data[] = [

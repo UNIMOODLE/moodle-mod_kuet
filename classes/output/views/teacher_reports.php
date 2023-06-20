@@ -26,6 +26,7 @@
 namespace mod_jqshow\output\views;
 
 use coding_exception;
+use context_module;
 use dml_exception;
 use JsonException;
 use mod_jqshow\helpers\reports;
@@ -74,11 +75,12 @@ class teacher_reports implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         // TODO refactor.
-        global $DB, $PAGE;
+        global $DB, $PAGE, $USER;
         $jqshow = new jqshow($this->cmid);
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
         $data->cmid = $this->cmid;
+        $cmcontext = context_module::instance($this->cmid);
         if ($this->sid === 0) { // All sessions.
             $data->allreports = true;
             $data->endedsessions = $jqshow->get_completed_sessions();
@@ -92,11 +94,18 @@ class teacher_reports implements renderable, templatable {
             $data->sessionname = $session->get('name');
             $data->config = sessions::get_session_config($this->sid);
             $data->sessionquestions = reports::get_questions_data_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
-            $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
+            if ($session->get('anonymousanswer') === 1 && has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                $data->hasranking = true;
+                $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
+            }
         } else if ($this->userid === 0 && $this->jqid !== 0) { // Question report.
             $data = reports::get_question_report($this->cmid, $this->sid, $this->jqid);
-        } else {
+        } else { // User report.
             $session = new jqshow_sessions($this->sid);
+            if ($session->get('anonymousanswer') === 1 && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                throw new moodle_exception('anonymousanswers', 'mod_jqshow', '',
+                    [], get_string('anonymousanswers', 'mod_jqshow'));
+            }
             $data->userreport = true;
             $data->sessionname = $session->get('name');
             $userdata = $DB->get_record('user', ['id' => $this->userid]);

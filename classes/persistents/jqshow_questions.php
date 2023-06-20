@@ -166,9 +166,19 @@ class jqshow_questions extends persistent {
                 }
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
         return $nextquestion;
+    }
+
+    /**
+     * @param int $sid
+     * @param int $order
+     * @return false|jqshow_questions
+     */
+    public static function get_question_by_position(int $sid, int $order) {
+        return self::get_record(['sessionid' => $sid, 'qorder' => $order]);
     }
 
     /**

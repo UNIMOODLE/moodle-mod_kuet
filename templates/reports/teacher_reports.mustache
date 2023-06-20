@@ -32,9 +32,11 @@
             <div class="col-12 col-lg-12 container">
                 {{> mod_jqshow/reports/teacher_questions }}
             </div>
-            <div class="col-12 col-lg-12 container">
-                {{> mod_jqshow/reports/teacher_ranking }}
-            </div>
+            {{#hasranking}}
+                <div class="col-12 col-lg-12 container">
+                    {{> mod_jqshow/reports/teacher_ranking }}
+                </div>
+            {{/hasranking}}
         {{/sessionreport}}
         {{#questionreport}}
             {{> mod_jqshow/reports/question }}

@@ -63,7 +63,8 @@ class student_session_view implements renderable, templatable {
         $session = new jqshow_sessions($sid);
         if ($session->get('status') !== 2) {
             // TODO session layaout not active or redirect to cmid view.
-            throw new moodle_exception('notactivesession', 'mod_jqshow');
+            throw new moodle_exception('notactivesession', 'mod_jqshow', '',
+                [], get_string('notactivesession', 'mod_jqshow'));
         }
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
@@ -108,7 +109,8 @@ class student_session_view implements renderable, templatable {
                         }
                         break;
                     default:
-                        throw new moodle_exception('question_nosuitable', 'mod_jqshow');
+                        throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                            [], get_string('question_nosuitable', 'mod_jqshow'));
                 }
                 $data->programmedmode = true;
                 break;
@@ -133,7 +135,8 @@ class student_session_view implements renderable, templatable {
                 $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow');
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
         return $data;
     }
