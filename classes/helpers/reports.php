@@ -264,7 +264,9 @@ class reports {
         $data->position = $question->get('qorder');
         $data->type = $question->get('qtype');
         $questiondata = question_bank::load_question($questiondb->id);
-        $data->questiontext = $questiondata->questiontext;
+        $data->questiontext = questions::get_text(
+            $cmid, $questiondata->questiontext, $questiondata->questiontextformat, $questiondata->id, $questiondata, 'questiontext'
+        );
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
         $answers = [];
         $correctanswers = [];
@@ -272,7 +274,7 @@ class reports {
             // TODO recfactor.
             case 'multichoice':
                 foreach ($questiondata->answers as $key => $answer) {
-                    $answers[$key]['answertext'] = $answer->answer;
+                    $answers[$key]['answertext'] = $answer->answer; // TODO get text with images questions::get_text.
                     $answers[$key]['answerid'] = $key;
                     if ($answer->fraction === '0.0000000') {
                         $answers[$key]['result'] = 'incorrect';

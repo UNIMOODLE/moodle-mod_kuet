@@ -99,6 +99,9 @@ class multichoice_external extends external_api {
         $PAGE->set_context($contextmodule);
 
         $question = question_bank::load_question($questionid);
+        $statmentfeedback = questions::get_text(
+            $cmid, $question->generalfeedback, 1, $question->id, $question, 'generalfeedback'
+        );
         $correctanswers = '';
         $answerfeedback = '';
         foreach ($question->answers as $key => $answer) {
@@ -109,16 +112,11 @@ class multichoice_external extends external_api {
             if (isset($answerid) && $key === $answerid && $answerfeedback === '') {
                 // TODO images do not work.
                 $answerfeedback = questions::get_text(
-                    $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
+                    $cmid, $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
                 );
             }
         }
         $correctanswers = trim($correctanswers, ',');
-
-        // TODO images do not work.
-        $statmentfeedback = questions::get_text(
-            $question->generalfeedback, 1, $question->id, $question, 'generalfeedback'
-        );
 
         if ($preview === false) {
             responses::multichoice_response(

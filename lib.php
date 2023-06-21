@@ -302,3 +302,47 @@ function get_letter_from_alphabet_for_letter($letter, $lettertochange) {
     return $temp[$poslettertochange];
 }
 
+function jqshow_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
+    global $DB;
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        return false;
+    }
+    if ($filearea != 'question') {
+        return false;
+    }
+    require_course_login($course, true, $cm);
+
+    $questionid = (int)array_shift($args);
+    $quiz = $DB->get_record('jqshow', ['id' => $cm->instance]);
+    if (!$quiz) {
+        return false;
+    }
+    $question = $DB->get_record('jqshow_questions', [
+        'questionid' => $questionid,
+        'jqshowid' => $cm->instance
+    ]);
+    if (!$question) {
+        return false;
+    }
+    $fs = get_file_storage();
+    $relative = implode('/', $args);
+    $fullpath = "/$context->id/mod_jqshow/$filearea/$questionid/$relative";
+    $file = $fs->get_file_by_hash(sha1($fullpath));
+    if (!$file || $file->is_directory()) {
+        return false;
+    }
+    send_stored_file($file);
+    return false;
+}
+
+function mod_jqshow_question_pluginfile($course, $context, $component, $filearea, $qubaid, $slot,
+                                          $args, $forcedownload, $options = []) {
+    $fs = get_file_storage();
+    $relative = implode('/', $args);
+    $full = "/$context->id/$component/$filearea/$relative";
+    $file = $fs->get_file_by_hash(sha1($full));
+    if (!$file || $file->is_directory()) {
+        send_file_not_found();
+    }
+    send_stored_file($file, 0, 0, $forcedownload, $options);
+}
