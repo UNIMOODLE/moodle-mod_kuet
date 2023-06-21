@@ -294,12 +294,9 @@ Sockets.prototype.initSockets = function() {
             code: ev.code
         };
         getString('connection_closed', 'mod_jqshow', reason).done((s) => {
-            messageBox.append(
-                '<div class="alert alert-warning" role="alert">' + s + '</div>'
+            jQuery(REGION.TEACHERCANVASCONTENT).prepend(
+                '<div class="alert alert-danger" role="alert">' + s + '</div>'
             );
-            setTimeout(() => {
-                // ... window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
-            }, 5000);
         });
     };
 };
