@@ -306,6 +306,9 @@ class questions {
                 $data->cmid = $cmid;
                 $data->sessionid = $sessionid;
                 $data->jqshowid = $session->get('jqshowid');
+                $data->questionid = 0;
+                $data->jqid = 0;
+                $data->question_index_string = '';
                 $data->endsessionimage = $OUTPUT->image_url('f/end_session', 'mod_jqshow')->out(false);
                 $data->qtype = 'endsession';
                 $data->endsession = true;

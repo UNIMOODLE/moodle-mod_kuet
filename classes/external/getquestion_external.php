@@ -27,11 +27,9 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_module;
-use dml_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
-use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
@@ -64,7 +62,7 @@ class getquestion_external extends external_api {
     /**
      * @param int $cmid
      * @param int $sessionid
-     * @param $jqid
+     * @param int $jqid
      * @return array
      * @throws JsonException
      * @throws dml_transaction_exception
@@ -72,7 +70,7 @@ class getquestion_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function getquestion(int $cmid, int $sessionid, $jqid): array {
+    public static function getquestion(int $cmid, int $sessionid, int $jqid): array {
         global $PAGE;
         self::validate_parameters(
             self::getquestion_parameters(),
@@ -83,65 +81,22 @@ class getquestion_external extends external_api {
         $session = new jqshow_sessions($sessionid);
         switch ((new jqshow_questions($jqid))->get('qtype')){
             case 'multichoice':
-                $data = questions::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = questions::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $session = new jqshow_sessions($sessionid);
-        $data->programmedmode = in_array($session->get('sessionmode'),
+        $question->programmedmode = in_array($session->get('sessionmode'),
             [sessions::PODIUM_PROGRAMMED, sessions::INACTIVE_PROGRAMMED, sessions::RACE_PROGRAMMED], true);
-        return (array)$data;
+        return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
     }
 
     /**
      * @return external_single_structure
      */
     public static function getquestion_returns(): external_single_structure {
-        // TODO adapt to any type of question.
-        // TODO exporter for reuse.
-        return new external_single_structure([
-            'cmid' => new external_value(PARAM_INT, 'Course module id'),
-            'sessionid' => new external_value(PARAM_INT, 'Session id'),
-            'jqshowid' => new external_value(PARAM_INT, 'jq show id'),
-            'questionid' => new external_value(PARAM_INT, 'id of jqshow'),
-            'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
-            'question_index_string' => new external_value(PARAM_RAW, 'String for progress session'),
-            'numquestions' => new external_value(PARAM_INT, 'Total number of questions', VALUE_OPTIONAL),
-            'sessionprogress' => new external_value(PARAM_INT, 'Int for progress bar'),
-            'questiontext' => new external_value(PARAM_RAW, 'Statement of question'),
-            'questiontextformat' => new external_value(PARAM_RAW, 'Format of statement'),
-            'hastime' => new external_value(PARAM_BOOL, 'Question has time'),
-            'seconds' => new external_value(PARAM_INT, 'Seconds of question', VALUE_OPTIONAL),
-            'preview' => new external_value(PARAM_BOOL, 'Is preview or not', VALUE_OPTIONAL),
-            'numanswers' => new external_value(PARAM_INT, 'Num of answer for multichoice', VALUE_OPTIONAL),
-            'name' => new external_value(PARAM_RAW, 'Name of question'),
-            'qtype' => new external_value(PARAM_RAW, 'Type of question'),
-            'programmedmode' => new external_value(PARAM_BOOL, 'Mode programmed', VALUE_OPTIONAL),
-            'manualmode' => new external_value(PARAM_BOOL, 'Mode manual', VALUE_OPTIONAL),
-            'port' => new external_value(PARAM_RAW, 'Port for sockets', VALUE_OPTIONAL),
-            'countdown' => new external_value(PARAM_BOOL, 'Show or hide timer', VALUE_OPTIONAL),
-            'multichoice' => new external_value(PARAM_BOOL, 'Type of question for mustache', VALUE_OPTIONAL),
-            'answers' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'answerid'   => new external_value(PARAM_INT, 'Answer id'),
-                        'questionid' => new external_value(PARAM_INT, 'Question id of table questions'),
-                        'answertext' => new external_value(PARAM_RAW, 'Answer text'),
-                        'fraction' => new external_value(PARAM_RAW, 'value of answer')
-                    ], ''
-                ), '', VALUE_OPTIONAL
-            ),
-            'feedbacks' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'answerid'   => new external_value(PARAM_INT, 'Answer id of feedback'),
-                        'feedback' => new external_value(PARAM_RAW, 'Feedback text'),
-                        'feedbackformat' => new external_value(PARAM_INT, 'Format of feedback')
-                    ], ''
-                ), '', VALUE_OPTIONAL
-            )
-        ]);
+        return question_exporter::get_read_structure();
     }
 }

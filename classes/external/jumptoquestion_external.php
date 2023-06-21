@@ -28,11 +28,9 @@ namespace mod_jqshow\external;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
-use dml_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
-use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
@@ -115,60 +113,13 @@ class jumptoquestion_external extends external_api {
                 $sessionid);
         }
         $data->programmedmode = $manual === false;
-        return (array)$data;
+        return (array)(new question_exporter($data, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
     }
 
     /**
      * @return external_single_structure
      */
     public static function jumptoquestion_returns(): external_single_structure {
-        // TODO adapt to any type of question.
-        // TODO exporter for reuse.
-        return new external_single_structure([
-            'cmid' => new external_value(PARAM_INT, 'Course module id'),
-            'sessionid' => new external_value(PARAM_INT, 'Session id'),
-            'jqshowid' => new external_value(PARAM_INT, 'jq show id'),
-            'questionid' => new external_value(PARAM_INT, 'id of jqshow', VALUE_OPTIONAL),
-            'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions', VALUE_OPTIONAL),
-            'question_index_string' => new external_value(PARAM_RAW, 'String for progress session', VALUE_OPTIONAL),
-            'numquestions' => new external_value(PARAM_INT, 'Total number of questions', VALUE_OPTIONAL),
-            'sessionprogress' => new external_value(PARAM_INT, 'Int for progress bar', VALUE_OPTIONAL),
-            'questiontext' => new external_value(PARAM_RAW, 'Statement of question', VALUE_OPTIONAL),
-            'questiontextformat' => new external_value(PARAM_RAW, 'Format of statement', VALUE_OPTIONAL),
-            'hastime' => new external_value(PARAM_BOOL, 'Question has time', VALUE_OPTIONAL),
-            'seconds' => new external_value(PARAM_INT, 'Seconds of question', VALUE_OPTIONAL),
-            'preview' => new external_value(PARAM_BOOL, 'Is preview or not', VALUE_OPTIONAL),
-            'numanswers' => new external_value(PARAM_INT, 'Num of answer for multichoice', VALUE_OPTIONAL),
-            'name' => new external_value(PARAM_RAW, 'Name of question', VALUE_OPTIONAL),
-            'qtype' => new external_value(PARAM_RAW, 'Type of question'),
-            'programmedmode' => new external_value(PARAM_BOOL, 'Mode programmed'),
-            'manualmode' => new external_value(PARAM_BOOL, 'Mode manual', VALUE_OPTIONAL),
-            'port' => new external_value(PARAM_RAW, 'Port for sockets', VALUE_OPTIONAL),
-            'countdown' => new external_value(PARAM_BOOL, 'Show or hide timer', VALUE_OPTIONAL),
-            'multichoice' => new external_value(PARAM_BOOL, 'Type of question for mustache', VALUE_OPTIONAL),
-            'answers' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'answerid'   => new external_value(PARAM_INT, 'Answer id'),
-                        'questionid' => new external_value(PARAM_INT, 'Question id of table questions'),
-                        'answertext' => new external_value(PARAM_RAW, 'Answer text'),
-                        'fraction' => new external_value(PARAM_RAW, 'value of answer')
-                    ], ''
-                ), '', VALUE_OPTIONAL
-            ),
-            'feedbacks' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'answerid'   => new external_value(PARAM_INT, 'Answer id of feedback'),
-                        'feedback' => new external_value(PARAM_RAW, 'Feedback text'),
-                        'feedbackformat' => new external_value(PARAM_INT, 'Format of feedback')
-                    ], ''
-                ), '', VALUE_OPTIONAL
-            ),
-            'endsession' => new external_value(PARAM_BOOL, 'Type of question for mustache', VALUE_OPTIONAL),
-            'endsessionimage' => new external_value(PARAM_RAW, 'Image for endsesion', VALUE_OPTIONAL),
-            'courselink' => new external_value(PARAM_URL, 'Url of course', VALUE_OPTIONAL),
-            'reportlink' => new external_value(PARAM_URL, 'Url of session report', VALUE_OPTIONAL),
-        ]);
+        return question_exporter::get_read_structure();
     }
 }

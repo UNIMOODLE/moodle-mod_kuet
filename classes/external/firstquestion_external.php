@@ -30,7 +30,6 @@ use context_module;
 use dml_exception;
 use external_api;
 use external_function_parameters;
-use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
@@ -78,7 +77,7 @@ class firstquestion_external extends external_api {
         $firstquestion = jqshow_questions::get_first_question_of_session($sessionid);
         switch ($firstquestion->get('qtype')) {
             case 'multichoice':
-                $data = questions::export_multichoice(
+                $question = questions::export_multichoice(
                     $firstquestion->get('id'),
                     $cmid,
                     $sessionid,
@@ -89,57 +88,14 @@ class firstquestion_external extends external_api {
                     [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $session = new jqshow_sessions($sessionid);
-        $data->programmedmode = $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED;
-        return (array)$data;
+        $question->programmedmode = $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED;
+        return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
     }
 
     /**
      * @return external_single_structure
      */
     public static function firstquestion_returns(): external_single_structure {
-        // TODO adapt to any type of question.
-        // TODO exporter for reuse.
-        return new external_single_structure([
-            'cmid' => new external_value(PARAM_INT, 'Course module id'),
-            'sessionid' => new external_value(PARAM_INT, 'Session id'),
-            'jqshowid' => new external_value(PARAM_INT, 'jq show id'),
-            'questionid' => new external_value(PARAM_INT, 'id of jqshow'),
-            'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
-            'question_index_string' => new external_value(PARAM_RAW, 'String for progress session'),
-            'numquestions' => new external_value(PARAM_INT, 'Total number of questions', VALUE_OPTIONAL),
-            'sessionprogress' => new external_value(PARAM_INT, 'Int for progress bar'),
-            'questiontext' => new external_value(PARAM_RAW, 'Statement of question'),
-            'questiontextformat' => new external_value(PARAM_RAW, 'Format of statement'),
-            'hastime' => new external_value(PARAM_BOOL, 'Question has time'),
-            'seconds' => new external_value(PARAM_INT, 'Seconds of question', VALUE_OPTIONAL),
-            'preview' => new external_value(PARAM_BOOL, 'Is preview or not', VALUE_OPTIONAL),
-            'numanswers' => new external_value(PARAM_INT, 'Num of answer for multichoice', VALUE_OPTIONAL),
-            'name' => new external_value(PARAM_RAW, 'Name of question'),
-            'qtype' => new external_value(PARAM_RAW, 'Type of question'),
-            'programmedmode' => new external_value(PARAM_BOOL, 'Mode programmed', VALUE_OPTIONAL),
-            'manualmode' => new external_value(PARAM_BOOL, 'Mode manual', VALUE_OPTIONAL),
-            'port' => new external_value(PARAM_RAW, 'Port for sockets', VALUE_OPTIONAL),
-            'countdown' => new external_value(PARAM_BOOL, 'Show or hide timer', VALUE_OPTIONAL),
-            'multichoice' => new external_value(PARAM_BOOL, 'Type of question for mustache', VALUE_OPTIONAL),
-            'answers' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'answerid'   => new external_value(PARAM_INT, 'Answer id'),
-                        'questionid' => new external_value(PARAM_INT, 'Question id of table questions'),
-                        'answertext' => new external_value(PARAM_RAW, 'Answer text'),
-                        'fraction' => new external_value(PARAM_RAW, 'value of answer')
-                    ], ''
-                ), '', VALUE_OPTIONAL
-            ),
-            'feedbacks' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'answerid'   => new external_value(PARAM_INT, 'Answer id of feedback'),
-                        'feedback' => new external_value(PARAM_RAW, 'Feedback text'),
-                        'feedbackformat' => new external_value(PARAM_INT, 'Format of feedback')
-                    ], ''
-                ), '', VALUE_OPTIONAL
-            )
-        ]);
+        return question_exporter::get_read_structure();
     }
 }
