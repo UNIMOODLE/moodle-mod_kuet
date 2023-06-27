@@ -359,7 +359,7 @@ class sessions {
         $data->sid = required_param('sid', PARAM_INT);
         $data->cmid = required_param('cmid', PARAM_INT);
         $data->jqshowid = $this->jqshow->id;
-        $data->config = self::get_session_config($data->sid);
+        $data->config = self::get_session_config($data->sid, $data->cmid);
         $allquestions = (new questions($data->jqshowid, $data->cmid, $data->sid))->get_list();
         $questiondata = [];
         foreach ($allquestions as $question) {
@@ -375,10 +375,11 @@ class sessions {
 
     /**
      * @param int $sid
+     * @param int $cmid
      * @return array
      * @throws coding_exception
      */
-    public static function get_session_config(int $sid): array {
+    public static function get_session_config(int $sid, int $cmid): array {
         // TODO finish setting with all icons and session settings to be shown.
         $sessiondata = new jqshow_sessions($sid);
         $data = [];
@@ -477,7 +478,6 @@ class sessions {
                     $timeperquestion . 's';
                 break;
             case self::QUESTION_TIME:
-                $cmid = required_param('cmid', PARAM_INT);
                 $totaltime =
                     (new questions($sessiondata->get('jqshowid'), $cmid, $sessiondata->get('id')))->get_sum_questions_times();
                 $timemodestring = get_string('question_time', 'mod_jqshow') . '<br>' .

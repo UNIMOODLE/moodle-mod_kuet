@@ -18,6 +18,8 @@ let REGION = {
     TEACHERCANVAS: '[data-region="teacher-canvas"]',
     TEACHERPANEL: '[data-region="teacher-panel"]',
     SESSIONCONTROLER: '[data-region="session-controller"]',
+    SESSIONRESUME: '[data-region="session-resume"]',
+    LISTRESULTS: '[data-region="list-results"]',
 };
 
 let ACTION = {
@@ -33,7 +35,9 @@ let SERVICES = {
     FIRSTQUESTION: 'mod_jqshow_firstquestion',
     FINISHSESSION: 'mod_jqshow_finishsession',
     DELETERESPONSES: 'mod_jqshow_deleteresponses',
-    JUMPTOQUESTION: 'mod_jqshow_jumptoquestion'
+    JUMPTOQUESTION: 'mod_jqshow_jumptoquestion',
+    GETSESSIONRESUME: 'mod_jqshow_getsessionresume',
+    GETLISTRESULTS: 'mod_jqshow_getlistresults'
 };
 
 let TEMPLATES = {
@@ -41,7 +45,9 @@ let TEMPLATES = {
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
     PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
-    QUESTION: 'mod_jqshow/questions/encasement'
+    QUESTION: 'mod_jqshow/questions/encasement',
+    SESSIONRESUME: 'mod_jqshow/session/sessionresume',
+    LISTRESULTS: 'mod_jqshow/session/listresults'
 };
 
 let portUrl = '8080'; // It is rewritten in the constructor.
@@ -407,6 +413,7 @@ Sockets.prototype.initSession = function() {
                     };
                     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                        Sockets.prototype.initPanel();
                         let identifier = jQuery(REGION.TEACHERCANVAS);
                         identifier.append(html);
                         currentQuestionJqid = firstQuestion.result.jqid;
@@ -434,6 +441,36 @@ Sockets.prototype.initSession = function() {
         modal.show();
         // eslint-disable-next-line no-restricted-globals
     }).fail(Notification.exception);
+};
+
+Sockets.prototype.initPanel = function() {
+    let requestResume = {
+        methodname: SERVICES.GETSESSIONRESUME,
+        args: {
+            sid: sid,
+            cmid: cmid,
+        }
+    };
+    Ajax.call([requestResume])[0].done(function(responseResume) {
+        Templates.render(TEMPLATES.SESSIONRESUME, responseResume).then(function(html) {
+            jQuery(REGION.SESSIONRESUME).append(html);
+        });
+    });
+    setInterval(function() {
+        let requestResults = {
+            methodname: SERVICES.GETLISTRESULTS,
+            args: {
+                sid: sid,
+                cmid: cmid,
+            }
+        };
+        Ajax.call([requestResults])[0].done(function(responseResults) {
+            Templates.render(TEMPLATES.LISTRESULTS, responseResults).then(function(html) {
+                jQuery(REGION.LISTRESULTS).html(html);
+            });
+        });
+    }, 20000);
+    jQuery(REGION.TEACHERPANEL).removeClass('d-none');
 };
 
 Sockets.prototype.endSession = function() {

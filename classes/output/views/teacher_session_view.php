@@ -67,7 +67,7 @@ class teacher_session_view implements renderable, templatable {
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
                 $data->programmedmode = true;
-                $data->config = sessions::get_session_config($data->sid);
+                $data->config = sessions::get_session_config($data->sid, $data->cmid);
                 $data->userresults = sessions::get_session_results($data->sid, $data->cmid);
                 break;
             case sessions::INACTIVE_MANUAL:
@@ -78,7 +78,7 @@ class teacher_session_view implements renderable, templatable {
                 $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
                 $data->manualmode = true;
                 $data->waitingroom = true;
-                $data->config = sessions::get_session_config($data->sid);
+                $data->config = sessions::get_session_config($data->sid, $data->cmid);
                 $data->sessionname = $data->config[0]['configvalue'];
                 unset($data->config[0]);
                 $data->config = array_values($data->config);

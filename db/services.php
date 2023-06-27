@@ -32,6 +32,7 @@ use mod_jqshow\external\firstquestion_external;
 use mod_jqshow\external\getactivesession_external;
 use mod_jqshow\external\getlistresults_external;
 use mod_jqshow\external\getquestion_external;
+use mod_jqshow\external\getsessionresume_external;
 use mod_jqshow\external\getuserquestionresponse_external;
 use mod_jqshow\external\jumptoquestion_external;
 use mod_jqshow\external\multichoice_external;
@@ -251,6 +252,14 @@ $functions = [
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_getsessionresume' => [
+        'classname' => getsessionresume_external::class,
+        'methodname' => 'getsessionresume',
+        'description' => 'Get resume for one session.',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -280,7 +289,8 @@ $services = [
             'mod_jqshow_getuserquestionresponse',
             'mod_jqshow_getquestion',
             'mod_jqshow_deleteresponses',
-            'mod_jqshow_jumptoquestion'
+            'mod_jqshow_jumptoquestion',
+            'mod_jqshow_getsessionresume'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
