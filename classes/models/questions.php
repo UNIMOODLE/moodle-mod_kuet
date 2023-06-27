@@ -283,6 +283,13 @@ class questions {
         $data->answer_feedback = $dataanswer['answer_feedback'];
         $data->correct_answers = $dataanswer['correct_answers'];
         $data->programmedmode = $dataanswer['programmedmode'];
+        if ($data->hasfeedbacks) {
+            // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
+            $dataanswer['statment_feedback'] = trim(html_entity_decode($dataanswer['statment_feedback']), " \t\n\r\0\x0B\xC2\xA0");
+            $dataanswer['statment_feedback'] = str_replace('"', '\"', $dataanswer['statment_feedback']);
+            $dataanswer['answer_feedback'] = trim(html_entity_decode($dataanswer['answer_feedback']), " \t\n\r\0\x0B\xC2\xA0");
+            $dataanswer['answer_feedback'] = str_replace('"', '\"', $dataanswer['answer_feedback']);
+        }
         $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
         return $data;
     }
