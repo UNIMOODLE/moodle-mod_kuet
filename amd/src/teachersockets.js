@@ -280,6 +280,24 @@ Sockets.prototype.initSockets = function() {
             case 'playQuestion':
                 dispatchEvent(new Event('playQuestion_' + response.jqid));
                 break;
+            case 'showAnswers':
+                dispatchEvent(new Event('showAnswers_' + response.jqid));
+                break;
+            case 'hideAnswers':
+                dispatchEvent(new Event('hideAnswers_' + response.jqid));
+                break;
+            case 'showStatistics':
+                dispatchEvent(new Event('showStatistics_' + response.jqid));
+                break;
+            case 'hideStatistics':
+                dispatchEvent(new Event('hideStatistics_' + response.jqid));
+                break;
+            case 'showFeedback':
+                dispatchEvent(new Event('showFeedback_' + response.jqid));
+                break;
+            case 'hideFeedback':
+                dispatchEvent(new Event('hideFeedback_' + response.jqid));
+                break;
             default:
                 break;
         }
@@ -326,6 +344,24 @@ Sockets.prototype.initListeners = function() {
     }, false);
     addEventListener('teacherQuestionEndSelf', () => {
         that.questionEnd();
+    }, false);
+    addEventListener('showAnswersSelf', () => {
+        that.showAnswers();
+    }, false);
+    addEventListener('hideAnswersSelf', () => {
+        that.hideAnswers();
+    }, false);
+    addEventListener('showStatisticsSelf', () => {
+        that.showStatistics();
+    }, false);
+    addEventListener('hideStatisticsSelf', () => {
+        that.hideStatistics();
+    }, false);
+    addEventListener('showFeedbackSelf', () => {
+        that.showFeedback();
+    }, false);
+    addEventListener('hideFeedbackSelf', () => {
+        that.hideFeedback();
     }, false);
     addEventListener('endSession', () => {
         that.endSession();
@@ -673,6 +709,60 @@ Sockets.prototype.jumpTo = function(questionNumber) {
 Sockets.prototype.questionEnd = function() {
     let msg = {
         'action': 'teacherQuestionEnd',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.showAnswers = function() {
+    let msg = {
+        'action': 'showAnswers',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.hideAnswers = function() {
+    let msg = {
+        'action': 'hideAnswers',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.showStatistics = function() {
+    let msg = {
+        'action': 'showStatistics',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.hideStatistics = function() {
+    let msg = {
+        'action': 'hideStatistics',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.showFeedback = function() {
+    let msg = {
+        'action': 'showFeedback',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.hideFeedback = function() {
+    let msg = {
+        'action': 'hideFeedback',
         'sid': sid,
         'jqid': currentQuestionJqid
     };

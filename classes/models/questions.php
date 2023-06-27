@@ -205,6 +205,7 @@ class questions {
                 $a->total = $numsessionquestions;
                 $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
                 $data->numquestions = $numsessionquestions;
+                $data->showquestionfeedback = $session->get('showfeedback') === 1;
                 $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 break;
             default:

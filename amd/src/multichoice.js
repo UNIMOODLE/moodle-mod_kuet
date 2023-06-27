@@ -36,6 +36,7 @@ let questionid;
 let jqshowId;
 let jqid;
 let questionEnd = false;
+let correctAnswers = null;
 
 /**
  * @constructor
@@ -75,6 +76,24 @@ MultiChoice.prototype.initMultichoice = function() {
     }, false);
     addEventListener('playQuestion_' + jqid, () => {
         this.playQuestion();
+    }, false);
+    addEventListener('showAnswers_' + jqid, () => {
+        this.showAnswers();
+    }, false);
+    addEventListener('hideAnswers_' + jqid, () => {
+        this.hideAnswers();
+    }, false);
+    addEventListener('showStatistics_' + jqid, () => {
+        this.showStatistics();
+    }, false);
+    addEventListener('hideStatistics_' + jqid, () => {
+        this.hideStatistics();
+    }, false);
+    addEventListener('showFeedback_' + jqid, () => {
+        this.showFeedback();
+    }, false);
+    addEventListener('hideFeedback_' + jqid, () => {
+        this.hideFeedback();
     }, false);
     addEventListener('teacherQuestionEnd_' + jqid, () => {
         this.reply();
@@ -141,7 +160,6 @@ MultiChoice.prototype.answered = function(response) {
     if (response.hasfeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
         jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
-        jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
     }
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(REGION.STATEMENTTEXT).css({'z-index': 3, 'padding': '15px'});
@@ -151,12 +169,8 @@ MultiChoice.prototype.answered = function(response) {
         jQuery('[data-answerid="' + response.answerid + '"]').css({'z-index': 3, 'pointer-events': 'none'});
     }
     if (response.correct_answers) {
-        jQuery('.feedback-icon').css('display', 'flex');
-        let correctAnswers = response.correct_answers.split(',');
-        correctAnswers.forEach((answ) => {
-            jQuery('[data-answerid="' + answ + '"] .incorrect').css('display', 'none');
-            jQuery(REGION.FEEDBACKBACGROUND).css('height', '100%');
-        });
+        correctAnswers = response.correct_answers;
+        jQuery(REGION.FEEDBACKBACGROUND).css('height', '100%');
     }
 };
 
@@ -172,6 +186,36 @@ MultiChoice.prototype.playQuestion = function() {
     jQuery(REGION.TIMER).css('z-index', 1);
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
     jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+};
+
+MultiChoice.prototype.showAnswers = function() {
+    if (correctAnswers !== null) {
+        jQuery('.feedback-icon').css('display', 'flex');
+        let correctAnswersSplit = correctAnswers.split(',');
+        correctAnswersSplit.forEach((answ) => {
+            jQuery('[data-answerid="' + answ + '"] .incorrect').css('display', 'none');
+        });
+    }
+};
+
+MultiChoice.prototype.hideAnswers = function() {
+    jQuery('.feedback-icon').css('display', 'none');
+};
+
+MultiChoice.prototype.showStatistics = function() {
+
+};
+
+MultiChoice.prototype.hideStatistics = function() {
+
+};
+
+MultiChoice.prototype.showFeedback = function() {
+    jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+};
+
+MultiChoice.prototype.hideFeedback = function() {
+    jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'none', 'z-index': 0});
 };
 
 export const initMultiChoice = (selector, jsonresponse) => {

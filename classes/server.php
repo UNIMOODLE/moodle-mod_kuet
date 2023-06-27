@@ -251,6 +251,48 @@ class server extends websockets {
                             'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));
+            case 'showAnswers':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'showAnswers',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'hideAnswers':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'hideAnswers',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'showStatistics':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'showStatistics',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'hideStatistics':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'hideStatistics',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'showFeedback':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'showFeedback',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'hideFeedback':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'hideFeedback',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
             case 'shutdownTest':
                 foreach ($this->sockets as $socket) {
                     stream_socket_shutdown($socket, STREAM_SHUT_RDWR);

@@ -47,8 +47,15 @@ const pauseEvent = new Event('pauseQuestionSelf');
 const playEvent = new Event('playQuestionSelf');
 const resendEvent = new Event('resendSelf');
 const finishquestionEventSelf = new Event('teacherQuestionEndSelf');
-const endSession = new Event('endSession');
+const endSession = new Event('endSessionSelf');
+const showAnswers = new Event('showAnswersSelf');
+const hideAnswers = new Event('hideAnswersSelf');
+const showStatistics = new Event('showStatisticsSelf');
+const hideStatistics = new Event('hideStatisticsSelf');
+const showFeedback = new Event('showFeedbackSelf');
+const hideFeedback = new Event('hideFeedbackSelf');
 let finishquestionEvent = null;
+let questionEnd = false;
 
 TeacherControlPanel.prototype.initControlPanel = function() {
     this.root.find(ACTION.NEXT).on('click', this.next);
@@ -63,15 +70,37 @@ TeacherControlPanel.prototype.initControlPanel = function() {
     });
     this.root.find(ACTION.FINISHQUESTION).on('click', this.finishquestion);
     this.root.find(ACTION.ENDSESSION).on('click', this.endsession);
+    this.root.find(ACTION.SHOWHIDE_RESPONSES).on('click', function(e) {
+        if (jQuery(ACTION.SHOWHIDE_RESPONSES).is(':checked')) {
+            TeacherControlPanel.prototype.showAnswers();
+        } else {
+            TeacherControlPanel.prototype.hideAnswers();
+        }
+    });
+    this.root.find(ACTION.SHOWHIDE_STATISTICS).on('click', function() {
+        if (jQuery(ACTION.SHOWHIDE_STATISTICS).is(':checked')) {
+            TeacherControlPanel.prototype.showStatistics();
+        } else {
+            TeacherControlPanel.prototype.hideStatistics();
+        }
+    });
+    this.root.find(ACTION.SHOWHIDE_FEEDBACK).on('click', function() {
+        if (jQuery(ACTION.SHOWHIDE_FEEDBACK).is(':checked')) {
+            TeacherControlPanel.prototype.showFeedback();
+        } else {
+            TeacherControlPanel.prototype.hideFeedback();
+        }
+    });
 };
 
 // TODO prevent default and stop propagations.
+// TODO disable show/hide until the question is finalised.
 
 TeacherControlPanel.prototype.next = function() {
     dispatchEvent(nextEvent);
 };
 
-TeacherControlPanel.prototype.pause = function(e) {
+TeacherControlPanel.prototype.pause = function() {
     dispatchEvent(pauseEvent);
     jQuery(ACTION.PAUSE).addClass('d-none');
     jQuery(ACTION.PLAY).removeClass('d-none');
@@ -122,6 +151,31 @@ TeacherControlPanel.prototype.jump = function() {
 TeacherControlPanel.prototype.finishquestion = function() {
     dispatchEvent(finishquestionEventSelf);
     dispatchEvent(finishquestionEvent);
+    questionEnd = true;
+};
+
+TeacherControlPanel.prototype.showAnswers = function() {
+    dispatchEvent(showAnswers);
+};
+
+TeacherControlPanel.prototype.hideAnswers = function() {
+    dispatchEvent(hideAnswers);
+};
+
+TeacherControlPanel.prototype.showStatistics = function() {
+    dispatchEvent(showStatistics);
+};
+
+TeacherControlPanel.prototype.hideStatistics = function() {
+    dispatchEvent(hideStatistics);
+};
+
+TeacherControlPanel.prototype.showFeedback = function() {
+    dispatchEvent(showFeedback);
+};
+
+TeacherControlPanel.prototype.hideFeedback = function() {
+    dispatchEvent(hideFeedback);
 };
 
 TeacherControlPanel.prototype.endsession = function() {
