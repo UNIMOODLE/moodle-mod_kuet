@@ -101,6 +101,7 @@ $string['session_name'] = 'Session Name';
 $string['questions_number'] = 'No. of questions';
 $string['question_number'] = 'No. of question';
 $string['session_date'] = 'Date';
+$string['session_finishingdate'] = 'End date';
 $string['session_actions'] = 'Actions';
 $string['init_session'] = 'Init Session';
 $string['init_session_desc'] = 'If you start a session manually, you can block scheduled sessions with automatic start. Make sure that there are no upcoming sessions before starting this session.<br>Are you sure you want to init session? ';

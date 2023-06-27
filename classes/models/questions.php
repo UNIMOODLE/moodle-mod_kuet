@@ -148,7 +148,7 @@ class questions {
         $feedbacks = [];
         foreach ($question->answers as $response) {
             if (assert($response instanceof question_answer)) {
-                $answertext = self::get_text($response->answer, $response->answerformat, $response->id, $question, 'answer');
+                $answertext = self::get_text($cmid, $response->answer, $response->answerformat, $response->id, $question, 'answer');
                 $answers[] = [
                     'answerid' => $response->id,
                     'questionid' => $jqshowquestion->get('questionid'),
@@ -212,7 +212,7 @@ class questions {
                     [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
         $data->questiontext =
-            self::get_text($question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
+            self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
@@ -283,6 +283,13 @@ class questions {
         $data->answer_feedback = $dataanswer['answer_feedback'];
         $data->correct_answers = $dataanswer['correct_answers'];
         $data->programmedmode = $dataanswer['programmedmode'];
+        if ($data->hasfeedbacks) {
+            // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
+            $dataanswer['statment_feedback'] = trim(html_entity_decode($dataanswer['statment_feedback']), " \t\n\r\0\x0B\xC2\xA0");
+            $dataanswer['statment_feedback'] = str_replace('"', '\"', $dataanswer['statment_feedback']);
+            $dataanswer['answer_feedback'] = trim(html_entity_decode($dataanswer['answer_feedback']), " \t\n\r\0\x0B\xC2\xA0");
+            $dataanswer['answer_feedback'] = str_replace('"', '\"', $dataanswer['answer_feedback']);
+        }
         $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
         return $data;
     }
@@ -306,6 +313,9 @@ class questions {
                 $data->cmid = $cmid;
                 $data->sessionid = $sessionid;
                 $data->jqshowid = $session->get('jqshowid');
+                $data->questionid = 0;
+                $data->jqid = 0;
+                $data->question_index_string = '';
                 $data->endsessionimage = $OUTPUT->image_url('f/end_session', 'mod_jqshow')->out(false);
                 $data->qtype = 'endsession';
                 $data->endsession = true;
@@ -334,25 +344,33 @@ class questions {
     }
 
     /**
+     * @param int $cmid
      * @param string $text
      * @param int $textformat
      * @param int $id
      * @param question_definition $question
      * @param string $filearea
      * @return string
+     * @throws dml_exception
      * @throws dml_transaction_exception
      */
     public static function get_text(
-        string $text, int $textformat, int $id, question_definition $question, string $filearea
+        int $cmid, string $text, int $textformat, int $id, question_definition $question, string $filearea
     ) : string {
-        global $DB, $USER;
-        $maxvariant = min($question->get_num_variants(), 100); // QUESTION_PREVIEW_MAX_VARIANTS.
+        global $DB;
+        $contextmodule = context_module::instance($cmid);
+        $usage = $DB->get_record('question_usages', ['component' => 'mod_jqshow', 'contextid' => $contextmodule->id]);
         $options = new question_preview_options($question);
         $options->load_user_defaults();
         $options->set_from_request();
-        $quba = question_engine::make_questions_usage_by_activity(
-            'core_question_preview', context_user::instance($USER->id));
-        $quba->set_preferred_behaviour($options->behaviour);
+        $maxvariant = min($question->get_num_variants(), 100);
+        if ($usage !== false) {
+            $quba = question_engine::load_questions_usage_by_activity($usage->id);
+        } else {
+            $quba = question_engine::make_questions_usage_by_activity(
+                'mod_jqshow', context_module::instance($cmid));
+        }
+        $quba->set_preferred_behaviour('immediatefeedback');
         $slot = $quba->add_question($question, $options->maxmark);
         if ($options->variant) {
             $options->variant = min($maxvariant, max(1, $options->variant));
@@ -360,12 +378,11 @@ class questions {
             $options->variant = rand(1, $maxvariant);
         }
         $quba->start_question($slot, $options->variant);
-        $transaction = $DB->start_delegated_transaction();
-        /* TODO check, as one usage is saved for each of the images in the question,
-        and no more than 1 should be saved per question, as in the Moodle preview. */
-        question_engine::save_questions_usage_by_activity($quba);
-        $transaction->allow_commit();
-
+        if ($usage === false) {
+            $transaction = $DB->start_delegated_transaction();
+            question_engine::save_questions_usage_by_activity($quba);
+            $transaction->allow_commit();
+        }
         $qa = new question_attempt($question, $quba->get_id());
         $qa->set_slot($slot);
         return $qa->get_question()->format_text($text, $textformat, $qa, 'question', $filearea, $id);

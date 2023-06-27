@@ -234,10 +234,16 @@ class jqshow_sessions extends persistent {
         $activesession = $DB->get_records(self::TABLE, ['status' => 2]);
         foreach ($activesession as $active) {
             if ($sid !== $active->id) {
-                (new jqshow_sessions($active->id))->set('status', 0)->update();
+                $session = new jqshow_sessions($active->id);
+                $session->set('status', 0);
+                $session->set('enddate', time());
+                $session->update();
             }
         }
-        (new jqshow_sessions($sid))->set('status', 2)->update();
+        $session = new jqshow_sessions($sid);
+        $session->set('status', 2);
+        $session->set('startdate', time());
+        $session->update();
     }
 
     /**
@@ -247,7 +253,10 @@ class jqshow_sessions extends persistent {
      * @throws invalid_persistent_exception
      */
     public static function mark_session_active(int $sid): void {
-        (new jqshow_sessions($sid))->set('status', 1)->update();
+        $session = new jqshow_sessions($sid);
+        $session->set('status', 1);
+        $session->set('startdate', 0);
+        $session->update();
     }
 
     /**
@@ -257,7 +266,10 @@ class jqshow_sessions extends persistent {
      * @throws invalid_persistent_exception
      */
     public static function mark_session_finished(int $sid): void {
-        (new jqshow_sessions($sid))->set('status', 0)->update();
+        $session = new jqshow_sessions($sid);
+        $session->set('status', 0);
+        $session->set('enddate', time());
+        $session->update();
     }
 
     /**

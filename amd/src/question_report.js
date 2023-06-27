@@ -17,10 +17,12 @@ let REGION = {
 
 let ACTION = {
     QUESTIONPREVIEW: '[data-action="question-preview"]',
+    SEEANSWER: '[data-action="seeanswer"]',
 };
 
 let SERVICES = {
     GETQUESTION: 'mod_jqshow_getquestion',
+    USERQUESTIONRESPONSE: 'mod_jqshow_getuserquestionresponse'
 };
 
 let TEMPLATES = {
@@ -37,6 +39,7 @@ QuestionReport.prototype.root = null;
 function QuestionReport(region) {
     this.root = jQuery(region);
     this.root.find(ACTION.QUESTIONPREVIEW).on('click', this.questionPreview);
+    this.root.find(ACTION.SEEANSWER).on('click', this.seeAnswer);
 }
 
 QuestionReport.prototype.questionPreview = function(e) {
@@ -72,6 +75,62 @@ QuestionReport.prototype.questionPreview = function(e) {
                         jQuery(REGION.LOADING).remove();
                         modal.show();
                         Templates.runTemplateJS(js);
+                    }).fail(Notification.exception);
+                }).fail(Notification.exception);
+            });
+        });
+    });
+};
+
+QuestionReport.prototype.seeAnswer = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let userId = jQuery(e.currentTarget).attr('data-userid');
+    let sessionId = jQuery(e.currentTarget).attr('data-sessionid');
+    let questionnId = jQuery(e.currentTarget).attr('data-questionnid');
+    let cmId = jQuery(e.currentTarget).attr('data-cmid');
+    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+        let identifier = jQuery(REGION.ROOT);
+        identifier.append(html);
+        let request = {
+            methodname: SERVICES.GETQUESTION,
+            args: {
+                cmid: cmId,
+                sid: sessionId,
+                jqid: questionnId
+            }
+        };
+        Ajax.call([request])[0].done(function(question) {
+            let requestAnswer = {
+                methodname: SERVICES.USERQUESTIONRESPONSE,
+                args: {
+                    jqid: question.jqid,
+                    cmid: cmId,
+                    sid: sessionId,
+                    uid: userId
+                }
+            };
+            Ajax.call([requestAnswer])[0].done(function(answer) {
+                const questionData = {
+                    ...question,
+                    ...answer
+                };
+                getString('viewquestion_user', 'mod_jqshow').done((title) => {
+                    Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
+                        ModalFactory.create({
+                            classes: 'modal_jqshow',
+                            body: html,
+                            title: title,
+                            footer: '',
+                            type: ModalJqshow.TYPE
+                        }).then(modal => {
+                            modal.getRoot().on(ModalEvents.hidden, function() {
+                                modal.destroy();
+                            });
+                            jQuery(REGION.LOADING).remove();
+                            modal.show();
+                            Templates.runTemplateJS(js);
+                        }).fail(Notification.exception);
                     }).fail(Notification.exception);
                 }).fail(Notification.exception);
             });

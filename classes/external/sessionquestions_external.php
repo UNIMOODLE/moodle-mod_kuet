@@ -78,7 +78,7 @@ class sessionquestions_external extends external_api {
         foreach ($allquestions as $question) {
             $questiondata[] = self::export_question($question, $cmid);
         }
-        return ['sessionquestions' => $questiondata];
+        return ['jqshowid' => $jqshowid, 'cmid' => $cmid, 'sid' => $sid, 'sessionquestions' => $questiondata];
     }
 
     /**
@@ -97,6 +97,9 @@ class sessionquestions_external extends external_api {
         $data->position = $question->get('qorder');
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
+        $data->sid = $question->get('sessionid');
+        $data->cmid = $cmid;
+        $data->jqshowid = $question->get('jqshowid');
         $data->isvalid = $question->get('isvalid');
         $session = new jqshow_sessions($question->get('sessionid'));
         switch ($session->get('timemode')) {
@@ -134,9 +137,15 @@ class sessionquestions_external extends external_api {
 
     public static function sessionquestions_returns(): external_single_structure {
         return new external_single_structure([
+            'sid' => new external_value(PARAM_INT, 'Session id'),
+            'cmid' => new external_value(PARAM_INT, 'Course Module id'),
+            'jqshowid' => new external_value(PARAM_INT, 'Jqshow id'),
             'sessionquestions' => new external_multiple_structure(
                 new external_single_structure(
                     [
+                        'sid' => new external_value(PARAM_INT, 'Session id'),
+                        'cmid' => new external_value(PARAM_INT, 'Course Module id'),
+                        'jqshowid' => new external_value(PARAM_INT, 'Jqshow id'),
                         'questionnid' => new external_value(PARAM_INT, 'Question id'),
                         'position' => new external_value(PARAM_INT, 'Question order'),
                         'name' => new external_value(PARAM_RAW, 'Name of question'),

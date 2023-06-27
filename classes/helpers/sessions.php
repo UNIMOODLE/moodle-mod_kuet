@@ -108,6 +108,12 @@ class sessions {
         if ($ds->date !== '' || $ds->issessionstarted === true || $questions->get_num_questions() === 0) {
             $ds->initsession = false;
         }
+        if ($ds->status === 0) {
+            $ds->finishingdate = userdate($session->get('enddate'), get_string('strftimedatetimeshort', 'core_langconfig'));
+            if ($session->get('automaticstart') !== 1) {
+                $ds->date = userdate($session->get('startdate'), get_string('strftimedatetimeshort', 'core_langconfig'));
+            }
+        }
         return $ds;
     }
 }
