@@ -306,3 +306,4 @@ $string['status'] = 'Status';
 $string['anonymousanswers'] = 'The answers to this questionnaire are anonymous.';
 $string['jqshownotexist'] = 'Unable to find jqshow with id {$a}';
 $string['jumpto_error'] = 'Must be a number between 1 and {$a}';
+$string['session'] = 'Session';

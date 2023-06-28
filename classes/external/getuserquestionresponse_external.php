@@ -85,6 +85,7 @@ class getuserquestionresponse_external extends external_api {
         $data = new stdClass();
         $data->sessionid = $sid;
         $data->cmid = $cmid;
+        $data->jqid = $jqid;
         if ($response !== false) {
             $json = $response->get('response');
             $other = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
@@ -126,7 +127,15 @@ class getuserquestionresponse_external extends external_api {
             'answer_feedback' => new external_value(PARAM_RAW, 'Response feedback', VALUE_OPTIONAL),
             'correct_answers' => new external_value(PARAM_RAW, 'Correct answers ids', VALUE_OPTIONAL),
             'programmedmode' => new external_value(PARAM_BOOL, 'Program mode', VALUE_OPTIONAL),
-            'jsonresponse' => new external_value(PARAM_RAW, 'Json response', VALUE_OPTIONAL)
+            'jsonresponse' => new external_value(PARAM_RAW, 'Json response', VALUE_OPTIONAL),
+            'statistics' => new external_multiple_structure(
+                new external_single_structure(
+                    [
+                        'answerid' => new external_value(PARAM_INT, 'Answer id'),
+                        'numberofreplies' => new external_value(PARAM_INT, 'Number of replies')
+                    ], 'Number of replies for one answer.'
+                ), 'List of answers with number of replies.', VALUE_OPTIONAL
+            )
         ]);
     }
 }

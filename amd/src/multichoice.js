@@ -134,6 +134,7 @@ MultiChoice.prototype.reply = function(e) {
                 jqshowid: jqshowId,
                 cmid: cmId,
                 questionid: questionid,
+                jqid: jqid,
                 timeleft: timeLeft || 0,
                 preview: false
             }
@@ -171,6 +172,11 @@ MultiChoice.prototype.answered = function(response) {
         correctAnswers = response.correct_answers;
         jQuery(REGION.FEEDBACKBACGROUND).css('height', '100%');
     }
+    if (response.statistics) {
+        response.statistics.forEach((statistic) => {
+            jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+        });
+    }
 };
 
 MultiChoice.prototype.pauseQuestion = function() {
@@ -204,11 +210,15 @@ MultiChoice.prototype.hideAnswers = function() {
 };
 
 MultiChoice.prototype.showStatistics = function() {
-
+    if (questionEnd === true) {
+        jQuery('.statistics-icon').css('display', 'flex');
+    }
 };
 
 MultiChoice.prototype.hideStatistics = function() {
-
+    if (questionEnd === true) {
+        jQuery('.statistics-icon').css('display', 'none');
+    }
 };
 
 MultiChoice.prototype.showFeedback = function() {

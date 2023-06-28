@@ -28,9 +28,11 @@ namespace mod_jqshow\external;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
+use dml_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
+use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
@@ -38,6 +40,7 @@ use JsonException;
 use mod_jqshow\helpers\responses;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use question_bank;
@@ -57,6 +60,7 @@ class multichoice_external extends external_api {
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
                 'questionid' => new external_value(PARAM_INT, 'id of question'),
+                'jqid' => new external_value(PARAM_INT, 'id of question in jqshow_questions'),
                 'timeleft' => new external_value(PARAM_INT, 'Time left of question, if question has time, else 0.'),
                 'preview' => new external_value(PARAM_BOOL, 'preview or not for grade'),
             ]
@@ -69,10 +73,12 @@ class multichoice_external extends external_api {
      * @param int $jqshowid
      * @param int $cmid
      * @param int $questionid
+     * @param int $jqid
      * @param int $timeleft
      * @param bool $preview
      * @return array
      * @throws JsonException
+     * @throws dml_exception
      * @throws coding_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
@@ -80,7 +86,7 @@ class multichoice_external extends external_api {
      * @throws moodle_exception
      */
     public static function multichoice(
-        int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $timeleft, bool $preview
+        int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $jqid, int $timeleft, bool $preview
     ): array {
         // TODO Review correctfeedback and incorrectfeedback.
         global $PAGE, $USER;
@@ -92,6 +98,7 @@ class multichoice_external extends external_api {
                 'jqshowid' => $jqshowid,
                 'cmid' => $cmid,
                 'questionid' => $questionid,
+                'jqid' => $jqid,
                 'timeleft' => $timeleft,
                 'preview' => $preview]
         );
@@ -104,17 +111,18 @@ class multichoice_external extends external_api {
         );
         $correctanswers = '';
         $answerfeedback = '';
+        $statistics = [];
         foreach ($question->answers as $key => $answer) {
             if ($answer->fraction !== '0.0000000') {
                 $correctanswers .= $answer->id . ',';
                 // TODO obtain the value of the answer to score the question.
             }
             if (isset($answerid) && $key === $answerid && $answerfeedback === '') {
-                // TODO images do not work.
                 $answerfeedback = questions::get_text(
                     $cmid, $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
                 );
             }
+            $statistics[$answer->id] = ['answerid' => $answer->id, 'numberofreplies' => 0];
         }
         $correctanswers = trim($correctanswers, ',');
 
@@ -132,6 +140,16 @@ class multichoice_external extends external_api {
             );
         }
         $session = new jqshow_sessions($sessionid);
+        $responses = jqshow_questions_responses::get_question_responses($sessionid, $jqshowid, $jqid);
+        foreach ($responses as $response) {
+            foreach ($question->answers as $answer) {
+                $other = json_decode($response->get('response'));
+                if ((int)$other->answerid === (int)$answer->id) {
+                    $statistics[$answer->id]['numberofreplies']++;
+                    break;
+                }
+            }
+        }
         return [
             'reply_status' => true,
             'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
@@ -140,7 +158,8 @@ class multichoice_external extends external_api {
             'correct_answers' => $correctanswers,
             'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
-                $session->get('sessionmode') === sessions::RACE_PROGRAMMED)
+                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+            'statistics' => array_values($statistics)
         ];
     }
 
@@ -153,6 +172,14 @@ class multichoice_external extends external_api {
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
                 'correct_answers' => new external_value(PARAM_RAW, 'correct ansewrs ids separated by commas', VALUE_OPTIONAL),
                 'programmedmode' => new external_value(PARAM_BOOL, 'Program mode for controls'),
+                'statistics' => new external_multiple_structure(
+                    new external_single_structure(
+                        [
+                            'answerid' => new external_value(PARAM_INT, 'Answer id'),
+                            'numberofreplies' => new external_value(PARAM_INT, 'Number of replies')
+                        ], 'Number of replies for one answer.'
+                    ), 'List of answers with number of replies.', VALUE_OPTIONAL
+                )
             ]
         );
     }

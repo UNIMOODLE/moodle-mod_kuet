@@ -69,12 +69,18 @@ class jqshow_questions_responses extends persistent {
      * @param int $userid
      * @param int $jqshowid
      * @param int $sessionid
-     * @return jqshow_sessions_grades[]
+     * @return jqshow_questions_responses[]
      */
     public static function get_session_responses_for_user(int $userid, int $sessionid, int $jqshowid): array {
         return self::get_records(['userid' => $userid, 'session' => $sessionid, 'jqshow' => $jqshowid]);
     }
 
+    /**
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param int $jqid
+     * @return jqshow_questions_responses[]
+     */
     public static function get_question_responses(int $sessionid, int $jqshowid, int $jqid): array {
         return self::get_records(['jqid' => $jqid, 'session' => $sessionid, 'jqshow' => $jqshowid]);
     }

@@ -82,7 +82,7 @@ class responses {
             }
             $jqid = jqshow_questions::get_record(
                 ['questionid' => $questionid, 'sessionid' => $sessionid, 'jqshowid' => $jqshowid],
-                MUST_EXIST);
+                MUST_EXIST); // TODO The same questionid can be asked several times in the same session.
             $response = new stdClass(); // For snapshot.
             $response->questionid = $questionid;
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');

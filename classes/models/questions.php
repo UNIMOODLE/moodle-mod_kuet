@@ -275,6 +275,7 @@ class questions {
             $data->jqshowid,
             $data->cmid,
             $responsedata->questionid,
+            $data->jqid,
             $responsedata->timeleft, true
         );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
@@ -292,6 +293,7 @@ class questions {
             $dataanswer['answer_feedback'] = str_replace('"', '\"', $dataanswer['answer_feedback']);
         }
         $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
+        $data->statistics = $dataanswer['statistics'];
         return $data;
     }
 
