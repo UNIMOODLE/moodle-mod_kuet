@@ -686,6 +686,7 @@ Sockets.prototype.jumpTo = function(questionNumber) {
         };
         db.add('questions', data);
         currentQuestionJqid = question.jqid;
+        that.setCurrentQuestion(question.jqid);
         that.getNextQuestion(question.jqid);
         let msg = {
             'action': 'question',

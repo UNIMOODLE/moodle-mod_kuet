@@ -10,6 +10,7 @@ import ModalEvents from 'core/modal_events';
 let REGION = {
     CONTROLPANEL: '[data-region="teacher_control_panel"]', // This root.
     JUMPTOINPUT: '[data-input="jumpto"]',
+    SWITCHS: '.showhide-action',
 };
 
 let ACTION = {
@@ -47,7 +48,7 @@ const pauseEvent = new Event('pauseQuestionSelf');
 const playEvent = new Event('playQuestionSelf');
 const resendEvent = new Event('resendSelf');
 const finishquestionEventSelf = new Event('teacherQuestionEndSelf');
-const endSession = new Event('endSessionSelf');
+const endSession = new Event('endSession');
 const showAnswers = new Event('showAnswersSelf');
 const hideAnswers = new Event('hideAnswersSelf');
 const showStatistics = new Event('showStatisticsSelf');
@@ -152,6 +153,7 @@ TeacherControlPanel.prototype.finishquestion = function() {
     dispatchEvent(finishquestionEventSelf);
     dispatchEvent(finishquestionEvent);
     questionEnd = true;
+    jQuery(REGION.SWITCHS).removeClass('disabled');
 };
 
 TeacherControlPanel.prototype.showAnswers = function() {

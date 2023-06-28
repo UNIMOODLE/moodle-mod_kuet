@@ -50,11 +50,11 @@ function MultiChoice(selector, jsonresponse = '') {
     questionid = this.node.attr('data-questionid');
     jqshowId = this.node.attr('data-jqshowid');
     jqid = this.node.attr('data-jqid');
+    questionEnd = false;
     if (jsonresponse !== '') {
         this.answered(JSON.parse(jsonresponse));
-    } else {
-        this.initMultichoice();
     }
+    this.initMultichoice();
 }
 
 /** @type {jQuery} The jQuery node for the page region. */
@@ -69,7 +69,9 @@ MultiChoice.prototype.initMultichoice = function() {
         this.reply();
     }, {once: true});
     addEventListener('teacherQuestionEnd_' + jqid, () => {
-        this.reply();
+        if (questionEnd !== true) {
+            this.reply();
+        }
     }, {once: true});
     addEventListener('pauseQuestion_' + jqid, () => {
         this.pauseQuestion();
@@ -95,10 +97,6 @@ MultiChoice.prototype.initMultichoice = function() {
     addEventListener('hideFeedback_' + jqid, () => {
         this.hideFeedback();
     }, false);
-    addEventListener('teacherQuestionEnd_' + jqid, () => {
-        this.reply();
-    }, {once: true});
-
     // TODO test well, and add/replace alternative methods.
     window.addEventListener('beforeunload' + jqid, () => { // TODO delete this listener, not work.
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
@@ -157,6 +155,7 @@ MultiChoice.prototype.reply = function(e) {
 };
 
 MultiChoice.prototype.answered = function(response) {
+    questionEnd = true;
     if (response.hasfeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
         jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
@@ -189,7 +188,7 @@ MultiChoice.prototype.playQuestion = function() {
 };
 
 MultiChoice.prototype.showAnswers = function() {
-    if (correctAnswers !== null) {
+    if (correctAnswers !== null && questionEnd === true) {
         jQuery('.feedback-icon').css('display', 'flex');
         let correctAnswersSplit = correctAnswers.split(',');
         correctAnswersSplit.forEach((answ) => {
@@ -199,7 +198,9 @@ MultiChoice.prototype.showAnswers = function() {
 };
 
 MultiChoice.prototype.hideAnswers = function() {
-    jQuery('.feedback-icon').css('display', 'none');
+    if (questionEnd === true) {
+        jQuery('.feedback-icon').css('display', 'none');
+    }
 };
 
 MultiChoice.prototype.showStatistics = function() {
@@ -211,11 +212,15 @@ MultiChoice.prototype.hideStatistics = function() {
 };
 
 MultiChoice.prototype.showFeedback = function() {
-    jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+    if (questionEnd === true) {
+        jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+    }
 };
 
 MultiChoice.prototype.hideFeedback = function() {
-    jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'none', 'z-index': 0});
+    if (questionEnd === true) {
+        jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'none', 'z-index': 0});
+    }
 };
 
 export const initMultiChoice = (selector, jsonresponse) => {

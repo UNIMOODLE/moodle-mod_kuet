@@ -149,7 +149,7 @@ Sockets.prototype.initSockets = function() {
                         const questionData = {
                             ...response.context.value,
                             ...answer
-                        }; // TODO check, as if the question contains feedbacks, they are not displayed.
+                        };
                         Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
                             identifier.html(html);
                             Templates.runTemplateJS(js);

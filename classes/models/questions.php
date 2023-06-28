@@ -168,6 +168,7 @@ class questions {
         $data->jqshowid = $jqshowid;
         $data->questionid = $jqshowquestion->get('questionid');
         $data->jqid = $jqshowquestion->get('id');
+        $data->showquestionfeedback = $session->get('showfeedback') === 1;
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
@@ -205,7 +206,6 @@ class questions {
                 $a->total = $numsessionquestions;
                 $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
                 $data->numquestions = $numsessionquestions;
-                $data->showquestionfeedback = $session->get('showfeedback') === 1;
                 $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 break;
             default:

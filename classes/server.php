@@ -144,7 +144,8 @@ class server extends websockets {
             }
         }
         if ((count($this->sockets) === 0) || (count($this->users) === 0)) {
-            die(); // No one is connected to the socket. It closes and will be reopened by the first teacher who logs in.
+            // TODO to decomment, for development we don't want to close the socket.
+            // die(); // No one is connected to the socket. It closes and will be reopened by the first teacher who logs in.
         }
     }
 
