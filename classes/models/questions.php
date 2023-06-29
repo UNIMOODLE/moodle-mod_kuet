@@ -168,7 +168,7 @@ class questions {
         $data->jqshowid = $jqshowid;
         $data->questionid = $jqshowquestion->get('questionid');
         $data->jqid = $jqshowquestion->get('id');
-        $data->showquestionfeedback = $session->get('showfeedback') === 1;
+        $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:

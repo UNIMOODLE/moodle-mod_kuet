@@ -159,7 +159,8 @@ class multichoice_external extends external_api {
             'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
-            'statistics' => array_values($statistics)
+            'statistics' => array_values($statistics),
+            'preview' => $preview,
         ];
     }
 
@@ -179,7 +180,8 @@ class multichoice_external extends external_api {
                             'numberofreplies' => new external_value(PARAM_INT, 'Number of replies')
                         ], 'Number of replies for one answer.'
                     ), 'List of answers with number of replies.', VALUE_OPTIONAL
-                )
+                ),
+                'preview' => new external_value(PARAM_BOOL, 'Question preview'),
             ]
         );
     }

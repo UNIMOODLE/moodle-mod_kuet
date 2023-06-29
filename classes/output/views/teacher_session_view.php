@@ -92,7 +92,7 @@ class teacher_session_view implements renderable, templatable {
                 }
                 $data->sessionquestions = $questiondata;
                 $data->numquestions = count($questiondata);
-                $data->showquestionfeedback = $session->get('showfeedback') === 1;
+                $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
                 $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
                 break;
             default:
