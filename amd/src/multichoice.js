@@ -38,16 +38,16 @@ let jqid;
 let questionEnd = false;
 let correctAnswers = null;
 let showQuestionFeedback = false;
+let manualMode = false;
 
 /**
  * @constructor
  * @param {String} selector
  * @param {Boolean} showquestionfeedback
+ * @param {Boolean} manualmode
  * @param {String} jsonresponse
  */
-function MultiChoice(selector, showquestionfeedback = false, jsonresponse = '') {
-    // eslint-disable-next-line no-console
-    console.log(showquestionfeedback);
+function MultiChoice(selector, showquestionfeedback = false, manualmode = false, jsonresponse = '') {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
@@ -55,12 +55,15 @@ function MultiChoice(selector, showquestionfeedback = false, jsonresponse = '') 
     jqshowId = this.node.attr('data-jqshowid');
     jqid = this.node.attr('data-jqid');
     showQuestionFeedback = showquestionfeedback;
+    manualMode = manualmode;
     questionEnd = false;
     if (jsonresponse !== '') {
         this.answered(JSON.parse(jsonresponse));
-        this.showAnswers();
-        if (showQuestionFeedback === true) {
-            this.showFeedback();
+        if (manualMode === false) {
+            this.showAnswers();
+            if (showQuestionFeedback === true) {
+                this.showFeedback();
+            }
         }
     }
     this.initMultichoice();
@@ -156,12 +159,19 @@ MultiChoice.prototype.reply = function(e) {
                 that.answered(response);
                 questionEnd = true;
                 dispatchEvent(that.studentQuestionEnd);
-                if (response.preview === true || jQuery('.modal-body').length || showQuestionFeedback === true) {
-                    /* TODO there should be a parameter for showAnswers, because if it is not set and no feedback is shown
-                        in programmed mode the responses will not be seen. */
+                if (jQuery('.modal-body').length) { // Preview.
                     that.showAnswers();
                     if (showQuestionFeedback === true) {
                         that.showFeedback();
+                    }
+                } else {
+                    if (manualMode === false) {
+                        /* TODO there should be a parameter for showAnswers, because if it is not set and no feedback is shown
+                            in programmed mode the responses will not be seen. */
+                        that.showAnswers();
+                        if (showQuestionFeedback === true) {
+                            that.showFeedback();
+                        }
                     }
                 }
             } else {
@@ -250,6 +260,6 @@ MultiChoice.prototype.hideFeedback = function() {
     }
 };
 
-export const initMultiChoice = (selector, showquestionfeedback, jsonresponse) => {
-    return new MultiChoice(selector, showquestionfeedback, jsonresponse);
+export const initMultiChoice = (selector, showquestionfeedback, manualmode, jsonresponse) => {
+    return new MultiChoice(selector, showquestionfeedback, manualmode, jsonresponse);
 };

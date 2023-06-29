@@ -173,6 +173,7 @@ class questions {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
+                $data->programmedmode = true;
                 $progress = jqshow_user_progress::get_session_progress_for_user(
                     $USER->id, $session->get('id'), $session->get('jqshowid')
                 );
@@ -251,7 +252,6 @@ class questions {
         $data->answers = $answers;
         $data->feedbacks = $feedbacks;
         $data->template = 'mod_jqshow/questions/encasement';
-        $data->programmedmode = ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED);
         return $data;
     }
 

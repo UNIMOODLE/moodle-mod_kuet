@@ -65,7 +65,9 @@
 </div>
 {{#js}}
     require(['mod_jqshow/multichoice'{{#hastime}}, 'mod_jqshow/questiontimer'{{/hastime}}], function(Multichoice{{#hastime}}, QuestionTimer{{/hastime}}) {
-        Multichoice.initMultiChoice('[data-region="question-content"]', {{#showquestionfeedback}}true{{/showquestionfeedback}}{{^showquestionfeedback}}false{{/showquestionfeedback}}{{#answered}}, '{{{jsonresponse}}}'{{/answered}});
+        Multichoice.initMultiChoice('[data-region="question-content"]',
+            {{#showquestionfeedback}}true{{/showquestionfeedback}}{{^showquestionfeedback}}false{{/showquestionfeedback}},
+            {{#programmedmode}}false{{/programmedmode}}{{^programmedmode}}true{{/programmedmode}}{{#answered}}, '{{{jsonresponse}}}'{{/answered}});
         {{#hastime}}
             {{^answered}}
                 QuestionTimer.initQuestionTimer('[data-region="question-content"]');
