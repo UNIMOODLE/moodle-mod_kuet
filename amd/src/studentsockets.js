@@ -195,7 +195,9 @@ Sockets.prototype.initSockets = function() {
                 });
                 break;
             case 'teacherQuestionEnd':
-                dispatchEvent(new Event('teacherQuestionEnd_' + response.jqid));
+                dispatchEvent(new CustomEvent('teacherQuestionEnd_' + response.jqid, {
+                    "detail": {"statistics": response.statistics}
+                }));
                 break;
             case 'userdisconnected':
                 jQuery('[data-userid="' + response.usersocketid + '"]').remove();

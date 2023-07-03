@@ -37,7 +37,8 @@ let SERVICES = {
     DELETERESPONSES: 'mod_jqshow_deleteresponses',
     JUMPTOQUESTION: 'mod_jqshow_jumptoquestion',
     GETSESSIONRESUME: 'mod_jqshow_getsessionresume',
-    GETLISTRESULTS: 'mod_jqshow_getlistresults'
+    GETLISTRESULTS: 'mod_jqshow_getlistresults',
+    GETQUESTIONSTATISTICS: 'mod_jqshow_getquestionstatistics'
 };
 
 let TEMPLATES = {
@@ -708,12 +709,25 @@ Sockets.prototype.jumpTo = function(questionNumber) {
 };
 
 Sockets.prototype.questionEnd = function() {
-    let msg = {
-        'action': 'teacherQuestionEnd',
-        'sid': sid,
-        'jqid': currentQuestionJqid
+    let request = {
+        methodname: SERVICES.GETQUESTIONSTATISTICS,
+        args: {
+            sid: sid,
+            jqid: currentQuestionJqid
+        }
     };
-    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+    Ajax.call([request])[0].done(function(response) {
+        let msg = {
+            'action': 'teacherQuestionEnd',
+            'sid': sid,
+            'jqid': currentQuestionJqid,
+            'statistics': response.statistics
+        };
+        Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        dispatchEvent(new CustomEvent('teacherQuestionEnd_' + currentQuestionJqid, {
+            "detail": {"statistics": response.statistics}
+        }));
+    }).fail(Notification.exception);
 };
 
 Sockets.prototype.showAnswers = function() {

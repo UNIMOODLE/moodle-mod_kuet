@@ -59,7 +59,7 @@ function MultiChoice(selector, showquestionfeedback = false, manualmode = false,
     questionEnd = false;
     if (jsonresponse !== '') {
         this.answered(JSON.parse(jsonresponse));
-        if (manualMode === false) {
+        if (manualMode === false || jQuery('.modal-body').length) {
             this.showAnswers();
             if (showQuestionFeedback === true) {
                 this.showFeedback();
@@ -80,10 +80,13 @@ MultiChoice.prototype.initMultichoice = function() {
     addEventListener('timeFinish', () => {
         this.reply();
     }, {once: true});
-    addEventListener('teacherQuestionEnd_' + jqid, () => {
+    addEventListener('teacherQuestionEnd_' + jqid, (e) => {
         if (questionEnd !== true) {
             this.reply();
         }
+        e.detail.statistics.forEach((statistic) => {
+            jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+        });
     }, {once: true});
     addEventListener('pauseQuestion_' + jqid, () => {
         this.pauseQuestion();

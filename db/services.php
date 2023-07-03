@@ -32,6 +32,7 @@ use mod_jqshow\external\firstquestion_external;
 use mod_jqshow\external\getactivesession_external;
 use mod_jqshow\external\getlistresults_external;
 use mod_jqshow\external\getquestion_external;
+use mod_jqshow\external\getquestionstatistics_external;
 use mod_jqshow\external\getsessionresume_external;
 use mod_jqshow\external\getuserquestionresponse_external;
 use mod_jqshow\external\jumptoquestion_external;
@@ -260,6 +261,14 @@ $functions = [
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_getquestionstatistics' => [
+        'classname' => getquestionstatistics_external::class,
+        'methodname' => 'getquestionstatistics',
+        'description' => 'Get response statistics for a question',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -290,7 +299,8 @@ $services = [
             'mod_jqshow_getquestion',
             'mod_jqshow_deleteresponses',
             'mod_jqshow_jumptoquestion',
-            'mod_jqshow_getsessionresume'
+            'mod_jqshow_getsessionresume',
+            'mod_jqshow_getquestionstatistics'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

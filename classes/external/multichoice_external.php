@@ -111,7 +111,6 @@ class multichoice_external extends external_api {
         );
         $correctanswers = '';
         $answerfeedback = '';
-        $statistics = [];
         foreach ($question->answers as $key => $answer) {
             if ($answer->fraction !== '0.0000000') {
                 $correctanswers .= $answer->id . ',';
@@ -122,7 +121,6 @@ class multichoice_external extends external_api {
                     $cmid, $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
                 );
             }
-            $statistics[$answer->id] = ['answerid' => $answer->id, 'numberofreplies' => 0];
         }
         $correctanswers = trim($correctanswers, ',');
 
@@ -140,16 +138,6 @@ class multichoice_external extends external_api {
             );
         }
         $session = new jqshow_sessions($sessionid);
-        $responses = jqshow_questions_responses::get_question_responses($sessionid, $jqshowid, $jqid);
-        foreach ($responses as $response) {
-            foreach ($question->answers as $answer) {
-                $other = json_decode($response->get('response'));
-                if ((int)$other->answerid === (int)$answer->id) {
-                    $statistics[$answer->id]['numberofreplies']++;
-                    break;
-                }
-            }
-        }
         return [
             'reply_status' => true,
             'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
@@ -159,7 +147,6 @@ class multichoice_external extends external_api {
             'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
-            'statistics' => array_values($statistics),
             'preview' => $preview,
         ];
     }
@@ -173,14 +160,6 @@ class multichoice_external extends external_api {
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
                 'correct_answers' => new external_value(PARAM_RAW, 'correct ansewrs ids separated by commas', VALUE_OPTIONAL),
                 'programmedmode' => new external_value(PARAM_BOOL, 'Program mode for controls'),
-                'statistics' => new external_multiple_structure(
-                    new external_single_structure(
-                        [
-                            'answerid' => new external_value(PARAM_INT, 'Answer id'),
-                            'numberofreplies' => new external_value(PARAM_INT, 'Number of replies')
-                        ], 'Number of replies for one answer.'
-                    ), 'List of answers with number of replies.', VALUE_OPTIONAL
-                ),
                 'preview' => new external_value(PARAM_BOOL, 'Question preview'),
             ]
         );

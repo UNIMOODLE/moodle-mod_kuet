@@ -578,6 +578,9 @@ class sessions {
             $update = true;
             $data->{'id'} = $id;
         }
+        if (!isset($data->showfeedback)) {
+            $data->showfeedback = 0;
+        }
         if (!isset($data->automaticstart) || $data->automaticstart === 0) {
             $data->startdate = 0;
             $data->enddate = 0;

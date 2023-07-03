@@ -151,7 +151,6 @@ TeacherControlPanel.prototype.jump = function() {
 
 TeacherControlPanel.prototype.finishquestion = function() {
     dispatchEvent(finishquestionEventSelf);
-    dispatchEvent(finishquestionEvent);
     questionEnd = true;
     jQuery(REGION.SWITCHS).removeClass('disabled');
 };

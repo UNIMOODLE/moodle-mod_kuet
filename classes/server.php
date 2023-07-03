@@ -235,7 +235,8 @@ class server extends websockets {
                 return $this->mask(
                     encrypt($this->password, json_encode([
                             'action' => 'teacherQuestionEnd',
-                            'jqid' => $data['jqid']
+                            'jqid' => $data['jqid'],
+                            'statistics' => $data['statistics']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'pauseQuestion':
