@@ -144,7 +144,8 @@ class server extends websockets {
             }
         }
         if ((count($this->sockets) === 0) || (count($this->users) === 0)) {
-            die(); // No one is connected to the socket. It closes and will be reopened by the first teacher who logs in.
+            // TODO to decomment, for development we don't want to close the socket.
+            // die(); // No one is connected to the socket. It closes and will be reopened by the first teacher who logs in.
         }
     }
 
@@ -234,7 +235,8 @@ class server extends websockets {
                 return $this->mask(
                     encrypt($this->password, json_encode([
                             'action' => 'teacherQuestionEnd',
-                            'jqid' => $data['jqid']
+                            'jqid' => $data['jqid'],
+                            'statistics' => $data['statistics']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'pauseQuestion':
@@ -248,6 +250,48 @@ class server extends websockets {
                 return $this->mask(
                     encrypt($this->password, json_encode([
                             'action' => 'playQuestion',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'showAnswers':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'showAnswers',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'hideAnswers':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'hideAnswers',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'showStatistics':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'showStatistics',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'hideStatistics':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'hideStatistics',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'showFeedback':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'showFeedback',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'hideFeedback':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'hideFeedback',
                             'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));

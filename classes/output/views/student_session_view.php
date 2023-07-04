@@ -61,6 +61,7 @@ class student_session_view implements renderable, templatable {
         $cmid = required_param('cmid', PARAM_INT);
         $sid = required_param('sid', PARAM_INT);
         $session = new jqshow_sessions($sid);
+        $PAGE->set_title(get_string('session', 'jqshow') . ' ' . $session->get('name'));
         if ($session->get('status') !== 2) {
             // TODO session layaout not active or redirect to cmid view.
             throw new moodle_exception('notactivesession', 'mod_jqshow', '',
@@ -105,6 +106,7 @@ class student_session_view implements renderable, templatable {
                             ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
                         );
                         if ($response !== false) {
+                            $data->jqid = $question->get('id');
                             $data = questions::export_multichoice_response($data, $response->get('response'));
                         }
                         break;
@@ -130,7 +132,6 @@ class student_session_view implements renderable, templatable {
                 $data->userimage = $userpicture->get_url($PAGE)->out(false);
                 $data->manualmode = true;
                 $data->waitingroom = true;
-                // $data->config = sessions::get_session_config($data->sid);
                 $data->sessionname = $data->config[0]['configvalue'];
                 $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
                 break;

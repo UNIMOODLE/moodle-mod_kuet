@@ -174,7 +174,7 @@ class sessionform extends moodleform {
         $mform->hideIf('sessiontime', 'timemode', 'eq', sessions::QUESTION_TIME);
 
         $mform->addElement('duration', 'questiontime', get_string('question_time', 'mod_jqshow'),
-            ['units' => [MINSECS, 1], 'optional' => false]);
+            ['units' => [MINSECS, 1], 'defaultunit' => 1, 'optional' => false]);
         $mform->setType('questiontime', PARAM_INT);
         $mform->addHelpButton('question_time_help', 'questiontime', 'mod_jqshow');
         $mform->hideIf('questiontime', 'timemode', 'eq', sessions::NO_TIME);

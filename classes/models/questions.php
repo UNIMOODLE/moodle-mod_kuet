@@ -168,10 +168,12 @@ class questions {
         $data->jqshowid = $jqshowid;
         $data->questionid = $jqshowquestion->get('questionid');
         $data->jqid = $jqshowquestion->get('id');
+        $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
+                $data->programmedmode = true;
                 $progress = jqshow_user_progress::get_session_progress_for_user(
                     $USER->id, $session->get('id'), $session->get('jqshowid')
                 );
@@ -250,7 +252,6 @@ class questions {
         $data->answers = $answers;
         $data->feedbacks = $feedbacks;
         $data->template = 'mod_jqshow/questions/encasement';
-        $data->programmedmode = ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED);
         return $data;
     }
 
@@ -274,13 +275,12 @@ class questions {
             $data->jqshowid,
             $data->cmid,
             $responsedata->questionid,
+            $data->jqid,
             $responsedata->timeleft, true
         );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $dataanswer['answerid'] = $responsedata->answerid;
         $data->seconds = $responsedata->timeleft;
-        $data->statment_feedback = $dataanswer['statment_feedback'];
-        $data->answer_feedback = $dataanswer['answer_feedback'];
         $data->correct_answers = $dataanswer['correct_answers'];
         $data->programmedmode = $dataanswer['programmedmode'];
         if ($data->hasfeedbacks) {
@@ -290,7 +290,10 @@ class questions {
             $dataanswer['answer_feedback'] = trim(html_entity_decode($dataanswer['answer_feedback']), " \t\n\r\0\x0B\xC2\xA0");
             $dataanswer['answer_feedback'] = str_replace('"', '\"', $dataanswer['answer_feedback']);
         }
+        $data->statment_feedback = $dataanswer['statment_feedback'];
+        $data->answer_feedback = $dataanswer['answer_feedback'];
         $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
+        $data->statistics = $dataanswer['statistics'];
         return $data;
     }
 

@@ -124,6 +124,9 @@ class question_exporter extends exporter {
                 'type' => PARAM_URL,
                 'optional' => true
             ],
+            'showquestionfeedback' => [
+                'type' => PARAM_BOOL
+            ],
             'answers' => [
                 'type' => answer_exporter::read_properties_definition(),
                 'optional' => true,

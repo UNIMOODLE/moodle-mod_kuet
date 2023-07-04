@@ -92,7 +92,7 @@ class teacher_reports implements renderable, templatable {
                 $data->showfinalranking = true;
             }
             $data->sessionname = $session->get('name');
-            $data->config = sessions::get_session_config($this->sid);
+            $data->config = sessions::get_session_config($this->sid, $data->cmid);
             $data->sessionquestions = reports::get_questions_data_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
             if ($session->get('anonymousanswer') === 1) {
                 if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
@@ -120,7 +120,7 @@ class teacher_reports implements renderable, templatable {
             $data->userfullname = $userdata->firstname . ' ' . $userdata->lastname;
             $data->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $this->userid]))->out(false);
             $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $this->cmid, 'sid' => $this->sid]))->out(false);
-            $data->config = sessions::get_session_config($this->sid);
+            $data->config = sessions::get_session_config($this->sid, $this->cmid);
             $data->sessionquestions =
                 reports::get_questions_data_for_user_report($this->jqshowid, $this->cmid, $this->sid, $this->userid);
             $data->numquestions = count($data->sessionquestions);

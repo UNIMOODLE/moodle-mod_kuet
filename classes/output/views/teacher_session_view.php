@@ -61,13 +61,14 @@ class teacher_session_view implements renderable, templatable {
         $data->userimage = $userpicture->get_url($PAGE)->out(false);
         $session = new jqshow_sessions($data->sid);
         $data->jqshowid = $session->get('jqshowid');
+        $PAGE->set_title(get_string('session', 'jqshow') . ' ' . $session->get('name'));
         jqshow_sessions::mark_session_started($data->sid);
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
                 $data->programmedmode = true;
-                $data->config = sessions::get_session_config($data->sid);
+                $data->config = sessions::get_session_config($data->sid, $data->cmid);
                 $data->userresults = sessions::get_session_results($data->sid, $data->cmid);
                 break;
             case sessions::INACTIVE_MANUAL:
@@ -78,7 +79,7 @@ class teacher_session_view implements renderable, templatable {
                 $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
                 $data->manualmode = true;
                 $data->waitingroom = true;
-                $data->config = sessions::get_session_config($data->sid);
+                $data->config = sessions::get_session_config($data->sid, $data->cmid);
                 $data->sessionname = $data->config[0]['configvalue'];
                 unset($data->config[0]);
                 $data->config = array_values($data->config);
@@ -91,6 +92,7 @@ class teacher_session_view implements renderable, templatable {
                 }
                 $data->sessionquestions = $questiondata;
                 $data->numquestions = count($questiondata);
+                $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
                 $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
                 break;
             default:

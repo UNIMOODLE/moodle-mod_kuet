@@ -18,6 +18,8 @@ let REGION = {
     TEACHERCANVAS: '[data-region="teacher-canvas"]',
     TEACHERPANEL: '[data-region="teacher-panel"]',
     SESSIONCONTROLER: '[data-region="session-controller"]',
+    SESSIONRESUME: '[data-region="session-resume"]',
+    LISTRESULTS: '[data-region="list-results"]',
 };
 
 let ACTION = {
@@ -33,7 +35,10 @@ let SERVICES = {
     FIRSTQUESTION: 'mod_jqshow_firstquestion',
     FINISHSESSION: 'mod_jqshow_finishsession',
     DELETERESPONSES: 'mod_jqshow_deleteresponses',
-    JUMPTOQUESTION: 'mod_jqshow_jumptoquestion'
+    JUMPTOQUESTION: 'mod_jqshow_jumptoquestion',
+    GETSESSIONRESUME: 'mod_jqshow_getsessionresume',
+    GETLISTRESULTS: 'mod_jqshow_getlistresults',
+    GETQUESTIONSTATISTICS: 'mod_jqshow_getquestionstatistics'
 };
 
 let TEMPLATES = {
@@ -41,7 +46,9 @@ let TEMPLATES = {
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
     PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
-    QUESTION: 'mod_jqshow/questions/encasement'
+    QUESTION: 'mod_jqshow/questions/encasement',
+    SESSIONRESUME: 'mod_jqshow/session/sessionresume',
+    LISTRESULTS: 'mod_jqshow/session/listresults'
 };
 
 let portUrl = '8080'; // It is rewritten in the constructor.
@@ -274,6 +281,24 @@ Sockets.prototype.initSockets = function() {
             case 'playQuestion':
                 dispatchEvent(new Event('playQuestion_' + response.jqid));
                 break;
+            case 'showAnswers':
+                dispatchEvent(new Event('showAnswers_' + response.jqid));
+                break;
+            case 'hideAnswers':
+                dispatchEvent(new Event('hideAnswers_' + response.jqid));
+                break;
+            case 'showStatistics':
+                dispatchEvent(new Event('showStatistics_' + response.jqid));
+                break;
+            case 'hideStatistics':
+                dispatchEvent(new Event('hideStatistics_' + response.jqid));
+                break;
+            case 'showFeedback':
+                dispatchEvent(new Event('showFeedback_' + response.jqid));
+                break;
+            case 'hideFeedback':
+                dispatchEvent(new Event('hideFeedback_' + response.jqid));
+                break;
             default:
                 break;
         }
@@ -320,6 +345,24 @@ Sockets.prototype.initListeners = function() {
     }, false);
     addEventListener('teacherQuestionEndSelf', () => {
         that.questionEnd();
+    }, false);
+    addEventListener('showAnswersSelf', () => {
+        that.showAnswers();
+    }, false);
+    addEventListener('hideAnswersSelf', () => {
+        that.hideAnswers();
+    }, false);
+    addEventListener('showStatisticsSelf', () => {
+        that.showStatistics();
+    }, false);
+    addEventListener('hideStatisticsSelf', () => {
+        that.hideStatistics();
+    }, false);
+    addEventListener('showFeedbackSelf', () => {
+        that.showFeedback();
+    }, false);
+    addEventListener('hideFeedbackSelf', () => {
+        that.hideFeedback();
     }, false);
     addEventListener('endSession', () => {
         that.endSession();
@@ -407,6 +450,7 @@ Sockets.prototype.initSession = function() {
                     };
                     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                        Sockets.prototype.initPanel();
                         let identifier = jQuery(REGION.TEACHERCANVAS);
                         identifier.append(html);
                         currentQuestionJqid = firstQuestion.result.jqid;
@@ -434,6 +478,36 @@ Sockets.prototype.initSession = function() {
         modal.show();
         // eslint-disable-next-line no-restricted-globals
     }).fail(Notification.exception);
+};
+
+Sockets.prototype.initPanel = function() {
+    let requestResume = {
+        methodname: SERVICES.GETSESSIONRESUME,
+        args: {
+            sid: sid,
+            cmid: cmid,
+        }
+    };
+    Ajax.call([requestResume])[0].done(function(responseResume) {
+        Templates.render(TEMPLATES.SESSIONRESUME, responseResume).then(function(html) {
+            jQuery(REGION.SESSIONRESUME).append(html);
+        });
+    });
+    setInterval(function() {
+        let requestResults = {
+            methodname: SERVICES.GETLISTRESULTS,
+            args: {
+                sid: sid,
+                cmid: cmid,
+            }
+        };
+        Ajax.call([requestResults])[0].done(function(responseResults) {
+            Templates.render(TEMPLATES.LISTRESULTS, responseResults).then(function(html) {
+                jQuery(REGION.LISTRESULTS).html(html);
+            });
+        });
+    }, 20000);
+    jQuery(REGION.TEACHERPANEL).removeClass('d-none');
 };
 
 Sockets.prototype.endSession = function() {
@@ -613,6 +687,7 @@ Sockets.prototype.jumpTo = function(questionNumber) {
         };
         db.add('questions', data);
         currentQuestionJqid = question.jqid;
+        that.setCurrentQuestion(question.jqid);
         that.getNextQuestion(question.jqid);
         let msg = {
             'action': 'question',
@@ -634,8 +709,75 @@ Sockets.prototype.jumpTo = function(questionNumber) {
 };
 
 Sockets.prototype.questionEnd = function() {
+    let request = {
+        methodname: SERVICES.GETQUESTIONSTATISTICS,
+        args: {
+            sid: sid,
+            jqid: currentQuestionJqid
+        }
+    };
+    Ajax.call([request])[0].done(function(response) {
+        let msg = {
+            'action': 'teacherQuestionEnd',
+            'sid': sid,
+            'jqid': currentQuestionJqid,
+            'statistics': response.statistics
+        };
+        Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        dispatchEvent(new CustomEvent('teacherQuestionEnd_' + currentQuestionJqid, {
+            "detail": {"statistics": response.statistics}
+        }));
+    }).fail(Notification.exception);
+};
+
+Sockets.prototype.showAnswers = function() {
     let msg = {
-        'action': 'teacherQuestionEnd',
+        'action': 'showAnswers',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.hideAnswers = function() {
+    let msg = {
+        'action': 'hideAnswers',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.showStatistics = function() {
+    let msg = {
+        'action': 'showStatistics',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.hideStatistics = function() {
+    let msg = {
+        'action': 'hideStatistics',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.showFeedback = function() {
+    let msg = {
+        'action': 'showFeedback',
+        'sid': sid,
+        'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.hideFeedback = function() {
+    let msg = {
+        'action': 'hideFeedback',
         'sid': sid,
         'jqid': currentQuestionJqid
     };

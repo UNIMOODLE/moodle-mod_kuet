@@ -126,6 +126,18 @@
                         justify-content: flex-start;
                         align-items: center;
                         margin: 0 30px 15px 0;
+                         &.disabled {
+                             pointer-events: none;
+                             .custom-control-input {
+                                 pointer-events: none;
+                             }
+                             .custom-control-label {
+                                 &:before,
+                                 &:after {
+                                     pointer-events: none;
+                                 }
+                             }
+                         }
                         .control-action-icon,
                         .showhide-action-icon {
                             height: 30px;

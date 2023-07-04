@@ -87,6 +87,7 @@ class nextquestion_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $nextquestion = jqshow_questions::get_next_question_of_session($sessionid, $jqid);
+        $session = new jqshow_sessions($sessionid);
         if ($nextquestion !== false) {
             progress::set_progress(
                 $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
@@ -104,7 +105,6 @@ class nextquestion_external extends external_api {
                         [], get_string('question_nosuitable', 'mod_jqshow'));
             }
         } else {
-            $session = new jqshow_sessions($sessionid);
             $finishdata = new stdClass();
             $finishdata->endSession = 1;
             jqshow_user_progress::add_progress(
@@ -115,6 +115,7 @@ class nextquestion_external extends external_api {
                 $sessionid);
         }
         $data->programmedmode = $manual === false;
+        $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
         return (array)(new question_exporter($data, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
     }
 

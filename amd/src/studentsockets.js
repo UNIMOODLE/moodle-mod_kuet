@@ -149,7 +149,7 @@ Sockets.prototype.initSockets = function() {
                         const questionData = {
                             ...response.context.value,
                             ...answer
-                        }; // TODO check, as if the question contains feedbacks, they are not displayed.
+                        };
                         Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
                             identifier.html(html);
                             Templates.runTemplateJS(js);
@@ -164,6 +164,24 @@ Sockets.prototype.initSockets = function() {
             case 'playQuestion':
                 dispatchEvent(new Event('playQuestion_' + response.jqid));
                 break;
+            case 'showAnswers':
+                dispatchEvent(new Event('showAnswers_' + response.jqid));
+                break;
+            case 'hideAnswers':
+                dispatchEvent(new Event('hideAnswers_' + response.jqid));
+                break;
+            case 'showStatistics':
+                dispatchEvent(new Event('showStatistics_' + response.jqid));
+                break;
+            case 'hideStatistics':
+                dispatchEvent(new Event('hideStatistics_' + response.jqid));
+                break;
+            case 'showFeedback':
+                dispatchEvent(new Event('showFeedback_' + response.jqid));
+                break;
+            case 'hideFeedback':
+                dispatchEvent(new Event('hideFeedback_' + response.jqid));
+                break;
             case 'endSession':
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.ROOT);
@@ -177,7 +195,9 @@ Sockets.prototype.initSockets = function() {
                 });
                 break;
             case 'teacherQuestionEnd':
-                dispatchEvent(new Event('teacherQuestionEnd_' + response.jqid));
+                dispatchEvent(new CustomEvent('teacherQuestionEnd_' + response.jqid, {
+                    "detail": {"statistics": response.statistics}
+                }));
                 break;
             case 'userdisconnected':
                 jQuery('[data-userid="' + response.usersocketid + '"]').remove();

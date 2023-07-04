@@ -276,6 +276,7 @@ class sessions {
             $params['cat_' . $key] = $categoryid;
         }
         if (!empty($params) && $catstr !== '') {
+            // TODO review, categories of the same level bring all questions.
             $catstr = trim($catstr, ',');
             $sql = "SELECT
                         qv.status,
@@ -359,7 +360,7 @@ class sessions {
         $data->sid = required_param('sid', PARAM_INT);
         $data->cmid = required_param('cmid', PARAM_INT);
         $data->jqshowid = $this->jqshow->id;
-        $data->config = self::get_session_config($data->sid);
+        $data->config = self::get_session_config($data->sid, $data->cmid);
         $allquestions = (new questions($data->jqshowid, $data->cmid, $data->sid))->get_list();
         $questiondata = [];
         foreach ($allquestions as $question) {
@@ -375,10 +376,11 @@ class sessions {
 
     /**
      * @param int $sid
+     * @param int $cmid
      * @return array
      * @throws coding_exception
      */
-    public static function get_session_config(int $sid): array {
+    public static function get_session_config(int $sid, int $cmid): array {
         // TODO finish setting with all icons and session settings to be shown.
         $sessiondata = new jqshow_sessions($sid);
         $data = [];
@@ -477,7 +479,6 @@ class sessions {
                     $timeperquestion . 's';
                 break;
             case self::QUESTION_TIME:
-                $cmid = required_param('cmid', PARAM_INT);
                 $totaltime =
                     (new questions($sessiondata->get('jqshowid'), $cmid, $sessiondata->get('id')))->get_sum_questions_times();
                 $timemodestring = get_string('question_time', 'mod_jqshow') . '<br>' .
@@ -506,8 +507,10 @@ class sessions {
         $session = jqshow_sessions::get_record(['id' => $sid]);
         $questions = (new questions($session->get('jqshowid'), $cmid, $sid))->get_list();
         $students = [];
+        $context = context_module::instance($cmid);
         foreach ($users as $user) {
-            if (info_module::is_user_visible($cm, $user->id, false)) {
+            if (!has_capability('mod/jqshow:startsession', $context, $user) &&
+                info_module::is_user_visible($cm, $user->id, false)) {
                 $answers = jqshow_questions_responses::get_session_responses_for_user(
                     $user->id, $session->get('id'), $session->get('jqshowid')
                 );
@@ -577,6 +580,9 @@ class sessions {
         if (!empty($id)) {
             $update = true;
             $data->{'id'} = $id;
+        }
+        if (!isset($data->showfeedback)) {
+            $data->showfeedback = 0;
         }
         if (!isset($data->automaticstart) || $data->automaticstart === 0) {
             $data->startdate = 0;

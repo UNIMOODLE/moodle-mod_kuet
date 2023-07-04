@@ -46,6 +46,8 @@ $coursecontext = context_course::instance($COURSE->id);
 $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
 $strjqshow = get_string('modulename', 'jqshow');
 $PAGE->set_heading($course->fullname);
+$PAGE->set_title(get_string('session', 'jqshow'));
+$PAGE->set_cacheable(false); // TODO only for develop.
 
 $activesession = jqshow_sessions::get_active_session_id($jqshow->id);
 if ($activesession !== 0 && $activesession !== $sid) {

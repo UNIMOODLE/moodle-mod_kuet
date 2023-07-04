@@ -85,6 +85,7 @@ class getuserquestionresponse_external extends external_api {
         $data = new stdClass();
         $data->sessionid = $sid;
         $data->cmid = $cmid;
+        $data->jqid = $jqid;
         if ($response !== false) {
             $json = $response->get('response');
             $other = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
