@@ -28,7 +28,6 @@ namespace mod_jqshow\helpers;
 use coding_exception;
 use context_module;
 use dml_exception;
-use enrol_self\self_test;
 use JsonException;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
@@ -61,6 +60,12 @@ class reports {
         $questionsdata = [];
         $jqshow = new jqshow($jqshowid);
         $users = enrol_get_course_users($jqshow->get('course'), true);
+        $cmcontext = context_module::instance($cmid);
+        foreach ($users as $key => $user) {
+            if (has_capability('mod/jqshow:startsession', $cmcontext, $user)) {
+                unset($users[$key]);
+            }
+        }
         foreach ($questions as $question) {
             $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
             $data = new stdClass();
@@ -331,7 +336,13 @@ class reports {
         }
         $data->correctanswers = array_values($correctanswers);
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
+        $cmcontext = context_module::instance($cmid);
         $users = enrol_get_course_users($course->id, true);
+        foreach ($users as $key => $user) {
+            if (has_capability('mod/jqshow:startsession', $cmcontext, $user)) {
+                unset($users[$key]);
+            }
+        }
         $data->numusers = count($users);
         $data->numcorrect = jqshow_questions_responses::count_records(
             ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => 1]
@@ -343,7 +354,6 @@ class reports {
         $data->percent_correct = ($data->numcorrect / $data->numusers) * 100;
         $data->percent_incorrect = ($data->numincorrect / $data->numusers) * 100;
         $data->percent_noresponse = ($data->numnoresponse / $data->numusers) * 100;
-        $cmcontext = context_module::instance($cmid);
         if ($session->get('anonymousanswer') === 1) {
             if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
                 $data->hasranking = true;
@@ -376,10 +386,11 @@ class reports {
         array $users, array $answers, jqshow_sessions $session, jqshow_questions $question, int $cmid, int $sid, int $jqid
     ): array {
         global $DB, $PAGE;
+        $context = context_module::instance($cmid);
         $results = [];
         foreach ($users as $user) {
             $userdata = $DB->get_record('user', ['id' => $user->id]);
-            if ($userdata !== false) {
+            if ($userdata !== false && !has_capability('mod/jqshow:startsession', $context, $userdata)) {
                 $userpicture = new user_picture($userdata);
                 $userpicture->size = 1;
                 $user->userimage = $userpicture->get_url($PAGE)->out(false);
@@ -414,5 +425,4 @@ class reports {
         }
         return $results;
     }
-
 }

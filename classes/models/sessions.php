@@ -276,6 +276,7 @@ class sessions {
             $params['cat_' . $key] = $categoryid;
         }
         if (!empty($params) && $catstr !== '') {
+            // TODO review, categories of the same level bring all questions.
             $catstr = trim($catstr, ',');
             $sql = "SELECT
                         qv.status,
@@ -506,8 +507,10 @@ class sessions {
         $session = jqshow_sessions::get_record(['id' => $sid]);
         $questions = (new questions($session->get('jqshowid'), $cmid, $sid))->get_list();
         $students = [];
+        $context = context_module::instance($cmid);
         foreach ($users as $user) {
-            if (info_module::is_user_visible($cm, $user->id, false)) {
+            if (!has_capability('mod/jqshow:startsession', $context, $user) &&
+                info_module::is_user_visible($cm, $user->id, false)) {
                 $answers = jqshow_questions_responses::get_session_responses_for_user(
                     $user->id, $session->get('id'), $session->get('jqshowid')
                 );
