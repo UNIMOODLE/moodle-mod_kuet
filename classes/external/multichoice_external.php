@@ -32,7 +32,6 @@ use dml_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
-use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
@@ -40,7 +39,6 @@ use JsonException;
 use mod_jqshow\helpers\responses;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use question_bank;
@@ -52,10 +50,13 @@ require_once($CFG->dirroot. '/question/engine/bank.php');
 
 class multichoice_external extends external_api {
 
+    /**
+     * @return external_function_parameters
+     */
     public static function multichoice_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'answerid' => new external_value(PARAM_INT, 'answer id', VALUE_OPTIONAL),
+                'answerids' => new external_value(PARAM_RAW, 'answer id, or comma-separated answers ids, or empty', VALUE_OPTIONAL),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
@@ -68,7 +69,7 @@ class multichoice_external extends external_api {
     }
 
     /**
-     * @param int $answerid
+     * @param string $answerids
      * @param int $sessionid
      * @param int $jqshowid
      * @param int $cmid
@@ -78,22 +79,21 @@ class multichoice_external extends external_api {
      * @param bool $preview
      * @return array
      * @throws JsonException
-     * @throws dml_exception
      * @throws coding_exception
+     * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
     public static function multichoice(
-        int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $jqid, int $timeleft, bool $preview
+        string $answerids, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $jqid, int $timeleft, bool $preview
     ): array {
-        // TODO Review correctfeedback and incorrectfeedback.
         global $PAGE, $USER;
         self::validate_parameters(
             self::multichoice_parameters(),
             [
-                'answerid' => $answerid,
+                'answerids' => $answerids,
                 'sessionid' => $sessionid,
                 'jqshowid' => $jqshowid,
                 'cmid' => $cmid,
@@ -116,17 +116,22 @@ class multichoice_external extends external_api {
                 $correctanswers .= $answer->id . ',';
                 // TODO obtain the value of the answer to score the question.
             }
-            if (isset($answerid) && $key === $answerid && $answerfeedback === '') {
-                $answerfeedback = questions::get_text(
-                    $cmid, $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
-                );
+            if (isset($answerids) && $answerids !== '' && $answerids !== '0') {
+                $arrayanswers = explode(',', $answerids);
+                foreach ($arrayanswers as $arrayanswer) {
+                    if ((int)$key === (int)$arrayanswer && $answerfeedback === '') {
+                        $answerfeedback .= questions::get_text(
+                            $cmid, $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
+                        ) . '<br>';
+                    }
+                }
             }
         }
         $correctanswers = trim($correctanswers, ',');
 
         if ($preview === false) {
             responses::multichoice_response(
-                $answerid,
+                $answerids,
                 $correctanswers,
                 $questionid,
                 $sessionid,
@@ -151,6 +156,9 @@ class multichoice_external extends external_api {
         ];
     }
 
+    /**
+     * @return external_single_structure
+     */
     public static function multichoice_returns(): external_single_structure {
         return new external_single_structure(
             [
@@ -164,5 +172,4 @@ class multichoice_external extends external_api {
             ]
         );
     }
-
 }

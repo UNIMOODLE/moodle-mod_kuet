@@ -502,6 +502,7 @@ class sessions {
      * @throws Exception
      */
     public static function get_session_results(int $sid, int $cmid): array {
+        global $DB;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $users = enrol_get_course_users($course->id, true);
         $session = jqshow_sessions::get_record(['id' => $sid]);
@@ -516,11 +517,39 @@ class sessions {
                 );
                 $correctanswers = 0;
                 $incorrectanswers = 0;
+                $partially = 0;
+                $userpoinst = 0;
                 foreach ($answers as $answer) {
-                    if ($answer->get('result') === 1) {
-                        $correctanswers++;
-                    } else if ($answer->get('result') === 0) {
-                        $incorrectanswers++;
+                    switch ($answer->get('result')) {
+                        case questions::SUCCESS:
+                            $correctanswers++;
+                            ++$userpoinst;
+                            break;
+                        case questions::FAILURE:
+                            $incorrectanswers++;
+                            break;
+                        case questions::PARTIALLY:
+                            $partially++;
+                            $response = json_decode($answer->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                            switch ($response->type) {
+                                case 'multichoice':
+                                    $answerids = explode(',', $response->answerids);
+                                    if (count($answerids) > 0) {
+                                        foreach ($answerids as $answerid) {
+                                            $answervalue = $DB->get_record(
+                                                'question_answers', ['id' => (int)$answerid], 'fraction', MUST_EXIST
+                                            );
+                                            $userpoinst += $answervalue->fraction;
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                                        [], get_string('question_nosuitable', 'mod_jqshow'));
+                            }
+                            break;
+                        default:
+                            break;
                     }
                 }
                 $student = new stdClass();
@@ -529,8 +558,10 @@ class sessions {
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
                 $student->correctanswers = $correctanswers;
                 $student->incorrectanswers = $incorrectanswers;
-                $student->notanswers = count($questions) - ($correctanswers + $incorrectanswers);
-                $student->userpoints = (int)($correctanswers * (1000 / count($questions)));
+                $student->partially = $partially;
+                $student->notanswers = count($questions) - ($correctanswers + $incorrectanswers + $partially);
+                // TODO develop the entire scoring system for different modes.
+                $student->userpoints = (int)($userpoinst * (1000 / count($questions)));
                 $students[] = $student;
             }
         }

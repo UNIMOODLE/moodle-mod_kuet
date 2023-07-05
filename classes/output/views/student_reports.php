@@ -25,6 +25,9 @@
 
 namespace mod_jqshow\output\views;
 
+use coding_exception;
+use dml_exception;
+use JsonException;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\jqshow;
 use mod_jqshow\models\sessions;
@@ -51,6 +54,9 @@ class student_reports implements renderable, templatable {
     /**
      * @param renderer_base $output
      * @return stdClass
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
@@ -82,12 +88,16 @@ class student_reports implements renderable, templatable {
             $data->numquestions = count($data->sessionquestions);
             $data->noresponse = 0;
             $data->success = 0;
+            $data->partially = 0;
             $data->failures = 0;
             $data->noevaluable = 0;
             foreach ($data->sessionquestions as $question) {
                 switch ($question->response) {
                     case 'failure':
                         $data->failures++;
+                        break;
+                    case 'partially':
+                        $data->partially++;
                         break;
                     case 'success':
                         $data->success++;

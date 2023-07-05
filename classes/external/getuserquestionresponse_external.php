@@ -96,7 +96,7 @@ class getuserquestionresponse_external extends external_api {
             $other->questionid = $question->get('questionid');
             $other->hasfeedbacks = false;
             $other->correct_answers = '';
-            $other->answerid = 0;
+            $other->answerids = 0;
             $other->timeleft = 0;
             $other->type = $question->get('qtype');
             $json = json_encode($other, JSON_THROW_ON_ERROR);

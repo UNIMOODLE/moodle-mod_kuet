@@ -85,7 +85,13 @@ class reports {
                 'jqid' => $question->get('id'),
                 'result' => questions::FAILURE
             ]);
-            $data->noresponse = count($users) - ($data->success + $data->failures);
+            $data->partyally = jqshow_questions_responses::count_records([
+                'jqshow' => $jqshowid,
+                'session' => $sid,
+                'jqid' => $question->get('id'),
+                'result' => questions::PARTIALLY
+            ]);
+            $data->noresponse = count($users) - ($data->success + $data->failures + $data->partyally);
             $data->time = self::get_time_string($session, $question);
             $data->questionreporturl = (new moodle_url('/mod/jqshow/reports.php',
                 ['cmid' => $cmid, 'sid' => $sid, 'jqid' => $question->get('id')]
@@ -158,30 +164,30 @@ class reports {
                     case questions::FAILURE:
                         $data->response = 'failure';
                         $data->responsestr = get_string('failure', 'mod_jqshow');
-                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                     case questions::SUCCESS:
                         $data->response = 'success';
                         $data->responsestr = get_string('success', 'mod_jqshow');
-                        $data->time = self::get_user_time_in_question($session, $question, $response);
+                        break;
+                    case questions::PARTIALLY:
+                        $data->response = 'partially';
+                        $data->responsestr = get_string('partially_correct', 'mod_jqshow');
                         break;
                     case questions::NORESPONSE:
                     default:
                         $data->response = 'noresponse';
                         $data->responsestr = get_string('noresponse', 'mod_jqshow');
-                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                     case questions::NOTEVALUABLE:
                         $data->response = 'noevaluable';
                         $data->responsestr = get_string('noevaluable', 'mod_jqshow');
-                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                     case questions::INVALID:
                         $data->response = 'invalid';
                         $data->responsestr = get_string('invalid', 'mod_jqshow');
-                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                 }
+                $data->time = self::get_user_time_in_question($session, $question, $response);
             }
             $data->cmid = $cmid;
             $data->sessionid = $sid;
@@ -278,6 +284,7 @@ class reports {
         switch ($data->type) {
             // TODO recfactor.
             case 'multichoice':
+                print_object($questiondata->answers);
                 foreach ($questiondata->answers as $key => $answer) {
                     $answers[$key]['answertext'] = $answer->answer; // TODO get text with images questions::get_text.
                     $answers[$key]['answerid'] = $key;
@@ -285,16 +292,18 @@ class reports {
                         $answers[$key]['result'] = 'incorrect';
                         $answers[$key]['resultstr'] = get_string('incorrect', 'mod_jqshow');
                         $answers[$key]['fraction'] = '0';
+                        $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_jqshow'), 'mod_jqshow', [
+                            'class' => 'icon',
+                            'title' => get_string('incorrect', 'mod_jqshow')
+                        ]);
+                        $usersicon = new pix_icon('i/incorrect_users', '', 'mod_jqshow', [
+                            'class' => 'icon',
+                            'title' => ''
+                        ]);
                     } else if ($answer->fraction === '1.0000000') {
                         $answers[$key]['result'] = 'correct';
                         $answers[$key]['resultstr'] = get_string('correct', 'mod_jqshow');
                         $answers[$key]['fraction'] = '1';
-                    } else {
-                        $answers[$key]['result'] = 'partial';
-                        $answers[$key]['resultstr'] = get_string('partial', 'mod_jqshow');
-                        $answers[$key]['fraction'] = $answer->fraction;
-                    }
-                    if ($answers[$key]['result'] !== 'incorrect') {
                         $icon = new pix_icon('i/correct', get_string('correct', 'mod_jqshow'), 'mod_jqshow', [
                             'class' => 'icon',
                             'title' => get_string('correct', 'mod_jqshow')
@@ -304,11 +313,14 @@ class reports {
                             'title' => ''
                         ]);
                     } else {
-                        $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_jqshow'), 'mod_jqshow', [
+                        $answers[$key]['result'] = 'partially';
+                        $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_jqshow');
+                        $answers[$key]['fraction'] = $answer->fraction;
+                        $icon = new pix_icon('i/warning', get_string('partially_correct', 'mod_jqshow'), 'mod_jqshow', [
                             'class' => 'icon',
-                            'title' => get_string('incorrect', 'mod_jqshow')
+                            'title' => get_string('partially_correct', 'mod_jqshow')
                         ]);
-                        $usersicon = new pix_icon('i/incorrect_users', '', 'mod_jqshow', [
+                        $usersicon = new pix_icon('i/partially_users', '', 'mod_jqshow', [
                             'class' => 'icon',
                             'title' => ''
                         ]);
@@ -324,8 +336,9 @@ class reports {
                 $responses = jqshow_questions_responses::get_question_responses($sid, $data->jqshowid, $jqid);
                 foreach ($responses as $response) {
                     $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-                    if ($other->answerid !== 0) {
-                        $answers[$other->answerid]['numticked']++;
+                    if ($other->answerids !== '' && $other->answerids !== '0') { // TODO prepare for multianswer.
+                        
+                        $answers[$other->answerids]['numticked']++;
                     }
                     // TODO obtain the average time to respond to each option ticked. ???
                 }
@@ -345,14 +358,18 @@ class reports {
         }
         $data->numusers = count($users);
         $data->numcorrect = jqshow_questions_responses::count_records(
-            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => 1]
+            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::SUCCESS]
         );
         $data->numincorrect = jqshow_questions_responses::count_records(
-            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => 0]
+            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::FAILURE]
         );
-        $data->numnoresponse = $data->numusers - ($data->numcorrect + $data->numincorrect);
+        $data->numpartial = jqshow_questions_responses::count_records(
+            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::PARTIALLY]
+        );
+        $data->numnoresponse = $data->numusers - ($data->numcorrect + $data->numincorrect + $data->numpartial);
         $data->percent_correct = ($data->numcorrect / $data->numusers) * 100;
         $data->percent_incorrect = ($data->numincorrect / $data->numusers) * 100;
+        $data->percent_partially = ($data->numincorrect / $data->numusers) * 100;
         $data->percent_noresponse = ($data->numnoresponse / $data->numusers) * 100;
         if ($session->get('anonymousanswer') === 1) {
             if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
@@ -402,7 +419,7 @@ class reports {
                 if ($response !== false && $response->get('result') !== 2) {
                     $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
                     foreach ($answers as $answer) {
-                        if ($answer['answerid'] === $other->answerid) {
+                        if ($answer['answerid'] === $other->answerids) {
                             $user->response = $answer['result'];
                             $user->responsestr = get_string($answer['result'], 'mod_jqshow');
                             $user->answertext = $answer['answertext'];

@@ -6,10 +6,13 @@ import Notification from 'core/notification';
 import Templates from 'core/templates';
 
 let ACTION = {
-    REPLY: '[data-action="multichoice-answer"]'
+    REPLY: '[data-action="multichoice-answer"]',
+    MULTIANSWER: '[data-action="multichoice-multianswer"]',
+    SENDMULTIANSWER: '[data-action="send-multianswer"]'
 };
 
 let REGION = {
+    ROOT: '[data-region="question-content"]',
     MULTICHOICE: '[data-region="multichoice"]',
     LOADING: '[data-region="overlay-icon-container"]',
     CONTENTFEEDBACKS: '[data-region="containt-feedbacks"]',
@@ -19,7 +22,8 @@ let REGION = {
     STATEMENTTEXT: '[data-region="statement-text"]',
     TIMER: '[data-region="question-timer"]',
     SECONDS: '[data-region="seconds"]',
-    NEXT: '[data-action="next-question"]'
+    NEXT: '[data-action="next-question"]',
+    ANSWERCHECKED: '.answer-checked'
 };
 
 let SERVICES = {
@@ -76,6 +80,8 @@ MultiChoice.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
 
 MultiChoice.prototype.initMultichoice = function() {
     this.node.find(ACTION.REPLY).on('click', this.reply.bind(this));
+    this.node.find(ACTION.MULTIANSWER).on('click', this.markAnswer.bind(this));
+    this.node.find(ACTION.SENDMULTIANSWER).on('click', this.reply.bind(this));
     let that = this;
     addEventListener('timeFinish', () => {
         this.reply();
@@ -130,12 +136,19 @@ MultiChoice.prototype.initMultichoice = function() {
 };
 
 MultiChoice.prototype.reply = function(e) {
-    let answerId = 0;
+    let answerIds = '0';
     let that = this;
-    if (e !== undefined) {
+    let multiAnswer = e === undefined || jQuery(e.currentTarget).attr('data-action') === 'send-multianswer';
+    if (!multiAnswer) {
         e.preventDefault();
         e.stopPropagation();
-        answerId = jQuery(e.currentTarget).attr('data-answerid');
+        answerIds = jQuery(e.currentTarget).attr('data-answerid');
+    } else { // MultiAnswer or empty.
+        let responses = [];
+        jQuery(REGION.ANSWERCHECKED).each(function(index, response) {
+            responses.push(jQuery(response).attr('data-answerid'));
+        });
+        answerIds = responses.toString();
     }
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         that.node.append(html);
@@ -144,7 +157,7 @@ MultiChoice.prototype.reply = function(e) {
         let request = {
             methodname: SERVICES.REPLY,
             args: {
-                answerid: answerId,
+                answerids: answerIds,
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,
@@ -156,8 +169,16 @@ MultiChoice.prototype.reply = function(e) {
         };
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
-                if (e !== undefined) {
+                if (!multiAnswer) {
                     jQuery(e.currentTarget).css({'z-index': 3, 'pointer-events': 'none'});
+                } else {
+                    let responses = answerIds.split(',');
+                    responses.forEach((rId) => {
+                        jQuery('[data-answerid="' + rId + '"]')
+                            .css({'z-index': 3, 'pointer-events': 'none'})
+                            .removeClass('answer-checked');
+                    });
+                    jQuery(ACTION.SENDMULTIANSWER).addClass('d-none');
                 }
                 that.answered(response);
                 questionEnd = true;
@@ -185,8 +206,18 @@ MultiChoice.prototype.reply = function(e) {
     });
 };
 
+MultiChoice.prototype.markAnswer = function(e) {
+    if (jQuery(e.currentTarget).hasClass('answer-checked')) {
+        jQuery(e.currentTarget).removeClass('answer-checked');
+    } else {
+        jQuery(e.currentTarget).addClass('answer-checked');
+    }
+};
+
 MultiChoice.prototype.answered = function(response) {
     questionEnd = true;
+    // eslint-disable-next-line no-console
+    console.log(response);
     if (response.hasfeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
         jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
@@ -195,8 +226,12 @@ MultiChoice.prototype.answered = function(response) {
     jQuery(REGION.STATEMENTTEXT).css({'z-index': 3, 'padding': '15px'});
     jQuery(REGION.TIMER).css('z-index', 3);
     jQuery(REGION.NEXT).removeClass('d-none');
-    if (response.answerid) {
-        jQuery('[data-answerid="' + response.answerid + '"]').css({'z-index': 3, 'pointer-events': 'none'});
+    if (response.answerids && response.answerids !== '') {
+        let responses = response.answerids.split(',');
+        responses.forEach((rId) => {
+            jQuery('[data-answerid="' + rId + '"]').css({'z-index': 3, 'pointer-events': 'none'});
+        });
+        jQuery(ACTION.SENDMULTIANSWER).addClass('d-none');
     }
     if (response.correct_answers) {
         correctAnswers = response.correct_answers;
@@ -204,7 +239,7 @@ MultiChoice.prototype.answered = function(response) {
     }
     if (response.statistics) {
         response.statistics.forEach((statistic) => {
-            jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            jQuery('[data-answerid="' + statistic.answerids + '"] .numberofreplies').html(statistic.numberofreplies);
         });
     }
 };

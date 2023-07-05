@@ -47,6 +47,9 @@
                             border-top: 1px solid #EDEBF4;
                             color: #929292 !important;
                         }
+                        &:nth-child(even) {
+                            background-color: rgba(0,0,0,.03);
+                        }
                     }
                 }
             }

@@ -38,7 +38,7 @@ use stdClass;
 class responses {
 
     /**
-     * @param int $answerid
+     * @param string $answerids
      * @param string $correctanswers
      * @param int $questionid
      * @param int $sessionid
@@ -54,7 +54,7 @@ class responses {
      * @throws moodle_exception
      */
     public static function multichoice_response(
-        int $answerid,
+        string $answerids,
         string $correctanswers,
         int $questionid,
         int $sessionid,
@@ -68,17 +68,37 @@ class responses {
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
-            if ($answerid === 0) {
-                $result = 2; // Not answered.
+            if ($answerids === '0') {
+                $result = questions::NORESPONSE; // No response.
             } else if ($correctanswers !== '') {
                 $correctids = explode(',', $correctanswers);
-                if (in_array($answerid, $correctids, false)) {
-                    $result = 1; // Correct.
+                if (count($correctids) > 1) { // Multianswers.
+                    $arrayanswerids = explode(',', $answerids);
+                    $corrects = 0;
+                    foreach ($arrayanswerids as $arrayanswerid) {
+                        if (in_array($arrayanswerid, $correctids, false)) {
+                            $corrects++;
+                        }
+                    }
+                    if ($corrects === 0) {
+                        $result = questions::FAILURE;
+                    }
+                    if ($corrects > 0 && $corrects < count($arrayanswerids)) {
+                        $result = questions::PARTIALLY;
+                    }
+                    if ($corrects === count($arrayanswerids)) {
+                        $result = questions::SUCCESS;
+                    }
+                    if (!isset($result)) {
+                        $result = questions::NOTEVALUABLE;
+                    }
+                } else if (in_array($answerids, $correctids, false)) {
+                    $result = questions::SUCCESS; // Correct.
                 } else {
-                    $result = 0; // Incorrect.
+                    $result = questions::FAILURE; // Incorrect.
                 }
             } else {
-                $result = 3; // Invalid response.
+                $result = questions::INVALID; // Invalid response.
             }
             $jqid = jqshow_questions::get_record(
                 ['questionid' => $questionid, 'sessionid' => $sessionid, 'jqshowid' => $jqshowid],
@@ -87,7 +107,7 @@ class responses {
             $response->questionid = $questionid;
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
             $response->correct_answers = $correctanswers;
-            $response->answerid = $answerid;
+            $response->answerids = $answerids;
             $response->timeleft = $timeleft;
             $response->type = questions::MULTIPLE_CHOICE;
             jqshow_questions_responses::add_response(

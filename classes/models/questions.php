@@ -62,9 +62,10 @@ class questions {
 
     public const FAILURE = 0;
     public const SUCCESS = 1;
-    public const NORESPONSE = 2;
-    public const NOTEVALUABLE = 3;
-    public const INVALID = 4;
+    public const PARTIALLY = 2;
+    public const NORESPONSE = 3;
+    public const NOTEVALUABLE = 4;
+    public const INVALID = 5;
 
     protected int $jqshowid;
     protected int $cmid;
@@ -144,10 +145,15 @@ class questions {
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
         $type = $question->get_type_name();
+
         $answers = [];
         $feedbacks = [];
+        $data = new stdClass();
         foreach ($question->answers as $response) {
             if (assert($response instanceof question_answer)) {
+                if ($response->fraction !== '0.0000000' && $response->fraction !== '1.0000000') {
+                    $data->multianswers = true;
+                }
                 $answertext = self::get_text($cmid, $response->answer, $response->answerformat, $response->id, $question, 'answer');
                 $answers[] = [
                     'answerid' => $response->id,
@@ -162,7 +168,6 @@ class questions {
                 ];
             }
         }
-        $data = new stdClass();
         $data->cmid = $cmid;
         $data->sessionid = $sessionid;
         $data->jqshowid = $jqshowid;
@@ -270,7 +275,7 @@ class questions {
         $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         $data->answered = true;
         $dataanswer = multichoice_external::multichoice(
-            $responsedata->answerid,
+            $responsedata->answerids,
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
@@ -279,7 +284,7 @@ class questions {
             $responsedata->timeleft, true
         );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
-        $dataanswer['answerid'] = $responsedata->answerid;
+        $dataanswer['answerids'] = $responsedata->answerids;
         $data->seconds = $responsedata->timeleft;
         $data->correct_answers = $dataanswer['correct_answers'];
         $data->programmedmode = $dataanswer['programmedmode'];
