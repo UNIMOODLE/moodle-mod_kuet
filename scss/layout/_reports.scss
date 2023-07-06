@@ -339,14 +339,12 @@ body#page-mod-jqshow-reports.jqshow-reports {
                     .answer {
                         padding: 1em;
                         margin-bottom: 1em;
-                        &.correct {
+                        &.correct,
+                        &.partially {
                             background-color: #d7e4d6;
                         }
                         &.incorrect {
                             background-color: #f4d6d2;
-                        }
-                        &.partial {
-                            background-color: #fcefdc;
                         }
                         .answer-body {
                             display: flex;

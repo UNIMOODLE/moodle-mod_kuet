@@ -309,3 +309,5 @@ $string['jumpto_error'] = 'Must be a number between 1 and {$a}';
 $string['session'] = 'Session';
 $string['send_response'] = 'Send response';
 $string['partially_correct'] = 'Partially correct';
+$string['partially'] = 'Partially';
+$string['scored_answers'] = 'Scored answers';

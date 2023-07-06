@@ -38,6 +38,7 @@ use stdClass;
 class responses {
 
     /**
+     * @param int $jqid
      * @param string $answerids
      * @param string $correctanswers
      * @param int $questionid
@@ -54,6 +55,7 @@ class responses {
      * @throws moodle_exception
      */
     public static function multichoice_response(
+        int $jqid,
         string $answerids,
         string $correctanswers,
         int $questionid,
@@ -100,9 +102,6 @@ class responses {
             } else {
                 $result = questions::INVALID; // Invalid response.
             }
-            $jqid = jqshow_questions::get_record(
-                ['questionid' => $questionid, 'sessionid' => $sessionid, 'jqshowid' => $jqshowid],
-                MUST_EXIST); // TODO The same questionid can be asked several times in the same session.
             $response = new stdClass(); // For snapshot.
             $response->questionid = $questionid;
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
@@ -111,7 +110,7 @@ class responses {
             $response->timeleft = $timeleft;
             $response->type = questions::MULTIPLE_CHOICE;
             jqshow_questions_responses::add_response(
-                $jqshowid, $sessionid, $jqid->get('id'), $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
     }

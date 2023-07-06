@@ -112,7 +112,7 @@ class multichoice_external extends external_api {
         $correctanswers = '';
         $answerfeedback = '';
         foreach ($question->answers as $key => $answer) {
-            if ($answer->fraction !== '0.0000000') {
+            if ($answer->fraction !== '0.0000000' && strpos($answer->fraction, '-') !== 0) {
                 $correctanswers .= $answer->id . ',';
                 // TODO obtain the value of the answer to score the question.
             }
@@ -131,6 +131,7 @@ class multichoice_external extends external_api {
 
         if ($preview === false) {
             responses::multichoice_response(
+                $jqid,
                 $answerids,
                 $correctanswers,
                 $questionid,

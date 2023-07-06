@@ -518,12 +518,12 @@ class sessions {
                 $correctanswers = 0;
                 $incorrectanswers = 0;
                 $partially = 0;
-                $userpoinst = 0;
+                $userpoints = 0;
                 foreach ($answers as $answer) {
                     switch ($answer->get('result')) {
                         case questions::SUCCESS:
                             $correctanswers++;
-                            ++$userpoinst;
+                            ++$userpoints;
                             break;
                         case questions::FAILURE:
                             $incorrectanswers++;
@@ -539,7 +539,7 @@ class sessions {
                                             $answervalue = $DB->get_record(
                                                 'question_answers', ['id' => (int)$answerid], 'fraction', MUST_EXIST
                                             );
-                                            $userpoinst += $answervalue->fraction;
+                                            $userpoints += $answervalue->fraction;
                                         }
                                     }
                                     break;
@@ -561,7 +561,7 @@ class sessions {
                 $student->partially = $partially;
                 $student->notanswers = count($questions) - ($correctanswers + $incorrectanswers + $partially);
                 // TODO develop the entire scoring system for different modes.
-                $student->userpoints = (int)($userpoinst * (1000 / count($questions)));
+                $student->userpoints = round($userpoints * (1000 / count($questions)), 2);
                 $students[] = $student;
             }
         }

@@ -83,10 +83,12 @@ class getquestionstatistics_external extends external_api {
                 $responses = jqshow_questions_responses::get_question_responses($sid, $jqshowquestion->get('jqshowid'), $jqid);
                 foreach ($responses as $response) {
                     foreach ($question->answers as $answer) {
-                        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR); // TODO prepare for multichoice.
-                        if ((int)$other->answerids === (int)$answer->id) {
-                            $statistics[$answer->id]['numberofreplies']++;
-                            break;
+                        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                        $arrayresponses = explode(',', $other->answerids);
+                        foreach ($arrayresponses as $responseid) {
+                            if ((int)$responseid === (int)$answer->id) {
+                                $statistics[$answer->id]['numberofreplies']++;
+                            }
                         }
                     }
                 }
