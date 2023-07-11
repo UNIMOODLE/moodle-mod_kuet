@@ -85,7 +85,13 @@ class reports {
                 'jqid' => $question->get('id'),
                 'result' => questions::FAILURE
             ]);
-            $data->noresponse = count($users) - ($data->success + $data->failures);
+            $data->partyally = jqshow_questions_responses::count_records([
+                'jqshow' => $jqshowid,
+                'session' => $sid,
+                'jqid' => $question->get('id'),
+                'result' => questions::PARTIALLY
+            ]);
+            $data->noresponse = count($users) - ($data->success + $data->failures + $data->partyally);
             $data->time = self::get_time_string($session, $question);
             $data->questionreporturl = (new moodle_url('/mod/jqshow/reports.php',
                 ['cmid' => $cmid, 'sid' => $sid, 'jqid' => $question->get('id')]
@@ -158,30 +164,30 @@ class reports {
                     case questions::FAILURE:
                         $data->response = 'failure';
                         $data->responsestr = get_string('failure', 'mod_jqshow');
-                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                     case questions::SUCCESS:
                         $data->response = 'success';
                         $data->responsestr = get_string('success', 'mod_jqshow');
-                        $data->time = self::get_user_time_in_question($session, $question, $response);
+                        break;
+                    case questions::PARTIALLY:
+                        $data->response = 'partially';
+                        $data->responsestr = get_string('partially_correct', 'mod_jqshow');
                         break;
                     case questions::NORESPONSE:
                     default:
                         $data->response = 'noresponse';
                         $data->responsestr = get_string('noresponse', 'mod_jqshow');
-                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                     case questions::NOTEVALUABLE:
                         $data->response = 'noevaluable';
                         $data->responsestr = get_string('noevaluable', 'mod_jqshow');
-                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                     case questions::INVALID:
                         $data->response = 'invalid';
                         $data->responsestr = get_string('invalid', 'mod_jqshow');
-                        $data->time = self::get_user_time_in_question($session, $question, $response);
                         break;
                 }
+                $data->time = self::get_user_time_in_question($session, $question, $response);
             }
             $data->cmid = $cmid;
             $data->sessionid = $sid;
@@ -201,25 +207,29 @@ class reports {
      */
     public static function get_user_time_in_question(
         jqshow_sessions $session, jqshow_questions $question, jqshow_questions_responses $response
-    ) {
+    ): string {
         $responsedata = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
         $usertimelast = $responsedata->timeleft;
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
             default:
-                $questiontime = ($question->get('timelimit') > 0) ? $question->get('timelimit') : 0;
+                $timestring = '-';
                 break;
             case sessions::SESSION_TIME:
                 $numquestion = jqshow_questions::count_records(
                     ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
                 );
                 $questiontime = round((int)$session->get('sessiontime') / $numquestion);
+                $usertime = ($questiontime - $usertimelast) !== 0 ? ($questiontime - $usertimelast) : 1;
+                $timestring = $usertime . 's / ' . $questiontime . 's';
                 break;
             case sessions::QUESTION_TIME:
                 $questiontime = ($question->get('timelimit') > 0) ? $question->get('timelimit') : $session->get('questiontime');
+                $usertime = ($questiontime - $usertimelast) !== 0 ? ($questiontime - $usertimelast) : 1;
+                $timestring = $usertime . 's / ' . $questiontime . 's';
+                break;
         }
-        $usertime = ($questiontime - $usertimelast) !== 0 ? ($questiontime - $usertimelast) : 1;
-        return $usertime . 's / ' . $questiontime . 's';
+        return $timestring;
     }
 
     /**
@@ -281,20 +291,22 @@ class reports {
                 foreach ($questiondata->answers as $key => $answer) {
                     $answers[$key]['answertext'] = $answer->answer; // TODO get text with images questions::get_text.
                     $answers[$key]['answerid'] = $key;
-                    if ($answer->fraction === '0.0000000') {
+                    if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
                         $answers[$key]['result'] = 'incorrect';
                         $answers[$key]['resultstr'] = get_string('incorrect', 'mod_jqshow');
-                        $answers[$key]['fraction'] = '0';
+                        $answers[$key]['fraction'] = round($answer->fraction, 2);
+                        $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_jqshow'), 'mod_jqshow', [
+                            'class' => 'icon',
+                            'title' => get_string('incorrect', 'mod_jqshow')
+                        ]);
+                        $usersicon = new pix_icon('i/incorrect_users', '', 'mod_jqshow', [
+                            'class' => 'icon',
+                            'title' => ''
+                        ]);
                     } else if ($answer->fraction === '1.0000000') {
                         $answers[$key]['result'] = 'correct';
                         $answers[$key]['resultstr'] = get_string('correct', 'mod_jqshow');
                         $answers[$key]['fraction'] = '1';
-                    } else {
-                        $answers[$key]['result'] = 'partial';
-                        $answers[$key]['resultstr'] = get_string('partial', 'mod_jqshow');
-                        $answers[$key]['fraction'] = $answer->fraction;
-                    }
-                    if ($answers[$key]['result'] !== 'incorrect') {
                         $icon = new pix_icon('i/correct', get_string('correct', 'mod_jqshow'), 'mod_jqshow', [
                             'class' => 'icon',
                             'title' => get_string('correct', 'mod_jqshow')
@@ -304,11 +316,14 @@ class reports {
                             'title' => ''
                         ]);
                     } else {
-                        $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_jqshow'), 'mod_jqshow', [
+                        $answers[$key]['result'] = 'partially';
+                        $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_jqshow');
+                        $answers[$key]['fraction'] = round($answer->fraction, 2);
+                        $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_jqshow'), 'mod_jqshow', [
                             'class' => 'icon',
-                            'title' => get_string('incorrect', 'mod_jqshow')
+                            'title' => get_string('partially_correct', 'mod_jqshow')
                         ]);
-                        $usersicon = new pix_icon('i/incorrect_users', '', 'mod_jqshow', [
+                        $usersicon = new pix_icon('i/correct_users', '', 'mod_jqshow', [
                             'class' => 'icon',
                             'title' => ''
                         ]);
@@ -316,16 +331,19 @@ class reports {
                     $answers[$key]['resulticon'] = $icon->export_for_pix();
                     $answers[$key]['usersicon'] = $usersicon->export_for_pix();
                     $answers[$key]['numticked'] = 0;
-                    if ($answer->fraction !== '0.0000000') {
+                    if ($answer->fraction !== '0.0000000') { // Answers with punctuation, even if negative.
                         $correctanswers[$key]['response'] = $answer->answer;
-                        $correctanswers[$key]['score'] = round($answer->fraction, 1);
+                        $correctanswers[$key]['score'] = round($answer->fraction, 2);
                     }
                 }
                 $responses = jqshow_questions_responses::get_question_responses($sid, $data->jqshowid, $jqid);
                 foreach ($responses as $response) {
                     $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-                    if ($other->answerid !== 0) {
-                        $answers[$other->answerid]['numticked']++;
+                    if ($other->answerids !== '' && $other->answerids !== '0') { // TODO prepare for multianswer.
+                        $arrayanswerids = explode(',', $other->answerids);
+                        foreach ($arrayanswerids as $arrayanswerid) {
+                            $answers[$arrayanswerid]['numticked']++;
+                        }
                     }
                     // TODO obtain the average time to respond to each option ticked. ???
                 }
@@ -345,15 +363,19 @@ class reports {
         }
         $data->numusers = count($users);
         $data->numcorrect = jqshow_questions_responses::count_records(
-            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => 1]
+            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::SUCCESS]
         );
         $data->numincorrect = jqshow_questions_responses::count_records(
-            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => 0]
+            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::FAILURE]
         );
-        $data->numnoresponse = $data->numusers - ($data->numcorrect + $data->numincorrect);
-        $data->percent_correct = ($data->numcorrect / $data->numusers) * 100;
-        $data->percent_incorrect = ($data->numincorrect / $data->numusers) * 100;
-        $data->percent_noresponse = ($data->numnoresponse / $data->numusers) * 100;
+        $data->numpartial = jqshow_questions_responses::count_records(
+            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::PARTIALLY]
+        );
+        $data->numnoresponse = $data->numusers - ($data->numcorrect + $data->numincorrect + $data->numpartial);
+        $data->percent_correct = round(($data->numcorrect / $data->numusers) * 100, 2);
+        $data->percent_incorrect = round(($data->numincorrect / $data->numusers) * 100, 2);
+        $data->percent_partially = round(($data->numpartial / $data->numusers) * 100, 2);
+        $data->percent_noresponse = round(($data->numnoresponse / $data->numusers) * 100, 2);
         if ($session->get('anonymousanswer') === 1) {
             if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
                 $data->hasranking = true;
@@ -399,17 +421,50 @@ class reports {
                 $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userdata->id]))->out(false);
                 $response = jqshow_questions_responses::get_record(['userid' => $userdata->id, 'session' => $sid, 'jqid' => $jqid]);
-                if ($response !== false && $response->get('result') !== 2) {
+                if ($response !== false) {
                     $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-                    foreach ($answers as $answer) {
-                        if ($answer['answerid'] === $other->answerid) {
-                            $user->response = $answer['result'];
-                            $user->responsestr = get_string($answer['result'], 'mod_jqshow');
-                            $user->answertext = $answer['answertext'];
-                            $user->userpoints = $answer['fraction'];
-                            $user->score_moment = $answer['score_moment'] . '??';
-                            $user->time = self::get_user_time_in_question($session, $question, $response);
-                        }
+                    switch ($other->type) {
+                        case 'multichoice':
+                            $arrayresponses = explode(',', $other->answerids);
+                            if (count($arrayresponses) === 1) {
+                                foreach ($answers as $answer) {
+                                    if ((int)$answer['answerid'] === (int)$arrayresponses[0]) {
+                                        $user->response = $answer['result'];
+                                        $user->responsestr = get_string($answer['result'], 'mod_jqshow');
+                                        $user->answertext = $answer['answertext'];
+                                        $user->userpoints = $answer['fraction'];
+                                        $user->score_moment = $answer['score_moment'] . '??';
+                                        $user->time = self::get_user_time_in_question($session, $question, $response);
+                                    }
+                                }
+                            } else {
+                                $answertext = '';
+                                $score = 0;
+                                foreach ($answers as $answer) {
+                                    foreach ($arrayresponses as $responseid) {
+                                        if ((int)$answer['answerid'] === (int)$responseid) {
+                                            $answertext .= $answer['answertext'] . '<br>';
+                                            $score += $answer['fraction'];
+                                        }
+                                    }
+                                }
+                                if ((string)$score === '0') {
+                                    $user->response = 'incorrect';
+                                } else if ((string)$score === '1') {
+                                    $user->response = 'correct';
+                                } else {
+                                    $user->response = 'partially';
+                                }
+                                $user->responsestr = get_string($user->response, 'mod_jqshow');
+                                $user->answertext = trim($answertext, '<br>');
+                                $user->userpoints = $score;
+                                $user->score_moment = $answer['score_moment'] . '??';
+                                $user->time = self::get_user_time_in_question($session, $question, $response);
+                            }
+                            break;
+                        default:
+                            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                                [], get_string('question_nosuitable', 'mod_jqshow'));
                     }
                 } else {
                     $questiontimestr = self::get_time_string($session, $question);

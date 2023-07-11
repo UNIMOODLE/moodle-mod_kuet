@@ -93,11 +93,9 @@ class jqshow_questions extends persistent {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function add_not_valid_question(int $questionid, int $sessionid, int $jqshowid, string $qtype) : bool {
-        // TODO apply default values to make the question valid without the need for the teacher to edit it.
+    public static function add_question(int $questionid, int $sessionid, int $jqshowid, string $qtype) : bool {
         global $USER;
         $order = parent::count_records(['sessionid' => $sessionid]) + 1;
-        $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $isvalid = 0; // Teacher must configured the question for this session.
         $data = new stdClass();
         $data->questionid = $questionid;
@@ -105,7 +103,7 @@ class jqshow_questions extends persistent {
         $data->jqshowid = $jqshowid;
         $data->qorder = $order;
         $data->qtype = $qtype;
-        $data->timelimit = 0; // TODO.
+        $data->timelimit = 0;
         $data->ignorecorrectanswer = 0;
         $data->isvalid = $isvalid;
         $data->config = '';

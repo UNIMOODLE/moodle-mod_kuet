@@ -80,7 +80,7 @@ class addquestions_external extends external_api {
             if (!in_array($question['qtype'], questions::TYPES)) {
                 continue;
             }
-            $result = jqshow_questions::add_not_valid_question($question['questionid'], $question['sessionid'],
+            $result = jqshow_questions::add_question($question['questionid'], $question['sessionid'],
                 $question['jqshowid'], $question['qtype']);
             if (false === $result) {
                 $added = false;

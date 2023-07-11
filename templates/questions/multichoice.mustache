@@ -21,7 +21,12 @@
         </div>
         <div class="col-12 containt-answers">
             {{# answers }}
-                <div class="multichoice-answer" data-answerid="{{ answerid }}" data-questionid="{{questionid}}" data-action="multichoice-answer">
+                <div
+                        class="multichoice-answer"
+                        data-answerid="{{ answerid }}"
+                        data-questionid="{{questionid}}"
+                        data-action="{{^multianswers}}multichoice-answer{{/multianswers}}{{#multianswers}}multichoice-multianswer{{/multianswers}}"
+                >
                     <div class="feedback-icons">
                         <span class="feedback-icon correct">{{#pix}}q/correct, mod_jqshow{{/pix}}</span>
                         <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_jqshow{{/pix}}</span>
@@ -40,6 +45,11 @@
                 </div>
             {{/ answers }}
         </div>
+        {{#multianswers}}
+            <div class="btn btn-primary ml-auto mt-3" data-action="send-multianswer">
+                {{#str}}send_response, mod_jqshow{{/str}}
+            </div>
+        {{/multianswers}}
         <div class="col-12 containt-feedbacks bg-primary" data-region="containt-feedbacks">
             <div class="feedback-title">
                 {{#pix}}q/feedback, mod_jqshow{{/pix}}

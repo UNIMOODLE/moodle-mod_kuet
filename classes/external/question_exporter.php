@@ -96,6 +96,10 @@ class question_exporter extends exporter {
                 'type' => PARAM_BOOL,
                 'optional' => true
             ],
+            'multianswers' => [
+                'type' => PARAM_BOOL,
+                'optional' => true
+            ],
             'port' => [
                 'type' => PARAM_RAW,
                 'optional' => true

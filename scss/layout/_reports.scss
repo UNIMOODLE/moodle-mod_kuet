@@ -198,7 +198,7 @@ body#page-mod-jqshow-reports.jqshow-reports {
                         .incorrect,
                         .success,
                         .correct,
-                        .partial,
+                        .partially,
                         .noresponse,
                         .noevaluable,
                         .invalid {
@@ -216,11 +216,16 @@ body#page-mod-jqshow-reports.jqshow-reports {
                             }
                         }
                         .success,
-                        .correct,
-                        .partial {
+                        .correct {
                             background-color: #ebf9f4;
                             span {
                                 color: #2fb182;
+                            }
+                        }
+                        .partially {
+                            background-color: #fefefe;
+                            span {
+                                color: #818182;
                             }
                         }
                         .noresponse,
@@ -334,14 +339,12 @@ body#page-mod-jqshow-reports.jqshow-reports {
                     .answer {
                         padding: 1em;
                         margin-bottom: 1em;
-                        &.correct {
+                        &.correct,
+                        &.partially {
                             background-color: #d7e4d6;
                         }
                         &.incorrect {
                             background-color: #f4d6d2;
-                        }
-                        &.partial {
-                            background-color: #fcefdc;
                         }
                         .answer-body {
                             display: flex;

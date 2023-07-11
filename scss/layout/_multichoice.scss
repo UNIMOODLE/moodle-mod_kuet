@@ -201,6 +201,11 @@
                     line-height: 1.75;
                 }
             }
+            &.answer-checked {
+                transform: scale(1.03);
+                filter: grayscale(.6);
+                box-shadow: 0 0 10px rgba(0,0,0,.06);
+            }
         }
     }
 }

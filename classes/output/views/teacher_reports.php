@@ -88,7 +88,7 @@ class teacher_reports implements renderable, templatable {
             $data->sessionreport = true;
             $session = new jqshow_sessions($this->sid);
             $mode = $session->get('sessionmode');
-            if ($mode !== sessions::INACTIVE_PROGRAMMED || $mode !== sessions::INACTIVE_MANUAL) {
+            if ($mode !== sessions::INACTIVE_PROGRAMMED || $mode !== sessions::INACTIVE_MANUAL) { // TODO adjust to all modes.
                 $data->showfinalranking = true;
             }
             $data->sessionname = $session->get('name');
@@ -126,12 +126,16 @@ class teacher_reports implements renderable, templatable {
             $data->numquestions = count($data->sessionquestions);
             $data->noresponse = 0;
             $data->success = 0;
+            $data->partially = 0;
             $data->failures = 0;
             $data->noevaluable = 0;
             foreach ($data->sessionquestions as $question) {
                 switch ($question->response) {
                     case 'failure':
                         $data->failures++;
+                        break;
+                    case 'partially':
+                        $data->partially++;
                         break;
                     case 'success':
                         $data->success++;
@@ -147,7 +151,6 @@ class teacher_reports implements renderable, templatable {
                 }
             }
         }
-
         return $data;
     }
 }
