@@ -1,0 +1,69 @@
+.general-ranking {
+    border-radius: 25px;
+    padding: 30px;
+    width: 100%;
+    height: 90vh;
+    .ranking-heading {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        margin-bottom: 2em;
+        h2 {
+            font-size: 24px;
+            color: white;
+            text-align: center;
+            flex-grow: 1;
+        }
+        .question-fullscreen {
+            .icon {
+                margin: 0;
+                width: auto;
+                height: 24px;
+            }
+            &:hover {
+                cursor: pointer;
+            }
+        }
+        [data-action="question-exit-fullscreen"] {
+            display: none;
+        }
+    }
+    .ranking-users {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        height: 70vh;
+        overflow-y: scroll;
+        .ranking-users-body {
+            width: 70%;
+            .d-table-cell {
+                padding: 15px;
+                color: white;
+                font-size: 16px;
+                border-bottom: 1px solid rgba(0,0,0,.1);
+            }
+            .ranking-users-thead {
+
+            }
+            .user-item {
+                .userposition {
+
+                }
+                .username {
+                    img {
+                        border-radius: 60px;
+                        width: auto;
+                        height: 50px;
+                        border: 1px solid white;
+                        margin-right: .5em;
+                    }
+                }
+                .questionscore {
+                    .icon {
+
+                    }
+                }
+            }
+        }
+    }
+}

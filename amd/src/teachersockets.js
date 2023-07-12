@@ -38,7 +38,9 @@ let SERVICES = {
     JUMPTOQUESTION: 'mod_jqshow_jumptoquestion',
     GETSESSIONRESUME: 'mod_jqshow_getsessionresume',
     GETLISTRESULTS: 'mod_jqshow_getlistresults',
-    GETQUESTIONSTATISTICS: 'mod_jqshow_getquestionstatistics'
+    GETQUESTIONSTATISTICS: 'mod_jqshow_getquestionstatistics',
+    GETSESSIONCONFIG: 'mod_jqshow_getsession',
+    GETPROVISIONALRANKING: 'mod_jqshow_getprovisionalranking',
 };
 
 let TEMPLATES = {
@@ -52,19 +54,74 @@ let TEMPLATES = {
 };
 
 let portUrl = '8080'; // It is rewritten in the constructor.
+let userid = null;
+let usersocketid = null;
+let username = null;
+let userimage = null;
+let messageBox = null;
+let countusers = null;
+let cmid = null;
+let sid = null;
+let db = null;
+let questionsJqids = [];
+let waitingRoom = true;
+let currentQuestionJqid = null;
+let nextQuestionJqid = null;
+let sessionMode = null;
+let showRankingBetweenQuestions = false;
+let showRankingBetweenQuestionsSwitch = false;
+// eslint-disable-next-line no-unused-vars
+let showRankingFinal = false;
 
 /**
  * @constructor
  * @param {String} region
  * @param {String} port
+ * @param {String} sessionmode
  */
-function Sockets(region, port) {
+function Sockets(region, port, sessionmode) {
     this.root = jQuery(region);
     portUrl = port;
+    userid = this.root[0].dataset.userid;
+    username = this.root[0].dataset.username;
+    userimage = this.root[0].dataset.userimage;
+    cmid = this.root[0].dataset.cmid;
+    sid = this.root[0].dataset.sid;
+    messageBox = this.root.find(REGION.MESSAGEBOX);
+    countusers = this.root.find(REGION.COUNTUSERS);
+    sessionMode = sessionmode;
+    switch (sessionMode) {
+        case 'inactive_programmed':
+        case 'inactive_manual':
+        default:
+            showRankingBetweenQuestions = false;
+            showRankingBetweenQuestionsSwitch = false;
+            showRankingFinal = false;
+            break;
+        case 'podium_manual':
+        case 'podium_programmed': {
+            let request = {
+                methodname: SERVICES.GETSESSIONCONFIG,
+                args: {
+                    sid: sid,
+                    cmid: cmid
+                }
+            };
+            Ajax.call([request])[0].done(function(response) {
+                if (response.session.showgraderanking === 1) {
+                    showRankingBetweenQuestions = true;
+                }
+                if (response.session.showfinalgrade === 1) {
+                    showRankingFinal = true;
+                }
+            }).fail(Notification.exception);
+            break;
+        }
+    }
     this.measuringSpeed(); // TODO extend to the whole mod.
     this.disableDevTools(); // TODO extend to the whole mod.
     this.initSockets();
-    this.cleanMessages();
+    this.cleanMessages(); // TODO only for develop.
     this.initListeners();
 }
 
@@ -154,28 +211,7 @@ Sockets.prototype.backSession = function() {
 /** @type {jQuery} The jQuery node for the page region. */
 Sockets.prototype.root = null;
 
-let userid = null;
-let usersocketid = null;
-let username = null;
-let userimage = null;
-let messageBox = null;
-let countusers = null;
-let cmid = null;
-let sid = null;
-let db = null;
-let questionsJqids = [];
-let waitingRoom = true;
-let currentQuestionJqid = null;
-let nextQuestionJqid = null;
-
 Sockets.prototype.initSockets = function() {
-    userid = this.root[0].dataset.userid;
-    username = this.root[0].dataset.username;
-    userimage = this.root[0].dataset.userimage;
-    cmid = this.root[0].dataset.cmid;
-    sid = this.root[0].dataset.sid;
-    messageBox = this.root.find(REGION.MESSAGEBOX);
-    countusers = this.root.find(REGION.COUNTUSERS);
     let that = this;
     this.root.find(ACTION.BACKSESSION).on('click', this.backSession);
 
@@ -189,7 +225,7 @@ Sockets.prototype.initSockets = function() {
         When the teacher clicks on init session, the teacher will send the first question over the socket to all
         students, and will get the 3rd question. When a student answers a question, a service will be called to save the answer
         and progress, and the teacher will be informed via the socket. When the teacher clicks on next question,
-        the 2nd question will be sent by socket to all students, and the 4th question will be obtained.
+        the 2nd question will be sent by socket to all students, and the 3th question will be obtained.
         The questions will be stored in the teacher's data storage, you can even store the user's answers so that you
         don't have to call a service at the end for the ranking.
         */
@@ -329,7 +365,17 @@ Sockets.prototype.initSockets = function() {
 Sockets.prototype.initListeners = function() {
     let that = this;
     addEventListener('nextQuestion', () => {
-        that.nextQuestion();
+        switch (sessionMode) {
+            case 'inactive_programmed':
+            case 'inactive_manual':
+            default:
+                that.nextQuestion();
+                break;
+            case 'podium_manual':
+            case 'podium_programmed':
+                that.manageNext();
+                break;
+        }
     }, false);
     addEventListener('pauseQuestionSelf', () => {
         that.pauseQuestion();
@@ -463,6 +509,9 @@ Sockets.prototype.initSession = function() {
                             jQuery(ACTION.INITSESSION).remove();
                             jQuery(ACTION.ENDSESSION).removeClass('hidden').removeClass('disabled');
                             waitingRoom = false;
+                            if (showRankingBetweenQuestions) {
+                                showRankingBetweenQuestionsSwitch = true;
+                            }
                             Templates.runTemplateJS(js);
                             jQuery(REGION.LOADING).remove();
                         }).fail(Notification.exception);
@@ -614,6 +663,36 @@ Sockets.prototype.nextQuestion = function() {
             };
         }
     };
+};
+
+Sockets.prototype.manageNext = function() {
+    let that = this;
+    if (showRankingBetweenQuestions === false) {
+        that.nextQuestion();
+    } else {
+        if (showRankingBetweenQuestionsSwitch === false) {
+            that.nextQuestion();
+            showRankingBetweenQuestionsSwitch = true;
+        } else {
+            let request = {
+                methodname: SERVICES.GETPROVISIONALRANKING,
+                args: {
+                    sid: sid,
+                    cmid: cmid,
+                    jqid: currentQuestionJqid
+                }
+            };
+            Ajax.call([request])[0].done(function(provisionalRanking) {
+                let msg = {
+                    'action': 'ranking',
+                    'sid': sid,
+                    'context': provisionalRanking
+                };
+                Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                showRankingBetweenQuestionsSwitch = false;
+            }).fail(Notification.exception);
+        }
+    }
 };
 
 Sockets.prototype.pauseQuestion = function() {
@@ -805,6 +884,6 @@ Sockets.prototype.sendMessageSocket = function(msg) {
     this.webSocket.send(msg);
 };
 
-export const teacherInitSockets = (region, port) => {
-    return new Sockets(region, port);
+export const teacherInitSockets = (region, port, sessionmode) => {
+    return new Sockets(region, port, sessionmode);
 };

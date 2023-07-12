@@ -46,6 +46,7 @@ class server extends websockets {
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
+        $this->stdout($message);
         $data = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
         if (isset($data['oft']) && $data['oft'] === true) {
             // Only for teacher.
@@ -221,6 +222,13 @@ class server extends websockets {
                 return $this->mask(
                     encrypt($this->password, json_encode([
                             'action' => 'question',
+                            'context' => $data['context'],
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'ranking':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'ranking',
                             'context' => $data['context'],
                         ], JSON_THROW_ON_ERROR)
                     ));

@@ -216,8 +216,6 @@ MultiChoice.prototype.markAnswer = function(e) {
 
 MultiChoice.prototype.answered = function(response) {
     questionEnd = true;
-    // eslint-disable-next-line no-console
-    console.log(response);
     if (response.hasfeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
         jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);

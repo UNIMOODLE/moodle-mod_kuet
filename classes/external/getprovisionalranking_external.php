@@ -33,20 +33,23 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\models\sessions;
+use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class getsessionresume_external extends external_api {
+class getprovisionalranking_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function getsessionresume_parameters(): external_function_parameters {
+    public static function getprovisionalranking_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'sid' => new external_value(PARAM_INT, 'sessionid id'),
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
+                'jqid' => new external_value(PARAM_INT, 'Question id for jqshow_questions'),
             ]
         );
     }
@@ -54,32 +57,47 @@ class getsessionresume_external extends external_api {
     /**
      * @param int $sid
      * @param int $cmid
+     * @param int $jqid
      * @return true[]
      * @throws coding_exception
      * @throws invalid_parameter_exception
+     * @throws moodle_exception
      */
-    public static function getsessionresume(int $sid, int $cmid): array {
+    public static function getprovisionalranking(int $sid, int $cmid, int $jqid): array {
         self::validate_parameters(
-            self::getsessionresume_parameters(),
-            ['sid' => $sid, 'cmid' => $cmid]
+            self::getprovisionalranking_parameters(),
+            ['sid' => $sid, 'cmid' => $cmid, 'jqid' => $jqid]
         );
-        return ['config' => sessions::get_session_config($sid, $cmid)];
+        $session = jqshow_sessions::get_record(['id' => $sid]);
+        return [
+            'provisionalranking' => sessions::get_provisional_ranking($sid, $cmid, $jqid),
+            'jqid' => $jqid,
+            'sessionid' => $sid,
+            'cmid' => $cmid,
+            'jqshowid' => $session->get('jqshowid')
+        ];
     }
 
     /**
      * @return external_single_structure
      */
-    public static function getsessionresume_returns(): external_single_structure {
+    public static function getprovisionalranking_returns(): external_single_structure {
         return new external_single_structure([
-            'config' => new external_multiple_structure(
+            'provisionalranking' => new external_multiple_structure(
                 new external_single_structure(
                     [
-                        'iconconfig'   => new external_value(PARAM_RAW, 'Name of icon'),
-                        'configname' => new external_value(PARAM_RAW, 'Num of config'),
-                        'configvalue' => new external_value(PARAM_RAW, 'HTML for config value')
+                        'userimageurl' => new external_value(PARAM_URL, 'Url for user image'),
+                        'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
+                        'userfullname'   => new external_value(PARAM_RAW, 'Name of user'),
+                        'questionscore' => new external_value(PARAM_INT, 'Num of partially correct answers'),
+                        'userpoints' => new external_value(PARAM_INT, 'Total points of user'),
                     ], ''
                 ), ''
-            )
+            ),
+            'jqid' => new external_value(PARAM_INT, 'jqshow_question id'),
+            'sessionid' => new external_value(PARAM_INT, 'jqshow_session id'),
+            'cmid' => new external_value(PARAM_INT, 'course module id'),
+            'jqshowid' => new external_value(PARAM_INT, 'jqshow id'),
         ]);
     }
 }

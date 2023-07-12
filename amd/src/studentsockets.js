@@ -24,7 +24,8 @@ let TEMPLATES = {
     ERROR: 'core/notification_error',
     PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
     SESSIONFIINISHED: 'mod_jqshow/session/manual/closeconnection',
-    QUESTION: 'mod_jqshow/questions/encasement'
+    QUESTION: 'mod_jqshow/questions/encasement',
+    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional'
 };
 
 let portUrl = '8080';
@@ -156,6 +157,17 @@ Sockets.prototype.initSockets = function() {
                             jQuery(REGION.LOADING).remove();
                         }).fail(Notification.exception);
                     });
+                });
+                break;
+            case 'ranking':
+                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                    let identifier = jQuery(REGION.ROOT);
+                    identifier.append(html);
+                    Templates.render(TEMPLATES.PROVISIONALRANKING, response.context).then(function(html, js) {
+                        identifier.html(html);
+                        Templates.runTemplateJS(js);
+                        jQuery(REGION.LOADING).remove();
+                    }).fail(Notification.exception);
                 });
                 break;
             case 'pauseQuestion':

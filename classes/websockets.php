@@ -290,7 +290,9 @@ abstract class websockets {
             foreach ($read as $socket) {
                 $ip = stream_socket_get_name( $socket, true );
                 $buffer = stream_get_contents($socket);
-                if ($buffer === false || strlen($buffer) <= 8) { // TODO review detect disconnect for min buffer lenght.
+                // TODO review detect disconnect for min buffer lenght.
+                if ($buffer === false || strlen($buffer) <= 8) {
+                    $this->stdout(strlen($buffer));
                     $this->disconnect($socket);
                     $this->stdout("Client disconnected. TCP connection lost: " . $socket);
                     @fclose($socket);
