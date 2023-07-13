@@ -312,5 +312,6 @@ $string['partially_correct'] = 'Partially correct';
 $string['partially'] = 'Partially';
 $string['scored_answers'] = 'Scored answers';
 $string['provisional_ranking'] = 'Provisional Ranking';
+$string['final_ranking'] = 'Final Ranking';
 $string['score_obtained'] = 'Score obtained';
 $string['total_score'] = 'Total score';

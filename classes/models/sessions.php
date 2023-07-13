@@ -647,6 +647,7 @@ class sessions {
      * @throws moodle_exception
      */
     public static function get_provisional_ranking(int $sid, int $cmid, int $jqid): array {
+        // TODO with jqshow_api grades.
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $users = enrol_get_course_users($course->id, true);
@@ -684,6 +685,61 @@ class sessions {
                             if ($answer->get('jqid') === $jqid) {
                                 $student->questionscore += 0.5; // TODO get points of answer.
                             }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                $students[] = $student;
+            }
+        }
+        usort($students, static fn($a, $b) => $b->userpoints <=> $a->userpoints);
+        $position = 0;
+        foreach ($students as $student) {
+            $student->userposition = ++$position;
+        }
+        return $students;
+    }
+
+    /**
+     * @param int $sid
+     * @param int $cmid
+     * @return array
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public static function get_final_ranking(int $sid, int $cmid): array {
+        // TODO with jqshow_api grades.
+        global $PAGE;
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid);
+        $users = enrol_get_course_users($course->id, true);
+        $session = jqshow_sessions::get_record(['id' => $sid]);
+        $students = [];
+        $context = context_module::instance($cmid);
+        $PAGE->set_context($context);
+        foreach ($users as $user) {
+            if (!has_capability('mod/jqshow:startsession', $context, $user) &&
+                info_module::is_user_visible($cm, $user->id, false)) {
+                $userpicture = new user_picture($user);
+                $userpicture->size = 1;
+                $student = new stdClass();
+                $student->userimageurl = $userpicture->get_url($PAGE)->out(false);
+                $student->userfullname = $user->firstname . ' ' . $user->lastname;
+                $answers = jqshow_questions_responses::get_session_responses_for_user(
+                    $user->id, $session->get('id'), $session->get('jqshowid')
+                );
+                $student->userpoints = 0;
+                foreach ($answers as $answer) {
+                    switch ($answer->get('result')) {
+                        case questions::SUCCESS:
+                            ++$student->userpoints;
+                            break;
+                        case questions::FAILURE:
+                            // TODO rest points of answer.
+                            break;
+                        case questions::PARTIALLY:
+                            // TODO rest points of answer.
+                            $student->userpoints += 0.5;
                             break;
                         default:
                             break;

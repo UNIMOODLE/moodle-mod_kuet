@@ -5,6 +5,7 @@ import Templates from 'core/templates';
 import Notification from 'core/notification';
 import Ajax from 'core/ajax';
 import Encryptor from 'mod_jqshow/encryptor';
+import mEvent from 'core/event';
 
 let REGION = {
     MESSAGEBOX: '#message-box',
@@ -154,6 +155,7 @@ Sockets.prototype.initSockets = function() {
                         Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
                             identifier.html(html);
                             Templates.runTemplateJS(js);
+                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.ROOT));
                             jQuery(REGION.LOADING).remove();
                         }).fail(Notification.exception);
                     });

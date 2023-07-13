@@ -29,11 +29,23 @@
         }
     }
     .ranking-users {
+        position: relative;
+        z-index: 1;
         display: flex;
         flex-flow: row nowrap;
         justify-content: center;
         height: 70vh;
-        overflow-y: scroll;
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+        &::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: #6a737b;
+            border-radius: 4px;
+        }
         .ranking-users-body {
             width: 70%;
             .d-table-cell {
@@ -64,6 +76,50 @@
                     }
                 }
             }
+            .ranking-users-data {
+                &:nth-child(2),
+                &:nth-child(3),
+                &:nth-child(4) {
+                    .userposition {
+                        span {
+                            height: 34px;
+                            width: 34px;
+                            color: black;
+                            font-weight: bold;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            padding-right: 5px;
+                            background-repeat: no-repeat;
+                            background-size: contain;
+                        }
+                    }
+                }
+                &:nth-child(2) {
+                    .userposition {
+                        span {
+                            background-image: url([[pix:mod_jqshow|q/goldranking]]);
+                        }
+                    }
+               }
+                &:nth-child(3) {
+                    .userposition {
+                        span {
+                            background-image: url([[pix:mod_jqshow|q/silverranking]]);
+                        }
+                    }
+                }
+                &:nth-child(4) {
+                    .userposition {
+                        span {
+                            background-image: url([[pix:mod_jqshow|q/copperranking]]);
+                        }
+                    }
+                }
+            }
         }
+    }
+    &.isteacher {
+        margin-right: 2em;
     }
 }

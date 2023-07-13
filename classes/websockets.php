@@ -292,12 +292,13 @@ abstract class websockets {
                 $buffer = stream_get_contents($socket);
                 // TODO review detect disconnect for min buffer lenght.
                 if ($buffer === false || strlen($buffer) <= 8) {
-                    $this->stdout(strlen($buffer));
-                    $this->disconnect($socket);
-                    $this->stdout("Client disconnected. TCP connection lost: " . $socket);
-                    @fclose($socket);
-                    $foundsocket = array_search($socket, $this->sockets, true);
-                    unset($this->sockets[$foundsocket]);
+                    if ($this->unmask($buffer) !== '') { // Necessary to stabilise connections, review.
+                        $this->disconnect($socket);
+                        $this->stdout("Client disconnected. TCP connection lost: " . $socket);
+                        @fclose($socket);
+                        $foundsocket = array_search($socket, $this->sockets, true);
+                        unset($this->sockets[$foundsocket]);
+                    }
                 }
                 $unmasked = $this->unmask($buffer);
                 if ($unmasked !== "") {

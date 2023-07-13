@@ -9,6 +9,7 @@ import ModalEvents from 'core/modal_events';
 import Ajax from 'core/ajax';
 import Encryptor from 'mod_jqshow/encryptor';
 import Database from 'mod_jqshow/database';
+import mEvent from 'core/event';
 
 let REGION = {
     MESSAGEBOX: '#message-box',
@@ -41,6 +42,7 @@ let SERVICES = {
     GETQUESTIONSTATISTICS: 'mod_jqshow_getquestionstatistics',
     GETSESSIONCONFIG: 'mod_jqshow_getsession',
     GETPROVISIONALRANKING: 'mod_jqshow_getprovisionalranking',
+    GETFINALRANKING: 'mod_jqshow_getfinalranking',
 };
 
 let TEMPLATES = {
@@ -50,7 +52,8 @@ let TEMPLATES = {
     PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
     QUESTION: 'mod_jqshow/questions/encasement',
     SESSIONRESUME: 'mod_jqshow/session/sessionresume',
-    LISTRESULTS: 'mod_jqshow/session/listresults'
+    LISTRESULTS: 'mod_jqshow/session/listresults',
+    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional'
 };
 
 let portUrl = '8080'; // It is rewritten in the constructor.
@@ -70,7 +73,6 @@ let nextQuestionJqid = null;
 let sessionMode = null;
 let showRankingBetweenQuestions = false;
 let showRankingBetweenQuestionsSwitch = false;
-// eslint-disable-next-line no-unused-vars
 let showRankingFinal = false;
 
 /**
@@ -439,6 +441,7 @@ Sockets.prototype.setEndSession = function(endData) {
         value: endData
     };
     db.update('statequestions', data);
+    showRankingBetweenQuestionsSwitch = false;
 };
 
 Sockets.prototype.getNextQuestion = function(jqid) {
@@ -514,6 +517,7 @@ Sockets.prototype.initSession = function() {
                             }
                             Templates.runTemplateJS(js);
                             jQuery(REGION.LOADING).remove();
+                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                         }).fail(Notification.exception);
                     });
                 };
@@ -635,32 +639,66 @@ Sockets.prototype.nextQuestion = function() {
                     Templates.render(TEMPLATES.QUESTION, nextQuestionData.result.value).then(function(html, js) {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
+                        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                         jQuery(REGION.LOADING).remove();
                     }).fail(Notification.exception);
                 });
             };
         } else {
             let endSession = db.get('statequestions', 'endSession');
-            endSession.onsuccess = function() {
-                let msg = {
-                    'action': 'endSession',
-                    'sid': sid,
-                    'context': endSession.result
+            if (showRankingFinal === false) {
+                endSession.onsuccess = function() {
+                    let msg = {
+                        'action': 'endSession',
+                        'sid': sid,
+                        'context': endSession.result
+                    };
+                    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                        let identifier = jQuery(REGION.TEACHERCANVAS);
+                        identifier.append(html);
+                        currentQuestionJqid = null;
+                        that.setEndSession(endSession.result);
+                        endSession.result.value.isteacher = true;
+                        Templates.render(TEMPLATES.QUESTION, endSession.result.value).then(function(html, js) {
+                            identifier.html(html);
+                            Templates.runTemplateJS(js);
+                            jQuery(REGION.LOADING).remove();
+                        }).fail(Notification.exception);
+                    });
                 };
-                Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
-                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
-                    let identifier = jQuery(REGION.TEACHERCANVAS);
-                    identifier.append(html);
-                    currentQuestionJqid = null;
-                    that.setEndSession(endSession.result);
-                    endSession.result.value.isteacher = true;
-                    Templates.render(TEMPLATES.QUESTION, endSession.result.value).then(function(html, js) {
-                        identifier.html(html);
-                        Templates.runTemplateJS(js);
-                        jQuery(REGION.LOADING).remove();
+            } else {
+                endSession.onsuccess = function() {
+                    let request = {
+                        methodname: SERVICES.GETFINALRANKING,
+                        args: {
+                            sid: sid,
+                            cmid: cmid
+                        }
+                    };
+                    Ajax.call([request])[0].done(function(finalRanking) {
+                        endSession.result.value = finalRanking;
+                        let msg = {
+                            'action': 'endSession',
+                            'sid': sid,
+                            'context': endSession.result
+                        };
+                        Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                            let identifier = jQuery(REGION.TEACHERCANVAS);
+                            identifier.append(html);
+                            currentQuestionJqid = null;
+                            that.setEndSession(endSession.result);
+                            endSession.result.value.isteacher = true;
+                            Templates.render(TEMPLATES.QUESTION, endSession.result.value).then(function(html, js) {
+                                identifier.html(html);
+                                Templates.runTemplateJS(js);
+                                jQuery(REGION.LOADING).remove();
+                            }).fail(Notification.exception);
+                        });
                     }).fail(Notification.exception);
-                });
-            };
+                };
+            }
         }
     };
 };
@@ -690,6 +728,16 @@ Sockets.prototype.manageNext = function() {
                 };
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 showRankingBetweenQuestionsSwitch = false;
+                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                    let identifier = jQuery(REGION.TEACHERCANVAS);
+                    identifier.append(html);
+                    provisionalRanking.isteacher = true;
+                    Templates.render(TEMPLATES.PROVISIONALRANKING, provisionalRanking).then(function(html, js) {
+                        identifier.html(html);
+                        Templates.runTemplateJS(js);
+                        jQuery(REGION.LOADING).remove();
+                    }).fail(Notification.exception);
+                });
             }).fail(Notification.exception);
         }
     }
@@ -732,6 +780,7 @@ Sockets.prototype.resendSelf = function() {
                     'context': currentQuestionData.result
                 };
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                showRankingBetweenQuestionsSwitch = true;
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.TEACHERCANVAS);
                     identifier.append(html);
@@ -739,6 +788,7 @@ Sockets.prototype.resendSelf = function() {
                     Templates.render(TEMPLATES.QUESTION, currentQuestionData.result.value).then(function(html, js) {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
+                        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                         jQuery(REGION.LOADING).remove();
                     }).fail(Notification.exception);
                 });
@@ -774,6 +824,7 @@ Sockets.prototype.jumpTo = function(questionNumber) {
             'context': data
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        showRankingBetweenQuestionsSwitch = true;
         Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
             let identifier = jQuery(REGION.TEACHERCANVAS);
             identifier.append(html);
@@ -781,6 +832,7 @@ Sockets.prototype.jumpTo = function(questionNumber) {
             Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
                 identifier.html(html);
                 Templates.runTemplateJS(js);
+                mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                 jQuery(REGION.LOADING).remove();
             }).fail(Notification.exception);
         });

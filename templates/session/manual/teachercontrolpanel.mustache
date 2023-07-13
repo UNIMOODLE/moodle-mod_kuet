@@ -12,18 +12,20 @@
                 </div>
                 <span>{{#str}}next, mod_jqshow{{/str}}</span>
             </div>
-            <div class="control-action" data-action="pause">
-                <div class="control-action-icon bg-primary">
-                    {{#pix}}i/pause, mod_jqshow{{/pix}}
+            {{^ranking}}
+                <div class="control-action" data-action="pause">
+                    <div class="control-action-icon bg-primary">
+                        {{#pix}}i/pause, mod_jqshow{{/pix}}
+                    </div>
+                    <span>{{#str}}pause, mod_jqshow{{/str}}</span>
                 </div>
-                <span>{{#str}}pause, mod_jqshow{{/str}}</span>
-            </div>
-            <div class="control-action d-none" data-action="play">
-                <div class="control-action-icon bg-primary">
-                    {{#pix}}i/play, mod_jqshow{{/pix}}
+                <div class="control-action d-none" data-action="play">
+                    <div class="control-action-icon bg-primary">
+                        {{#pix}}i/play, mod_jqshow{{/pix}}
+                    </div>
+                    <span>{{#str}}play, mod_jqshow{{/str}}</span>
                 </div>
-                <span>{{#str}}play, mod_jqshow{{/str}}</span>
-            </div>
+            {{/ranking}}
             <div class="control-action" data-action="resend">
                 <div class="control-action-icon bg-primary">
                     {{#pix}}i/resend, mod_jqshow{{/pix}}
@@ -47,69 +49,73 @@
                     </div>
                 </div>
             </div>
-            <div class="control-action" data-action="finishquestion">
-                <div class="control-action-icon bg-primary">
-                    {{#pix}}i/close, mod_jqshow{{/pix}}
+            {{^ranking}}
+                <div class="control-action" data-action="finishquestion">
+                    <div class="control-action-icon bg-primary">
+                        {{#pix}}i/close, mod_jqshow{{/pix}}
+                    </div>
+                    <span>{{#str}}finishquestion, mod_jqshow{{/str}}</span>
                 </div>
-                <span>{{#str}}finishquestion, mod_jqshow{{/str}}</span>
-            </div>
+            {{/ranking}}
 
-            <div class="separator">
-                <span>{{#str}}showhide, mod_jqshow{{/str}}</span>
-                <div class="line-separator"></div>
-            </div>
-            <div class="showhide-action disabled">
-                <div class="d-flex align-items-center">
-                    <div class="showhide-action-icon">
-                        {{#pix}}i/eye, mod_jqshow{{/pix}}
-                    </div>
-                    <span>{{#str}}responses, mod_jqshow{{/str}}</span>
+            {{^ranking}}
+                <div class="separator">
+                    <span>{{#str}}showhide, mod_jqshow{{/str}}</span>
+                    <div class="line-separator"></div>
                 </div>
-                <div class="custom-control custom-switch">
-                    <input id="showhide_responses" type="checkbox"
-                           data-action="showhide_responses"
-                           class="custom-control-input"
-                            >
-                    <label for="showhide_responses" class="custom-control-label"
-                           title="{{#str}}responses, mod_jqshow{{/str}}" >
-                    </label>
-                </div>
-            </div>
-            <div class="showhide-action disabled" data-action="statistics">
-                <div class="d-flex align-items-center">
-                    <div class="showhide-action-icon">
-                        {{#pix}}i/statistics, mod_jqshow{{/pix}}
-                    </div>
-                    <span>{{#str}}statistics, mod_jqshow{{/str}}</span>
-                </div>
-                <div class="custom-control custom-switch">
-                    <input id="showhide_statistics" type="checkbox"
-                           data-action="showhide_statistics"
-                           class="custom-control-input">
-                    <label for="showhide_statistics" class="custom-control-label"
-                           title="{{#str}}statistics, mod_jqshow{{/str}}" >
-                    </label>
-                </div>
-            </div>
-            {{#showquestionfeedback}}
-                <div class="showhide-action disabled" data-action="feedback">
+                <div class="showhide-action disabled">
                     <div class="d-flex align-items-center">
                         <div class="showhide-action-icon">
-                            {{#pix}}i/feedback, mod_jqshow{{/pix}}
+                            {{#pix}}i/eye, mod_jqshow{{/pix}}
                         </div>
-                        <span>{{#str}}feedback, mod_jqshow{{/str}}</span>
+                        <span>{{#str}}responses, mod_jqshow{{/str}}</span>
                     </div>
                     <div class="custom-control custom-switch">
-                        <input id="showhide_feedback" type="checkbox"
-                               data-action="showhide_feedback"
+                        <input id="showhide_responses" type="checkbox"
+                               data-action="showhide_responses"
                                class="custom-control-input"
                                 >
-                        <label for="showhide_feedback" class="custom-control-label"
-                               title="{{#str}}feedback, mod_jqshow{{/str}}" >
+                        <label for="showhide_responses" class="custom-control-label"
+                               title="{{#str}}responses, mod_jqshow{{/str}}" >
                         </label>
                     </div>
                 </div>
-            {{/showquestionfeedback}}
+                <div class="showhide-action disabled" data-action="statistics">
+                    <div class="d-flex align-items-center">
+                        <div class="showhide-action-icon">
+                            {{#pix}}i/statistics, mod_jqshow{{/pix}}
+                        </div>
+                        <span>{{#str}}statistics, mod_jqshow{{/str}}</span>
+                    </div>
+                    <div class="custom-control custom-switch">
+                        <input id="showhide_statistics" type="checkbox"
+                               data-action="showhide_statistics"
+                               class="custom-control-input">
+                        <label for="showhide_statistics" class="custom-control-label"
+                               title="{{#str}}statistics, mod_jqshow{{/str}}" >
+                        </label>
+                    </div>
+                </div>
+                {{#showquestionfeedback}}
+                    <div class="showhide-action disabled" data-action="feedback">
+                        <div class="d-flex align-items-center">
+                            <div class="showhide-action-icon">
+                                {{#pix}}i/feedback, mod_jqshow{{/pix}}
+                            </div>
+                            <span>{{#str}}feedback, mod_jqshow{{/str}}</span>
+                        </div>
+                        <div class="custom-control custom-switch">
+                            <input id="showhide_feedback" type="checkbox"
+                                   data-action="showhide_feedback"
+                                   class="custom-control-input"
+                                    >
+                            <label for="showhide_feedback" class="custom-control-label"
+                                   title="{{#str}}feedback, mod_jqshow{{/str}}" >
+                            </label>
+                        </div>
+                    </div>
+                {{/showquestionfeedback}}
+            {{/ranking}}
 
             <div class="separator">
                 <span>{{#str}}questions, mod_jqshow{{/str}}</span>

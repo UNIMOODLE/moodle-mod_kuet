@@ -26,6 +26,7 @@
 namespace mod_jqshow\external;
 
 use coding_exception;
+use context_module;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -41,16 +42,15 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class getprovisionalranking_external extends external_api {
+class getfinalranking_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function getprovisionalranking_parameters(): external_function_parameters {
+    public static function getfinalranking_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'sid' => new external_value(PARAM_INT, 'sessionid id'),
-                'cmid' => new external_value(PARAM_INT, 'course module id'),
-                'jqid' => new external_value(PARAM_INT, 'Question id for jqshow_questions'),
+                'cmid' => new external_value(PARAM_INT, 'course module id')
             ]
         );
     }
@@ -58,52 +58,83 @@ class getprovisionalranking_external extends external_api {
     /**
      * @param int $sid
      * @param int $cmid
-     * @param int $jqid
      * @return true[]
      * @throws coding_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function getprovisionalranking(int $sid, int $cmid, int $jqid): array {
+    public static function getfinalranking(int $sid, int $cmid): array {
         self::validate_parameters(
-            self::getprovisionalranking_parameters(),
-            ['sid' => $sid, 'cmid' => $cmid, 'jqid' => $jqid]
+            self::getfinalranking_parameters(),
+            ['sid' => $sid, 'cmid' => $cmid]
         );
         $session = jqshow_sessions::get_record(['id' => $sid]);
         $questions = new questions($session->get('jqshowid'), $cmid, $sid);
+        $contextmodule = context_module::instance($cmid);
+
+        $finalranking = sessions::get_final_ranking($sid, $cmid);
+        $firstuserimageurl = $finalranking[0]->userimageurl;
+        $firstuserfullname = $finalranking[0]->userfullname;
+        $firstuserpoints = $finalranking[0]->userpoints;
+        $seconduserimageurl = $finalranking[1]->userimageurl;
+        $seconduserfullname = $finalranking[1]->userfullname;
+        $seconduserpoints = $finalranking[1]->userpoints;
+        $thirduserimageurl = $finalranking[2]->userimageurl;
+        $thirduserfullname = $finalranking[2]->userfullname;
+        $thirduserpoints = $finalranking[2]->userpoints;
+        unset($finalranking[0], $finalranking[1], $finalranking[2]);
+        $finalranking = array_values($finalranking);
         return [
-            'provisionalranking' => sessions::get_provisional_ranking($sid, $cmid, $jqid),
-            'jqid' => $jqid,
+            'finalranking' => $finalranking,
+            'firstuserimageurl' => $firstuserimageurl,
+            'firstuserfullname' => $firstuserfullname,
+            'firstuserpoints' => $firstuserpoints,
+            'seconduserimageurl' => $seconduserimageurl,
+            'seconduserfullname' => $seconduserfullname,
+            'seconduserpoints' => $seconduserpoints,
+            'thirduserimageurl' => $thirduserimageurl,
+            'thirduserfullname' => $thirduserfullname,
+            'thirduserpoints' => $thirduserpoints,
             'sessionid' => $sid,
             'cmid' => $cmid,
             'jqshowid' => $session->get('jqshowid'),
             'numquestions' => $questions->get_num_questions(),
-            'ranking' => true
+            'ranking' => true,
+            'endsession' => true,
+            'isteacher' => has_capability('mod/jqshow:startsession', $contextmodule)
         ];
     }
 
     /**
      * @return external_single_structure
      */
-    public static function getprovisionalranking_returns(): external_single_structure {
+    public static function getfinalranking_returns(): external_single_structure {
         return new external_single_structure([
-            'provisionalranking' => new external_multiple_structure(
+            'finalranking' => new external_multiple_structure(
                 new external_single_structure(
                     [
                         'userimageurl' => new external_value(PARAM_URL, 'Url for user image'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
                         'userfullname'   => new external_value(PARAM_RAW, 'Name of user'),
-                        'questionscore' => new external_value(PARAM_INT, 'Num of partially correct answers'),
                         'userpoints' => new external_value(PARAM_INT, 'Total points of user')
                     ], ''
                 ), ''
             ),
-            'jqid' => new external_value(PARAM_INT, 'jqshow_question id'),
             'sessionid' => new external_value(PARAM_INT, 'jqshow_session id'),
             'cmid' => new external_value(PARAM_INT, 'course module id'),
             'jqshowid' => new external_value(PARAM_INT, 'jqshow id'),
             'numquestions' => new external_value(PARAM_INT, 'Number of questions for teacher panel'),
             'ranking' => new external_value(PARAM_BOOL, 'Is a ranking, for control panel context'),
+            'endsession' => new external_value(PARAM_BOOL, 'Mark end session'),
+            'firstuserimageurl' => new external_value(PARAM_URL, ''),
+            'firstuserfullname' => new external_value(PARAM_RAW, ''),
+            'firstuserpoints' => new external_value(PARAM_INT, ''),
+            'seconduserimageurl' => new external_value(PARAM_URL, ''),
+            'seconduserfullname' => new external_value(PARAM_RAW, ''),
+            'seconduserpoints' => new external_value(PARAM_INT, ''),
+            'thirduserimageurl' => new external_value(PARAM_URL, ''),
+            'thirduserfullname' => new external_value(PARAM_RAW, ''),
+            'thirduserpoints' => new external_value(PARAM_INT, ''),
         ]);
     }
 }

@@ -46,12 +46,15 @@ class question_exporter extends exporter {
             ],
             'questionid' => [
                 'type' => PARAM_INT,
+                'optional' => true
             ],
             'jqid' => [
-                'type' => PARAM_INT
+                'type' => PARAM_INT,
+                'optional' => true
             ],
             'question_index_string' => [
                 'type' => PARAM_RAW,
+                'optional' => true
             ],
             'numquestions' => [
                 'type' => PARAM_INT,
@@ -86,7 +89,8 @@ class question_exporter extends exporter {
                 'optional' => true
             ],
             'qtype' => [
-                'type' => PARAM_RAW
+                'type' => PARAM_RAW,
+                'optional' => true
             ],
             'programmedmode' => [
                 'type' => PARAM_BOOL,
@@ -140,6 +144,14 @@ class question_exporter extends exporter {
                 'type' => feedback_exporter::read_properties_definition(),
                 'optional' => true,
                 'multiple' => true
+            ],
+            'ranking' => [
+                'type' => PARAM_BOOL,
+                'optional' => true,
+            ],
+            'isteacher' => [
+                'type' => PARAM_BOOL,
+                'optional' => true,
             ]
         ];
     }

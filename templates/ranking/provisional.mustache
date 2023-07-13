@@ -1,4 +1,4 @@
-<div class="container-fluid ranking-content general-ranking bg-primary" data-jqid="{{jqid}}" data-questionid="{{questionid}}" data-sid="{{sessionid}}" data-cmid="{{cmid}}" data-jqshowid="{{jqshowid}}" data-region="ranking-content">
+<div class="container-fluid ranking-content general-ranking bg-primary {{#isteacher}}isteacher{{/isteacher}}" data-jqid="{{jqid}}" data-questionid="{{questionid}}" data-sid="{{sessionid}}" data-cmid="{{cmid}}" data-jqshowid="{{jqshowid}}" data-region="ranking-content">
     <div class="row">
         <div class="col-12 ranking-container">
             <div class="ranking-heading">
@@ -10,7 +10,7 @@
                     {{#pix}}q/zoomout, mod_jqshow{{/pix}}
                 </div>
             </div>
-            <div class="ranking-users" data-region="ranking-users">
+            <div class="ranking-users container-fluid px-0" data-region="ranking-users">
                 <div class="ranking-users-body d-table list-group" data-region="ranking_users">
                     <div class="d-table-row ranking-users-thead">
                         <div class="d-table-cell"></div>
@@ -20,7 +20,9 @@
                     </div>
                     {{#provisionalranking}}
                         <div class="d-table-row ranking-users-data user-item" data-userid="{{userid}}">
-                            <div class="d-table-cell userposition">{{userposition}}</div>
+                            <div class="d-table-cell userposition text-center">
+                                <span>{{userposition}}</span>
+                            </div>
                             <div class="d-table-cell username">
                                 <img src="{{userimageurl}}" alt="{{userfullname}}" /> <span>{{userfullname}}</span>
                             </div>
@@ -39,6 +41,9 @@
         </div>
     </div>
 </div>
+{{#isteacher}}
+    {{> mod_jqshow/session/manual/teachercontrolpanel }}
+{{/isteacher}}
 {{#js}}
     require(['mod_jqshow/question'], function(Question) {
         Question.initQuestion('[data-region="ranking-content"]');
