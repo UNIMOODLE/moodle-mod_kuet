@@ -25,6 +25,7 @@
 use core_calendar\action_factory;
 use core_calendar\local\event\value_objects\action;
 use core_completion\api;
+require_once($CFG->dirroot . '/lib/gradelib.php');
 
 /**
  * @uses FEATURE_GROUPS
@@ -61,12 +62,9 @@ function jqshow_supports(string $feature): ?bool {
  * @throws dml_exception
  */
 function jqshow_add_instance(stdClass $data): int {
-    global $CFG, $DB;
-    $cmid       = $data->coursemodule;
-    $cmidnumber = $data->cmidnumber;
-    $courseid   = $data->course;
-    $context = context_module::instance($cmid);
+    global $DB;
 
+    $cmid = $data->coursemodule;
     $id = $DB->insert_record('jqshow', $data);
 
     // Update course module record - from now on this instance properly exists and all function may be used.
@@ -79,6 +77,7 @@ function jqshow_add_instance(stdClass $data): int {
         api::update_completion_date_event($cmid, 'jqshow', $record, $data->completionexpected);
     }
 
+    mod_jqshow_grade_item_update($data, null);
     return $record->id;
 }
 /**
@@ -90,6 +89,7 @@ function jqshow_add_instance(stdClass $data): int {
 function jqshow_update_instance(stdClass $data): bool {
     global $DB;
 
+    // TODO: solo se está actualizando el nombre de la actividad!
     // Get the current value, so we can see what changed.
     $oldjqshow = $DB->get_record('jqshow', array('id' => $data->instance));
 
@@ -97,6 +97,7 @@ function jqshow_update_instance(stdClass $data): bool {
     $oldjqshow->name = $data->name;
     $DB->update_record('jqshow', $oldjqshow);
 
+    mod_jqshow_grade_item_update($data, null);
     return true;
 }
 /**
@@ -346,3 +347,47 @@ function mod_jqshow_question_pluginfile($course, $context, $component, $filearea
     }
     send_stored_file($file, 0, 0, $forcedownload, $options);
 }
+
+/**
+ * @return array
+ * @throws coding_exception
+ */
+function mod_jqshow_get_grading_options() {
+    return [
+        0 => get_string('nograde', 'mod_jqshow'),
+        1 => get_string('gradehighest', 'mod_jqshow'),
+        2 => get_string('gradeaverage', 'mod_jqshow'),
+        3 => get_string('firstsession', 'mod_jqshow'),
+        4 => get_string('lastsession', 'mod_jqshow')
+    ];
+}
+
+/**
+ * Update/create grade item for given data
+ *
+ * @category grade
+ * @param stdClass $data A jqshow instance
+ * @param mixed $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @return object grade_item
+ */
+function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
+    global $CFG;
+    require_once($CFG->libdir.'/gradelib.php');
+
+    $params = ['itemname' => $data->name];
+    if (property_exists($data, 'cmidnumber')) { // May not be always present.
+        $params['idnumber'] = $data->cmidnumber;
+    }
+
+    if (!$data->grademethod == 0) {
+        $params['gradetype'] = GRADE_TYPE_NONE;
+    } else {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax'] = $data->grade;
+        $params['grademin'] = 0;
+
+    }
+
+    return grade_update('mod/jqshow', $data->course, 'mod', 'jqshow', $data->id, 0, $grades, $params);
+}
+

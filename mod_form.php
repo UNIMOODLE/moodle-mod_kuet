@@ -43,7 +43,23 @@ class mod_jqshow_mod_form extends moodleform_mod {
 
         // Grade settings.
         $this->standard_grading_coursemodule_elements();
+        $mform->removeElement('grade');
+        if (property_exists($this->current, 'grade')) {
+            $currentgrade = $this->current->grade;
+        } else {
+            $currentgrade = get_config('core', 'gradepointmax');
+        }
+        $mform->addElement('hidden', 'grade', $currentgrade);
+        $mform->setType('grade', PARAM_FLOAT);
 
+        $grademethodelement = $mform->createElement('select', 'grademethod', get_string('grademethod', 'jqshow'),
+            mod_jqshow_get_grading_options());
+        $mform->addHelpButton('grademethod', 'grademethod', 'jqshow');
+        $mform->disabledIf('gradecat', 'grademethod', 'eq', 0);
+        $mform->disabledIf('gradepass', 'grademethod', 'eq', 0);
+        $mform->insertElementBefore($grademethodelement, 'gradecat');
+
+        // Course module elements.
         $this->standard_coursemodule_elements();
 
         // Teams grade.
@@ -54,12 +70,6 @@ class mod_jqshow_mod_form extends moodleform_mod {
         $mform->addHelpButton('teamgrade', 'teamgrade', 'jqshow');
         $mform->setType('teamgrade', PARAM_RAW);
 
-        // Badges.
-        $mform->addElement('header', 'badges', get_string('badges', 'badges'));
-        $mform->addElement('text', 'badgepositions', get_string('badgepositions', 'jqshow'), ['size' => '5']);
-        $mform->addHelpButton('badgepositions', 'badgepositions', 'jqshow');
-        $mform->addRule('badgepositions', get_string('badgepositionsrule', 'jqshow'), 'numeric', null, 'server');
-        $mform->setType('badgepositions', PARAM_INT);
         $this->add_action_buttons();
     }
 
