@@ -54,10 +54,10 @@ class mod_jqshow_mod_form extends moodleform_mod {
 
         $grademethodelement = $mform->createElement('select', 'grademethod', get_string('grademethod', 'jqshow'),
             mod_jqshow_get_grading_options());
-        $mform->addHelpButton('grademethod', 'grademethod', 'jqshow');
-        $mform->disabledIf('gradecat', 'grademethod', 'eq', 0);
-        $mform->disabledIf('gradepass', 'grademethod', 'eq', 0);
+        $mform->disabledIf('gradecat', 'grademethod', 'eq', mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
+        $mform->disabledIf('gradepass', 'grademethod', 'eq', mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
         $mform->insertElementBefore($grademethodelement, 'gradecat');
+        $mform->addHelpButton('grademethod', 'grademethod', 'jqshow');
 
         // Course module elements.
         $this->standard_coursemodule_elements();

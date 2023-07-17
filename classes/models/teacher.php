@@ -29,6 +29,7 @@ use coding_exception;
 use context_course;
 use dml_exception;
 use mod_jqshow\jqshow;
+use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
@@ -77,7 +78,7 @@ class teacher extends user {
         $initsession = has_capability('mod/jqshow:startsession', $coursecontext);
         foreach ($sessions as $session) {
             $ds = \mod_jqshow\helpers\sessions::get_data_session($session, $cmid, $managesessions, $initsession);
-            if ((int)$session->get('status') !== 0) {
+            if ((int)$session->get('status') !== sessionsmodel::SESSION_FINISHED) {
                 $actives[] = $ds;
             } else {
                 $inactives[] = $ds;

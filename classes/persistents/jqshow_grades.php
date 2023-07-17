@@ -23,9 +23,30 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_jqshow\persistents;
 
-$plugin->version = 2023070304;
-$plugin->requires = 2022112801; // Moodle 4.1.1
-$plugin->component = 'mod_jqshow';
-$plugin->cron = 0;
+use core\persistent;
+use dml_exception;
+
+class jqshow_grades extends persistent {
+    const TABLE = 'jqshow_grades';
+    /**
+     * Return the definition of the properties of this model.
+     *
+     * @return array
+     */
+    protected static function define_properties() {
+        return [
+            'jqshow' => [
+                'type' => PARAM_INT,
+            ],
+            'userid' => [
+                'type' => PARAM_INT,
+            ],
+            'grade' => [
+                'type' => PARAM_FLOAT,
+            ]
+        ];
+    }
+
+}

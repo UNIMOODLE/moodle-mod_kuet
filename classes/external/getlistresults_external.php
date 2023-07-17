@@ -74,12 +74,12 @@ class getlistresults_external extends external_api {
             'userresults' => new external_multiple_structure(
                 new external_single_structure(
                     [
-                        'userfullname'   => new external_value(PARAM_RAW, 'Name of user'),
+                        'userfullname' => new external_value(PARAM_RAW, 'Name of user'),
                         'correctanswers' => new external_value(PARAM_INT, 'Num of correct answers'),
                         'incorrectanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
                         'notanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
                         'partially' => new external_value(PARAM_INT, 'Num of partially correct answers'),
-                        'userpoints' => new external_value(PARAM_INT, 'Total points of user'),
+                        'userpoints' => new external_value(PARAM_FLOAT, 'Total points of user'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points')
                     ], ''
                 ), ''

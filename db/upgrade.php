@@ -30,6 +30,51 @@
  * @return true
  */
 function xmldb_jqshow_upgrade($oldversion) {
+    global $DB;
 
+    $dbman = $DB->get_manager();
+    if ($oldversion < 2023070302) {
+
+        // Define field grademethod to be added to jqshow.
+        $table = new xmldb_table('jqshow');
+        $field = new xmldb_field('grademethod', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0, 'badgepositions');
+
+        // Conditionally launch add field grademethod.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Jqshow savepoint reached.
+        upgrade_mod_savepoint(true, 2023070302, 'jqshow');
+    }
+    if ($oldversion < 2023070303) {
+
+        // Define field badgepositions to be dropped from jqshow.
+        $table = new xmldb_table('jqshow');
+        $field = new xmldb_field('badgepositions');
+
+        // Conditionally launch drop field badgepositions.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Jqshow savepoint reached.
+        upgrade_mod_savepoint(true, 2023070303, 'jqshow');
+    }
+
+    if ($oldversion < 2023070304) {
+
+        // Define field grademethod to be added to jqshow.
+        $table = new xmldb_table('jqshow_sessions');
+        $field = new xmldb_field('sgrademethod', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0, 'sessionmode');
+
+        // Conditionally launch add field grademethod.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Jqshow savepoint reached.
+        upgrade_mod_savepoint(true, 2023070304, 'jqshow');
+    }
     return true;
 }

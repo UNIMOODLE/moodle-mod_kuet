@@ -29,6 +29,7 @@ use coding_exception;
 use dml_exception;
 use mod_jqshow\helpers\sessions as sessions_helper;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use stdClass;
@@ -107,10 +108,33 @@ class jqshow {
         }
         $completed = [];
         foreach ($this->sessions->get_list() as $session) {
-            if ($session->get('status') === 0) {
+            if ($session->get('status') === sessionsmodel::SESSION_FINISHED) {
                 $completed[] = sessions_helper::get_data_session($session, $this->cm->id, false, false);
             }
         }
         return $completed;
+    }
+
+    /**
+     * @param $courseid
+     * @param $userid
+     * @return array
+     * @throws coding_exception
+     */
+    public static function get_students($cmid) : array {
+        // TODO: control group mode!. maybe it is necesary to create a new function: get_session_students.
+        $context = \context_module::instance($cmid);
+        $participants = get_enrolled_users($context, '', 0, 'u.id', null, 0, 0, true);
+        $students = [];
+        foreach ($participants as $participant) {
+            if (is_null($participant->{'id'})) {
+                continue;
+            }
+            if (has_capability('mod/jqshow:startsession', $context, $participant->{'id'})) {
+                continue;
+            }
+            $students[] = $participant;
+        }
+        return $students;
     }
 }

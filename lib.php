@@ -89,14 +89,17 @@ function jqshow_add_instance(stdClass $data): int {
 function jqshow_update_instance(stdClass $data): bool {
     global $DB;
 
-    // TODO: solo se está actualizando el nombre de la actividad!
-    // Get the current value, so we can see what changed.
+    // Get the current value, so we can see save changes.
     $oldjqshow = $DB->get_record('jqshow', array('id' => $data->instance));
 
     // Update the database.
     $oldjqshow->name = $data->name;
+    $oldjqshow->teamgrade = isset($data->teamgrade) ? $data->teamgrade : null;
+    $oldjqshow->grademethod = $data->grademethod;
+    $oldjqshow->completionanswerall = $data->completionanswerall;
     $DB->update_record('jqshow', $oldjqshow);
 
+    \mod_jqshow\api\grade::recalculate_mod_mark($data->{'update'}, $data->instance);
     mod_jqshow_grade_item_update($data, null);
     return true;
 }
@@ -106,13 +109,21 @@ function jqshow_update_instance(stdClass $data): bool {
  * @return boolean Success/Failure
  **/
 function jqshow_delete_instance(int $id): bool {
-    global $DB, $CFG;
+    global $DB;
 
     try {
         $jqshow = $DB->get_record('jqshow', ['id' => $id], '*', MUST_EXIST);
-        // TODO: remove other data.
+        if (!$jqshow) {
+            return false;
+        }
         // Finally delete the jqshow object.
         $DB->delete_records('jqshow', ['id' => $id]);
+        $DB->delete_records('jqshow_grades', ['jqshow' => $id]);
+        $DB->delete_records('jqshow_questions', ['jqshowid' => $id]);
+        $DB->delete_records('questions_responses', ['jqid' => $id]);
+        $DB->delete_records('jqshow_sessions', ['jqshowid' => $id]);
+        $DB->delete_records('jqshow_sessions_grades', ['jqshow' => $id]);
+        $DB->delete_records('jqshow_user_progress', ['jqshow' => $id]);
     } catch (Exception $e) {
         return false;
     }
@@ -354,11 +365,11 @@ function mod_jqshow_question_pluginfile($course, $context, $component, $filearea
  */
 function mod_jqshow_get_grading_options() {
     return [
-        0 => get_string('nograde', 'mod_jqshow'),
-        1 => get_string('gradehighest', 'mod_jqshow'),
-        2 => get_string('gradeaverage', 'mod_jqshow'),
-        3 => get_string('firstsession', 'mod_jqshow'),
-        4 => get_string('lastsession', 'mod_jqshow')
+        mod_jqshow\api\grade::MOD_OPTION_NO_GRADE => get_string('nograde', 'mod_jqshow'),
+        mod_jqshow\api\grade::MOD_OPTION_GRADE_HIGHEST => get_string('gradehighest', 'mod_jqshow'),
+        mod_jqshow\api\grade::MOD_OPTION_GRADE_AVERAGE => get_string('gradeaverage', 'mod_jqshow'),
+        mod_jqshow\api\grade::MOD_OPTION_GRADE_FIRST_SESSION => get_string('firstsession', 'mod_jqshow'),
+        mod_jqshow\api\grade::MOD_OPTION_GRADE_LAST_SESSION => get_string('lastsession', 'mod_jqshow')
     ];
 }
 
@@ -379,15 +390,17 @@ function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
         $params['idnumber'] = $data->cmidnumber;
     }
 
-    if (!$data->grademethod == 0) {
+    if ($data->grademethod == 0) {
         $params['gradetype'] = GRADE_TYPE_NONE;
     } else {
         $params['gradetype'] = GRADE_TYPE_VALUE;
-        $params['grademax'] = $data->grade;
+        $params['grademax'] = get_config('core', 'gradepointmax');;
         $params['grademin'] = 0;
-
     }
-
+    if (is_null($grades)) {
+        $params['reset'] = true;
+    }
     return grade_update('mod/jqshow', $data->course, 'mod', 'jqshow', $data->id, 0, $grades, $params);
+
 }
 

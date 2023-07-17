@@ -49,7 +49,7 @@ class jqshow extends persistent {
             'teamgrade' => [
                 'type' => PARAM_RAW,
             ],
-            'badgepositions' => [
+            'grademethod' => [
                 'type' => PARAM_INT,
             ],
             'completionanswerall' => [
@@ -59,5 +59,15 @@ class jqshow extends persistent {
                 'type' => PARAM_INT,
             ]
         ];
+    }
+
+    /**
+     * Get persisten from course module id.
+     * @param int $cmid
+     * @return false|jqshow
+     */
+    public static function get_jqshow_from_cmid(int $cmid) {
+        list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'jqshow');
+        return self::get_record(['id' => (int) $cm->instance, 'course' => $course->id]);
     }
 }
