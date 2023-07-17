@@ -90,7 +90,7 @@ class observer {
      * @param $data
      * @return array
      */
-    private function get_course_students($data) {
+    private static function get_course_students($data) {
         // Check if userid is teacher or student.
         $students = [(object) ['id' => $data['userid']]];
         $context = \context_module::instance($data['contextinstanceid']);

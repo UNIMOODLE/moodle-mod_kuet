@@ -23,9 +23,12 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// This line protects the file from being accessed by a URL directly.
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023070307;
-$plugin->requires = 2022112801; // Moodle 4.1.1
-$plugin->component = 'mod_jqshow';
-$plugin->cron = 0;
+$definitions = [
+    'grades' => [
+        'mode' => cache_store::MODE_APPLICATION,
+    ]
+];
+

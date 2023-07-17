@@ -323,3 +323,4 @@ $string['session_gm_disabled'] = 'Deshabilitado';
 $string['session_gm_position'] = 'Calificación relativa a la situación en el ranking: [participantes – posición + 1]/[participantes] * 100%';
 $string['session_gm_points'] = 'Calificación relativa a los puntos obtenidos: [puntuación]/[máximapuntuación] * 100%';
 $string['session_gm_combined'] = 'Calificacion media entre la calificación relativa a la situacion en el ranking y calificación la relativa a los puntos obtenidos.';
+$string['cachedef_grades'] = 'This is the description of the jqshow cache grades';

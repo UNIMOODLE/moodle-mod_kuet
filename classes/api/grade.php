@@ -57,6 +57,14 @@ class grade {
             return $mark;
         }
 
+        // Get grade from cache.
+        $cache = \cache::make('mod_jqshow', 'grades');
+        $cachekey = 'userid_' . $response->get('userid') . '_jqid_' . $response->get('jqid') . '_sid_' .
+            $response->get('session') . '_qid_' . $response->get('jqid');
+        $data = $cache->get($cachekey);
+        if ($data) {
+            return $data;
+        }
         // Get answer mark.
         $useranswer = $response->get('response');
         if (!empty($useranswer)) {
@@ -69,6 +77,7 @@ class grade {
                 $mark += $defaultmark * $fraction;
             }
         }
+        $cache->set($cachekey, $mark);
         return $mark;
     }
 
@@ -93,7 +102,7 @@ class grade {
 
         $mark = $simplemark;
         $session = jqshow_sessions::get_record(['id' => $sessionid, 'jqshowid' => $jqshowid]);
-        switch ($session->sessionmode) {
+        switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_MANUAL:
             case sessions::INACTIVE_PROGRAMMED:
                 $mark = $simplemark;
