@@ -721,7 +721,7 @@ class sessions {
             if (!has_capability('mod/jqshow:startsession', $context, $user) &&
                 info_module::is_user_visible($cm, $user->id, false)) {
                 $userpicture = new user_picture($user);
-                $userpicture->size = 1;
+                $userpicture->size = 200;
                 $student = new stdClass();
                 $student->userimageurl = $userpicture->get_url($PAGE)->out(false);
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
