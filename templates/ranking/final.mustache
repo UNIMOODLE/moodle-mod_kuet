@@ -81,6 +81,11 @@
         </div>
     </div>
 </div>
+{{#programmedmode}}
+    <div class="btn btn-primary m-3 float-right" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
+        {{#str}}next{{/str}}
+    </div>
+{{/programmedmode}}
 {{#js}}
     require(['mod_jqshow/question'], function(Question) {
         Question.initQuestion('[data-region="ranking-content"]');

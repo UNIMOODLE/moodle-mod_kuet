@@ -413,7 +413,7 @@ class sessions {
             $data[] = [
                 'iconconfig' => 'showgraderanking',
                 'configname' => get_string('showgraderanking', 'mod_jqshow'),
-                'configvalue' => $sessiondata->get('showgraderanking')
+                'configvalue' => $sessiondata->get('showgraderanking') === 1 ? get_string('yes') : get_string('no')
             ];
         }
 
@@ -615,6 +615,12 @@ class sessions {
         }
         if (!isset($data->showfeedback)) {
             $data->showfeedback = 0;
+        }
+        if (!isset($data->showgraderanking)) {
+            $data->showgraderanking = 0;
+        }
+        if (!isset($data->showfinalgrade)) {
+            $data->showfinalgrade = 0;
         }
         if (!isset($data->automaticstart) || $data->automaticstart === 0) {
             $data->startdate = 0;

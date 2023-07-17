@@ -93,15 +93,13 @@ function Sockets(region, port, sessionmode) {
     countusers = this.root.find(REGION.COUNTUSERS);
     sessionMode = sessionmode;
     switch (sessionMode) {
-        case 'inactive_programmed':
         case 'inactive_manual':
         default:
             showRankingBetweenQuestions = false;
             showRankingBetweenQuestionsSwitch = false;
             showRankingFinal = false;
             break;
-        case 'podium_manual':
-        case 'podium_programmed': {
+        case 'podium_manual': {
             let request = {
                 methodname: SERVICES.GETSESSIONCONFIG,
                 args: {
@@ -435,7 +433,6 @@ Sockets.prototype.setNextQuestion = function(nextQuestion) {
 
 Sockets.prototype.setEndSession = function(endData) {
     db.delete('statequestions', 'nextQuestion');
-    db.delete('statequestions', 'currentQuestion');
     let data = {
         state: 'endSession',
         value: endData
@@ -658,6 +655,7 @@ Sockets.prototype.nextQuestion = function() {
                         let identifier = jQuery(REGION.TEACHERCANVAS);
                         identifier.append(html);
                         currentQuestionJqid = null;
+                        db.delete('statequestions', 'currentQuestion');
                         that.setEndSession(endSession.result);
                         endSession.result.value.isteacher = true;
                         Templates.render(TEMPLATES.QUESTION, endSession.result.value).then(function(html, js) {
@@ -688,6 +686,7 @@ Sockets.prototype.nextQuestion = function() {
                             let identifier = jQuery(REGION.TEACHERCANVAS);
                             identifier.append(html);
                             currentQuestionJqid = null;
+                            db.delete('statequestions', 'currentQuestion');
                             that.setEndSession(endSession.result);
                             endSession.result.value.isteacher = true;
                             Templates.render(TEMPLATES.QUESTION, endSession.result.value).then(function(html, js) {
