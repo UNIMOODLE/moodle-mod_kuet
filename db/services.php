@@ -30,9 +30,12 @@ use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\finishsession_external;
 use mod_jqshow\external\firstquestion_external;
 use mod_jqshow\external\getactivesession_external;
+use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\getlistresults_external;
+use mod_jqshow\external\getprovisionalranking_external;
 use mod_jqshow\external\getquestion_external;
 use mod_jqshow\external\getquestionstatistics_external;
+use mod_jqshow\external\getsession_external;
 use mod_jqshow\external\getsessionresume_external;
 use mod_jqshow\external\getuserquestionresponse_external;
 use mod_jqshow\external\jumptoquestion_external;
@@ -269,6 +272,30 @@ $functions = [
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_getsession' => [
+        'classname' => getsession_external::class,
+        'methodname' => 'getsession',
+        'description' => 'Get all data of session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getprovisionalranking' => [
+        'classname' => getprovisionalranking_external::class,
+        'methodname' => 'getprovisionalranking',
+        'description' => 'Get ranking for a session and question',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getfinalranking' => [
+        'classname' => getfinalranking_external::class,
+        'methodname' => 'getfinalranking',
+        'description' => 'Get final ranking for a session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -300,7 +327,10 @@ $services = [
             'mod_jqshow_deleteresponses',
             'mod_jqshow_jumptoquestion',
             'mod_jqshow_getsessionresume',
-            'mod_jqshow_getquestionstatistics'
+            'mod_jqshow_getquestionstatistics',
+            'mod_jqshow_getsession',
+            'mod_jqshow_getprovisionalranking',
+            'mod_jqshow_getfinalranking',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

@@ -33,7 +33,7 @@ function xmldb_jqshow_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
-    if ($oldversion < 2023070302) {
+    if ($oldversion < 2023071800) {
 
         // Define field grademethod to be added to jqshow.
         $table = new xmldb_table('jqshow');
@@ -44,11 +44,6 @@ function xmldb_jqshow_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Jqshow savepoint reached.
-        upgrade_mod_savepoint(true, 2023070302, 'jqshow');
-    }
-    if ($oldversion < 2023070303) {
-
         // Define field badgepositions to be dropped from jqshow.
         $table = new xmldb_table('jqshow');
         $field = new xmldb_field('badgepositions');
@@ -57,12 +52,6 @@ function xmldb_jqshow_upgrade($oldversion) {
         if ($dbman->field_exists($table, $field)) {
             $dbman->drop_field($table, $field);
         }
-
-        // Jqshow savepoint reached.
-        upgrade_mod_savepoint(true, 2023070303, 'jqshow');
-    }
-
-    if ($oldversion < 2023070304) {
 
         // Define field grademethod to be added to jqshow.
         $table = new xmldb_table('jqshow_sessions');
@@ -74,7 +63,7 @@ function xmldb_jqshow_upgrade($oldversion) {
         }
 
         // Jqshow savepoint reached.
-        upgrade_mod_savepoint(true, 2023070304, 'jqshow');
+        upgrade_mod_savepoint(true, 2023071800, 'jqshow');
     }
     return true;
 }

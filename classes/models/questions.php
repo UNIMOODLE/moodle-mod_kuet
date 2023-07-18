@@ -33,6 +33,7 @@ use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
@@ -310,35 +311,34 @@ class questions {
      * @throws moodle_exception
      */
     public static function export_endsession(int $cmid, int $sessionid): object {
-        global $OUTPUT, $USER;
+        global $USER;
         $session = new jqshow_sessions($sessionid);
         $jqshow = new jqshow($session->get('jqshowid'));
         $data = new stdClass();
-        // TODO refactor.
+        $data->cmid = $cmid;
+        $data->sessionid = $sessionid;
+        $data->jqshowid = $session->get('jqshowid');
+        $data->courselink = (new moodle_url('/course/view.php', ['id' => $jqshow->get('course')]))->out(false);
+        $data->reportlink = (new moodle_url('/mod/jqshow/reports.php',
+            ['cmid' => $cmid, 'sid' => $sessionid, 'userid' => $USER->id]))->out(false);
+        $contextmodule = context_module::instance($cmid);
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::INACTIVE_MANUAL:
-                $data->cmid = $cmid;
-                $data->sessionid = $sessionid;
-                $data->jqshowid = $session->get('jqshowid');
-                $data->questionid = 0;
-                $data->jqid = 0;
-                $data->question_index_string = '';
-                $data->endsessionimage = $OUTPUT->image_url('f/end_session', 'mod_jqshow')->out(false);
-                $data->qtype = 'endsession';
-                $data->endsession = true;
-                $data->courselink = (new moodle_url('/course/view.php', ['id' => $jqshow->get('course')]))->out(false);
-                $data->reportlink = (new moodle_url('/mod/jqshow/reports.php',
-                    ['cmid' => $cmid, 'sid' => $sessionid, 'userid' => $USER->id]))->out(false);
-                $cmcontext = context_module::instance($cmid);
-                if ($session->get('sessionmode') === sessions::INACTIVE_MANUAL &&
-                    has_capability('mod/jqshow:startsession', $cmcontext)) {
-                    jqshow_sessions::mark_session_finished($sessionid);
-                }
+                $data = self::get_normal_endsession($data);
                 break;
             case sessions::PODIUM_PROGRAMMED:
             case sessions::PODIUM_MANUAL:
-                // TODO export Podium layout for all users.
+                if ((int)$session->get('showfinalgrade') === 0) {
+                    $data = self::get_normal_endsession($data);
+                } else {
+                    $data = (object)getfinalranking_external::getfinalranking($sessionid, $cmid);
+                    $data = self::get_normal_endsession($data);
+                    $data->endsession = true;
+                    $data->ranking = true;
+                    $data->isteacher = has_capability('mod/jqshow:startsession', $contextmodule);
+                    // TODO export ranking.
+                }
                 break;
             case sessions::RACE_PROGRAMMED:
             case sessions::RACE_MANUAL:
@@ -348,6 +348,24 @@ class questions {
                 throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
                     [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
+        return $data;
+    }
+
+    /**
+     * @param stdClass $data
+     * @return stdClass
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    private static function get_normal_endsession(stdClass $data): stdClass {
+        global $OUTPUT;
+        $data->questionid = 0;
+        $data->jqid = 0;
+        $data->question_index_string = '';
+        $data->endsessionimage = $OUTPUT->image_url('f/end_session', 'mod_jqshow')->out(false);
+        $data->qtype = 'endsession';
+        $data->endsession = true;
         return $data;
     }
 

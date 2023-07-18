@@ -86,11 +86,12 @@ class sessionform extends moodleform {
         $mform->addHelpButton('countdown', 'countdown', 'jqshow');
 
         // Hide grade and ranking between questions.
-        $mform->addElement('checkbox', 'hidegraderanking', get_string('hidegraderanking', 'mod_jqshow'));
-        $mform->setType('hidegraderanking', PARAM_INT);
-        $mform->hideIf('hidegraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->hideIf('hidegraderanking', 'sessionmode', 'eq', sessions::INACTIVE_PROGRAMMED);
-        $mform->addHelpButton('hidegraderanking', 'hidegraderanking', 'jqshow');
+        $mform->addElement('checkbox', 'showgraderanking', get_string('showgraderanking', 'mod_jqshow'));
+        $mform->setType('showgraderanking', PARAM_INT);
+        $mform->hideIf('showgraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('showgraderanking', 'sessionmode', 'eq', sessions::INACTIVE_PROGRAMMED);
+        $mform->setDefault('showgraderanking', 1);
+        $mform->addHelpButton('showgraderanking', 'showgraderanking', 'jqshow');
 
         // Randomquestions.
         $mform->addElement('checkbox', 'randomquestions', get_string('randomquestions', 'mod_jqshow'));
@@ -114,6 +115,7 @@ class sessionform extends moodleform {
         // Showfinalgrade.
         $mform->addElement('checkbox', 'showfinalgrade', get_string('showfinalgrade', 'mod_jqshow'));
         $mform->setType('showfinalgrade', PARAM_INT);
+        $mform->setDefault('showfinalgrade', 1);
         $mform->addHelpButton('showfinalgrade', 'showfinalgrade', 'jqshow');
 
         $mform->addElement('html', '</div>');

@@ -33,7 +33,6 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\models\sessions;
-use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;

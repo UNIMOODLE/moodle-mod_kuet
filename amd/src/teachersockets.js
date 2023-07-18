@@ -9,6 +9,7 @@ import ModalEvents from 'core/modal_events';
 import Ajax from 'core/ajax';
 import Encryptor from 'mod_jqshow/encryptor';
 import Database from 'mod_jqshow/database';
+import mEvent from 'core/event';
 
 let REGION = {
     MESSAGEBOX: '#message-box',
@@ -38,7 +39,10 @@ let SERVICES = {
     JUMPTOQUESTION: 'mod_jqshow_jumptoquestion',
     GETSESSIONRESUME: 'mod_jqshow_getsessionresume',
     GETLISTRESULTS: 'mod_jqshow_getlistresults',
-    GETQUESTIONSTATISTICS: 'mod_jqshow_getquestionstatistics'
+    GETQUESTIONSTATISTICS: 'mod_jqshow_getquestionstatistics',
+    GETSESSIONCONFIG: 'mod_jqshow_getsession',
+    GETPROVISIONALRANKING: 'mod_jqshow_getprovisionalranking',
+    GETFINALRANKING: 'mod_jqshow_getfinalranking',
 };
 
 let TEMPLATES = {
@@ -48,23 +52,76 @@ let TEMPLATES = {
     PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
     QUESTION: 'mod_jqshow/questions/encasement',
     SESSIONRESUME: 'mod_jqshow/session/sessionresume',
-    LISTRESULTS: 'mod_jqshow/session/listresults'
+    LISTRESULTS: 'mod_jqshow/session/listresults',
+    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional'
 };
 
 let portUrl = '8080'; // It is rewritten in the constructor.
+let userid = null;
+let usersocketid = null;
+let username = null;
+let userimage = null;
+let messageBox = null;
+let countusers = null;
+let cmid = null;
+let sid = null;
+let db = null;
+let questionsJqids = [];
+let waitingRoom = true;
+let currentQuestionJqid = null;
+let nextQuestionJqid = null;
+let sessionMode = null;
+let showRankingBetweenQuestions = false;
+let showRankingBetweenQuestionsSwitch = false;
+let showRankingFinal = false;
 
 /**
  * @constructor
  * @param {String} region
  * @param {String} port
+ * @param {String} sessionmode
  */
-function Sockets(region, port) {
+function Sockets(region, port, sessionmode) {
     this.root = jQuery(region);
     portUrl = port;
+    userid = this.root[0].dataset.userid;
+    username = this.root[0].dataset.username;
+    userimage = this.root[0].dataset.userimage;
+    cmid = this.root[0].dataset.cmid;
+    sid = this.root[0].dataset.sid;
+    messageBox = this.root.find(REGION.MESSAGEBOX);
+    countusers = this.root.find(REGION.COUNTUSERS);
+    sessionMode = sessionmode;
+    switch (sessionMode) {
+        case 'inactive_manual':
+        default:
+            showRankingBetweenQuestions = false;
+            showRankingBetweenQuestionsSwitch = false;
+            showRankingFinal = false;
+            break;
+        case 'podium_manual': {
+            let request = {
+                methodname: SERVICES.GETSESSIONCONFIG,
+                args: {
+                    sid: sid,
+                    cmid: cmid
+                }
+            };
+            Ajax.call([request])[0].done(function(response) {
+                if (response.session.showgraderanking === 1) {
+                    showRankingBetweenQuestions = true;
+                }
+                if (response.session.showfinalgrade === 1) {
+                    showRankingFinal = true;
+                }
+            }).fail(Notification.exception);
+            break;
+        }
+    }
     this.measuringSpeed(); // TODO extend to the whole mod.
     this.disableDevTools(); // TODO extend to the whole mod.
     this.initSockets();
-    this.cleanMessages();
+    this.cleanMessages(); // TODO only for develop.
     this.initListeners();
 }
 
@@ -154,28 +211,7 @@ Sockets.prototype.backSession = function() {
 /** @type {jQuery} The jQuery node for the page region. */
 Sockets.prototype.root = null;
 
-let userid = null;
-let usersocketid = null;
-let username = null;
-let userimage = null;
-let messageBox = null;
-let countusers = null;
-let cmid = null;
-let sid = null;
-let db = null;
-let questionsJqids = [];
-let waitingRoom = true;
-let currentQuestionJqid = null;
-let nextQuestionJqid = null;
-
 Sockets.prototype.initSockets = function() {
-    userid = this.root[0].dataset.userid;
-    username = this.root[0].dataset.username;
-    userimage = this.root[0].dataset.userimage;
-    cmid = this.root[0].dataset.cmid;
-    sid = this.root[0].dataset.sid;
-    messageBox = this.root.find(REGION.MESSAGEBOX);
-    countusers = this.root.find(REGION.COUNTUSERS);
     let that = this;
     this.root.find(ACTION.BACKSESSION).on('click', this.backSession);
 
@@ -189,7 +225,7 @@ Sockets.prototype.initSockets = function() {
         When the teacher clicks on init session, the teacher will send the first question over the socket to all
         students, and will get the 3rd question. When a student answers a question, a service will be called to save the answer
         and progress, and the teacher will be informed via the socket. When the teacher clicks on next question,
-        the 2nd question will be sent by socket to all students, and the 4th question will be obtained.
+        the 2nd question will be sent by socket to all students, and the 3th question will be obtained.
         The questions will be stored in the teacher's data storage, you can even store the user's answers so that you
         don't have to call a service at the end for the ranking.
         */
@@ -329,7 +365,17 @@ Sockets.prototype.initSockets = function() {
 Sockets.prototype.initListeners = function() {
     let that = this;
     addEventListener('nextQuestion', () => {
-        that.nextQuestion();
+        switch (sessionMode) {
+            case 'inactive_programmed':
+            case 'inactive_manual':
+            default:
+                that.nextQuestion();
+                break;
+            case 'podium_manual':
+            case 'podium_programmed':
+                that.manageNext();
+                break;
+        }
     }, false);
     addEventListener('pauseQuestionSelf', () => {
         that.pauseQuestion();
@@ -387,12 +433,12 @@ Sockets.prototype.setNextQuestion = function(nextQuestion) {
 
 Sockets.prototype.setEndSession = function(endData) {
     db.delete('statequestions', 'nextQuestion');
-    db.delete('statequestions', 'currentQuestion');
     let data = {
         state: 'endSession',
         value: endData
     };
     db.update('statequestions', data);
+    showRankingBetweenQuestionsSwitch = false;
 };
 
 Sockets.prototype.getNextQuestion = function(jqid) {
@@ -463,8 +509,12 @@ Sockets.prototype.initSession = function() {
                             jQuery(ACTION.INITSESSION).remove();
                             jQuery(ACTION.ENDSESSION).removeClass('hidden').removeClass('disabled');
                             waitingRoom = false;
+                            if (showRankingBetweenQuestions) {
+                                showRankingBetweenQuestionsSwitch = true;
+                            }
                             Templates.runTemplateJS(js);
                             jQuery(REGION.LOADING).remove();
+                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                         }).fail(Notification.exception);
                     });
                 };
@@ -586,34 +636,110 @@ Sockets.prototype.nextQuestion = function() {
                     Templates.render(TEMPLATES.QUESTION, nextQuestionData.result.value).then(function(html, js) {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
+                        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                         jQuery(REGION.LOADING).remove();
                     }).fail(Notification.exception);
                 });
             };
         } else {
             let endSession = db.get('statequestions', 'endSession');
-            endSession.onsuccess = function() {
+            if (showRankingFinal === false) {
+                endSession.onsuccess = function() {
+                    let msg = {
+                        'action': 'endSession',
+                        'sid': sid,
+                        'context': endSession.result
+                    };
+                    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                        let identifier = jQuery(REGION.TEACHERCANVAS);
+                        identifier.append(html);
+                        currentQuestionJqid = null;
+                        db.delete('statequestions', 'currentQuestion');
+                        that.setEndSession(endSession.result);
+                        endSession.result.value.isteacher = true;
+                        Templates.render(TEMPLATES.QUESTION, endSession.result.value).then(function(html, js) {
+                            identifier.html(html);
+                            Templates.runTemplateJS(js);
+                            jQuery(REGION.LOADING).remove();
+                        }).fail(Notification.exception);
+                    });
+                };
+            } else {
+                endSession.onsuccess = function() {
+                    let request = {
+                        methodname: SERVICES.GETFINALRANKING,
+                        args: {
+                            sid: sid,
+                            cmid: cmid
+                        }
+                    };
+                    Ajax.call([request])[0].done(function(finalRanking) {
+                        endSession.result.value = finalRanking;
+                        let msg = {
+                            'action': 'endSession',
+                            'sid': sid,
+                            'context': endSession.result
+                        };
+                        Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                            let identifier = jQuery(REGION.TEACHERCANVAS);
+                            identifier.append(html);
+                            currentQuestionJqid = null;
+                            db.delete('statequestions', 'currentQuestion');
+                            that.setEndSession(endSession.result);
+                            endSession.result.value.isteacher = true;
+                            Templates.render(TEMPLATES.QUESTION, endSession.result.value).then(function(html, js) {
+                                identifier.html(html);
+                                Templates.runTemplateJS(js);
+                                jQuery(REGION.LOADING).remove();
+                            }).fail(Notification.exception);
+                        });
+                    }).fail(Notification.exception);
+                };
+            }
+        }
+    };
+};
+
+Sockets.prototype.manageNext = function() {
+    let that = this;
+    if (showRankingBetweenQuestions === false) {
+        that.nextQuestion();
+    } else {
+        if (showRankingBetweenQuestionsSwitch === false) {
+            that.nextQuestion();
+            showRankingBetweenQuestionsSwitch = true;
+        } else {
+            let request = {
+                methodname: SERVICES.GETPROVISIONALRANKING,
+                args: {
+                    sid: sid,
+                    cmid: cmid,
+                    jqid: currentQuestionJqid
+                }
+            };
+            Ajax.call([request])[0].done(function(provisionalRanking) {
                 let msg = {
-                    'action': 'endSession',
+                    'action': 'ranking',
                     'sid': sid,
-                    'context': endSession.result
+                    'context': provisionalRanking
                 };
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                showRankingBetweenQuestionsSwitch = false;
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.TEACHERCANVAS);
                     identifier.append(html);
-                    currentQuestionJqid = null;
-                    that.setEndSession(endSession.result);
-                    endSession.result.value.isteacher = true;
-                    Templates.render(TEMPLATES.QUESTION, endSession.result.value).then(function(html, js) {
+                    provisionalRanking.isteacher = true;
+                    Templates.render(TEMPLATES.PROVISIONALRANKING, provisionalRanking).then(function(html, js) {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
                         jQuery(REGION.LOADING).remove();
                     }).fail(Notification.exception);
                 });
-            };
+            }).fail(Notification.exception);
         }
-    };
+    }
 };
 
 Sockets.prototype.pauseQuestion = function() {
@@ -653,6 +779,7 @@ Sockets.prototype.resendSelf = function() {
                     'context': currentQuestionData.result
                 };
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                showRankingBetweenQuestionsSwitch = true;
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.TEACHERCANVAS);
                     identifier.append(html);
@@ -660,6 +787,7 @@ Sockets.prototype.resendSelf = function() {
                     Templates.render(TEMPLATES.QUESTION, currentQuestionData.result.value).then(function(html, js) {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
+                        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                         jQuery(REGION.LOADING).remove();
                     }).fail(Notification.exception);
                 });
@@ -695,6 +823,7 @@ Sockets.prototype.jumpTo = function(questionNumber) {
             'context': data
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        showRankingBetweenQuestionsSwitch = true;
         Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
             let identifier = jQuery(REGION.TEACHERCANVAS);
             identifier.append(html);
@@ -702,6 +831,7 @@ Sockets.prototype.jumpTo = function(questionNumber) {
             Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
                 identifier.html(html);
                 Templates.runTemplateJS(js);
+                mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                 jQuery(REGION.LOADING).remove();
             }).fail(Notification.exception);
         });
@@ -805,6 +935,6 @@ Sockets.prototype.sendMessageSocket = function(msg) {
     this.webSocket.send(msg);
 };
 
-export const teacherInitSockets = (region, port) => {
-    return new Sockets(region, port);
+export const teacherInitSockets = (region, port, sessionmode) => {
+    return new Sockets(region, port, sessionmode);
 };

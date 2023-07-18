@@ -136,6 +136,7 @@ class jqshow_questions extends persistent {
     public static function get_next_question_of_session(int $sessionid, int $questionid) {
         global $USER;
         $session = jqshow_sessions::get_record(['id' => $sessionid], MUST_EXIST);
+        $nextquestion = false;
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
@@ -150,7 +151,7 @@ class jqshow_questions extends persistent {
                     if ($current !== false && isset($order[$current + 1])) {
                         $nextquestion = self::get_record(['sessionid' => $sessionid, 'id' => $order[$current + 1]]);
                     } else {
-                        $nextquestion = false;
+                        return false;
                     }
                 }
                 break;

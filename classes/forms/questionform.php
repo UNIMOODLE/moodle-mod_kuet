@@ -27,13 +27,14 @@ namespace mod_jqshow\forms;
 
 use coding_exception;
 use mod_jqshow\persistents\jqshow_sessions;
+use moodleform;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
-class questionform extends \moodleform {
+class questionform extends moodleform {
     /**
      * @return void
      * @throws coding_exception

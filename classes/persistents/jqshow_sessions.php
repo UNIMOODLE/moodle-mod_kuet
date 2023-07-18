@@ -76,9 +76,9 @@ class jqshow_sessions extends persistent {
                 'null' => NULL_ALLOWED,
                 'default' => 0,
             ],
-            'hidegraderanking' => [
+            'showgraderanking' => [
                 'type' => PARAM_INT,
-                'default' => 0,
+                'default' => 1,
             ],
             'randomquestions' => [
                 'type' => PARAM_INT,
@@ -94,7 +94,7 @@ class jqshow_sessions extends persistent {
             ],
             'showfinalgrade' => [
                 'type' => PARAM_INT,
-                'default' => 0,
+                'default' => 1,
             ],
             'startdate' => [
                 'type' => PARAM_INT,
