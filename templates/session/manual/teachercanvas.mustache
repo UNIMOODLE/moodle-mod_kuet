@@ -42,7 +42,7 @@
     <div class="col-12 participants forteacher" data-region="active-users">
 
     </div>
-    <div data-region="teacher-canvas">
+    <div data-region="teacher-canvas" class="d-flex">
         {{#waitingroom}}
             {{> mod_jqshow/session/manual/waitingroom/teacher }}
         {{/waitingroom}}
@@ -72,7 +72,7 @@
 
 {{#js}}
     require(['mod_jqshow/teachersockets'], function(Sockets) {
-        Sockets.teacherInitSockets('[data-region="teacher-canvas-content"]', {{port}});
+        Sockets.teacherInitSockets('[data-region="teacher-canvas-content"]', {{port}}, '{{sessionmode}}');
         /*window.onbeforeunload = function(e) {
             // TODO review.
             e.returnValue = confirm(

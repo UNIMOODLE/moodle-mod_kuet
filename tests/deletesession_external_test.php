@@ -55,7 +55,7 @@ class deletesession_external_test extends advanced_testcase {
         'status' => 1,
         'sessionid' => 0,
         'submitbutton' => 0,
-        'hidegraderanking' => 0,
+        'showgraderanking' => 0,
     ];
     /**
      * @return true

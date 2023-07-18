@@ -34,10 +34,10 @@
         <FIELD NAME="anonymousanswer" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="There are 3 types: 0 (partially) 1(totally) 2(not anonymous)"/>
         <FIELD NAME="sessionmode" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="inactive_manual" SEQUENCE="false" COMMENT="Options:inactive_manual,podium_manual,podium_programmed"/>
         <FIELD NAME="countdown" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Time in seconds between questions. Only for scheduled mode"/>
-        <FIELD NAME="hidegraderanking" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Option to hide or not ranking and grades between questions. By default, not hidden."/>
+        <FIELD NAME="showgraderanking" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Option to hide or not ranking and grades between questions. By default, not hidden."/>
         <FIELD NAME="randomquestions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options: 0 or 1"/>
         <FIELD NAME="randomanswers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options:0 or 1"/>
-        <FIELD NAME="showfeedback" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options true or false"/>
+        <FIELD NAME="showfeedback" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Options true or false"/>
         <FIELD NAME="showfinalgrade" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options: true or false"/>
         <FIELD NAME="startdate" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="enddate" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT=""/>

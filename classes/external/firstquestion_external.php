@@ -88,7 +88,11 @@ class firstquestion_external extends external_api {
                     [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $session = new jqshow_sessions($sessionid);
-        $question->programmedmode = $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED;
+        if ($session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+            $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+            $session->get('sessionmode') === sessions::RACE_PROGRAMMED) {
+            $question->programmedmode = true;
+        }
         return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
     }
 

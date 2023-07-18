@@ -69,16 +69,18 @@ class nextquestion_external extends external_api {
      * @param int $sessionid
      * @param int $jqid
      * @param bool $manual
+     * @param bool $isranking
      * @return array
      * @throws JsonException
-     * @throws invalid_persistent_exception
      * @throws coding_exception
-     * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function nextquestion(int $cmid, int $sessionid, int $jqid, bool $manual = false): array {
+    public static function nextquestion(
+        int $cmid, int $sessionid, int $jqid, bool $manual = false
+    ): array {
         global $PAGE, $USER;
         self::validate_parameters(
             self::nextquestion_parameters(),

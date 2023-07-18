@@ -79,7 +79,7 @@ class getlistresults_external extends external_api {
                         'incorrectanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
                         'notanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
                         'partially' => new external_value(PARAM_INT, 'Num of partially correct answers'),
-                        'userpoints' => new external_value(PARAM_INT, 'Total points of user'),
+                        'userpoints' => new external_value(PARAM_RAW, 'Total points of user'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points')
                     ], ''
                 ), ''

@@ -94,6 +94,7 @@ class teacher_session_view implements renderable, templatable {
                 $data->numquestions = count($questiondata);
                 $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
                 $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+                $data->sessionmode = $session->get('sessionmode');
                 break;
             default:
                 throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',

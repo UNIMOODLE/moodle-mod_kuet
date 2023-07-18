@@ -224,6 +224,13 @@ class server extends websockets {
                             'context' => $data['context'],
                         ], JSON_THROW_ON_ERROR)
                     ));
+            case 'ranking':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'ranking',
+                            'context' => $data['context'],
+                        ], JSON_THROW_ON_ERROR)
+                    ));
             case 'endSession':
                 return $this->mask(
                     encrypt($this->password, json_encode([

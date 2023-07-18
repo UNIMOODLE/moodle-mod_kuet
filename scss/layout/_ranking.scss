@@ -1,0 +1,445 @@
+.general-ranking {
+    border-radius: 25px;
+    padding: 30px;
+    width: 100%;
+    height: 90vh;
+    .ranking-heading {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        margin-bottom: 2em;
+        h2 {
+            font-size: 24px;
+            color: white;
+            text-align: center;
+            flex-grow: 1;
+        }
+        .question-fullscreen {
+            .icon {
+                margin: 0;
+                width: auto;
+                height: 24px;
+            }
+            &:hover {
+                cursor: pointer;
+            }
+        }
+        [data-action="question-exit-fullscreen"] {
+            display: none;
+        }
+    }
+    .ranking-users {
+        .ranking-users-body {
+            width: 70%;
+            .ranking-users-thead {
+
+            }
+            .user-item {
+                .username {
+                    img {
+                        border-radius: 60px;
+                        width: auto;
+                        height: 50px;
+                        border: 1px solid white;
+                        margin-right: .5em;
+                    }
+                }
+            }
+            .d-table-cell {
+                padding: 15px;
+                color: white;
+                font-size: 16px;
+                border-bottom: 1px solid rgba(0,0,0,.1);
+            }
+        }
+    }
+    .ranking-users.provisionalranking {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
+        height: 70vh;
+        overflow-y: auto;
+        &::-webkit-scrollbar {
+            width: 8px;
+        }
+        &::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.20);
+        }
+        &::-webkit-scrollbar-thumb {
+            background-color: #FFFFFF;
+            border-radius: 4px;
+        }
+        .ranking-users-body {
+            .ranking-users-data {
+                &:nth-child(2),
+                &:nth-child(3),
+                &:nth-child(4) {
+                    .userposition {
+                        span {
+                            height: 34px;
+                            width: 34px;
+                            color: black;
+                            font-weight: bold;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            padding-right: 5px;
+                            background-repeat: no-repeat;
+                            background-size: contain;
+                        }
+                    }
+                }
+                &:nth-child(2) {
+                    .userposition {
+                        span {
+                            background-image: url([[pix:mod_jqshow|q/goldranking]]);
+                        }
+                    }
+               }
+                &:nth-child(3) {
+                    .userposition {
+                        span {
+                            background-image: url([[pix:mod_jqshow|q/silverranking]]);
+                        }
+                    }
+                }
+                &:nth-child(4) {
+                    .userposition {
+                        span {
+                            background-image: url([[pix:mod_jqshow|q/copperranking]]);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    &.isteacher.provisional {
+        margin-right: 2em;
+    }
+    &.final-ranking {
+        padding: 0;
+        background: #4A47E9;
+        &.isteacher {
+            margin-bottom: 14em;
+        }
+        &:not(.isteacher) {
+            height: auto;
+        }
+        .ranking-container {
+            padding: 0;
+            .ranking-heading {
+                padding: 30px 15px;
+                margin-bottom: 0;
+                background: #5A57FF;
+                border-radius: 25px 25px 0 0;
+            }
+        }
+        .ranking-users.finalranking {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: center;
+            background-color: #4A47E9;
+            border-radius: 0 0 25px 25px;
+            padding-bottom: 3em;
+            .ranking-first-three {
+                width: 100%;
+                background: #5A57FF;
+                .content-users {
+                    display: flex;
+                    flex-flow: row nowrap;
+                    align-items: flex-end;
+                    justify-content: space-between;
+                    width: 60%;
+                    margin: 0 auto;
+                    .first-user,
+                    .second-user,
+                    .third-user {
+                        .userimage {
+                            display: flex;
+                            flex-flow: column nowrap;
+                            align-items: center;
+                            padding: 0 70px 0;
+                            margin-bottom: 1em;
+                            .userposition {
+                                z-index: 3;
+                                margin-bottom: -20px;
+                                span {
+                                    height: 45px;
+                                    width: 45px;
+                                    color: black;
+                                    font-weight: bold;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    padding-right: 5px;
+                                    background-repeat: no-repeat;
+                                    background-size: contain;
+                                }
+                            }
+                            .first-three-userimage {
+                                border: 5px solid white;
+                            }
+                            .username {
+                                color: white;
+                                text-align: center;
+                                margin-top: 20px;
+                                font-size: 18px;
+                            }
+                        }
+                        .userpoints {
+                            background-color: #4A47E9;
+                            border-radius: 10px 10px 0 0;
+                            width: 100%;
+                            display: flex;
+                            flex-flow: row nowrap;
+                            justify-content: center;
+                            align-items: center;
+                            padding: 0 20px;
+                            .content-points {
+                                width: 100%;
+                                padding: 8px;
+                                border-radius: 40px;
+                                border: 2px solid;
+                                text-align: center;
+                                font-size: 22px;
+                                font-weight: bold;
+                                display: flex;
+                                justify-content: center;
+                                align-items: center;
+                                .icon {
+                                    height: 18px;
+                                    width: auto;
+                                }
+                            }
+                        }
+                    }
+                    .first-user {
+                        .userposition {
+                            span {
+                                background-image: url([[pix:mod_jqshow|q/goldranking]]);
+                            }
+                        }
+                        .first-three-userimage {
+                            border-radius: 190px;
+                            height: 190px;
+                            width: 190px;
+                        }
+                        .first-userpoints {
+                            height: 130px;
+                            .content-points {
+                                border-color: #d3b308;
+                                background-color: #ffef5c;
+                            }
+                        }
+                    }
+                    .second-user {
+                        .userposition {
+                            span {
+                                background-image: url([[pix:mod_jqshow|q/silverranking]]);
+                            }
+                        }
+                        .first-three-userimage {
+                            border-radius: 140px;
+                            height: 140px;
+                            width: 140px;
+                        }
+                        .second-userpoints {
+                            height: 100px;
+                            .content-points {
+                                border-color: #c6c6c6;
+                                background-color: #f1f1f1;
+                            }
+                        }
+                    }
+                    .third-user {
+                        .userposition {
+                            span {
+                                background-image: url([[pix:mod_jqshow|q/copperranking]]);
+                            }
+                        }
+                        .first-three-userimage {
+                            border-radius: 120px;
+                            height: 120px;
+                            width: 120px;
+                        }
+                        .third-userpoints {
+                            height: 80px;
+                            .content-points {
+                                border-color: #da9000;
+                                background-color: #fdb62c;
+                            }
+                        }
+                    }
+                }
+            }
+            .ranking-users-body {
+                margin: 0 auto;
+                width: 100%;
+                padding-top: 20px;
+                .content-users {
+                    width: 70%;
+                    margin: 0 auto;
+                    height: 50vh;
+                    overflow-y: auto;
+                    &::-webkit-scrollbar {
+                        width: 8px;
+                    }
+                    &::-webkit-scrollbar-track {
+                        background: rgba(255, 255, 255, 0.20);
+                    }
+                    &::-webkit-scrollbar-thumb {
+                        background-color: #FFFFFF;
+                        border-radius: 4px;
+                    }
+                    .d-table {
+                        width: 100%;
+                    }
+                }
+            }
+        }
+    }
+}
+@media (max-width: 1740px) and (min-width: 1500px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 70% !important;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 1500px) and (min-width: 1320px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 80% !important;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 1320px) and (min-width: 1200px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 90% !important;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 1200px) and (min-width: 1070px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 100% !important;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 1070px) and (min-width: 880px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 100% !important;
+                    zoom: 80%;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 880px) and (min-width: 790px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 100% !important;
+                    zoom: 70%;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 790px) and (min-width: 767px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 100% !important;
+                    zoom: 65%;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 767px) and (min-width: 665px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 100% !important;
+                    zoom: 70%;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 665px) and (min-width: 620px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 100% !important;
+                    zoom: 65%;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 620px) and (min-width: 570px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 100% !important;
+                    zoom: 60%;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 570px) and (min-width: 490px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 100% !important;
+                    zoom: 50%;
+                }
+            }
+        }
+    }
+}
+@media (max-width: 490px) {
+    .final-ranking {
+        .ranking-users.finalranking {
+            .ranking-first-three {
+                .content-users {
+                    width: 100% !important;
+                    zoom: 45%;
+                }
+            }
+        }
+    }
+}
