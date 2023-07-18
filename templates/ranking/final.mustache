@@ -82,9 +82,9 @@
     </div>
 </div>
 {{#programmedmode}}
-    <div class="btn btn-primary m-3 float-right" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
-        {{#str}}next{{/str}}
-    </div>
+    <a class="btn btn-primary m-3 float-right" href="{{reporturl}}">
+        {{#str}}report, mod_jqshow{{/str}}
+    </a>
 {{/programmedmode}}
 {{#js}}
     require(['mod_jqshow/question'], function(Question) {

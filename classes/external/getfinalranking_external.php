@@ -37,6 +37,7 @@ use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -101,6 +102,7 @@ class getfinalranking_external extends external_api {
             'numquestions' => $questions->get_num_questions(),
             'ranking' => true,
             'endsession' => true,
+            'reporturl' => (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false),
             'isteacher' => has_capability('mod/jqshow:startsession', $contextmodule)
         ];
     }
@@ -126,6 +128,7 @@ class getfinalranking_external extends external_api {
             'numquestions' => new external_value(PARAM_INT, 'Number of questions for teacher panel'),
             'ranking' => new external_value(PARAM_BOOL, 'Is a ranking, for control panel context'),
             'endsession' => new external_value(PARAM_BOOL, 'Mark end session'),
+            'reporturl' => new external_value(PARAM_URL, 'Url for session report'),
             'firstuserimageurl' => new external_value(PARAM_URL, ''),
             'firstuserfullname' => new external_value(PARAM_RAW, ''),
             'firstuserpoints' => new external_value(PARAM_INT, ''),

@@ -59,8 +59,7 @@ class nextquestion_external extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
                 'jqid' => new external_value(PARAM_INT, 'question id of jqshow_questions'),
-                'manual' => new external_value(PARAM_BOOL, 'Mode of session', VALUE_OPTIONAL),
-                'isranking' => new external_value(PARAM_BOOL, 'Ranking beteween questions, or final ranking', VALUE_OPTIONAL)
+                'manual' => new external_value(PARAM_BOOL, 'Mode of session', VALUE_OPTIONAL)
             ]
         );
     }
@@ -80,23 +79,21 @@ class nextquestion_external extends external_api {
      * @throws moodle_exception
      */
     public static function nextquestion(
-        int $cmid, int $sessionid, int $jqid, bool $manual = false, bool $isranking = false
+        int $cmid, int $sessionid, int $jqid, bool $manual = false
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
             self::nextquestion_parameters(),
-            ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid, 'manual' => $manual, 'isranking' => $isranking]
+            ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid, 'manual' => $manual]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $nextquestion = jqshow_questions::get_next_question_of_session($sessionid, $jqid);
         $session = new jqshow_sessions($sessionid);
         if ($nextquestion !== false) {
-            if ($isranking === false) { // TODO does not save progress correctly.
-                progress::set_progress(
-                    $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
-                );
-            }
+            progress::set_progress(
+                $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
+            );
             switch ($nextquestion->get('qtype')) {
                 case 'multichoice':
                     $data = questions::export_multichoice(

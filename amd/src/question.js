@@ -44,10 +44,10 @@ let isRanking = false;
  * @param {String} selector
  */
 function Question(selector) {
-    if (selector === REGION.RANKINGCONTENT) {
+    this.node = jQuery(selector);
+    if (this.node.attr('data-region') === 'ranking-content') {
         isRanking = true;
     }
-    this.node = jQuery(selector);
     this.initQuestion();
 }
 
@@ -109,69 +109,72 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
     let identifier = jQuery(REGION.SESSIONCONTENT);
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         identifier.append(html);
-        let requestNext = {
-            methodname: SERVICES.NEXTQUESTION,
+        // eslint-disable-next-line no-console
+        console.log('isRanking', isRanking);
+        let requestConfig = {
+            methodname: SERVICES.GETSESSIONCONFIG,
             args: {
-                cmid: cmId,
-                sessionid: sId,
-                jqid: jqId,
-                manual: false,
-                isranking: isRanking
+                sid: sId,
+                cmid: cmId
             }
         };
-        Ajax.call([requestNext])[0].done(function(nextQuestion) {
-            let requestConfig = {
-                methodname: SERVICES.GETSESSIONCONFIG,
-                args: {
-                    sid: sId,
-                    cmid: cmId
-                }
-            };
-            Ajax.call([requestConfig])[0].done(function(sessionConfig) {
-                if (nextQuestion.endsession === true && sessionConfig.session.showfinalgrade === 1) { // Final Ranking.
-                    let requestFinal = {
-                        methodname: SERVICES.GETFINALRANKING,
-                        args: {
-                            sid: sId,
-                            cmid: cmId
-                        }
-                    };
-                    Ajax.call([requestFinal])[0].done(function(finalRanking) {
-                        finalRanking.programmedmode = true;
-                        Templates.render(TEMPLATES.QUESTION, finalRanking).then(function(html, js) {
-                            identifier.html(html);
-                            Templates.runTemplateJS(js);
-                            jQuery(REGION.LOADING).remove();
-                        }).fail(Notification.exception);
-                    }).fail(Notification.exception);
-                } else if (sessionConfig.session.showgraderanking === 1 && isRanking === false) { // Provisional Ranking.
-                    let requestProvisional = {
-                        methodname: SERVICES.GETPROVISIONALRANKING,
-                        args: {
-                            sid: sId,
-                            cmid: cmId,
-                            jqid: jqId
-                        }
-                    };
-                    Ajax.call([requestProvisional])[0].done(function(provisionalRanking) {
-                        provisionalRanking.programmedmode = true;
-                        Templates.render(TEMPLATES.PROVISIONALRANKING, provisionalRanking).then(function(html, js) {
-                            identifier.html(html);
-                            Templates.runTemplateJS(js);
-                            jQuery(REGION.LOADING).remove();
-                        }).fail(Notification.exception);
-                    }).fail(Notification.exception);
-                } else { // Normal Question.
-                    isRanking = false;
-                    let templateQuestions = TEMPLATES.QUESTION;
-                    Templates.render(templateQuestions, nextQuestion).then(function(html, js) {
+        Ajax.call([requestConfig])[0].done(function(sessionConfig) {
+            if (sessionConfig.session.showgraderanking === 1 && isRanking === false) { // Provisional Ranking.
+                let requestProvisional = {
+                    methodname: SERVICES.GETPROVISIONALRANKING,
+                    args: {
+                        sid: sId,
+                        cmid: cmId,
+                        jqid: jqId
+                    }
+                };
+                Ajax.call([requestProvisional])[0].done(function(provisionalRanking) {
+                    provisionalRanking.programmedmode = true;
+                    Templates.render(TEMPLATES.PROVISIONALRANKING, provisionalRanking).then(function(html, js) {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
-                        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.SESSIONCONTENT));
                         jQuery(REGION.LOADING).remove();
                     }).fail(Notification.exception);
-                }
-            }).fail(Notification.exception);
+                }).fail(Notification.exception);
+            } else {
+                let requestNext = {
+                    methodname: SERVICES.NEXTQUESTION,
+                    args: {
+                        cmid: cmId,
+                        sessionid: sId,
+                        jqid: jqId,
+                        manual: false
+                    }
+                };
+                Ajax.call([requestNext])[0].done(function(nextQuestion) {
+                    isRanking = false;
+                    let templateQuestions = TEMPLATES.QUESTION;
+                    if (nextQuestion.endsession === true && sessionConfig.session.showfinalgrade === 1) { // Final Ranking.
+                        let requestFinal = {
+                            methodname: SERVICES.GETFINALRANKING,
+                            args: {
+                                sid: sId,
+                                cmid: cmId
+                            }
+                        };
+                        Ajax.call([requestFinal])[0].done(function(finalRanking) {
+                            finalRanking.programmedmode = true;
+                            Templates.render(TEMPLATES.QUESTION, finalRanking).then(function(html, js) {
+                                identifier.html(html);
+                                Templates.runTemplateJS(js);
+                                jQuery(REGION.LOADING).remove();
+                            }).fail(Notification.exception);
+                        }).fail(Notification.exception);
+                    } else { // Normal Question.
+                        Templates.render(templateQuestions, nextQuestion).then(function(html, js) {
+                            identifier.html(html);
+                            Templates.runTemplateJS(js);
+                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.SESSIONCONTENT));
+                            jQuery(REGION.LOADING).remove();
+                        }).fail(Notification.exception);
+                    }
+                }).fail(Notification.exception);
+            }
         }).fail(Notification.exception);
     });
 };

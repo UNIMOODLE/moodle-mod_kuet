@@ -33,6 +33,7 @@ use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
@@ -331,10 +332,12 @@ class questions {
                 if ((int)$session->get('showfinalgrade') === 0) {
                     $data = self::get_normal_endsession($data);
                 } else {
+                    $data = (object)getfinalranking_external::getfinalranking($sessionid, $cmid);
                     $data = self::get_normal_endsession($data);
                     $data->endsession = true;
                     $data->ranking = true;
                     $data->isteacher = has_capability('mod/jqshow:startsession', $contextmodule);
+                    // TODO export ranking.
                 }
                 break;
             case sessions::RACE_PROGRAMMED:
