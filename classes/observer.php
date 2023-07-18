@@ -65,9 +65,6 @@ class observer {
             }
             // Get session grade.
             $sessiongrade = grade::get_session_grade($participant->{'id'}, $data['objectid'], $jqshow->get('id'));
-            if (is_null($sessiongrade)) {
-                continue;
-            }
             $params = [
                 'jqshow' => $jqshow->get('id'),
                 'session' => $data['objectid'],

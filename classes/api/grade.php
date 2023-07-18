@@ -49,7 +49,7 @@ class grade {
      */
     public static function get_simple_mark(jqshow_questions_responses $response) {
         global $DB;
-        $mark = null;
+        $mark = 0;
 
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
@@ -96,7 +96,7 @@ class grade {
         // Get answer mark without considering session mode.
         $simplemark = self::get_simple_mark($response);
         // Ignore grading mark setting.
-        if (is_null($simplemark)) {
+        if ($simplemark === 0) {
             return $simplemark;
         }
 
@@ -137,7 +137,7 @@ class grade {
         $maxmark = 0;
         foreach ($students as $student) {
             $mark = self::get_simple_mark($response);
-            if (is_null($mark)) {
+            if ($mark === 0) {
                 continue;
             }
             $maxmark = $mark > $maxmark ? $mark : $maxmark;
@@ -201,15 +201,14 @@ class grade {
      */
     public static function get_session_grade(int $userid, int $sessionid, int $jqshowid) {
         $responses = jqshow_questions_responses::get_session_responses_for_user($userid, $sessionid, $jqshowid);
-        // TODO: Duda! si no hay respuestas guardadas ... ¿que se hace? es error?
-        if (count($responses) == 0) {
-            return null;
+        if (count($responses) === 0) {
+            return 0;
         }
 
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_response_mark($userid, $sessionid, $jqshowid, $response);
-            if (is_null($usermark)) {
+            if ($usermark === 0) {
                 continue;
             }
             $mark += $usermark;
