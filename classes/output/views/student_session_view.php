@@ -32,6 +32,7 @@ use JsonException;
 use mod_jqshow\helpers\progress;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -62,7 +63,7 @@ class student_session_view implements renderable, templatable {
         $sid = required_param('sid', PARAM_INT);
         $session = new jqshow_sessions($sid);
         $PAGE->set_title(get_string('session', 'jqshow') . ' ' . $session->get('name'));
-        if ($session->get('status') !== 2) {
+        if ($session->get('status') !== sessionsmodel::SESSION_STARTED) {
             // TODO session layaout not active or redirect to cmid view.
             throw new moodle_exception('notactivesession', 'mod_jqshow', '',
                 [], get_string('notactivesession', 'mod_jqshow'));

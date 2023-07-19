@@ -79,13 +79,14 @@ class sessions {
         $ds->editsessionurl =
             (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->status = $session->get('status');
-        $ds->issessionstarted = $ds->status === 2;
+        $ds->issessionstarted = $ds->status === sessionsmodel::SESSION_STARTED;
         if ($ds->issessionstarted) {
             $ds->startedssionurl =
                 (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         }
         $ds->stringsession =
-            $ds->status === 2 ? get_string('sessionstarted', 'mod_jqshow') : get_string('init_session', 'mod_jqshow');
+            $ds->status === sessionsmodel::SESSION_STARTED ?
+                get_string('sessionstarted', 'mod_jqshow') : get_string('init_session', 'mod_jqshow');
         $ds->date = '';
         if ($session->get('automaticstart') === 1) {
             $ds->automaticstart = true;
@@ -108,7 +109,7 @@ class sessions {
         if ($ds->date !== '' || $ds->issessionstarted === true || $questions->get_num_questions() === 0) {
             $ds->initsession = false;
         }
-        if ($ds->status === 0) {
+        if ($ds->status === sessionsmodel::SESSION_FINISHED) {
             $ds->finishingdate = userdate($session->get('enddate'), get_string('strftimedatetimeshort', 'core_langconfig'));
             if ($session->get('automaticstart') !== 1) {
                 $ds->date = userdate($session->get('startdate'), get_string('strftimedatetimeshort', 'core_langconfig'));

@@ -32,6 +32,7 @@ use core_availability\info_module;
 use core_php_time_limit;
 use dml_exception;
 use Exception;
+use mod_jqshow\api\grade;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\forms\sessionform;
 use mod_jqshow\persistents\jqshow_questions;
@@ -75,6 +76,17 @@ class sessions {
     public const NO_TIME = 0;
     public const SESSION_TIME = 1;
     public const QUESTION_TIME = 2;
+
+    // Grade methods.
+    public const GM_DISABLED = 0;
+    public const GM_R_POSITION = 1;
+    public const GM_R_POINTS = 2;
+    public const GM_R_COMBINED = 3;
+
+    // Status.
+    public const SESSION_FINISHED = 0;
+    public const SESSION_ACTIVE = 1;
+    public const SESSION_STARTED = 2;
 
     /**
      * sessions constructor.
@@ -142,6 +154,12 @@ class sessions {
                 }
             }
         }
+        $sessiongrademethods = [
+            self::GM_DISABLED => get_string('session_gm_disabled', 'mod_jqshow'),
+            self::GM_R_POSITION => get_string('session_gm_position', 'mod_jqshow'),
+            self::GM_R_POINTS => get_string('session_gm_points', 'mod_jqshow'),
+            self::GM_R_COMBINED => get_string('session_gm_combined', 'mod_jqshow'),
+        ];
         $customdata = [
             'course' => $course,
             'cm' => $cm,
@@ -151,6 +169,7 @@ class sessions {
             'timemode' => $timemode,
             'anonymousanswerchoices' => $anonymousanswerchoices,
             'groupingsselect' => $groupingsselect,
+            'sessiongrademethods' => $sessiongrademethods,
         ];
 
         $action = new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $this->cmid, 'sid' => $sid, 'page' => 1]);
@@ -187,6 +206,7 @@ class sessions {
             'name' => $session->get('name'),
             'anonymousanswer' => $session->get('anonymousanswer'),
             'sessionmode' => $session->get('sessionmode'),
+            'sgrademethod' => $session->get('sgrademethod'),
             'countdown' => $session->get('countdown'),
             'showgraderanking' => $session->get('showgraderanking'),
             'randomquestions' => $session->get('randomquestions'),
@@ -513,46 +533,13 @@ class sessions {
         foreach ($users as $user) {
             if (!has_capability('mod/jqshow:startsession', $context, $user) &&
                 info_module::is_user_visible($cm, $user->id, false)) {
-                $answers = jqshow_questions_responses::get_session_responses_for_user(
-                    $user->id, $session->get('id'), $session->get('jqshowid')
-                );
-                $correctanswers = 0;
-                $incorrectanswers = 0;
-                $partially = 0;
-                $userpoints = 0;
-                foreach ($answers as $answer) {
-                    switch ($answer->get('result')) {
-                        case questions::SUCCESS:
-                            $correctanswers++;
-                            ++$userpoints;
-                            break;
-                        case questions::FAILURE:
-                            $incorrectanswers++;
-                            break;
-                        case questions::PARTIALLY:
-                            $partially++;
-                            $response = json_decode($answer->get('response'), false, 512, JSON_THROW_ON_ERROR);
-                            switch ($response->type) {
-                                case 'multichoice':
-                                    $answerids = explode(',', $response->answerids);
-                                    if (count($answerids) > 0) {
-                                        foreach ($answerids as $answerid) {
-                                            $answervalue = $DB->get_record(
-                                                'question_answers', ['id' => (int)$answerid], 'fraction', MUST_EXIST
-                                            );
-                                            $userpoints += $answervalue->fraction;
-                                        }
-                                    }
-                                    break;
-                                default:
-                                    throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                                        [], get_string('question_nosuitable', 'mod_jqshow'));
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                $correctanswers = jqshow_questions_responses::count_records(['jqshow' => $session->get('jqshowid'),
+                    'session' => $sid, 'userid' => $user->id, 'result' => questions::SUCCESS]);
+                $incorrectanswers = jqshow_questions_responses::count_records(['jqshow' => $session->get('jqshowid'),
+                    'session' => $sid, 'userid' => $user->id, 'result' => questions::FAILURE]);
+                $partially = jqshow_questions_responses::count_records(['jqshow' => $session->get('jqshowid'),
+                    'session' => $sid, 'userid' => $user->id, 'result' => questions::PARTIALLY]);
+                $userpoints = grade::get_session_grade($user->id, $session->get('id'), $session->get('jqshowid'));
                 $student = new stdClass();
                 $student->id = $user->id;
                 $student->userid = $user->id;
@@ -561,8 +548,7 @@ class sessions {
                 $student->incorrectanswers = $incorrectanswers;
                 $student->partially = $partially;
                 $student->notanswers = count($questions) - ($correctanswers + $incorrectanswers + $partially);
-                // TODO develop the entire scoring system for different modes.
-                $student->userpoints = round($userpoints * (1000 / count($questions)), 2);
+                $student->userpoints = grade::get_rounded_mark($userpoints);
                 $students[] = $student;
             }
         }
@@ -669,33 +655,12 @@ class sessions {
                 $student = new stdClass();
                 $student->userimageurl = $userpicture->get_url($PAGE)->out(false);
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
-                $answers = jqshow_questions_responses::get_session_responses_for_user(
-                    $user->id, $session->get('id'), $session->get('jqshowid')
-                );
-                $student->questionscore = 0;
-                $student->userpoints = 0;
-                foreach ($answers as $answer) {
-                    switch ($answer->get('result')) {
-                        case questions::SUCCESS:
-                            ++$student->userpoints;
-                            if ($answer->get('jqid') === $jqid) {
-                                $student->questionscore++; // TODO get points of answer.
-                            }
-                            break;
-                        case questions::FAILURE:
-                            // TODO rest points of answer.
-                            break;
-                        case questions::PARTIALLY:
-                            // TODO rest points of answer.
-                            $student->userpoints += 0.5;
-                            if ($answer->get('jqid') === $jqid) {
-                                $student->questionscore += 0.5; // TODO get points of answer.
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                $userpoints = grade::get_session_grade($user->id, $sid, $session->get('jqshowid'));
+                $jqresponse = jqshow_questions_responses::get_record(['jqid' => $jqid,
+                    'jqshow' => $session->get('jqshowid'), 'session' => $sid, 'userid' => (int) $user->id]);
+                $qpoints = (!$jqresponse) ? 0 : grade::get_response_mark($user->id, $sid, $jqresponse);
+                $student->userpoints = grade::get_rounded_mark($userpoints);
+                $student->questionscore = grade::get_rounded_mark($qpoints);
                 $students[] = $student;
             }
         }
@@ -715,7 +680,6 @@ class sessions {
      * @throws moodle_exception
      */
     public static function get_final_ranking(int $sid, int $cmid): array {
-        // TODO with jqshow_api grades.
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $users = enrol_get_course_users($course->id, true);
@@ -731,26 +695,8 @@ class sessions {
                 $student = new stdClass();
                 $student->userimageurl = $userpicture->get_url($PAGE)->out(false);
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
-                $answers = jqshow_questions_responses::get_session_responses_for_user(
-                    $user->id, $session->get('id'), $session->get('jqshowid')
-                );
-                $student->userpoints = 0;
-                foreach ($answers as $answer) {
-                    switch ($answer->get('result')) {
-                        case questions::SUCCESS:
-                            ++$student->userpoints;
-                            break;
-                        case questions::FAILURE:
-                            // TODO rest points of answer.
-                            break;
-                        case questions::PARTIALLY:
-                            // TODO rest points of answer.
-                            $student->userpoints += 0.5;
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                $userpoints = grade::get_session_grade($user->id, $session->get('id'), $session->get('jqshowid'));
+                $student->userpoints = grade::get_rounded_mark($userpoints);
                 $students[] = $student;
             }
         }

@@ -29,6 +29,7 @@ use coding_exception;
 use DateTime;
 use dml_exception;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodleform;
 
@@ -71,6 +72,12 @@ class sessionform extends moodleform {
             get_string('sessionmode', 'mod_jqshow'), $customdata['sessionmodechoices']);
         $mform->setType('sessionmode', PARAM_RAW);
         $mform->addHelpButton('sessionmode', 'sessionmode', 'jqshow');
+
+        // Grade method.
+        $mform->addElement('select', 'sgrademethod',
+            get_string('sessiongrademethod', 'mod_jqshow'), $customdata['sessiongrademethods']);
+        $mform->setType('sgrademethod', PARAM_RAW);
+        $mform->addHelpButton('sgrademethod', 'sessiongrademethod', 'jqshow');
 
         // Countdown.
         $mform->addElement('checkbox', 'countdown', get_string('countdown', 'mod_jqshow'));
@@ -178,7 +185,7 @@ class sessionform extends moodleform {
         $mform->addElement('duration', 'questiontime', get_string('question_time', 'mod_jqshow'),
             ['units' => [MINSECS, 1], 'defaultunit' => 1, 'optional' => false]);
         $mform->setType('questiontime', PARAM_INT);
-        $mform->addHelpButton('question_time_help', 'questiontime', 'mod_jqshow');
+        $mform->addHelpButton('questiontime', 'questiontime', 'mod_jqshow');
         $mform->hideIf('questiontime', 'timemode', 'eq', sessions::NO_TIME);
         $mform->hideIf('questiontime', 'timemode', 'eq', sessions::SESSION_TIME);
 
@@ -208,7 +215,7 @@ class sessionform extends moodleform {
         $mform->setType('jqshowid', PARAM_INT);
         $mform->addElement('hidden', 'groupmode', 0);
         $mform->setType('groupmode', PARAM_INT);
-        $mform->addElement('hidden', 'status', 1);
+        $mform->addElement('hidden', 'status', sessionsmodel::SESSION_ACTIVE);
         $mform->setType('status', PARAM_INT);
         $mform->addElement('hidden', 'sessionid', 0);
         $mform->setType('sessionid', PARAM_INT);
@@ -239,7 +246,7 @@ class sessionform extends moodleform {
         if ($haserrorname) {
             $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
         }
-        if ((int)$data['automaticstart'] === 1) {
+        if (array_key_exists('automaticstart', $data) && (int)$data['automaticstart'] === 1) {
             if ((int)$data['startdate'] <= time()) {
                 $errors['startdate'] = get_string('previousstarterror', 'mod_jqshow');
             }

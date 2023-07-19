@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Add event handlers for the jqshow
  *
  * @package     mod_jqshow
  * @author      3&Punt <tresipunt.com>
@@ -25,7 +26,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023071800;
-$plugin->requires = 2022112801; // Moodle 4.1.1
-$plugin->component = 'mod_jqshow';
-$plugin->cron = 0;
+$observers = array(
+
+    array(
+        'eventname' => '\mod_jqshow\event\session_ended',
+        'callback' => '\mod_jqshow\observer::session_ended',
+    ),
+);

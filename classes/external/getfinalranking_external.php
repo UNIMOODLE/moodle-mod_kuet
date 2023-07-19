@@ -117,8 +117,8 @@ class getfinalranking_external extends external_api {
                     [
                         'userimageurl' => new external_value(PARAM_URL, 'Url for user image'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
-                        'userfullname'   => new external_value(PARAM_RAW, 'Name of user'),
-                        'userpoints' => new external_value(PARAM_INT, 'Total points of user')
+                        'userfullname' => new external_value(PARAM_RAW, 'Name of user'),
+                        'userpoints' => new external_value(PARAM_FLOAT, 'Total points of user')
                     ], ''
                 ), ''
             ),
@@ -131,13 +131,13 @@ class getfinalranking_external extends external_api {
             'reporturl' => new external_value(PARAM_URL, 'Url for session report'),
             'firstuserimageurl' => new external_value(PARAM_URL, ''),
             'firstuserfullname' => new external_value(PARAM_RAW, ''),
-            'firstuserpoints' => new external_value(PARAM_INT, ''),
+            'firstuserpoints' => new external_value(PARAM_FLOAT, ''),
             'seconduserimageurl' => new external_value(PARAM_URL, ''),
             'seconduserfullname' => new external_value(PARAM_RAW, ''),
-            'seconduserpoints' => new external_value(PARAM_INT, ''),
+            'seconduserpoints' => new external_value(PARAM_FLOAT, ''),
             'thirduserimageurl' => new external_value(PARAM_URL, ''),
             'thirduserfullname' => new external_value(PARAM_RAW, ''),
-            'thirduserpoints' => new external_value(PARAM_INT, ''),
+            'thirduserpoints' => new external_value(PARAM_FLOAT, ''),
         ]);
     }
 }
