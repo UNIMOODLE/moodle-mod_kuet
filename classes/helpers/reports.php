@@ -28,6 +28,7 @@ namespace mod_jqshow\helpers;
 use coding_exception;
 use context_module;
 use dml_exception;
+use enrol_self\self_test;
 use JsonException;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
@@ -255,6 +256,42 @@ class reports {
     }
 
     /**
+     * @param int $jqshowid
+     * @param int $cmid
+     * @param int $sid
+     * @param context_module $cmcontext
+     * @return stdClass
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_session_report(int $jqshowid, int $cmid, int $sid, context_module $cmcontext): stdClass {
+        global $USER;
+        $data = new stdClass();
+        $data->jqshowid = $jqshowid;
+        $data->cmid = $cmid;
+        $data->sessionreport = true;
+        $session = new jqshow_sessions($sid);
+        $mode = $session->get('sessionmode');
+        if ($mode !== sessions::INACTIVE_PROGRAMMED || $mode !== sessions::INACTIVE_MANUAL) { // TODO adjust to all modes.
+            $data->showfinalranking = true;
+        }
+        $data->sessionname = $session->get('name');
+        $data->config = sessions::get_session_config($sid, $cmid);
+        $data->sessionquestions = self::get_questions_data_for_teacher_report($jqshowid, $cmid, $sid);
+        if ($session->get('anonymousanswer') === 1) {
+            if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                $data->hasranking = true;
+                $data->rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
+            }
+        } else {
+            $data->hasranking = true;
+            $data->rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
+        }
+        return $data;
+    }
+
+    /**
      * @param int $cmid
      * @param int $sid
      * @param int $jqid
@@ -386,6 +423,70 @@ class reports {
             $data->hasranking = true;
             $data->questionranking =
                 self::get_ranking_for_question($users, $data->answers, $session, $question, $cmid, $sid, $jqid);
+        }
+        return $data;
+    }
+
+    /**
+     * @param int $cmid
+     * @param int $sid
+     * @param int $jqid
+     * @param int $userid
+     * @param context_module $cmcontext
+     * @return stdClass
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_user_report(int $cmid, int $sid, int $userid, context_module $cmcontext): stdClass {
+        global $USER, $DB, $PAGE;
+        $data = new stdClass();
+        $data->cmid = $cmid;
+        $session = new jqshow_sessions($sid);
+        $data->jqshowid = $session->get('jqshowid');
+        if ($session->get('anonymousanswer') === 1 && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+            throw new moodle_exception('anonymousanswers', 'mod_jqshow', '',
+                [], get_string('anonymousanswers', 'mod_jqshow'));
+        }
+        $data->userreport = true;
+        $data->sessionname = $session->get('name');
+        $userdata = $DB->get_record('user', ['id' => $userid]);
+        $userpicture = new user_picture($userdata);
+        $userpicture->size = 1;
+        $data->userimage = $userpicture->get_url($PAGE)->out(false);
+        $data->userfullname = $userdata->firstname . ' ' . $userdata->lastname;
+        $data->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $userid]))->out(false);
+        $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
+        $data->config = sessions::get_session_config($sid, $cmid);
+        $data->sessionquestions =
+            self::get_questions_data_for_user_report($data->jqshowid, $cmid, $sid, $userid);
+        $data->numquestions = count($data->sessionquestions);
+        $data->noresponse = 0;
+        $data->success = 0;
+        $data->partially = 0;
+        $data->failures = 0;
+        $data->noevaluable = 0;
+        foreach ($data->sessionquestions as $question) {
+            switch ($question->response) {
+                case 'failure':
+                    $data->failures++;
+                    break;
+                case 'partially':
+                    $data->partially++;
+                    break;
+                case 'success':
+                    $data->success++;
+                    break;
+                case 'noresponse':
+                    $data->noresponse++;
+                    break;
+                case 'noevaluable':
+                    $data->noevaluable++;
+                    break;
+                default:
+                    break;
+            }
         }
         return $data;
     }
