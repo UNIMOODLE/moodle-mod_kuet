@@ -330,3 +330,10 @@ $string['session_gm_position'] = 'Calificación relativa a la situación en el r
 $string['session_gm_points'] = 'Calificación relativa a los puntos obtenidos: [puntuación]/[máximapuntuación] * 100%';
 $string['session_gm_combined'] = 'Calificacion media entre la calificación relativa a la situacion en el ranking y calificación la relativa a los puntos obtenidos.';
 $string['cachedef_grades'] = 'This is the description of the jqshow cache grades';
+$string['qstatus_0'] = 'Incorrect';
+$string['qstatus_1'] = 'Success';
+$string['qstatus_2'] = 'Partially';
+$string['qstatus_3'] = 'No response';
+$string['qstatus_4'] = 'Not evaluable';
+$string['qstatus_5'] = 'Invalie';
+

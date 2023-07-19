@@ -93,8 +93,8 @@ class getprovisionalranking_external extends external_api {
                         'userimageurl' => new external_value(PARAM_URL, 'Url for user image'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
                         'userfullname'   => new external_value(PARAM_RAW, 'Name of user'),
-                        'questionscore' => new external_value(PARAM_INT, 'Num of partially correct answers'),
-                        'userpoints' => new external_value(PARAM_INT, 'Total points of user')
+                        'questionscore' => new external_value(PARAM_FLOAT, 'Num of partially correct answers'),
+                        'userpoints' => new external_value(PARAM_FLOAT, 'Total points of user')
                     ], ''
                 ), ''
             ),

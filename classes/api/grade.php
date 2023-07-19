@@ -17,6 +17,8 @@
 namespace mod_jqshow\api;
 use coding_exception;
 use core_reportbuilder\local\aggregation\count;
+use dml_exception;
+use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_grades;
@@ -41,15 +43,60 @@ class grade {
     public const MOD_OPTION_GRADE_LAST_SESSION = 4;
 
     /**
+     * @param $mark
+     * @return float
+     * @throws dml_exception
+     */
+    public static function get_rounded_mark($mark) {
+        $num = get_config('core', 'grade_export_decimalpoints');
+        return round($mark, $num);
+    }
+
+    /**
+     * @param int $questionid
+     * @param string $answerids
+     * @return int
+     * @throws dml_exception
+     */
+    public static function get_status_response_for_multiple_answers(int $questionid, string $answerids) {
+        global $DB;
+
+        if (empty($answerids)) {
+            return questions::NORESPONSE;
+        }
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $questionid]);
+        $arrayanswerids = explode(',', $answerids);
+        $mark = 0;
+        foreach ($arrayanswerids as $arrayanswerid) {
+            $fraction = $DB->get_field('question_answers', 'fraction', ['id' => $arrayanswerid]);
+            $mark += $fraction * $defaultmark;
+        }
+        $defaultmarkrounded = round($defaultmark, 2);
+        $markrounded = round($mark, 2);
+        if ($mark == 0) {
+            $status = questions::FAILURE;
+        } else if ($markrounded === $defaultmarkrounded) {
+            $status = questions::SUCCESS;
+        } else {
+            $status = questions::PARTIALLY;
+        }
+
+        return $status;
+    }
+    /**
      * Get the answer mark without considering session mode.
      * @param jqshow_questions_responses $response
      * @return float|int|null
-     * @throws \dml_exception
+     * @throws dml_exception
      * @throws coding_exception
      */
     public static function get_simple_mark(jqshow_questions_responses $response) {
         global $DB;
         $mark = 0;
+
+        if (!$response) {
+            return $mark;
+        }
 
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
@@ -88,10 +135,10 @@ class grade {
      * @param int $jqshowid
      * @param jqshow_questions_responses $response
      * @return float|int|null
-     * @throws \dml_exception
+     * @throws dml_exception
      * @throws coding_exception
      */
-    public static function get_response_mark(int $userid, int $sessionid, int $jqshowid, jqshow_questions_responses $response) {
+    public static function get_response_mark(int $userid, int $sessionid, jqshow_questions_responses $response) {
 
         // Get answer mark without considering session mode.
         $simplemark = self::get_simple_mark($response);
@@ -101,7 +148,7 @@ class grade {
         }
 
         $mark = $simplemark;
-        $session = jqshow_sessions::get_record(['id' => $sessionid, 'jqshowid' => $jqshowid]);
+        $session = jqshow_sessions::get_record(['id' => $sessionid]);
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_MANUAL:
             case sessions::INACTIVE_PROGRAMMED:
@@ -207,7 +254,7 @@ class grade {
 
         $mark = 0;
         foreach ($responses as $response) {
-            $usermark = self::get_response_mark($userid, $sessionid, $jqshowid, $response);
+            $usermark = self::get_response_mark($userid, $sessionid, $response);
             if ($usermark === 0) {
                 continue;
             }
@@ -219,7 +266,7 @@ class grade {
      * @param $userid
      * @param $jqshowid
      * @return int
-     * @throws coding_exception|\dml_exception
+     * @throws coding_exception|dml_exception
      */
     public static function recalculate_mod_mark_by_userid($userid, $jqshowid) {
         $params = ['userid' => $userid, 'jqshow' => $jqshowid];
@@ -253,7 +300,7 @@ class grade {
     /**
      * For all the course students.
      * @param $jqshowid
-     * @throws \dml_exception
+     * @throws dml_exception
      * @throws coding_exception
      */
     public static function recalculate_mod_mark($cmid, $jqshowid) {

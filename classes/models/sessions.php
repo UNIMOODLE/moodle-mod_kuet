@@ -533,30 +533,13 @@ class sessions {
         foreach ($users as $user) {
             if (!has_capability('mod/jqshow:startsession', $context, $user) &&
                 info_module::is_user_visible($cm, $user->id, false)) {
-                $answers = jqshow_questions_responses::get_session_responses_for_user(
-                    $user->id, $session->get('id'), $session->get('jqshowid')
-                );
-                $correctanswers = 0;
-                $incorrectanswers = 0;
-                $partially = 0;
-                $userpoints = 0;
-                foreach ($answers as $answer) {
-                    $userpoints += grade::get_response_mark($user->id, $session->get('id'),
-                        $session->get('jqshowid'), $answer);
-                    switch ($answer->get('result')) {
-                        case questions::SUCCESS:
-                            $correctanswers++;
-                            break;
-                        case questions::FAILURE:
-                            $incorrectanswers++;
-                            break;
-                        case questions::PARTIALLY:
-                            $partially++;
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                $correctanswers = jqshow_questions_responses::count_records(['jqshow' => $session->get('jqshowid'),
+                    'session' => $sid, 'userid' => $user->id, 'result' => questions::SUCCESS]);
+                $incorrectanswers = jqshow_questions_responses::count_records(['jqshow' => $session->get('jqshowid'),
+                    'session' => $sid, 'userid' => $user->id, 'result' => questions::FAILURE]);
+                $partially = jqshow_questions_responses::count_records(['jqshow' => $session->get('jqshowid'),
+                    'session' => $sid, 'userid' => $user->id, 'result' => questions::PARTIALLY]);
+                $userpoints = grade::get_session_grade($user->id, $session->get('id'), $session->get('jqshowid'));
                 $student = new stdClass();
                 $student->id = $user->id;
                 $student->userid = $user->id;
@@ -565,7 +548,7 @@ class sessions {
                 $student->incorrectanswers = $incorrectanswers;
                 $student->partially = $partially;
                 $student->notanswers = count($questions) - ($correctanswers + $incorrectanswers + $partially);
-                $student->userpoints = $userpoints;
+                $student->userpoints = grade::get_rounded_mark($userpoints);
                 $students[] = $student;
             }
         }
@@ -672,33 +655,12 @@ class sessions {
                 $student = new stdClass();
                 $student->userimageurl = $userpicture->get_url($PAGE)->out(false);
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
-                $answers = jqshow_questions_responses::get_session_responses_for_user(
-                    $user->id, $session->get('id'), $session->get('jqshowid')
-                );
-                $student->questionscore = 0;
-                $student->userpoints = 0;
-                foreach ($answers as $answer) {
-                    switch ($answer->get('result')) {
-                        case questions::SUCCESS:
-                            ++$student->userpoints;
-                            if ($answer->get('jqid') === $jqid) {
-                                $student->questionscore++; // TODO get points of answer.
-                            }
-                            break;
-                        case questions::FAILURE:
-                            // TODO rest points of answer.
-                            break;
-                        case questions::PARTIALLY:
-                            // TODO rest points of answer.
-                            $student->userpoints += 0.5;
-                            if ($answer->get('jqid') === $jqid) {
-                                $student->questionscore += 0.5; // TODO get points of answer.
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                $userpoints = grade::get_session_grade($user->id, $sid, $session->get('jqshowid'));
+                $jqresponse = jqshow_questions_responses::get_record(['jqid' => $jqid,
+                    'jqshow' => $session->get('jqshowid'), 'session' => $sid, 'userid' => (int) $user->id]);
+                $qpoints = (!$jqresponse) ? 0 : grade::get_response_mark($user->id, $sid, $jqresponse);
+                $student->userpoints = grade::get_rounded_mark($userpoints);
+                $student->questionscore = grade::get_rounded_mark($qpoints);
                 $students[] = $student;
             }
         }
@@ -718,7 +680,6 @@ class sessions {
      * @throws moodle_exception
      */
     public static function get_final_ranking(int $sid, int $cmid): array {
-        // TODO with jqshow_api grades.
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $users = enrol_get_course_users($course->id, true);
@@ -734,26 +695,8 @@ class sessions {
                 $student = new stdClass();
                 $student->userimageurl = $userpicture->get_url($PAGE)->out(false);
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
-                $answers = jqshow_questions_responses::get_session_responses_for_user(
-                    $user->id, $session->get('id'), $session->get('jqshowid')
-                );
-                $student->userpoints = 0;
-                foreach ($answers as $answer) {
-                    switch ($answer->get('result')) {
-                        case questions::SUCCESS:
-                            ++$student->userpoints;
-                            break;
-                        case questions::FAILURE:
-                            // TODO rest points of answer.
-                            break;
-                        case questions::PARTIALLY:
-                            // TODO rest points of answer.
-                            $student->userpoints += 0.5;
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                $userpoints = grade::get_session_grade($user->id, $session->get('id'), $session->get('jqshowid'));
+                $student->userpoints = grade::get_rounded_mark($userpoints);
                 $students[] = $student;
             }
         }

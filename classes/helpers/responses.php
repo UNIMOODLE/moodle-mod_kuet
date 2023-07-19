@@ -29,6 +29,7 @@ use coding_exception;
 use context_course;
 use core\invalid_persistent_exception;
 use JsonException;
+use mod_jqshow\api\grade;
 use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
@@ -70,38 +71,7 @@ class responses {
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
-            if ($answerids === '0') {
-                $result = questions::NORESPONSE; // No response.
-            } else if ($correctanswers !== '') {
-                $correctids = explode(',', $correctanswers);
-                if (count($correctids) > 1) { // Multianswers.
-                    $arrayanswerids = explode(',', $answerids);
-                    $corrects = 0;
-                    foreach ($arrayanswerids as $arrayanswerid) {
-                        if (in_array($arrayanswerid, $correctids, false)) {
-                            $corrects++;
-                        }
-                    }
-                    if ($corrects === 0) {
-                        $result = questions::FAILURE;
-                    }
-                    if ($corrects > 0 && $corrects < count($arrayanswerids)) {
-                        $result = questions::PARTIALLY;
-                    }
-                    if ($corrects === count($arrayanswerids)) {
-                        $result = questions::SUCCESS;
-                    }
-                    if (!isset($result)) {
-                        $result = questions::NOTEVALUABLE;
-                    }
-                } else if (in_array($answerids, $correctids, false)) {
-                    $result = questions::SUCCESS; // Correct.
-                } else {
-                    $result = questions::FAILURE; // Incorrect.
-                }
-            } else {
-                $result = questions::INVALID; // Invalid response.
-            }
+            $result = self::get_status_response($answerids, $correctanswers, $questionid);
             $response = new stdClass(); // For snapshot.
             $response->questionid = $questionid;
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
@@ -113,5 +83,28 @@ class responses {
                 $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
+    }
+
+    /**
+     * @param string $answerids
+     * @param string $correctanswers
+     * @param int $questionid
+     * @return string
+     */
+    private static function get_status_response(string $answerids, string $correctanswers, int $questionid) : string {
+        $result = questions::INVALID; // Invalid response.
+        if ($answerids === '0') {
+            $result = questions::NORESPONSE; // No response.
+        } else if ($correctanswers !== '') {
+            $correctids = explode(',', $correctanswers);
+            if (count($correctids) > 1) { // Multianswers.
+                $result = grade::get_status_response_for_multiple_answers($questionid, $answerids);
+            } else if (in_array($answerids, $correctids, false)) {
+                $result = questions::SUCCESS; // Correct.
+            } else {
+                $result = questions::FAILURE; // Incorrect.
+            }
+        }
+        return $result;
     }
 }
