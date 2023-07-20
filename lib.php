@@ -25,6 +25,8 @@
 use core_calendar\action_factory;
 use core_calendar\local\event\value_objects\action;
 use core_completion\api;
+use mod_jqshow\api\grade;
+
 require_once($CFG->dirroot . '/lib/gradelib.php');
 
 /**
@@ -80,10 +82,12 @@ function jqshow_add_instance(stdClass $data): int {
     mod_jqshow_grade_item_update($data, null);
     return $record->id;
 }
+
 /**
  *
  * @param stdClass $data An object from the form in mod.html
  * @return boolean Success/Fail
+ * @throws coding_exception
  * @throws dml_exception
  */
 function jqshow_update_instance(stdClass $data): bool {
@@ -96,10 +100,14 @@ function jqshow_update_instance(stdClass $data): bool {
     $oldjqshow->name = $data->name;
     $oldjqshow->teamgrade = isset($data->teamgrade) ? $data->teamgrade : null;
     $oldjqshow->grademethod = $data->grademethod;
-    $oldjqshow->completionanswerall = $data->completionanswerall;
+    if (!isset($data->completionanswerall) || $data->completionanswerall === null) {
+        $oldjqshow->completionanswerall = 0;
+    } else {
+        $oldjqshow->completionanswerall = $data->completionanswerall;
+    }
     $DB->update_record('jqshow', $oldjqshow);
 
-    \mod_jqshow\api\grade::recalculate_mod_mark($data->{'update'}, $data->instance);
+    grade::recalculate_mod_mark($data->{'update'}, $data->instance);
     mod_jqshow_grade_item_update($data, null);
     return true;
 }
