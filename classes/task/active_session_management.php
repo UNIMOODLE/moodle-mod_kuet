@@ -30,6 +30,7 @@ use core\invalid_persistent_exception;
 use core\task\scheduled_task;
 use lang_string;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
 use stdClass;
@@ -56,7 +57,8 @@ class active_session_management extends scheduled_task {
         $a = new stdClass();
         foreach ($jqshows as $jqshow) {
             $sessions = jqshow_sessions::get_records(['jqshowid' => $jqshow->get('id')], 'startdate');
-            $activesession = jqshow_sessions::get_record(['jqshowid' => $jqshow->get('id'), 'status' => 2]);
+            $activesession = jqshow_sessions::get_record(['jqshowid' => $jqshow->get('id'),
+                'status' => sessionsmodel::SESSION_STARTED]);
             if ($activesession !== false) {
                 $activesessionmode = $activesession->get('sessionmode');
                 if ($activesessionmode === sessions::INACTIVE_MANUAL ||
@@ -71,13 +73,13 @@ class active_session_management extends scheduled_task {
             }
             $activated = false;
             foreach ($sessions as $session) {
-                if ($session->get('status') !== 0 && $session->get('automaticstart') !== 0) {
+                if ($session->get('status') !== sessionsmodel::SESSION_FINISHED && $session->get('automaticstart') !== 0) {
                     if ($activesession === false &&
                         $session->get('startdate') <= $date &&
                         $session->get('enddate') > $date &&
-                        $session->get('status') === 1) {
+                        $session->get('status') === sessionsmodel::SESSION_ACTIVE) {
                         // We start the session if it is in session.
-                        (new jqshow_sessions($session->get('id')))->set('status', 2)->update();
+                        (new jqshow_sessions($session->get('id')))->set('status', sessionsmodel::SESSION_STARTED)->update();
                         $activated = true;
                         $a->sessionid = $session->get('id');
                         $a->jqshowid = $session->get('jqshowid');
@@ -85,7 +87,7 @@ class active_session_management extends scheduled_task {
                     }
                     if ($session->get('enddate') <= $date) {
                         // We end the session if you have complied.
-                        (new jqshow_sessions($session->get('id')))->set('status', 0)->update();
+                        (new jqshow_sessions($session->get('id')))->set('status', sessionsmodel::SESSION_FINISHED)->update();
                         $a->sessionid = $session->get('id');
                         $a->jqshowid = $session->get('jqshowid');
                         mtrace(get_string('sessionfinished', 'mod_jqshow', $a));
@@ -96,11 +98,12 @@ class active_session_management extends scheduled_task {
                     break;
                 }
             }
-            $activesessions = jqshow_sessions::get_records(['jqshowid' => $jqshow->get('id'), 'status' => 2], 'timemodified');
+            $activesessions = jqshow_sessions::get_records(['jqshowid' => $jqshow->get('id'),
+                'status' => sessionsmodel::SESSION_STARTED], 'timemodified');
             if (count($activesessions) > 1) {
                 array_shift($activesessions);
                 foreach ($activesessions as $activesession) {
-                    (new jqshow_sessions($activesession->get('id')))->set('status', 0)->update();
+                    (new jqshow_sessions($activesession->get('id')))->set('status', sessionsmodel::SESSION_FINISHED)->update();
                     $a->sessionid = $activesession->get('id');
                     $a->jqshowid = $activesession->get('jqshowid');
                     mtrace(get_string('sessionfinishedformoreone', 'mod_jqshow', $a));

@@ -24,50 +24,29 @@
  */
 
 namespace mod_jqshow\persistents;
+
 use core\persistent;
+use dml_exception;
 
-class jqshow extends persistent {
-    public const TABLE = 'jqshow';
-
+class jqshow_grades extends persistent {
+    const TABLE = 'jqshow_grades';
     /**
-     * @return array[]
+     * Return the definition of the properties of this model.
+     *
+     * @return array
      */
     protected static function define_properties() {
         return [
-            'course' => [
+            'jqshow' => [
                 'type' => PARAM_INT,
             ],
-            'name' => [
-                'type' => PARAM_RAW,
-            ],
-            'intro' => [
-                'type' => PARAM_RAW,
-            ],
-            'introformat' => [
+            'userid' => [
                 'type' => PARAM_INT,
             ],
-            'teamgrade' => [
-                'type' => PARAM_RAW,
-            ],
-            'grademethod' => [
-                'type' => PARAM_INT,
-            ],
-            'completionanswerall' => [
-                'type' => PARAM_INT,
-            ],
-            'usermodified' => [
-                'type' => PARAM_INT,
+            'grade' => [
+                'type' => PARAM_FLOAT,
             ]
         ];
     }
 
-    /**
-     * Get persisten from course module id.
-     * @param int $cmid
-     * @return false|jqshow
-     */
-    public static function get_jqshow_from_cmid(int $cmid) {
-        list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'jqshow');
-        return self::get_record(['id' => (int) $cm->instance, 'course' => $course->id]);
-    }
 }

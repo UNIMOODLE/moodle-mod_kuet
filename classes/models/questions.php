@@ -61,12 +61,12 @@ class questions {
     public const MULTIPLE_CHOICE = 'multichoice';
     public const TYPES = [self::MULTIPLE_CHOICE];
 
-    public const FAILURE = 0;
-    public const SUCCESS = 1;
-    public const PARTIALLY = 2;
-    public const NORESPONSE = 3;
-    public const NOTEVALUABLE = 4;
-    public const INVALID = 5;
+    public const FAILURE = 0; // String: qstatus_0.
+    public const SUCCESS = 1; // String: qstatus_1.
+    public const PARTIALLY = 2; // String: qstatus_2.
+    public const NORESPONSE = 3; // String: qstatus_3.
+    public const NOTEVALUABLE = 4; // String: qstatus_4.
+    public const INVALID = 5; // String: qstatus_5.
 
     protected int $jqshowid;
     protected int $cmid;

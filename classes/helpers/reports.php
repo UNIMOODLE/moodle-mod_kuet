@@ -30,6 +30,7 @@ use context_module;
 use dml_exception;
 use enrol_self\self_test;
 use JsonException;
+use mod_jqshow\api\grade;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow;
@@ -370,7 +371,7 @@ class reports {
                     $answers[$key]['numticked'] = 0;
                     if ($answer->fraction !== '0.0000000') { // Answers with punctuation, even if negative.
                         $correctanswers[$key]['response'] = $answer->answer;
-                        $correctanswers[$key]['score'] = round($answer->fraction, 2);
+                        $correctanswers[$key]['score'] = grade::get_rounded_mark($questiondata->defaultmark * $answer->fraction);
                     }
                 }
                 $responses = jqshow_questions_responses::get_question_responses($sid, $data->jqshowid, $jqid);
@@ -533,33 +534,30 @@ class reports {
                                         $user->response = $answer['result'];
                                         $user->responsestr = get_string($answer['result'], 'mod_jqshow');
                                         $user->answertext = $answer['answertext'];
-                                        $user->userpoints = $answer['fraction'];
-                                        $user->score_moment = $answer['score_moment'] . '??';
+                                        $points = grade::get_response_mark($user->id, $sid, $response);
+                                        $spoints = grade::get_session_grade($user->id, $sid, $session->get('jqshowid'));
+                                        $user->userpoints = grade::get_rounded_mark($spoints);
+                                        $user->score_moment = grade::get_rounded_mark($points);
                                         $user->time = self::get_user_time_in_question($session, $question, $response);
                                     }
                                 }
                             } else {
                                 $answertext = '';
-                                $score = 0;
                                 foreach ($answers as $answer) {
                                     foreach ($arrayresponses as $responseid) {
                                         if ((int)$answer['answerid'] === (int)$responseid) {
                                             $answertext .= $answer['answertext'] . '<br>';
-                                            $score += $answer['fraction'];
                                         }
                                     }
                                 }
-                                if ((string)$score === '0') {
-                                    $user->response = 'incorrect';
-                                } else if ((string)$score === '1') {
-                                    $user->response = 'correct';
-                                } else {
-                                    $user->response = 'partially';
-                                }
+                                $status = grade::get_status_response_for_multiple_answers($other->questionid, $other->answerids);
+                                $user->response = get_string('qstatus_' . $status, 'mod_jqshow');
                                 $user->responsestr = get_string($user->response, 'mod_jqshow');
                                 $user->answertext = trim($answertext, '<br>');
-                                $user->userpoints = $score;
-                                $user->score_moment = $answer['score_moment'] . '??';
+                                $points = grade::get_response_mark($user->id, $sid, $response);
+                                $spoints = grade::get_session_grade($user->id, $sid, $session->get('jqshowid'));
+                                $user->userpoints = grade::get_rounded_mark($spoints);
+                                $user->score_moment = grade::get_rounded_mark($points);
                                 $user->time = self::get_user_time_in_question($session, $question, $response);
                             }
                             break;

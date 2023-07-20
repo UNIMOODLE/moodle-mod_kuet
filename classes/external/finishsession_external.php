@@ -33,6 +33,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
 
 defined('MOODLE_INTERNAL') || die();
@@ -67,7 +68,6 @@ class finishsession_external extends external_api {
         $cmcontext = context_module::instance($cmid);
         $finished = false;
         if ($cmcontext !== null && has_capability('mod/jqshow:managesessions', $cmcontext, $USER)) {
-            // TODO grade all users.
             jqshow_sessions::mark_session_finished($sessionid);
             $finished = true;
         }
