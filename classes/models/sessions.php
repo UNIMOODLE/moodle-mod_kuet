@@ -639,7 +639,6 @@ class sessions {
      * @throws moodle_exception
      */
     public static function get_provisional_ranking(int $sid, int $cmid, int $jqid): array {
-        // TODO with jqshow_api grades.
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $users = enrol_get_course_users($course->id, true);

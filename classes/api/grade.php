@@ -86,11 +86,11 @@ class grade {
     /**
      * Get the answer mark without considering session mode.
      * @param jqshow_questions_responses $response
-     * @return float|int|null
+     * @return float
      * @throws dml_exception
      * @throws coding_exception
      */
-    public static function get_simple_mark(jqshow_questions_responses $response) {
+    public static function get_simple_mark(jqshow_questions_responses $response, bool $saveoncache = false) {
         global $DB;
         $mark = 0;
 
@@ -124,7 +124,10 @@ class grade {
                 $mark += $defaultmark * $fraction;
             }
         }
-        $cache->set($cachekey, $mark);
+        if ($saveoncache) {
+            $cache->set($cachekey, $mark);
+        }
+
         return $mark;
     }
 
@@ -134,14 +137,14 @@ class grade {
      * @param int $sessionid
      * @param int $jqshowid
      * @param jqshow_questions_responses $response
-     * @return float|int|null
+     * @return float
      * @throws dml_exception
      * @throws coding_exception
      */
     public static function get_response_mark(int $userid, int $sessionid, jqshow_questions_responses $response) {
 
         // Get answer mark without considering session mode.
-        $simplemark = self::get_simple_mark($response);
+        $simplemark = self::get_simple_mark($response, true);
         // Ignore grading mark setting.
         if ($simplemark === 0) {
             return $simplemark;
@@ -169,13 +172,13 @@ class grade {
 
     /**
      * @param jqshow_sessions $session
-     * @param int $simplemark
+     * @param float $simplemark
      * @param jqshow_questions_responses $response
      * @param int $userid
-     * @return float|int
+     * @return float
      * @throws coding_exception
      */
-    private static function get_podium_mark(jqshow_sessions $session, int $simplemark,
+    private static function get_podium_mark(jqshow_sessions $session, float $simplemark,
                                             jqshow_questions_responses $response, int $userid) {
 
         $cm = get_coursemodule_from_instance('jqshow', $session->get('jqshowid'));
@@ -183,24 +186,27 @@ class grade {
         $studentmarks = [];
         $maxmark = 0;
         foreach ($students as $student) {
-            $mark = self::get_simple_mark($response);
-            if ($mark === 0) {
+            $studentanswer = jqshow_questions_responses::get_record(['jqid' => $response->get('jqid'),
+                'session' => $response->get('session'), 'jqshow' => $response->get('jqshow'), 'userid' => $student->{'id'}]);
+            if (!$studentanswer) {
                 continue;
             }
+            $mark = self::get_simple_mark($studentanswer);
             $maxmark = $mark > $maxmark ? $mark : $maxmark;
-            $studentmarks[$student->{'userid'}] = $mark;
+            $studentmarks[(int) $student->{'id'}] = $mark;
         }
+
         // Ordenar por puntos.
-        $studentmarks = arsort($studentmarks);
+        arsort($studentmarks);
         switch ($session->get('sgrademethod')) {
             case sessions::GM_R_POINTS:
-                $mark = self::get_user_mark_relative_to_points_on_ranking($simplemark, $mark);
+                $mark = self::get_user_mark_relative_to_points_on_ranking($simplemark, $maxmark);
                 break;
             case sessions::GM_R_POSITION:
                 $mark = self::get_user_mark_relative_to_position_on_ranking($studentmarks, $userid);
                 break;
             case sessions::GM_R_COMBINED;
-                $mark1 = self::get_user_mark_relative_to_points_on_ranking($simplemark, $mark);
+                $mark1 = self::get_user_mark_relative_to_points_on_ranking($simplemark, $maxmark);
                 $mark2 = self::get_user_mark_relative_to_position_on_ranking($studentmarks, $userid);
                 $mark = ($mark1 + $mark2) / 2;
                 break;
@@ -208,16 +214,17 @@ class grade {
                 $mark = $simplemark;
                 break;
         }
+
         return $mark;
     }
 
     /**
-     * @param int $simplemark
-     * @param int $maxmark
-     * @return float|int
+     * @param float $simplemark
+     * @param float $maxmark
+     * @return float
      */
-    private static function get_user_mark_relative_to_points_on_ranking(int $simplemark, int $maxmark) {
-        if ($maxmark == 0) {
+    private static function get_user_mark_relative_to_points_on_ranking(float $simplemark, float $maxmark) {
+        if ($maxmark === 0) {
             return 0;
         }
         return $simplemark / $maxmark;
@@ -225,9 +232,10 @@ class grade {
     /**
      * @param array $studentmarks
      * @param int $userid
-     * @return float|int
+     * @return float
      */
     private static function get_user_mark_relative_to_position_on_ranking(array $studentmarks, int $userid) {
+
         $position = 0;
         $numstudents = count($studentmarks);
         foreach ($studentmarks as $key => $grade) {
@@ -243,7 +251,7 @@ class grade {
      * @param int $userid
      * @param int $sessionid
      * @param int $jqshowid
-     * @return int|null
+     * @return float
      * @throws coding_exception
      */
     public static function get_session_grade(int $userid, int $sessionid, int $jqshowid) {
@@ -265,7 +273,7 @@ class grade {
     /**
      * @param $userid
      * @param $jqshowid
-     * @return int
+     * @return float
      * @throws coding_exception|dml_exception
      */
     public static function recalculate_mod_mark_by_userid($userid, $jqshowid) {
@@ -328,7 +336,7 @@ class grade {
     /**
      * @param array $allgrades
      * @param string $grademethod
-     * @return float|int
+     * @return float
      * @throws coding_exception
      */
     private static function get_final_mod_grade(array $allgrades, string $grademethod) {
@@ -356,7 +364,7 @@ class grade {
 
     /**
      * @param jqshow_sessions_grades[] $allgrades
-     * @return int
+     * @return float
      * @throws coding_exception
      */
     private static function get_highest_grade(array $allgrades) {
@@ -371,7 +379,7 @@ class grade {
 
     /**
      * @param jqshow_sessions_grades[] $allgrades
-     * @return int
+     * @return float
      * @throws coding_exception
      */
     private static function get_average_grade(array $allgrades) {
@@ -385,7 +393,7 @@ class grade {
 
     /**
      * @param jqshow_sessions_grades[] $allgrades
-     * @return int
+     * @return float
      * @throws coding_exception
      */
     private static function get_first_grade(array $allgrades) {
