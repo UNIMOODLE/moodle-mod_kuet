@@ -28,7 +28,6 @@ namespace mod_jqshow\helpers;
 use coding_exception;
 use context_module;
 use dml_exception;
-use enrol_self\self_test;
 use JsonException;
 use mod_jqshow\api\grade;
 use mod_jqshow\models\questions;
@@ -112,15 +111,12 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_ranking_for_teacher_report(int $cmid, int $sid): array {
-        global $DB, $PAGE;
+        global $DB;
         $results = sessions::get_session_results($sid, $cmid);
         foreach ($results as $user) {
             $userdata = $DB->get_record('user', ['id' => $user->userid]);
             if ($userdata !== false) {
-                $userpicture = new user_picture($userdata);
-                $userpicture->size = 1;
-                $user->userimage = $userpicture->get_url($PAGE)->out(false);
-                $user->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $user->userid]))->out(false);
+                $user = self::add_userdata($userdata, $user, $user->userid, 100);
                 $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $cmid, 'sid' => $sid, 'userid' => $user->userid]))->out(false);
             }
@@ -274,9 +270,6 @@ class reports {
         $data->sessionreport = true;
         $session = new jqshow_sessions($sid);
         $mode = $session->get('sessionmode');
-        if ($mode !== sessions::INACTIVE_PROGRAMMED || $mode !== sessions::INACTIVE_MANUAL) { // TODO adjust to all modes.
-            $data->showfinalranking = true;
-        }
         $data->sessionname = $session->get('name');
         $data->config = sessions::get_session_config($sid, $cmid);
         $data->sessionquestions = self::get_questions_data_for_teacher_report($jqshowid, $cmid, $sid);
@@ -288,6 +281,18 @@ class reports {
         } else {
             $data->hasranking = true;
             $data->rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
+            if ($mode !== sessions::INACTIVE_PROGRAMMED || $mode !== sessions::INACTIVE_MANUAL) { // TODO adjust to all modes.
+                $data->showfinalranking = true;
+                $data->firstuserimageurl = $data->rankingusers[0]->userimage;
+                $data->firstuserfullname = $data->rankingusers[0]->userfullname;
+                $data->firstuserpoints = $data->rankingusers[0]->userpoints;
+                $data->seconduserimageurl = $data->rankingusers[1]->userimage;
+                $data->seconduserfullname = $data->rankingusers[1]->userfullname;
+                $data->seconduserpoints = $data->rankingusers[1]->userpoints;
+                $data->thirduserimageurl = $data->rankingusers[2]->userimage;
+                $data->thirduserfullname = $data->rankingusers[2]->userfullname;
+                $data->thirduserpoints = $data->rankingusers[2]->userpoints;
+            }
         }
         return $data;
     }
@@ -453,11 +458,7 @@ class reports {
         $data->userreport = true;
         $data->sessionname = $session->get('name');
         $userdata = $DB->get_record('user', ['id' => $userid]);
-        $userpicture = new user_picture($userdata);
-        $userpicture->size = 1;
-        $data->userimage = $userpicture->get_url($PAGE)->out(false);
-        $data->userfullname = $userdata->firstname . ' ' . $userdata->lastname;
-        $data->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $userid]))->out(false);
+        $data = self::add_userdata($userdata, $data, $userid);
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
         $data->config = sessions::get_session_config($sid, $cmid);
         $data->sessionquestions =
@@ -493,6 +494,77 @@ class reports {
     }
 
     /**
+     * @param int $cmid
+     * @param int $sid
+     * @return stdClass
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_student_report(int $cmid, int $sid): stdClass {
+        global $USER, $DB;
+        $data = new stdClass();
+        $data->cmid = $cmid;
+        $session = new jqshow_sessions($sid);
+        $data->jqshowid = $session->get('jqshowid');
+        $data->userreport = true;
+        $data->sessionname = $session->get('name');
+        $userdata = $DB->get_record('user', ['id' => $USER->id]);
+        $data = self::add_userdata($userdata, $data, $USER->id);
+        $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid]))->out(false);
+        $data->sessionquestions =
+            self::get_questions_data_for_user_report($data->jqshowid, $cmid, $sid, $USER->id);
+        $data->numquestions = count($data->sessionquestions);
+        $data->noresponse = 0;
+        $data->success = 0;
+        $data->partially = 0;
+        $data->failures = 0;
+        $data->noevaluable = 0;
+        foreach ($data->sessionquestions as $question) {
+            switch ($question->response) {
+                case 'failure':
+                    $data->failures++;
+                    break;
+                case 'partially':
+                    $data->partially++;
+                    break;
+                case 'success':
+                    $data->success++;
+                    break;
+                case 'noresponse':
+                    $data->noresponse++;
+                    break;
+                case 'noevaluable':
+                    $data->noevaluable++;
+                    break;
+                default:
+                    break;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @param stdClass $userdata
+     * @param stdClass $data
+     * @param int $userid
+     * @param int $imagesize
+     * @return stdClass
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    private static function add_userdata(stdClass $userdata, stdClass $data, int $userid, int $imagesize = 1): stdClass {
+        global $PAGE;
+        $userpicture = new user_picture($userdata);
+        $userpicture->size = $imagesize;
+        $data->userimage = $userpicture->get_url($PAGE)->out(false);
+        $data->userfullname = $userdata->firstname . ' ' . $userdata->lastname;
+        $data->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $userid]))->out(false);
+        return $data;
+    }
+
+    /**
      * @param array $users
      * @param array $answers
      * @param jqshow_sessions $session
@@ -509,17 +581,13 @@ class reports {
     public static function get_ranking_for_question(
         array $users, array $answers, jqshow_sessions $session, jqshow_questions $question, int $cmid, int $sid, int $jqid
     ): array {
-        global $DB, $PAGE;
+        global $DB;
         $context = context_module::instance($cmid);
         $results = [];
         foreach ($users as $user) {
             $userdata = $DB->get_record('user', ['id' => $user->id]);
             if ($userdata !== false && !has_capability('mod/jqshow:startsession', $context, $userdata)) {
-                $userpicture = new user_picture($userdata);
-                $userpicture->size = 1;
-                $user->userimage = $userpicture->get_url($PAGE)->out(false);
-                $user->userfullname = $userdata->firstname . ' ' . $userdata->lastname;
-                $user->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $userdata->id]))->out(false);
+                $user = self::add_userdata($userdata, $user, $user->id);
                 $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userdata->id]))->out(false);
                 $response = jqshow_questions_responses::get_record(['userid' => $userdata->id, 'session' => $sid, 'jqid' => $jqid]);

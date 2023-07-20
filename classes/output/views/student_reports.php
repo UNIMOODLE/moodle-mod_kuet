@@ -30,15 +30,12 @@ use dml_exception;
 use JsonException;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\jqshow;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
 use templatable;
-use user_picture;
 
 class student_reports implements renderable, templatable {
 
@@ -60,7 +57,7 @@ class student_reports implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        global $USER, $DB, $PAGE;
+        global $USER;
         $jqshow = new jqshow($this->cmid);
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
@@ -73,45 +70,7 @@ class student_reports implements renderable, templatable {
                     ['cmid' => $this->cmid, 'sid' => $endedsession->sessionid, 'userid' => $USER->id]))->out(false);
             }
         } else {
-            $session = new jqshow_sessions($this->sid);
-            $data->userreport = true;
-            $data->sessionname = $session->get('name');
-            $userdata = $DB->get_record('user', ['id' => $USER->id]);
-            $userpicture = new user_picture($userdata);
-            $userpicture->size = 1;
-            $data->userimage = $userpicture->get_url($PAGE)->out(false);
-            $data->userfullname = $userdata->firstname . ' ' . $userdata->lastname;
-            $data->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $USER->id]))->out(false);
-            $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $this->cmid]))->out(false);
-            $data->sessionquestions =
-                reports::get_questions_data_for_user_report($this->jqshowid, $this->cmid, $this->sid, $USER->id);
-            $data->numquestions = count($data->sessionquestions);
-            $data->noresponse = 0;
-            $data->success = 0;
-            $data->partially = 0;
-            $data->failures = 0;
-            $data->noevaluable = 0;
-            foreach ($data->sessionquestions as $question) {
-                switch ($question->response) {
-                    case 'failure':
-                        $data->failures++;
-                        break;
-                    case 'partially':
-                        $data->partially++;
-                        break;
-                    case 'success':
-                        $data->success++;
-                        break;
-                    case 'noresponse':
-                        $data->noresponse++;
-                        break;
-                    case 'noevaluable':
-                        $data->noevaluable++;
-                        break;
-                    default:
-                        break;
-                }
-            }
+            $data = reports::get_student_report($this->cmid, $this->sid);
         }
         return $data;
     }

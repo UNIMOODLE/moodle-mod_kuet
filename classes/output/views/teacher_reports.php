@@ -31,16 +31,11 @@ use dml_exception;
 use JsonException;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\jqshow;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
-use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
 use templatable;
-use user_picture;
 
 class teacher_reports implements renderable, templatable {
 
@@ -74,23 +69,20 @@ class teacher_reports implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        // TODO refactor.
-        global $DB, $PAGE, $USER;
         $jqshow = new jqshow($this->cmid);
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
         $data->cmid = $this->cmid;
         $cmcontext = context_module::instance($this->cmid);
-        if ($this->sid === 0) { // All sessions.
+        if ($this->sid === 0) {
             $data->allreports = true;
             $data->endedsessions = $jqshow->get_completed_sessions();
-        } else if ($this->userid === 0 && $this->jqid === 0) { // One session.
+        } else if ($this->userid === 0 && $this->jqid === 0) {
             $data = reports::get_session_report($this->jqshowid, $data->cmid, $this->sid, $cmcontext);
-        } else if ($this->userid === 0 && $this->jqid !== 0) { // Question report.
+        } else if ($this->userid === 0 && $this->jqid !== 0) {
             $data = reports::get_question_report($this->cmid, $this->sid, $this->jqid);
-        } else { // User report.
-            $data = reports::get_user_report($this->cmid, $this->sid, $this->jqid);
-
+        } else {
+            $data = reports::get_user_report($this->cmid, $this->sid, $this->userid, $cmcontext);
         }
         return $data;
     }

@@ -72,30 +72,21 @@ class getfinalranking_external extends external_api {
         $session = jqshow_sessions::get_record(['id' => $sid]);
         $questions = new questions($session->get('jqshowid'), $cmid, $sid);
         $contextmodule = context_module::instance($cmid);
-
-        $finalranking = sessions::get_final_ranking($sid, $cmid);
-        $firstuserimageurl = $finalranking[0]->userimageurl;
-        $firstuserfullname = $finalranking[0]->userfullname;
-        $firstuserpoints = $finalranking[0]->userpoints;
-        $seconduserimageurl = $finalranking[1]->userimageurl;
-        $seconduserfullname = $finalranking[1]->userfullname;
-        $seconduserpoints = $finalranking[1]->userpoints;
-        $thirduserimageurl = $finalranking[2]->userimageurl;
-        $thirduserfullname = $finalranking[2]->userfullname;
-        $thirduserpoints = $finalranking[2]->userpoints;
+        $ranking = sessions::get_final_ranking($sid, $cmid);
+        $finalranking = $ranking;
         unset($finalranking[0], $finalranking[1], $finalranking[2]);
         $finalranking = array_values($finalranking);
         return [
             'finalranking' => $finalranking,
-            'firstuserimageurl' => $firstuserimageurl,
-            'firstuserfullname' => $firstuserfullname,
-            'firstuserpoints' => $firstuserpoints,
-            'seconduserimageurl' => $seconduserimageurl,
-            'seconduserfullname' => $seconduserfullname,
-            'seconduserpoints' => $seconduserpoints,
-            'thirduserimageurl' => $thirduserimageurl,
-            'thirduserfullname' => $thirduserfullname,
-            'thirduserpoints' => $thirduserpoints,
+            'firstuserimageurl' => $ranking[0]->userimageurl,
+            'firstuserfullname' => $ranking[0]->userfullname,
+            'firstuserpoints' => $ranking[0]->userpoints,
+            'seconduserimageurl' => $ranking[1]->userimageurl,
+            'seconduserfullname' => $ranking[1]->userfullname,
+            'seconduserpoints' => $ranking[1]->userpoints,
+            'thirduserimageurl' => $ranking[2]->userimageurl,
+            'thirduserfullname' => $ranking[2]->userfullname,
+            'thirduserpoints' => $ranking[2]->userpoints,
             'sessionid' => $sid,
             'cmid' => $cmid,
             'jqshowid' => $session->get('jqshowid'),

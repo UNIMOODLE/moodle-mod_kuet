@@ -11,52 +11,7 @@
                 </div>
             </div>
             <div class="ranking-users finalranking container-fluid px-0" data-region="ranking-users">
-                <div class="ranking-first-three">
-                    <div class="content-users">
-                        <div class="second-user">
-                            <div class="userimage">
-                                <div class="userposition">
-                                    <span>2</span>
-                                </div>
-                                <img class="first-three-userimage" src="{{seconduserimageurl}}" alt="{{seconduserfullname}}" /> <span class="username">{{seconduserfullname}}</span>
-                            </div>
-                            <div class="second-userpoints userpoints">
-                                <div class="content-points">
-                                    {{#pix}}q/finalpoints, mod_jqshow{{/pix}}
-                                    {{ seconduserpoints}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="first-user">
-                            <div class="userimage">
-                                <div class="userposition">
-                                    <span>1</span>
-                                </div>
-                                <img class="first-three-userimage" src="{{firstuserimageurl}}" alt="{{firstuserfullname}}" /> <span class="username">{{firstuserfullname}}</span>
-                            </div>
-                            <div class="first-userpoints userpoints">
-                                <div class="content-points">
-                                    {{#pix}}q/finalpoints, mod_jqshow{{/pix}}
-                                    {{ firstuserpoints}}
-                                </div>
-                            </div>
-                        </div>
-                        <div class="third-user">
-                            <div class="userimage">
-                                <div class="userposition">
-                                    <span>3</span>
-                                </div>
-                                <img class="first-three-userimage" src="{{thirduserimageurl}}" alt="{{thirduserfullname}}" /> <span class="username">{{thirduserfullname}}</span>
-                            </div>
-                            <div class="third-userpoints userpoints">
-                                <div class="content-points">
-                                    {{#pix}}q/finalpoints, mod_jqshow{{/pix}}
-                                    {{ thirduserpoints}}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {{> mod_jqshow/ranking/rankingfirstthree }}
                 <div class="ranking-users-body" data-region="ranking_users">
                     <div class="content-users">
                         <div class="d-table list-group">
