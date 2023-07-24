@@ -116,7 +116,7 @@ class reports {
         foreach ($results as $user) {
             $userdata = $DB->get_record('user', ['id' => $user->userid]);
             if ($userdata !== false) {
-                $user = self::add_userdata($userdata, $user, $user->userid, 100);
+                $user = self::add_userdata($userdata, $user, $user->userid, 200);
                 $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $cmid, 'sid' => $sid, 'userid' => $user->userid]))->out(false);
             }
@@ -281,7 +281,7 @@ class reports {
         } else {
             $data->hasranking = true;
             $data->rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
-            if ($mode !== sessions::INACTIVE_PROGRAMMED || $mode !== sessions::INACTIVE_MANUAL) { // TODO adjust to all modes.
+            if ($mode !== sessions::INACTIVE_PROGRAMMED && $mode !== sessions::INACTIVE_MANUAL) {
                 $data->showfinalranking = true;
                 $data->firstuserimageurl = $data->rankingusers[0]->userimage;
                 $data->firstuserfullname = $data->rankingusers[0]->userfullname;
