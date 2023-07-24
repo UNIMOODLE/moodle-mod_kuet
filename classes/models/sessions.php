@@ -423,6 +423,29 @@ class sessions {
             'configvalue' => get_string($sessiondata->get('sessionmode'), 'mod_jqshow')
         ];
 
+        switch ($sessiondata->get('sgrademethod')) {
+            case self::GM_DISABLED:
+                $grademethosstring = get_string('session_gm_disabled', 'mod_jqshow');
+                break;
+            case self::GM_R_POSITION :
+                $grademethosstring = get_string('session_gm_position', 'mod_jqshow');
+                break;
+            case self::GM_R_POINTS:
+                $grademethosstring = get_string('session_gm_points', 'mod_jqshow');
+                break;
+            case self::GM_R_COMBINED:
+                $grademethosstring = get_string('session_gm_combined', 'mod_jqshow');
+                break;
+            default:
+                $grademethosstring = '';
+        }
+
+        $data[] = [
+            'iconconfig' => 'grademethod',
+            'configname' => get_string('sessiongrademethod', 'mod_jqshow'),
+            'configvalue' => $grademethosstring
+        ];
+
         $data[] = [
             'iconconfig' => 'countdown',
             'configname' => get_string('countdown', 'mod_jqshow'),

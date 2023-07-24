@@ -145,137 +145,6 @@
             background-color: #4A47E9;
             border-radius: 0 0 25px 25px;
             padding-bottom: 3em;
-            .ranking-first-three {
-                width: 100%;
-                background: #5A57FF;
-                .content-users {
-                    display: flex;
-                    flex-flow: row nowrap;
-                    align-items: flex-end;
-                    justify-content: space-between;
-                    width: 60%;
-                    margin: 0 auto;
-                    .first-user,
-                    .second-user,
-                    .third-user {
-                        .userimage {
-                            display: flex;
-                            flex-flow: column nowrap;
-                            align-items: center;
-                            padding: 0 70px 0;
-                            margin-bottom: 1em;
-                            .userposition {
-                                z-index: 3;
-                                margin-bottom: -20px;
-                                span {
-                                    height: 45px;
-                                    width: 45px;
-                                    color: black;
-                                    font-weight: bold;
-                                    display: flex;
-                                    justify-content: center;
-                                    align-items: center;
-                                    padding-right: 5px;
-                                    background-repeat: no-repeat;
-                                    background-size: contain;
-                                }
-                            }
-                            .first-three-userimage {
-                                border: 5px solid white;
-                            }
-                            .username {
-                                color: white;
-                                text-align: center;
-                                margin-top: 20px;
-                                font-size: 18px;
-                            }
-                        }
-                        .userpoints {
-                            background-color: #4A47E9;
-                            border-radius: 10px 10px 0 0;
-                            width: 100%;
-                            display: flex;
-                            flex-flow: row nowrap;
-                            justify-content: center;
-                            align-items: center;
-                            padding: 0 20px;
-                            .content-points {
-                                width: 100%;
-                                padding: 8px;
-                                border-radius: 40px;
-                                border: 2px solid;
-                                text-align: center;
-                                font-size: 22px;
-                                font-weight: bold;
-                                display: flex;
-                                justify-content: center;
-                                align-items: center;
-                                .icon {
-                                    height: 18px;
-                                    width: auto;
-                                }
-                            }
-                        }
-                    }
-                    .first-user {
-                        .userposition {
-                            span {
-                                background-image: url([[pix:mod_jqshow|q/goldranking]]);
-                            }
-                        }
-                        .first-three-userimage {
-                            border-radius: 190px;
-                            height: 190px;
-                            width: 190px;
-                        }
-                        .first-userpoints {
-                            height: 130px;
-                            .content-points {
-                                border-color: #d3b308;
-                                background-color: #ffef5c;
-                            }
-                        }
-                    }
-                    .second-user {
-                        .userposition {
-                            span {
-                                background-image: url([[pix:mod_jqshow|q/silverranking]]);
-                            }
-                        }
-                        .first-three-userimage {
-                            border-radius: 140px;
-                            height: 140px;
-                            width: 140px;
-                        }
-                        .second-userpoints {
-                            height: 100px;
-                            .content-points {
-                                border-color: #c6c6c6;
-                                background-color: #f1f1f1;
-                            }
-                        }
-                    }
-                    .third-user {
-                        .userposition {
-                            span {
-                                background-image: url([[pix:mod_jqshow|q/copperranking]]);
-                            }
-                        }
-                        .first-three-userimage {
-                            border-radius: 120px;
-                            height: 120px;
-                            width: 120px;
-                        }
-                        .third-userpoints {
-                            height: 80px;
-                            .content-points {
-                                border-color: #da9000;
-                                background-color: #fdb62c;
-                            }
-                        }
-                    }
-                }
-            }
             .ranking-users-body {
                 margin: 0 auto;
                 width: 100%;
@@ -303,143 +172,244 @@
         }
     }
 }
-@media (max-width: 1740px) and (min-width: 1500px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 70% !important;
+.ranking-first-three {
+    width: 100%;
+    background: #5A57FF;
+    .content-users {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: flex-end;
+        justify-content: space-between;
+        width: 60%;
+        margin: 0 auto;
+        .first-user,
+        .second-user,
+        .third-user {
+            .userimage {
+                display: flex;
+                flex-flow: column nowrap;
+                align-items: center;
+                padding: 0 70px 0;
+                margin-bottom: 1em;
+                .userposition {
+                    z-index: 3;
+                    margin-bottom: -20px;
+                    span {
+                        height: 45px;
+                        width: 45px;
+                        color: black;
+                        font-weight: bold;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        padding-right: 5px;
+                        background-repeat: no-repeat;
+                        background-size: contain;
+                    }
+                }
+                .first-three-userimage {
+                    border: 5px solid white;
+                }
+                .username {
+                    color: white;
+                    text-align: center;
+                    margin-top: 20px;
+                    font-size: 18px;
                 }
             }
+            .userpoints {
+                background-color: #4A47E9;
+                border-radius: 10px 10px 0 0;
+                width: 100%;
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: center;
+                align-items: center;
+                padding: 0 20px;
+                .content-points {
+                    width: 100%;
+                    padding: 8px;
+                    border-radius: 40px;
+                    border: 2px solid;
+                    text-align: center;
+                    font-size: 22px;
+                    font-weight: bold;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    .icon {
+                        height: 18px;
+                        width: auto;
+                    }
+                }
+            }
+        }
+        .first-user {
+            .userposition {
+                span {
+                    background-image: url([[pix:mod_jqshow|q/goldranking]]);
+                }
+            }
+            .first-three-userimage {
+                border-radius: 190px;
+                height: 190px;
+                width: 190px;
+            }
+            .first-userpoints {
+                height: 130px;
+                .content-points {
+                    border-color: #d3b308;
+                    background-color: #ffef5c;
+                }
+            }
+        }
+        .second-user {
+            .userposition {
+                span {
+                    background-image: url([[pix:mod_jqshow|q/silverranking]]);
+                }
+            }
+            .first-three-userimage {
+                border-radius: 140px;
+                height: 140px;
+                width: 140px;
+            }
+            .second-userpoints {
+                height: 100px;
+                .content-points {
+                    border-color: #c6c6c6;
+                    background-color: #f1f1f1;
+                }
+            }
+        }
+        .third-user {
+            .userposition {
+                span {
+                    background-image: url([[pix:mod_jqshow|q/copperranking]]);
+                }
+            }
+            .first-three-userimage {
+                border-radius: 120px;
+                height: 120px;
+                width: 120px;
+            }
+            .third-userpoints {
+                height: 80px;
+                .content-points {
+                    border-color: #da9000;
+                    background-color: #fdb62c;
+                }
+            }
+        }
+    }
+}
+
+/* TODO review responsive for all browsers. */
+@media (max-width: 1740px) and (min-width: 1500px) {
+    .ranking-first-three {
+        .content-users {
+            width: 70% !important;
         }
     }
 }
 @media (max-width: 1500px) and (min-width: 1320px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 80% !important;
-                }
-            }
+    .ranking-first-three {
+        .content-users {
+            width: 80% !important;
         }
     }
 }
 @media (max-width: 1320px) and (min-width: 1200px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 90% !important;
-                }
-            }
+    .ranking-first-three {
+        .content-users {
+            width: 90% !important;
         }
     }
 }
 @media (max-width: 1200px) and (min-width: 1070px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 100% !important;
-                }
-            }
+    .ranking-first-three {
+        .content-users {
+            width: 100% !important;
         }
     }
 }
 @media (max-width: 1070px) and (min-width: 880px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 100% !important;
-                    zoom: 80%;
-                }
-            }
+    .ranking-first-three {
+        transform: scale(0.8);
+        transform-origin: top left;
+        width: 125%;
+        .content-users {
+            width: 100% !important;
         }
     }
 }
 @media (max-width: 880px) and (min-width: 790px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 100% !important;
-                    zoom: 70%;
-                }
-            }
+    .ranking-first-three {
+        transform: scale(0.7);
+        transform-origin: top left;
+        width: 142.5%;
+        .content-users {
+            width: 100% !important;
         }
     }
 }
 @media (max-width: 790px) and (min-width: 767px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 100% !important;
-                    zoom: 65%;
-                }
-            }
+    .ranking-first-three {
+        transform: scale(0.65);
+        transform-origin: top left;
+        width: 153.6%;
+        .content-users {
+            width: 100% !important;
         }
     }
 }
 @media (max-width: 767px) and (min-width: 665px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 100% !important;
-                    zoom: 70%;
-                }
-            }
+    .ranking-first-three {
+        transform: scale(0.7);
+        transform-origin: top left;
+        width: 142.6%;
+        .content-users {
+            width: 100% !important;
         }
     }
 }
 @media (max-width: 665px) and (min-width: 620px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 100% !important;
-                    zoom: 65%;
-                }
-            }
+    .ranking-first-three {
+        transform: scale(0.65);
+        transform-origin: top left;
+        width: 153.6%;
+        .content-users {
+            width: 100% !important;
         }
     }
 }
 @media (max-width: 620px) and (min-width: 570px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 100% !important;
-                    zoom: 60%;
-                }
-            }
+    .ranking-first-three {
+        transform: scale(0.6);
+        transform-origin: top left;
+        width: 166%;
+        .content-users {
+            width: 100% !important;
         }
     }
 }
 @media (max-width: 570px) and (min-width: 490px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 100% !important;
-                    zoom: 50%;
-                }
-            }
+    .ranking-first-three {
+        transform: scale(0.5);
+        transform-origin: top left;
+        width: 200%;
+        .content-users {
+            width: 100% !important;
         }
     }
 }
 @media (max-width: 490px) {
-    .final-ranking {
-        .ranking-users.finalranking {
-            .ranking-first-three {
-                .content-users {
-                    width: 100% !important;
-                    zoom: 45%;
-                }
-            }
+    .ranking-first-three {
+        transform: scale(0.45);
+        transform-origin: top left;
+        width: 222%;
+        .content-users {
+            width: 100% !important;
         }
     }
 }

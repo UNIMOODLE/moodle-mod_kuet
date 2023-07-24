@@ -31,16 +31,11 @@ use dml_exception;
 use JsonException;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\jqshow;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
-use moodle_url;
 use renderable;
 use renderer_base;
 use stdClass;
 use templatable;
-use user_picture;
 
 class teacher_reports implements renderable, templatable {
 
@@ -74,82 +69,20 @@ class teacher_reports implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        // TODO refactor.
-        global $DB, $PAGE, $USER;
         $jqshow = new jqshow($this->cmid);
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
         $data->cmid = $this->cmid;
         $cmcontext = context_module::instance($this->cmid);
-        if ($this->sid === 0) { // All sessions.
+        if ($this->sid === 0) {
             $data->allreports = true;
             $data->endedsessions = $jqshow->get_completed_sessions();
-        } else if ($this->userid === 0 && $this->jqid === 0) { // One session.
-            $data->sessionreport = true;
-            $session = new jqshow_sessions($this->sid);
-            $mode = $session->get('sessionmode');
-            if ($mode !== sessions::INACTIVE_PROGRAMMED || $mode !== sessions::INACTIVE_MANUAL) { // TODO adjust to all modes.
-                $data->showfinalranking = true;
-            }
-            $data->sessionname = $session->get('name');
-            $data->config = sessions::get_session_config($this->sid, $data->cmid);
-            $data->sessionquestions = reports::get_questions_data_for_teacher_report($this->jqshowid, $this->cmid, $this->sid);
-            if ($session->get('anonymousanswer') === 1) {
-                if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
-                    $data->hasranking = true;
-                    $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
-                }
-            } else {
-                $data->hasranking = true;
-                $data->rankingusers = reports::get_ranking_for_teacher_report($this->cmid, $this->sid);
-            }
-        } else if ($this->userid === 0 && $this->jqid !== 0) { // Question report.
+        } else if ($this->userid === 0 && $this->jqid === 0) {
+            $data = reports::get_session_report($this->jqshowid, $data->cmid, $this->sid, $cmcontext);
+        } else if ($this->userid === 0 && $this->jqid !== 0) {
             $data = reports::get_question_report($this->cmid, $this->sid, $this->jqid);
-        } else { // User report.
-            $session = new jqshow_sessions($this->sid);
-            if ($session->get('anonymousanswer') === 1 && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
-                throw new moodle_exception('anonymousanswers', 'mod_jqshow', '',
-                    [], get_string('anonymousanswers', 'mod_jqshow'));
-            }
-            $data->userreport = true;
-            $data->sessionname = $session->get('name');
-            $userdata = $DB->get_record('user', ['id' => $this->userid]);
-            $userpicture = new user_picture($userdata);
-            $userpicture->size = 1;
-            $data->userimage = $userpicture->get_url($PAGE)->out(false);
-            $data->userfullname = $userdata->firstname . ' ' . $userdata->lastname;
-            $data->userprofileurl = (new moodle_url('/user/profile.php', ['id' => $this->userid]))->out(false);
-            $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $this->cmid, 'sid' => $this->sid]))->out(false);
-            $data->config = sessions::get_session_config($this->sid, $this->cmid);
-            $data->sessionquestions =
-                reports::get_questions_data_for_user_report($this->jqshowid, $this->cmid, $this->sid, $this->userid);
-            $data->numquestions = count($data->sessionquestions);
-            $data->noresponse = 0;
-            $data->success = 0;
-            $data->partially = 0;
-            $data->failures = 0;
-            $data->noevaluable = 0;
-            foreach ($data->sessionquestions as $question) {
-                switch ($question->response) {
-                    case 'failure':
-                        $data->failures++;
-                        break;
-                    case 'partially':
-                        $data->partially++;
-                        break;
-                    case 'success':
-                        $data->success++;
-                        break;
-                    case 'noresponse':
-                        $data->noresponse++;
-                        break;
-                    case 'noevaluable':
-                        $data->noevaluable++;
-                        break;
-                    default:
-                        break;
-                }
-            }
+        } else {
+            $data = reports::get_user_report($this->cmid, $this->sid, $this->userid, $cmcontext);
         }
         return $data;
     }

@@ -3,10 +3,10 @@
         <h2>{{#str}}reports, mod_jqshow{{/str}}</h2>
         <small>{{#str}}reports_info, mod_jqshow{{/str}}</small>
     {{/allreports}}
-    {{#onereport}}
+    {{#sessionreport}}
         <h2>{{#str}}sessionreport, mod_jqshow{{/str}} - {{sessionname}}</h2>
         <small>{{#str}}sessionreport_info, mod_jqshow{{/str}}</small>
-    {{/onereport}}
+    {{/sessionreport}}
     {{#questionreport}}
         <h2>{{#str}}questionreport, mod_jqshow{{/str}}</h2>
         <small>{{#str}}questionreport_info, mod_jqshow{{/str}}</small>
@@ -20,7 +20,7 @@
             {{> mod_jqshow/reports/allreports }}
         {{/allreports}}
         {{#sessionreport}}
-            <div class="col-12 col-lg-12 container">
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 container">
                 <div class="resume-config">
                     <h5 class="titlecontainer bg-primary">
                         {{#pix}} i/settings, mod_jqshow {{/pix}}
@@ -32,6 +32,11 @@
             <div class="col-12 col-lg-12 container">
                 {{> mod_jqshow/reports/teacher_questions }}
             </div>
+            {{#showfinalranking}}
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 podium">
+                    {{> mod_jqshow/ranking/rankingfirstthree }}
+                </div>
+            {{/showfinalranking}}
             {{#hasranking}}
                 <div class="col-12 col-lg-12 container">
                     {{> mod_jqshow/reports/teacher_ranking }}

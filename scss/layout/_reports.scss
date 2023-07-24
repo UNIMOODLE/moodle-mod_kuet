@@ -121,6 +121,22 @@ body#page-mod-jqshow-reports.jqshow-reports {
             }
         }
     }
+    .podium {
+        .ranking-first-three {
+            display: flex;
+            margin-top: 25px;
+            border-radius: 8px;
+            padding-top: 30px;
+            .content-users {
+                width: 70%;
+                .first-user,
+                .second-user,
+                .third-user {
+                    transform-origin: bottom center;
+                }
+            }
+        }
+    }
     .questions-list,
     .ranking-list {
         margin-top: 25px;
