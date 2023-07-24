@@ -31,6 +31,7 @@ use core\invalid_persistent_exception;
 use core_availability\info_module;
 use dml_exception;
 use dml_transaction_exception;
+use Exception;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\external\getfinalranking_external;
@@ -379,6 +380,7 @@ class questions {
      * @return string
      * @throws dml_exception
      * @throws dml_transaction_exception
+     * @throws Exception
      */
     public static function get_text(
         int $cmid, string $text, int $textformat, int $id, question_definition $question, string $filearea
@@ -401,7 +403,7 @@ class questions {
         if ($options->variant) {
             $options->variant = min($maxvariant, max(1, $options->variant));
         } else {
-            $options->variant = rand(1, $maxvariant);
+            $options->variant = random_int(1, $maxvariant);
         }
         $quba->start_question($slot, $options->variant);
         if ($usage === false) {

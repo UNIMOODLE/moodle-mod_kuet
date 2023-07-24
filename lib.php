@@ -422,3 +422,19 @@ function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
 
 }
 
+/**
+ * @param $questionids
+ * @return bool
+ * @throws coding_exception
+ * @throws dml_exception
+ */
+function jqshow_questions_in_use($questionids) {
+    global $DB;
+    [$sqlfragment, $params] = $DB->get_in_or_equal($questionids);
+    $params['component'] = 'mod_jqshow';
+    $params['questionarea'] = 'slot';
+    $sql = "SELECT jq.id
+              FROM {jqshow_questions} jq
+             WHERE jq.questionid $sqlfragment";
+    return $DB->record_exists_sql($sql, $params);
+}

@@ -393,7 +393,8 @@ class server extends websockets {
     }
 }
 
-$server = new server("0.0.0.0", "8080", 2048);
+$port = get_config('jqshow', 'port');
+$server = new server('0.0.0.0', $port, 2048);
 
 try {
     $server->run();

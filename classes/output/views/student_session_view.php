@@ -133,6 +133,7 @@ class student_session_view implements renderable, templatable {
                 $data->userimage = $userpicture->get_url($PAGE)->out(false);
                 $data->manualmode = true;
                 $data->waitingroom = true;
+                $data->config = sessions::get_session_config($data->sid, $data->cmid);
                 $data->sessionname = $data->config[0]['configvalue'];
                 $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
                 break;
