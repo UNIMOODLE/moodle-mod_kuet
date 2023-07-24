@@ -264,40 +264,40 @@ class sessions {
      * @throws moodle_exception
      */
     public function get_questions_for_category(string $category): array {
-        global $DB, $OUTPUT;
+        global $DB;
         core_php_time_limit::raise(300);
-        // Get all the categories below the marked one, as they would be subcategories.
         $categories = [];
         $context = context_module::instance($this->cmid);
         $contexts = $context->get_parent_contexts();
         $contexts[$context->id] = $context;
-        $categoriesarray = helper::question_category_options($contexts, true, 0,
-            false, -1, false);
-        $asof = false;
-        foreach ($categoriesarray as $sistemcategory) {
-            foreach ($sistemcategory as $key => $subcategory) {
-                if ($key === $category) {
-                    $asof = true;
+        $pcontexts = [];
+        foreach ($contexts as $context) {
+            $pcontexts[] = $context->id;
+        }
+        $contextslist = implode(', ', $pcontexts);
+        $categoriesofcontext = helper::get_categories_for_contexts($contextslist, 'parent, sortorder, name ASC', true);
+        [$realcategory, $contextcategory] = explode(',', $category);
+        foreach ($categoriesofcontext as $categoryobject) {
+            if ((int)$realcategory === (int)$categoryobject->id ||
+                ($categoryobject->parent === $realcategory && $categoryobject->contextid === $contextcategory)
+            ) {
+                $categories[] = $categoryobject->id . ',' . $categoryobject->contextid;
+                foreach ($categoriesofcontext as $sencond) {
+                    if ($sencond->parent === $categoryobject->id && $sencond->contextid === $contextcategory) {
+                        $categories[] = $sencond->id . ',' . $sencond->contextid;
+                    }
                 }
-                if ($asof) {
-                    $categories[] = $key;
-                }
-            }
-            if ($asof) {
-                break;
             }
         }
         $catstr = '';
         $params = [];
         $questions = [];
-
         foreach ($categories as $key => $str) {
             [$categoryid, $contextid] = explode(',', $str);
             $catstr .= ':cat_' . $key . ',';
             $params['cat_' . $key] = $categoryid;
         }
         if (!empty($params) && $catstr !== '') {
-            // TODO review, categories of the same level bring all questions.
             $catstr = trim($catstr, ',');
             $sql = "SELECT
                         qv.status,
