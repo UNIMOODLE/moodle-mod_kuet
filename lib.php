@@ -117,8 +117,8 @@ function jqshow_update_instance(stdClass $data): bool {
  * @return boolean Success/Failure
  **/
 function jqshow_delete_instance(int $id): bool {
-    global $DB;
-
+    global $DB, $CFG;
+    require_once($CFG->dirroot . '/lib/gradelib.php');
     try {
         $jqshow = $DB->get_record('jqshow', ['id' => $id], '*', MUST_EXIST);
         if (!$jqshow) {
@@ -132,10 +132,20 @@ function jqshow_delete_instance(int $id): bool {
         $DB->delete_records('jqshow_sessions', ['jqshowid' => $id]);
         $DB->delete_records('jqshow_sessions_grades', ['jqshow' => $id]);
         $DB->delete_records('jqshow_user_progress', ['jqshow' => $id]);
+
+        grade_update('mod/assign',
+            $jqshow->course,
+            'mod',
+            'jqshow',
+            $jqshow->id,
+            0,
+            null,
+            ['deleted' => 1]);
+        return true;
     } catch (Exception $e) {
+        throw new moodle_exception('error_delete_instance', 'mod_jqshow', '', $e->getMessage());
         return false;
     }
-    return true;
 }
 
 /**

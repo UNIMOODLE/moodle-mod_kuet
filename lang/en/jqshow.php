@@ -336,4 +336,4 @@ $string['qstatus_2'] = 'Partially';
 $string['qstatus_3'] = 'No response';
 $string['qstatus_4'] = 'Not evaluable';
 $string['qstatus_5'] = 'Invalie';
-
+$string['error_delete_instance'] = 'Error deleting mod Jqshow.';
