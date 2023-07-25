@@ -56,7 +56,7 @@ class multichoice_external extends external_api {
     public static function multichoice_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'answerids' => new external_value(PARAM_RAW, 'answer id, or comma-separated answers ids, or empty', VALUE_OPTIONAL),
+                'answerids' => new external_value(PARAM_RAW, 'answer id, or comma-separated answers ids, or empty'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
@@ -100,7 +100,8 @@ class multichoice_external extends external_api {
                 'questionid' => $questionid,
                 'jqid' => $jqid,
                 'timeleft' => $timeleft,
-                'preview' => $preview]
+                'preview' => $preview
+            ]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);

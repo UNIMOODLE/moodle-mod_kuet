@@ -446,7 +446,7 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_user_report(int $cmid, int $sid, int $userid, context_module $cmcontext): stdClass {
-        global $USER, $DB, $PAGE;
+        global $USER, $DB;
         $data = new stdClass();
         $data->cmid = $cmid;
         $session = new jqshow_sessions($sid);

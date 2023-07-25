@@ -283,7 +283,8 @@ class questions {
             $data->cmid,
             $responsedata->questionid,
             $data->jqid,
-            $responsedata->timeleft, true
+            $responsedata->timeleft,
+            true
         );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $dataanswer['answerids'] = $responsedata->answerids;
@@ -300,7 +301,7 @@ class questions {
         $data->statment_feedback = $dataanswer['statment_feedback'];
         $data->answer_feedback = $dataanswer['answer_feedback'];
         $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
-        $data->statistics = $dataanswer['statistics'];
+        $data->statistics = $dataanswer['statistics'] ?? '0';
         return $data;
     }
 

@@ -28,10 +28,10 @@ namespace mod_jqshow\helpers;
 use coding_exception;
 use context_course;
 use core\invalid_persistent_exception;
+use dml_exception;
 use JsonException;
 use mod_jqshow\api\grade;
 use mod_jqshow\models\questions;
-use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use moodle_exception;
 use stdClass;
@@ -90,10 +90,11 @@ class responses {
      * @param string $correctanswers
      * @param int $questionid
      * @return string
+     * @throws dml_exception
      */
     private static function get_status_response(string $answerids, string $correctanswers, int $questionid) : string {
         $result = questions::INVALID; // Invalid response.
-        if ($answerids === '0') {
+        if ($answerids === '0' || $answerids === '') {
             $result = questions::NORESPONSE; // No response.
         } else if ($correctanswers !== '') {
             $correctids = explode(',', $correctanswers);

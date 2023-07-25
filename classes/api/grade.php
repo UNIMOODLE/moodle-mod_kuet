@@ -225,9 +225,9 @@ class grade {
      * @param float $maxmark
      * @return float
      */
-    private static function get_user_mark_relative_to_points_on_ranking(float $simplemark, float $maxmark) {
-        if ($maxmark === 0) {
-            return 0;
+    private static function get_user_mark_relative_to_points_on_ranking(float $simplemark, float $maxmark): float {
+        if ($maxmark === 0.0) {
+            return 0.0;
         }
         return $simplemark / $maxmark;
     }
