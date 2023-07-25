@@ -28,6 +28,7 @@ namespace mod_jqshow\models;
 use coding_exception;
 use context_course;
 use dml_exception;
+use mod_jqshow\helpers\sessions as sessionshelper;
 use mod_jqshow\jqshow;
 use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -44,20 +45,7 @@ class teacher extends user {
      * @throws moodle_exception
      */
     public function export($cmid) : Object {
-        $data = new stdClass();
-        // Depending on parameter  the data returned is different.
-        $tab = optional_param('tab', 'sessions', PARAM_RAW);
-        switch ($tab) {
-            case 'sessions':
-                $data = $this->export_sessions($cmid);
-                break;
-            case 'reports':
-                $data = $this->export_reports();
-                break;
-            default:
-                break;
-        }
-        return $data;
+        return $this->export_sessions($cmid);
     }
 
     /**
@@ -77,7 +65,7 @@ class teacher extends user {
         $managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
         $initsession = has_capability('mod/jqshow:startsession', $coursecontext);
         foreach ($sessions as $session) {
-            $ds = \mod_jqshow\helpers\sessions::get_data_session($session, $cmid, $managesessions, $initsession);
+            $ds = sessionshelper::get_data_session($session, $cmid, $managesessions, $initsession);
             if ((int)$session->get('status') !== sessionsmodel::SESSION_FINISHED) {
                 $actives[] = $ds;
             } else {
@@ -120,14 +108,5 @@ class teacher extends user {
             }
         }
         return $sessions;
-    }
-
-    /**
-     * @return Object
-     */
-    public function export_reports() : Object {
-        // TODO.
-        $data = new stdClass();
-        return $data;
     }
 }

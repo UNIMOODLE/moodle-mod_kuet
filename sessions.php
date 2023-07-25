@@ -52,6 +52,7 @@ if ($activesession !== 0 && $activesession === $sid) {
 
 $PAGE->set_title(get_string('modulename', 'jqshow'));
 $PAGE->set_heading(get_string('sessionconfiguration', 'jqshow'));
+$PAGE->set_cacheable(false);
 $view = new sessions_view($jqshow, $cm->id);
 $output = $PAGE->get_renderer('mod_jqshow');
 echo $output->header();

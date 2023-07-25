@@ -59,15 +59,35 @@ class sessions {
         $ds->sessionmode = get_string($session->get('sessionmode'), 'mod_jqshow');
         $jqshow = new jqshow($cmid);
         $questions = new questions($jqshow->get_jqshow()->id, $cmid, $session->get('id'));
-        if ($session->get('timemode') === sessionsmodel::NO_TIME) {
-            $ds->timemode = get_string('no_time', 'mod_jqshow');
-            $ds->sessiontime = '';
-        } else if ($session->get('timemode') === sessionsmodel::SESSION_TIME) {
-            $ds->timemode = get_string('session_time', 'mod_jqshow');
-            $ds->sessiontime = userdate($session->get('sessiontime'), '%Mm %Ss');
-        } else if ($session->get('timemode') === sessionsmodel::QUESTION_TIME) {
-            $ds->timemode = get_string('question_time', 'mod_jqshow');
-            $ds->sessiontime = userdate($questions->get_sum_questions_times(), '%Mm %Ss');
+        switch ($session->get('timemode')) {
+            case sessionsmodel::NO_TIME:
+            default:
+                $ds->timemode = get_string('no_time', 'mod_jqshow');
+                $ds->sessiontime = '';
+                break;
+            case sessionsmodel::SESSION_TIME:
+                $ds->timemode = get_string('session_time', 'mod_jqshow');
+                $ds->sessiontime = userdate($session->get('sessiontime'), '%Mm %Ss');
+                break;
+            case sessionsmodel::QUESTION_TIME:
+                $ds->timemode = get_string('question_time', 'mod_jqshow');
+                $ds->sessiontime = userdate($questions->get_sum_questions_times(), '%Mm %Ss');
+                break;
+        }
+        switch ($session->get('sgrademethod')) {
+            case sessionsmodel::GM_DISABLED:
+            default:
+                $ds->grademethod = get_string('session_gm_disabled', 'mod_jqshow');
+                break;
+            case sessionsmodel::GM_R_POSITION:
+                $ds->grademethod = get_string('session_gm_position_short', 'mod_jqshow');
+                break;
+            case sessionsmodel::GM_R_POINTS:
+                $ds->grademethod = get_string('session_gm_points_short', 'mod_jqshow');
+                break;
+            case sessionsmodel::GM_R_COMBINED:
+                $ds->grademethod = get_string('session_gm_combined_short', 'mod_jqshow');
+                break;
         }
         $ds->questions_number = $questions->get_num_questions();
         $ds->managesessions = $managesessions;

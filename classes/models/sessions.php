@@ -428,13 +428,13 @@ class sessions {
                 $grademethosstring = get_string('session_gm_disabled', 'mod_jqshow');
                 break;
             case self::GM_R_POSITION :
-                $grademethosstring = get_string('session_gm_position', 'mod_jqshow');
+                $grademethosstring = get_string('session_gm_position_short', 'mod_jqshow');
                 break;
             case self::GM_R_POINTS:
-                $grademethosstring = get_string('session_gm_points', 'mod_jqshow');
+                $grademethosstring = get_string('session_gm_points_short', 'mod_jqshow');
                 break;
             case self::GM_R_COMBINED:
-                $grademethosstring = get_string('session_gm_combined', 'mod_jqshow');
+                $grademethosstring = get_string('session_gm_combined_short', 'mod_jqshow');
                 break;
             default:
                 $grademethosstring = '';
