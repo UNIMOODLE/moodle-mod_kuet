@@ -197,6 +197,17 @@ class jqshow_sessions extends persistent {
 
     /**
      * @param int $jqshowid
+     * @param int $sessionid
+     * @return string
+     * @throws coding_exception
+     */
+    public static function get_sessionname(int $jqshowid, int $sessionid): string {
+        $sessionname = self::get_record(['id' => $sessionid, 'jqshowid' => $jqshowid]);
+        return $sessionname !== false ? $sessionname->get('name') : '';
+    }
+
+    /**
+     * @param int $jqshowid
      * @return int
      * @throws dml_exception
      */

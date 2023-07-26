@@ -61,7 +61,6 @@ class teacher_session_view implements renderable, templatable {
         $data->userimage = $userpicture->get_url($PAGE)->out(false);
         $session = new jqshow_sessions($data->sid);
         $data->jqshowid = $session->get('jqshowid');
-        $PAGE->set_title(get_string('session', 'jqshow') . ' ' . $session->get('name'));
         jqshow_sessions::mark_session_started($data->sid);
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:

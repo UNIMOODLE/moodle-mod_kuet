@@ -79,6 +79,8 @@ abstract class websockets {
         // Local_cert and local_pk must be in PEM format.
         stream_context_set_option($context, 'ssl', 'local_cert', $certificateurl);
         stream_context_set_option($context, 'ssl', 'local_pk', $privatekeyurl);
+        /* TODO add possibility of passphrase in certificates per setting.
+        stream_context_set_option($context, 'ssl', 'passphrase', $passphrase) */
         stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
         stream_context_set_option($context, 'ssl', 'verify_peer', false);
         stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
