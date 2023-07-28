@@ -279,9 +279,12 @@ $string['ranking'] = 'Ranking';
 $string['participant'] = 'Participant';
 $string['score'] = 'Score';
 $string['viewreport_user'] = 'User report';
+$string['viewreport_group'] = 'Group report';
 $string['otheruserreport'] = 'You cannot view another student\'s report';
 $string['userreport'] = 'User session report';
 $string['userreport_info'] = 'The results of a session for a user are displayed.';
+$string['groupreport'] = 'Group session report';
+$string['groupreport_info'] = 'The results of a session for a group are displayed.';
 $string['viewquestion_user'] = 'See answer';
 $string['questionreport'] = 'Question Report';
 $string['questionreport_info'] = 'The report of a question in a session is displayed.';
@@ -340,3 +343,18 @@ $string['qstatus_3'] = 'No response';
 $string['qstatus_4'] = 'Not evaluable';
 $string['qstatus_5'] = 'Invalie';
 $string['error_delete_instance'] = 'Error deleting mod Jqshow.';
+$string['team_grade_first'] = 'First answer';
+$string['team_grade_last'] = 'Last answer';
+$string['team_grade_average'] = 'Average answer';
+$string['groupingid_not_selected'] = 'On group mode, a grouping must be selected';
+$string['session_groupings_error'] = 'This activity is set as group mode. Every session must have a grouping selected.';
+$string['session_groupings_no_groups'] = 'Grouping is empty. Please, select a grouping with group participants.';
+$string['session_groupings_no_members'] = 'Grouping is empty. Please, select a grouping with participants.';
+$string['session_groupings_same_user_in_groups'] = 'Participants must be part of just one group. Check this participants: {$a}';
+$string['groupmode'] = 'Teams mode';
+$string['fakegroup'] = 'Jqshow team {$a}';
+$string['fakegroupdescription'] = 'Jqshow activity has created this group because there are participants on this course
+that are not part of the grouping selected.';
+$string['groups'] = 'Teams';
+
+

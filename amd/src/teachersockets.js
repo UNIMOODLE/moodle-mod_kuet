@@ -39,6 +39,7 @@ let SERVICES = {
     JUMPTOQUESTION: 'mod_jqshow_jumptoquestion',
     GETSESSIONRESUME: 'mod_jqshow_getsessionresume',
     GETLISTRESULTS: 'mod_jqshow_getlistresults',
+    GETGROUPLISTRESULTS: 'mod_jqshow_getgrouplistresults',
     GETQUESTIONSTATISTICS: 'mod_jqshow_getquestionstatistics',
     GETSESSIONCONFIG: 'mod_jqshow_getsession',
     GETPROVISIONALRANKING: 'mod_jqshow_getprovisionalranking',
@@ -74,14 +75,16 @@ let sessionMode = null;
 let showRankingBetweenQuestions = false;
 let showRankingBetweenQuestionsSwitch = false;
 let showRankingFinal = false;
+let groupmode = 0;
 
 /**
  * @constructor
  * @param {String} region
  * @param {String} port
  * @param {String} sessionmode
+ * @param {Boolean} groupmode
  */
-function Sockets(region, port, sessionmode) {
+function Sockets(region, port, sessionmode, groupmode) {
     this.root = jQuery(region);
     portUrl = port;
     userid = this.root[0].dataset.userid;
@@ -91,6 +94,7 @@ function Sockets(region, port, sessionmode) {
     sid = this.root[0].dataset.sid;
     messageBox = this.root.find(REGION.MESSAGEBOX);
     countusers = this.root.find(REGION.COUNTUSERS);
+    groupmode = groupmode;
     sessionMode = sessionmode;
     switch (sessionMode) {
         case 'inactive_manual':
@@ -543,9 +547,13 @@ Sockets.prototype.initPanel = function() {
             jQuery(REGION.SESSIONRESUME).append(html);
         });
     });
+    let methodname = SERVICES.GETLISTRESULTS;
+    if (groupmode == '1') {
+        methodname = SERVICES.GETGROUPLISTRESULTS
+    }
     setInterval(function() {
         let requestResults = {
-            methodname: SERVICES.GETLISTRESULTS,
+            methodname: methodname,
             args: {
                 sid: sid,
                 cmid: cmid,

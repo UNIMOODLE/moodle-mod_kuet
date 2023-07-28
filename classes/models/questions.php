@@ -416,4 +416,7 @@ class questions {
         $qa->set_slot($slot);
         return $qa->get_question()->format_text($text, $textformat, $qa, 'question', $filearea, $id);
     }
+    public static function add_user_response() {
+
+    }
 }

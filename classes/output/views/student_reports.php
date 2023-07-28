@@ -65,6 +65,7 @@ class student_reports implements renderable, templatable {
         if ($this->sid === 0) {
             $data->allreports = true;
             $data->endedsessions = $jqshow->get_completed_sessions();
+            $data->groupmode = false;
             foreach ($data->endedsessions as $endedsession) {
                 $endedsession->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $this->cmid, 'sid' => $endedsession->sessionid, 'userid' => $USER->id]))->out(false);

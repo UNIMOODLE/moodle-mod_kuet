@@ -113,6 +113,10 @@ class renderer extends plugin_renderer_base {
      */
     public function render_student_reports(student_reports $view): string {
         $data = $view->export_for_template($this);
-        return $this->render_from_template('mod_jqshow/reports/student_reports', $data);
+        $template = 'mod_jqshow/reports/student_reports';
+        if ($data->groupmode) {
+            $template = 'mod_jqshow/reports/group_reports';
+        }
+        return $this->render_from_template($template, $data);
     }
 }

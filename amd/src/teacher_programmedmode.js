@@ -18,6 +18,7 @@ let ACTION = {
 
 let SERVICES = {
     GETLISTRESULTS: 'mod_jqshow_getlistresults',
+    GETGROUPLISTRESULTS: 'mod_jqshow_getgrouplistresults',
     FINISHSESSION: 'mod_jqshow_finishsession'
 };
 
@@ -28,6 +29,7 @@ let TEMPLATES = {
 
 let cmId;
 let sId;
+let groupmode;
 
 /**
  * @constructor
@@ -45,6 +47,7 @@ ProgrammedMode.prototype.node = null;
 ProgrammedMode.prototype.initProgrammedMode = function() {
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
+    groupmode = this.node.attr('data-groupmode');
     setInterval(this.reloadList, 20000);
 };
 
@@ -52,8 +55,12 @@ ProgrammedMode.prototype.reloadList = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         let identifier = jQuery(REGION.LISTRESULTS);
         identifier.append(html);
+        let methodname = SERVICES.GETLISTRESULTS;
+        if (groupmode == '1') {
+            methodname = SERVICES.GETGROUPLISTRESULTS
+        }
         let request = {
-            methodname: SERVICES.GETLISTRESULTS,
+            methodname: methodname,
             args: {
                 sid: sId,
                 cmid: cmId

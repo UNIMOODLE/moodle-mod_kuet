@@ -143,6 +143,9 @@ class jqshow_sessions extends persistent {
         ];
     }
 
+    public function is_group_mode() {
+        return !is_null($this->get('groupings'));
+    }
     /**
      * @param int $sessionid
      * @return int

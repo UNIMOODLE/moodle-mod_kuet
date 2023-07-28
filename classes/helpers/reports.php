@@ -30,15 +30,16 @@ use context_module;
 use dml_exception;
 use JsonException;
 use mod_jqshow\api\grade;
+use mod_jqshow\api\groupmode;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\questions\multichoice;
 use moodle_exception;
 use moodle_url;
-use pix_icon;
 use question_bank;
 use stdClass;
 use user_picture;
@@ -111,7 +112,26 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_ranking_for_teacher_report(int $cmid, int $sid): array {
+        $session = new jqshow_sessions($sid);
+        if ($session->is_group_mode()) {
+            $results = self::get_groups_ranking_for_teacher_report($cmid, $sid);
+        } else {
+            $results = self::get_individual_ranking_for_teacher_report($cmid, $sid);
+        }
+        return $results;
+    }
+
+    /**
+     * @param int $cmid
+     * @param int $sid
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_individual_ranking_for_teacher_report(int $cmid, int $sid): array {
         global $DB;
+
         $results = sessions::get_session_results($sid, $cmid);
         foreach ($results as $user) {
             $userdata = $DB->get_record('user', ['id' => $user->userid]);
@@ -120,6 +140,26 @@ class reports {
                 $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $cmid, 'sid' => $sid, 'userid' => $user->userid]))->out(false);
             }
+        }
+        return $results;
+    }
+
+    /**
+     * @param int $cmid
+     * @param int $sid
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_groups_ranking_for_teacher_report(int $cmid, int $sid): array {
+
+        $results = sessions::get_group_session_results($sid, $cmid);
+        foreach ($results as $group) {
+            $groupdata = groups_get_group($group->id);
+            $group = self::add_groupdata($groupdata, $group, 200);
+            $group->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
+                    ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $group->id]))->out(false);
         }
         return $results;
     }
@@ -273,14 +313,15 @@ class reports {
         $data->sessionname = $session->get('name');
         $data->config = sessions::get_session_config($sid, $cmid);
         $data->sessionquestions = self::get_questions_data_for_teacher_report($jqshowid, $cmid, $sid);
+        $rankingusers = $session->is_group_mode() ? 'rankinggroups' : 'rankingusers';
         if ($session->get('anonymousanswer') === 1) {
             if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
                 $data->hasranking = true;
-                $data->rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
+                $data->$rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
             }
         } else {
             $data->hasranking = true;
-            $data->rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
+            $data->$rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
             if ($mode !== sessions::INACTIVE_PROGRAMMED && $mode !== sessions::INACTIVE_MANUAL) {
                 $data->showfinalranking = true;
                 $data->firstuserimageurl = $data->rankingusers[0]->userimage;
@@ -308,6 +349,28 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_question_report(int $cmid, int $sid, int $jqid): stdClass {
+        $session = new jqshow_sessions($sid);
+        if ($session->is_group_mode()) {
+            $data = self::get_group_question_report($cmid, $sid, $jqid);
+            $data->groupmode = 1;
+        } else {
+            $data = self::get_individual_question_report($cmid, $sid, $jqid);
+        }
+        return $data;
+    }
+
+    /**
+     * @param int $cmid
+     * @param int $sid
+     * @param int $jqid
+     * @return stdClass
+     * @throws JsonException
+     * @throws \dml_transaction_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_individual_question_report(int $cmid, int $sid, int $jqid): stdClass {
         global $DB, $USER;
         $session = new jqshow_sessions($sid);
         $question = new jqshow_questions($jqid);
@@ -326,76 +389,16 @@ class reports {
             $cmid, $questiondata->questiontext, $questiondata->questiontextformat, $questiondata->id, $questiondata, 'questiontext'
         );
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
-        $answers = [];
-        $correctanswers = [];
+;
         switch ($data->type) {
             // TODO recfactor.
             case 'multichoice':
-                foreach ($questiondata->answers as $key => $answer) {
-                    $answers[$key]['answertext'] = $answer->answer; // TODO get text with images questions::get_text.
-                    $answers[$key]['answerid'] = $key;
-                    if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
-                        $answers[$key]['result'] = 'incorrect';
-                        $answers[$key]['resultstr'] = get_string('incorrect', 'mod_jqshow');
-                        $answers[$key]['fraction'] = round($answer->fraction, 2);
-                        $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_jqshow'), 'mod_jqshow', [
-                            'class' => 'icon',
-                            'title' => get_string('incorrect', 'mod_jqshow')
-                        ]);
-                        $usersicon = new pix_icon('i/incorrect_users', '', 'mod_jqshow', [
-                            'class' => 'icon',
-                            'title' => ''
-                        ]);
-                    } else if ($answer->fraction === '1.0000000') {
-                        $answers[$key]['result'] = 'correct';
-                        $answers[$key]['resultstr'] = get_string('correct', 'mod_jqshow');
-                        $answers[$key]['fraction'] = '1';
-                        $icon = new pix_icon('i/correct', get_string('correct', 'mod_jqshow'), 'mod_jqshow', [
-                            'class' => 'icon',
-                            'title' => get_string('correct', 'mod_jqshow')
-                        ]);
-                        $usersicon = new pix_icon('i/correct_users', '', 'mod_jqshow', [
-                            'class' => 'icon',
-                            'title' => ''
-                        ]);
-                    } else {
-                        $answers[$key]['result'] = 'partially';
-                        $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_jqshow');
-                        $answers[$key]['fraction'] = round($answer->fraction, 2);
-                        $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_jqshow'), 'mod_jqshow', [
-                            'class' => 'icon',
-                            'title' => get_string('partially_correct', 'mod_jqshow')
-                        ]);
-                        $usersicon = new pix_icon('i/correct_users', '', 'mod_jqshow', [
-                            'class' => 'icon',
-                            'title' => ''
-                        ]);
-                    }
-                    $answers[$key]['resulticon'] = $icon->export_for_pix();
-                    $answers[$key]['usersicon'] = $usersicon->export_for_pix();
-                    $answers[$key]['numticked'] = 0;
-                    if ($answer->fraction !== '0.0000000') { // Answers with punctuation, even if negative.
-                        $correctanswers[$key]['response'] = $answer->answer;
-                        $correctanswers[$key]['score'] = grade::get_rounded_mark($questiondata->defaultmark * $answer->fraction);
-                    }
-                }
-                $responses = jqshow_questions_responses::get_question_responses($sid, $data->jqshowid, $jqid);
-                foreach ($responses as $response) {
-                    $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-                    if ($other->answerids !== '' && $other->answerids !== '0') { // TODO prepare for multianswer.
-                        $arrayanswerids = explode(',', $other->answerids);
-                        foreach ($arrayanswerids as $arrayanswerid) {
-                            $answers[$arrayanswerid]['numticked']++;
-                        }
-                    }
-                    // TODO obtain the average time to respond to each option ticked. ???
-                }
-                $data->answers = array_values($answers);
+                $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             default:
                 break;
         }
-        $data->correctanswers = array_values($correctanswers);
+
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $cmcontext = context_module::instance($cmid);
         $users = enrol_get_course_users($course->id, true);
@@ -432,7 +435,79 @@ class reports {
         }
         return $data;
     }
+    public static function get_group_question_report(int $cmid, int $sid, int $jqid): stdClass {
+        global $DB, $USER;
+        $session = new jqshow_sessions($sid);
+        $question = new jqshow_questions($jqid);
+        $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
+        $data = new stdClass();
+        $data->questionreport = true;
+        $data->sessionid = $sid;
+        $data->jqid = $jqid;
+        $data->cmid = $cmid;
+        $data->jqshowid = $question->get('jqshowid');
+        $data->questionnid = $question->get('id');
+        $data->position = $question->get('qorder');
+        $data->type = $question->get('qtype');
+        $questiondata = question_bank::load_question($questiondb->id);
+        $data->questiontext = questions::get_text(
+            $cmid, $questiondata->questiontext, $questiondata->questiontextformat, $questiondata->id, $questiondata, 'questiontext'
+        );
+        $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
 
+        switch ($data->type) {
+            // TODO recfactor.
+            case 'multichoice':
+                $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
+                break;
+            default:
+                break;
+        }
+        $cmcontext = context_module::instance($cmid);
+        $groups = groupmode::get_grouping_groups($session->get('groupings'));
+        $data->numgroups = count($groups);
+        $gselectedmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
+        // Num correct.
+        $numcorrect = 0;
+        $numincorrect = 0;
+        $numpartial = 0;
+        foreach ($gselectedmembers as $gselectedmember) {
+            $numcorrect += jqshow_questions_responses::count_records(
+                ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::SUCCESS,
+                    'userid' => $gselectedmember]
+            );
+            $numincorrect += jqshow_questions_responses::count_records(
+                ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::FAILURE,
+                    'userid' => $gselectedmember]
+            );
+            $numpartial += jqshow_questions_responses::count_records(
+                ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::PARTIALLY,
+                    'userid' => $gselectedmember]
+            );
+        }
+        $data->numcorrect = $numcorrect;
+        $data->numincorrect = $numincorrect;
+        $data->numpartial = $numpartial;
+        $data->numnoresponse = $data->numgroups - ($data->numcorrect + $data->numincorrect + $data->numpartial);
+
+        $data->percent_correct = round(($data->numcorrect / $data->numgroups) * 100, 2);
+        $data->percent_incorrect = round(($data->numincorrect / $data->numgroups) * 100, 2);
+        $data->percent_partially = round(($data->numpartial / $data->numgroups) * 100, 2);
+        $data->percent_noresponse = round(($data->numnoresponse / $data->numgroups) * 100, 2);
+        if ($session->get('anonymousanswer') === 1) {
+            if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                $data->hasranking = true;
+                $data->groupmode = true;
+                $data->questiongroupranking =
+                    self::get_group_ranking_for_question($groups, $data->answers, $session, $question, $cmid, $sid, $jqid);
+            }
+        } else {
+            $data->hasranking = true;
+            $data->questiongroupranking =
+                self::get_group_ranking_for_question($groups, $data->answers, $session, $question, $cmid, $sid, $jqid);
+        }
+        return $data;
+    }
     /**
      * @param int $cmid
      * @param int $sid
@@ -496,6 +571,70 @@ class reports {
     /**
      * @param int $cmid
      * @param int $sid
+     * @param int $groupid
+     * @param context_module $cmcontext
+     * @return stdClass
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_group_report(int $cmid, int $sid, int $groupid, context_module $cmcontext): stdClass {
+        global $USER;
+
+        $data = new stdClass();
+        $data->cmid = $cmid;
+        $session = new jqshow_sessions($sid);
+        $data->jqshowid = $session->get('jqshowid');
+        if ($session->get('anonymousanswer') === 1 && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+            throw new moodle_exception('anonymousanswers', 'mod_jqshow', '',
+                [], get_string('anonymousanswers', 'mod_jqshow'));
+        }
+        $data->groupreport = true;
+        $data->sessionname = $session->get('name');
+//        $userdata = $DB->get_record('user', ['id' => $userid]);
+//        $data = self::add_userdata($userdata, $data, $userid);
+        $gmembers = groupmode::get_group_members($groupid);
+        $gmember = reset($gmembers);
+        $groupdata = groups_get_group($groupid);
+        $data = self::add_groupdata($groupdata, $data);
+        $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
+        $data->config = sessions::get_session_config($sid, $cmid);
+        $data->sessionquestions =
+            self::get_questions_data_for_user_report($data->jqshowid, $cmid, $sid, $gmember->id);
+        $data->numquestions = count($data->sessionquestions);
+        $data->noresponse = 0;
+        $data->success = 0;
+        $data->partially = 0;
+        $data->failures = 0;
+        $data->noevaluable = 0;
+        foreach ($data->sessionquestions as $question) {
+            switch ($question->response) {
+                case 'failure':
+                    $data->failures++;
+                    break;
+                case 'partially':
+                    $data->partially++;
+                    break;
+                case 'success':
+                    $data->success++;
+                    break;
+                case 'noresponse':
+                    $data->noresponse++;
+                    break;
+                case 'noevaluable':
+                    $data->noevaluable++;
+                    break;
+                default:
+                    break;
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * @param int $cmid
+     * @param int $sid
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -509,6 +648,7 @@ class reports {
         $session = new jqshow_sessions($sid);
         $data->jqshowid = $session->get('jqshowid');
         $data->userreport = true;
+        $data->groupmode = $session->is_group_mode();
         $data->sessionname = $session->get('name');
         $userdata = $DB->get_record('user', ['id' => $USER->id]);
         $data = self::add_userdata($userdata, $data, $USER->id);
@@ -565,6 +705,26 @@ class reports {
     }
 
     /**
+     * @param stdClass $groupdata
+     * @param stdClass $data
+     * @param int $groupid
+     * @param int $imagesize
+     * @return stdClass
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    private static function add_groupdata(stdClass $groupdata, stdClass $data, int $imagesize = 1): stdClass {
+        $grouppicture = get_group_picture_url($groupdata, $groupdata->courseid);
+        if (!is_null($grouppicture)) {
+            $grouppicture->size = $imagesize;
+        }
+        $data->groupimage = ($grouppicture) ? $grouppicture->out(false) : '';
+        $data->groupname = $groupdata->name;
+        $data->groupurl = '';
+        return $data;
+    }
+
+    /**
      * @param array $users
      * @param array $answers
      * @param jqshow_sessions $session
@@ -586,6 +746,7 @@ class reports {
         $results = [];
         foreach ($users as $user) {
             $userdata = $DB->get_record('user', ['id' => $user->id]);
+            $user->participantid = $user->id;
             if ($userdata !== false && !has_capability('mod/jqshow:startsession', $context, $userdata)) {
                 $user = self::add_userdata($userdata, $user, $user->id);
                 $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
@@ -595,39 +756,7 @@ class reports {
                     $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
                     switch ($other->type) {
                         case 'multichoice':
-                            $arrayresponses = explode(',', $other->answerids);
-                            if (count($arrayresponses) === 1) {
-                                foreach ($answers as $answer) {
-                                    if ((int)$answer['answerid'] === (int)$arrayresponses[0]) {
-                                        $user->response = $answer['result'];
-                                        $user->responsestr = get_string($answer['result'], 'mod_jqshow');
-                                        $user->answertext = $answer['answertext'];
-                                        $points = grade::get_response_mark($user->id, $sid, $response);
-                                        $spoints = grade::get_session_grade($user->id, $sid, $session->get('jqshowid'));
-                                        $user->userpoints = grade::get_rounded_mark($spoints);
-                                        $user->score_moment = grade::get_rounded_mark($points);
-                                        $user->time = self::get_user_time_in_question($session, $question, $response);
-                                    }
-                                }
-                            } else {
-                                $answertext = '';
-                                foreach ($answers as $answer) {
-                                    foreach ($arrayresponses as $responseid) {
-                                        if ((int)$answer['answerid'] === (int)$responseid) {
-                                            $answertext .= $answer['answertext'] . '<br>';
-                                        }
-                                    }
-                                }
-                                $status = grade::get_status_response_for_multiple_answers($other->questionid, $other->answerids);
-                                $user->response = get_string('qstatus_' . $status, 'mod_jqshow');
-                                $user->responsestr = get_string($user->response, 'mod_jqshow');
-                                $user->answertext = trim($answertext, '<br>');
-                                $points = grade::get_response_mark($user->id, $sid, $response);
-                                $spoints = grade::get_session_grade($user->id, $sid, $session->get('jqshowid'));
-                                $user->userpoints = grade::get_rounded_mark($spoints);
-                                $user->score_moment = grade::get_rounded_mark($points);
-                                $user->time = self::get_user_time_in_question($session, $question, $response);
-                            }
+                            $user = multichoice::get_ranking_for_question($user, $response, $answers, $session, $question);
                             break;
                         default:
                             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
@@ -644,6 +773,43 @@ class reports {
                 }
                 $results[] = $user;
             }
+        }
+        return $results;
+    }
+    public static function get_group_ranking_for_question(
+        array $groups, array $answers, jqshow_sessions $session, jqshow_questions $question, int $cmid, int $sid, int $jqid
+    ): array {
+
+        $results = [];
+        foreach ($groups as $group) {
+
+            $group = self::add_groupdata($group, $group);
+            $group->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
+                ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $group->id]))->out(false);
+            $gmembers = groupmode::get_group_members($group->id);
+            $gmember = reset($gmembers);
+            $group->participantid = $gmember->id;
+            $response = jqshow_questions_responses::get_record(['userid' => $gmember->id, 'session' => $sid, 'jqid' => $jqid]);
+            if ($response !== false) {
+                $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                switch ($other->type) {
+                    case 'multichoice':
+                        $group = multichoice::get_ranking_for_question($group, $response, $answers, $session, $question);
+                        break;
+                    default:
+                        throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                            [], get_string('question_nosuitable', 'mod_jqshow'));
+                }
+            } else {
+                $questiontimestr = self::get_time_string($session, $question);
+                $group->response = 'noresponse';
+                $group->responsestr = get_string('noresponse', 'mod_jqshow');
+                $group->grouppoints = 0;
+                $group->answertext = '-';
+                $group->score_moment = 0;
+                $group->time = $questiontimestr . ' / ' . $questiontimestr; // Or 0?
+            }
+            $results[] = $group;
         }
         return $results;
     }

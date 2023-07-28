@@ -31,6 +31,7 @@ use dml_exception;
 use JsonException;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\jqshow;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use renderable;
 use renderer_base;
@@ -42,21 +43,27 @@ class teacher_reports implements renderable, templatable {
     public int $jqshowid;
     public int $cmid;
     public int $sid;
-    public int $userid;
+    public int $userid = 0;
+    public int $groupid = 0;
     public int $jqid;
 
     /**
      * @param int $cmid
      * @param int $jqshowid
      * @param int $sid
-     * @param int $userid
+     * @param int $partipantid could be userid or groupid
      * @param int $jqid
      */
-    public function __construct(int $cmid, int $jqshowid, int $sid, int $userid, int $jqid) {
+    public function __construct(int $cmid, int $jqshowid, int $sid, int $partipantid, int $jqid) {
         $this->jqshowid = $jqshowid;
         $this->cmid = $cmid;
         $this->sid = $sid;
-        $this->userid = $userid;
+        $session = new jqshow_sessions($sid);
+        if ($session->is_group_mode()) {
+            $this->groupid = $partipantid;
+        } else {
+            $this->userid = $partipantid;
+        }
         $this->jqid = $jqid;
     }
 
@@ -69,6 +76,7 @@ class teacher_reports implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
+
         $jqshow = new jqshow($this->cmid);
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
@@ -77,12 +85,14 @@ class teacher_reports implements renderable, templatable {
         if ($this->sid === 0) {
             $data->allreports = true;
             $data->endedsessions = $jqshow->get_completed_sessions();
-        } else if ($this->userid === 0 && $this->jqid === 0) {
+        } else if ($this->userid === 0 & $this->groupid === 0 && $this->jqid === 0) {
             $data = reports::get_session_report($this->jqshowid, $data->cmid, $this->sid, $cmcontext);
         } else if ($this->userid === 0 && $this->jqid !== 0) {
             $data = reports::get_question_report($this->cmid, $this->sid, $this->jqid);
-        } else {
+        } else if ($this->groupid === 0) {
             $data = reports::get_user_report($this->cmid, $this->sid, $this->userid, $cmcontext);
+        } else {
+            $data = reports::get_group_report($this->cmid, $this->sid, $this->groupid, $cmcontext);
         }
         return $data;
     }

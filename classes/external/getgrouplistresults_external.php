@@ -39,11 +39,11 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class getlistresults_external extends external_api {
+class getgrouplistresults_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function getlistresults_parameters(): external_function_parameters {
+    public static function getgrouplistresults_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'sid' => new external_value(PARAM_INT, 'sessionid id'),
@@ -59,60 +59,21 @@ class getlistresults_external extends external_api {
      * @throws moodle_exception
      * @throws invalid_parameter_exception
      */
-    public static function getlistresults(int $sid, int $cmid): array {
+    public static function getgrouplistresults(int $sid, int $cmid): array {
         self::validate_parameters(
-            self::getlistresults_parameters(),
+            self::getgrouplistresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
-        $session = new jqshow_sessions($sid);
-        $groupmode = false;
-        if ($session->is_group_mode()) {
-            $groupmode = true;
-            $groupresults = sessions::get_group_session_results($sid, $cmid);
-            $userresults = [[
-                'userfullname' => '',
-                'correctanswers' => 0,
-                'incorrectanswers' => 0,
-                'notanswers' => 0,
-                'partially' => 0,
-                'userpoints' => '98',
-                'userposition' => 0
-            ]];
-        } else {
-            $userresults = sessions::get_session_results($sid, $cmid);
-            $groupresults = [[
-                'groupname' => 'ww',
-                'correctanswers' => 0,
-                'incorrectanswers' => 0,
-                'notanswers' => 0,
-                'partially' => 0,
-                'grouppoints' => '23',
-                'groupposition' => 0
-            ]];
-        }
+        $groupresults = sessions::get_group_session_results($sid, $cmid);
 
-        return ['userresults' => $userresults, 'groupmode' => $groupmode, 'groupresults' => $groupresults];
+        return ['groupresults' => $groupresults];
     }
 
     /**
      * @return external_single_structure
      */
-    public static function getlistresults_returns(): external_single_structure {
+    public static function getgrouplistresults_returns(): external_single_structure {
         return new external_single_structure([
-            'userresults' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'userfullname' => new external_value(PARAM_RAW, 'Name of user'),
-                        'correctanswers' => new external_value(PARAM_INT, 'Num of correct answers'),
-                        'incorrectanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
-                        'notanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
-                        'partially' => new external_value(PARAM_INT, 'Num of partially correct answers'),
-                        'userpoints' => new external_value(PARAM_RAW, 'Total points of user'),
-                        'userposition' => new external_value(PARAM_INT, 'User position depending on the points')
-                    ], ''
-                ), ''
-            ),
-            'groupmode' => new external_value(PARAM_BOOL, 'group mode activated'),
             'groupresults' => new external_multiple_structure(
                 new external_single_structure(
                     [

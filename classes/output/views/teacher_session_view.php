@@ -68,7 +68,12 @@ class teacher_session_view implements renderable, templatable {
             case sessions::RACE_PROGRAMMED:
                 $data->programmedmode = true;
                 $data->config = sessions::get_session_config($data->sid, $data->cmid);
-                $data->userresults = sessions::get_session_results($data->sid, $data->cmid);
+                if ($session->is_group_mode()) {
+                    $data->groupresults = sessions::get_group_session_results($data->sid, $data->cmid);
+                    $data->groupmode = 1;
+                } else {
+                    $data->userresults = sessions::get_session_results($data->sid, $data->cmid);
+                }
                 break;
             case sessions::INACTIVE_MANUAL:
             case sessions::PODIUM_MANUAL:
@@ -77,6 +82,7 @@ class teacher_session_view implements renderable, templatable {
                 [$course, $cm] = get_course_and_cm_from_cmid($data->cmid, 'jqshow', $COURSE);
                 $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
                 $data->manualmode = true;
+                $data->groupmode = $session->is_group_mode();
                 $data->waitingroom = true;
                 $data->config = sessions::get_session_config($data->sid, $data->cmid);
                 $data->sessionname = $data->config[0]['configvalue'];
@@ -94,6 +100,8 @@ class teacher_session_view implements renderable, templatable {
                 $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
                 $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
                 $data->sessionmode = $session->get('sessionmode');
+                $data->groupmode = $session->is_group_mode();
+                $data->courseid = $course->id;
                 break;
             default:
                 throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',

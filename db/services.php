@@ -32,6 +32,7 @@ use mod_jqshow\external\firstquestion_external;
 use mod_jqshow\external\getactivesession_external;
 use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\getlistresults_external;
+use mod_jqshow\external\getgrouplistresults_external;
 use mod_jqshow\external\getprovisionalranking_external;
 use mod_jqshow\external\getquestion_external;
 use mod_jqshow\external\getquestionstatistics_external;
@@ -177,6 +178,14 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_jqshow_getgrouplistresults' => [
+        'classname' => getgrouplistresults_external::class,
+        'methodname' => 'getgrouplistresults',
+        'description' => 'Get group list results of one session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
     'mod_jqshow_finishsession' => [
         'classname' => finishsession_external::class,
         'methodname' => 'finishsession',
@@ -316,6 +325,7 @@ $services = [
             'mod_jqshow_nextquestion',
             'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',
+            'mod_jqshow_getgrouplistresults',
             'mod_jqshow_finishsession',
             'mod_jqshow_startsession',
             'mod_jqshow_sessionfinished',

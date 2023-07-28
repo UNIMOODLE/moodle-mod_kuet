@@ -27,6 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
+use mod_jqshow\api\groupmode;
 
 class mod_jqshow_mod_form extends moodleform_mod {
 
@@ -63,12 +64,15 @@ class mod_jqshow_mod_form extends moodleform_mod {
         $this->standard_coursemodule_elements();
 
         // Teams grade.
-        $mform->addElement('header', 'teamsgrade', get_string('teamsgradeheader', 'jqshow'));
-        $options = ['' => get_string('chooseoption', 'jqshow'), 'first' => 'first', 'last' => 'last', 'average' => 'average'];
-        $mform->addElement('select', 'teamgrade', get_string('teamgrade', 'jqshow'), $options);
-        $mform->disabledIf('teamgrade', 'groupmode', 'eq', 0);
-        $mform->addHelpButton('teamgrade', 'teamgrade', 'jqshow');
-        $mform->setType('teamgrade', PARAM_RAW);
+//        $mform->addElement('header', 'teamsgrade', get_string('teamsgradeheader', 'jqshow'));
+//        $options = [groupmode::TEAM_GRADE_FIRST => get_string('team_grade_first', 'mod_jqshow'),
+////            groupmode::TEAM_GRADE_LAST => 'last',
+////            groupmode::TEAM_GRADE_AVERAGE => 'average'
+//        ];
+//        $mform->addElement('select', 'teamgrade', get_string('teamgrade', 'jqshow'), $options);
+//        $mform->disabledIf('teamgrade', 'groupmode', 'eq', 0);
+//        $mform->addHelpButton('teamgrade', 'teamgrade', 'jqshow');
+//        $mform->setType('teamgrade', PARAM_RAW);
 
         $this->add_action_buttons();
     }

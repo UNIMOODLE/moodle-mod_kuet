@@ -204,16 +204,18 @@ class sessionform extends moodleform {
             $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
             $select = $mform->addElement('select', 'groupings',
                 get_string('groupings', 'mod_jqshow'), $customdata['groupingsselect'], ['cols' => 100]);
-            $select->setMultiple(true);
+            $select->setMultiple(false);
             $mform->setType('groupings', PARAM_INT);
             $mform->addElement('html', '</div>');
             $mform->addElement('html', '</div>');
         }
 
+        /** @var \cm_info $cm */
+        $cm = $customdata['cm'];
         // Hidden params.
         $mform->addElement('hidden', 'jqshowid', $customdata['jqshowid']);
         $mform->setType('jqshowid', PARAM_INT);
-        $mform->addElement('hidden', 'groupmode', 0);
+        $mform->addElement('hidden', 'groupmode', (int) $cm->groupmode);
         $mform->setType('groupmode', PARAM_INT);
         $mform->addElement('hidden', 'status', sessionsmodel::SESSION_ACTIVE);
         $mform->setType('status', PARAM_INT);
@@ -246,12 +248,42 @@ class sessionform extends moodleform {
         if ($haserrorname) {
             $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
         }
+        // Automatic start.
         if (array_key_exists('automaticstart', $data) && (int)$data['automaticstart'] === 1) {
             if ((int)$data['startdate'] <= time()) {
                 $errors['startdate'] = get_string('previousstarterror', 'mod_jqshow');
             }
             if ((int)$data['startdate'] >= (int)$data['enddate']) {
                 $errors['enddate'] = get_string('startminorend', 'mod_jqshow');
+            }
+        }
+        // Groups mode.
+        if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && empty($data['groupings'])) {
+            $errors['groupings'] = get_string('session_groupings_error', 'mod_jqshow');
+        } else if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && !empty($data['groupings'])) {
+            $groups = groups_get_grouping_members($data['groupings'], 'gg.groupid');
+            if (empty($groups)) {
+                $errors['groupings'] = get_string('session_groupings_no_members', 'mod_jqshow');
+            } else {
+                $allmembers = [];
+                foreach ($groups as $group) {
+                    $members = groups_get_members($group->groupid, 'u.id, u.username');
+                    if (empty($members)) {
+                        continue;
+                    }
+                    $errorusers = [];
+                    foreach ($members as $member) {
+                        if (in_array($member->id, $allmembers)) {
+                            $errorusers[] = $member->username;
+                        } else {
+                            $allmembers[] = $member->id;
+                        }
+                    }
+                }
+                if (!empty($errorusers)) {
+                    $users = implode(',', $errorusers);
+                    $errors['groupings'] = get_string('session_groupings_same_user_in_groups', 'mod_jqshow', $users);
+                }
             }
         }
         return $errors;

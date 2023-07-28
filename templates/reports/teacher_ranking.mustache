@@ -16,7 +16,7 @@
                 <div class="d-table-cell text-center"></div>
             </div>
             {{#rankingusers}}
-                <div class="d-table-row ranking-users-data user-item" data-userid="{{userid}}">
+                <div class="INDIVIDUALTEACHER  2 d-table-row ranking-users-data user-item" data-userid="{{userid}}">
                     <div class="d-table-cell">{{userposition}}º</div>
                     <div class="d-table-cell">
                         <div class="participant" data-userid="{{userid}}">
@@ -40,6 +40,32 @@
                     </div>
                 </div>
             {{/rankingusers}}
+
+            {{#rankinggroups}}
+                <div class=" ELENA 1 d-table-row ranking-users-data user-item" data-userid="{{groupid}}">
+                    <div class="d-table-cell">{{groupposition}}º</div>
+                    <div class="d-table-cell">
+                        <div class="participant" data-userid="{{groupid}}">
+                            <a href="{{groupurl}}" target="_blank">
+                                <img src="{{groupimage}}" alt="{{groupname}}">
+                                <span class="user-fullname">
+                                    {{groupname}}
+                                </span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="d-table-cell text-center">{{grouppoints}}</div>
+                    <div class="d-table-cell text-center">{{correctanswers}}</div>
+                    <div class="d-table-cell text-center">{{incorrectanswers}}</div>
+                    <div class="d-table-cell text-center">{{partially}}</div>
+                    <div class="d-table-cell text-center">{{notanswers}}</div>
+                    <div class="d-table-cell text-center viewreport">
+                        <a href="{{viewreporturl}}">
+                            + <span>{{#str}}viewreport_group, mod_jqshow{{/str}}</span>
+                        </a>
+                    </div>
+                </div>
+            {{/rankinggroups}}
         </div>
     </div>
 </div>

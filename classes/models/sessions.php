@@ -33,8 +33,10 @@ use core_php_time_limit;
 use dml_exception;
 use Exception;
 use mod_jqshow\api\grade;
+use mod_jqshow\api\groupmode;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\forms\sessionform;
+use mod_jqshow\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -44,6 +46,7 @@ use pix_icon;
 use qbank_managecategories\helper;
 use stdClass;
 use user_picture;
+use cm_info;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -145,7 +148,11 @@ class sessions {
             3 => 'Opcion3'
         ];
         $groupingsselect = [];
-        [$course, $cm] = get_course_and_cm_from_cmid($this->cmid);
+        $data = get_course_and_cm_from_cmid($this->cmid);
+        /** @var  stdClass $course */
+        $course = $data[0];
+        /** @var cm_info $cm */
+        $cm = $data[1];
         if ($cm->groupmode) {
             $groupings = groups_get_all_groupings($cm->course);
             if (!empty($groupings)) {
@@ -160,6 +167,7 @@ class sessions {
             self::GM_R_POINTS => get_string('session_gm_points', 'mod_jqshow'),
             self::GM_R_COMBINED => get_string('session_gm_combined', 'mod_jqshow'),
         ];
+
         $customdata = [
             'course' => $course,
             'cm' => $cm,
@@ -169,6 +177,7 @@ class sessions {
             'timemode' => $timemode,
             'anonymousanswerchoices' => $anonymousanswerchoices,
             'groupingsselect' => $groupingsselect,
+            'groupingsselected' => $groupingsselect,
             'sessiongrademethods' => $sessiongrademethods,
         ];
 
@@ -218,7 +227,8 @@ class sessions {
             'automaticstart' => $session->get('automaticstart'),
             'timemode' => $session->get('timemode'),
             'sessiontime' => $session->get('sessiontime'),
-            'questiontime' => $session->get('questiontime')
+            'questiontime' => $session->get('questiontime'),
+            'groupings' => $session->get('groupings'),
         ];
     }
 
@@ -422,6 +432,15 @@ class sessions {
             'configname' => get_string('sessionmode', 'mod_jqshow'),
             'configvalue' => get_string($sessiondata->get('sessionmode'), 'mod_jqshow')
         ];
+        if ($sessiondata->is_group_mode()) {
+            groupmode::check_all_users_in_groups($cmid, $sessiondata->get('groupings'));
+            $names = groupmode::get_grouping_groups_name($sessiondata->get('groupings'));
+            $data[] = [
+                'iconconfig' => 'groups',
+                'configname' => get_string('groupmode', 'mod_jqshow'),
+                'configvalue' => implode(',', $names)
+            ];
+        }
 
         switch ($sessiondata->get('sgrademethod')) {
             case self::GM_DISABLED:
@@ -584,6 +603,47 @@ class sessions {
     }
 
     /**
+     * @param int $sid
+     * @param int $cmid
+     * @return array
+     * @throws moodle_exception
+     * @throws Exception
+     */
+    public static function get_group_session_results(int $sid, int $cmid): array {
+
+        $session = jqshow_sessions::get_record(['id' => $sid]);
+        $groups = groupmode::get_grouping_groups($session->get('groupings'));
+        $questions = (new questions($session->get('jqshowid'), $cmid, $sid))->get_list();
+        $sessiongroups = [];;
+        foreach ($groups as $group) {
+                $gmembers = groups_get_members($group->id, 'u.id');
+                $groupmember = reset($gmembers);
+                $correctanswers = jqshow_questions_responses::count_records(['jqshow' => $session->get('jqshowid'),
+                    'session' => $sid, 'userid' => $groupmember->id, 'result' => questions::SUCCESS]);
+                $incorrectanswers = jqshow_questions_responses::count_records(['jqshow' => $session->get('jqshowid'),
+                    'session' => $sid, 'userid' => $groupmember->id, 'result' => questions::FAILURE]);
+                $partially = jqshow_questions_responses::count_records(['jqshow' => $session->get('jqshowid'),
+                    'session' => $sid, 'userid' => $groupmember->id, 'result' => questions::PARTIALLY]);
+                $userpoints = grade::get_session_grade($groupmember->id, $session->get('id'), $session->get('jqshowid'));
+                $sessiongroup = new stdClass();
+                $sessiongroup->id = $group->id;
+                $sessiongroup->groupname = $group->name;
+                $sessiongroup->correctanswers = $correctanswers;
+                $sessiongroup->incorrectanswers = $incorrectanswers;
+                $sessiongroup->partially = $partially;
+                $sessiongroup->notanswers = count($questions) - ($correctanswers + $incorrectanswers + $partially);
+                $sessiongroup->grouppoints = grade::get_rounded_mark($userpoints);
+                $sessiongroups[] = $sessiongroup;
+        }
+        usort($sessiongroups, static fn($a, $b) => $b->grouppoints <=> $a->grouppoints);
+        $position = 0;
+        foreach ($sessiongroups as $sessiongroup) {
+            $sessiongroup->groupposition = ++$position;
+        }
+        return $sessiongroups;
+    }
+
+    /**
      * @return Object
      * @throws coding_exception
      * @throws invalid_persistent_exception
@@ -609,13 +669,6 @@ class sessions {
      * @throws invalid_persistent_exception
      */
     public static function save_session(object $data): int {
-        if (!empty($data->groupings)) {
-            $values = array_values($data->groupings);
-            $groupings = implode(',', $values);
-            $data->groupings = $groupings;
-        } else {
-            $data->groupings = '';
-        }
         $id = $data->sessionid ?? 0;
         $update = false;
         if (!empty($id)) {
@@ -704,11 +757,34 @@ class sessions {
     public static function get_final_ranking(int $sid, int $cmid): array {
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
-        $users = enrol_get_course_users($course->id, true);
         $session = jqshow_sessions::get_record(['id' => $sid]);
-        $students = [];
         $context = context_module::instance($cmid);
         $PAGE->set_context($context);
+
+        if ($session->is_group_mode()) {
+            $data = self::get_final_group_ranking($session);
+        } else {
+            $data = self::get_final_individual_ranking($session, $cm, $course->id, $context);
+        }
+        return $data;
+    }
+
+    /**
+     * @param int $sid
+     * @param cm_info $cm
+     * @param int $courseid
+     * @param context_module $context
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    private static function get_final_individual_ranking(jqshow_sessions $session, cm_info $cm, int $courseid,
+                                                         context_module $context): array {
+        global $PAGE;
+
+        $users = enrol_get_course_users($courseid, true);;
+        $students = [];
         foreach ($users as $user) {
             if (!has_capability('mod/jqshow:startsession', $context, $user) &&
                 info_module::is_user_visible($cm, $user->id, false)) {
@@ -728,5 +804,34 @@ class sessions {
             $student->userposition = ++$position;
         }
         return $students;
+    }
+
+    /**
+     * @param jqshow_sessions $session
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private static function get_final_group_ranking(jqshow_sessions $session): array {
+        $groups = groupmode::get_grouping_groups($session->get('groupings'));
+        $data = [];
+        foreach ($groups as $group) {
+            $gmembers = groups_get_members($group->id, 'u.id');
+            $groupmember = reset($gmembers);
+            $grouppicture = get_group_picture_url($group, $group->courseid);
+
+            $sessiongroup = new stdClass();
+            $sessiongroup->userimageurl = ($grouppicture) ? $grouppicture->out(false) : '';
+            $sessiongroup->userfullname = $group->name;
+            $userpoints = grade::get_session_grade($groupmember->id, $session->get('id'), $session->get('jqshowid'));
+            $sessiongroup->userpoints = grade::get_rounded_mark($userpoints);
+            $data[] = $sessiongroup;
+        }
+        usort($data, static fn($a, $b) => $b->userpoints <=> $a->userpoints);
+        $position = 0;
+        foreach ($data as $student) {
+            $student->userposition = ++$position;
+        }
+        return $data;
     }
 }
