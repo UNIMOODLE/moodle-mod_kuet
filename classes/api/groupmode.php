@@ -25,7 +25,9 @@
 namespace mod_jqshow\api;
 
 
+use coding_exception;
 use mod_jqshow\jqshow;
+use stdClass;
 
 class groupmode {
 
@@ -33,6 +35,35 @@ class groupmode {
 //    public const TEAM_GRADE_LAST = 'last';
 //    public const TEAM_GRADE_AVERAGE = 'average';
 
+    /**
+     * @param stdClass $groupdata
+     * @param int $sid
+     * @param int $imagesize
+     * @return string
+     * @throws coding_exception
+     */
+    public static function get_group_image(stdClass $groupdata, int $sid, int $imagesize = 1) {
+        global $PAGE;
+        $grouppicture = get_group_picture_url($groupdata, $groupdata->courseid);
+        $image = '';
+        if (!is_null($grouppicture)) {
+            $grouppicture->size = $imagesize;
+            $image = $grouppicture->out(false);
+        } else {
+            // Get from cache.
+            $cache = \cache::make('mod_jqshow', 'groupimages');
+            $cachekey = 'groupid_' . $groupdata->id . '_sid_' . $sid;
+            $cachedata = $cache->get($cachekey);
+            if (!$cachedata) {
+                $render = $PAGE->get_renderer('mod_jqshow');
+                $image = $render->get_generated_image_for_id($groupdata->id);
+                $cache->set($cachekey, $image);
+            } else {
+                $image = $cachedata;
+            }
+        }
+        return $image;
+    }
     /**
      * @param int $grouping
      * @return array
@@ -138,7 +169,7 @@ class groupmode {
         $newgrupmembers = self::get_grouping_userids($groupingid);
         $diff = array_diff($newstudents, $newgrupmembers);
         if (!empty($diff)) {
-            $data = new \stdClass();
+            $data = new stdClass();
             $data->name = get_string('fakegroup', 'mod_jqshow', random_string(5));
             $data->description = get_string('fakegroupdescription', 'mod_jqshow');
             $data->courseid = $COURSE->id;

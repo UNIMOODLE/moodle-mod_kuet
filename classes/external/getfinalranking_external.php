@@ -106,7 +106,7 @@ class getfinalranking_external extends external_api {
             'finalranking' => new external_multiple_structure(
                 new external_single_structure(
                     [
-                        'userimageurl' => new external_value(PARAM_URL, 'Url for user image'),
+                        'userimageurl' => new external_value(PARAM_RAW, 'Url for user image'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
                         'userfullname' => new external_value(PARAM_RAW, 'Name of user'),
                         'userpoints' => new external_value(PARAM_FLOAT, 'Total points of user')
@@ -120,13 +120,13 @@ class getfinalranking_external extends external_api {
             'ranking' => new external_value(PARAM_BOOL, 'Is a ranking, for control panel context'),
             'endsession' => new external_value(PARAM_BOOL, 'Mark end session'),
             'reporturl' => new external_value(PARAM_URL, 'Url for session report'),
-            'firstuserimageurl' => new external_value(PARAM_URL, ''),
+            'firstuserimageurl' => new external_value(PARAM_RAW, ''),
             'firstuserfullname' => new external_value(PARAM_RAW, ''),
             'firstuserpoints' => new external_value(PARAM_FLOAT, ''),
-            'seconduserimageurl' => new external_value(PARAM_URL, ''),
+            'seconduserimageurl' => new external_value(PARAM_RAW, ''),
             'seconduserfullname' => new external_value(PARAM_RAW, ''),
             'seconduserpoints' => new external_value(PARAM_FLOAT, ''),
-            'thirduserimageurl' => new external_value(PARAM_URL, ''),
+            'thirduserimageurl' => new external_value(PARAM_RAW, ''),
             'thirduserfullname' => new external_value(PARAM_RAW, ''),
             'thirduserpoints' => new external_value(PARAM_FLOAT, ''),
         ]);

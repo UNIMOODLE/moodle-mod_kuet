@@ -137,7 +137,7 @@ class multichoice implements  jqshowquestion {
                     $participant->response = $answer['result'];
                     $participant->responsestr = get_string($answer['result'], 'mod_jqshow');
                     $participant->answertext = $answer['answertext'];
-                    $points = grade::get_response_mark($participant->participantid, $session->get('id'), $response);
+                    $points = grade::get_simple_mark($response);
                     $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
                         $session->get('jqshowid'));
                     $participant->userpoints = grade::get_rounded_mark($spoints);
@@ -159,7 +159,7 @@ class multichoice implements  jqshowquestion {
             $participant->response = get_string('qstatus_' . $status, 'mod_jqshow');
             $participant->responsestr = get_string($participant->response, 'mod_jqshow');
             $participant->answertext = trim($answertext, '<br>');
-            $points = grade::get_response_mark($participant->id, $session->get('id'), $response);
+            $points = grade::get_simple_mark($response);
             $spoints = grade::get_session_grade($participant->id, $session->get('id'), $session->get('jqshowid'));
             $participant->userpoints = grade::get_rounded_mark($spoints);
             $participant->score_moment = grade::get_rounded_mark($points);

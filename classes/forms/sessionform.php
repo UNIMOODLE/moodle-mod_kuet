@@ -74,10 +74,11 @@ class sessionform extends moodleform {
         $mform->addHelpButton('sessionmode', 'sessionmode', 'jqshow');
 
         // Grade method.
-        $mform->addElement('select', 'sgrademethod',
-            get_string('sessiongrademethod', 'mod_jqshow'), $customdata['sessiongrademethods']);
-        $mform->setType('sgrademethod', PARAM_RAW);
-        $mform->addHelpButton('sgrademethod', 'sessiongrademethod', 'jqshow');
+        if ($customdata['showsgrade']) {
+            $mform->addElement('checkbox', 'sgrade', get_string('sgrade', 'mod_jqshow'));
+            $mform->setType('sgrade', PARAM_INT);
+            $mform->addHelpButton('sgrade', 'sgrade', 'jqshow');
+        }
 
         // Countdown.
         $mform->addElement('checkbox', 'countdown', get_string('countdown', 'mod_jqshow'));
@@ -122,7 +123,6 @@ class sessionform extends moodleform {
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
         // Header.
-//        $mform->addElement('header', 'timesettings', get_string('timesettings', 'mod_jqshow'));
         $mform->addElement('html', '<div class="row">');
         $mform->addElement('html', '<div class="col-12 formcontainer">');
         $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
@@ -173,7 +173,9 @@ class sessionform extends moodleform {
             get_string('timemode', 'mod_jqshow'), $customdata['timemode']);
         $mform->setType('timemode', PARAM_INT);
         $mform->addHelpButton('timemode', 'timemode', 'mod_jqshow');
-
+        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::RACE_MANUAL);
 
         $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_jqshow'),
             ['units' => [MINSECS, 1], 'optional' => false]);

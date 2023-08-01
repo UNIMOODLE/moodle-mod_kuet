@@ -55,7 +55,7 @@ function xmldb_jqshow_upgrade($oldversion) {
 
         // Define field grademethod to be added to jqshow.
         $table = new xmldb_table('jqshow_sessions');
-        $field = new xmldb_field('sgrademethod', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0, 'sessionmode');
+        $field = new xmldb_field('sgrade', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0, 'sessionmode');
 
         // Conditionally launch add field grademethod.
         if (!$dbman->field_exists($table, $field)) {

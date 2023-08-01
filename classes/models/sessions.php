@@ -36,7 +36,6 @@ use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\forms\sessionform;
-use mod_jqshow\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -82,9 +81,6 @@ class sessions {
 
     // Grade methods.
     public const GM_DISABLED = 0;
-    public const GM_R_POSITION = 1;
-    public const GM_R_POINTS = 2;
-    public const GM_R_COMBINED = 3;
 
     // Status.
     public const SESSION_FINISHED = 0;
@@ -161,12 +157,6 @@ class sessions {
                 }
             }
         }
-        $sessiongrademethods = [
-            self::GM_DISABLED => get_string('session_gm_disabled', 'mod_jqshow'),
-            self::GM_R_POSITION => get_string('session_gm_position', 'mod_jqshow'),
-            self::GM_R_POINTS => get_string('session_gm_points', 'mod_jqshow'),
-            self::GM_R_COMBINED => get_string('session_gm_combined', 'mod_jqshow'),
-        ];
 
         $customdata = [
             'course' => $course,
@@ -178,7 +168,7 @@ class sessions {
             'anonymousanswerchoices' => $anonymousanswerchoices,
             'groupingsselect' => $groupingsselect,
             'groupingsselected' => $groupingsselect,
-            'sessiongrademethods' => $sessiongrademethods,
+            'showsgrade' => $this->jqshow->grademethod,
         ];
 
         $action = new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $this->cmid, 'sid' => $sid, 'page' => 1]);
@@ -215,7 +205,7 @@ class sessions {
             'name' => $session->get('name'),
             'anonymousanswer' => $session->get('anonymousanswer'),
             'sessionmode' => $session->get('sessionmode'),
-            'sgrademethod' => $session->get('sgrademethod'),
+            'sgrade' => $session->get('sgrade'),
             'countdown' => $session->get('countdown'),
             'showgraderanking' => $session->get('showgraderanking'),
             'randomquestions' => $session->get('randomquestions'),
@@ -442,29 +432,6 @@ class sessions {
             ];
         }
 
-        switch ($sessiondata->get('sgrademethod')) {
-            case self::GM_DISABLED:
-                $grademethosstring = get_string('session_gm_disabled', 'mod_jqshow');
-                break;
-            case self::GM_R_POSITION :
-                $grademethosstring = get_string('session_gm_position_short', 'mod_jqshow');
-                break;
-            case self::GM_R_POINTS:
-                $grademethosstring = get_string('session_gm_points_short', 'mod_jqshow');
-                break;
-            case self::GM_R_COMBINED:
-                $grademethosstring = get_string('session_gm_combined_short', 'mod_jqshow');
-                break;
-            default:
-                $grademethosstring = '';
-        }
-
-        $data[] = [
-            'iconconfig' => 'grademethod',
-            'configname' => get_string('sessiongrademethod', 'mod_jqshow'),
-            'configvalue' => $grademethosstring
-        ];
-
         $data[] = [
             'iconconfig' => 'countdown',
             'configname' => get_string('countdown', 'mod_jqshow'),
@@ -565,7 +532,7 @@ class sessions {
      * @throws Exception
      */
     public static function get_session_results(int $sid, int $cmid): array {
-        global $DB;
+
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $users = enrol_get_course_users($course->id, true);
         $session = jqshow_sessions::get_record(['id' => $sid]);
@@ -733,7 +700,7 @@ class sessions {
                 $userpoints = grade::get_session_grade($user->id, $sid, $session->get('jqshowid'));
                 $jqresponse = jqshow_questions_responses::get_record(['jqid' => $jqid,
                     'jqshow' => $session->get('jqshowid'), 'session' => $sid, 'userid' => (int) $user->id]);
-                $qpoints = (!$jqresponse) ? 0 : grade::get_response_mark($user->id, $sid, $jqresponse);
+                $qpoints = (!$jqresponse) ? 0 : grade::get_simple_mark($jqresponse);
                 $student->userpoints = grade::get_rounded_mark($userpoints);
                 $student->questionscore = grade::get_rounded_mark($qpoints);
                 $students[] = $student;
@@ -818,10 +785,9 @@ class sessions {
         foreach ($groups as $group) {
             $gmembers = groups_get_members($group->id, 'u.id');
             $groupmember = reset($gmembers);
-            $grouppicture = get_group_picture_url($group, $group->courseid);
-
+            $groupimage = groupmode::get_group_image($group, $session->get('id'));
             $sessiongroup = new stdClass();
-            $sessiongroup->userimageurl = ($grouppicture) ? $grouppicture->out(false) : '';
+            $sessiongroup->userimageurl = $groupimage;
             $sessiongroup->userfullname = $group->name;
             $userpoints = grade::get_session_grade($groupmember->id, $session->get('id'), $session->get('jqshowid'));
             $sessiongroup->userpoints = grade::get_rounded_mark($userpoints);

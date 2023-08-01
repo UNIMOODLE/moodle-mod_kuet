@@ -8,9 +8,9 @@
         <div class="d-table-cell">{{#str}}question_position, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_type, mod_jqshow{{/str}}</div>
-        {{#ispage3}}
+        {{^ispage1}}
             <div class="d-table-cell text-center">{{#str}}question_time, mod_jqshow{{/str}}</div>
-        {{/ispage3}}
+        {{/ispage1}}
         <div class="d-table-cell text-center">{{#str}}question_version, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_actions, mod_jqshow{{/str}}</div>
     </div>
@@ -28,9 +28,9 @@
             <div class="d-table-cell">{{position}}</div>
             <div class="d-table-cell">{{name}}</div>
             <div class="d-table-cell">{{type}}</div>
-            {{#ispage3}}
+            {{^ispage1}}
                 <div class="d-table-cell text-center">{{time}}</div>
-            {{/ispage3}}
+            {{/ispage1}}
             <div class="d-table-cell text-center">{{version}} </div>
             <div class="d-table-cell actions">
                 <div class="content-actions">

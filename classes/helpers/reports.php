@@ -156,6 +156,7 @@ class reports {
 
         $results = sessions::get_group_session_results($sid, $cmid);
         foreach ($results as $group) {
+            $group->sid = $sid;
             $groupdata = groups_get_group($group->id);
             $group = self::add_groupdata($groupdata, $group, 200);
             $group->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
@@ -584,6 +585,7 @@ class reports {
 
         $data = new stdClass();
         $data->cmid = $cmid;
+        $data->sid = $sid;
         $session = new jqshow_sessions($sid);
         $data->jqshowid = $session->get('jqshowid');
         if ($session->get('anonymousanswer') === 1 && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
@@ -714,11 +716,7 @@ class reports {
      * @throws moodle_exception
      */
     private static function add_groupdata(stdClass $groupdata, stdClass $data, int $imagesize = 1): stdClass {
-        $grouppicture = get_group_picture_url($groupdata, $groupdata->courseid);
-        if (!is_null($grouppicture)) {
-            $grouppicture->size = $imagesize;
-        }
-        $data->groupimage = ($grouppicture) ? $grouppicture->out(false) : '';
+        $data->groupimage = groupmode::get_group_image($groupdata, $data->sid, $imagesize);
         $data->groupname = $groupdata->name;
         $data->groupurl = '';
         return $data;
@@ -782,7 +780,7 @@ class reports {
 
         $results = [];
         foreach ($groups as $group) {
-
+            $group->sid = $sid;
             $group = self::add_groupdata($group, $group);
             $group->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                 ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $group->id]))->out(false);

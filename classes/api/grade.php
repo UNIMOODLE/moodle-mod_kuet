@@ -48,7 +48,7 @@ class grade {
      * @throws dml_exception
      */
     public static function get_rounded_mark($mark) {
-        $num = get_config('core', 'grade_export_decimalpoints');
+        $num = (int) get_config('core', 'grade_export_decimalpoints');
         return round($mark, $num);
     }
 
@@ -92,13 +92,9 @@ class grade {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(jqshow_questions_responses $response, bool $saveoncache = false) {
+    public static function get_simple_mark(jqshow_questions_responses $response) {
         global $DB;
         $mark = 0;
-
-        if (!$response) { // TODO can never be false, typed in the parameter.
-            return $mark;
-        }
 
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
@@ -106,148 +102,23 @@ class grade {
             return $mark;
         }
 
-        // Get grade from cache.
-        $cache = \cache::make('mod_jqshow', 'grades');
-        $cachekey = 'userid_' . $response->get('userid') . '_jqid_' . $response->get('jqid') . '_sid_' .
-            $response->get('session') . '_qid_' . $response->get('jqid');
-        $data = $cache->get($cachekey);
-        if ($data) {
-            return $data;
-        }
         // Get answer mark.
         $useranswer = $response->get('response');
         if (!empty($useranswer)) {
             $useranswer = json_decode($useranswer);
             $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
             $answerids = $useranswer->{'answerids'};
+            if (empty($answerids)) {
+                return $mark;
+            }
             $answerids = explode(',', $answerids);
             foreach ($answerids as $answerid) {
                 $fraction = $DB->get_field('question_answers', 'fraction', ['id' => $answerid]);
                 $mark += $defaultmark * $fraction;
             }
         }
-        if ($saveoncache) {
-            $cache->set($cachekey, $mark);
-        }
 
         return $mark;
-    }
-
-    /**
-     * Get answer mark considering the session mode.
-     * @param int $userid
-     * @param int $sessionid
-     * @param jqshow_questions_responses $response
-     * @return float
-     * @throws coding_exception
-     * @throws dml_exception
-     */
-    public static function get_response_mark(int $userid, int $sessionid, jqshow_questions_responses $response) {
-
-        // Get answer mark without considering session mode.
-        $simplemark = self::get_simple_mark($response, true);
-        // Ignore grading mark setting.
-        if ($simplemark === 0) {
-            return $simplemark;
-        }
-
-        $mark = $simplemark;
-        $session = jqshow_sessions::get_record(['id' => $sessionid]);
-        switch ($session->get('sessionmode')) {
-            case sessions::INACTIVE_MANUAL:
-            case sessions::INACTIVE_PROGRAMMED:
-                $mark = $simplemark;
-                break;
-            case sessions::PODIUM_MANUAL:
-            case sessions::PODIUM_PROGRAMMED:
-                $mark = self::get_podium_mark($session, $simplemark, $response, $userid);
-                break;
-            case sessions::RACE_MANUAL:
-            case sessions::RACE_PROGRAMMED:
-                // TODO: missing logic.
-                $mark = $simplemark;
-                break;
-        }
-        return $mark;
-    }
-
-    /**
-     * @param jqshow_sessions $session
-     * @param float $simplemark
-     * @param jqshow_questions_responses $response
-     * @param int $userid
-     * @return float
-     * @throws coding_exception
-     * @throws dml_exception
-     */
-    private static function get_podium_mark(jqshow_sessions $session, float $simplemark,
-                                            jqshow_questions_responses $response, int $userid) {
-
-        $cm = get_coursemodule_from_instance('jqshow', $session->get('jqshowid'));
-        $students = \mod_jqshow\jqshow::get_students($cm->id);
-        $studentmarks = [];
-        $maxmark = 0;
-        foreach ($students as $student) {
-            $studentanswer = jqshow_questions_responses::get_record(['jqid' => $response->get('jqid'),
-                'session' => $response->get('session'), 'jqshow' => $response->get('jqshow'), 'userid' => $student->{'id'}]);
-            if (!$studentanswer) {
-                continue;
-            }
-            $mark = self::get_simple_mark($studentanswer);
-            $maxmark = max($mark, $maxmark);
-            $studentmarks[(int) $student->{'id'}] = $mark;
-        }
-
-        // Ordenar por puntos.
-        arsort($studentmarks);
-        switch ($session->get('sgrademethod')) {
-            case sessions::GM_R_POINTS:
-                $mark = self::get_user_mark_relative_to_points_on_ranking($simplemark, $maxmark);
-                break;
-            case sessions::GM_R_POSITION:
-                $mark = self::get_user_mark_relative_to_position_on_ranking($studentmarks, $userid);
-                break;
-            case sessions::GM_R_COMBINED;
-                $mark1 = self::get_user_mark_relative_to_points_on_ranking($simplemark, $maxmark);
-                $mark2 = self::get_user_mark_relative_to_position_on_ranking($studentmarks, $userid);
-                $mark = ($mark1 + $mark2) / 2;
-                break;
-            default:
-                $mark = $simplemark;
-                break;
-        }
-
-        return $mark;
-    }
-
-    /**
-     * @param float $simplemark
-     * @param float $maxmark
-     * @return float
-     */
-    private static function get_user_mark_relative_to_points_on_ranking(float $simplemark, float $maxmark): float {
-        if ($maxmark === 0.0) {
-            return 0.0;
-        }
-        return $simplemark / $maxmark;
-    }
-
-    /**
-     * @param array $studentmarks
-     * @param int $userid
-     * @return float
-     */
-    private static function get_user_mark_relative_to_position_on_ranking(array $studentmarks, int $userid) {
-        $position = 0;
-        $numstudents = count($studentmarks);
-        foreach ($studentmarks as $key => $grade) {
-            $position++;
-            if ($userid == $key) {
-                break;
-            }
-        }
-        // Rating relative to ranking position: [participants – position + 1]/[participants] * 100%.
-        return ($numstudents - $position + 1) / $numstudents;
     }
 
     /**
@@ -264,9 +135,101 @@ class grade {
             return 0;
         }
 
+        $session = new jqshow_sessions($sessionid);
+        switch ($session->get('sessionmode')) {
+            case sessions::PODIUM_MANUAL:
+                $mark = self::get_session_podium_manual_grade($responses);
+                break;
+            case sessions::PODIUM_PROGRAMMED:
+                $mark = self::get_session_podium_programmed_grade($responses, $session);
+                break;
+            case sessions::INACTIVE_PROGRAMMED:
+            case sessions::INACTIVE_MANUAL:
+            case sessions::RACE_PROGRAMMED:
+            case sessions::RACE_MANUAL:
+            default:
+                $mark = self::get_session_default_grade($responses, $userid, $session);
+        }
+        return $mark;
+    }
+
+    /**
+     * @param jqshow_questions_responses[] $responses
+     * @return float|int
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private static function get_session_podium_manual_grade(array $responses) {
         $mark = 0;
         foreach ($responses as $response) {
-            $usermark = self::get_response_mark($userid, $sessionid, $response);
+            $usermark = self::get_simple_mark($response);
+            if ($usermark === 0) {
+                continue;
+            }
+            $jqquestion = new jqshow_questions($response->get('jqid'));
+            $qtime = $jqquestion->get('timelimit'); // All the time that participants have had to answer the question.
+            $useranswer = $response->get('response');
+            $percent = 1;
+            if ($qtime && !empty($useranswer)) {
+                $useranswer = json_decode($useranswer);
+                $timeleft = $useranswer->timeleft; // Time answering question.
+                $percent = ($qtime - $timeleft) * 100 / $qtime;
+            }
+            $mark += $usermark * $percent;
+        }
+        return $mark;
+    }
+
+    /**
+     * @param array $responses
+     * @param jqshow_sessions $session
+     * @return float|int
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private static function get_session_podium_programmed_grade(array $responses, jqshow_sessions $session) {
+        $qtime = 0;
+        if ($session->get('timemode') == sessions::SESSION_TIME) {
+            $total = $session->get('sessiontime');
+            $numq = jqshow_questions::count_records(['sessionid' => $session->get('id'),
+                'jqshowid' => $session->get('jqshowid')]);
+            $qtime = $total / $numq;
+        } else if ($session->get('timemode') == sessions::QUESTION_TIME) {
+            $qtime = $session->get('questiontime');
+        }
+        $mark = 0;
+        foreach ($responses as $response) {
+            $usermark = self::get_simple_mark($response);
+            if ($usermark === 0) {
+                continue;
+            }
+            $jqquestion = new jqshow_questions($response->get('jqid'));
+            // TODO: por qué se ha eliminado del settings del mod el tiempo por defecto de las preguntas???
+            $qtime = !$qtime ? $jqquestion->get('timelimit') : 40;;
+            $useranswer = $response->get('response');
+            $percent = 1;
+            if ($qtime && !empty($useranswer)) {
+                $useranswer = json_decode($useranswer);
+                $timeleft = $useranswer->timeleft; // Time answering question.
+                $percent = ($qtime - $timeleft) * 100 / $qtime;
+            }
+            $mark += $usermark * $percent;
+        }
+        return $mark;
+    }
+
+    /**
+     * @param jqshow_questions_responses[] $responses
+     * @param int $userid
+     * @param jqshow_sessions $session
+     * @return float|int
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    private static function get_session_default_grade(array $responses) {
+        $mark = 0;
+        foreach ($responses as $response) {
+            $usermark = self::get_simple_mark($response);
             if ($usermark === 0) {
                 continue;
             }

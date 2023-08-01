@@ -74,21 +74,6 @@ class sessions {
                 $ds->sessiontime = userdate($questions->get_sum_questions_times(), '%Mm %Ss');
                 break;
         }
-        switch ($session->get('sgrademethod')) {
-            case sessionsmodel::GM_DISABLED:
-            default:
-                $ds->grademethod = get_string('session_gm_disabled', 'mod_jqshow');
-                break;
-            case sessionsmodel::GM_R_POSITION:
-                $ds->grademethod = get_string('session_gm_position_short', 'mod_jqshow');
-                break;
-            case sessionsmodel::GM_R_POINTS:
-                $ds->grademethod = get_string('session_gm_points_short', 'mod_jqshow');
-                break;
-            case sessionsmodel::GM_R_COMBINED:
-                $ds->grademethod = get_string('session_gm_combined_short', 'mod_jqshow');
-                break;
-        }
         $ds->questions_number = $questions->get_num_questions();
         $ds->managesessions = $managesessions;
         $ds->initsession = $initsession;

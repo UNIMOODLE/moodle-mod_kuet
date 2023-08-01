@@ -63,13 +63,9 @@ class jqshow_sessions extends persistent {
                     sessions::RACE_MANUAL,
                     sessions::RACE_PROGRAMMED]
             ],
-            'sgrademethod' => [
+            'sgrade' => [
                 'type' => PARAM_INT,
                 'default' => sessions::GM_DISABLED,
-                'choices' => [sessions::GM_DISABLED,
-                    sessions::GM_R_POSITION,
-                    sessions::GM_R_POINTS,
-                    sessions::GM_R_COMBINED]
             ],
             'countdown' => [
                 'type' => PARAM_INT,

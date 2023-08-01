@@ -45,6 +45,8 @@ $jqshow = jqshow::get_record(['id' => $cm->instance], MUST_EXIST);
 if ($sid) {
     $session = new \mod_jqshow\persistents\jqshow_sessions($sid);
     $participantid = ($session->is_group_mode() && $groupid) ? $groupid : $userid;
+} else {
+    $participantid = $userid;
 }
 $PAGE->set_url('/mod/jqshow/reports.php', ['cmid' => $cmid]);
 require_login($course, false, $cm);

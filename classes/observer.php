@@ -55,7 +55,7 @@ class observer {
             return;
         };
         $session = jqshow_sessions::get_record(['id' => $data['objectid']]);
-        if (!$session || $session->get('sgrademethod') == sessions::GM_DISABLED) {
+        if (!$session || $session->get('sgrade') == sessions::GM_DISABLED) {
             return;
         }
         $participants = self::get_course_students($data);
