@@ -23,6 +23,10 @@
                         {{> mod_jqshow/questions/multichoice }}
                     {{/multichoice}}
 
+                    {{#raceresults}} <!-- only for teachers -->
+                        {{> mod_jqshow/session/raceresults }}
+                    {{/raceresults}}
+
                     {{#isteacher}}
                         {{> mod_jqshow/session/manual/teachercontrolpanel }}
                     {{/isteacher}}

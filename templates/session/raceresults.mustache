@@ -1,0 +1,49 @@
+{{#programmedmode}}
+    <h5 class="titlecontainer bg-primary">
+        {{#pix}} i/questions_list, mod_jqshow {{/pix}}
+        {{#str}}results, mod_jqshow{{/str}}
+    </h5>
+{{/programmedmode}}
+{{^programmedmode}} <!-- TODO manual mode, js, scss, etc. -->
+    <div class="titlecontainer bg-primary">
+        {{#hastime}}
+            <div class="timer {{^countdown}}d-none{{/countdown}}" data-region="question-timer">
+                {{#pix}}q/timer, mod_jqshow{{/pix}}
+                <span class="seconds" data-region="seconds">{{ seconds }}</span>
+            </div>
+        {{/hastime}}
+        <span class="question-text">{{#str}}question, mod_jqshow{{/str}}</span> {{ question_index_string }}
+        <div class="question-fullscreen" data-action="question-fullscreen">
+            {{#pix}}q/zoomin, mod_jqshow{{/pix}}
+        </div>
+    </div>
+{{/programmedmode}}
+
+<div class="content-raceresults">
+    <div class="users-list">
+        {{#userresults}}
+            <div class="race-student">
+                <img src="{{userimageurl}}" alt="{{userfullname}}">
+                <span class="user-fullname">
+                    {{userfullname}}
+                </span>
+                <span class="user-poinsts">
+                    {{userpoints}} {{#pix}}q/points, mod_jqshow{{/pix}}
+                </span>
+            </div>
+        {{/userresults}}
+    </div>
+    <div class="questions-list" data-region="">
+        {{#questions}}
+            <div class="content-question" data-questionnum="{{questionnum}}">
+                <div class="questionnumber">
+                    {{#str}}abbreviationquestion, mod_jqshow{{/str}}{{questionnum}}
+                </div>
+                {{#studentsresponse}}
+                    <div class="response {{responseclass}}" data-userid="{{userid}}">
+                    </div>
+                {{/studentsresponse}}
+            </div>
+        {{/questions}}
+    </div>
+</div>

@@ -357,5 +357,4 @@ $string['fakegroup'] = 'Jqshow team {$a}';
 $string['fakegroupdescription'] = 'Jqshow activity has created this group because there are participants on this course
 that are not part of the grouping selected.';
 $string['groups'] = 'Teams';
-
-
+$string['abbreviationquestion'] = 'Q';
