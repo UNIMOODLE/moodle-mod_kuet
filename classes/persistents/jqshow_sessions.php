@@ -139,8 +139,13 @@ class jqshow_sessions extends persistent {
         ];
     }
 
-    public function is_group_mode() {
-        return !is_null($this->get('groupings'));
+    /**
+     * @return bool
+     * @throws coding_exception
+     */
+    public function is_group_mode(): bool {
+        $group = $this->get('groupings');
+        return $group !== null && $group !== '';
     }
     /**
      * @param int $sessionid
@@ -228,11 +233,11 @@ class jqshow_sessions extends persistent {
     }
 
     /**
-     * @param $array
-     * @param $date
+     * @param array $array
+     * @param int $date
      * @return mixed
      */
-    private static function find_closest($array, $date): int {
+    private static function find_closest(array $array, int $date): int {
         foreach ($array as $key => $day) {
             $interval[] = abs($date - $key);
         }

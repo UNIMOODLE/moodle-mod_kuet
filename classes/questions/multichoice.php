@@ -17,10 +17,11 @@
 namespace mod_jqshow\questions;
 use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
+use mod_jqshow\helpers\reports;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\helpers\reports;
 use pix_icon;
+
 /**
  *
  * @package     XXXX

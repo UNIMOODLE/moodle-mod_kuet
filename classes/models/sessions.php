@@ -25,6 +25,7 @@
 
 namespace mod_jqshow\models;
 
+use cm_info;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
@@ -45,7 +46,6 @@ use pix_icon;
 use qbank_managecategories\helper;
 use stdClass;
 use user_picture;
-use cm_info;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -400,6 +400,8 @@ class sessions {
      * @param int $cmid
      * @return array
      * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
      */
     public static function get_session_config(int $sid, int $cmid): array {
         // TODO finish setting with all icons and session settings to be shown.
@@ -422,6 +424,7 @@ class sessions {
             'configname' => get_string('sessionmode', 'mod_jqshow'),
             'configvalue' => get_string($sessiondata->get('sessionmode'), 'mod_jqshow')
         ];
+
         if ($sessiondata->is_group_mode()) {
             groupmode::check_all_users_in_groups($cmid, $sessiondata->get('groupings'));
             $names = groupmode::get_grouping_groups_name($sessiondata->get('groupings'));

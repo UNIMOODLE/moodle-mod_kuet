@@ -27,7 +27,6 @@
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
-use mod_jqshow\api\groupmode;
 
 class mod_jqshow_mod_form extends moodleform_mod {
 
@@ -55,8 +54,8 @@ class mod_jqshow_mod_form extends moodleform_mod {
 
         $grademethodelement = $mform->createElement('select', 'grademethod', get_string('grademethod', 'jqshow'),
             mod_jqshow_get_grading_options());
-        $mform->disabledIf('gradecat', 'grademethod', 'eq', mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
-        $mform->disabledIf('gradepass', 'grademethod', 'eq', mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
+        $mform->disabledIf('gradecat', 'grademethod', 'eq', \mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
+        $mform->disabledIf('gradepass', 'grademethod', 'eq', \mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
         $mform->insertElementBefore($grademethodelement, 'gradecat');
         $mform->addHelpButton('grademethod', 'grademethod', 'jqshow');
 

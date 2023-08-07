@@ -22,18 +22,21 @@
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow\api;
 
+namespace mod_jqshow\api; // TODO Moodle is not able to find this class, I don't understand why...
 
+use cache;
 use coding_exception;
+use dml_exception;
 use mod_jqshow\jqshow;
+use moodle_exception;
 use stdClass;
 
 class groupmode {
 
     public const TEAM_GRADE_FIRST = 'first';
-//    public const TEAM_GRADE_LAST = 'last';
-//    public const TEAM_GRADE_AVERAGE = 'average';
+    /*public const TEAM_GRADE_LAST = 'last';
+    public const TEAM_GRADE_AVERAGE = 'average';*/
 
     /**
      * @param stdClass $groupdata
@@ -42,7 +45,7 @@ class groupmode {
      * @return string
      * @throws coding_exception
      */
-    public static function get_group_image(stdClass $groupdata, int $sid, int $imagesize = 1) {
+    public static function get_group_image(stdClass $groupdata, int $sid, int $imagesize = 1): string {
         global $PAGE;
         $grouppicture = get_group_picture_url($groupdata, $groupdata->courseid);
         $image = '';
@@ -51,7 +54,7 @@ class groupmode {
             $image = $grouppicture->out(false);
         } else {
             // Get from cache.
-            $cache = \cache::make('mod_jqshow', 'groupimages');
+            $cache = cache::make('mod_jqshow', 'groupimages');
             $cachekey = 'groupid_' . $groupdata->id . '_sid_' . $sid;
             $cachedata = $cache->get($cachekey);
             if (!$cachedata) {
@@ -64,9 +67,11 @@ class groupmode {
         }
         return $image;
     }
+
     /**
      * @param int $grouping
      * @return array
+     * @throws dml_exception
      */
     public static function get_one_member_of_each_grouping_group(int $grouping): array {
         $gmembers = [];
@@ -91,9 +96,11 @@ class groupmode {
         }
         return $members;
     }
+
     /**
      * @param int $groupingid
      * @return array
+     * @throws dml_exception
      */
     public static function get_grouping_groups_name(int $groupingid) : array {
         $groups = groups_get_grouping_members($groupingid, 'gg.groupid');
@@ -104,9 +111,11 @@ class groupmode {
         }
         return $names;
     }
+
     /**
      * @param int $groupingid
      * @return array
+     * @throws dml_exception
      */
     public static function get_grouping_groups(int $groupingid) : array {
         $groups = groups_get_grouping_members($groupingid, 'gg.groupid');
@@ -124,7 +133,7 @@ class groupmode {
      */
     public static function get_grouping_userids(int $groupingid) : array {
         $groupmembers = groups_get_grouping_members($groupingid, 'u.id');
-        return array_map(function($user) {
+        return array_map(static function($user) {
             return $user->id;
         }, $groupmembers);
     }
@@ -138,34 +147,37 @@ class groupmode {
         $allmembers = groups_get_grouping_members($groupingid, 'u.id, gg.groupid');
         $groupid = 0;
         foreach ($allmembers as $gmember) {
-            if ($gmember->id == $userid) {
+            if ((int)$gmember->id === $userid) {
                 $groupid = $gmember->groupid;
                 break;
             }
         }
         $userids = [];
         foreach ($allmembers as $gmember) {
-            if ($gmember->groupid == $groupid) {
+            if ((int)$gmember->groupid === (int)$groupid) {
                 $userids[] = $gmember->id;
             }
         }
         return $userids;
     }
+
     /**
-     * @param int $courseid
+     * @param int $cmid
      * @param int $groupingid
+     * @throws moodle_exception
+     * @throws coding_exception
      */
     public static function check_all_users_in_groups(int $cmid, int $groupingid) {
         global $COURSE;
         $students = jqshow::get_students($cmid);
-        $newstudents = array_map(function($user) {
+        $newstudents = array_map(static function($user) {
             return $user->id;
         }, $students);
 
-//        $groupmembers = groups_get_grouping_members($groupingid, 'u.id');
-//        $newgrupmembers = array_map(function($user) {
-//            return $user->id;
-//        }, $groupmembers);
+        /*$groupmembers = groups_get_grouping_members($groupingid, 'u.id');
+        $newgrupmembers = array_map(function($user) {
+            return $user->id;
+        }, $groupmembers);*/
         $newgrupmembers = self::get_grouping_userids($groupingid);
         $diff = array_diff($newstudents, $newgrupmembers);
         if (!empty($diff)) {

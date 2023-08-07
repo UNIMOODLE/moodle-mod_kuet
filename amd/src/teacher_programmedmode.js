@@ -29,7 +29,7 @@ let TEMPLATES = {
 
 let cmId;
 let sId;
-let groupmode;
+let groupMode = false;
 
 /**
  * @constructor
@@ -47,7 +47,7 @@ ProgrammedMode.prototype.node = null;
 ProgrammedMode.prototype.initProgrammedMode = function() {
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
-    groupmode = this.node.attr('data-groupmode');
+    groupMode = Boolean(this.node.attr('data-groupmode'));
     setInterval(this.reloadList, 20000);
 };
 
@@ -56,8 +56,8 @@ ProgrammedMode.prototype.reloadList = function() {
         let identifier = jQuery(REGION.LISTRESULTS);
         identifier.append(html);
         let methodname = SERVICES.GETLISTRESULTS;
-        if (groupmode == '1') {
-            methodname = SERVICES.GETGROUPLISTRESULTS
+        if (groupMode === true) {
+            methodname = SERVICES.GETGROUPLISTRESULTS;
         }
         let request = {
             methodname: methodname,

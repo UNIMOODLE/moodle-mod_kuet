@@ -167,15 +167,15 @@ class sessionform extends moodleform {
         $mform->hideIf('enddate', 'startdate[enabled]', 'notchecked');
         $mform->addHelpButton('enddate', 'enddate', 'jqshow');
 
-
         // Time mode.
         $mform->addElement('select', 'timemode',
             get_string('timemode', 'mod_jqshow'), $customdata['timemode']);
         $mform->setType('timemode', PARAM_INT);
         $mform->addHelpButton('timemode', 'timemode', 'mod_jqshow');
-        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        // TODO On the contrary, if the mode is manual, it is when it is mandatory to set times.
+        /*$mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::RACE_MANUAL);
+        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::RACE_MANUAL);*/
 
         $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_jqshow'),
             ['units' => [MINSECS, 1], 'optional' => false]);
@@ -212,12 +212,11 @@ class sessionform extends moodleform {
             $mform->addElement('html', '</div>');
         }
 
-        /** @var \cm_info $cm */
         $cm = $customdata['cm'];
         // Hidden params.
         $mform->addElement('hidden', 'jqshowid', $customdata['jqshowid']);
         $mform->setType('jqshowid', PARAM_INT);
-        $mform->addElement('hidden', 'groupmode', (int) $cm->groupmode);
+        $mform->addElement('hidden', 'groupmode', (int)$cm->groupmode);
         $mform->setType('groupmode', PARAM_INT);
         $mform->addElement('hidden', 'status', sessionsmodel::SESSION_ACTIVE);
         $mform->setType('status', PARAM_INT);

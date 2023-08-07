@@ -26,7 +26,6 @@ namespace mod_jqshow;
 
 use coding_exception;
 use core\invalid_persistent_exception;
-use core_reportbuilder\local\aggregation\count;
 use dml_exception;
 use mod_jqshow\api\grade;
 use mod_jqshow\event\session_ended;

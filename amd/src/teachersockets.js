@@ -75,7 +75,7 @@ let sessionMode = null;
 let showRankingBetweenQuestions = false;
 let showRankingBetweenQuestionsSwitch = false;
 let showRankingFinal = false;
-let groupmode = 0;
+let groupMode = false;
 
 /**
  * @constructor
@@ -94,7 +94,7 @@ function Sockets(region, port, sessionmode, groupmode) {
     sid = this.root[0].dataset.sid;
     messageBox = this.root.find(REGION.MESSAGEBOX);
     countusers = this.root.find(REGION.COUNTUSERS);
-    groupmode = groupmode;
+    groupMode = groupmode;
     sessionMode = sessionmode;
     switch (sessionMode) {
         case 'inactive_manual':
@@ -548,8 +548,8 @@ Sockets.prototype.initPanel = function() {
         });
     });
     let methodname = SERVICES.GETLISTRESULTS;
-    if (groupmode == '1') {
-        methodname = SERVICES.GETGROUPLISTRESULTS
+    if (groupMode === true) {
+        methodname = SERVICES.GETGROUPLISTRESULTS;
     }
     setInterval(function() {
         let requestResults = {

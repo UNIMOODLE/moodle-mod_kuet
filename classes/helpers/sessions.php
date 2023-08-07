@@ -59,6 +59,7 @@ class sessions {
         $ds->sessionmode = get_string($session->get('sessionmode'), 'mod_jqshow');
         $jqshow = new jqshow($cmid);
         $questions = new questions($jqshow->get_jqshow()->id, $cmid, $session->get('id'));
+        $ds->questions_number = $questions->get_num_questions();
         switch ($session->get('timemode')) {
             case sessionsmodel::NO_TIME:
             default:
@@ -68,13 +69,14 @@ class sessions {
             case sessionsmodel::SESSION_TIME:
                 $ds->timemode = get_string('session_time', 'mod_jqshow');
                 $ds->sessiontime = userdate($session->get('sessiontime'), '%Mm %Ss');
+                $ds->timeperquestion = userdate(($session->get('sessiontime') / $ds->questions_number), '%Ss');
                 break;
             case sessionsmodel::QUESTION_TIME:
                 $ds->timemode = get_string('question_time', 'mod_jqshow');
                 $ds->sessiontime = userdate($questions->get_sum_questions_times(), '%Mm %Ss');
+                $ds->timeperquestion = userdate($session->get('questiontime'), '%Ss');
                 break;
         }
-        $ds->questions_number = $questions->get_num_questions();
         $ds->managesessions = $managesessions;
         $ds->initsession = $initsession;
         $ds->initsessionurl =

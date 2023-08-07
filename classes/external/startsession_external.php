@@ -36,6 +36,7 @@ use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -59,8 +60,9 @@ class startsession_external extends external_api {
      * @param int $cmid
      * @param int $sessionid
      * @return array
-     * @throws dml_exception
+     * @throws moodle_exception
      * @throws coding_exception
+     * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      */

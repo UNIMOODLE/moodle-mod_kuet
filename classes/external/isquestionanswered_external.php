@@ -26,14 +26,12 @@
 namespace mod_jqshow\external;
 
 use coding_exception;
-use core\invalid_persistent_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\api\groupmode;
-use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 

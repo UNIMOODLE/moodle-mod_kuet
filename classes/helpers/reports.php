@@ -29,7 +29,6 @@ use coding_exception;
 use context_module;
 use dml_exception;
 use JsonException;
-use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
@@ -323,18 +322,18 @@ class reports {
         } else {
             $data->hasranking = true;
             $data->$rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
-            if ($mode !== sessions::INACTIVE_PROGRAMMED && $mode !== sessions::INACTIVE_MANUAL) {
-                $data->showfinalranking = true;
-                $data->firstuserimageurl = $data->rankingusers[0]->userimage;
-                $data->firstuserfullname = $data->rankingusers[0]->userfullname;
-                $data->firstuserpoints = $data->rankingusers[0]->userpoints;
-                $data->seconduserimageurl = $data->rankingusers[1]->userimage;
-                $data->seconduserfullname = $data->rankingusers[1]->userfullname;
-                $data->seconduserpoints = $data->rankingusers[1]->userpoints;
-                $data->thirduserimageurl = $data->rankingusers[2]->userimage;
-                $data->thirduserfullname = $data->rankingusers[2]->userfullname;
-                $data->thirduserpoints = $data->rankingusers[2]->userpoints;
-            }
+        }
+        if ($mode !== sessions::INACTIVE_PROGRAMMED && $mode !== sessions::INACTIVE_MANUAL) {
+            $data->showfinalranking = true;
+            $data->firstuserimageurl = $data->rankingusers[0]->userimage;
+            $data->firstuserfullname = $data->rankingusers[0]->userfullname;
+            $data->firstuserpoints = $data->rankingusers[0]->userpoints;
+            $data->seconduserimageurl = $data->rankingusers[1]->userimage;
+            $data->seconduserfullname = $data->rankingusers[1]->userfullname;
+            $data->seconduserpoints = $data->rankingusers[1]->userpoints;
+            $data->thirduserimageurl = $data->rankingusers[2]->userimage;
+            $data->thirduserfullname = $data->rankingusers[2]->userfullname;
+            $data->thirduserpoints = $data->rankingusers[2]->userpoints;
         }
         return $data;
     }

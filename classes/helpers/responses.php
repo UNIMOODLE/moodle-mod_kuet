@@ -111,7 +111,6 @@ class responses {
         $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
         $response->correct_answers = $correctanswers;
         $response->answerids = $answerids;
-//        $response->timeleft = 5; //TODO: no llega el tiempo q tarda el participante en contestar.
         $response->timeleft = $timeleft;
         $response->type = questions::MULTIPLE_CHOICE;
         $session = new jqshow_sessions($sessionid);

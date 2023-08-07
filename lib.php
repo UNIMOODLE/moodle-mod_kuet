@@ -383,11 +383,11 @@ function mod_jqshow_question_pluginfile($course, $context, $component, $filearea
  */
 function mod_jqshow_get_grading_options() {
     return [
-        mod_jqshow\api\grade::MOD_OPTION_NO_GRADE => get_string('nograde', 'mod_jqshow'),
-        mod_jqshow\api\grade::MOD_OPTION_GRADE_HIGHEST => get_string('gradehighest', 'mod_jqshow'),
-        mod_jqshow\api\grade::MOD_OPTION_GRADE_AVERAGE => get_string('gradeaverage', 'mod_jqshow'),
-        mod_jqshow\api\grade::MOD_OPTION_GRADE_FIRST_SESSION => get_string('firstsession', 'mod_jqshow'),
-        mod_jqshow\api\grade::MOD_OPTION_GRADE_LAST_SESSION => get_string('lastsession', 'mod_jqshow')
+        \mod_jqshow\api\grade::MOD_OPTION_NO_GRADE => get_string('nograde', 'mod_jqshow'),
+        \mod_jqshow\api\grade::MOD_OPTION_GRADE_HIGHEST => get_string('gradehighest', 'mod_jqshow'),
+        \mod_jqshow\api\grade::MOD_OPTION_GRADE_AVERAGE => get_string('gradeaverage', 'mod_jqshow'),
+        \mod_jqshow\api\grade::MOD_OPTION_GRADE_FIRST_SESSION => get_string('firstsession', 'mod_jqshow'),
+        \mod_jqshow\api\grade::MOD_OPTION_GRADE_LAST_SESSION => get_string('lastsession', 'mod_jqshow')
     ];
 }
 
