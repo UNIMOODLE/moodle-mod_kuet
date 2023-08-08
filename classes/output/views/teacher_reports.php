@@ -53,6 +53,7 @@ class teacher_reports implements renderable, templatable {
      * @param int $sid
      * @param int $partipantid could be userid or groupid
      * @param int $jqid
+     * @throws coding_exception
      */
     public function __construct(int $cmid, int $jqshowid, int $sid, int $partipantid, int $jqid) {
         $this->jqshowid = $jqshowid;
@@ -76,7 +77,6 @@ class teacher_reports implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-
         $jqshow = new jqshow($this->cmid);
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;

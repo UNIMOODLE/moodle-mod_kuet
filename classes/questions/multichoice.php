@@ -15,12 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_jqshow\questions;
+use coding_exception;
+use dml_exception;
+use JsonException;
 use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\helpers\reports;
+use mod_jqshow\models\questions;
+use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use pix_icon;
+use question_definition;
+use stdClass;
 
 /**
  *
@@ -33,17 +40,17 @@ class multichoice implements  jqshowquestion {
 
     /**
      * @param jqshow_sessions $session
-     * @param \question_definition $questiondata
-     * @param \stdClass $data
+     * @param question_definition $questiondata
+     * @param stdClass $data
      * @param int $jqid
-     * @return \stdClass
-     * @throws \JsonException
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @return stdClass
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function get_question_report(jqshow_sessions $session,
-                                               \question_definition $questiondata,
-                                               \stdClass $data,
+                                               question_definition $questiondata,
+                                               stdClass $data,
                                                int $jqid) {
         $answers = [];
         $correctanswers = [];
@@ -119,15 +126,15 @@ class multichoice implements  jqshowquestion {
     }
 
     /**
-     * @param \stdClass $user
+     * @param stdClass $user
      * @param jqshow_questions_responses $response
      * @param array $answers
      * @param jqshow_sessions $session
-     * @param \mod_jqshow\persistents\jqshow_questions $question
-     * @return \stdClass
-     * @throws \JsonException
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @param jqshow_questions $question
+     * @return stdClass
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function get_ranking_for_question($participant, $response, $answers, $session, $question) {
         $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
@@ -138,14 +145,17 @@ class multichoice implements  jqshowquestion {
                     $participant->response = $answer['result'];
                     $participant->responsestr = get_string($answer['result'], 'mod_jqshow');
                     $participant->answertext = $answer['answertext'];
-                    $points = grade::get_simple_mark($response);
-                    $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-                        $session->get('jqshowid'));
-                    $participant->userpoints = grade::get_rounded_mark($spoints);
-                    $participant->score_moment = grade::get_rounded_mark($points);
-                    $participant->time = reports::get_user_time_in_question($session, $question, $response);
-
+                } else if ((int)$arrayresponses[0] === 0) {
+                    $participant->response = 'noresponse';
+                    $participant->responsestr = get_string('qstatus_' . questions::NORESPONSE, 'mod_jqshow');
+                    $participant->answertext = '';
                 }
+                $points = grade::get_simple_mark($response);
+                $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
+                    $session->get('jqshowid'));
+                $participant->userpoints = grade::get_rounded_mark($spoints);
+                $participant->score_moment = grade::get_rounded_mark($points);
+                $participant->time = reports::get_user_time_in_question($session, $question, $response);
             }
         } else {
             $answertext = '';
@@ -164,7 +174,7 @@ class multichoice implements  jqshowquestion {
             $spoints = grade::get_session_grade($participant->id, $session->get('id'), $session->get('jqshowid'));
             $participant->userpoints = grade::get_rounded_mark($spoints);
             $participant->score_moment = grade::get_rounded_mark($points);
-            $participant->time = self::get_user_time_in_question($session, $question, $response);
+            $participant->time = reports::get_user_time_in_question($session, $question, $response);
         }
         return $participant;
     }

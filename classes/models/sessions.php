@@ -561,7 +561,8 @@ class sessions {
                 $student->id = $user->id;
                 $student->userid = $user->id;
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
-                $student->userprofileurl = (new moodle_url('/user/view.php', ['id' => $user->id, 'course' => $course->id]))->out(false);
+                $student->userprofileurl =
+                    (new moodle_url('/user/view.php', ['id' => $user->id, 'course' => $course->id]))->out(false);
                 $student->correctanswers = $correctanswers;
                 $student->incorrectanswers = $incorrectanswers;
                 $student->partially = $partially;
