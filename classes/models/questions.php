@@ -331,6 +331,8 @@ class questions {
                 break;
             case sessions::PODIUM_PROGRAMMED:
             case sessions::PODIUM_MANUAL:
+            case sessions::RACE_MANUAL:
+            case sessions::RACE_PROGRAMMED:
                 if ((int)$session->get('showfinalgrade') === 0) {
                     $data = self::get_normal_endsession($data);
                 } else {
@@ -341,10 +343,6 @@ class questions {
                     $data->isteacher = has_capability('mod/jqshow:startsession', $contextmodule);
                     // TODO export ranking.
                 }
-                break;
-            case sessions::RACE_PROGRAMMED:
-            case sessions::RACE_MANUAL:
-                // TODO not yet designed.
                 break;
             default:
                 throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',

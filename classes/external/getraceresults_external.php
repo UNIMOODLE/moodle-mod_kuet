@@ -39,11 +39,11 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class getlistresults_external extends external_api {
+class getraceresults_external extends external_api {
     /**
      * @return external_function_parameters
      */
-    public static function getlistresults_parameters(): external_function_parameters {
+    public static function getraceresults_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'sid' => new external_value(PARAM_INT, 'sessionid id'),
@@ -59,25 +59,27 @@ class getlistresults_external extends external_api {
      * @throws moodle_exception
      * @throws invalid_parameter_exception
      */
-    public static function getlistresults(int $sid, int $cmid): array {
+    public static function getraceresults(int $sid, int $cmid): array {
         self::validate_parameters(
-            self::getlistresults_parameters(),
+            self::getraceresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
         $session = new jqshow_sessions($sid);
         if ($session->is_group_mode()) {
+            // TODO race results for groups.
             $groupmode = true;
             $groupresults = sessions::get_group_session_results($sid, $cmid);
             return ['groupmode' => true, 'groupresults' => $groupresults];
         }
         $userresults = sessions::get_session_results($sid, $cmid);
-        return ['groupmode' => false, 'userresults' => $userresults];
+        $questions = sessions::breakdown_responses_for_race($userresults, $sid, $cmid, $session->get('jqshowid'));
+        return ['groupmode' => false, 'userresults' => $userresults, 'questions' => $questions];
     }
 
     /**
      * @return external_single_structure
      */
-    public static function getlistresults_returns(): external_single_structure {
+    public static function getraceresults_returns(): external_single_structure {
         return new external_single_structure([
             'userresults' => new external_multiple_structure(
                 new external_single_structure(
@@ -109,6 +111,20 @@ class getlistresults_external extends external_api {
                         'groupposition' => new external_value(PARAM_INT, 'Group position depending on the points')
                     ], ''
                 ), '', VALUE_OPTIONAL
+            ),
+            'questions' => new external_multiple_structure(
+                new external_single_structure(
+                    [
+                        'questionnum' => new external_value(PARAM_RAW, 'Num of questions'),
+                        'studentsresponse' => new external_multiple_structure(
+                            new external_single_structure(
+                            [
+                                'userid' => new external_value(PARAM_INT, 'User of response'),
+                                'responseclass' => new external_value(PARAM_RAW, 'Css Class for response')
+                            ], ''
+                        ), ''),
+                    ], ''
+                ), ''
             )
         ]);
     }

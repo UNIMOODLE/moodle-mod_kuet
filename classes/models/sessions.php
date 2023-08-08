@@ -561,6 +561,7 @@ class sessions {
                 $student->id = $user->id;
                 $student->userid = $user->id;
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
+                $student->userprofileurl = (new moodle_url('/user/view.php', ['id' => $user->id, 'course' => $course->id]))->out(false);
                 $student->correctanswers = $correctanswers;
                 $student->incorrectanswers = $incorrectanswers;
                 $student->partially = $partially;
@@ -639,10 +640,10 @@ class sessions {
             $questionsdata[$key]->studentsresponse = [];
             foreach ($userresults as $user) {
                 $userresponse = jqshow_questions_responses::get_question_response_for_user($user->id, $sid, $question->get('id'));
+                $questionsdata[$key]->studentsresponse[$user->id]->userid = $user->id;
                 if ($userresponse !== false) {
                     $questionsdata[$key]->studentsresponse[$user->id]->response = $userresponse;
-                    $questionsdata[$key]->studentsresponse[$user->id]->userid = $user->id;
-                    switch ($userresponse) {
+                    switch ($userresponse->get('result')) {
                         case questions::FAILURE:
                             $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'fail';
                             break;

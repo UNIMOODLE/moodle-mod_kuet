@@ -8,7 +8,7 @@
                 <button class="btn btn-primary float-right" data-action="end_session" data-sessionid="{{sid}}">{{#str}}end_session, mod_jqshow{{/str}}</button>
             </div>
             {{#racemode}}
-                <div class="col-12 container">
+                <div class="col-12 container mb-4">
                     <div class="race-results" data-region="race-results" data-sid="{{sid}}" data-cmid="{{cmid}}" data-courseid="{{courseid}}" data-groupmode="{{groupmode}}">
                         {{> mod_jqshow/session/raceresults }}
                     </div>
@@ -41,7 +41,7 @@
 {{#programmedmode}}
     {{#js}}
         require(['mod_jqshow/teacher_programmedmode'], function(ProgrammedMode) {
-            ProgrammedMode.initProgrammedMode('[data-region="list-results"]');
+        ProgrammedMode.initProgrammedMode('[data-region="list-results"]'{{#racemode}}, true{{/racemode}});
         });
     {{/js}}
 {{/programmedmode}}

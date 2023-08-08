@@ -32,6 +32,7 @@ use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
+use moodle_url;
 use renderable;
 use stdClass;
 use templatable;
