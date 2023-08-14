@@ -25,7 +25,8 @@ let ACTION = {
     SHOWHIDE_FEEDBACK: '[data-action="showhide_feedback"]',
     IMPROVISE: '[data-action="improvise"]',
     VOTE: '[data-action="vote"]',
-    ENDSESSION: '[data-action="endsession"]'
+    ENDSESSION: '[data-action="endsession"]',
+    COLLAPSE: '.teacher-control-panel-collapse',
 };
 
 TeacherControlPanel.prototype.root = null;
@@ -91,6 +92,23 @@ TeacherControlPanel.prototype.initControlPanel = function() {
         } else {
             TeacherControlPanel.prototype.hideFeedback();
         }
+    });
+    jQuery(ACTION.COLLAPSE).on('click', function() {
+        setTimeout(function() {
+            if (jQuery(ACTION.COLLAPSE + '.collapsed').length !== 0) {
+                jQuery('.content-raceresults').animate({
+                    width: '100%'
+                }, 400).css({
+                    width: '100%'
+                });
+            } else {
+                jQuery('.content-raceresults').animate({
+                    width: jQuery('.question-body').width() - 260 + 'px'
+                }, 400).css({
+                    width: 'calc(100% - 260px)'
+                });
+            }
+        }, 100);
     });
 };
 
