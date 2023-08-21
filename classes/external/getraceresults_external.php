@@ -72,6 +72,7 @@ class getraceresults_external extends external_api {
             return ['groupmode' => true, 'groupresults' => $groupresults];
         }
         $userresults = sessions::get_session_results($sid, $cmid);
+        usort($userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
         $questions = sessions::breakdown_responses_for_race($userresults, $sid, $cmid, $session->get('jqshowid'));
         return ['groupmode' => false, 'userresults' => $userresults, 'questions' => $questions];
     }

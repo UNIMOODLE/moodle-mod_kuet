@@ -79,6 +79,7 @@ class teacher_session_view implements renderable, templatable {
                 if ($session->get('sessionmode') === sessions::RACE_PROGRAMMED) { // The race mode also needs the result list data.
                     // TODO groupmode.
                     $data->racemode = true;
+                    usort($data->userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
                     $data->questions = sessions::breakdown_responses_for_race(
                         $data->userresults, $data->sid, $data->cmid, $session->get('jqshowid')
                     );
