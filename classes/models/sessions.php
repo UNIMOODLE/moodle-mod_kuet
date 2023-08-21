@@ -535,8 +535,10 @@ class sessions {
      * @throws Exception
      */
     public static function get_session_results(int $sid, int $cmid): array {
-
+        global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
         $users = enrol_get_course_users($course->id, true);
         $session = jqshow_sessions::get_record(['id' => $sid]);
         $questions = (new questions($session->get('jqshowid'), $cmid, $sid))->get_list();
@@ -552,10 +554,15 @@ class sessions {
                 $partially = jqshow_questions_responses::count_records(['jqshow' => $session->get('jqshowid'),
                     'session' => $sid, 'userid' => $user->id, 'result' => questions::PARTIALLY]);
                 $userpoints = grade::get_session_grade($user->id, $session->get('id'), $session->get('jqshowid'));
+                $userpicture = new user_picture($user);
+                $userpicture->size = 1;
                 $student = new stdClass();
+                $student->userimageurl = $userpicture->get_url($PAGE)->out(false);
                 $student->id = $user->id;
                 $student->userid = $user->id;
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
+                $student->userprofileurl =
+                    (new moodle_url('/user/view.php', ['id' => $user->id, 'course' => $course->id]))->out(false);
                 $student->correctanswers = $correctanswers;
                 $student->incorrectanswers = $incorrectanswers;
                 $student->partially = $partially;
@@ -582,9 +589,13 @@ class sessions {
     public static function get_group_session_results(int $sid, int $cmid): array {
 
         $session = jqshow_sessions::get_record(['id' => $sid]);
-        $groups = groupmode::get_grouping_groups($session->get('groupings'));
+        $groupings = $session->get('groupings');
+        if ($groupings === false || $groupings === null) {
+            return [];
+        }
+        $groups = groupmode::get_grouping_groups($groupings);
         $questions = (new questions($session->get('jqshowid'), $cmid, $sid))->get_list();
-        $sessiongroups = [];;
+        $sessiongroups = [];
         foreach ($groups as $group) {
                 $gmembers = groups_get_members($group->id, 'u.id');
                 $groupmember = reset($gmembers);
@@ -611,6 +622,56 @@ class sessions {
             $sessiongroup->groupposition = ++$position;
         }
         return $sessiongroups;
+    }
+
+    /**
+     * @param array $userresults
+     * @param int $sid
+     * @param int $cmid
+     * @param int $jqshowid
+     * @return array
+     * @throws coding_exception
+     */
+    public static function breakdown_responses_for_race(array $userresults, int $sid, int $cmid, int $jqshowid): array {
+        $questions = (new questions($jqshowid, $cmid, $sid))->get_list();
+        $questionsdata = [];
+        foreach ($questions as $key => $question) {
+            $questionsdata[$key] = new stdClass();
+            $questionsdata[$key]->questionnum = $key + 1;
+            $questionsdata[$key]->studentsresponse = [];
+            foreach ($userresults as $user) {
+                $userresponse = jqshow_questions_responses::get_question_response_for_user($user->id, $sid, $question->get('id'));
+                $questionsdata[$key]->studentsresponse[$user->id]->userid = $user->id;
+                if ($userresponse !== false) {
+                    $questionsdata[$key]->studentsresponse[$user->id]->response = $userresponse;
+                    switch ($userresponse->get('result')) {
+                        case questions::FAILURE:
+                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'fail';
+                            break;
+                        case questions::SUCCESS:
+                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'success';
+                            break;
+                        case questions::PARTIALLY:
+                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'partially';
+                            break;
+                        case questions::NORESPONSE:
+                        default:
+                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'noresponse';
+                            break;
+                        case questions::NOTEVALUABLE:
+                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'noevaluable';
+                            break;
+                        case questions::INVALID:
+                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'invalid';
+                            break;
+                    }
+                } else {
+                    $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'noresponse';
+                }
+                $questionsdata[$key]->studentsresponse = array_values($questionsdata[$key]->studentsresponse);
+            }
+        }
+        return array_values($questionsdata);
     }
 
     /**

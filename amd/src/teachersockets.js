@@ -21,6 +21,8 @@ let REGION = {
     SESSIONCONTROLER: '[data-region="session-controller"]',
     SESSIONRESUME: '[data-region="session-resume"]',
     LISTRESULTS: '[data-region="list-results"]',
+    RACERESULTS: '[data-region="race-results"]',
+    SWITCHS: '.showhide-action',
 };
 
 let ACTION = {
@@ -44,6 +46,7 @@ let SERVICES = {
     GETSESSIONCONFIG: 'mod_jqshow_getsession',
     GETPROVISIONALRANKING: 'mod_jqshow_getprovisionalranking',
     GETFINALRANKING: 'mod_jqshow_getfinalranking',
+    GETRACERESULTS: 'mod_jqshow_getraceresults'
 };
 
 let TEMPLATES = {
@@ -54,7 +57,8 @@ let TEMPLATES = {
     QUESTION: 'mod_jqshow/questions/encasement',
     SESSIONRESUME: 'mod_jqshow/session/sessionresume',
     LISTRESULTS: 'mod_jqshow/session/listresults',
-    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional'
+    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional',
+    RACERESULTS: 'mod_jqshow/session/raceresults'
 };
 
 let portUrl = '8080'; // It is rewritten in the constructor.
@@ -76,6 +80,7 @@ let showRankingBetweenQuestions = false;
 let showRankingBetweenQuestionsSwitch = false;
 let showRankingFinal = false;
 let groupMode = false;
+let currentQuestionDataForRace = {};
 
 /**
  * @constructor
@@ -103,7 +108,8 @@ function Sockets(region, port, sessionmode, groupmode) {
             showRankingBetweenQuestionsSwitch = false;
             showRankingFinal = false;
             break;
-        case 'podium_manual': {
+        case 'podium_manual':
+        case 'race_manual': {
             let request = {
                 methodname: SERVICES.GETSESSIONCONFIG,
                 args: {
@@ -304,6 +310,10 @@ Sockets.prototype.initSockets = function() {
                 break;
             case 'studentQuestionEnd':
                 messageBox.append('<div>' + response.message + '</div>');
+                // TODO mark the corresponding tab on the scoreboard if it is career mode.
+                if (sessionMode === 'race_manual') {
+                    Sockets.prototype.raceResults();
+                }
                 break;
             case 'userdisconnected':
                 jQuery('[data-userid="' + response.usersocketid + '"]').remove();
@@ -377,6 +387,8 @@ Sockets.prototype.initListeners = function() {
                 break;
             case 'podium_manual':
             case 'podium_programmed':
+            case 'race_manual':
+            case 'race_programmed':
                 that.manageNext();
                 break;
         }
@@ -394,7 +406,19 @@ Sockets.prototype.initListeners = function() {
         that.jumpTo(e.detail.jumpTo);
     }, false);
     addEventListener('teacherQuestionEndSelf', () => {
-        that.questionEnd();
+        if (sessionMode === 'race_manual') {
+            currentQuestionDataForRace.isteacher = true;
+            Templates.render(TEMPLATES.QUESTION, currentQuestionDataForRace).then(function(html, js) {
+                let identifier = jQuery(REGION.TEACHERCANVAS);
+                identifier.html(html);
+                Templates.runTemplateJS(js);
+                jQuery(REGION.SWITCHS).removeClass('disabled');
+                that.questionEnd();
+            }).fail(Notification.exception);
+        } else {
+            that.questionEnd();
+        }
+
     }, false);
     addEventListener('showAnswersSelf', () => {
         that.showAnswers();
@@ -505,21 +529,27 @@ Sockets.prototype.initSession = function() {
                         identifier.append(html);
                         currentQuestionJqid = firstQuestion.result.jqid;
                         firstQuestion.result.value.isteacher = true;
-                        Templates.render(TEMPLATES.QUESTION, firstQuestion.result.value).then(function(html, js) {
-                            identifier.html(html);
-                            jQuery(REGION.TEACHERCANVASCONTENT).find('.content-title h2').html(langStrings[3]);
-                            jQuery(REGION.TEACHERCANVASCONTENT).find('.content-title small').html(langStrings[4]);
-                            jQuery(ACTION.BACKSESSION).remove();
-                            jQuery(ACTION.INITSESSION).remove();
-                            jQuery(ACTION.ENDSESSION).removeClass('hidden').removeClass('disabled');
-                            waitingRoom = false;
-                            if (showRankingBetweenQuestions) {
-                                showRankingBetweenQuestionsSwitch = true;
-                            }
-                            Templates.runTemplateJS(js);
-                            jQuery(REGION.LOADING).remove();
-                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
-                        }).fail(Notification.exception);
+                        currentQuestionDataForRace = firstQuestion.result.value;
+                        if (sessionMode === 'podium_manual' || sessionMode === 'inactive_manual') {
+                            Templates.render(TEMPLATES.QUESTION, firstQuestion.result.value).then(function(html, js) {
+                                identifier.html(html);
+                                Templates.runTemplateJS(js);
+                                jQuery(REGION.LOADING).remove();
+                                mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                            }).fail(Notification.exception);
+                        }
+                        if (sessionMode === 'race_manual') {
+                            Sockets.prototype.raceResults();
+                        }
+                        jQuery(REGION.TEACHERCANVASCONTENT).find('.content-title h2').html(langStrings[3]);
+                        jQuery(REGION.TEACHERCANVASCONTENT).find('.content-title small').html(langStrings[4]);
+                        jQuery(ACTION.BACKSESSION).remove();
+                        jQuery(ACTION.INITSESSION).remove();
+                        jQuery(ACTION.ENDSESSION).removeClass('hidden').removeClass('disabled');
+                        waitingRoom = false;
+                        if (showRankingBetweenQuestions) {
+                            showRankingBetweenQuestionsSwitch = true;
+                        }
                     });
                 };
             });
@@ -631,6 +661,7 @@ Sockets.prototype.nextQuestion = function() {
                     'sid': sid,
                     'context': nextQuestionData.result
                 };
+                currentQuestionDataForRace = nextQuestionData.result.value;
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.TEACHERCANVAS);
@@ -640,13 +671,19 @@ Sockets.prototype.nextQuestion = function() {
                     that.setCurrentQuestion(nextQuestionData.result.jqid);
                     // And get the next question to store it.
                     that.getNextQuestion(nextQuestionData.result.jqid);
-                    nextQuestionData.result.value.isteacher = true;
-                    Templates.render(TEMPLATES.QUESTION, nextQuestionData.result.value).then(function(html, js) {
-                        identifier.html(html);
-                        Templates.runTemplateJS(js);
-                        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
-                        jQuery(REGION.LOADING).remove();
-                    }).fail(Notification.exception);
+                    if (sessionMode === 'podium_manual' || sessionMode === 'inactive_manual') {
+                        nextQuestionData.result.value.isteacher = true;
+                        // Render questin for teacher.
+                        Templates.render(TEMPLATES.QUESTION, nextQuestionData.result.value).then(function(html, js) {
+                            identifier.html(html);
+                            Templates.runTemplateJS(js);
+                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                            jQuery(REGION.LOADING).remove();
+                        }).fail(Notification.exception);
+                    }
+                    if (sessionMode === 'race_manual') {
+                        Sockets.prototype.raceResults();
+                    }
                 });
             };
         } else {
@@ -708,6 +745,47 @@ Sockets.prototype.nextQuestion = function() {
             }
         }
     };
+};
+
+Sockets.prototype.raceResults = function() {
+    let identifier = jQuery(REGION.TEACHERCANVAS);
+    let request = {
+        methodname: SERVICES.GETRACERESULTS,
+        args: {
+            sid: sid,
+            cmid: cmid
+        }
+    };
+    Ajax.call([request])[0].done(function(response) {
+        response.raceresults = true;
+        response.isteacher = true;
+        response.programmedmode = false;
+        response.sessionprogress = currentQuestionDataForRace.sessionprogress;
+        // eslint-disable-next-line camelcase
+        response.question_index_string = currentQuestionDataForRace.question_index_string;
+        response.numquestions = currentQuestionDataForRace.numquestions;
+        Templates.render(TEMPLATES.QUESTION, response).then((html, js) => {
+            let scrollUsersTop = 0;
+            let scrollQuestionsLeft = 0;
+            if (document.querySelector('#content-users') !== null) {
+                scrollUsersTop = document.querySelector('#content-users').scrollTop;
+                scrollQuestionsLeft = document.querySelector('#questions-list').scrollLeft;
+            }
+            identifier.html(html);
+            Templates.runTemplateJS(js);
+            let newScrollUsers = document.querySelector('#content-users');
+            let newScrollQuestions = document.querySelector('#questions-list');
+            let scrollUsers = document.querySelector('#content-users');
+            let questions = document.querySelectorAll('.content-responses');
+            scrollUsers.addEventListener('scroll', function() {
+                questions.forEach((question) => {
+                    question.scrollTop = scrollUsers.scrollTop;
+                });
+            }, {passive: true});
+            newScrollUsers.scrollTop = scrollUsersTop;
+            newScrollQuestions.scrollLeft = scrollQuestionsLeft;
+        }).fail(Notification.exception);
+    }).fail(Notification.exception);
 };
 
 Sockets.prototype.manageNext = function() {
@@ -788,17 +866,22 @@ Sockets.prototype.resendSelf = function() {
                 };
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 showRankingBetweenQuestionsSwitch = true;
-                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
-                    let identifier = jQuery(REGION.TEACHERCANVAS);
-                    identifier.append(html);
-                    currentQuestionData.result.value.isteacher = true;
-                    Templates.render(TEMPLATES.QUESTION, currentQuestionData.result.value).then(function(html, js) {
-                        identifier.html(html);
-                        Templates.runTemplateJS(js);
-                        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
-                        jQuery(REGION.LOADING).remove();
-                    }).fail(Notification.exception);
-                });
+                currentQuestionDataForRace = currentQuestionData.result.value;
+                if (sessionMode === 'race_manual') {
+                    Sockets.prototype.raceResults();
+                } else {
+                    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                        let identifier = jQuery(REGION.TEACHERCANVAS);
+                        identifier.append(html);
+                        currentQuestionData.result.value.isteacher = true;
+                        Templates.render(TEMPLATES.QUESTION, currentQuestionData.result.value).then(function(html, js) {
+                            identifier.html(html);
+                            Templates.runTemplateJS(js);
+                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                            jQuery(REGION.LOADING).remove();
+                        }).fail(Notification.exception);
+                    });
+                }
             };
         }
     }).fail(Notification.exception);
@@ -836,12 +919,17 @@ Sockets.prototype.jumpTo = function(questionNumber) {
             let identifier = jQuery(REGION.TEACHERCANVAS);
             identifier.append(html);
             question.isteacher = true;
-            Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
-                identifier.html(html);
-                Templates.runTemplateJS(js);
-                mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
-                jQuery(REGION.LOADING).remove();
-            }).fail(Notification.exception);
+            currentQuestionDataForRace = question;
+            if (sessionMode === 'race_manual') {
+                Sockets.prototype.raceResults();
+            } else {
+                Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
+                    identifier.html(html);
+                    Templates.runTemplateJS(js);
+                    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                    jQuery(REGION.LOADING).remove();
+                }).fail(Notification.exception);
+            }
         });
     }).fail(Notification.exception);
 };
@@ -943,6 +1031,6 @@ Sockets.prototype.sendMessageSocket = function(msg) {
     this.webSocket.send(msg);
 };
 
-export const teacherInitSockets = (region, port, sessionmode) => {
-    return new Sockets(region, port, sessionmode);
+export const teacherInitSockets = (region, port, sessionmode, groupmode) => {
+    return new Sockets(region, port, sessionmode, groupmode);
 };

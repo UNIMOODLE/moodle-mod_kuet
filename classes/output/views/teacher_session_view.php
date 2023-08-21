@@ -32,6 +32,7 @@ use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
+use moodle_url;
 use renderable;
 use stdClass;
 use templatable;
@@ -53,6 +54,7 @@ class teacher_session_view implements renderable, templatable {
         $data = new stdClass();
         $data->cmid = required_param('cmid', PARAM_INT);
         $data->sid = required_param('sid', PARAM_INT);
+        $data->courseid = $COURSE->id;
         $data->isteacher = true;
         $data->userid = $USER->id;
         $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
@@ -73,6 +75,14 @@ class teacher_session_view implements renderable, templatable {
                     $data->groupmode = 1;
                 } else {
                     $data->userresults = sessions::get_session_results($data->sid, $data->cmid);
+                }
+                if ($session->get('sessionmode') === sessions::RACE_PROGRAMMED) { // The race mode also needs the result list data.
+                    // TODO groupmode.
+                    $data->racemode = true;
+                    usort($data->userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
+                    $data->questions = sessions::breakdown_responses_for_race(
+                        $data->userresults, $data->sid, $data->cmid, $session->get('jqshowid')
+                    );
                 }
                 break;
             case sessions::INACTIVE_MANUAL:

@@ -23,7 +23,7 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\api; // TODO Moodle is not able to find this class, I don't understand why...
+namespace mod_jqshow\api;
 
 use cache;
 use coding_exception;

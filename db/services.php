@@ -36,6 +36,7 @@ use mod_jqshow\external\getgrouplistresults_external;
 use mod_jqshow\external\getprovisionalranking_external;
 use mod_jqshow\external\getquestion_external;
 use mod_jqshow\external\getquestionstatistics_external;
+use mod_jqshow\external\getraceresults_external;
 use mod_jqshow\external\getsession_external;
 use mod_jqshow\external\getsessionresume_external;
 use mod_jqshow\external\getuserquestionresponse_external;
@@ -321,6 +322,14 @@ $functions = [
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_getraceresults' => [
+        'classname' => getraceresults_external::class,
+        'methodname' => 'getraceresults',
+        'description' => 'Get race results',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -359,6 +368,7 @@ $services = [
             'mod_jqshow_getfinalranking',
             'mod_jqshow_savequestiontime',
             'mod_jqshow_isquestionanswered',
+            'mod_jqshow_getraceresults'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

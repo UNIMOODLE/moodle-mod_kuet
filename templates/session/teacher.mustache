@@ -7,6 +7,13 @@
             <div class="col-12">
                 <button class="btn btn-primary float-right" data-action="end_session" data-sessionid="{{sid}}">{{#str}}end_session, mod_jqshow{{/str}}</button>
             </div>
+            {{#racemode}}
+                <div class="col-12 container mb-4">
+                    <div class="race-results" data-region="race-results" data-sid="{{sid}}" data-cmid="{{cmid}}" data-courseid="{{courseid}}" data-groupmode="{{groupmode}}">
+                        {{> mod_jqshow/session/raceresults }}
+                    </div>
+                </div>
+            {{/racemode}}
             <div class="col-12 col-lg-4 container">
                 <div class="resume-config">
                     <h5 class="titlecontainer bg-primary">
@@ -22,7 +29,7 @@
                         {{#pix}} i/questions_list, mod_jqshow {{/pix}}
                         {{#str}}results, mod_jqshow{{/str}}
                     </h5>
-                    <div class="list-results" data-region="list-results" data-sid="{{sid}}" data-cmid="{{cmid}}" data-courseid="{{courseid}}" data-groupmode="{{groupmode}}">
+                    <div class="list-results" data-region="list-results" data-sid="{{sid}}" data-cmid="{{cmid}}" data-courseid="{{courseid}}" {{#groupmode}}data-groupmode="1"{{/groupmode}}>
                         {{> mod_jqshow/session/listresults }}
                     </div>
                 </div>
@@ -34,7 +41,7 @@
 {{#programmedmode}}
     {{#js}}
         require(['mod_jqshow/teacher_programmedmode'], function(ProgrammedMode) {
-            ProgrammedMode.initProgrammedMode('[data-region="list-results"]');
+        ProgrammedMode.initProgrammedMode('[data-region="list-results"]'{{#racemode}}, true{{/racemode}});
         });
     {{/js}}
 {{/programmedmode}}
