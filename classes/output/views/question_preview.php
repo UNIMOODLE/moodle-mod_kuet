@@ -26,6 +26,7 @@
 namespace mod_jqshow\output\views;
 
 use dml_exception;
+use JsonException;
 use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
 use moodle_exception;
@@ -62,6 +63,7 @@ class question_preview implements renderable, templatable {
      * @return stdClass
      * @throws dml_exception
      * @throws moodle_exception
+     * @throws JsonException
      */
     public function export_for_template(renderer_base $output): stdClass {
         switch ((new jqshow_questions($this->jqid))->get('qtype')){

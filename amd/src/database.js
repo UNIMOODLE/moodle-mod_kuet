@@ -24,7 +24,6 @@ Db.prototype.openDb = function() {
     req.onerror = function(event) {
         // eslint-disable-next-line no-console
         console.error(`Database error: ${event.target.errorCode}`);
-        alert(`Error DB ${event.target.errorCode}`);
     };
     req.onupgradeneeded = function(evt) {
         // eslint-disable-next-line no-console

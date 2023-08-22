@@ -118,14 +118,6 @@ MultiChoice.prototype.initMultichoice = function() {
     addEventListener('hideFeedback_' + jqid, () => {
         this.hideFeedback();
     }, false);
-    // TODO test well, and add/replace alternative methods.
-    window.addEventListener('beforeunload' + jqid, () => { // TODO delete this listener, not work.
-        if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
-            that.reply();
-            return 'Because the question is overdue and an attempt has been made to reload the page,' +
-                ' the question has remained unanswered.';
-        }
-    });
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
             that.reply();
@@ -190,8 +182,6 @@ MultiChoice.prototype.reply = function(e) {
                     }
                 } else {
                     if (manualMode === false) {
-                        /* TODO there should be a parameter for showAnswers, because if it is not set and no feedback is shown
-                            in programmed mode the responses will not be seen. */
                         that.showAnswers();
                         if (showQuestionFeedback === true) {
                             that.showFeedback();

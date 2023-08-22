@@ -26,6 +26,10 @@
 
 namespace mod_jqshow\event;
 
+use coding_exception;
+use moodle_exception;
+use moodle_url;
+
 class session_ended extends \core\event\base {
 
     /**
@@ -43,6 +47,7 @@ class session_ended extends \core\event\base {
      * Return localised event name.
      *
      * @return string
+     * @throws coding_exception
      */
     public static function get_name() {
         return get_string('sessionended', 'mod_jqshow');
@@ -52,6 +57,7 @@ class session_ended extends \core\event\base {
      * Returns non-localised event description with id's for admin use only.
      *
      * @return string
+     * @throws coding_exception
      */
     public function get_description() {
         return get_string('sessionended_desc', 'mod_jqshow');
@@ -60,11 +66,12 @@ class session_ended extends \core\event\base {
     /**
      * Get URL related to the action
      *
-     * @return \moodle_url
+     * @return moodle_url
+     * @throws moodle_exception
      */
     public function get_url() {
         $cmcontext = \context_module::instance($this->contextinstanceid);
-        return new \moodle_url('mod/jqshow/sessions.php', ['sid' => $this->objectid,
+        return new moodle_url('mod/jqshow/sessions.php', ['sid' => $this->objectid,
             'cmid' => $cmcontext->instanceid]);
     }
 

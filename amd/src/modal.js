@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */
 
 import CustomEvents from 'core/custom_interaction_events';
 import Modal from 'core/modal';
