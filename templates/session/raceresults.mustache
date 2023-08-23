@@ -14,14 +14,28 @@
             {{#userresults}}
                 <div class="race-student">
                     <img class="student-profile" src="{{userimageurl}}" alt="{{userfullname}}">
-                    <span class="user-fullname">
-                        <a target="_blank" href="{{userprofileurl}}">{{userfullname}}</a>
-                    </span>
+                    {{#userprofileurl}}
+                        <span class="user-fullname">
+                            <a target="_blank" href="{{userprofileurl}}">{{userfullname}}</a>
+                        </span>
+                    {{/userprofileurl}}
+                    {{^userprofileurl}}
+                        <span class="user-fullname">{{userfullname}}</span>
+                    {{/userprofileurl}}
                     <span class="user-poinsts">
                     {{userpoints}} pt {{#pix}}q/points, mod_jqshow{{/pix}}
                 </span>
                 </div>
             {{/userresults}}
+            {{#groupresults}}
+                <div class="race-student">
+                    <img class="student-profile" src="{{groupimageurl}}" alt="{{groupname}}">
+                    <span class="user-fullname">{{groupname}}</span>
+                    <span class="user-poinsts">
+                    {{grouppoints}} pt {{#pix}}q/points, mod_jqshow{{/pix}}
+                </span>
+                </div>
+            {{/groupresults}}
         </div>
     </div>
     <div class="questions-list" id="questions-list">
