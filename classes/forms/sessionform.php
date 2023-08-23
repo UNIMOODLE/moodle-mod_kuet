@@ -165,9 +165,9 @@ class sessionform extends moodleform {
             get_string('timemode', 'mod_jqshow'), $customdata['timemode']);
         $mform->setType('timemode', PARAM_INT);
         $mform->addHelpButton('timemode', 'timemode', 'mod_jqshow');
-        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::RACE_MANUAL);
+//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::RACE_MANUAL);
 
         $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_jqshow'),
             ['units' => [MINSECS, 1], 'optional' => false]);
@@ -294,16 +294,16 @@ class sessionform extends moodleform {
         }
 
         // Timemode.
-        if (array_key_exists('sessionmode', $data) && $data['sessionmode'] == sessions::PODIUM_PROGRAMMED) {
-            if (!array_key_exists('timemode', $data)) {
-                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
-            } else if (array_key_exists('timemode', $data) && (int)$data['timemode'] == sessions::NO_TIME) {
-                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
-            }
-        }
-        $programmedmodes = [sessions::PODIUM_PROGRAMMED, sessions::RACE_PROGRAMMED];
-        if (in_array($data['sessionmode'], $programmedmodes)
-            && ((int)$data['questiontime'] === 0 && (int)$data['sessiontime'] === 0)) {
+//        $programmedmodes = [sessions::PODIUM_PROGRAMMED, sessions::RACE_PROGRAMMED];
+//        if ($data['sessionmode'] != sessions::INACTIVE_MANUAL) {
+//            if (!array_key_exists('timemode', $data)) {
+//                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
+//            } else if (array_key_exists('timemode', $data) && (int)$data['timemode'] == sessions::NO_TIME) {
+//                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
+//            }
+//        }
+//
+        if ((int)$data['questiontime'] === 0 && (int)$data['sessiontime'] === 0) {
             $errors['questiontime'] = get_string('timecannotbezero', 'mod_jqshow');
             $errors['sessiontime'] = get_string('timecannotbezero', 'mod_jqshow');
         }

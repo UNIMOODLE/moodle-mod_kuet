@@ -134,7 +134,7 @@ class sessions {
             self::RACE_PROGRAMMED => get_string('race_programmed', 'mod_jqshow'),
         ];
         $timemode = [
-            self::NO_TIME => get_string('no_time', 'mod_jqshow'),
+//            self::NO_TIME => get_string('no_time', 'mod_jqshow'),
             self::SESSION_TIME => get_string('session_time', 'mod_jqshow'),
             self::QUESTION_TIME => get_string('question_time', 'mod_jqshow'),
         ];
