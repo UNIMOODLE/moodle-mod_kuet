@@ -35,8 +35,8 @@ use stdClass;
 class groupmode {
 
     public const TEAM_GRADE_FIRST = 'first';
-    /*public const TEAM_GRADE_LAST = 'last';
-    public const TEAM_GRADE_AVERAGE = 'average';*/
+    public const TEAM_GRADE_LAST = 'last';
+    public const TEAM_GRADE_AVERAGE = 'average';
 
     /**
      * @param stdClass $groupdata

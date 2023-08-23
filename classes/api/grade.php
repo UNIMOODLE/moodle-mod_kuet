@@ -87,7 +87,6 @@ class grade {
     /**
      * Get the answer mark without considering session mode.
      * @param jqshow_questions_responses $response
-     * @param bool $saveoncache
      * @return float
      * @throws coding_exception
      * @throws dml_exception
@@ -189,12 +188,12 @@ class grade {
      */
     private static function get_session_podium_programmed_grade(array $responses, jqshow_sessions $session) {
         $qtime = 0;
-        if ($session->get('timemode') == sessions::SESSION_TIME) {
+        if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
             $total = $session->get('sessiontime');
             $numq = jqshow_questions::count_records(['sessionid' => $session->get('id'),
                 'jqshowid' => $session->get('jqshowid')]);
             $qtime = $total / $numq;
-        } else if ($session->get('timemode') == sessions::QUESTION_TIME) {
+        } else if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
             $qtime = $session->get('questiontime');
         }
         $mark = 0;
@@ -204,7 +203,6 @@ class grade {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
-            // TODO: por qué se ha eliminado del settings del mod el tiempo por defecto de las preguntas???
             $qtime = !$qtime ? $jqquestion->get('timelimit') : 40;
             $useranswer = $response->get('response');
             $percent = 1;
@@ -220,8 +218,6 @@ class grade {
 
     /**
      * @param jqshow_questions_responses[] $responses
-     * @param int $userid
-     * @param jqshow_sessions $session
      * @return float|int
      * @throws coding_exception
      * @throws dml_exception
@@ -267,6 +263,7 @@ class grade {
             $jgrade->set('grade', $finalgrade);
             $jgrade->update();
         }
+
         // Save final grade for grade report.
         $params['rawgrade'] = $finalgrade;
         $params['rawgrademax'] = get_config('core', 'gradepointmax');
