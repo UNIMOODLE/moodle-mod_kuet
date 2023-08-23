@@ -205,6 +205,19 @@ class sessionform extends moodleform {
         }
 
         $cm = $customdata['cm'];
+        if ($cm->groupmode !== '0' && empty($customdata['groupingsselect'])) {
+            $mform->addElement('html', '<div class="col-12 formcontainer">');
+            $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
+                $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
+                get_string('accessrestrictions', 'mod_jqshow') .
+                '</h5>');
+            $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
+
+
+            $mform->addElement('html', '<div class="alert alert-warning">' . get_string('nogroupingscreated', 'mod_jqshow') . '</div>');
+            $mform->addElement('html', '</div>');
+            $mform->addElement('html', '</div>');
+        }
         // Hidden params.
         $mform->addElement('hidden', 'jqshowid', $customdata['jqshowid']);
         $mform->setType('jqshowid', PARAM_INT);

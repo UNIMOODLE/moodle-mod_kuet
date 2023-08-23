@@ -360,3 +360,6 @@ $string['groups'] = 'Teams';
 $string['abbreviationquestion'] = 'Q';
 $string['timemodemustbeset'] = 'Total session time or question time must be set';
 $string['timecannotbezero'] = 'Time can not be zero';
+$string['nogroupingscreated'] = 'This activity is group mode type but no groupings are created on this course.
+It is required that you create firstly a grouping on this course to be able to choose it on this activity.';
+
