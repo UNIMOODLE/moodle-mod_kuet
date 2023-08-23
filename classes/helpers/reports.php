@@ -392,7 +392,7 @@ class reports {
 ;
         switch ($data->type) {
             // TODO recfactor.
-            case 'multichoice':
+            case questions::MULTICHOICE:
                 $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             default:
@@ -457,7 +457,7 @@ class reports {
 
         switch ($data->type) {
             // TODO recfactor.
-            case 'multichoice':
+            case questions::MULTICHOICE:
                 $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             default:
@@ -752,7 +752,7 @@ class reports {
                 if ($response !== false) {
                     $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
                     switch ($other->type) {
-                        case 'multichoice':
+                        case questions::MULTICHOICE:
                             $user = multichoice::get_ranking_for_question($user, $response, $answers, $session, $question);
                             break;
                         default:
@@ -790,7 +790,7 @@ class reports {
             if ($response !== false) {
                 $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
                 switch ($other->type) {
-                    case 'multichoice':
+                    case questions::MULTICHOICE:
                         $group = multichoice::get_ranking_for_question($group, $response, $answers, $session, $question);
                         break;
                     default:

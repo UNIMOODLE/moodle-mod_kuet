@@ -76,7 +76,7 @@ class firstquestion_external extends external_api {
         $PAGE->set_context($contextmodule);
         $firstquestion = jqshow_questions::get_first_question_of_session($sessionid);
         switch ($firstquestion->get('qtype')) {
-            case 'multichoice':
+            case questions::MULTICHOICE:
                 $question = questions::export_multichoice(
                     $firstquestion->get('id'),
                     $cmid,

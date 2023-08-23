@@ -95,7 +95,7 @@ class nextquestion_external extends external_api {
                 $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
             );
             switch ($nextquestion->get('qtype')) {
-                case 'multichoice':
+                case questions::MULTICHOICE:
                     $data = questions::export_multichoice(
                         $nextquestion->get('id'),
                         $cmid,

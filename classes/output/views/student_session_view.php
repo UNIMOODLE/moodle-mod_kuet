@@ -97,7 +97,7 @@ class student_session_view implements renderable, templatable {
                     $question = jqshow_questions::get_question_by_jqid($newprogressdata->currentquestion);
                 }
                 switch ($question->get('qtype')) {
-                    case 'multichoice':
+                    case questions::MULTICHOICE:
                         $data = questions::export_multichoice(
                             $question->get('id'),
                             $cmid,

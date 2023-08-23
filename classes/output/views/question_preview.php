@@ -67,7 +67,7 @@ class question_preview implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         switch ((new jqshow_questions($this->jqid))->get('qtype')){
-            case 'multichoice':
+            case questions::MULTICHOICE:
                 $data = questions::export_multichoice($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
                 break;
             default:

@@ -33,6 +33,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use moodle_exception;
@@ -76,7 +77,7 @@ class getquestionstatistics_external extends external_api {
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $statistics = [];
         switch ($jqshowquestion->get('qtype')) {
-            case 'multichoice':
+            case questions::MULTICHOICE:
                 foreach ($question->answers as $answer) {
                     $statistics[$answer->id] = ['answerid' => $answer->id, 'numberofreplies' => 0];
                 }

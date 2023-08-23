@@ -105,7 +105,7 @@ class getuserquestionresponse_external extends external_api {
             return [];
         }
         switch ($other->type) {
-            case 'multichoice':
+            case questions::MULTICHOICE:
                 return (array)questions::export_multichoice_response($data, $json);
             default:
                 return [];

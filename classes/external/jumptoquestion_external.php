@@ -90,7 +90,7 @@ class jumptoquestion_external extends external_api {
                 $question->get('jqshowid'), $sessionid, $USER->id, $cmid, $question->get('id')
             );
             switch ($question->get('qtype')) {
-                case 'multichoice':
+                case questions::MULTICHOICE:
                     $data = questions::export_multichoice(
                         $question->get('id'),
                         $cmid,

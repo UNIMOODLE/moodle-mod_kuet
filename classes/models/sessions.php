@@ -336,7 +336,7 @@ class sessions {
                 'title' => ''
             ]);
             $question->icon = $icon->export_for_pix();
-            $question->issuitable = in_array($question->qtype, questions::TYPES);
+            $question->issuitable = in_array($question->qtype, questions::TYPES, true);
             $question->questionpreview =
                 (new moodle_url('/question/bank/previewquestion/preview.php', ['id' => $key]))->out(false);
             $question->questionedit =

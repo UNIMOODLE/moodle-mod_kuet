@@ -116,6 +116,10 @@ class question_exporter extends exporter {
                 'type' => PARAM_BOOL,
                 'optional' => true
             ],
+            'match' => [
+                'type' => PARAM_BOOL,
+                'optional' => true
+            ],
             'endsession' => [
                 'type' => PARAM_BOOL,
                 'optional' => true

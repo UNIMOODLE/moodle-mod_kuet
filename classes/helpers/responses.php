@@ -112,7 +112,7 @@ class responses {
         $response->correct_answers = $correctanswers;
         $response->answerids = $answerids;
         $response->timeleft = $timeleft;
-        $response->type = questions::MULTIPLE_CHOICE;
+        $response->type = questions::MULTICHOICE;
         $session = new jqshow_sessions($sessionid);
         if ($session->is_group_mode()) {
             // All groupmembers has the same response saved on db.

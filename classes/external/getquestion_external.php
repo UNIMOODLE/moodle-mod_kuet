@@ -80,8 +80,11 @@ class getquestion_external extends external_api {
         $PAGE->set_context($contextmodule);
         $session = new jqshow_sessions($sessionid);
         switch ((new jqshow_questions($jqid))->get('qtype')){
-            case 'multichoice':
+            case questions::MULTICHOICE:
                 $question = questions::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                break;
+            case questions::MATCH:
+                $question = questions::export_match($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
