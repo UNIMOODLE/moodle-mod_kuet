@@ -358,3 +358,5 @@ $string['fakegroupdescription'] = 'Jqshow activity has created this group becaus
 that are not part of the grouping selected.';
 $string['groups'] = 'Teams';
 $string['abbreviationquestion'] = 'Q';
+$string['timemodemustbeset'] = 'Total session time or question time must be set';
+$string['timecannotbezero'] = 'Time can not be zero';

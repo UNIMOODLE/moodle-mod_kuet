@@ -130,13 +130,6 @@ class sessionform extends moodleform {
             get_string('timesettings', 'mod_jqshow') .
             '</h5>');
         $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
-        // Openquiz.
-//        $mform->addElement('html', '<h2>' . get_string('openquiz', 'mod_jqshow') . '</h2>');
-
-        // Openquiz - enable.
-//        $mform->addElement('checkbox', 'openquizenable', get_string('openquizenable', 'mod_jqshow'));
-//        $mform->setType('openquizenable', PARAM_INT);
-
 
         // Automaticstart.
         $mform->addElement('checkbox', 'automaticstart', get_string('automaticstart', 'mod_jqshow'));
@@ -172,10 +165,9 @@ class sessionform extends moodleform {
             get_string('timemode', 'mod_jqshow'), $customdata['timemode']);
         $mform->setType('timemode', PARAM_INT);
         $mform->addHelpButton('timemode', 'timemode', 'mod_jqshow');
-        // TODO On the contrary, if the mode is manual, it is when it is mandatory to set times.
-        /*$mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::RACE_MANUAL);*/
+        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::RACE_MANUAL);
 
         $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_jqshow'),
             ['units' => [MINSECS, 1], 'optional' => false]);
@@ -287,6 +279,22 @@ class sessionform extends moodleform {
                 }
             }
         }
+
+        // Timemode.
+        if (array_key_exists('sessionmode', $data) && (int)$data['sessionmode'] == sessions::PODIUM_PROGRAMMED) {
+            if (!array_key_exists('timemode', $data)) {
+                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
+            } else if (array_key_exists('timemode', $data) && (int)$data['timemode'] == sessions::NO_TIME) {
+                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
+            }
+        }
+        $programmedmodes = [sessions::PODIUM_PROGRAMMED, sessions::RACE_PROGRAMMED];
+        if (in_array((int)$data['sessionmode'], $programmedmodes)
+            && ((int)$data['questiontime'] === 0 && (int)$data['sessiontime'] === 0)) {
+            $errors['questiontime'] = get_string('timecannotbezero', 'mod_jqshow');
+            $errors['sessiontime'] = get_string('timecannotbezero', 'mod_jqshow');
+        }
+
         return $errors;
     }
 }
