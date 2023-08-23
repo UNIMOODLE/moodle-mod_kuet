@@ -43,12 +43,9 @@ $cmcontext = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $cmcontext);
 $coursecontext = context_course::instance($COURSE->id);
 $isteacher = has_capability('mod/jqshow:startsession', $coursecontext);
-$strjqshow = get_string("modulename", "jqshow");
 $PAGE->set_heading($course->fullname);
-$PAGE->set_title($strjqshow);
+$PAGE->set_title(get_string('modulename', 'jqshow'));
 
-// TODO add this call in a cron job or observer.
-jqshow_sessions::check_automatic_sessions($jqshow->id);
 if ($isteacher) {
     $view = new teacher_view();
 } else {

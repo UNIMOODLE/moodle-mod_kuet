@@ -26,13 +26,15 @@
 namespace mod_jqshow\forms;
 
 use coding_exception;
+use mod_jqshow\persistents\jqshow_sessions;
+use moodleform;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once("$CFG->libdir/formslib.php");
 
-class questionform extends \moodleform {
+class questionform extends moodleform {
     /**
      * @return void
      * @throws coding_exception
@@ -46,16 +48,21 @@ class questionform extends \moodleform {
         $mform->addElement('html', '</div>');
 
         $mform->addElement('header', 'timeheader', get_string('questiontime', 'mod_jqshow'));
-
-        if ($customdata['sessionlimittimebyquestionsenabled']) {
+        if ($customdata['sessionlimittimebyquestionsenabled'] === true || $customdata['notimelimit'] === true) {
+            $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'),
+                ['units' => [MINSECS, 1], 'optional' => true], 'asd');
+            $mform->setType('timelimit', PARAM_INT);
+        } else {
+            $mform->addHelpButton('timelimit', 'qtimelimit', 'jqshow');
+            $sid = required_param('sid', PARAM_INT);
+            $session = new jqshow_sessions($sid);
+            $timelimit = userdate($session->get('sessiontime'), '%Mm %Ss');
             $mform->addElement('html', '<div class=" alert alert-warning">');
-            $mform->addElement('html', '<div>' . get_string('sessionlimittimebyquestionsenabled', 'mod_jqshow'). '</div>');
+            $mform->addElement('html', '<div>' .
+                get_string('sessionlimittimebyquestionsenabled', 'mod_jqshow', $timelimit) .
+                '</div>');
             $mform->addElement('html', '</div>');
         }
-
-        $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'), array('optional' => true), 'asd');
-        $mform->setType('timelimit', PARAM_INT);
-        $mform->addHelpButton('timelimit', 'qtimelimit', 'jqshow');
 
         $mform->addElement('header', 'gradesheader', get_string('gradesheader', 'mod_jqshow'));
         $mform->addElement('checkbox', 'nograding', get_string('nograding', 'mod_jqshow'));

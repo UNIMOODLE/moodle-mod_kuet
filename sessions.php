@@ -27,6 +27,7 @@ require_once('../../config.php');
 require_once('lib.php');
 
 use mod_jqshow\output\views\sessions_view;
+use mod_jqshow\persistents\jqshow_sessions;
 
 global $CFG, $PAGE, $DB, $COURSE, $USER;
 $id = required_param('cmid', PARAM_INT);    // Course Module ID.
@@ -40,11 +41,19 @@ require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $cmcontext);
 $coursecontext = context_course::instance($COURSE->id);
-$isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+require_capability('mod/jqshow:managesessions', $coursecontext);
+
+$sid = optional_param('sid', 0, PARAM_INT);
+$activesession = jqshow_sessions::get_active_session_id($jqshow->id);
+if ($activesession !== 0 && $activesession === $sid) {
+    throw new moodle_exception('erroreditsessionactive', 'mod_jqshow', (new moodle_url('/mod/jqshow/view.php', ['id' => $id])),
+        [], get_string('erroreditsessionactive', 'mod_jqshow'));
+}
+
 $PAGE->set_title(get_string('modulename', 'jqshow'));
 $PAGE->set_heading(get_string('sessionconfiguration', 'jqshow'));
+$PAGE->set_cacheable(false);
 $view = new sessions_view($jqshow, $cm->id);
-
 $output = $PAGE->get_renderer('mod_jqshow');
 echo $output->header();
 echo $output->heading(get_string('sessionconfiguration', 'jqshow'));

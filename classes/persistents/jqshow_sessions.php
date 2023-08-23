@@ -28,7 +28,9 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
+use mod_jqshow\event\session_ended;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\sessions as sessionsmodel;
 
 class jqshow_sessions extends persistent {
 
@@ -40,91 +42,111 @@ class jqshow_sessions extends persistent {
      * @return array
      */
     protected static function define_properties() {
-        return array(
-            'name' => array(
+        return [
+            'name' => [
                 'type' => PARAM_RAW,
-            ),
-            'jqshowid' => array(
+            ],
+            'jqshowid' => [
                 'type' => PARAM_INT,
-            ),
-            'anonymousanswer' => array(
-                'type' => PARAM_INT,
-                'default' => 0,
-            ),
-            'allowguests' => array(
+            ],
+            'anonymousanswer' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'sessionmode' => array(
+            ],
+            'sessionmode' => [
                 'type' => PARAM_RAW,
                 'default' => sessions::INACTIVE_MANUAL,
-                'choices' => array(sessions::INACTIVE_MANUAL, sessions::PODIUM_PROGRAMMED, sessions::PODIUM_MANUAL)
-            ),
-            'countdown' => array(
+                'choices' => [sessions::INACTIVE_MANUAL,
+                    sessions::INACTIVE_PROGRAMMED,
+                    sessions::PODIUM_MANUAL,
+                    sessions::PODIUM_PROGRAMMED,
+                    sessions::RACE_MANUAL,
+                    sessions::RACE_PROGRAMMED]
+            ],
+            'sgrade' => [
+                'type' => PARAM_INT,
+                'default' => sessions::GM_DISABLED,
+            ],
+            'countdown' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
                 'default' => 0,
-            ),
-            'hidegraderanking' => array(
+            ],
+            'showgraderanking' => [
+                'type' => PARAM_INT,
+                'default' => 1,
+            ],
+            'randomquestions' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'randomquestions' => array(
+            ],
+            'randomanswers' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'randomanswers' => array(
+            ],
+            'showfeedback' => [
                 'type' => PARAM_INT,
                 'default' => 0,
-            ),
-            'showfeedback' => array(
+            ],
+            'showfinalgrade' => [
                 'type' => PARAM_INT,
-                'default' => 0,
-            ),
-            'showfinalgrade' => array(
-                'type' => PARAM_INT,
-                'default' => 0,
-            ),
-            'startdate' => array(
+                'default' => 1,
+            ],
+            'startdate' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'enddate' => array(
+            ],
+            'enddate' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'automaticstart' => array(
+            ],
+            'automaticstart' => [
                 'type' => PARAM_INT,
                 'default' => 0
-            ),
-            'timelimit' => array(
+            ],
+            'timemode' => [
+                'type' => PARAM_INT,
+                'default' => sessions::NO_TIME,
+                'choices' => [sessions::NO_TIME,
+                    sessions::SESSION_TIME,
+                    sessions::QUESTION_TIME]
+            ],
+            'sessiontime' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
-            ),
-            'addtimequestion' => array(
+            ],
+            'questiontime' => [
                 'type' => PARAM_INT,
-                'default' => 0
-            ),
-            'groupings' => array(
+                'null' => NULL_ALLOWED,
+            ],
+            'groupings' => [
                 'type' => PARAM_RAW,
                 'null' => NULL_ALLOWED,
                 'default' => null,
-            ),
-            'status' => array(
+            ],
+            'status' => [
                 'type' => PARAM_INT,
-            ),
-            'usermodified' => array(
+            ],
+            'usermodified' => [
                 'type' => PARAM_INT,
-            ),
-            'timecreated' => array(
+            ],
+            'timecreated' => [
                 'type' => PARAM_INT,
-            ),
-            'timemodified' => array(
+            ],
+            'timemodified' => [
                 'type' => PARAM_INT,
-            )
-        );
+            ]
+        ];
     }
 
+    /**
+     * @return bool
+     * @throws coding_exception
+     */
+    public function is_group_mode(): bool {
+        $group = $this->get('groupings');
+        return $group !== null && $group !== '';
+    }
     /**
      * @param int $sessionid
      * @return int
@@ -136,7 +158,7 @@ class jqshow_sessions extends persistent {
         $record = $DB->get_record(self::TABLE, ['id' => $sessionid]);
         unset($record->id);
         $record->name .= ' - ' . get_string('copy', 'mod_jqshow');
-        $record->status = 1;
+        $record->status = sessionsmodel::SESSION_ACTIVE;
         $record->automaticstart = 0;
         $record->startdate = 0;
         $record->enddate = 0;
@@ -173,8 +195,19 @@ class jqshow_sessions extends persistent {
      * @throws coding_exception
      */
     public static function get_active_session_id(int $jqshowid): int {
-        $activesession = self::get_record(['jqshowid' => $jqshowid, 'status' => 2]);
+        $activesession = self::get_record(['jqshowid' => $jqshowid, 'status' => sessionsmodel::SESSION_STARTED]);
         return $activesession !== false ? $activesession->get('id') : 0;
+    }
+
+    /**
+     * @param int $jqshowid
+     * @param int $sessionid
+     * @return string
+     * @throws coding_exception
+     */
+    public static function get_sessionname(int $jqshowid, int $sessionid): string {
+        $sessionname = self::get_record(['id' => $sessionid, 'jqshowid' => $jqshowid]);
+        return $sessionname !== false ? $sessionname->get('name') : '';
     }
 
     /**
@@ -185,7 +218,8 @@ class jqshow_sessions extends persistent {
     public static function get_next_session(int $jqshowid): int {
         // TODO review.
         global $DB;
-        $allsessions = $DB->get_records(self::TABLE, ['jqshowid' => $jqshowid, 'status' => 1], 'startdate DESC', 'startdate');
+        $allsessions = $DB->get_records(self::TABLE, ['jqshowid' => $jqshowid, 'status' => sessionsmodel::SESSION_ACTIVE],
+            'startdate DESC', 'startdate');
         $dates = [];
         foreach ($allsessions as $key => $date) {
             if ($key !== 0) {
@@ -199,11 +233,11 @@ class jqshow_sessions extends persistent {
     }
 
     /**
-     * @param $array
-     * @param $date
+     * @param array $array
+     * @param int $date
      * @return mixed
      */
-    private static function find_closest($array, $date): int {
+    private static function find_closest(array $array, int $date): int {
         foreach ($array as $key => $day) {
             $interval[] = abs($date - $key);
         }
@@ -221,14 +255,21 @@ class jqshow_sessions extends persistent {
      */
     public static function mark_session_started(int $sid): void {
         global $DB;
+        // TODO check operation, there is now a cron job that normalises this.
         // All open sessions end, ensuring that no more than one session is logged on.
-        $activesession = $DB->get_records(self::TABLE, ['status' => 2]);
+        $activesession = $DB->get_records(self::TABLE, ['status' => sessionsmodel::SESSION_STARTED]);
         foreach ($activesession as $active) {
             if ($sid !== $active->id) {
-                (new jqshow_sessions($active->id))->set('status', 0)->update();
+                $session = new jqshow_sessions($active->id);
+                $session->set('status', sessionsmodel::SESSION_FINISHED);
+                $session->set('enddate', time());
+                $session->update();
             }
         }
-        (new jqshow_sessions($sid))->set('status', 2)->update();
+        $session = new jqshow_sessions($sid);
+        $session->set('status', sessionsmodel::SESSION_STARTED);
+        $session->set('startdate', time());
+        $session->update();
     }
 
     /**
@@ -238,7 +279,10 @@ class jqshow_sessions extends persistent {
      * @throws invalid_persistent_exception
      */
     public static function mark_session_active(int $sid): void {
-        (new jqshow_sessions($sid))->set('status', 1)->update();
+        $session = new jqshow_sessions($sid);
+        $session->set('status', sessionsmodel::SESSION_ACTIVE);
+        $session->set('startdate', 0);
+        $session->update();
     }
 
     /**
@@ -248,7 +292,21 @@ class jqshow_sessions extends persistent {
      * @throws invalid_persistent_exception
      */
     public static function mark_session_finished(int $sid): void {
-        (new jqshow_sessions($sid))->set('status', 0)->update();
+        $session = new jqshow_sessions($sid);
+        $session->set('status', sessionsmodel::SESSION_FINISHED);
+        $session->set('enddate', time());
+        $session->update();
+
+        $cm = get_coursemodule_from_instance('jqshow', $session->get('jqshowid'));
+        $jqshow = new jqshow($session->get('jqshowid'));
+        $params = array(
+            'objectid' => $sid,
+            'courseid' => $jqshow->get('course'),
+            'context' => \context_module::instance($cm->id)
+        );
+        $event = session_ended::create($params);
+        $event->add_record_snapshot('jqshow_sessions', $session->to_record());
+        $event->trigger();
     }
 
     /**
@@ -315,34 +373,36 @@ class jqshow_sessions extends persistent {
      * @throws invalid_persistent_exception
      */
     public static function check_automatic_sessions(int $jqshowid): void {
-        // TODO review operation and adjust to session logic.
+        // TODO this logic is obsolete, now in cron task.
         $sessions = self::get_automaticstart_sessions($jqshowid);
         $activesession = null;
         $now = time();
         foreach ($sessions as $session) {
             if ($session->startdate !== 0 && $session->startdate < $now) { // If there is a start date and it has been met.
                 if ($session->enddate !== 0 && $session->enddate > $now) { // If there is an end date and it has not been met.
-                    if ($session->status !== 2) { // If not marked as started.
-                        (new jqshow_sessions($session->id))->set('status', 2)->update(); // We mark session as logged in.
-                        $session->status = 2;
+                    if ($session->status !== sessionsmodel::SESSION_STARTED) { // If not marked as started.
+                        (new jqshow_sessions($session->id))->set('status', sessionsmodel::SESSION_STARTED)->update();
+                        // We mark session as logged in.
+                        $session->status = sessionsmodel::SESSION_STARTED;
                     }
                     $activesession = $session;
                 }
                 if ($session->enddate !== 0 && $session->enddate < $now) { // If there is an end date and it has been met.
-                    (new jqshow_sessions($session->id))->set('status', 0)->update(); // We mark the session as ended.
+                    (new jqshow_sessions($session->id))->set('status', sessionsmodel::SESSION_FINISHED)->update();
+                    // We mark the session as ended.
                 }
             }
         }
         if ($activesession !== null) {
             // There can only be one started session, and it will be the one chosen in the previous loop.
             foreach ($sessions as $session) {
-                if ($session->status === 2 && $session->id !== $activesession->id) {
+                if ($session->status === sessionsmodel::SESSION_STARTED && $session->id !== $activesession->id) {
                     // If the session has a current deadline we leave it as active.
                     if ($session->startdate < $now || $session->enddate > $now) {
-                        (new jqshow_sessions($session->id))->set('status', 1)->update();
+                        (new jqshow_sessions($session->id))->set('status', sessionsmodel::SESSION_ACTIVE)->update();
                     } else {
                         // In any other case, this session is closed.
-                        (new jqshow_sessions($session->id))->set('status', 0)->update();
+                        (new jqshow_sessions($session->id))->set('status', sessionsmodel::SESSION_FINISHED)->update();
                     }
                 }
             }

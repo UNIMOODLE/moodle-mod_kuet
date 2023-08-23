@@ -25,15 +25,19 @@
 
 namespace mod_jqshow;
 use cm_info;
+use coding_exception;
+use context_module;
 use dml_exception;
+use mod_jqshow\helpers\sessions as sessions_helper;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use stdClass;
 
 class jqshow {
     /** @var cm_info cm */
-    protected $cm;
+    public $cm;
     /** @var mixed course */
     public $course;
     /** @var sessions */
@@ -91,5 +95,84 @@ class jqshow {
             $this->set_sessions();
         }
         return $this->sessions->get_list();
+    }
+
+    /**
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function get_completed_sessions(): array {
+        if (is_null($this->sessions)) {
+            $this->set_sessions();
+        }
+        $completed = [];
+        foreach ($this->sessions->get_list() as $session) {
+            if ($session->get('status') === sessionsmodel::SESSION_FINISHED) {
+                $completed[] = sessions_helper::get_data_session($session, $this->cm->id, false, false);
+            }
+        }
+        return $completed;
+    }
+
+    /**
+     * @param $courseid
+     * @param $userid
+     * @return array
+     * @throws coding_exception
+     */
+    public static function get_students($cmid) : array {
+        $context = context_module::instance($cmid);
+        $participants = self::get_participants($cmid, $context);
+        $students = [];
+        foreach ($participants as $participant) {
+            if (is_null($participant->{'id'})) {
+                continue;
+            }
+            if (has_capability('mod/jqshow:startsession', $context, $participant->{'id'})) {
+                continue;
+            }
+            $students[] = $participant;
+        }
+        return $students;
+    }
+
+    /**
+     * @param $cmid
+     * @param $context
+     * @return array
+     * @throws moodle_exception
+     */
+    private static function get_participants($cmid, $context) {
+        $data = get_course_and_cm_from_cmid($cmid, 'jqshow');
+        /** @var cm_info $cm */
+        $cm = $data[1];
+        if ($cm->groupmode == '0') {
+            return self::get_participants_individual_mode($context);
+        } else {
+            return self::get_participants_group_mode($cm);
+        }
+    }
+
+    /**
+     * @param $context
+     * @param cm_info $cm
+     * @return array
+     */
+    private static function get_participants_group_mode(cm_info $cm) : array {
+        $members = groups_get_grouping_members($cm->groupingid, 'u.id');
+        if (!$members) {
+            return [];
+        }
+        return $members;
+    }
+
+    /**
+     * @param context_module $context
+     * @return array
+     */
+    private static function get_participants_individual_mode(context_module $context) {
+        return get_enrolled_users($context, '', 0, 'u.id', null, 0, 0, true);
     }
 }

@@ -25,6 +25,9 @@
 use core_calendar\action_factory;
 use core_calendar\local\event\value_objects\action;
 use core_completion\api;
+use mod_jqshow\api\grade;
+
+require_once($CFG->dirroot . '/lib/gradelib.php');
 
 /**
  * @uses FEATURE_GROUPS
@@ -61,12 +64,9 @@ function jqshow_supports(string $feature): ?bool {
  * @throws dml_exception
  */
 function jqshow_add_instance(stdClass $data): int {
-    global $CFG, $DB;
-    $cmid       = $data->coursemodule;
-    $cmidnumber = $data->cmidnumber;
-    $courseid   = $data->course;
-    $context = context_module::instance($cmid);
+    global $DB;
 
+    $cmid = $data->coursemodule;
     $id = $DB->insert_record('jqshow', $data);
 
     // Update course module record - from now on this instance properly exists and all function may be used.
@@ -79,24 +79,36 @@ function jqshow_add_instance(stdClass $data): int {
         api::update_completion_date_event($cmid, 'jqshow', $record, $data->completionexpected);
     }
 
+//    mod_jqshow_grade_item_update($data, null);
     return $record->id;
 }
+
 /**
  *
  * @param stdClass $data An object from the form in mod.html
  * @return boolean Success/Fail
+ * @throws coding_exception
  * @throws dml_exception
  */
 function jqshow_update_instance(stdClass $data): bool {
     global $DB;
 
-    // Get the current value, so we can see what changed.
+    // Get the current value, so we can see save changes.
     $oldjqshow = $DB->get_record('jqshow', array('id' => $data->instance));
 
     // Update the database.
     $oldjqshow->name = $data->name;
+    $oldjqshow->teamgrade = isset($data->teamgrade) ? $data->teamgrade : null;
+    $oldjqshow->grademethod = $data->grademethod;
+    if (!isset($data->completionanswerall) || $data->completionanswerall === null) {
+        $oldjqshow->completionanswerall = 0;
+    } else {
+        $oldjqshow->completionanswerall = $data->completionanswerall;
+    }
     $DB->update_record('jqshow', $oldjqshow);
 
+    grade::recalculate_mod_mark($data->{'update'}, $data->instance);
+//    mod_jqshow_grade_item_update($data, null);
     return true;
 }
 /**
@@ -106,16 +118,34 @@ function jqshow_update_instance(stdClass $data): bool {
  **/
 function jqshow_delete_instance(int $id): bool {
     global $DB, $CFG;
-
+    require_once($CFG->dirroot . '/lib/gradelib.php');
     try {
         $jqshow = $DB->get_record('jqshow', ['id' => $id], '*', MUST_EXIST);
-        // TODO: remove other data.
+        if (!$jqshow) {
+            return false;
+        }
         // Finally delete the jqshow object.
         $DB->delete_records('jqshow', ['id' => $id]);
+        $DB->delete_records('jqshow_grades', ['jqshow' => $id]);
+        $DB->delete_records('jqshow_questions', ['jqshowid' => $id]);
+        $DB->delete_records('questions_responses', ['jqid' => $id]);
+        $DB->delete_records('jqshow_sessions', ['jqshowid' => $id]);
+        $DB->delete_records('jqshow_sessions_grades', ['jqshow' => $id]);
+        $DB->delete_records('jqshow_user_progress', ['jqshow' => $id]);
+
+        grade_update('mod/assign',
+            $jqshow->course,
+            'mod',
+            'jqshow',
+            $jqshow->id,
+            0,
+            null,
+            ['deleted' => 1]);
+        return true;
     } catch (Exception $e) {
+        throw new moodle_exception('error_delete_instance', 'mod_jqshow', '', $e->getMessage());
         return false;
     }
-    return true;
 }
 
 /**
@@ -302,3 +332,109 @@ function get_letter_from_alphabet_for_letter($letter, $lettertochange) {
     return $temp[$poslettertochange];
 }
 
+function jqshow_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
+    global $DB;
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        return false;
+    }
+    if ($filearea != 'question') {
+        return false;
+    }
+    require_course_login($course, true, $cm);
+
+    $questionid = (int)array_shift($args);
+    $quiz = $DB->get_record('jqshow', ['id' => $cm->instance]);
+    if (!$quiz) {
+        return false;
+    }
+    $question = $DB->get_record('jqshow_questions', [
+        'questionid' => $questionid,
+        'jqshowid' => $cm->instance
+    ]);
+    if (!$question) {
+        return false;
+    }
+    $fs = get_file_storage();
+    $relative = implode('/', $args);
+    $fullpath = "/$context->id/mod_jqshow/$filearea/$questionid/$relative";
+    $file = $fs->get_file_by_hash(sha1($fullpath));
+    if (!$file || $file->is_directory()) {
+        return false;
+    }
+    send_stored_file($file);
+    return false;
+}
+
+function mod_jqshow_question_pluginfile($course, $context, $component, $filearea, $qubaid, $slot,
+                                          $args, $forcedownload, $options = []) {
+    $fs = get_file_storage();
+    $relative = implode('/', $args);
+    $full = "/$context->id/$component/$filearea/$relative";
+    $file = $fs->get_file_by_hash(sha1($full));
+    if (!$file || $file->is_directory()) {
+        send_file_not_found();
+    }
+    send_stored_file($file, 0, 0, $forcedownload, $options);
+}
+
+/**
+ * @return array
+ * @throws coding_exception
+ */
+function mod_jqshow_get_grading_options() {
+    return [
+        grade::MOD_OPTION_NO_GRADE => get_string('nograde', 'mod_jqshow'),
+        grade::MOD_OPTION_GRADE_HIGHEST => get_string('gradehighest', 'mod_jqshow'),
+        grade::MOD_OPTION_GRADE_AVERAGE => get_string('gradeaverage', 'mod_jqshow'),
+        grade::MOD_OPTION_GRADE_FIRST_SESSION => get_string('firstsession', 'mod_jqshow'),
+        grade::MOD_OPTION_GRADE_LAST_SESSION => get_string('lastsession', 'mod_jqshow')
+    ];
+}
+
+/**
+ * Update/create grade item for given data
+ *
+ * @category grade
+ * @param stdClass $data A jqshow instance
+ * @param mixed $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @return object grade_item
+ */
+function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
+    global $CFG;
+    require_once($CFG->libdir.'/gradelib.php');
+
+    $params = ['itemname' => $data->name];
+    if (property_exists($data, 'cmidnumber')) { // May not be always present.
+        $params['idnumber'] = $data->cmidnumber;
+    }
+
+    if ($data->grademethod == 0) {
+        $params['gradetype'] = GRADE_TYPE_NONE;
+    } else {
+        $params['gradetype'] = GRADE_TYPE_VALUE;
+        $params['grademax'] = get_config('core', 'gradepointmax');;
+        $params['grademin'] = 0;
+    }
+    if (is_null($grades)) {
+        $params['reset'] = true;
+    }
+    return grade_update('mod/jqshow', $data->course, 'mod', 'jqshow', $data->id, 0, $grades, $params);
+
+}
+
+/**
+ * @param $questionids
+ * @return bool
+ * @throws coding_exception
+ * @throws dml_exception
+ */
+function jqshow_questions_in_use($questionids) {
+    global $DB;
+    [$sqlfragment, $params] = $DB->get_in_or_equal($questionids);
+    $params['component'] = 'mod_jqshow';
+    $params['questionarea'] = 'slot';
+    $sql = "SELECT jq.id
+              FROM {jqshow_questions} jq
+             WHERE jq.questionid $sqlfragment";
+    return $DB->record_exists_sql($sql, $params);
+}

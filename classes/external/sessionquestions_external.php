@@ -35,7 +35,9 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\models\questions;
+use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -76,7 +78,7 @@ class sessionquestions_external extends external_api {
         foreach ($allquestions as $question) {
             $questiondata[] = self::export_question($question, $cmid);
         }
-        return ['sessionquestions' => $questiondata];
+        return ['jqshowid' => $jqshowid, 'cmid' => $cmid, 'sid' => $sid, 'sessionquestions' => $questiondata];
     }
 
     /**
@@ -95,8 +97,28 @@ class sessionquestions_external extends external_api {
         $data->position = $question->get('qorder');
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
+        $data->sid = $question->get('sessionid');
+        $data->cmid = $cmid;
+        $data->jqshowid = $question->get('jqshowid');
         $data->isvalid = $question->get('isvalid');
-        $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
+        $session = new jqshow_sessions($question->get('sessionid'));
+        switch ($session->get('timemode')) {
+            case sessions::NO_TIME:
+            default:
+                $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
+                break;
+            case sessions::SESSION_TIME:
+                $numquestion = jqshow_questions::count_records(
+                    ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
+                );
+                $timeperquestion = round((int)$session->get('sessiontime') / $numquestion);
+                $data->time = ($timeperquestion > 0) ? $timeperquestion . 's' : '-';
+                break;
+            case sessions::QUESTION_TIME:
+                $data->time =
+                    ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : $session->get('questiontime') . 's';
+                break;
+        }
         $data->issuitable = in_array($question->get('qtype'), questions::TYPES, true);
         $data->version = $DB->get_field('question_versions', 'version', ['questionid' => $question->get('questionid')]);
         $coursecontext = context_course::instance($COURSE->id);
@@ -115,9 +137,15 @@ class sessionquestions_external extends external_api {
 
     public static function sessionquestions_returns(): external_single_structure {
         return new external_single_structure([
+            'sid' => new external_value(PARAM_INT, 'Session id'),
+            'cmid' => new external_value(PARAM_INT, 'Course Module id'),
+            'jqshowid' => new external_value(PARAM_INT, 'Jqshow id'),
             'sessionquestions' => new external_multiple_structure(
                 new external_single_structure(
                     [
+                        'sid' => new external_value(PARAM_INT, 'Session id'),
+                        'cmid' => new external_value(PARAM_INT, 'Course Module id'),
+                        'jqshowid' => new external_value(PARAM_INT, 'Jqshow id'),
                         'questionnid' => new external_value(PARAM_INT, 'Question id'),
                         'position' => new external_value(PARAM_INT, 'Question order'),
                         'name' => new external_value(PARAM_RAW, 'Name of question'),

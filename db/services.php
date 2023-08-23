@@ -25,13 +25,27 @@
 
 use mod_jqshow\external\activesession_external;
 use mod_jqshow\external\copysession_external;
+use mod_jqshow\external\deleteresponses_external;
 use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\finishsession_external;
+use mod_jqshow\external\firstquestion_external;
+use mod_jqshow\external\getactivesession_external;
+use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\getlistresults_external;
+use mod_jqshow\external\getgrouplistresults_external;
+use mod_jqshow\external\getprovisionalranking_external;
+use mod_jqshow\external\getquestion_external;
+use mod_jqshow\external\getquestionstatistics_external;
+use mod_jqshow\external\getraceresults_external;
+use mod_jqshow\external\getsession_external;
+use mod_jqshow\external\getsessionresume_external;
+use mod_jqshow\external\getuserquestionresponse_external;
+use mod_jqshow\external\jumptoquestion_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
 use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
+use mod_jqshow\external\session_getallquestions_external;
 use mod_jqshow\external\sessionfinished_external;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\external\sessionspanel_external;
@@ -149,10 +163,26 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_jqshow_firstquestion' => [
+        'classname' => firstquestion_external::class,
+        'methodname' => 'firstquestion',
+        'description' => 'First question of a session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
     'mod_jqshow_getlistresults' => [
         'classname' => getlistresults_external::class,
         'methodname' => 'getlistresults',
         'description' => 'Get list results of one session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getgrouplistresults' => [
+        'classname' => getgrouplistresults_external::class,
+        'methodname' => 'getgrouplistresults',
+        'description' => 'Get group list results of one session',
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
@@ -188,6 +218,118 @@ $functions = [
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_savequestiontime' => [
+        'classname' => activesession_external::class,
+        'methodname' => 'savequestiontime',
+        'description' => 'Save question time',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_isquestionanswered' => [
+        'classname' => activesession_external::class,
+        'methodname' => 'isquestionanswered',
+        'description' => 'To know if a question has been already answered by a member of the group.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getactivesession' => [
+        'classname' => getactivesession_external::class,
+        'methodname' => 'getactivesession',
+        'description' => 'Get Active session of Jqshow id',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_session_getallquestions' => [
+        'classname' => session_getallquestions_external::class,
+        'methodname' => 'session_getallquestions',
+        'description' => 'Gets all questions and answers from a session to send to users in manual modes.',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getuserquestionresponse' => [
+        'classname' => getuserquestionresponse_external::class,
+        'methodname' => 'getuserquestionresponse',
+        'description' => 'Get context or response for one user.',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getquestion' => [
+        'classname' => getquestion_external::class,
+        'methodname' => 'getquestion',
+        'description' => 'Get question.',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_deleteresponses' => [
+        'classname' => deleteresponses_external::class,
+        'methodname' => 'deleteresponses',
+        'description' => 'Delete all responses for one question',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_jumptoquestion' => [
+        'classname' => jumptoquestion_external::class,
+        'methodname' => 'jumptoquestion',
+        'description' => 'Get question from order in session.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getsessionresume' => [
+        'classname' => getsessionresume_external::class,
+        'methodname' => 'getsessionresume',
+        'description' => 'Get resume for one session.',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getquestionstatistics' => [
+        'classname' => getquestionstatistics_external::class,
+        'methodname' => 'getquestionstatistics',
+        'description' => 'Get response statistics for a question',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getsession' => [
+        'classname' => getsession_external::class,
+        'methodname' => 'getsession',
+        'description' => 'Get all data of session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getprovisionalranking' => [
+        'classname' => getprovisionalranking_external::class,
+        'methodname' => 'getprovisionalranking',
+        'description' => 'Get ranking for a session and question',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getfinalranking' => [
+        'classname' => getfinalranking_external::class,
+        'methodname' => 'getfinalranking',
+        'description' => 'Get final ranking for a session',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_getraceresults' => [
+        'classname' => getraceresults_external::class,
+        'methodname' => 'getraceresults',
+        'description' => 'Get race results',
+        'type' => 'read',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -206,11 +348,27 @@ $services = [
             'mod_jqshow_editsessionsettings',
             'mod_jqshow_multichoice',
             'mod_jqshow_nextquestion',
+            'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',
+            'mod_jqshow_getgrouplistresults',
             'mod_jqshow_finishsession',
             'mod_jqshow_startsession',
             'mod_jqshow_sessionfinished',
-            'mod_jqshow_activesession'
+            'mod_jqshow_activesession',
+            'mod_jqshow_getactivesession',
+            'mod_jqshow_session_getallquestions',
+            'mod_jqshow_getuserquestionresponse',
+            'mod_jqshow_getquestion',
+            'mod_jqshow_deleteresponses',
+            'mod_jqshow_jumptoquestion',
+            'mod_jqshow_getsessionresume',
+            'mod_jqshow_getquestionstatistics',
+            'mod_jqshow_getsession',
+            'mod_jqshow_getprovisionalranking',
+            'mod_jqshow_getfinalranking',
+            'mod_jqshow_savequestiontime',
+            'mod_jqshow_isquestionanswered',
+            'mod_jqshow_getraceresults'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

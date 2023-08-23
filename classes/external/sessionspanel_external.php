@@ -92,8 +92,13 @@ class sessionspanel_external extends external_api {
                 [
                     'name'   => new external_value(PARAM_RAW, 'Name of session'),
                     'sessionid' => new external_value(PARAM_INT, 'Id of session'),
+                    'sessionmode' => new external_value(PARAM_RAW, 'Mode of session'),
+                    'timemode' => new external_value(PARAM_RAW, 'Mode of session'),
+                    'sessiontime' => new external_value(PARAM_RAW, 'Time of session'),
                     'questions_number' => new external_value(PARAM_INT, 'Number of question for session'),
                     'managesessions' => new external_value(PARAM_BOOL, 'Capability'),
+                    'hasconflict' => new external_value(PARAM_BOOL, 'Conflict of dates with other sessions.', VALUE_OPTIONAL),
+                    'haswarning' => new external_value(PARAM_BOOL, 'The session should have already started.', VALUE_OPTIONAL),
                     'initsession' => new external_value(PARAM_BOOL, 'Capability'),
                     'initsessionurl' => new external_value(PARAM_URL, 'Url for init session'),
                     'viewreporturl' => new external_value(PARAM_URL, 'Url for view report of session'),

@@ -26,8 +26,10 @@
 namespace mod_jqshow\forms;
 
 use coding_exception;
+use DateTime;
 use dml_exception;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodleform;
 
@@ -65,34 +67,40 @@ class sessionform extends moodleform {
         $mform->setType('anonymousanswer', PARAM_RAW);
         $mform->addHelpButton('anonymousanswer', 'anonymousanswer', 'jqshow');
 
-        // Allowguests.
-        $mform->addElement('checkbox', 'allowguests', get_string('allowguests', 'mod_jqshow'));
-        $mform->setType('allowguests', PARAM_INT);
-        $mform->addHelpButton('allowguests', 'allowguests', 'jqshow');
-
         // Sessionmode.
         $mform->addElement('select', 'sessionmode',
             get_string('sessionmode', 'mod_jqshow'), $customdata['sessionmodechoices']);
         $mform->setType('sessionmode', PARAM_RAW);
         $mform->addHelpButton('sessionmode', 'sessionmode', 'jqshow');
 
+        // Grade method.
+        if ($customdata['showsgrade']) {
+            $mform->addElement('checkbox', 'sgrade', get_string('sgrade', 'mod_jqshow'));
+            $mform->setType('sgrade', PARAM_INT);
+            $mform->addHelpButton('sgrade', 'sgrade', 'jqshow');
+        }
+
         // Countdown.
         $mform->addElement('checkbox', 'countdown', get_string('countdown', 'mod_jqshow'));
         $mform->setType('countdown', PARAM_INT);
+        $mform->setDefault('countdown', 1);
         $mform->addHelpButton('countdown', 'countdown', 'jqshow');
 
         // Hide grade and ranking between questions.
-        $mform->addElement('checkbox', 'hidegraderanking', get_string('hidegraderanking', 'mod_jqshow'));
-        $mform->setType('hidegraderanking', PARAM_INT);
-        $mform->disabledIf('hidegraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->addHelpButton('hidegraderanking', 'hidegraderanking', 'jqshow');
+        $mform->addElement('checkbox', 'showgraderanking', get_string('showgraderanking', 'mod_jqshow'));
+        $mform->setType('showgraderanking', PARAM_INT);
+        $mform->hideIf('showgraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('showgraderanking', 'sessionmode', 'eq', sessions::INACTIVE_PROGRAMMED);
+        $mform->setDefault('showgraderanking', 1);
+        $mform->addHelpButton('showgraderanking', 'showgraderanking', 'jqshow');
 
         // Randomquestions.
         $mform->addElement('checkbox', 'randomquestions', get_string('randomquestions', 'mod_jqshow'));
         $mform->setType('randomquestions', PARAM_INT);
         $mform->addHelpButton('randomquestions', 'randomquestions', 'jqshow');
-        $mform->disabledIf('randomquestions', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('randomquestions', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->hideIf('randomquestions', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('randomquestions', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->hideIf('randomquestions', 'sessionmode', 'eq', sessions::RACE_MANUAL);
 
         // Randomanswers.
         $mform->addElement('checkbox', 'randomanswers', get_string('randomanswers', 'mod_jqshow'));
@@ -102,18 +110,19 @@ class sessionform extends moodleform {
         // Showfeedback.
         $mform->addElement('checkbox', 'showfeedback', get_string('showfeedback', 'mod_jqshow'));
         $mform->setType('showfeedback', PARAM_INT);
+        $mform->setDefault('showfeedback', 1);
         $mform->addHelpButton('showfeedback', 'showfeedback', 'jqshow');
 
         // Showfinalgrade.
         $mform->addElement('checkbox', 'showfinalgrade', get_string('showfinalgrade', 'mod_jqshow'));
         $mform->setType('showfinalgrade', PARAM_INT);
+        $mform->setDefault('showfinalgrade', 1);
         $mform->addHelpButton('showfinalgrade', 'showfinalgrade', 'jqshow');
 
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
         // Header.
-//        $mform->addElement('header', 'timesettings', get_string('timesettings', 'mod_jqshow'));
         $mform->addElement('html', '<div class="row">');
         $mform->addElement('html', '<div class="col-12 formcontainer">');
         $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
@@ -121,61 +130,58 @@ class sessionform extends moodleform {
             get_string('timesettings', 'mod_jqshow') .
             '</h5>');
         $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
-        // Openquiz.
-//        $mform->addElement('html', '<h2>' . get_string('openquiz', 'mod_jqshow') . '</h2>');
-
-        // Openquiz - enable.
-//        $mform->addElement('checkbox', 'openquizenable', get_string('openquizenable', 'mod_jqshow'));
-//        $mform->setType('openquizenable', PARAM_INT);
-
-        // Openquiz - Startdate.
-        $mform->addElement('date_selector', 'startdate',
-            get_string('startdate', 'mod_jqshow'), ['optional' => true]);
-        $mform->disabledIf('startdate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('startdate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->addHelpButton('startdate', 'startdate', 'jqshow');
-
-        // Closequiz.
-//        $mform->addElement('html', '<h2>' . get_string('closequiz', 'mod_jqshow') . '</h2>');
-
-        // Closequiz - enable.
-//        $mform->addElement('checkbox', 'closequizenable', get_string('closequizenable', 'mod_jqshow'));
-//        $mform->setType('closequizenable', PARAM_INT);
-
-        // Closequiz - enddate.
-        $mform->addElement('date_selector', 'enddate',
-            get_string('enddate', 'mod_jqshow'), ['optional' => true]);
-//        $mform->addHelpButton('enddate', 'enddate', 'mod_jqshow');
-        $mform->disabledIf('enddate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('enddate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->disabledIf('enddate', 'startdate[enabled]', 'notchecked');
-        $mform->addHelpButton('enddate', 'enddate', 'jqshow');
 
         // Automaticstart.
         $mform->addElement('checkbox', 'automaticstart', get_string('automaticstart', 'mod_jqshow'));
         $mform->setType('automaticstart', PARAM_INT);
-        $mform->disabledIf('automaticstart', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('automaticstart', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->disabledIf('automaticstart', 'startdate[enabled]', 'notchecked');
-        $mform->disabledIf('automaticstart', 'enddate[enabled]', 'notchecked');
+        $mform->hideIf('automaticstart', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('automaticstart', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->hideIf('automaticstart', 'sessionmode', 'eq', sessions::RACE_MANUAL);
         $mform->addHelpButton('automaticstart', 'automaticstart', 'jqshow');
 
-//        $mform->addElement('html', '<span  class="bold">' . get_string('timelimit', 'mod_jqshow') . '</span>');
-        // Time limit.
-        $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'),
-            array('optional' => true));
-        $mform->setType('timelimit', PARAM_INT);
-        $mform->addHelpButton('timelimit', 'timelimit', 'mod_jqshow');
-        $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('timelimit', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        // Openquiz - Startdate.
+        $date = new DateTime();
+        $date->setTime($date->format('H'), ceil($date->format('i') / 10) * 10, 0);
+        $mform->addElement('date_time_selector', 'startdate',
+            get_string('startdate', 'mod_jqshow'), ['optional' => false, 'defaulttime' => $date->getTimestamp()]);
+        $mform->hideIf('startdate', 'automaticstart', 'notchecked');
+        $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::RACE_MANUAL);
+        $mform->addHelpButton('startdate', 'startdate', 'jqshow');
 
-        // Add time question enable.
-        $mform->addElement('checkbox', 'addtimequestion', get_string('addtimequestion', 'mod_jqshow'));
-        $mform->setType('addtimequestion', PARAM_INT);
-        $mform->disabledIf('addtimequestion', 'timelimit[enabled]', 'checked');
-        $mform->disabledIf('addtimequestion', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-        $mform->disabledIf('addtimequestion', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-        $mform->addHelpButton('addtimequestion', 'addtimequestion', 'jqshow');
+        // Closequiz - enddate.
+        $mform->addElement('date_time_selector', 'enddate',
+            get_string('enddate', 'mod_jqshow'), ['optional' => false, 'defaulttime' => $date->getTimestamp() + 3600]);
+        $mform->hideIf('enddate', 'automaticstart', 'notchecked');
+        $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+        $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+        $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::RACE_MANUAL);
+        $mform->hideIf('enddate', 'startdate[enabled]', 'notchecked');
+        $mform->addHelpButton('enddate', 'enddate', 'jqshow');
+
+        // Time mode.
+        $mform->addElement('select', 'timemode',
+            get_string('timemode', 'mod_jqshow'), $customdata['timemode']);
+        $mform->setType('timemode', PARAM_INT);
+        $mform->addHelpButton('timemode', 'timemode', 'mod_jqshow');
+//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
+//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
+//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::RACE_MANUAL);
+
+        $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_jqshow'),
+            ['units' => [MINSECS, 1], 'optional' => false]);
+        $mform->setType('sessiontime', PARAM_INT);
+        $mform->addHelpButton('sessiontime', 'sessiontime', 'mod_jqshow');
+        $mform->hideIf('sessiontime', 'timemode', 'eq', sessions::NO_TIME);
+        $mform->hideIf('sessiontime', 'timemode', 'eq', sessions::QUESTION_TIME);
+
+        $mform->addElement('duration', 'questiontime', get_string('question_time', 'mod_jqshow'),
+            ['units' => [MINSECS, 1], 'defaultunit' => 1, 'optional' => false]);
+        $mform->setType('questiontime', PARAM_INT);
+        $mform->addHelpButton('questiontime', 'questiontime', 'mod_jqshow');
+        $mform->hideIf('questiontime', 'timemode', 'eq', sessions::NO_TIME);
+        $mform->hideIf('questiontime', 'timemode', 'eq', sessions::SESSION_TIME);
 
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
@@ -184,7 +190,6 @@ class sessionform extends moodleform {
         // In case mode group activates.
         if (!empty($customdata['groupingsselect'])) {
             // Header.
-    //        $mform->addElement('header', 'accessrestrictions', get_string('accessrestrictions', 'mod_jqshow'));
             $mform->addElement('html', '<div class="col-12 formcontainer">');
             $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
                 $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
@@ -193,18 +198,32 @@ class sessionform extends moodleform {
             $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
             $select = $mform->addElement('select', 'groupings',
                 get_string('groupings', 'mod_jqshow'), $customdata['groupingsselect'], ['cols' => 100]);
-            $select->setMultiple(true);
+            $select->setMultiple(false);
             $mform->setType('groupings', PARAM_INT);
             $mform->addElement('html', '</div>');
             $mform->addElement('html', '</div>');
         }
 
+        $cm = $customdata['cm'];
+        if ((int) $cm->groupmode !== 0 && empty($customdata['groupingsselect'])) {
+            $mform->addElement('html', '<div class="col-12 formcontainer">');
+            $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
+                $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
+                get_string('accessrestrictions', 'mod_jqshow') .
+                '</h5>');
+            $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
+
+
+            $mform->addElement('html', '<div class="alert alert-warning">' . get_string('nogroupingscreated', 'mod_jqshow') . '</div>');
+            $mform->addElement('html', '</div>');
+            $mform->addElement('html', '</div>');
+        }
         // Hidden params.
         $mform->addElement('hidden', 'jqshowid', $customdata['jqshowid']);
         $mform->setType('jqshowid', PARAM_INT);
-        $mform->addElement('hidden', 'groupmode', 0);
+        $mform->addElement('hidden', 'groupmode', (int)$cm->groupmode);
         $mform->setType('groupmode', PARAM_INT);
-        $mform->addElement('hidden', 'status', 1);
+        $mform->addElement('hidden', 'status', sessionsmodel::SESSION_ACTIVE);
         $mform->setType('status', PARAM_INT);
         $mform->addElement('hidden', 'sessionid', 0);
         $mform->setType('sessionid', PARAM_INT);
@@ -221,20 +240,72 @@ class sessionform extends moodleform {
      * @throws dml_exception
      * @throws coding_exception
      */
-    public function validation($data, $files) : array {
+    public function validation($data, $files): array {
         $errors = parent::validation($data, $files);
         // Session name must be unique.
-        $haserror = false;
+        $haserrorname = false;
         $sessions = jqshow_sessions::get_sessions_by_name($data['name'], $data['jqshowid']);
         if (count($sessions) === 1) {
             $sesion = reset($sessions);
-            $haserror = $sesion->id != $data['sessionid'];
+            $haserrorname = (int)$sesion->id !== (int)$data['sessionid'];
         } else if (count($sessions) > 1) {
-            $haserror = true;
+            $haserrorname = true;
+        }
+        if ($haserrorname) {
+            $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
+        }
+        // Automatic start.
+        if (array_key_exists('automaticstart', $data) && (int)$data['automaticstart'] === 1) {
+            if ((int)$data['startdate'] <= time()) {
+                $errors['startdate'] = get_string('previousstarterror', 'mod_jqshow');
+            }
+            if ((int)$data['startdate'] >= (int)$data['enddate']) {
+                $errors['enddate'] = get_string('startminorend', 'mod_jqshow');
+            }
+        }
+        // Groups mode.
+        if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && empty($data['groupings'])) {
+            $errors['groupings'] = get_string('session_groupings_error', 'mod_jqshow');
+        } else if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && !empty($data['groupings'])) {
+            $groups = groups_get_grouping_members($data['groupings'], 'gg.groupid');
+            if (empty($groups)) {
+                $errors['groupings'] = get_string('session_groupings_no_members', 'mod_jqshow');
+            } else {
+                $allmembers = [];
+                foreach ($groups as $group) {
+                    $members = groups_get_members($group->groupid, 'u.id, u.username');
+                    if (empty($members)) {
+                        continue;
+                    }
+                    $errorusers = [];
+                    foreach ($members as $member) {
+                        if (in_array($member->id, $allmembers)) {
+                            $errorusers[] = $member->username;
+                        } else {
+                            $allmembers[] = $member->id;
+                        }
+                    }
+                }
+                if (!empty($errorusers)) {
+                    $users = implode(',', $errorusers);
+                    $errors['groupings'] = get_string('session_groupings_same_user_in_groups', 'mod_jqshow', $users);
+                }
+            }
         }
 
-        if ($haserror) {
-            $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
+        // Timemode.
+//        $programmedmodes = [sessions::PODIUM_PROGRAMMED, sessions::RACE_PROGRAMMED];
+//        if ($data['sessionmode'] != sessions::INACTIVE_MANUAL) {
+//            if (!array_key_exists('timemode', $data)) {
+//                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
+//            } else if (array_key_exists('timemode', $data) && (int)$data['timemode'] == sessions::NO_TIME) {
+//                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
+//            }
+//        }
+//
+        if ((int)$data['questiontime'] === 0 && (int)$data['sessiontime'] === 0) {
+            $errors['questiontime'] = get_string('timecannotbezero', 'mod_jqshow');
+            $errors['sessiontime'] = get_string('timecannotbezero', 'mod_jqshow');
         }
 
         return $errors;

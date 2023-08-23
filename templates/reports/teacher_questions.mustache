@@ -1,0 +1,38 @@
+<div class="questions-list">
+    <h5 class="titlecontainer bg-primary">
+        {{#pix}} i/questions_list, mod_jqshow {{/pix}}
+        {{#str}}questions, mod_jqshow{{/str}}
+    </h5>
+    <div class="session-questions" data-region="session-questions">
+        <div class="questions-list-body d-table list-group" data-region="question_list">
+            <div class="d-table-row questions-list-thead">
+                <div class="d-table-cell"></div>
+                <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}question_type, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}success, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}failures, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}partially_correct, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}noresponse, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}question_time, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center"></div>
+            </div>
+            {{#sessionquestions}}
+                <div class="d-table-row questions-list-data question-item" data-questionnid="{{questionnid}}">
+                    <div class="d-table-cell">{{position}}</div>
+                    <div class="d-table-cell">{{name}}</div>
+                    <div class="d-table-cell text-center">{{type}}</div>
+                    <div class="d-table-cell text-center">{{success}}</div>
+                    <div class="d-table-cell text-center">{{failures}}</div>
+                    <div class="d-table-cell text-center">{{partyally}}</div>
+                    <div class="d-table-cell text-center">{{noresponse}}</div>
+                    <div class="d-table-cell text-center">{{time}}</div>
+                    <div class="d-table-cell text-center viewreport">
+                        <a href="{{questionreporturl}}">
+                            + <span>{{#str}}questionreport, mod_jqshow{{/str}}</span>
+                        </a>
+                    </div>
+                </div>
+            {{/sessionquestions}}
+        </div>
+    </div>
+</div>

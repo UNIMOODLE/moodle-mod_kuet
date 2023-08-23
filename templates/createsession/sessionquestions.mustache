@@ -1,4 +1,4 @@
-<div class="questions-list-body d-table list-group" data-region="question_list">
+<div class="questions-list-body d-table list-group" data-region="question_list" data-sid="{{sid}}" data-cmid="{{cmid}}" data-jqshowid="{{jqshowid}}">
     <div class="d-table-row questions-list-thead">
         {{^ispage3}}
             {{^waitingroom}}
@@ -8,10 +8,10 @@
         <div class="d-table-cell">{{#str}}question_position, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_type, mod_jqshow{{/str}}</div>
-        {{#ispage3}}
-            <div class="d-table-cell">{{#str}}question_time, mod_jqshow{{/str}}</div>
-        {{/ispage3}}
-        <div class="d-table-cell">{{#str}}question_version, mod_jqshow{{/str}}</div>
+        {{^ispage1}}
+            <div class="d-table-cell text-center">{{#str}}question_time, mod_jqshow{{/str}}</div>
+        {{/ispage1}}
+        <div class="d-table-cell text-center">{{#str}}question_version, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_actions, mod_jqshow{{/str}}</div>
     </div>
     {{#sessionquestions}}
@@ -28,10 +28,10 @@
             <div class="d-table-cell">{{position}}</div>
             <div class="d-table-cell">{{name}}</div>
             <div class="d-table-cell">{{type}}</div>
-            {{#ispage3}}
-                <div class="d-table-cell">{{time}}</div>
-            {{/ispage3}}
-            <div class="d-table-cell">{{version}} </div>
+            {{^ispage1}}
+                <div class="d-table-cell text-center">{{time}}</div>
+            {{/ispage1}}
+            <div class="d-table-cell text-center">{{version}} </div>
             <div class="d-table-cell actions">
                 <div class="content-actions">
                     {{^ispage3}}
@@ -42,11 +42,9 @@
                                 </a>
                             </div>
                             <div class="question-action" data-action="preview_question" data-questionnid="{{questionnid}}">
-                                <a href="{{question_preview_url}}" target="_blank">
-                                    <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
-                                        {{#pix}} i/preview, mod_jqshow {{/pix}}
-                                    </div>
-                                </a>
+                                <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
+                                    {{#pix}} i/preview, mod_jqshow {{/pix}}
+                                </div>
                             </div>
 
                             <div class="question-action" data-action="delete_question" data-questionnid="{{questionnid}}">
@@ -55,18 +53,14 @@
                         {{/managesessions}}
                     {{/ispage3}}
                     {{#ispage3}}
-                        <a href="{{question_preview_url}}" target="_blank">
-                            <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
-                                {{#pix}} i/preview, mod_jqshow {{/pix}}
-                            </div>
-                        </a>
+                        <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
+                            {{#pix}} i/preview, mod_jqshow {{/pix}}
+                        </div>
                     {{/ispage3}}
                     {{#waitingroom}}
-                        <a href="{{question_preview_url}}" target="_blank">
-                            <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
-                                {{#pix}} i/preview, mod_jqshow {{/pix}}
-                            </div>
-                        </a>
+                        <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
+                            {{#pix}} i/preview, mod_jqshow {{/pix}}
+                        </div>
                     {{/waitingroom}}
                 </div>
             </div>
@@ -74,13 +68,9 @@
     {{/sessionquestions}}
 </div>
 {{#js}}
-    {{^ispage3}}
-        {{^waitingroom}}
-            require(['mod_jqshow/sessionquestions'],
-                function(SessionQuestions) {
-                    SessionQuestions.initSessionQuestions('[data-region="questions-panel"]');
-                }
-            );
-        {{/waitingroom}}
-    {{/ispage3}}
+    require(['mod_jqshow/sessionquestions'],
+        function(SessionQuestions) {
+            SessionQuestions.initSessionQuestions('[data-region="question_list"]');
+        }
+    );
 {{/js}}

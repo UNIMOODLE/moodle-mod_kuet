@@ -27,6 +27,7 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use core\invalid_persistent_exception;
+use dml_exception;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -57,7 +58,7 @@ class addquestions_external extends external_api {
                         'qtype' => new external_value(PARAM_RAW, 'sessionid')
                     ]
                 ), 'List of session questions', VALUE_DEFAULT, []
-            ),
+            )
         ]);
     }
 
@@ -77,16 +78,15 @@ class addquestions_external extends external_api {
 
         $added = true;
         foreach ($questions as $question) {
-            if (!in_array($question['qtype'], questions::TYPES)) {
+            if (!in_array($question['qtype'], questions::TYPES, true)) {
                 continue;
             }
-            $result = jqshow_questions::add_not_valid_question($question['questionid'], $question['sessionid'],
+            $result = jqshow_questions::add_question($question['questionid'], $question['sessionid'],
                 $question['jqshowid'], $question['qtype']);
             if (false === $result) {
                 $added = false;
             }
         }
-
         return [
             'added' => $added
         ];

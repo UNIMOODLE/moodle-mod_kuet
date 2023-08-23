@@ -41,6 +41,9 @@ require_once($CFG->libdir . '/externallib.php');
 
 class activesession_external extends external_api {
 
+    /**
+     * @return external_function_parameters
+     */
     public static function activesession_parameters(): external_function_parameters {
         return new external_function_parameters(
             [

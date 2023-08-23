@@ -34,7 +34,9 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use mod_jqshow\api\groupmode;
 use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -58,8 +60,9 @@ class startsession_external extends external_api {
      * @param int $cmid
      * @param int $sessionid
      * @return array
-     * @throws dml_exception
+     * @throws moodle_exception
      * @throws coding_exception
+     * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      */
@@ -72,8 +75,14 @@ class startsession_external extends external_api {
         $cmcontext = context_module::instance($cmid);
         $started = false;
         if ($cmcontext !== null && has_capability('mod/jqshow:managesessions', $cmcontext, $USER)) {
-            jqshow_sessions::mark_session_started($sessionid);
-            $started = true;
+            $session = new jqshow_sessions($sessionid);
+            if (jqshow_sessions::get_active_session_id($session->get('jqshowid')) === 0) {
+                if ($session->is_group_mode()) {
+                    groupmode::check_all_users_in_groups($cmid, $session->get('groupings'));
+                }
+                jqshow_sessions::mark_session_started($sessionid);
+                $started = true;
+            }
         }
         return [
             'started' => $started

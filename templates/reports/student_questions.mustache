@@ -1,0 +1,42 @@
+<div class="questions-list" data-region="question-list">
+    <h5 class="titlecontainer bg-primary">
+        {{#pix}} i/questions_list, mod_jqshow {{/pix}}
+        {{#str}}questions, mod_jqshow{{/str}}
+    </h5>
+    <div class="session-questions" data-region="session-questions">
+        <div class="questions-list-body d-table list-group" data-region="question_list">
+            <div class="d-table-row questions-list-thead">
+                <div class="d-table-cell"></div>
+                <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}responses, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}question_type, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}question_time, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center"></div>
+            </div>
+            {{#sessionquestions}}
+                <div class="d-table-row questions-list-data question-item" data-questionnid="{{questionnid}}">
+                    <div class="d-table-cell">{{position}}</div>
+                    <div class="d-table-cell">{{name}}</div>
+                    <div class="d-table-cell text-center">
+                        <div class="{{response}}">
+                            <span>{{responsestr}}</span>
+                        </div>
+                    </div>
+                    <div class="d-table-cell text-center">{{type}}</div>
+                    <div class="d-table-cell text-center">{{time}}</div>
+                    <div class="d-table-cell text-center viewquestion">
+                        <div data-action="seeanswer" data-userid="{{userid}}" data-sessionid="{{sessionid}}" data-questionnid="{{questionnid}}" data-cmid="{{cmid}}">
+                            + <span>{{#str}}viewquestion_user, mod_jqshow{{/str}}</span>
+                        </div>
+                    </div>
+                </div>
+            {{/sessionquestions}}
+        </div>
+    </div>
+</div>
+
+{{#js}}
+    require(['mod_jqshow/user_report'], function(userReport) {
+        userReport.userReport('[data-region="question-list"]');
+    });
+{{/js}}

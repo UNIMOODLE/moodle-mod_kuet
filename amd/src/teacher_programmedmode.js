@@ -9,7 +9,8 @@ import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 
 let REGION = {
-    LISTRESULTS: '[data-region="list-results"]'
+    LISTRESULTS: '[data-region="list-results"]',
+    RACERESULTS: '[data-region="race-results"]'
 };
 
 let ACTION = {
@@ -18,25 +19,34 @@ let ACTION = {
 
 let SERVICES = {
     GETLISTRESULTS: 'mod_jqshow_getlistresults',
+    GETGROUPLISTRESULTS: 'mod_jqshow_getgrouplistresults',
+    GETRACERESULTS: 'mod_jqshow_getraceresults',
     FINISHSESSION: 'mod_jqshow_finishsession'
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
-    LISTRESULTS: 'mod_jqshow/session/listresults'
+    LISTRESULTS: 'mod_jqshow/session/listresults',
+    RACERESULTS: 'mod_jqshow/session/raceresults'
 };
 
 let cmId;
 let sId;
+let groupMode = false;
 
 /**
  * @constructor
  * @param {String} selector
+ * @param {boolean} racemode
  */
-function ProgrammedMode(selector) {
+function ProgrammedMode(selector, racemode) {
     this.node = jQuery(selector);
     this.initProgrammedMode();
     jQuery(ACTION.ENDSESSION).on('click', this.finishSession);
+    if (racemode) {
+        this.raceMode();
+        setInterval(this.reloadRace, 5000);
+    }
 }
 
 /** @type {jQuery} The jQuery node for the page region. */
@@ -45,6 +55,7 @@ ProgrammedMode.prototype.node = null;
 ProgrammedMode.prototype.initProgrammedMode = function() {
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
+    groupMode = Boolean(this.node.attr('data-groupmode'));
     setInterval(this.reloadList, 20000);
 };
 
@@ -52,8 +63,12 @@ ProgrammedMode.prototype.reloadList = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         let identifier = jQuery(REGION.LISTRESULTS);
         identifier.append(html);
+        let methodname = SERVICES.GETLISTRESULTS;
+        if (groupMode === true) {
+            methodname = SERVICES.GETGROUPLISTRESULTS;
+        }
         let request = {
-            methodname: SERVICES.GETLISTRESULTS,
+            methodname: methodname,
             args: {
                 sid: sId,
                 cmid: cmId
@@ -111,6 +126,41 @@ ProgrammedMode.prototype.finishSession = function(e) {
     }).fail(Notification.exception);
 };
 
-export const initProgrammedMode = (selector) => {
-    return new ProgrammedMode(selector);
+ProgrammedMode.prototype.raceMode = function() {
+    let scrollUsers = document.querySelector('#content-users');
+    let questions = document.querySelectorAll('.content-responses');
+    scrollUsers.addEventListener('scroll', function() {
+        questions.forEach((question) => {
+            question.scrollTop = scrollUsers.scrollTop;
+        });
+    }, {passive: true});
+};
+
+ProgrammedMode.prototype.reloadRace = function() {
+    let identifier = jQuery(REGION.RACERESULTS);
+    let request = {
+        methodname: SERVICES.GETRACERESULTS,
+        args: {
+            sid: sId,
+            cmid: cmId
+        }
+    };
+    Ajax.call([request])[0].done(function(response) {
+        response.programmedmode = true;
+        // eslint-disable-next-line promise/always-return
+        Templates.render(TEMPLATES.RACERESULTS, response).then((html) => {
+            let scrollUsersTop = document.querySelector('#content-users').scrollTop;
+            let scrollQuestionsLeft = document.querySelector('#questions-list').scrollLeft;
+            identifier.html(html);
+            let newScrollUsers = document.querySelector('#content-users');
+            let newScrollQuestions = document.querySelector('#questions-list');
+            ProgrammedMode.prototype.raceMode();
+            newScrollUsers.scrollTop = scrollUsersTop;
+            newScrollQuestions.scrollLeft = scrollQuestionsLeft;
+        }).fail(Notification.exception);
+    }).fail(Notification.exception);
+};
+
+export const initProgrammedMode = (selector, racemode = false) => {
+    return new ProgrammedMode(selector, racemode);
 };

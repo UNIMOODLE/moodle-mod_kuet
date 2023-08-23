@@ -27,16 +27,22 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_module;
+use core\invalid_persistent_exception;
 use dml_exception;
+use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
-use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use JsonException;
+use mod_jqshow\helpers\progress;
 use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
+use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -52,7 +58,8 @@ class nextquestion_external extends external_api {
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
-                'jqid' => new external_value(PARAM_INT, 'question id of jqshow_questions')
+                'jqid' => new external_value(PARAM_INT, 'question id of jqshow_questions'),
+                'manual' => new external_value(PARAM_BOOL, 'Mode of session', VALUE_OPTIONAL)
             ]
         );
     }
@@ -61,81 +68,63 @@ class nextquestion_external extends external_api {
      * @param int $cmid
      * @param int $sessionid
      * @param int $jqid
+     * @param bool $manual
+     * @param bool $isranking
      * @return array
+     * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function nextquestion(int $cmid, int $sessionid, int $jqid): array {
-        global $PAGE;
+    public static function nextquestion(
+        int $cmid, int $sessionid, int $jqid, bool $manual = false
+    ): array {
+        global $PAGE, $USER;
         self::validate_parameters(
             self::nextquestion_parameters(),
-            ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid]
+            ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid, 'manual' => $manual]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $nextquestion = jqshow_questions::get_next_question_of_session($sessionid, $jqid);
-        // TODO consider it to be the last question, and in that case send an end-of-session screen.
-        switch ($nextquestion->get('qtype')) {
-            case 'multichoice':
-                $data = questions::export_multichoice(
-                    $nextquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $nextquestion->get('jqshowid'));
-                break;
-            default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow');
+        $session = new jqshow_sessions($sessionid);
+        if ($nextquestion !== false) {
+            progress::set_progress(
+                $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
+            );
+            switch ($nextquestion->get('qtype')) {
+                case 'multichoice':
+                    $data = questions::export_multichoice(
+                        $nextquestion->get('id'),
+                        $cmid,
+                        $sessionid,
+                        $nextquestion->get('jqshowid'));
+                    break;
+                default:
+                    throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                        [], get_string('question_nosuitable', 'mod_jqshow'));
+            }
+        } else {
+            $finishdata = new stdClass();
+            $finishdata->endSession = 1;
+            jqshow_user_progress::add_progress(
+                $session->get('jqshowid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
+            );
+            $data = questions::export_endsession(
+                $cmid,
+                $sessionid);
         }
-        $data->programmedmode = true;
-        return (array)$data;
+        $data->programmedmode = $manual === false;
+        $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
+        return (array)(new question_exporter($data, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
     }
 
     /**
      * @return external_single_structure
      */
     public static function nextquestion_returns(): external_single_structure {
-        // TODO adapt to any type of question.
-        return new external_single_structure([
-            'cmid' => new external_value(PARAM_INT, 'Course module id'),
-            'sessionid' => new external_value(PARAM_INT, 'Session id'),
-            'jqshowid' => new external_value(PARAM_INT, 'jq show id'),
-            'questionid' => new external_value(PARAM_INT, 'id of jqshow'),
-            'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
-            'question_index_string' => new external_value(PARAM_RAW, 'String for progress session'),
-            'sessionprogress' => new external_value(PARAM_INT, 'Int for progress bar'),
-            'questiontext' => new external_value(PARAM_RAW, 'Statement of question'),
-            'questiontextformat' => new external_value(PARAM_RAW, 'Format of statement'),
-            'hastime' => new external_value(PARAM_BOOL, 'Question has time'),
-            'seconds' => new external_value(PARAM_INT, 'Seconds of question', VALUE_OPTIONAL),
-            'preview' => new external_value(PARAM_BOOL, 'Is preview or not', VALUE_OPTIONAL),
-            'numanswers' => new external_value(PARAM_INT, 'Num of answer for multichoice', VALUE_OPTIONAL),
-            'name' => new external_value(PARAM_RAW, 'Name of question'),
-            'qtype' => new external_value(PARAM_RAW, 'Type of question'),
-            'programmedmode' => new external_value(PARAM_BOOL, 'Mode programmed', VALUE_OPTIONAL),
-            'manualmode' => new external_value(PARAM_BOOL, 'Mode manual', VALUE_OPTIONAL),
-            'port' => new external_value(PARAM_RAW, 'Port for sockets', VALUE_OPTIONAL),
-            'multichoice' => new external_value(PARAM_BOOL, 'Type of question for mustache', VALUE_OPTIONAL),
-            'answers' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'answerid'   => new external_value(PARAM_INT, 'Answer id'),
-                        'questionid' => new external_value(PARAM_INT, 'Question id of table questions'),
-                        'answertext' => new external_value(PARAM_RAW, 'Answer text'),
-                        'fraction' => new external_value(PARAM_RAW, 'value of answer')
-                    ], ''
-                ), '', VALUE_OPTIONAL
-            ),
-            'feedbacks' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'answerid'   => new external_value(PARAM_INT, 'Answer id of feedback'),
-                        'feedback' => new external_value(PARAM_RAW, 'Feedback text'),
-                        'feedbackformat' => new external_value(PARAM_INT, 'Format of feedback')
-                    ], ''
-                ), '', VALUE_OPTIONAL
-            )
-        ]);
+        return question_exporter::get_read_structure();
     }
 }

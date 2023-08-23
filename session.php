@@ -46,13 +46,16 @@ $coursecontext = context_course::instance($COURSE->id);
 $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
 $strjqshow = get_string('modulename', 'jqshow');
 $PAGE->set_heading($course->fullname);
+$PAGE->set_title(get_string('session', 'jqshow')) . ' - ' . jqshow_sessions::get_sessionname($jqshow->id, $sid);
+$PAGE->set_cacheable(false); // TODO only for develop.
+
+$activesession = jqshow_sessions::get_active_session_id($jqshow->id);
+if ($activesession !== 0 && $activesession !== $sid) {
+    throw new moodle_exception('multiplesessionerror', 'mod_jqshow', '', [],
+        get_string('multiplesessionerror', 'mod_jqshow'));
+}
 
 if ($isteacher) {
-    $activesession = jqshow_sessions::get_active_session_id($jqshow->id);
-    if ($activesession !== 0 && $activesession !== $sid) {
-        throw new moodle_exception('multiplesessionerror', 'mod_jqshow', '', [],
-            get_string('multiplesessionerror', 'mod_jqshow'));
-    }
     $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
     run_server_background($server);
     $view = new teacher_session_view();

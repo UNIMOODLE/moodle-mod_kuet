@@ -12,7 +12,7 @@
         <FIELD NAME="intro" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Jam Quiz Show introduction text."/>
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Quiz intro text format."/>
         <FIELD NAME="teamgrade" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Options: first,last or average"/>
-        <FIELD NAME="badgepositions" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Ranking first positions to receive a badge"/>
+        <FIELD NAME="grademethod" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="Options: 0-notgrades, 1-gradehighest, 2-gradeaverage, 3-firstsession, 4-lastsession."/>
         <FIELD NAME="completionanswerall" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if all the questions are answered"/>
         <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
@@ -20,6 +20,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="course" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
@@ -31,35 +32,40 @@
         <FIELD NAME="name" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="session name"/>
         <FIELD NAME="jqshowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="anonymousanswer" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="There are 3 types: 0 (partially) 1(totally) 2(not anonymous)"/>
-        <FIELD NAME="allowguests" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Two options: true or false"/>
         <FIELD NAME="sessionmode" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="inactive_manual" SEQUENCE="false" COMMENT="Options:inactive_manual,podium_manual,podium_programmed"/>
+        <FIELD NAME="sgrade" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="Options: 0-notgrades, 1-relative position, 2-relative points, 3-combined."/>
         <FIELD NAME="countdown" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Time in seconds between questions. Only for scheduled mode"/>
-        <FIELD NAME="hidegraderanking" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Option to hide or not ranking and grades between questions. By default, not hidden."/>
+        <FIELD NAME="showgraderanking" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Option to hide or not ranking and grades between questions. By default, not hidden."/>
         <FIELD NAME="randomquestions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options: 0 or 1"/>
         <FIELD NAME="randomanswers" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options:0 or 1"/>
-        <FIELD NAME="showfeedback" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options true or false"/>
+        <FIELD NAME="showfeedback" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Options true or false"/>
         <FIELD NAME="showfinalgrade" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options: true or false"/>
         <FIELD NAME="startdate" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="enddate" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="automaticstart" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options true or false"/>
-        <FIELD NAME="timelimit" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Time in seconds"/>
-        <FIELD NAME="addtimequestion" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options: 1 or 0"/>
+        <FIELD NAME="timemode" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="time mode: no time 0, session time 1, question time 2"/>
+        <FIELD NAME="sessiontime" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Session time in seconds"/>
+        <FIELD NAME="questiontime" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Question time in seconds"/>
         <FIELD NAME="groupings" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="session status: active 1, initi 2 or finished 0"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="session status: active 1, init 2 or finished 0"/>
         <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshowid" REFTABLE="jqshow" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshowid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="jqshow_questions" COMMENT="Questions from the question bank that were added to sessions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT=""/>
-        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Question Id"/>
-        <FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Session id"/>
-        <FIELD NAME="jqshowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Jqshow Id" />
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key references question.id."/>
+        <FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key references jqshow_sessions.id."/>
+        <FIELD NAME="jqshowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key references jqshow.id." />
         <FIELD NAME="qorder" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Order of appearance of the question in the session" />
         <FIELD NAME="qtype" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Type of question"/>
         <FIELD NAME="timelimit" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Time to answer the question in seconds"/>
@@ -72,7 +78,109 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="question" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
+        <KEY NAME="session" TYPE="foreign" FIELDS="sessionid" REFTABLE="jqshow_sessions" REFFIELDS="id"/>
+        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshowid" REFTABLE="jqshow" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="question" UNIQUE="false" FIELDS="questionid"/>
+        <INDEX NAME="session" UNIQUE="false" FIELDS="sessionid"/>
+        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshowid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="jqshow_grades" COMMENT="Stores the overall grade for each user on the jqshow, based on their various sessions and the jqshow.grademethod setting.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="jqshow" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow.id."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references user.id."/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="The overall grade from the jqshow. Not affected by overrides in the gradebook."/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this grade changed."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshow" REFTABLE="jqshow" REFFIELDS="id"/>
+        <KEY NAME="user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshow"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="jqshow_sessions_grades" COMMENT="Stores the overall grade for each user on each session, based on their session setting.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="jqshow" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow.id."/>
+        <FIELD NAME="session" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow_sessions.id."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references user.id."/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="The overall grade from the session. Used to get the jqshow grade."/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this grade changed."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshow" REFTABLE="jqshow" REFFIELDS="id"/>
+        <KEY NAME="session" TYPE="foreign" FIELDS="session" REFTABLE="jqshow_sessions" REFFIELDS="id"/>
+        <KEY NAME="user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshow"/>
+        <INDEX NAME="session" UNIQUE="false" FIELDS="session"/>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="usersessiongrade" UNIQUE="true" FIELDS="userid, jqshow, session"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="jqshow_questions_responses" COMMENT="Stores user responses to each question, in each session, for each jqshowid.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="jqshow" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow.id."/>
+        <FIELD NAME="session" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow_sessions.id."/>
+        <FIELD NAME="jqid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow_questions.id."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references user.id."/>
+        <FIELD NAME="anonymise" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 not anonymise, 1 Anonymise student response"/>
+        <FIELD NAME="result" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="The status of the answer: 0 error, 1 success, 2 not answered, 3 not evaluable, 4 invalid"/>
+        <FIELD NAME="response" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Answer sent by the user. Must be serialisable using json_encode()"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this grade changed."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshow" REFTABLE="jqshow" REFFIELDS="id"/>
+        <KEY NAME="session" TYPE="foreign" FIELDS="session" REFTABLE="jqshow_sessions" REFFIELDS="id"/>
+        <KEY NAME="jqid" TYPE="foreign" FIELDS="jqid" REFTABLE="jqshow_questions" REFFIELDS="id"/>
+        <KEY NAME="user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshow"/>
+        <INDEX NAME="session" UNIQUE="false" FIELDS="session"/>
+        <INDEX NAME="jquid" UNIQUE="false" FIELDS="jqid"/>
+        <INDEX NAME="questionresponses" UNIQUE="true" FIELDS="userid, session, jqid"/>
+        <INDEX NAME="userresponsesinsession" UNIQUE="false" FIELDS="userid, session"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="jqshow_user_progress" COMMENT="Stores the user's progress in the scheduled sessions, in order to be able to resume their progress.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="jqshow" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow.id."/>
+        <FIELD NAME="session" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow_sessions.id."/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references user.id."/>
+        <FIELD NAME="randomquestion" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 set order, 1 random order"/>
+        <FIELD NAME="other" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Object with the order of the questions for the user in case they are randomised, and the current question. Must be serialisable using json_encode()"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this grade changed."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshow" REFTABLE="jqshow" REFFIELDS="id"/>
+        <KEY NAME="session" TYPE="foreign" FIELDS="session" REFTABLE="jqshow_sessions" REFFIELDS="id"/>
+        <KEY NAME="user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshow"/>
+        <INDEX NAME="session" UNIQUE="false" FIELDS="session"/>
+        <INDEX NAME="usersessionprogress" UNIQUE="true" FIELDS="userid, jqshow, session"/>
+      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>

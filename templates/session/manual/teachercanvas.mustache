@@ -1,22 +1,78 @@
-<div
-    data-region="teacher-canvas"
-    data-userid="{{userid}}"
-    data-username="{{userfullname}}"
-    data-cmid="{{cmid}}"
-    data-sid="{{sid}}"
-    data-userimage="{{userimage}}"
-    data-jqshowid="{{jqshowid}}"
->
-    <div id="message-box"></div>
-    {{#waitingroom}}
-        {{> mod_jqshow/session/manual/waitingroom/teacher }}
-    {{/waitingroom}}
+<div data-region="teacher-canvas-content"
+     data-userid="{{userid}}"
+     data-username="{{userfullname}}"
+     data-cmid="{{cmid}}"
+     data-sid="{{sid}}"
+     data-userimage="{{userimage}}"
+     data-jqshowid="{{jqshowid}}">
+    <div class="row content-header">
+        <div class="content-title col-5">
+            <h2>{{#str}}waitingroom, mod_jqshow{{/str}}</h2>
+            <small>{{#str}}waitingroom_info, mod_jqshow{{/str}}</small>
+            <div id="message-box"></div>
+        </div>
+        <div class="more-info-session col-5">
+            <div class="sessionname">
+                {{#pix}}s/name, mod_jqshow{{/pix}}
+                <div class="sessionname-text">
+                    {{#str}}session_name_placeholder, mod_jqshow{{/str}}
+                    <span>{{sessionname}}</span>
+                </div>
+            </div>
+            <div class="numusers">
+                {{#pix}}s/users, mod_jqshow{{/pix}}
+                <div class="countusers">
+                    <span id="countusers">0</span>
+                    <span class="participants">{{#str}}participants, mod_jqshow{{/str}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="session-controller col-2" data-region="session-controller">
+            <button class="btn btn-secondary" data-action="back-session">
+                {{#str}}back{{/str}}
+            </button>
+            <button class="btn btn-primary disabled" data-action="init-session">
+                {{#str}}init_session, mod_jqshow{{/str}}
+            </button>
+            <button class="btn btn-primary disabled hidden" data-action="end-session">
+                {{#str}}end_session, mod_jqshow{{/str}}
+            </button>
+        </div>
+    </div>
+    <div class="col-12 participants forteacher" data-region="active-users">
 
+    </div>
+    <div data-region="teacher-canvas" class="d-flex">
+        {{#waitingroom}}
+            {{> mod_jqshow/session/manual/waitingroom/teacher }}
+        {{/waitingroom}}
+    </div>
+    <div data-region="teacher-panel" class="d-none row">
+        <div class="col-12 col-lg-4 container">
+            <div class="resume-config" data-region="session-resume">
+                <h5 class="titlecontainer bg-primary">
+                    {{#pix}} i/settings, mod_jqshow {{/pix}}
+                    {{#str}}sessionconfiguration, mod_jqshow{{/str}}
+                </h5>
+            </div>
+        </div>
+        <div class="col-12 col-lg-8 container">
+            <div class="users-results">
+                <h5 class="titlecontainer bg-primary">
+                    {{#pix}} i/questions_list, mod_jqshow {{/pix}}
+                    {{#str}}results, mod_jqshow{{/str}}
+                </h5>
+                <div class="list-results" data-region="list-results" data-sid="{{sid}}" data-cmid="{{cmid}}" data-courseid="{{courseid}}" data-groupmode="{{groupmode}}">
+                    {{> mod_jqshow/session/listresults }}
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 {{#js}}
     require(['mod_jqshow/teachersockets'], function(Sockets) {
-        Sockets.teacherInitSockets('[data-region="teacher-canvas"]', {{port}});
+        Sockets.teacherInitSockets('[data-region="teacher-canvas-content"]', {{port}}, '{{sessionmode}}', {{groupmode}});
         /*window.onbeforeunload = function(e) {
             // TODO review.
             e.returnValue = confirm(

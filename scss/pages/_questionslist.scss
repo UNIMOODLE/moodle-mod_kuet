@@ -44,6 +44,9 @@ body#page-mod-jqshow-sessions {
                         .questions-list-data {
                             font-weight: normal;
                             background-color: white;
+                            &:nth-child(even) {
+                                background-color: rgba(0,0,0,.03);
+                            }
                             .isvalid {
                                 text-align: center;
                             }
@@ -87,13 +90,16 @@ body#page-mod-jqshow-sessions {
             }
             .questions-bank {
                 .form-group {
-                    padding: 15px;
+                    padding: 15px 15px 0 15px;
                 }
                 .btn-primary {
-                    margin-left: 15px;
+                    display: block;
+                    margin: 1em 0 0 0;
+                    width: 50%;
+                    min-width: 250px;
                 }
                 .content-question {
-                    padding: 15px;
+                    padding: 0 15px 15px 15px;
                     .question {
                         display: flex;
                         flex-flow: row nowrap;

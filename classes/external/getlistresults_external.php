@@ -32,6 +32,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\models\sessions;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -63,7 +64,14 @@ class getlistresults_external extends external_api {
             self::getlistresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
-        return ['userresults' => sessions::get_session_results($sid, $cmid)];
+        $session = new jqshow_sessions($sid);
+        if ($session->is_group_mode()) {
+            $groupmode = true;
+            $groupresults = sessions::get_group_session_results($sid, $cmid);
+            return ['groupmode' => true, 'groupresults' => $groupresults];
+        }
+        $userresults = sessions::get_session_results($sid, $cmid);
+        return ['groupmode' => false, 'userresults' => $userresults];
     }
 
     /**
@@ -74,13 +82,33 @@ class getlistresults_external extends external_api {
             'userresults' => new external_multiple_structure(
                 new external_single_structure(
                     [
-                        'userfullname'   => new external_value(PARAM_RAW, 'Name of user'),
-                        'correctanswers' => new external_value(PARAM_INT, 'Num of correct answer'),
-                        'incorrectanswers' => new external_value(PARAM_INT, 'Num of incorrect answer'),
-                        'userpoints' => new external_value(PARAM_INT, 'Total points of user'),
+                        'userfullname' => new external_value(PARAM_RAW, 'Name of user'),
+                        'correctanswers' => new external_value(PARAM_INT, 'Num of correct answers'),
+                        'userimageurl' => new external_value(PARAM_URL, 'User image'),
+                        'userprofileurl' => new external_value(PARAM_URL, 'User profile'),
+                        'incorrectanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
+                        'notanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
+                        'partially' => new external_value(PARAM_INT, 'Num of partially correct answers'),
+                        'userpoints' => new external_value(PARAM_RAW, 'Total points of user'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points')
                     ], ''
-                ), ''
+                ), '', VALUE_OPTIONAL
+            ),
+            'groupmode' => new external_value(PARAM_BOOL, 'group mode activated'),
+            'groupresults' => new external_multiple_structure(
+                new external_single_structure(
+                    [
+                        'groupname' => new external_value(PARAM_RAW, 'Name of group'),
+                        'groupimageurl' => new external_value(PARAM_URL, 'Group Image'),
+                        'groupprofileurl' => new external_value(PARAM_URL, 'Group Profile'),
+                        'correctanswers' => new external_value(PARAM_INT, 'Num of correct answers'),
+                        'incorrectanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
+                        'notanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
+                        'partially' => new external_value(PARAM_INT, 'Num of partially correct answers'),
+                        'grouppoints' => new external_value(PARAM_RAW, 'Total points of group'),
+                        'groupposition' => new external_value(PARAM_INT, 'Group position depending on the points')
+                    ], ''
+                ), '', VALUE_OPTIONAL
             )
         ]);
     }

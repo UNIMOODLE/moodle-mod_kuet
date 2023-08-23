@@ -40,11 +40,6 @@
         .statement-text {
             text-align: center;
             width: 100%;
-            img {
-                margin: 1em auto;
-                max-width: 90% !important;
-                height: auto;
-            }
         }
     }
     .containt-answers {
@@ -70,8 +65,10 @@
                 transform: scale(1.03);
                 transition: transform .5s;
             }
-            .feedback-icons {
-                .feedback-icon {
+            .feedback-icons,
+            .statistics-icons {
+                .feedback-icon,
+                .statistics-icon {
                     display: none;
                     background-color: white;
                     border-radius: 15px;
@@ -81,8 +78,6 @@
                     justify-content: center;
                     align-items: center;
                     position: absolute;
-                    top: 10px;
-                    left: 10px;
                     .icon {
                         margin: 0;
                         height: 15px;
@@ -90,15 +85,40 @@
                     }
                 }
             }
-            img {
-                margin: 1em auto;
-                max-width: 90% !important;
-                height: auto;
+            .feedback-icons {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+            }
+            .statistics-icons {
+                position: absolute;
+                top: 10px;
+                right: 80px;
+                .statistics-icon {
+                    width: 70px;
+                    height: 40px;
+                    svg {
+                        margin-right: 5px;
+                    }
+                    .numberofreplies {
+                        font-size: 18px;
+                    }
+                }
             }
         }
         @for $i from 1 through length($answercolors) {
             .multichoice-answer:nth-child(#{length($answercolors)}n+#{$i}) {
-                background: nth($answercolors, $i)
+                background: nth($answercolors, $i);
+                .statistics-icons {
+                    .statistics-icon {
+                        .statistics-svg {
+                            fill: nth($answercolors, $i);
+                        }
+                        .numberofreplies {
+                            color: nth($answercolors, $i);
+                        }
+                    }
+                }
             }
         }
     }
@@ -141,9 +161,52 @@
         left: 0;
         top: 0;
         width: 100%;
+        height: 100%;
         z-index: 1;
         border-radius: 0 0 25px 25px;
         background-color: rgba(0, 0, 0, .6);
+    }
+    .contain-statement,
+    .containt-answers {
+        .statement-text,
+        .multichoice-answer {
+            img {
+                margin: 1em auto;
+                max-width: 90% !important;
+                height: auto;
+            }
+            pre {
+                font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;
+                clear: both;
+                color: #fff;
+                background: #262626;
+                padding: 0;
+                tab-size: 2;
+                word-break: normal;
+                hyphens: none;
+                position: relative;
+                line-height: 28px;
+                border-radius: 8px;
+                overflow: hidden;
+                code {
+                    text-align: left;
+                    background: none;
+                    white-space: pre;
+                    overflow-x: auto;
+                    display: block;
+                    max-width: 100%;
+                    min-width: 100px;
+                    font-size: 16px;
+                    padding: 15px 20px 12px 22px;
+                    line-height: 1.75;
+                }
+            }
+            &.answer-checked {
+                transform: scale(1.03);
+                filter: grayscale(.6);
+                box-shadow: 0 0 10px rgba(0,0,0,.06);
+            }
+        }
     }
 }
 @media (max-width: 991px) {

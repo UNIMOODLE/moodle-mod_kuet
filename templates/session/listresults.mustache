@@ -1,18 +1,39 @@
 <div class="list-results-body d-table list-group">
     <div class="d-table-row list-results-thead">
         <div class="d-table-cell">{{#str}}question_position, mod_jqshow{{/str}}</div>
-        <div class="d-table-cell">{{#str}}students, mod_jqshow{{/str}}</div>
-        <div class="d-table-cell">{{#str}}corrects, mod_jqshow{{/str}}</div>
-        <div class="d-table-cell">{{#str}}incorrects, mod_jqshow{{/str}}</div>
-        <div class="d-table-cell">{{#str}}points, mod_jqshow{{/str}}</div>
+        {{#groupmode}}
+            <div class="d-table-cell">{{#str}}groups, mod_jqshow{{/str}}</div>
+        {{/groupmode}}
+        {{^groupmode}}
+            <div class="d-table-cell">{{#str}}students, mod_jqshow{{/str}}</div>
+        {{/groupmode}}
+
+        <div class="d-table-cell text-center">{{#str}}corrects, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}incorrects, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}partially_correct, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}notanswers, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}points, mod_jqshow{{/str}}</div>
     </div>
     {{#userresults}}
         <div class="d-table-row result-list-data result-item" data-userid="{{userid}}">
             <div class="d-table-cell">{{userposition}}</div>
             <div class="d-table-cell">{{userfullname}}</div>
-            <div class="d-table-cell">{{correctanswers}}</div>
-            <div class="d-table-cell">{{incorrectanswers}}</div>
-            <div class="d-table-cell">{{userpoints}}</div>
+            <div class="d-table-cell text-center">{{correctanswers}}</div>
+            <div class="d-table-cell text-center">{{incorrectanswers}}</div>
+            <div class="d-table-cell text-center">{{partially}}</div>
+            <div class="d-table-cell text-center">{{notanswers}}</div>
+            <div class="d-table-cell text-center">{{userpoints}}</div>
         </div>
     {{/userresults}}
+    {{#groupresults}}
+        <div class="d-table-row result-list-data result-item" data-groupid="{{id}}">
+            <div class="d-table-cell">{{groupposition}}</div>
+            <div class="d-table-cell">{{groupname}}</div>
+            <div class="d-table-cell text-center">{{correctanswers}}</div>
+            <div class="d-table-cell text-center">{{incorrectanswers}}</div>
+            <div class="d-table-cell text-center">{{partially}}</div>
+            <div class="d-table-cell text-center">{{notanswers}}</div>
+            <div class="d-table-cell text-center">{{grouppoints}}</div>
+        </div>
+    {{/groupresults}}
 </div>

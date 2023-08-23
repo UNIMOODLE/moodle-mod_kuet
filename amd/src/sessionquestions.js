@@ -1,26 +1,30 @@
 "use strict";
 
 import jQuery from 'jquery';
-import {get_strings as getStrings} from 'core/str';
+import {get_string as getString, get_strings as getStrings} from 'core/str';
 import Ajax from 'core/ajax';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import SortableList from 'core/sortable_list';
+import ModalJqshow from 'mod_jqshow/modal';
 
 let ACTION = {
     DELETEQUESTION: '[data-action="delete_question"]',
     QUESTION: '.question-item',
+    QUESTIONPREVIEW: '[data-action="question_preview"]',
 };
 
 let SERVICES = {
     DELETEQUESTION: 'mod_jqshow_deletequestion',
     SESSIONQUESTIONS: 'mod_jqshow_sessionquestions',
-    REORDER: 'mod_jqshow_reorderquestions'
+    REORDER: 'mod_jqshow_reorderquestions',
+    GETQUESTION: 'mod_jqshow_getquestion'
 };
 
 let REGION = {
+    ROOT: '[data-region="question_list"]',
     PANEL: '[data-region="questions-panel"]',
     LOADING: '[data-region="overlay-icon-container"]',
     SESSIONQUESTIONS: '[data-region="session-questions"]',
@@ -31,7 +35,8 @@ let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    QUESTIONSSELECTED: 'mod_jqshow/createsession/sessionquestions'
+    QUESTIONSSELECTED: 'mod_jqshow/createsession/sessionquestions',
+    QUESTION: 'mod_jqshow/questions/encasement'
 };
 
 let cmId;
@@ -56,10 +61,49 @@ SessionQuestions.prototype.node = null;
 
 SessionQuestions.prototype.initPanel = function() {
     this.node.find(ACTION.DELETEQUESTION).on('click', this.deleteQuestion.bind(this));
+    this.node.find(ACTION.QUESTIONPREVIEW).on('click', this.questionPreview.bind(this));
     if (!(sortable instanceof SortableList)) {
         sortable = new SortableList(REGION.QUESTIONLIST);
     }
     jQuery(REGION.QUESTIONLIST + ' > ' + ACTION.QUESTION).on(SortableList.EVENTS.DROP, this.reorderQuestions.bind(this));
+};
+
+SessionQuestions.prototype.questionPreview = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let questionnId = jQuery(e.currentTarget).attr('data-questionnid');
+    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+        let identifier = jQuery(REGION.ROOT);
+        identifier.append(html);
+        let request = {
+            methodname: SERVICES.GETQUESTION,
+            args: {
+                cmid: cmId,
+                sid: sId,
+                jqid: questionnId
+            }
+        };
+        Ajax.call([request])[0].done(function(question) {
+            Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
+                getString('preview', 'mod_jqshow').done((title) => {
+                    ModalFactory.create({
+                        classes: 'modal_jqshow',
+                        body: html,
+                        title: title,
+                        footer: '',
+                        type: ModalJqshow.TYPE
+                    }).then(modal => {
+                        modal.getRoot().on(ModalEvents.hidden, function() {
+                            modal.destroy();
+                        });
+                        jQuery(REGION.LOADING).remove();
+                        modal.show();
+                        Templates.runTemplateJS(js);
+                    }).fail(Notification.exception);
+                }).fail(Notification.exception);
+            });
+        });
+    });
 };
 
 SessionQuestions.prototype.reloadSessionQuestionsHtml = function() {

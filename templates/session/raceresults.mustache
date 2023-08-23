@@ -1,0 +1,57 @@
+{{#programmedmode}}
+    <h5 class="titlecontainer bg-primary">
+        {{#pix}} i/questions_list, mod_jqshow {{/pix}}
+        {{#str}}results, mod_jqshow{{/str}}
+    </h5>
+{{/programmedmode}}
+
+<div class="content-raceresults">
+    <div class="users-list">
+        <div class="race-student-title">
+            {{#str}}students, mod_jqshow{{/str}}
+        </div>
+        <div class="content-users" id="content-users">
+            {{#userresults}}
+                <div class="race-student">
+                    <img class="student-profile" src="{{userimageurl}}" alt="{{userfullname}}">
+                    {{#userprofileurl}}
+                        <span class="user-fullname">
+                            <a target="_blank" href="{{userprofileurl}}">{{userfullname}}</a>
+                        </span>
+                    {{/userprofileurl}}
+                    {{^userprofileurl}}
+                        <span class="user-fullname">{{userfullname}}</span>
+                    {{/userprofileurl}}
+                    <span class="user-poinsts">
+                    {{userpoints}} pt {{#pix}}q/points, mod_jqshow{{/pix}}
+                </span>
+                </div>
+            {{/userresults}}
+            {{#groupresults}}
+                <div class="race-student">
+                    <img class="student-profile" src="{{groupimageurl}}" alt="{{groupname}}">
+                    <span class="user-fullname">{{groupname}}</span>
+                    <span class="user-poinsts">
+                    {{grouppoints}} pt {{#pix}}q/points, mod_jqshow{{/pix}}
+                </span>
+                </div>
+            {{/groupresults}}
+        </div>
+    </div>
+    <div class="questions-list" id="questions-list">
+        {{#questions}}
+            <div class="content-question" data-questionnum="{{questionnum}}">
+                <div class="questionnumber">
+                    {{#str}}abbreviationquestion, mod_jqshow{{/str}}{{questionnum}}
+                </div>
+                <div class="content-responses">
+                    {{#studentsresponse}}
+                        <div class="response {{responseclass}}" data-userid="{{userid}}">
+                            <div class="content-color"></div>
+                        </div>
+                    {{/studentsresponse}}
+                </div>
+            </div>
+        {{/questions}}
+    </div>
+</div>

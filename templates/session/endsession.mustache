@@ -1,0 +1,39 @@
+{{^ranking}}
+    <div class="container end-session">
+        <div class="containt-desktop">
+            <div class="content-image">
+                <img src="{{endsessionimage}}" alt="{{#str}}endsession, mod_jqshow{{/str}}" />
+            </div>
+            <div class="content-text">
+                <h2>{{#str}}endsession, mod_jqshow{{/str}}</h2>
+                <p>{{#str}}endsession_info, mod_jqshow{{/str}}</p>
+                <div class="content-text d-flex flex-row align-items-center">
+                    <a class="btn btn-primary mr-2" href="{{reportlink}}">
+                        {{#str}}report, mod_jqshow{{/str}}
+                    </a>
+                    <a class="btn btn-primary" href="{{courselink}}">
+                        {{#str}}course{{/str}}
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="containt-mobile">
+            <h2>{{#str}}endsession, mod_jqshow{{/str}}</h2>
+            <div class="content-image">
+                <img src="{{endsessionimage}}" alt="{{#str}}endsession, mod_jqshow{{/str}}" />
+            </div>
+            <div class="content-text d-flex align-items-center">
+                <p>{{#str}}endsession_info, mod_jqshow{{/str}}</p>
+                <a class="btn btn-primary m-1" href="{{reportlink}}">
+                    {{#str}}report, mod_jqshow{{/str}}
+                </a>
+                <a class="btn btn-primary" href="{{courselink}}">
+                    {{#str}}course{{/str}}
+                </a>
+            </div>
+        </div>
+    </div>
+{{/ranking}}
+{{#ranking}}
+    {{> mod_jqshow/ranking/final }}
+{{/ranking}}

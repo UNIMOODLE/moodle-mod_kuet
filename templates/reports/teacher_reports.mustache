@@ -1,0 +1,156 @@
+<div data-region="reports" data-jqshowid="{{jqshowid}}" data-cmid="{{cmid}}" class="position-relative">
+    {{#allreports}}
+        <h2>{{#str}}reports, mod_jqshow{{/str}}</h2>
+        <small>{{#str}}reports_info, mod_jqshow{{/str}}</small>
+    {{/allreports}}
+    {{#sessionreport}}
+        <h2>{{#str}}sessionreport, mod_jqshow{{/str}} - {{sessionname}}</h2>
+        <small>{{#str}}sessionreport_info, mod_jqshow{{/str}}</small>
+    {{/sessionreport}}
+    {{#questionreport}}
+        <h2>{{#str}}questionreport, mod_jqshow{{/str}}</h2>
+        <small>{{#str}}questionreport_info, mod_jqshow{{/str}}</small>
+    {{/questionreport}}
+    {{#userreport}}
+        <h2>{{#str}}userreport, mod_jqshow{{/str}}</h2>
+        <small class="d-block mb-2">{{#str}}userreport_info, mod_jqshow{{/str}}</small>
+    {{/userreport}}
+    {{#groupreport}}
+        <h2>{{#str}}groupreport, mod_jqshow{{/str}}</h2>
+        <small class="d-block mb-2">{{#str}}groupreport_info, mod_jqshow{{/str}}</small>
+    {{/groupreport}}
+    <div class="row">
+        {{#allreports}}
+            {{> mod_jqshow/reports/allreports }}
+        {{/allreports}}
+        {{#sessionreport}}
+            <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 container">
+                <div class="resume-config">
+                    <h5 class="titlecontainer bg-primary">
+                        {{#pix}} i/settings, mod_jqshow {{/pix}}
+                        {{#str}}session_info, mod_jqshow{{/str}}
+                    </h5>
+                    {{> mod_jqshow/session/sessionresume }}
+                </div>
+            </div>
+            <div class="col-12 col-lg-12 container">
+                {{> mod_jqshow/reports/teacher_questions }}
+            </div>
+            {{#showfinalranking}}
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 podium">
+                    {{> mod_jqshow/ranking/rankingfirstthree }}
+                </div>
+            {{/showfinalranking}}
+            {{#hasranking}}
+                <div class="col-12 col-lg-12 container">
+                    {{> mod_jqshow/reports/teacher_ranking }}
+                </div>
+            {{/hasranking}}
+        {{/sessionreport}}
+        {{#questionreport}}
+            <a class="btn btn-primary back-report ml-auto" href="{{backurl}}">
+                {{#str}}back{{/str}}
+            </a>
+            {{> mod_jqshow/reports/question }}
+        {{/questionreport}}
+        {{#userreport}}
+            <div class="col-12 col-lg-12 container mt-3">
+                <div class="content-info">
+                    <div class="participant" data-userid="{{userid}}">
+                        <a href="{{userprofileurl}}" target="_blank">
+                            <img src="{{userimage}}" alt="{{userfullname}}">
+                            <span class="user-fullname">
+                                {{userfullname}}
+                            </span>
+                        </a>
+                    </div>
+                    <a class="btn btn-primary back-report" href="{{backurl}}">
+                        {{#str}}back{{/str}}
+                    </a>
+                </div>
+            </div>
+            <div class="d-flex flex-row justify-content-center w-100 mt-4">
+                <div class="alert alert-info rounded-left mb-0" role="alert">
+                    <b>{{#str}}questions_number, mod_jqshow{{/str}}:</b> {{ numquestions }}
+                </div>
+                <div class="alert alert-success rounded-0 mb-0" role="alert">
+                    <b>{{#str}}success, mod_jqshow{{/str}}:</b> {{ success }}
+                </div>
+                <div class="alert alert-light rounded-0 mb-0" role="alert">
+                    <b>{{#str}}partially_correct, mod_jqshow{{/str}}:</b> {{ partially }}
+                </div>
+                <div class="alert alert-danger rounded-0 mb-0" role="alert">
+                    <b>{{#str}}failures, mod_jqshow{{/str}}:</b> {{ failures }}
+                </div>
+                <div class="alert alert-warning rounded-0 mb-0" role="alert">
+                    <b>{{#str}}noresponse, mod_jqshow{{/str}}:</b> {{ noresponse }}
+                </div>
+                <div class="alert alert-dark rounded-right mb-0" role="alert">
+                    <b>{{#str}}noevaluable, mod_jqshow{{/str}}:</b> {{ noevaluable }}
+                </div>
+            </div>
+            <div class="col-12 col-lg-12 container">
+                {{> mod_jqshow/reports/student_questions }}
+            </div>
+            <div class="col-12 col-lg-12 container">
+                <div class="resume-config">
+                    <h5 class="titlecontainer bg-primary">
+                        {{#pix}} i/settings, mod_jqshow {{/pix}}
+                        {{#str}}session_info, mod_jqshow{{/str}}
+                    </h5>
+                    {{> mod_jqshow/session/sessionresume }}
+                </div>
+            </div>
+        {{/userreport}}
+
+        {{#groupreport}}
+            <div class="col-12 col-lg-12 container mt-3">
+                <div class="content-info">
+                    <div class="participant" data-groupid="{{groupid}}">
+                        <a href="{{groupurl}}" target="_blank">
+                            <img src="{{groupimage}}" alt="{{groupname}}">
+                            <span class="user-fullname">
+                                {{groupname}}
+                            </span>
+                        </a>
+                    </div>
+                    <a class="btn btn-primary back-report" href="{{backurl}}">
+                        {{#str}}back{{/str}}
+                    </a>
+                </div>
+            </div>
+            <div class="d-flex flex-row justify-content-center w-100 mt-4">
+                <div class="alert alert-info rounded-left mb-0" role="alert">
+                    <b>{{#str}}questions_number, mod_jqshow{{/str}}:</b> {{ numquestions }}
+                </div>
+                <div class="alert alert-success rounded-0 mb-0" role="alert">
+                    <b>{{#str}}success, mod_jqshow{{/str}}:</b> {{ success }}
+                </div>
+                <div class="alert alert-light rounded-0 mb-0" role="alert">
+                    <b>{{#str}}partially_correct, mod_jqshow{{/str}}:</b> {{ partially }}
+                </div>
+                <div class="alert alert-danger rounded-0 mb-0" role="alert">
+                    <b>{{#str}}failures, mod_jqshow{{/str}}:</b> {{ failures }}
+                </div>
+                <div class="alert alert-warning rounded-0 mb-0" role="alert">
+                    <b>{{#str}}noresponse, mod_jqshow{{/str}}:</b> {{ noresponse }}
+                </div>
+                <div class="alert alert-dark rounded-right mb-0" role="alert">
+                    <b>{{#str}}noevaluable, mod_jqshow{{/str}}:</b> {{ noevaluable }}
+                </div>
+            </div>
+            <div class="col-12 col-lg-12 container">
+                {{> mod_jqshow/reports/student_questions }}
+            </div>
+            <div class="col-12 col-lg-12 container">
+                <div class="resume-config">
+                    <h5 class="titlecontainer bg-primary">
+                        {{#pix}} i/settings, mod_jqshow {{/pix}}
+                        {{#str}}session_info, mod_jqshow{{/str}}
+                    </h5>
+                    {{> mod_jqshow/session/sessionresume }}
+                </div>
+            </div>
+        {{/groupreport}}
+    </div>
+</div>

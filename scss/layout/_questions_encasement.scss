@@ -44,6 +44,8 @@
             min-height: 55vh;
             position: relative;
             z-index: 1;
+            display: flex;
+            flex-flow: row nowrap;
         }
     }
     .overlay-icon-container {

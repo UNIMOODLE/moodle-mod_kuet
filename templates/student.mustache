@@ -11,7 +11,7 @@
                     <b>{{#str}}nextsession, mod_jqshow{{/str}}</b> {{nextsessiontime}}
                 </div>
             {{/hasnextsession}}
-            <a class="btn btn-primary">
+            <a class="btn btn-primary" href="{{urlreports}}">
                 {{#str}}reports, mod_jqshow{{/str}}
             </a>
         </div>
@@ -21,16 +21,21 @@
         <div class="content-image">
             <img src="{{notsessionimage}}" alt="{{#str}}nosession, mod_jqshow{{/str}}" />
         </div>
-        <div class="content-text">
+        <div class="content-text" href="{{urlreports}}">
             <p>{{#str}}notactivesessionawait, mod_jqshow{{/str}}</p>
             {{#hasnextsession}}
                 <div class="alert alert-primary" role="alert">
                     <b>{{#str}}nextsession, mod_jqshow{{/str}}</b> {{nextsessiontime}}
                 </div>
             {{/hasnextsession}}
-            <a class="btn btn-primary">
+            <a href="{{urlreports}}" class="btn btn-primary">
                 {{#str}}reports, mod_jqshow{{/str}}
             </a>
         </div>
     </div>
 </div>
+{{#js}}
+    require(['mod_jqshow/check_activesession'], function(CheckActiveSession) {
+        CheckActiveSession.checkActiveSession({{cmid}}, {{jqshowid}});
+    });
+{{/js}}

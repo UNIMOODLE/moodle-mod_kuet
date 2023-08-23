@@ -43,23 +43,36 @@ class mod_jqshow_mod_form extends moodleform_mod {
 
         // Grade settings.
         $this->standard_grading_coursemodule_elements();
+        $mform->removeElement('grade');
+        if (property_exists($this->current, 'grade')) {
+            $currentgrade = $this->current->grade;
+        } else {
+            $currentgrade = get_config('core', 'gradepointmax');
+        }
+        $mform->addElement('hidden', 'grade', $currentgrade);
+        $mform->setType('grade', PARAM_FLOAT);
 
+        $grademethodelement = $mform->createElement('select', 'grademethod', get_string('grademethod', 'jqshow'),
+            mod_jqshow_get_grading_options());
+        $mform->disabledIf('gradecat', 'grademethod', 'eq', \mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
+        $mform->disabledIf('gradepass', 'grademethod', 'eq', \mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
+        $mform->insertElementBefore($grademethodelement, 'gradecat');
+        $mform->addHelpButton('grademethod', 'grademethod', 'jqshow');
+
+        // Course module elements.
         $this->standard_coursemodule_elements();
 
         // Teams grade.
-        $mform->addElement('header', 'teamsgrade', get_string('teamsgradeheader', 'jqshow'));
-        $options = ['' => get_string('chooseoption', 'jqshow'), 'first' => 'first', 'last' => 'last', 'average' => 'average'];
-        $mform->addElement('select', 'teamgrade', get_string('teamgrade', 'jqshow'), $options);
-        $mform->disabledIf('teamgrade', 'groupmode', 'eq', 0);
-        $mform->addHelpButton('teamgrade', 'teamgrade', 'jqshow');
-        $mform->setType('teamgrade', PARAM_RAW);
+//        $mform->addElement('header', 'teamsgrade', get_string('teamsgradeheader', 'jqshow'));
+//        $options = [groupmode::TEAM_GRADE_FIRST => get_string('team_grade_first', 'mod_jqshow'),
+////            groupmode::TEAM_GRADE_LAST => 'last',
+////            groupmode::TEAM_GRADE_AVERAGE => 'average'
+//        ];
+//        $mform->addElement('select', 'teamgrade', get_string('teamgrade', 'jqshow'), $options);
+//        $mform->disabledIf('teamgrade', 'groupmode', 'eq', 0);
+//        $mform->addHelpButton('teamgrade', 'teamgrade', 'jqshow');
+//        $mform->setType('teamgrade', PARAM_RAW);
 
-        // Badges.
-        $mform->addElement('header', 'badges', get_string('badges', 'badges'));
-        $mform->addElement('text', 'badgepositions', get_string('badgepositions', 'jqshow'), ['size' => '5']);
-        $mform->addHelpButton('badgepositions', 'badgepositions', 'jqshow');
-        $mform->addRule('badgepositions', get_string('badgepositionsrule', 'jqshow'), 'numeric', null, 'server');
-        $mform->setType('badgepositions', PARAM_INT);
         $this->add_action_buttons();
     }
 

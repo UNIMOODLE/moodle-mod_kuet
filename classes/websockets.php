@@ -25,7 +25,6 @@
 
 declare(strict_types=1);
 
-define('CLI_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 global $CFG;
 require_once(__DIR__ . '/websocketuser.php');
@@ -80,6 +79,8 @@ abstract class websockets {
         // Local_cert and local_pk must be in PEM format.
         stream_context_set_option($context, 'ssl', 'local_cert', $certificateurl);
         stream_context_set_option($context, 'ssl', 'local_pk', $privatekeyurl);
+        /* TODO add possibility of passphrase in certificates per setting.
+        stream_context_set_option($context, 'ssl', 'passphrase', $passphrase) */
         stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
         stream_context_set_option($context, 'ssl', 'verify_peer', false);
         stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
@@ -96,7 +97,7 @@ abstract class websockets {
         }
 
         $this->sockets['m'] = $this->master;
-        $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: " . $this->master);
+        $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: $this->master\n");
     }
 
     /**
@@ -163,7 +164,6 @@ abstract class websockets {
      */
     public function send_message($msg) {
         foreach ($this->sockets as $key => $changedsocket) {
-            $this->stderr($msg);
             if ($key !== 'm') {
                 fwrite($changedsocket, $msg);
             }
@@ -235,8 +235,10 @@ abstract class websockets {
             $data = substr($text, 6);
         }
         $text = "";
-        for ($i = 0, $imax = strlen($data); $i < $imax; ++$i) {
-            $text .= $data[$i] ^ $masks[$i % 4];
+        if ($data !== false) {
+            for ($i = 0, $imax = strlen($data); $i < $imax; ++$i) {
+                $text .= $data[$i] ^ $masks[$i % 4];
+            }
         }
         return $text;
     }
@@ -260,7 +262,7 @@ abstract class websockets {
                     continue;
                 }
                 $ip = stream_socket_get_name( $client, true );
-                $this->stderr("Connection attempt from $ip\n");
+                $this->stdout("Connection attempt from $ip");
                 stream_set_blocking($client, true);
                 // TODO review stream_socket_enable_crypto.
                 /* if (!stream_socket_enable_crypto($client, true, STREAM_CRYPTO_METHOD_TLSv1_2_SERVER)) {
@@ -276,7 +278,7 @@ abstract class websockets {
                 $foundsocket = array_search($this->master, $read, true);
                 unset($read[$foundsocket]);
 
-                $this->stderr("Handshake $ip\n");
+                $this->stdout("Handshake $ip");
 
                 if ($client < 0) {
                     $this->stderr("Failed: socket_accept()");
@@ -284,18 +286,21 @@ abstract class websockets {
                 }
 
                 $this->connect($client, $ip);
-                $this->stdout("Client connected. " . $client);
+                $this->stdout("Client connected. $client\n");
             }
 
             foreach ($read as $socket) {
                 $ip = stream_socket_get_name( $socket, true );
                 $buffer = stream_get_contents($socket);
-                if ($buffer === false || strlen($buffer) <= 8) { // TODO review detect disconnect for min buffer lenght.
-                    $this->disconnect($socket);
-                    $this->stderr("Client disconnected. TCP connection lost: " . $socket);
-                    @fclose($socket);
-                    $foundsocket = array_search($socket, $this->sockets, true);
-                    unset($this->sockets[$foundsocket]);
+                // TODO review detect disconnect for min buffer lenght.
+                if ($buffer === false || strlen($buffer) <= 8) {
+                    if ($this->unmask($buffer) !== '') { // Necessary to stabilise connections, review.
+                        $this->disconnect($socket);
+                        $this->stdout("Client disconnected. TCP connection lost: " . $socket);
+                        @fclose($socket);
+                        $foundsocket = array_search($socket, $this->sockets, true);
+                        unset($this->sockets[$foundsocket]);
+                    }
                 }
                 $unmasked = $this->unmask($buffer);
                 if ($unmasked !== "") {
@@ -310,7 +315,6 @@ abstract class websockets {
                             $this->handshake($user, $buffer);
                         } else {
                             $this->process($user, $unmasked);
-                            echo "\nReceived a Message from $ip:\n\"$unmasked\" \n";
                         }
                     }
                 }

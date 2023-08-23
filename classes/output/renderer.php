@@ -27,7 +27,9 @@ namespace mod_jqshow\output;
 use coding_exception;
 use mod_jqshow\output\views\question_preview;
 use mod_jqshow\output\views\sessions_view;
+use mod_jqshow\output\views\student_reports;
 use mod_jqshow\output\views\student_session_view;
+use mod_jqshow\output\views\teacher_reports;
 use mod_jqshow\output\views\teacher_session_view;
 use moodle_exception;
 use plugin_renderer_base;
@@ -92,5 +94,29 @@ class renderer extends plugin_renderer_base {
     public function render_question_preview(question_preview $view): string {
         $data = $view->export_for_template($this);
         return $this->render_from_template($data->template, $data);
+    }
+
+    /**
+     * @param teacher_reports $view
+     * @return string
+     * @throws moodle_exception
+     */
+    public function render_teacher_reports(teacher_reports $view): string {
+        $data = $view->export_for_template($this);
+        return $this->render_from_template('mod_jqshow/reports/teacher_reports', $data);
+    }
+
+    /**
+     * @param student_reports $view
+     * @return string
+     * @throws moodle_exception
+     */
+    public function render_student_reports(student_reports $view): string {
+        $data = $view->export_for_template($this);
+        $template = 'mod_jqshow/reports/student_reports';
+        if ($data->groupmode) {
+            $template = 'mod_jqshow/reports/group_reports';
+        }
+        return $this->render_from_template($template, $data);
     }
 }
