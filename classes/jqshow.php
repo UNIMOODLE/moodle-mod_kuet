@@ -151,7 +151,7 @@ class jqshow {
         if ($cm->groupmode == '0') {
             return self::get_participants_individual_mode($context);
         } else {
-            return self::get_participants_group_mode($context, $cm);
+            return self::get_participants_group_mode($cm);
         }
     }
 
