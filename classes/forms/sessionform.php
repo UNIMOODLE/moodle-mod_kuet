@@ -281,7 +281,7 @@ class sessionform extends moodleform {
         }
 
         // Timemode.
-        if (array_key_exists('sessionmode', $data) && (int)$data['sessionmode'] == sessions::PODIUM_PROGRAMMED) {
+        if (array_key_exists('sessionmode', $data) && $data['sessionmode'] == sessions::PODIUM_PROGRAMMED) {
             if (!array_key_exists('timemode', $data)) {
                 $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
             } else if (array_key_exists('timemode', $data) && (int)$data['timemode'] == sessions::NO_TIME) {
@@ -289,7 +289,7 @@ class sessionform extends moodleform {
             }
         }
         $programmedmodes = [sessions::PODIUM_PROGRAMMED, sessions::RACE_PROGRAMMED];
-        if (in_array((int)$data['sessionmode'], $programmedmodes)
+        if (in_array($data['sessionmode'], $programmedmodes)
             && ((int)$data['questiontime'] === 0 && (int)$data['sessiontime'] === 0)) {
             $errors['questiontime'] = get_string('timecannotbezero', 'mod_jqshow');
             $errors['sessiontime'] = get_string('timecannotbezero', 'mod_jqshow');
