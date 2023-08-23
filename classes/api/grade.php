@@ -205,7 +205,7 @@ class grade {
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
             // TODO: por qué se ha eliminado del settings del mod el tiempo por defecto de las preguntas???
-            $qtime = !$qtime ? $jqquestion->get('timelimit') : 40;;
+            $qtime = !$qtime ? $jqquestion->get('timelimit') : 40;
             $useranswer = $response->get('response');
             $percent = 1;
             if ($qtime && !empty($useranswer)) {

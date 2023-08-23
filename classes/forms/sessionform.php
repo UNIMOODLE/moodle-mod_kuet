@@ -205,7 +205,7 @@ class sessionform extends moodleform {
         }
 
         $cm = $customdata['cm'];
-        if ($cm->groupmode !== '0' && empty($customdata['groupingsselect'])) {
+        if ((int) $cm->groupmode !== 0 && empty($customdata['groupingsselect'])) {
             $mform->addElement('html', '<div class="col-12 formcontainer">');
             $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
                 $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
