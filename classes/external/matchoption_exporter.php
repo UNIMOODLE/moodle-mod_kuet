@@ -27,23 +27,20 @@ namespace mod_jqshow\external;
 
 use core\external\exporter;
 
-class answer_exporter extends exporter {
+class matchoption_exporter extends exporter {
 
     /**
      * @return array[]
      */
     public static function define_properties():array {
         return [
-            'answerid' => [
+            'questionid' => [
                 'type' => PARAM_INT,
             ],
-            'questionid' => [
-                'type' => PARAM_TEXT,
+            'optionkey' => [
+                'type' => PARAM_INT,
             ],
-            'answertext' => [
-                'type' => PARAM_RAW,
-            ],
-            'fraction' => [
+            'optiontext' => [
                 'type' => PARAM_RAW,
             ]
         ];

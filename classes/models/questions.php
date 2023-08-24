@@ -46,6 +46,8 @@ use moodle_url;
 use qbank_previewquestion\question_preview_options;
 use qtype_match_question;
 use qtype_multichoice;
+use qtype_multichoice_multi_question;
+use qtype_multichoice_single_question;
 use question_answer;
 use question_attempt;
 use question_bank;
@@ -148,12 +150,13 @@ class questions {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
-        if (!assert($question instanceof qtype_multichoice)) {
+        if (!assert($question instanceof qtype_multichoice_single_question) &&
+            !assert($question instanceof qtype_multichoice_multi_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion);
+        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion);
         $data->qtype = $type;
         $data->$type = true;
         $data->questiontext =
@@ -244,7 +247,8 @@ class questions {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function export_match(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
+    public static function export_match(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+        $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         if (!assert($question instanceof qtype_match_question)) {
@@ -252,23 +256,50 @@ class questions {
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion);
+        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion);
         $data->$type = true;
         $data->qtype = $type;
         $data->questiontext =
             self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
-        $leftoptions = [];
         $feedbacks = [];
-        foreach ($question->steams as $key => $leftside) {
-            $leftside[$key] = [
+        $leftoptions = [];
+        foreach ($question->stems as $key => $leftside) {
+            $leftoptions[$key] = [
                 'questionid' => $jqshowquestion->get('questionid'),
                 'optionkey' => $key,
                 'optiontext' =>
                     self::get_text($cmid, $leftside, $question->stemformat[$key], $question->id, $question, 'questiontext')
             ];
         }
+        $rightoptions = [];
+        foreach ($question->choices as $key => $leftside) {
+            $rightoptions[$key] = [
+                'questionid' => $jqshowquestion->get('questionid'),
+                'optionkey' => $key,
+                'optiontext' =>
+                    self::get_text($cmid, $leftside, $question->stemformat[$key], $question->id, $question, 'questiontext')
+            ];
+        }
+        $data->name = $question->name;
+        shuffle($rightoptions);
+        if ($session->get('randomanswers') === 1) {
+            shuffle($leftoptions);
+        }
+        $data->leftoptions = array_values($leftoptions);
+        $data->rightoptions = array_values($rightoptions);
+        return $data;
+    }
 
+    /**
+     * @param stdClass $data
+     * @param string $response
+     * @return stdClass
+     * @throws JsonException
+     */
+    public static function export_match_response(stdClass $data, string $response):stdClass {
+        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $data->answered = true;
         return $data;
     }
 
@@ -285,6 +316,7 @@ class questions {
      * @throws moodle_exception
      */
     private static function get_question_common_data(
+        jqshow_sessions $session,
         int $jqid,
         int $cmid,
         int $sessionid,
@@ -293,7 +325,6 @@ class questions {
         jqshow_questions $jqshowquestion
     ): stdClass {
         global $USER;
-        $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
         $data = new stdClass();
         $data->cmid = $cmid;
