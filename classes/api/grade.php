@@ -147,7 +147,7 @@ class grade {
             case sessions::RACE_PROGRAMMED:
             case sessions::RACE_MANUAL:
             default:
-                $mark = self::get_session_default_grade($responses, $userid, $session);
+                $mark = self::get_session_default_grade($responses);
         }
         return $mark;
     }

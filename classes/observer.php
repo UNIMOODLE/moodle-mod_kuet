@@ -49,8 +49,8 @@ class observer {
     public static function session_ended(session_ended $event) {
 
         $data = $event->get_data();
-        $jqshow = \mod_jqshow\persistents\jqshow::get_jqshow_from_cmid($data['contextinstanceid']);
-        if (!$jqshow || $jqshow->get('grademethod') == 0) {
+        $jqshow = \mod_jqshow\persistents\jqshow::get_jqshow_from_cmid((int) $data['contextinstanceid']);
+        if (!$jqshow || (int) $jqshow->get('grademethod') == grade::MOD_OPTION_NO_GRADE) {
             return;
         };
         $session = jqshow_sessions::get_record(['id' => $data['objectid']]);

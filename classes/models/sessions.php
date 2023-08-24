@@ -134,7 +134,7 @@ class sessions {
             self::RACE_PROGRAMMED => get_string('race_programmed', 'mod_jqshow'),
         ];
         $timemode = [
-            self::NO_TIME => get_string('no_time', 'mod_jqshow'),
+//            self::NO_TIME => get_string('no_time', 'mod_jqshow'),
             self::SESSION_TIME => get_string('session_time', 'mod_jqshow'),
             self::QUESTION_TIME => get_string('question_time', 'mod_jqshow'),
         ];
@@ -609,6 +609,7 @@ class sessions {
                 $sessiongroup = new stdClass();
                 $sessiongroup->id = $group->id;
                 $sessiongroup->groupname = $group->name;
+                $sessiongroup->groupimageurl = groupmode::get_group_image($group, $sid);
                 $sessiongroup->correctanswers = $correctanswers;
                 $sessiongroup->incorrectanswers = $incorrectanswers;
                 $sessiongroup->partially = $partially;
@@ -667,6 +668,58 @@ class sessions {
                     }
                 } else {
                     $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'noresponse';
+                }
+                $questionsdata[$key]->studentsresponse = array_values($questionsdata[$key]->studentsresponse);
+            }
+        }
+        return array_values($questionsdata);
+    }
+
+    /**
+     * @param array $groupresults
+     * @param int $sid
+     * @param int $cmid
+     * @param int $jqshowid
+     * @return array
+     * @throws coding_exception
+     */
+    public static function breakdown_responses_for_race_groups(array $groupresults, int $sid, int $cmid, int $jqshowid): array {
+        $questions = (new questions($jqshowid, $cmid, $sid))->get_list();
+        $questionsdata = [];
+        foreach ($questions as $key => $question) {
+            $questionsdata[$key] = new stdClass();
+            $questionsdata[$key]->questionnum = $key + 1;
+            $questionsdata[$key]->studentsresponse = [];
+            foreach ($groupresults as $groupresult) {
+                $members = groupmode::get_group_members($groupresult->id);
+                $member = reset($members);
+                $userresponse = jqshow_questions_responses::get_question_response_for_user($member->id, $sid, $question->get('id'));
+                $questionsdata[$key]->studentsresponse[$member->id]->userid = $member->id;
+                if ($userresponse !== false) {
+                    $questionsdata[$key]->studentsresponse[$member->id]->response = $userresponse;
+                    switch ($userresponse->get('result')) {
+                        case questions::FAILURE:
+                            $questionsdata[$key]->studentsresponse[$member->id]->responseclass = 'fail';
+                            break;
+                        case questions::SUCCESS:
+                            $questionsdata[$key]->studentsresponse[$member->id]->responseclass = 'success';
+                            break;
+                        case questions::PARTIALLY:
+                            $questionsdata[$key]->studentsresponse[$member->id]->responseclass = 'partially';
+                            break;
+                        case questions::NORESPONSE:
+                        default:
+                            $questionsdata[$key]->studentsresponse[$member->id]->responseclass = 'noresponse';
+                            break;
+                        case questions::NOTEVALUABLE:
+                            $questionsdata[$key]->studentsresponse[$member->id]->responseclass = 'noevaluable';
+                            break;
+                        case questions::INVALID:
+                            $questionsdata[$key]->studentsresponse[$member->id]->responseclass = 'invalid';
+                            break;
+                    }
+                } else {
+                    $questionsdata[$key]->studentsresponse[$member->id]->responseclass = 'noresponse';
                 }
                 $questionsdata[$key]->studentsresponse = array_values($questionsdata[$key]->studentsresponse);
             }
@@ -747,12 +800,35 @@ class sessions {
      */
     public static function get_provisional_ranking(int $sid, int $cmid, int $jqid): array {
         global $PAGE;
-        [$course, $cm] = get_course_and_cm_from_cmid($cmid);
-        $users = enrol_get_course_users($course->id, true);
-        $session = jqshow_sessions::get_record(['id' => $sid]);
-        $students = [];
+
         $context = context_module::instance($cmid);
         $PAGE->set_context($context);
+        $session = jqshow_sessions::get_record(['id' => $sid]);
+
+        if ($session->is_group_mode()) {
+            $students = self::get_provisional_ranking_group($session, $jqid);
+        } else {
+            $students = self::get_provisional_ranking_individual($session, $cmid, $jqid, $context);
+        }
+        return $students;
+    }
+
+    /**
+     * @param jqshow_sessions $session
+     * @param int $cmid
+     * @param int $jqid
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_provisional_ranking_individual(jqshow_sessions $session, int $cmid, int $jqid,
+                                                              context_module $context): array {
+        global $PAGE;
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid);
+        $users = enrol_get_course_users($course->id, true);
+        $students = [];;
+        $sid = $session->get('id');
         foreach ($users as $user) {
             if (!has_capability('mod/jqshow:startsession', $context, $user) &&
                 info_module::is_user_visible($cm, $user->id, false)) {
@@ -769,6 +845,44 @@ class sessions {
                 $student->questionscore = grade::get_rounded_mark($qpoints);
                 $students[] = $student;
             }
+        }
+        usort($students, static fn($a, $b) => $b->userpoints <=> $a->userpoints);
+        $position = 0;
+        foreach ($students as $student) {
+            $student->userposition = ++$position;
+        }
+        return $students;
+    }
+
+
+    /**
+     * @param jqshow_sessions $session
+     * @param int $cmid
+     * @param int $jqid
+     * @return array
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_provisional_ranking_group(jqshow_sessions $session, int $jqid): array {
+
+        $groups = groupmode::get_grouping_groups($session->get('groupings'));
+        $students = [];
+        $sid = $session->get('id');
+        foreach ($groups as $group) {
+            $gmembers = groups_get_members($group->id, 'u.id');
+            $groupmember = reset($gmembers);
+            $groupimage = groupmode::get_group_image($group, $session->get('id'));
+            $student = new stdClass();
+            $student->userimageurl = $groupimage;
+            $student->userfullname = $group->name;
+            $userpoints = grade::get_session_grade($groupmember->id, $sid, $session->get('jqshowid'));
+            $jqresponse = jqshow_questions_responses::get_record(['jqid' => $jqid,
+                'jqshow' => $session->get('jqshowid'), 'session' => $sid, 'userid' => (int) $groupmember->id]);
+            $qpoints = (!$jqresponse) ? 0 : grade::get_simple_mark($jqresponse);
+            $student->userpoints = grade::get_rounded_mark($userpoints);
+            $student->questionscore = grade::get_rounded_mark($qpoints);
+            $students[] = $student;
         }
         usort($students, static fn($a, $b) => $b->userpoints <=> $a->userpoints);
         $position = 0;

@@ -123,7 +123,6 @@ class jqshow {
      * @throws coding_exception
      */
     public static function get_students($cmid) : array {
-        // TODO: control group mode!. maybe it is necesary to create a new function: get_session_students.
         $context = context_module::instance($cmid);
         $participants = self::get_participants($cmid, $context);
         $students = [];
@@ -149,10 +148,10 @@ class jqshow {
         $data = get_course_and_cm_from_cmid($cmid, 'jqshow');
         /** @var cm_info $cm */
         $cm = $data[1];
-        if ($cm->groupmode != '0') {
+        if ($cm->groupmode == '0') {
             return self::get_participants_individual_mode($context);
         } else {
-            return self::get_participants_group_mode($context, $cm);
+            return self::get_participants_group_mode($cm);
         }
     }
 
@@ -161,13 +160,12 @@ class jqshow {
      * @param cm_info $cm
      * @return array
      */
-    private static function get_participants_group_mode($context, cm_info $cm) : array {
+    private static function get_participants_group_mode(cm_info $cm) : array {
         $members = groups_get_grouping_members($cm->groupingid, 'u.id');
         if (!$members) {
             return [];
         }
         return $members;
-//        $participants = get_enrolled_users($context, '', 0, 'u.id', null, 0, 0, true);
     }
 
     /**

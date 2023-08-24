@@ -76,13 +76,18 @@ class teacher_session_view implements renderable, templatable {
                 } else {
                     $data->userresults = sessions::get_session_results($data->sid, $data->cmid);
                 }
-                if ($session->get('sessionmode') === sessions::RACE_PROGRAMMED) { // The race mode also needs the result list data.
-                    // TODO groupmode.
+                if ($session->get('sessionmode') === sessions::RACE_PROGRAMMED) {
+                    // The race mode also needs the result list data.
                     $data->racemode = true;
-                    usort($data->userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
-                    $data->questions = sessions::breakdown_responses_for_race(
-                        $data->userresults, $data->sid, $data->cmid, $session->get('jqshowid')
-                    );
+                    if ($session->is_group_mode()) {
+                        $data->questions = sessions::breakdown_responses_for_race_groups($data->groupresults, $data->sid,
+                            $data->cmid, $session->get('jqshowid'));
+                    } else {
+                        usort($data->userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
+                        $data->questions = sessions::breakdown_responses_for_race(
+                            $data->userresults, $data->sid, $data->cmid, $session->get('jqshowid')
+                        );
+                    }
                 }
                 break;
             case sessions::INACTIVE_MANUAL:
