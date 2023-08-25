@@ -19,8 +19,8 @@
                 {{{ questiontext }}}
             </div>
         </div>
-        <div class="col-12 containt-answers">
-            <div class="left-side">
+        <div class="col-12 containt-answers" id="dragQuestion">
+            <div class="left-side content-options" id="dragOption">
                 {{#leftoptions}}
                     <div class="option"
                          data-stems="{{optionkey}}"
@@ -46,21 +46,25 @@
                                 {{{ optiontext }}}
                             </div>
                         </div>
-                        <div class="option-pointer" data-forstems="{{optionkey}}">
-
+                        <div class="option-pointer drag-element" id="{{optionkey}}-draggable" draggable="true" data-forstems="{{optionkey}}">
+                            <i class="fa fa-circle-o"></i>
                         </div>
                     </div>
                 {{/leftoptions}}
             </div>
-            <div class="right-side">
+            <div class="canvasWrapper">
+                <canvas id="canvas"></canvas>
+                <canvas id="canvasTemp"></canvas>
+            </div>
+            <div class="right-side content-options" id="dropOption">
                 {{#rightoptions}}
                     <div class="option"
                          data-stems="{{optionkey}}"
                          data-questionid="{{questionid}}"
                          data-action="mark-right-option"
                     >
-                        <div class="option-pointer" data-forstems="{{optionkey}}">
-
+                        <div class="option-pointer drag-element drop-element" id="{{optionkey}}-dropzone" data-forstems="{{optionkey}}" data-key="{{key}}">
+                            <i class="fa fa-circle-o"></i>
                         </div>
                         <div class="content-option bg-primary">
                             <div class="content-option-text">
@@ -70,6 +74,9 @@
                     </div>
                 {{/rightoptions}}
             </div>
+        </div>
+        <div class="btn btn-primary ml-auto mt-3" data-action="send-match">
+            {{#str}}send_response, mod_jqshow{{/str}}
         </div>
         <div class="col-12 containt-feedbacks bg-primary" data-region="containt-feedbacks">
             <div class="feedback-title">

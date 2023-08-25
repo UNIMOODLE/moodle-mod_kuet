@@ -51,11 +51,28 @@
 				}
 
 				.option-pointer {
-					width: 38px;
-					height: 38px;
-					border-radius: 38px;
-					border: 5px solid #5A57FF;
+					z-index: 2;
+					display: inline;
+					cursor: grab;
+					i {
+						color: #5a57ff;
+						font-size: 38px;
+						&.linked:before {
+							content:'\f057'
+						}
+					}
 				}
+			}
+		}
+		.canvasWrapper {
+			width: 20%;
+			z-index: -1;
+			position:relative;
+			margin: 20px -9px;
+			canvas {
+				z-index: -1;
+				position: absolute;
+				width: 100%;
 			}
 		}
 		.left-side {
@@ -68,6 +85,9 @@
 			align-items: flex-start;
 			.content-option {
 				margin-left: 10px;
+				i {
+					pointer-events:none;
+				}
 			}
 		}
 	}

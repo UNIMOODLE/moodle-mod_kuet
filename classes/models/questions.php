@@ -35,6 +35,7 @@ use Exception;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\external\getfinalranking_external;
+use mod_jqshow\external\match_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
@@ -267,7 +268,8 @@ class questions {
         foreach ($question->stems as $key => $leftside) {
             $leftoptions[$key] = [
                 'questionid' => $jqshowquestion->get('questionid'),
-                'optionkey' => $key,
+                'key' => $key,
+                'optionkey' => base_convert($key, 16, 2),
                 'optiontext' =>
                     self::get_text($cmid, $leftside, $question->stemformat[$key], $question->id, $question, 'questiontext')
             ];
@@ -276,7 +278,8 @@ class questions {
         foreach ($question->choices as $key => $leftside) {
             $rightoptions[$key] = [
                 'questionid' => $jqshowquestion->get('questionid'),
-                'optionkey' => $key,
+                'key' => $key,
+                'optionkey' => base_convert($key, 10, 26),
                 'optiontext' =>
                     self::get_text($cmid, $leftside, $question->stemformat[$key], $question->id, $question, 'questiontext')
             ];
@@ -294,12 +297,31 @@ class questions {
     /**
      * @param stdClass $data
      * @param string $response
+     * @param int $result
      * @return stdClass
      * @throws JsonException
+     * @throws coding_exception
+     * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
-    public static function export_match_response(stdClass $data, string $response):stdClass {
+    public static function export_match_response(stdClass $data, string $response, int $result):stdClass {
         $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         $data->answered = true;
+        $jsonresponse = json_encode($responsedata->response, JSON_THROW_ON_ERROR);
+        $dataanswer = match_external::match(
+            $jsonresponse,
+            $result,
+            $data->sessionid,
+            $data->jqshowid,
+            $data->cmid,
+            $responsedata->questionid,
+            $data->jqid,
+            $responsedata->timeleft,
+            true
+        );
+        $data->jsonresponse = $jsonresponse;
+        // TODO feedbacks.
         return $data;
     }
 

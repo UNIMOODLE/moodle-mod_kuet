@@ -41,6 +41,7 @@ use mod_jqshow\external\getsession_external;
 use mod_jqshow\external\getsessionresume_external;
 use mod_jqshow\external\getuserquestionresponse_external;
 use mod_jqshow\external\jumptoquestion_external;
+use mod_jqshow\external\match_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
 use mod_jqshow\external\reorderquestions_external;
@@ -151,6 +152,14 @@ $functions = [
         'classname' => multichoice_external::class,
         'methodname' => 'multichoice',
         'description' => 'Multichoice reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_match' => [
+        'classname' => match_external::class,
+        'methodname' => 'match',
+        'description' => 'Match reply.',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
@@ -347,6 +356,7 @@ $services = [
             'mod_jqshow_copyquestion',
             'mod_jqshow_editsessionsettings',
             'mod_jqshow_multichoice',
+            'mod_jqshow_match',
             'mod_jqshow_nextquestion',
             'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',

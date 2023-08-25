@@ -122,7 +122,7 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = questions::export_match_response($data, $response->get('response'));
+                            $data = questions::export_match_response($data, $response->get('response'), $response->get('result'));
                         }
                         break;
                     default:
