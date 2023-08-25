@@ -192,4 +192,22 @@ class groupmode {
             groups_assign_grouping($groupingid, $groupid);
         }
     }
+
+    /**
+     * @param int $userid
+     * @param int $groupingid
+     * @return mixed|null
+     * @throws dml_exception
+     */
+    public static function get_user_group(int $userid, int $groupingid) {
+        $groups = self::get_grouping_groups($groupingid);
+        $groupselected = null;
+        foreach ($groups as $group) {
+            if (groups_is_member($group->id, $userid)) {
+                $groupselected = $group;
+                break;
+            }
+        }
+        return $groupselected;
+    }
 }
