@@ -20,7 +20,14 @@ let REGION = {
     LEFT_OPTION_SELECTOR: '#dragOption .option',
     OPTION: '.option',
     CLEARPATH: '#dropOption .drop-element',
-    POINTER: '.option-pointer'
+    POINTER: '.option-pointer',
+    NEXT: '[data-action="next-question"]',
+    TIMER: '[data-region="question-timer"]',
+    SECONDS: '[data-region="seconds"]',
+    CONTENTFEEDBACKS: '[data-region="containt-feedbacks"]',
+    FEEDBACK: '[data-region="statement-feedback"]',
+    FEEDBACKANSWER: '[data-region="answer-feedback"]',
+    FEEDBACKBACGROUND: '[data-region="feedback-background"]',
 };
 
 let SERVICES = {
@@ -45,13 +52,7 @@ let color;
 let toucheX;
 let toucheY;
 let linkList = [];
-/* Let linkList = [{dragId: "7-draggable", dropId: "7-dropzone", color: "#264653"}]; */ // Example for user response
-let linkCorrection = []; // TODO
-/* let linkCorrection = [{dragId: "7-draggable", dropId: "7-dropzone", color: "#33991a"},
-    {dragId: "8-draggable", dropId: "8-dropzone", color: "#4c061d"},
-    {dragId: "9-draggable", dropId: "9-dropzone", color: "#d17a22"},
-    {dragId: "10-draggable", dropId: "10-dropzone", color: "#3b3923"},
-    {dragId: "11-draggable", dropId: "11-dropzone", color: "#3b5249"}]; // TODO */
+let linkCorrection = [];
 
 /** @type {jQuery} The jQuery node for the page region. */
 Match.prototype.node = null;
@@ -76,12 +77,17 @@ function Match(selector, showquestionfeedback = false, manualmode = false, jsonr
     manualMode = manualmode;
     questionEnd = false;
     if (jsonresponse !== '') {
-        linkList = JSON.parse(jsonresponse);
-        // TODO show feedback, and avoid clicks.
+        this.answered(jsonresponse);
     }
     this.initMatch();
-    this.createLinkCorrection();
+    this.createLinkCorrection(); // TODO seems unnecessary, check.
 }
+
+Match.prototype.answered = function(jsonresponse) {
+    linkList = JSON.parse(jsonresponse);
+    jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
+    jQuery(REGION.NEXT).removeClass('d-none');
+};
 
 Match.prototype.initMatch = function() {
     let height = jQuery(REGION.LEFT_OPTION).height();
@@ -100,6 +106,52 @@ Match.prototype.initMatch = function() {
     Match.prototype.drawLinks();
     jQuery(REGION.CLEARPATH).on('click', Match.prototype.clearPath.bind(this));
     jQuery(ACTION.SEND_RESPONSE).on('click', Match.prototype.sendResponse);
+    Match.prototype.initEvents();
+};
+
+Match.prototype.initEvents = function() {
+    addEventListener('timeFinish', () => {
+        Match.prototype.sendResponse();
+    }, {once: true});
+    addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+        if (questionEnd !== true) {
+            Match.prototype.sendResponse();
+        }
+        e.detail.statistics.forEach((statistic) => {
+            jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+        });
+    }, {once: true});
+    addEventListener('pauseQuestion_' + jqid, () => {
+        Match.prototype.pauseQuestion();
+    }, false);
+    addEventListener('playQuestion_' + jqid, () => {
+        Match.prototype.playQuestion();
+    }, false);
+    addEventListener('showAnswers_' + jqid, () => {
+        Match.prototype.showAnswers();
+    }, false);
+    addEventListener('hideAnswers_' + jqid, () => {
+        Match.prototype.hideAnswers();
+    }, false);
+    addEventListener('showStatistics_' + jqid, () => {
+        Match.prototype.showStatistics();
+    }, false);
+    addEventListener('hideStatistics_' + jqid, () => {
+        Match.prototype.hideStatistics();
+    }, false);
+    addEventListener('showFeedback_' + jqid, () => {
+        Match.prototype.showFeedback();
+    }, false);
+    addEventListener('hideFeedback_' + jqid, () => {
+        Match.prototype.hideFeedback();
+    }, false);
+    window.onbeforeunload = function() {
+        if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
+            Match.prototype.sendResponse();
+            return 'Because the question is overdue and an attempt has been made to reload the page,' +
+                ' the question has remained unanswered.';
+        }
+    };
 };
 
 Match.prototype.createLinkCorrection = function() { // TODO is unnecessary for debugging.
@@ -171,6 +223,7 @@ Match.prototype.sendResponse = function() {
             if (response.reply_status === true) {
                 // TODO show feedbacks.
                 jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
+                jQuery(REGION.NEXT).removeClass('d-none');
                 dispatchEvent(Match.prototype.studentQuestionEnd);
             } else {
                 alert('error');
@@ -201,6 +254,8 @@ Match.prototype.onDragStart = function(event) {
         .dataTransfer
         .setData('text/plain', event.target.id);
     startPoint = event.target.id;
+    // eslint-disable-next-line no-console
+    console.log(startPoint);
     let options = document.querySelectorAll(REGION.LEFT_OPTION_SELECTOR);
     color = Match.prototype.getRandomColor(Array.from(options).indexOf(event.currentTarget));
 };
@@ -261,12 +316,16 @@ Match.prototype.baseConvert = function(number, frombase, tobase) {
 
 /* TOUCHE DEVICE */
 Match.prototype.touchStart = function(e) {
-    let dragEl = e.path.find(x => {
-        return x.className === "drag-element";
-    });
-    startPoint = jQuery(dragEl).get(0).id;
+    if (e.target.id === undefined || e.target.id === '') {
+        if (jQuery(e.target).parent().attr('id') !== undefined) {
+            startPoint = jQuery(e.target).parent().attr('id');
+        } else {
+            startPoint = jQuery(e.target).closest('.option').find(".drag-element").first().attr('id');
+        }
+    }
+
     let options = document.querySelectorAll(REGION.LEFT_OPTION_SELECTOR);
-    color = Match.prototype.getRandomColor(Array.from(options).indexOf(event.currentTarget));
+    color = Match.prototype.getRandomColor(Array.from(options).indexOf(e.currentTarget));
 };
 
 Match.prototype.touchMove = function(e) {
@@ -278,6 +337,8 @@ Match.prototype.touchMove = function(e) {
 
 Match.prototype.touchEnd = function(e) {
     jQuery(REGION.RIGHT_OPTION).find(REGION.OPTION).toArray().forEach(target => {
+        // eslint-disable-next-line no-console
+        console.log(target);
         let box2 = target.getBoundingClientRect(),
             x = box2.left,
             y = box2.top,
@@ -287,7 +348,17 @@ Match.prototype.touchEnd = function(e) {
             r = x + w;
 
         if (toucheX > x && toucheX < r && toucheY > y && toucheY < b) {
-            Match.prototype.Drop(startPoint, target.id);
+            let dropId;
+            if (target.id === undefined || target.id === '' || target.id === 'dropOption') {
+                if (jQuery(target).parent().attr('id') !== undefined && jQuery(target).parent().attr('id') !== 'dropOption') {
+                    dropId = jQuery(target).parent().attr('id');
+                } else {
+                    dropId = jQuery(target).closest('.option-right').find(".drop-element").first().attr('id');
+                }
+            } else {
+                dropId = target.id;
+            }
+            Match.prototype.Drop(startPoint, dropId);
         } else {
             return false;
         }
@@ -375,6 +446,64 @@ Match.prototype.clearPathTemp = function() {
     let canvas = jQuery(REGION.CANVASTEMP).get(0);
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+};
+
+/* CLICKS */
+
+
+/* EVENTS */ // TODO adjust
+Match.prototype.pauseQuestion = function() {
+    dispatchEvent(new Event('pauseQuestion'));
+    jQuery(REGION.TIMER).css('z-index', 3);
+    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
+    jQuery(ACTION.REPLY).css('pointer-events', 'none');
+};
+
+Match.prototype.playQuestion = function() {
+    dispatchEvent(new Event('playQuestion'));
+    jQuery(REGION.TIMER).css('z-index', 1);
+    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
+    jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+};
+
+Match.prototype.showAnswers = function() {
+    if (correctAnswers !== null && questionEnd === true) {
+        jQuery('.feedback-icon').css('display', 'flex');
+        let correctAnswersSplit = correctAnswers.split(',');
+        correctAnswersSplit.forEach((answ) => {
+            jQuery('[data-answerid="' + answ + '"] .incorrect').css('display', 'none');
+        });
+    }
+};
+
+Match.prototype.hideAnswers = function() {
+    if (questionEnd === true) {
+        jQuery('.feedback-icon').css('display', 'none');
+    }
+};
+
+Match.prototype.showStatistics = function() {
+    if (questionEnd === true) {
+        jQuery('.statistics-icon').css('display', 'flex');
+    }
+};
+
+Match.prototype.hideStatistics = function() {
+    if (questionEnd === true) {
+        jQuery('.statistics-icon').css('display', 'none');
+    }
+};
+
+Match.prototype.showFeedback = function() {
+    if (questionEnd === true) {
+        jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+    }
+};
+
+Match.prototype.hideFeedback = function() {
+    if (questionEnd === true) {
+        jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'none', 'z-index': 0});
+    }
 };
 
 

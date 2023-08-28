@@ -1,5 +1,4 @@
 "use strict";
-/* eslint-disable no-unused-vars */
 
 import jQuery from 'jquery';
 import Templates from 'core/templates';

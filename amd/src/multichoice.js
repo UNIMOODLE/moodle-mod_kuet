@@ -82,45 +82,48 @@ MultiChoice.prototype.initMultichoice = function() {
     this.node.find(ACTION.REPLY).on('click', this.reply.bind(this));
     this.node.find(ACTION.MULTIANSWER).on('click', this.markAnswer.bind(this));
     this.node.find(ACTION.SENDMULTIANSWER).on('click', this.reply.bind(this));
-    let that = this;
+    MultiChoice.prototype.initEvents();
+};
+
+MultiChoice.prototype.initEvents = function() {
     addEventListener('timeFinish', () => {
-        this.reply();
+        MultiChoice.prototype.reply();
     }, {once: true});
     addEventListener('teacherQuestionEnd_' + jqid, (e) => {
         if (questionEnd !== true) {
-            this.reply();
+            MultiChoice.prototype.reply();
         }
         e.detail.statistics.forEach((statistic) => {
             jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
         });
     }, {once: true});
     addEventListener('pauseQuestion_' + jqid, () => {
-        this.pauseQuestion();
+        MultiChoice.prototype.pauseQuestion();
     }, false);
     addEventListener('playQuestion_' + jqid, () => {
-        this.playQuestion();
+        MultiChoice.prototype.playQuestion();
     }, false);
     addEventListener('showAnswers_' + jqid, () => {
-        this.showAnswers();
+        MultiChoice.prototype.showAnswers();
     }, false);
     addEventListener('hideAnswers_' + jqid, () => {
-        this.hideAnswers();
+        MultiChoice.prototype.hideAnswers();
     }, false);
     addEventListener('showStatistics_' + jqid, () => {
-        this.showStatistics();
+        MultiChoice.prototype.showStatistics();
     }, false);
     addEventListener('hideStatistics_' + jqid, () => {
-        this.hideStatistics();
+        MultiChoice.prototype.hideStatistics();
     }, false);
     addEventListener('showFeedback_' + jqid, () => {
-        this.showFeedback();
+        MultiChoice.prototype.showFeedback();
     }, false);
     addEventListener('hideFeedback_' + jqid, () => {
-        this.hideFeedback();
+        MultiChoice.prototype.hideFeedback();
     }, false);
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
-            that.reply();
+            MultiChoice.prototype.reply();
             return 'Because the question is overdue and an attempt has been made to reload the page,' +
                 ' the question has remained unanswered.';
         }

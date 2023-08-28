@@ -58,7 +58,7 @@
             </div>
             <div class="right-side content-options" id="dropOption">
                 {{#rightoptions}}
-                    <div class="option"
+                    <div class="option option-right"
                          data-stems="{{optionkey}}"
                          data-questionid="{{questionid}}"
                          data-action="mark-right-option"
@@ -75,9 +75,11 @@
                 {{/rightoptions}}
             </div>
         </div>
-        <div class="btn btn-primary ml-auto mt-3" data-action="send-match">
-            {{#str}}send_response, mod_jqshow{{/str}}
-        </div>
+        {{^answered}}
+            <div class="btn btn-primary ml-auto mt-3" data-action="send-match">
+                {{#str}}send_response, mod_jqshow{{/str}}
+            </div>
+        {{/answered}}
         <div class="col-12 containt-feedbacks bg-primary" data-region="containt-feedbacks">
             <div class="feedback-title">
                 {{#pix}}q/feedback, mod_jqshow{{/pix}}
