@@ -29,6 +29,14 @@
 					align-items: center;
 					color: white;
 					font-size: 24px;
+					box-shadow: none;
+					transition: box-shadow 0.2s ease-in-out;
+					&:hover {
+						cursor: pointer;
+						text-decoration: none;
+						box-shadow: 3px 3px 5px rgba(0, 0, 0, .3);
+						transition: box-shadow 0.2s ease-in-out;
+					}
 					.feedback-icons,
 					.statistics-icons {
 						.feedback-icon,
@@ -47,6 +55,9 @@
 								width: auto;
 							}
 						}
+					}
+					.content-option-text {
+						pointer-events: none;
 					}
 				}
 
@@ -85,9 +96,13 @@
 			align-items: flex-start;
 			.content-option {
 				margin-left: 10px;
+				pointer-events: none;
 				i {
 					pointer-events:none;
 				}
+			}
+			.option-pointer {
+				cursor: pointer;
 			}
 		}
 	}

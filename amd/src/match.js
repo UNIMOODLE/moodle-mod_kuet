@@ -18,6 +18,8 @@ let REGION = {
     CANVAS: '#canvas',
     CANVASTEMP: '#canvasTemp',
     LEFT_OPTION_SELECTOR: '#dragOption .option',
+    LEFT_OPTION_CLICKABLE: '#dragOption .option.option-left .content-option',
+    RIGHT_OPTION_CLICKABLE: '#dropOption .option.option-right .content-option',
     OPTION: '.option',
     CLEARPATH: '#dropOption .drop-element',
     POINTER: '.option-pointer',
@@ -106,6 +108,7 @@ Match.prototype.initMatch = function() {
     Match.prototype.drawLinks();
     jQuery(REGION.CLEARPATH).on('click', Match.prototype.clearPath.bind(this));
     jQuery(ACTION.SEND_RESPONSE).on('click', Match.prototype.sendResponse);
+    jQuery(REGION.LEFT_OPTION_CLICKABLE).on('click', Match.prototype.leftOptionSelected.bind(this));
     Match.prototype.initEvents();
 };
 
@@ -320,7 +323,7 @@ Match.prototype.touchStart = function(e) {
         if (jQuery(e.target).parent().attr('id') !== undefined) {
             startPoint = jQuery(e.target).parent().attr('id');
         } else {
-            startPoint = jQuery(e.target).closest('.option').find(".drag-element").first().attr('id');
+            startPoint = jQuery(e.target).closest('.option-left').find(".drag-element").first().attr('id');
         }
     }
 
@@ -449,7 +452,47 @@ Match.prototype.clearPathTemp = function() {
 };
 
 /* CLICKS */
+Match.prototype.leftOptionSelected = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    jQuery.each(jQuery(REGION.LEFT_OPTION_CLICKABLE), function(index, item) {
+        if (e.target !== item) {
+            jQuery(item).parent().addClass('disabled');
+        } else {
+            jQuery(item).parents('.option').first().find('.option-pointer').addClass('disabled');
+            let options = document.querySelectorAll(REGION.LEFT_OPTION_SELECTOR);
+            color = Match.prototype.getRandomColor(Array.from(options).indexOf(jQuery(item).parents('.option').first().get(0)));
+        }
+    });
+    jQuery.each(jQuery(REGION.CLEARPATH), function(index, item) {
+        jQuery(item).addClass('disabled');
+    });
+    jQuery.each(jQuery(REGION.RIGHT_OPTION_CLICKABLE), function(index, item) {
+        jQuery(item).css({'pointer-events': 'inherit'});
+    });
+    jQuery(REGION.RIGHT_OPTION_CLICKABLE).on('click', Match.prototype.rightOptionSelected.bind(this));
+};
 
+Match.prototype.rightOptionSelected = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    jQuery.each(jQuery(REGION.RIGHT_OPTION_CLICKABLE), function(index, item) {
+        if (e.target === item) {
+            let dragId = jQuery('.option-left:not(.disabled) .drag-element').attr('id');
+            let dropId = jQuery(item).parents('.option-right').first().find('.drop-element').attr('id');
+            jQuery(dropId).click();
+            Match.prototype.Drop(dragId, dropId);
+            jQuery('.option-left').removeClass('disabled');
+            jQuery(REGION.RIGHT_OPTION_CLICKABLE).off('click');
+            jQuery.each(jQuery(REGION.LEFT_OPTION_CLICKABLE), function(index, item) {
+                jQuery(item).css({'pointer-events': 'none'});
+            });
+            jQuery.each(jQuery(REGION.CLEARPATH), function(index, item) {
+                jQuery(item).removeClass('disabled');
+            });
+        }
+    });
+};
 
 /* EVENTS */ // TODO adjust
 Match.prototype.pauseQuestion = function() {
