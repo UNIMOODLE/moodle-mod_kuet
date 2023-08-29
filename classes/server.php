@@ -36,6 +36,7 @@ class server extends websockets {
     protected $students = [];
     protected $teacher = [];
     protected $sidusers = [];
+    protected $sidgroups = [];
     protected $password = 'elktkktagqes';
 
     /**
@@ -204,6 +205,10 @@ class server extends websockets {
     protected function get_response_from_action(websocketuser $user, string $useraction, array $data): string {
         // Prepare data to be sent to client.
         switch ($useraction) {
+            case 'newgroup':
+                $this->newuser($user, $data);
+                $this->newgroup($user, $data);
+                return $this->manage_newgroup_for_sid($user, $data);
             case 'newuser':
                 $this->newuser($user, $data);
                 if (isset($data['isteacher']) && $data['isteacher'] === true) {
@@ -329,6 +334,19 @@ class server extends websockets {
     }
 
     /**
+     * @param array $data
+     * @return void
+     */
+    private function newgroup(websocketuser $user, array $data) {
+        $this->sidgroups[$data['sid']][$data['groupid']]->groupid = $data['groupid'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->groupname = $data['name'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->grouppicture = $data['pic'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->sid = $data['sid'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->cmid = $data['cmid'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->userid = $data['userid'];
+    }
+    /**
      * @param websocketuser $user
      * @param array $data
      * @return string
@@ -390,6 +408,35 @@ class server extends websockets {
                 'count' => count($this->students[$data['sid']])
             ], JSON_THROW_ON_ERROR)
         ));
+    }
+
+    /**
+     * @param websocketuser $user
+     * @param array $data
+     * @return string
+     * @throws JsonException
+     */
+    private function manage_newgroup_for_sid(websocketuser $user, array $data): string {
+        $this->users[$user->usersocketid]->isteacher = false;
+        $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
+        $this->students[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
+
+        $groupsdata = [];
+        foreach ($this->sidgroups[$data['sid']] as $key => $group) {
+            $groupsdata[$key]['groupid'] = $group->groupid;
+            $groupsdata[$key]['picture'] = $group->grouppicture;
+            $groupsdata[$key]['usersocketid'] = $data['usersocketid'];
+            $groupsdata[$key]['name'] = $group->groupname;
+            $groupsdata[$key]['numgroupusers'] = count($group->users);
+        }
+        return $this->mask(
+            encrypt($this->password, json_encode([
+                    'action' => 'newgroup',
+                    'usersocketid' => $user->usersocketid,
+                    'groups' => array_values($groupsdata),
+                    'count' => count($this->sidgroups[$data['sid']])
+                ], JSON_THROW_ON_ERROR)
+            ));
     }
 }
 

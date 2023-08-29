@@ -6,7 +6,12 @@
             </div>
             <div class="waiting-room-participants">
                 <div class="waiting-room-subtitle">
-                    <h5>{{#pix}}s/users, mod_jqshow{{/pix}} {{#str}}ready_users, mod_jqshow{{/str}}</h5>
+                    {{#isgroupmode}}
+                        <h5>{{#pix}}s/groups, mod_jqshow{{/pix}} {{#str}}ready_groups, mod_jqshow{{/str}}</h5>
+                    {{/isgroupmode}}
+                    {{^isgroupmode}}
+                        <h5>{{#pix}}s/users, mod_jqshow{{/pix}} {{#str}}ready_users, mod_jqshow{{/str}}</h5>
+                    {{/isgroupmode}}
                 </div>
                 <div class="participants" data-region="active-users">
 
