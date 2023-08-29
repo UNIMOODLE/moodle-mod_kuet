@@ -69,7 +69,8 @@ class sessions {
             case sessionsmodel::SESSION_TIME:
                 $ds->timemode = get_string('session_time', 'mod_jqshow');
                 $ds->sessiontime = userdate($session->get('sessiontime'), '%Mm %Ss');
-                $ds->timeperquestion = userdate(($session->get('sessiontime') / $ds->questions_number), '%Ss');
+                $ds->timeperquestion =
+                    $ds->questions_number !== 0 ? userdate(($session->get('sessiontime') / $ds->questions_number), '%Ss') : 0;
                 break;
             case sessionsmodel::QUESTION_TIME:
                 $ds->timemode = get_string('question_time', 'mod_jqshow');

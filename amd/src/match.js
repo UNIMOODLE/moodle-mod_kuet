@@ -86,6 +86,7 @@ function Match(selector, showquestionfeedback = false, manualmode = false, jsonr
 }
 
 Match.prototype.answered = function(jsonresponse) {
+    Match.prototype.allDisabled();
     linkList = JSON.parse(jsonresponse);
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.NEXT).removeClass('d-none');
@@ -107,8 +108,8 @@ Match.prototype.initMatch = function() {
     jQuery(REGION.RIGHT_OPTION).find(REGION.OPTION).toArray().forEach(dropEl => this.addTargetEvents(dropEl));
     Match.prototype.drawLinks();
     jQuery(REGION.CLEARPATH).on('click', Match.prototype.clearPath.bind(this));
-    jQuery(ACTION.SEND_RESPONSE).on('click', Match.prototype.sendResponse);
     jQuery(REGION.LEFT_OPTION_CLICKABLE).on('click', Match.prototype.leftOptionSelected.bind(this));
+    jQuery(ACTION.SEND_RESPONSE).on('click', Match.prototype.sendResponse);
     Match.prototype.initEvents();
 };
 
@@ -181,14 +182,15 @@ Match.prototype.getRandomColor = function(position) {
 };
 
 Match.prototype.sendResponse = function() {
+    Match.prototype.allDisabled();
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Match.prototype.endTimer);
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
-        let result = 3; // No response
+        let result = 3; // No response.
         let corrects = 0;
         let fails = 0;
-        linkList.forEach(userR =>{
+        linkList.forEach(userR => {
             if (userR.stemDragId === userR.stemDropId) {
                 userR.color = "green";
                 corrects++;
@@ -198,13 +200,13 @@ Match.prototype.sendResponse = function() {
             }
         });
         if (corrects !== 0) {
-            result = 2; // Partially
+            result = 2; // Partially.
         }
         if (jQuery(REGION.LEFT_OPTION_SELECTOR).length === corrects) {
-            result = 1; // Correct
+            result = 1; // Correct.
         }
         if (jQuery(REGION.LEFT_OPTION_SELECTOR).length === fails) {
-            result = 0; // Failure
+            result = 0; // Failure.
         }
         Match.prototype.drawLinks();
 
@@ -246,9 +248,23 @@ Match.prototype.addEventsDragAndDrop = function(el) {
     el.addEventListener('touchend', Match.prototype.touchEnd, false);
 };
 
+Match.prototype.removeEventsDragAndDrop = function(el) {
+    // TODO clicks.
+    el.removeEventListener('dragstart', Match.prototype.onDragStart, false);
+    el.removeEventListener('dragend', Match.prototype.onDragEnd, false);
+    el.removeEventListener('touchstart', Match.prototype.touchStart, false);
+    el.removeEventListener('touchmove', Match.prototype.touchMove, false);
+    el.removeEventListener('touchend', Match.prototype.touchEnd, false);
+};
+
 Match.prototype.addTargetEvents = function(target) {
     target.addEventListener('dragover', Match.prototype.onDragOver, false);
     target.addEventListener('drop', Match.prototype.onDrop, false);
+};
+
+Match.prototype.removeTargetEvents = function(target) {
+    target.removeEventListener('dragover', Match.prototype.onDragOver, false);
+    target.removeEventListener('drop', Match.prototype.onDrop, false);
 };
 
 /* DRAG AND DROP */
@@ -257,8 +273,6 @@ Match.prototype.onDragStart = function(event) {
         .dataTransfer
         .setData('text/plain', event.target.id);
     startPoint = event.target.id;
-    // eslint-disable-next-line no-console
-    console.log(startPoint);
     let options = document.querySelectorAll(REGION.LEFT_OPTION_SELECTOR);
     color = Match.prototype.getRandomColor(Array.from(options).indexOf(event.currentTarget));
 };
@@ -340,8 +354,6 @@ Match.prototype.touchMove = function(e) {
 
 Match.prototype.touchEnd = function(e) {
     jQuery(REGION.RIGHT_OPTION).find(REGION.OPTION).toArray().forEach(target => {
-        // eslint-disable-next-line no-console
-        console.log(target);
         let box2 = target.getBoundingClientRect(),
             x = box2.left,
             y = box2.top,
@@ -460,8 +472,6 @@ Match.prototype.leftOptionSelected = function(e) {
             jQuery(item).parent().addClass('disabled');
         } else {
             jQuery(item).parents('.option').first().find('.option-pointer').addClass('disabled');
-            let options = document.querySelectorAll(REGION.LEFT_OPTION_SELECTOR);
-            color = Match.prototype.getRandomColor(Array.from(options).indexOf(jQuery(item).parents('.option').first().get(0)));
         }
     });
     jQuery.each(jQuery(REGION.CLEARPATH), function(index, item) {
@@ -471,30 +481,52 @@ Match.prototype.leftOptionSelected = function(e) {
         jQuery(item).css({'pointer-events': 'inherit'});
     });
     jQuery(REGION.RIGHT_OPTION_CLICKABLE).on('click', Match.prototype.rightOptionSelected.bind(this));
+    let options = document.querySelectorAll(REGION.LEFT_OPTION_SELECTOR);
+    color = Match.prototype.getRandomColor(Array.from(options).indexOf(jQuery(e.target).parents('.option').first().get(0)));
 };
 
 Match.prototype.rightOptionSelected = function(e) {
     e.preventDefault();
     e.stopPropagation();
+    let dragId = jQuery('.option-left:not(.disabled)').find('.drag-element').attr('id');
     jQuery.each(jQuery(REGION.RIGHT_OPTION_CLICKABLE), function(index, item) {
         if (e.target === item) {
-            let dragId = jQuery('.option-left:not(.disabled) .drag-element').attr('id');
             let dropId = jQuery(item).parents('.option-right').first().find('.drop-element').attr('id');
-            jQuery(dropId).click();
+            document.getElementById(dropId).click();
             Match.prototype.Drop(dragId, dropId);
-            jQuery('.option-left').removeClass('disabled');
-            jQuery(REGION.RIGHT_OPTION_CLICKABLE).off('click');
-            jQuery.each(jQuery(REGION.LEFT_OPTION_CLICKABLE), function(index, item) {
-                jQuery(item).css({'pointer-events': 'none'});
-            });
-            jQuery.each(jQuery(REGION.CLEARPATH), function(index, item) {
-                jQuery(item).removeClass('disabled');
-            });
+            jQuery(dragId).removeClass('disabled');
         }
+        jQuery('.option-left').removeClass('disabled');
+        jQuery('.drag-element').removeClass('disabled');
+        jQuery(REGION.RIGHT_OPTION_CLICKABLE).off('click');
+        jQuery.each(jQuery(REGION.CLEARPATH), function(index, item) {
+            jQuery(item).removeClass('disabled');
+        });
+        jQuery.each(jQuery(REGION.RIGHT_OPTION_CLICKABLE), function(index, item) {
+            jQuery(item).css({'pointer-events': 'none'});
+        });
     });
 };
 
-/* EVENTS */ // TODO adjust
+Match.prototype.allDisabled = function() {
+    jQuery.each(jQuery(REGION.LEFT_OPTION_CLICKABLE), function(index, item) {
+        jQuery(item).css({'pointer-events': 'none'});
+    });
+    jQuery.each(jQuery(REGION.RIGHT_OPTION_CLICKABLE), function(index, item) {
+        jQuery(item).css({'pointer-events': 'none'});
+    });
+    jQuery.each(jQuery(REGION.POINTER), function(index, item) {
+        jQuery(item).css({'pointer-events': 'none'});
+    });
+    jQuery(REGION.CONTAINER_ANSWERS).unbind('dragover');
+    jQuery(REGION.LEFT_OPTION).find(REGION.OPTION).toArray().forEach(dragEl => this.removeEventsDragAndDrop(dragEl));
+    jQuery(REGION.RIGHT_OPTION).find(REGION.OPTION).toArray().forEach(dropEl => this.removeTargetEvents(dropEl));
+    jQuery(REGION.CLEARPATH).off('click');
+    jQuery(REGION.LEFT_OPTION_CLICKABLE).off('click');
+    jQuery(ACTION.SEND_RESPONSE).off('click');
+};
+
+/* EVENTS */ // TODO adjust.
 Match.prototype.pauseQuestion = function() {
     dispatchEvent(new Event('pauseQuestion'));
     jQuery(REGION.TIMER).css('z-index', 3);
