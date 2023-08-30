@@ -1,5 +1,9 @@
 .container-fluid.question {
 	padding: 40px;
+	.disabled {
+		pointer-events: none;
+		opacity: .5;
+	}
 	.content-indicators {
 		display: flex;
 		flex-flow: row nowrap;

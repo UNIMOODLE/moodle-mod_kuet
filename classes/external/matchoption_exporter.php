@@ -38,7 +38,7 @@ class matchoption_exporter extends exporter {
                 'type' => PARAM_INT,
             ],
             'optionkey' => [
-                'type' => PARAM_INT,
+                'type' => PARAM_RAW,
             ],
             'optiontext' => [
                 'type' => PARAM_RAW,

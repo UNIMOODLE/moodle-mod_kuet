@@ -11,6 +11,7 @@ let ACTION = {
 
 let REGION = {
     ROOT: '[data-region="question-content"]',
+    MATCH: '[data-region="match"]',
     LOADING: '[data-region="overlay-icon-container"]',
     LEFT_OPTION: '#dragOption',
     RIGHT_OPTION: '#dropOption',
@@ -78,27 +79,44 @@ function Match(selector, showquestionfeedback = false, manualmode = false, jsonr
     showQuestionFeedback = showquestionfeedback;
     manualMode = manualmode;
     questionEnd = false;
+    linkList = [];
     if (jsonresponse !== '') {
         this.answered(jsonresponse);
+        if (manualMode === false || jQuery('.modal-body').length) {
+            this.showAnswers();
+            if (showQuestionFeedback === true) {
+                this.showFeedback();
+            }
+        }
     }
-    this.initMatch();
+    setTimeout(() => { // For modal preview, is executed before the DOM is rendered.
+        this.initMatch();
+    }, 500);
     this.createLinkCorrection(); // TODO seems unnecessary, check.
 }
 
 Match.prototype.answered = function(jsonresponse) {
     Match.prototype.allDisabled();
     linkList = JSON.parse(jsonresponse);
+    Match.prototype.drawResponse();
+    questionEnd = true;
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
-    jQuery(REGION.NEXT).removeClass('d-none');
+    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
+    jQuery(REGION.CONTAINER_ANSWERS).css('z-index', 3);
+    if (manualMode === false) {
+        jQuery(REGION.NEXT).removeClass('d-none');
+    }
 };
 
 Match.prototype.initMatch = function() {
-    let height = jQuery(REGION.LEFT_OPTION).height();
-    jQuery(REGION.CANVAS).attr('height', height);
+    let heightLeft = jQuery(REGION.LEFT_OPTION).height();
+    let heightRight = jQuery(REGION.RIGHT_OPTION).height();
+    let canvasHeight = heightLeft > heightRight ? heightLeft : heightRight;
+    jQuery(REGION.CANVAS).attr('height', canvasHeight);
     jQuery(REGION.CANVAS).attr('width', jQuery(REGION.CANVAS).width());
 
     jQuery(REGION.CANVASTEMP).attr('width', jQuery(REGION.CANVASTEMP).width());
-    jQuery(REGION.CANVASTEMP).attr('height', height);
+    jQuery(REGION.CANVASTEMP).attr('height', canvasHeight);
     jQuery(REGION.CONTAINER_ANSWERS).bind('dragover', function(){
         let top = window.event.pageY,
             left = window.event.pageX;
@@ -117,38 +135,41 @@ Match.prototype.initEvents = function() {
     addEventListener('timeFinish', () => {
         Match.prototype.sendResponse();
     }, {once: true});
-    addEventListener('teacherQuestionEnd_' + jqid, (e) => {
-        if (questionEnd !== true) {
-            Match.prototype.sendResponse();
-        }
-        e.detail.statistics.forEach((statistic) => {
-            jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
-        });
-    }, {once: true});
-    addEventListener('pauseQuestion_' + jqid, () => {
-        Match.prototype.pauseQuestion();
-    }, false);
-    addEventListener('playQuestion_' + jqid, () => {
-        Match.prototype.playQuestion();
-    }, false);
-    addEventListener('showAnswers_' + jqid, () => {
-        Match.prototype.showAnswers();
-    }, false);
-    addEventListener('hideAnswers_' + jqid, () => {
-        Match.prototype.hideAnswers();
-    }, false);
-    addEventListener('showStatistics_' + jqid, () => {
-        Match.prototype.showStatistics();
-    }, false);
-    addEventListener('hideStatistics_' + jqid, () => {
-        Match.prototype.hideStatistics();
-    }, false);
-    addEventListener('showFeedback_' + jqid, () => {
-        Match.prototype.showFeedback();
-    }, false);
-    addEventListener('hideFeedback_' + jqid, () => {
-        Match.prototype.hideFeedback();
-    }, false);
+    if (manualMode !== false) {
+        addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                Match.prototype.sendResponse();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                // TODO.
+            });
+        }, {once: true});
+        addEventListener('pauseQuestion_' + jqid, () => {
+            Match.prototype.pauseQuestion();
+        }, false);
+        addEventListener('playQuestion_' + jqid, () => {
+            Match.prototype.playQuestion();
+        }, false);
+        addEventListener('showAnswers_' + jqid, () => {
+            Match.prototype.showAnswers();
+        }, false);
+        addEventListener('hideAnswers_' + jqid, () => {
+            Match.prototype.hideAnswers();
+        }, false);
+        addEventListener('showStatistics_' + jqid, () => {
+            Match.prototype.showStatistics();
+        }, false);
+        addEventListener('hideStatistics_' + jqid, () => {
+            Match.prototype.hideStatistics();
+        }, false);
+        addEventListener('showFeedback_' + jqid, () => {
+            Match.prototype.showFeedback();
+        }, false);
+        addEventListener('hideFeedback_' + jqid, () => {
+            Match.prototype.hideFeedback();
+        }, false);
+    }
+
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
             Match.prototype.sendResponse();
@@ -162,9 +183,11 @@ Match.prototype.createLinkCorrection = function() { // TODO is unnecessary for d
     jQuery.each(jQuery(REGION.LEFT_OPTION_SELECTOR), function(index, item) {
         let dragId = jQuery(item).data('stems') + '-draggable';
         let steam = Match.prototype.baseConvert(jQuery(item).data('stems'), 2, 16);
-        let dropId = Match.prototype.baseConvert(steam, 10, 26) + '-draggable';
+        let dropId = Match.prototype.baseConvert(steam, 10, 26) + '-dropzone';
         linkCorrection.push({dragId: dragId, dropId: dropId});
     });
+    // eslint-disable-next-line no-console
+    console.log(linkCorrection);
 };
 
 Match.prototype.getRandomColor = function(position) {
@@ -181,6 +204,35 @@ Match.prototype.getRandomColor = function(position) {
     return colorArray[position];
 };
 
+Match.prototype.drawResponse = function() {
+    let corrects = 0;
+    let fails = 0;
+    linkList.forEach(userR => {
+        let optionLeft = jQuery('#' + userR.dragId).parents('.option-left').first();
+        let optionRight = jQuery('#' + userR.dropId).parents('.option-right').first();
+        if (userR.stemDragId === userR.stemDropId) { // CORRECT.
+            userR.color = '#0fd08c';
+            if (manualMode === false) {
+                optionLeft.find('.feedback-icon.correct').css({'display': 'flex'});
+                optionLeft.find('.content-option').removeClass('bg-primary').css({'background-color': '#0fd08c'});
+                optionRight.find('.content-option').removeClass('bg-primary').css({'background-color': '#0fd08c'});
+            }
+            corrects++;
+        } else { // INCORRECT.
+            userR.color = '#f85455';
+            if (manualMode === false) {
+                optionLeft.find('.feedback-icon.incorrect').css({'display': 'flex'});
+                optionLeft.find('.content-option').removeClass('bg-primary').css({'background-color': '#f85455'});
+                optionRight.find('.content-option').removeClass('bg-primary').css({'background-color': '#f85455'});
+            } else {
+                optionLeft.find('.feedback-icon.correct').css({'display': 'flex'});
+            }
+            fails++;
+        }
+    });
+    return [corrects, fails];
+};
+
 Match.prototype.sendResponse = function() {
     Match.prototype.allDisabled();
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
@@ -188,17 +240,7 @@ Match.prototype.sendResponse = function() {
         dispatchEvent(Match.prototype.endTimer);
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let result = 3; // No response.
-        let corrects = 0;
-        let fails = 0;
-        linkList.forEach(userR => {
-            if (userR.stemDragId === userR.stemDropId) {
-                userR.color = "green";
-                corrects++;
-            } else {
-                userR.color = "red";
-                fails++;
-            }
-        });
+        let [corrects, fails] = Match.prototype.drawResponse();
         if (corrects !== 0) {
             result = 2; // Partially.
         }
@@ -226,10 +268,29 @@ Match.prototype.sendResponse = function() {
         };
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
-                // TODO show feedbacks.
+                questionEnd = true;
                 jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
                 jQuery(REGION.NEXT).removeClass('d-none');
                 dispatchEvent(Match.prototype.studentQuestionEnd);
+                if (response.hasfeedbacks) {
+                    jQuery(REGION.FEEDBACK).html(response.statment_feedback);
+                    jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
+                }
+                if (jQuery('.modal-body').length) { // Preview.
+                    Match.prototype.showAnswers();
+                    if (showQuestionFeedback === true) {
+                        Match.prototype.showFeedback();
+                    }
+                } else {
+                    if (manualMode === false) {
+                        Match.prototype.showAnswers();
+                        if (showQuestionFeedback === true) {
+                            Match.prototype.showFeedback();
+                        }
+                    }
+                }
+                jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
+                linkList = [];
             } else {
                 alert('error');
             }
@@ -542,19 +603,11 @@ Match.prototype.playQuestion = function() {
 };
 
 Match.prototype.showAnswers = function() {
-    if (correctAnswers !== null && questionEnd === true) {
-        jQuery('.feedback-icon').css('display', 'flex');
-        let correctAnswersSplit = correctAnswers.split(',');
-        correctAnswersSplit.forEach((answ) => {
-            jQuery('[data-answerid="' + answ + '"] .incorrect').css('display', 'none');
-        });
-    }
+    jQuery('.feedback-icon').css({'displey': 'flex'});
 };
 
 Match.prototype.hideAnswers = function() {
-    if (questionEnd === true) {
-        jQuery('.feedback-icon').css('display', 'none');
-    }
+    jQuery('.feedback-icon').css({'displey': 'none'});
 };
 
 Match.prototype.showStatistics = function() {

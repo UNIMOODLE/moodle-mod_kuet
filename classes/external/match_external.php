@@ -35,9 +35,12 @@ use external_value;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\helpers\responses;
+use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
+use qtype_match_question;
+use question_bank;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -108,33 +111,84 @@ class match_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
 
-        $statmentfeedback = '';
-        $answerfeedback = '';
-        if ($preview === false) {
-            responses::match_response(
-                $jqid,
-                $jsonresponse,
-                $result,
-                $questionid,
-                $sessionid,
-                $jqshowid,
-                $statmentfeedback,
-                $answerfeedback,
-                $USER->id,
-                $timeleft
-            );
-        }
         $session = new jqshow_sessions($sessionid);
+        $question = question_bank::load_question($questionid);
+        if (assert($question instanceof qtype_match_question)) {
+            $statmentfeedback = questions::get_text(
+                $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
+            );
+            switch ($result) {
+                case questions::SUCCESS:
+                    $answerfeedback = questions::get_text(
+                        $cmid,
+                        $question->correctfeedback,
+                        $question->correctfeedbackformat,
+                        $question->id,
+                        $question,
+                        'correctfeedback'
+                    );
+                    break;
+                case questions::PARTIALLY:
+                    $answerfeedback = questions::get_text(
+                        $cmid,
+                        $question->partiallycorrectfeedback,
+                        $question->partiallycorrectfeedbackformat,
+                        $question->id,
+                        $question,
+                        'partiallycorrectfeedback'
+                    );
+                    break;
+                case questions::FAILURE:
+                    $answerfeedback = questions::get_text(
+                        $cmid,
+                        $question->incorrectfeedback,
+                        $question->incorrectfeedbackformat,
+                        $question->id,
+                        $question,
+                        'incorrectfeedback'
+                    );
+                    break;
+                default:
+                    $answerfeedback = '';
+                    break;
+            }
+
+            if ($preview === false) {
+                responses::match_response(
+                    $jqid,
+                    $jsonresponse,
+                    $result,
+                    $questionid,
+                    $sessionid,
+                    $jqshowid,
+                    $statmentfeedback,
+                    $answerfeedback,
+                    $USER->id,
+                    $timeleft
+                );
+            }
+            return [
+                'reply_status' => true,
+                'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
+                'statment_feedback' => $statmentfeedback,
+                'answer_feedback' => $answerfeedback,
+                'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+                'preview' => $preview,
+            ];
+        }
+
         return [
-            'reply_status' => true,
-            'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
-            'statment_feedback' => $statmentfeedback,
-            'answer_feedback' => $answerfeedback,
+            'reply_status' => false,
+            'hasfeedbacks' => false,
             'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
             'preview' => $preview,
         ];
+
+
     }
 
     /**

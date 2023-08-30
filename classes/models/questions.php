@@ -320,12 +320,27 @@ class questions {
             $responsedata->timeleft,
             true
         );
+        $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
+        $data->seconds = $responsedata->timeleft;
+        $data->correct_answers = $dataanswer['correct_answers'];
+        $data->programmedmode = $dataanswer['programmedmode'];
         $data->jsonresponse = $jsonresponse;
+        if ($data->hasfeedbacks) {
+            // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
+            $dataanswer['statment_feedback'] = trim(html_entity_decode($dataanswer['statment_feedback']), " \t\n\r\0\x0B\xC2\xA0");
+            $dataanswer['statment_feedback'] = str_replace('"', '\"', $dataanswer['statment_feedback']);
+            $dataanswer['answer_feedback'] = trim(html_entity_decode($dataanswer['answer_feedback']), " \t\n\r\0\x0B\xC2\xA0");
+            $dataanswer['answer_feedback'] = str_replace('"', '\"', $dataanswer['answer_feedback']);
+        }
+        $data->statment_feedback = $dataanswer['statment_feedback'];
+        $data->answer_feedback = $dataanswer['answer_feedback'];
+        $data->statistics = $dataanswer['statistics'] ?? '0';
         // TODO feedbacks.
         return $data;
     }
 
     /**
+     * @param jqshow_sessions $session
      * @param int $jqid
      * @param int $cmid
      * @param int $sessionid

@@ -89,38 +89,41 @@ MultiChoice.prototype.initEvents = function() {
     addEventListener('timeFinish', () => {
         MultiChoice.prototype.reply();
     }, {once: true});
-    addEventListener('teacherQuestionEnd_' + jqid, (e) => {
-        if (questionEnd !== true) {
-            MultiChoice.prototype.reply();
-        }
-        e.detail.statistics.forEach((statistic) => {
-            jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
-        });
-    }, {once: true});
-    addEventListener('pauseQuestion_' + jqid, () => {
-        MultiChoice.prototype.pauseQuestion();
-    }, false);
-    addEventListener('playQuestion_' + jqid, () => {
-        MultiChoice.prototype.playQuestion();
-    }, false);
-    addEventListener('showAnswers_' + jqid, () => {
-        MultiChoice.prototype.showAnswers();
-    }, false);
-    addEventListener('hideAnswers_' + jqid, () => {
-        MultiChoice.prototype.hideAnswers();
-    }, false);
-    addEventListener('showStatistics_' + jqid, () => {
-        MultiChoice.prototype.showStatistics();
-    }, false);
-    addEventListener('hideStatistics_' + jqid, () => {
-        MultiChoice.prototype.hideStatistics();
-    }, false);
-    addEventListener('showFeedback_' + jqid, () => {
-        MultiChoice.prototype.showFeedback();
-    }, false);
-    addEventListener('hideFeedback_' + jqid, () => {
-        MultiChoice.prototype.hideFeedback();
-    }, false);
+    if (manualMode !== false) {
+        addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                MultiChoice.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        addEventListener('pauseQuestion_' + jqid, () => {
+            MultiChoice.prototype.pauseQuestion();
+        }, false);
+        addEventListener('playQuestion_' + jqid, () => {
+            MultiChoice.prototype.playQuestion();
+        }, false);
+        addEventListener('showAnswers_' + jqid, () => {
+            MultiChoice.prototype.showAnswers();
+        }, false);
+        addEventListener('hideAnswers_' + jqid, () => {
+            MultiChoice.prototype.hideAnswers();
+        }, false);
+        addEventListener('showStatistics_' + jqid, () => {
+            MultiChoice.prototype.showStatistics();
+        }, false);
+        addEventListener('hideStatistics_' + jqid, () => {
+            MultiChoice.prototype.hideStatistics();
+        }, false);
+        addEventListener('showFeedback_' + jqid, () => {
+            MultiChoice.prototype.showFeedback();
+        }, false);
+        addEventListener('hideFeedback_' + jqid, () => {
+            MultiChoice.prototype.hideFeedback();
+        }, false);
+    }
+
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
             MultiChoice.prototype.reply();
