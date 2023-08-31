@@ -31,8 +31,9 @@ use stdClass;
 
 /**
  *
- * @package     XXXX
- * @author      202X Elena Barrios Galán <elena@tresipunt.com>
+ * @package     mod_jqshow
+ * @author      3&Punt <tresipunt.com>
+ * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -126,7 +127,7 @@ class multichoice implements  jqshowquestion {
     }
 
     /**
-     * @param stdClass $user
+     * @param stdClass $participant
      * @param jqshow_questions_responses $response
      * @param array $answers
      * @param jqshow_sessions $session
@@ -136,7 +137,12 @@ class multichoice implements  jqshowquestion {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_ranking_for_question($participant, $response, $answers, $session, $question) {
+    public static function get_ranking_for_question(
+        stdClass $participant,
+        jqshow_questions_responses $response,
+        array $answers,
+        jqshow_sessions $session,
+        jqshow_questions $question): stdClass {
         $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
         $arrayresponses = explode(',', $other->answerids);
         if (count($arrayresponses) === 1) {

@@ -141,7 +141,7 @@ Match.prototype.initEvents = function() {
                 Match.prototype.sendResponse();
             }
             e.detail.statistics.forEach((statistic) => {
-                // TODO.
+                // TODO statistics.
             });
         }, {once: true});
         addEventListener('pauseQuestion_' + jqid, () => {
@@ -179,15 +179,13 @@ Match.prototype.initEvents = function() {
     };
 };
 
-Match.prototype.createLinkCorrection = function() { // TODO is unnecessary for debugging.
+Match.prototype.createLinkCorrection = function() { // TODO is unnecessary, for debugging.
     jQuery.each(jQuery(REGION.LEFT_OPTION_SELECTOR), function(index, item) {
         let dragId = jQuery(item).data('stems') + '-draggable';
         let steam = Match.prototype.baseConvert(jQuery(item).data('stems'), 2, 16);
         let dropId = Match.prototype.baseConvert(steam, 10, 26) + '-dropzone';
         linkCorrection.push({dragId: dragId, dropId: dropId});
     });
-    // eslint-disable-next-line no-console
-    console.log(linkCorrection);
 };
 
 Match.prototype.getRandomColor = function(position) {
@@ -212,7 +210,7 @@ Match.prototype.drawResponse = function() {
         let optionRight = jQuery('#' + userR.dropId).parents('.option-right').first();
         if (userR.stemDragId === userR.stemDropId) { // CORRECT.
             userR.color = '#0fd08c';
-            if (manualMode === false) {
+            if (manualMode === false || jQuery('.modal-body').length) {
                 optionLeft.find('.feedback-icon.correct').css({'display': 'flex'});
                 optionLeft.find('.content-option').removeClass('bg-primary').css({'background-color': '#0fd08c'});
                 optionRight.find('.content-option').removeClass('bg-primary').css({'background-color': '#0fd08c'});
@@ -220,12 +218,10 @@ Match.prototype.drawResponse = function() {
             corrects++;
         } else { // INCORRECT.
             userR.color = '#f85455';
-            if (manualMode === false) {
+            if (manualMode === false || jQuery('.modal-body').length) {
                 optionLeft.find('.feedback-icon.incorrect').css({'display': 'flex'});
                 optionLeft.find('.content-option').removeClass('bg-primary').css({'background-color': '#f85455'});
                 optionRight.find('.content-option').removeClass('bg-primary').css({'background-color': '#f85455'});
-            } else {
-                optionLeft.find('.feedback-icon.correct').css({'display': 'flex'});
             }
             fails++;
         }
@@ -289,6 +285,7 @@ Match.prototype.sendResponse = function() {
                         }
                     }
                 }
+                jQuery(REGION.CONTAINER_ANSWERS).css('z-index', 3);
                 jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
                 linkList = [];
             } else {
@@ -301,7 +298,6 @@ Match.prototype.sendResponse = function() {
 
 /* Add event */
 Match.prototype.addEventsDragAndDrop = function(el) {
-    // TODO clicks.
     el.addEventListener('dragstart', Match.prototype.onDragStart, false);
     el.addEventListener('dragend', Match.prototype.onDragEnd, false);
     el.addEventListener('touchstart', Match.prototype.touchStart, false);
@@ -310,7 +306,6 @@ Match.prototype.addEventsDragAndDrop = function(el) {
 };
 
 Match.prototype.removeEventsDragAndDrop = function(el) {
-    // TODO clicks.
     el.removeEventListener('dragstart', Match.prototype.onDragStart, false);
     el.removeEventListener('dragend', Match.prototype.onDragEnd, false);
     el.removeEventListener('touchstart', Match.prototype.touchStart, false);
