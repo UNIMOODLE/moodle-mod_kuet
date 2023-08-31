@@ -94,6 +94,8 @@ class getquestionstatistics_external extends external_api {
                     }
                 }
                 break;
+            case questions::MATCH:
+                break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));

@@ -136,6 +136,9 @@ class question_exporter extends exporter {
                 'type' => PARAM_URL,
                 'optional' => true
             ],
+            'showstatistics' => [
+                'type' => PARAM_BOOL
+            ],
             'showquestionfeedback' => [
                 'type' => PARAM_BOOL
             ],

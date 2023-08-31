@@ -56,6 +56,8 @@ let toucheX;
 let toucheY;
 let linkList = [];
 let linkCorrection = [];
+let showingAnswers = false;
+let showingFeedback = false;
 
 /** @type {jQuery} The jQuery node for the page region. */
 Match.prototype.node = null;
@@ -140,9 +142,6 @@ Match.prototype.initEvents = function() {
             if (questionEnd !== true) {
                 Match.prototype.sendResponse();
             }
-            e.detail.statistics.forEach((statistic) => {
-                // TODO statistics.
-            });
         }, {once: true});
         addEventListener('pauseQuestion_' + jqid, () => {
             Match.prototype.pauseQuestion();
@@ -202,29 +201,54 @@ Match.prototype.getRandomColor = function(position) {
     return colorArray[position];
 };
 
-Match.prototype.drawResponse = function() {
+Match.prototype.drawResponse = function(fromTeacher = false) {
     let corrects = 0;
     let fails = 0;
     linkList.forEach(userR => {
         let optionLeft = jQuery('#' + userR.dragId).parents('.option-left').first();
         let optionRight = jQuery('#' + userR.dropId).parents('.option-right').first();
         if (userR.stemDragId === userR.stemDropId) { // CORRECT.
-            userR.color = '#0fd08c';
-            if (manualMode === false || jQuery('.modal-body').length) {
+            if (manualMode === false || jQuery('.modal-body').length || fromTeacher === true) {
+                userR.color = '#0fd08c';
                 optionLeft.find('.feedback-icon.correct').css({'display': 'flex'});
                 optionLeft.find('.content-option').removeClass('bg-primary').css({'background-color': '#0fd08c'});
                 optionRight.find('.content-option').removeClass('bg-primary').css({'background-color': '#0fd08c'});
             }
             corrects++;
         } else { // INCORRECT.
-            userR.color = '#f85455';
-            if (manualMode === false || jQuery('.modal-body').length) {
+            if (manualMode === false || jQuery('.modal-body').length || fromTeacher === true) {
+                userR.color = '#f85455';
                 optionLeft.find('.feedback-icon.incorrect').css({'display': 'flex'});
                 optionLeft.find('.content-option').removeClass('bg-primary').css({'background-color': '#f85455'});
                 optionRight.find('.content-option').removeClass('bg-primary').css({'background-color': '#f85455'});
             }
             fails++;
         }
+    });
+    return [corrects, fails];
+};
+
+Match.prototype.hideResponse = function() {
+    let corrects = 0;
+    let fails = 0;
+    linkList.forEach(userR => {
+        let optionLeft = jQuery('#' + userR.dragId).parents('.option-left').first();
+        let optionRight = jQuery('#' + userR.dropId).parents('.option-right').first();
+        userR.color = Match.prototype.getRandomColor(linkList.indexOf(userR));
+        optionLeft.find('.feedback-icon').css({'display': 'none'});
+        optionLeft.find('.content-option').css({'background-color': 'inherit'}).addClass('bg-primary');
+        optionRight.find('.content-option').css({'background-color': 'inherit'}).addClass('bg-primary');
+    });
+    return [corrects, fails];
+};
+
+Match.prototype.showCorrects = function() {
+    let corrects = 0;
+    let fails = 0;
+    linkCorrection.forEach(userR => {
+        let optionLeft = jQuery('#' + userR.dragId).parents('.option-left').first();
+        let optionRight = jQuery('#' + userR.dropId).parents('.option-right').first();
+        userR.color = '#0fd08c';
     });
     return [corrects, fails];
 };
@@ -287,7 +311,9 @@ Match.prototype.sendResponse = function() {
                 }
                 jQuery(REGION.CONTAINER_ANSWERS).css('z-index', 3);
                 jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
-                linkList = [];
+                if (manualMode === false) {
+                    linkList = [];
+                }
             } else {
                 alert('error');
             }
@@ -446,6 +472,13 @@ Match.prototype.drawLinks = function() {
     linkList.forEach(link => Match.prototype.drawLink(link.dragId, link.dropId, link.color));
 };
 
+Match.prototype.drawCorrectLinks = function() {
+    let canvas = jQuery(REGION.CANVAS).get(0);
+    let ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    linkCorrection.forEach(link => Match.prototype.drawLink(link.dragId, link.dropId, link.color));
+};
+
 Match.prototype.drawLink = function(obj1, obj2, pColor) {
     let canvas = jQuery(REGION.CANVAS).get(0);
     let ctx = canvas.getContext('2d');
@@ -588,44 +621,77 @@ Match.prototype.pauseQuestion = function() {
     jQuery(REGION.TIMER).css('z-index', 3);
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(ACTION.REPLY).css('pointer-events', 'none');
+    jQuery.each(jQuery('.drag-element'), function(index, item) {
+        jQuery(item).css({'z-index': '0'});
+    });
+    jQuery.each(jQuery(REGION.LEFT_OPTION_CLICKABLE), function(index, item) {
+        jQuery(item).css({'pointer-events': 'none'});
+    });
+    jQuery.each(jQuery(REGION.RIGHT_OPTION_CLICKABLE), function(index, item) {
+        jQuery(item).css({'pointer-events': 'none'});
+    });
 };
 
 Match.prototype.playQuestion = function() {
-    dispatchEvent(new Event('playQuestion'));
-    jQuery(REGION.TIMER).css('z-index', 1);
-    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
-    jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    if (questionEnd !== true) {
+        dispatchEvent(new Event('playQuestion'));
+        jQuery(REGION.TIMER).css('z-index', 1);
+        jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
+        jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+        jQuery.each(jQuery('.drag-element'), function(index, item) {
+            jQuery(item).css({'z-index': '2'});
+        });
+        jQuery.each(jQuery(REGION.LEFT_OPTION_CLICKABLE), function(index, item) {
+            jQuery(item).css({'pointer-events': 'inherit'});
+        });
+        jQuery.each(jQuery(REGION.RIGHT_OPTION_CLICKABLE), function(index, item) {
+            jQuery(item).css({'pointer-events': 'inherit'});
+        });
+    }
 };
 
 Match.prototype.showAnswers = function() {
-    jQuery('.feedback-icon').css({'displey': 'flex'});
+    showingAnswers = true;
+    Match.prototype.drawResponse(true);
+    Match.prototype.drawLinks();
 };
 
 Match.prototype.hideAnswers = function() {
-    jQuery('.feedback-icon').css({'displey': 'none'});
-};
-
-Match.prototype.showStatistics = function() {
-    if (questionEnd === true) {
-        jQuery('.statistics-icon').css('display', 'flex');
+    showingAnswers = false;
+    Match.prototype.hideResponse();
+    Match.prototype.drawLinks();
+    if (showingFeedback) {
+        Match.prototype.showFeedback();
+    } else {
+        Match.prototype.hideFeedback();
     }
 };
 
-Match.prototype.hideStatistics = function() {
-    if (questionEnd === true) {
-        jQuery('.statistics-icon').css('display', 'none');
-    }
-};
+Match.prototype.showStatistics = function() {};
+
+Match.prototype.hideStatistics = function() {};
 
 Match.prototype.showFeedback = function() {
     if (questionEnd === true) {
+        showingFeedback = true;
+        Match.prototype.hideResponse();
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+        Match.prototype.showCorrects();
+        Match.prototype.drawCorrectLinks();
     }
 };
 
 Match.prototype.hideFeedback = function() {
     if (questionEnd === true) {
+        showingFeedback = false;
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'none', 'z-index': 0});
+        if (showingAnswers) {
+            Match.prototype.drawResponse(true);
+            Match.prototype.drawLinks();
+        } else {
+            Match.prototype.hideResponse();
+            Match.prototype.drawLinks();
+        }
     }
 };
 

@@ -89,8 +89,12 @@ MultiChoice.prototype.initEvents = function() {
     addEventListener('timeFinish', () => {
         MultiChoice.prototype.reply();
     }, {once: true});
+    // eslint-disable-next-line no-console
+    console.log(manualMode, 'manualMode');
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            // eslint-disable-next-line no-console
+            console.log('teacherQuestionEnd_' + jqid);
             if (questionEnd !== true) {
                 MultiChoice.prototype.reply();
             }
@@ -135,7 +139,6 @@ MultiChoice.prototype.initEvents = function() {
 
 MultiChoice.prototype.reply = function(e) {
     let answerIds = '0';
-    let that = this;
     let multiAnswer = e === undefined || jQuery(e.currentTarget).attr('data-action') === 'send-multianswer';
     if (!multiAnswer) {
         e.preventDefault();
@@ -149,8 +152,8 @@ MultiChoice.prototype.reply = function(e) {
         answerIds = responses.toString();
     }
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
-        that.node.append(html);
-        dispatchEvent(that.endTimer);
+        jQuery(REGION.ROOT).append(html);
+        dispatchEvent(MultiChoice.prototype.endTimer);
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
             methodname: SERVICES.REPLY,
@@ -178,19 +181,19 @@ MultiChoice.prototype.reply = function(e) {
                     });
                     jQuery(ACTION.SENDMULTIANSWER).addClass('d-none');
                 }
-                that.answered(response);
+                MultiChoice.prototype.answered(response);
                 questionEnd = true;
-                dispatchEvent(that.studentQuestionEnd);
+                dispatchEvent(MultiChoice.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
-                    that.showAnswers();
+                    MultiChoice.prototype.showAnswers();
                     if (showQuestionFeedback === true) {
-                        that.showFeedback();
+                        MultiChoice.prototype.showFeedback();
                     }
                 } else {
                     if (manualMode === false) {
-                        that.showAnswers();
+                        MultiChoice.prototype.showAnswers();
                         if (showQuestionFeedback === true) {
-                            that.showFeedback();
+                            MultiChoice.prototype.showFeedback();
                         }
                     }
                 }
@@ -246,10 +249,12 @@ MultiChoice.prototype.pauseQuestion = function() {
 };
 
 MultiChoice.prototype.playQuestion = function() {
-    dispatchEvent(new Event('playQuestion'));
-    jQuery(REGION.TIMER).css('z-index', 1);
-    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
-    jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    if (questionEnd !== true) {
+        dispatchEvent(new Event('playQuestion'));
+        jQuery(REGION.TIMER).css('z-index', 1);
+        jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
+        jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    }
 };
 
 MultiChoice.prototype.showAnswers = function() {
