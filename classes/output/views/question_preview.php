@@ -67,8 +67,11 @@ class question_preview implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         switch ((new jqshow_questions($this->jqid))->get('qtype')){
-            case 'multichoice':
+            case questions::MULTIPLE_CHOICE:
                 $data = questions::export_multichoice($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                break;
+            case questions::TRUE_FALSE:
+                $data = questions::export_truefalse($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

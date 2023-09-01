@@ -37,6 +37,7 @@ use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\questions\multichoice;
+use mod_jqshow\questions\truefalse;
 use moodle_exception;
 use moodle_url;
 use question_bank;
@@ -187,6 +188,7 @@ class reports {
                 'jqid' => $question->get('id'),
                 'userid' => $userid,
             ]);
+
             $data = new stdClass();
             $data->questionnid = $question->get('id');
             $data->position = $question->get('qorder');
@@ -405,8 +407,11 @@ class reports {
 ;
         switch ($data->type) {
             // TODO recfactor.
-            case 'multichoice':
+            case questions::MULTIPLE_CHOICE:
                 $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
+                break;
+            case questions::TRUE_FALSE:
+                $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             default:
                 break;
@@ -470,8 +475,11 @@ class reports {
 
         switch ($data->type) {
             // TODO recfactor.
-            case 'multichoice':
+            case questions::MULTIPLE_CHOICE:
                 $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
+                break;
+            case questions::TRUE_FALSE:
+                $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             default:
                 break;
@@ -696,6 +704,7 @@ class reports {
                     break;
             }
         }
+
         return $data;
     }
 
@@ -765,8 +774,11 @@ class reports {
                 if ($response !== false) {
                     $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
                     switch ($other->type) {
-                        case 'multichoice':
+                        case questions::MULTIPLE_CHOICE:
                             $user = multichoice::get_ranking_for_question($user, $response, $answers, $session, $question);
+                            break;
+                        case questions::TRUE_FALSE:
+                            $user = truefalse::get_ranking_for_question($user, $response, $answers, $session, $question);
                             break;
                         default:
                             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
@@ -803,8 +815,11 @@ class reports {
             if ($response !== false) {
                 $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
                 switch ($other->type) {
-                    case 'multichoice':
+                    case questions::MULTIPLE_CHOICE:
                         $group = multichoice::get_ranking_for_question($group, $response, $answers, $session, $question);
+                        break;
+                    case questions::TRUE_FALSE:
+                        $group = truefalse::get_ranking_for_question($group, $response, $answers, $session, $question);
                         break;
                     default:
                         throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

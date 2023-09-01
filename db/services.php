@@ -155,6 +155,14 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
+    'mod_jqshow_truefalse' => [
+        'classname' => \mod_jqshow\external\truefalse_external::class,
+        'methodname' => 'truefalse',
+        'description' => 'Truefalse reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
     'mod_jqshow_nextquestion' => [
         'classname' => nextquestion_external::class,
         'methodname' => 'nextquestion',
@@ -347,6 +355,7 @@ $services = [
             'mod_jqshow_copyquestion',
             'mod_jqshow_editsessionsettings',
             'mod_jqshow_multichoice',
+            'mod_jqshow_truefalse',
             'mod_jqshow_nextquestion',
             'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',

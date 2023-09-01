@@ -33,6 +33,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use moodle_exception;
@@ -76,7 +77,7 @@ class getquestionstatistics_external extends external_api {
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $statistics = [];
         switch ($jqshowquestion->get('qtype')) {
-            case 'multichoice':
+            case questions::MULTIPLE_CHOICE:
                 foreach ($question->answers as $answer) {
                     $statistics[$answer->id] = ['answerid' => $answer->id, 'numberofreplies' => 0];
                 }
@@ -89,6 +90,19 @@ class getquestionstatistics_external extends external_api {
                             if ((int)$responseid === (int)$answer->id) {
                                 $statistics[$answer->id]['numberofreplies']++;
                             }
+                        }
+                    }
+                }
+                break;
+            case questions::TRUE_FALSE:
+                $statistics[$question->trueanswerid] = ['answerid' => $question->trueanswerid, 'numberofreplies' => 0];
+                $statistics[$question->falseanswerid] = ['answerid' => $question->falseanswerid, 'numberofreplies' => 0];
+                $responses = jqshow_questions_responses::get_question_responses($sid, $jqshowquestion->get('jqshowid'), $jqid);
+                foreach ($responses as $response) {
+                    foreach ($question->answers as $answer) {
+                        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                        if ((int)$other->answerids === (int)$answer->id) {
+                            $statistics[$answer->id]['numberofreplies']++;
                         }
                     }
                 }

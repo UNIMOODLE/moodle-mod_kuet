@@ -97,7 +97,7 @@ class student_session_view implements renderable, templatable {
                     $question = jqshow_questions::get_question_by_jqid($newprogressdata->currentquestion);
                 }
                 switch ($question->get('qtype')) {
-                    case 'multichoice':
+                    case questions::MULTIPLE_CHOICE:
                         $data = questions::export_multichoice(
                             $question->get('id'),
                             $cmid,
@@ -109,6 +109,20 @@ class student_session_view implements renderable, templatable {
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
                             $data = questions::export_multichoice_response($data, $response->get('response'));
+                        }
+                        break;
+                    case questions::TRUE_FALSE:
+                        $data = questions::export_truefalse(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = questions::export_truefalse_response($data, $response->get('response'));
                         }
                         break;
                     default:

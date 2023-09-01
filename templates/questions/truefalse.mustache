@@ -1,0 +1,87 @@
+<div class="container-fluid truefalse" data-region="truefalse">
+    <div class="row">
+        <div class="content-indicators">
+            {{#managesession}}
+                <div class="users">
+                    {{#pix}}q/users, mod_jqshow{{/pix}}
+                    <span class="numusers">{{ numusers }}</span>
+                </div>
+            {{/managesession}}
+            {{#hastime}}
+                <div class="timer {{^countdown}}d-none{{/countdown}}" data-region="question-timer">
+                    {{#pix}}q/timer, mod_jqshow{{/pix}}
+                    <span class="seconds" data-region="seconds">{{ seconds }}</span>
+                </div>
+            {{/hastime}}
+        </div>
+        <div class="col-12 contain-statement" data-region="statement-text">
+            <div class="statement-text">
+                {{{ questiontext }}}
+            </div>
+        </div>
+        <div class="col-12 containt-answers">
+            {{# answers }}
+                <div
+                        class="truefalse-answer"
+                        data-answerid="{{ answerid }}"
+                        data-questionid="{{questionid}}"
+                        data-action="truefalse-answer"
+                >
+                    <div class="feedback-icons">
+                        <span class="feedback-icon correct">{{#pix}}q/correct, mod_jqshow{{/pix}}</span>
+                        <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_jqshow{{/pix}}</span>
+                    </div>
+                    <div class="statistics-icons">
+                        <span class="statistics-icon">
+                            <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path class="statistics-svg" d="M15.8753 8.00008C17.3703 8.00008 18.5728 6.78675 18.5728 5.29175C18.5728 3.79675 17.3703 2.58341 15.8753 2.58341C14.3803 2.58341 13.167 3.79675 13.167 5.29175C13.167 6.78675 14.3803 8.00008 15.8753 8.00008ZM7.75033 6.91675C9.54866 6.91675 10.9895 5.46508 10.9895 3.66675C10.9895 1.86841 9.54866 0.416748 7.75033 0.416748C5.95199 0.416748 4.50033 1.86841 4.50033 3.66675C4.50033 5.46508 5.95199 6.91675 7.75033 6.91675ZM15.8753 10.1667C13.8928 10.1667 9.91699 11.1634 9.91699 13.1459V14.5001C9.91699 15.0959 10.4045 15.5834 11.0003 15.5834H20.7503C21.3462 15.5834 21.8337 15.0959 21.8337 14.5001V13.1459C21.8337 11.1634 17.8578 10.1667 15.8753 10.1667ZM7.75033 9.08342C5.22616 9.08342 0.166992 10.3509 0.166992 12.8751V14.5001C0.166992 15.0959 0.654492 15.5834 1.25033 15.5834H7.75033V13.1459C7.75033 12.2251 8.10783 10.6109 10.3178 9.38675C9.37533 9.19175 8.46533 9.08342 7.75033 9.08342Z"/>
+                            </svg>
+                            <span class="numberofreplies">
+                                {{ numberofreplies }}
+                            </span>
+                        </span>
+                    </div>
+                    {{{ answertext }}}
+                </div>
+            {{/ answers }}
+        </div>
+        {{#multianswers}}
+            <div class="btn btn-primary ml-auto mt-3" data-action="send-multianswer">
+                {{#str}}send_response, mod_jqshow{{/str}}
+            </div>
+        {{/multianswers}}
+        <div class="col-12 containt-feedbacks bg-primary" data-region="containt-feedbacks">
+            <div class="feedback-title">
+                {{#pix}}q/feedback, mod_jqshow{{/pix}}
+                {{#str}}feedback, mod_jqshow{{/str}}
+            </div>
+            <div class="content-feedbacks" data-region="content-feedback">
+                <hr>
+                <div class="content-feedback" data-region="statement-feedback">
+                    {{#answered}}
+                        {{{ statment_feedback }}}
+                    {{/answered}}
+                </div>
+                <hr>
+                <div class="content-feedback-answer" data-region="answer-feedback">
+                    {{#answered}}
+                        {{{ answer_feedback }}}
+                    {{/answered}}
+                </div>
+            </div>
+        </div>
+        <div class="feedback-background" data-region="feedback-background"></div>
+    </div>
+</div>
+{{#js}}
+    require(['mod_jqshow/truefalse'{{#hastime}}, 'mod_jqshow/questiontimer'{{/hastime}}], function(TrueFalse{{#hastime}}, QuestionTimer{{/hastime}}) {
+    TrueFalse.initTrueFalse('[data-region="question-content"]',
+            {{#showquestionfeedback}}true{{/showquestionfeedback}}{{^showquestionfeedback}}false{{/showquestionfeedback}},
+            {{#programmedmode}}false{{/programmedmode}}{{^programmedmode}}true{{/programmedmode}}{{#answered}}, '{{{jsonresponse}}}'{{/answered}});
+        {{#hastime}}
+            {{^answered}}
+                QuestionTimer.initQuestionTimer('[data-region="question-content"]');
+            {{/answered}}
+        {{/hastime}}
+    });
+{{/js}}
