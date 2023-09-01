@@ -90,6 +90,7 @@ class getuserquestionresponse_external extends external_api {
             $json = $response->get('response');
             $other = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
             $data->jqshowid = $response->get('jqshow');
+            $result = $response->get('result');
         } else if ($uid !== 0) { // It is a response review, where there is no response for the user. Mock required.
             $question = new jqshow_questions($jqid);
             $other = new stdClass();
@@ -99,18 +100,23 @@ class getuserquestionresponse_external extends external_api {
             $other->answerids = 0;
             $other->timeleft = 0;
             $other->type = $question->get('qtype');
+            $other->response = [];
             $json = json_encode($other, JSON_THROW_ON_ERROR);
             $data->jqshowid = $question->get('jqshowid');
+            $result = questions::NORESPONSE;
         } else {
             return [];
         }
         switch ($other->type) {
-            case questions::MULTIPLE_CHOICE:
+            case questions::MULTICHOICE:
                 return (array)questions::export_multichoice_response($data, $json);
+            case questions::MATCH:
+                return (array)questions::export_match_response($data, $json, $result);
             case questions::TRUE_FALSE:
                 return (array)questions::export_truefalse_response($data, $json);
             default:
-                return [];
+                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                    [], get_string('question_nosuitable', 'mod_jqshow'));
         }
     }
 

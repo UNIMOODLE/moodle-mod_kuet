@@ -80,22 +80,24 @@
                         </label>
                     </div>
                 </div>
-                <div class="showhide-action disabled" data-action="statistics">
-                    <div class="d-flex align-items-center">
-                        <div class="showhide-action-icon">
-                            {{#pix}}i/statistics, mod_jqshow{{/pix}}
+                {{#showstatistics}}
+                    <div class="showhide-action disabled" data-action="statistics">
+                        <div class="d-flex align-items-center">
+                            <div class="showhide-action-icon">
+                                {{#pix}}i/statistics, mod_jqshow{{/pix}}
+                            </div>
+                            <span>{{#str}}statistics, mod_jqshow{{/str}}</span>
                         </div>
-                        <span>{{#str}}statistics, mod_jqshow{{/str}}</span>
+                        <div class="custom-control custom-switch">
+                            <input id="showhide_statistics" type="checkbox"
+                                   data-action="showhide_statistics"
+                                   class="custom-control-input">
+                            <label for="showhide_statistics" class="custom-control-label"
+                                   title="{{#str}}statistics, mod_jqshow{{/str}}" >
+                            </label>
+                        </div>
                     </div>
-                    <div class="custom-control custom-switch">
-                        <input id="showhide_statistics" type="checkbox"
-                               data-action="showhide_statistics"
-                               class="custom-control-input">
-                        <label for="showhide_statistics" class="custom-control-label"
-                               title="{{#str}}statistics, mod_jqshow{{/str}}" >
-                        </label>
-                    </div>
-                </div>
+                {{/showstatistics}}
                 {{#showquestionfeedback}}
                     <div class="showhide-action disabled" data-action="feedback">
                         <div class="d-flex align-items-center">

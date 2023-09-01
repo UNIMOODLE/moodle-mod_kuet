@@ -109,7 +109,7 @@ class multichoice_external extends external_api {
 
         $question = question_bank::load_question($questionid);
         $statmentfeedback = questions::get_text(
-            $cmid, $question->generalfeedback, 1, $question->id, $question, 'generalfeedback'
+            $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
         );
         $correctanswers = '';
         $answerfeedback = '';

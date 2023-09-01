@@ -24,13 +24,13 @@ let TEMPLATES = {
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
     PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
+    GROUPPARTICIPANT: 'mod_jqshow/session/manual/waitingroom/groupparticipant',
     SESSIONFIINISHED: 'mod_jqshow/session/manual/closeconnection',
     QUESTION: 'mod_jqshow/questions/encasement',
     PROVISIONALRANKING: 'mod_jqshow/ranking/provisional'
 };
 
 let portUrl = '8080';
-
 
 /**
  * @constructor
@@ -73,6 +73,10 @@ let cmid = null;
 let sid = null;
 let jqshowid = null;
 let currentCuestionJqid = null;
+let groupid = 0;
+let groupmode = 0;
+let groupimage = null;
+let groupname = null;
 
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
@@ -83,6 +87,12 @@ Sockets.prototype.initSockets = function() {
     sid = this.root[0].dataset.sid;
     messageBox = this.root.find(REGION.MESSAGEBOX);
     countusers = this.root.find(REGION.COUNTUSERS);
+    groupmode = this.root[0].dataset.groupmode;
+    if (groupmode != '0') {
+        groupimage = this.root[0].dataset.groupimage;
+        groupid = parseInt(this.root[0].dataset.groupid);
+        groupname = this.root[0].dataset.groupname;
+    }
 
     Sockets.prototype.webSocket = new WebSocket(
         'wss://' + M.cfg.wwwroot.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
@@ -110,6 +120,12 @@ Sockets.prototype.initSockets = function() {
                         'usersocketid': usersocketid,
                         'action': 'newuser',
                     };
+                    if (groupmode) {
+                        msg.action = 'newgroup';
+                        msg.name = groupname;
+                        msg.pic = groupimage; // TODO encrypt.
+                        msg.groupid = groupid;
+                    }
                     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 }
                 break;
@@ -125,6 +141,25 @@ Sockets.prototype.initSockets = function() {
                     };
                     Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html) {
                         identifier.append(html);
+                    }).fail(Notification.exception);
+                });
+                countusers.html(response.count);
+                break;
+            }
+            case 'newgroup': {
+                let participantshtml = jQuery(REGION.USERLIST);
+                let grouplist = response.groups;
+                participantshtml.html('');
+                jQuery.each(grouplist, function (i, group) {
+                    let templateContext = {
+                        'usersocketid': group.usersocketid,
+                        'groupimage': group.picture,
+                        'groupid': group.groupid,
+                        'name': group.name,
+                        'numgroupusers': group.numgroupusers,
+                    };
+                    Templates.render(TEMPLATES.GROUPPARTICIPANT, templateContext).then(function(html) {
+                        participantshtml.append(html);
                     }).fail(Notification.exception);
                 });
                 countusers.html(response.count);
@@ -266,6 +301,6 @@ Sockets.prototype.sendMessageSocket = function(msg) {
     this.webSocket.send(msg);
 };
 
-export const studentInitSockets = (region, port) => {
-    return new Sockets(region, port);
+export const studentInitSockets = (region, port, groupmode, groupid) => {
+    return new Sockets(region, port, groupmode, groupid);
 };

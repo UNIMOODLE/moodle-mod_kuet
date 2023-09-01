@@ -76,12 +76,21 @@ class firstquestion_external extends external_api {
         $PAGE->set_context($contextmodule);
         $firstquestion = jqshow_questions::get_first_question_of_session($sessionid);
         switch ($firstquestion->get('qtype')) {
-            case questions::MULTIPLE_CHOICE:
+            case questions::MULTICHOICE:
                 $question = questions::export_multichoice(
                     $firstquestion->get('id'),
                     $cmid,
                     $sessionid,
                     $firstquestion->get('jqshowid'));
+                $question->showstatistics = true;
+                break;
+            case questions::MATCH:
+                $question = questions::export_match(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = false;
                 break;
             case questions::TRUE_FALSE:
                 $question = questions::export_truefalse(
@@ -89,6 +98,7 @@ class firstquestion_external extends external_api {
                     $cmid,
                     $sessionid,
                     $firstquestion->get('jqshowid'));
+                $question->showstatistics = true;
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

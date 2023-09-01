@@ -78,8 +78,11 @@ class session_getallquestions_external extends external_api {
         foreach ($allquestions as $question) {
             $jqid = $question->get('id');
             switch ((new jqshow_questions($jqid))->get('qtype')){
-                case questions::MULTIPLE_CHOICE:
+                case questions::MULTICHOICE:
                     $questiondata[] = questions::export_multichoice($jqid, $cmid, $sessionid, $jqshow->id, false);
+                    break;
+                case questions::MATCH:
+                    // TODO.
                     break;
                 case questions::TRUE_FALSE:
                     $questiondata[] = questions::export_truefalse($jqid, $cmid, $sessionid, $jqshow->id, false);

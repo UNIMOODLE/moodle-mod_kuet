@@ -82,45 +82,55 @@ MultiChoice.prototype.initMultichoice = function() {
     this.node.find(ACTION.REPLY).on('click', this.reply.bind(this));
     this.node.find(ACTION.MULTIANSWER).on('click', this.markAnswer.bind(this));
     this.node.find(ACTION.SENDMULTIANSWER).on('click', this.reply.bind(this));
-    let that = this;
+    MultiChoice.prototype.initEvents();
+};
+
+MultiChoice.prototype.initEvents = function() {
     addEventListener('timeFinish', () => {
-        this.reply();
+        MultiChoice.prototype.reply();
     }, {once: true});
-    addEventListener('teacherQuestionEnd_' + jqid, (e) => {
-        if (questionEnd !== true) {
-            this.reply();
-        }
-        e.detail.statistics.forEach((statistic) => {
-            jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
-        });
-    }, {once: true});
-    addEventListener('pauseQuestion_' + jqid, () => {
-        this.pauseQuestion();
-    }, false);
-    addEventListener('playQuestion_' + jqid, () => {
-        this.playQuestion();
-    }, false);
-    addEventListener('showAnswers_' + jqid, () => {
-        this.showAnswers();
-    }, false);
-    addEventListener('hideAnswers_' + jqid, () => {
-        this.hideAnswers();
-    }, false);
-    addEventListener('showStatistics_' + jqid, () => {
-        this.showStatistics();
-    }, false);
-    addEventListener('hideStatistics_' + jqid, () => {
-        this.hideStatistics();
-    }, false);
-    addEventListener('showFeedback_' + jqid, () => {
-        this.showFeedback();
-    }, false);
-    addEventListener('hideFeedback_' + jqid, () => {
-        this.hideFeedback();
-    }, false);
+    // eslint-disable-next-line no-console
+    console.log(manualMode, 'manualMode');
+    if (manualMode !== false) {
+        addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            // eslint-disable-next-line no-console
+            console.log('teacherQuestionEnd_' + jqid);
+            if (questionEnd !== true) {
+                MultiChoice.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        addEventListener('pauseQuestion_' + jqid, () => {
+            MultiChoice.prototype.pauseQuestion();
+        }, false);
+        addEventListener('playQuestion_' + jqid, () => {
+            MultiChoice.prototype.playQuestion();
+        }, false);
+        addEventListener('showAnswers_' + jqid, () => {
+            MultiChoice.prototype.showAnswers();
+        }, false);
+        addEventListener('hideAnswers_' + jqid, () => {
+            MultiChoice.prototype.hideAnswers();
+        }, false);
+        addEventListener('showStatistics_' + jqid, () => {
+            MultiChoice.prototype.showStatistics();
+        }, false);
+        addEventListener('hideStatistics_' + jqid, () => {
+            MultiChoice.prototype.hideStatistics();
+        }, false);
+        addEventListener('showFeedback_' + jqid, () => {
+            MultiChoice.prototype.showFeedback();
+        }, false);
+        addEventListener('hideFeedback_' + jqid, () => {
+            MultiChoice.prototype.hideFeedback();
+        }, false);
+    }
+
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
-            that.reply();
+            MultiChoice.prototype.reply();
             return 'Because the question is overdue and an attempt has been made to reload the page,' +
                 ' the question has remained unanswered.';
         }
@@ -129,7 +139,6 @@ MultiChoice.prototype.initMultichoice = function() {
 
 MultiChoice.prototype.reply = function(e) {
     let answerIds = '0';
-    let that = this;
     let multiAnswer = e === undefined || jQuery(e.currentTarget).attr('data-action') === 'send-multianswer';
     if (!multiAnswer) {
         e.preventDefault();
@@ -143,8 +152,8 @@ MultiChoice.prototype.reply = function(e) {
         answerIds = responses.toString();
     }
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
-        that.node.append(html);
-        dispatchEvent(that.endTimer);
+        jQuery(REGION.ROOT).append(html);
+        dispatchEvent(MultiChoice.prototype.endTimer);
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
             methodname: SERVICES.REPLY,
@@ -172,19 +181,19 @@ MultiChoice.prototype.reply = function(e) {
                     });
                     jQuery(ACTION.SENDMULTIANSWER).addClass('d-none');
                 }
-                that.answered(response);
+                MultiChoice.prototype.answered(response);
                 questionEnd = true;
-                dispatchEvent(that.studentQuestionEnd);
+                dispatchEvent(MultiChoice.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
-                    that.showAnswers();
+                    MultiChoice.prototype.showAnswers();
                     if (showQuestionFeedback === true) {
-                        that.showFeedback();
+                        MultiChoice.prototype.showFeedback();
                     }
                 } else {
                     if (manualMode === false) {
-                        that.showAnswers();
+                        MultiChoice.prototype.showAnswers();
                         if (showQuestionFeedback === true) {
-                            that.showFeedback();
+                            MultiChoice.prototype.showFeedback();
                         }
                     }
                 }
@@ -240,10 +249,12 @@ MultiChoice.prototype.pauseQuestion = function() {
 };
 
 MultiChoice.prototype.playQuestion = function() {
-    dispatchEvent(new Event('playQuestion'));
-    jQuery(REGION.TIMER).css('z-index', 1);
-    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
-    jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    if (questionEnd !== true) {
+        dispatchEvent(new Event('playQuestion'));
+        jQuery(REGION.TIMER).css('z-index', 1);
+        jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
+        jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    }
 };
 
 MultiChoice.prototype.showAnswers = function() {

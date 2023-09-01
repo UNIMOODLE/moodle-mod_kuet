@@ -28,6 +28,7 @@ namespace mod_jqshow\helpers;
 use coding_exception;
 use context_module;
 use dml_exception;
+use dml_transaction_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\models\questions;
@@ -36,6 +37,7 @@ use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\questions\match;
 use mod_jqshow\questions\multichoice;
 use mod_jqshow\questions\truefalse;
 use moodle_exception;
@@ -188,7 +190,6 @@ class reports {
                 'jqid' => $question->get('id'),
                 'userid' => $userid,
             ]);
-
             $data = new stdClass();
             $data->questionnid = $question->get('id');
             $data->position = $question->get('qorder');
@@ -380,7 +381,7 @@ class reports {
      * @param int $jqid
      * @return stdClass
      * @throws JsonException
-     * @throws \dml_transaction_exception
+     * @throws dml_transaction_exception
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
@@ -404,19 +405,20 @@ class reports {
             $cmid, $questiondata->questiontext, $questiondata->questiontextformat, $questiondata->id, $questiondata, 'questiontext'
         );
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
-;
         switch ($data->type) {
-            // TODO recfactor.
-            case questions::MULTIPLE_CHOICE:
+            case questions::MULTICHOICE:
                 $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
+                break;
+            case questions::MATCH:
+                $data = match::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             case questions::TRUE_FALSE:
                 $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             default:
-                break;
+                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                    [], get_string('question_nosuitable', 'mod_jqshow'));
         }
-
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $cmcontext = context_module::instance($cmid);
         $users = enrol_get_course_users($course->id, true);
@@ -475,8 +477,11 @@ class reports {
 
         switch ($data->type) {
             // TODO recfactor.
-            case questions::MULTIPLE_CHOICE:
+            case questions::MULTICHOICE:
                 $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
+                break;
+            case questions::MATCH:
+                // TODO.
                 break;
             case questions::TRUE_FALSE:
                 $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
@@ -614,8 +619,6 @@ class reports {
         }
         $data->groupreport = true;
         $data->sessionname = $session->get('name');
-//        $userdata = $DB->get_record('user', ['id' => $userid]);
-//        $data = self::add_userdata($userdata, $data, $userid);
         $gmembers = groupmode::get_group_members($groupid);
         $gmember = reset($gmembers);
         $groupdata = groups_get_group($groupid);
@@ -704,7 +707,6 @@ class reports {
                     break;
             }
         }
-
         return $data;
     }
 
@@ -774,8 +776,11 @@ class reports {
                 if ($response !== false) {
                     $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
                     switch ($other->type) {
-                        case questions::MULTIPLE_CHOICE:
+                        case questions::MULTICHOICE:
                             $user = multichoice::get_ranking_for_question($user, $response, $answers, $session, $question);
+                            break;
+                        case questions::MATCH:
+                            $user = match::get_ranking_for_question($user, $response, $session, $question);
                             break;
                         case questions::TRUE_FALSE:
                             $user = truefalse::get_ranking_for_question($user, $response, $answers, $session, $question);
@@ -815,8 +820,11 @@ class reports {
             if ($response !== false) {
                 $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
                 switch ($other->type) {
-                    case questions::MULTIPLE_CHOICE:
+                    case questions::MULTICHOICE:
                         $group = multichoice::get_ranking_for_question($group, $response, $answers, $session, $question);
+                        break;
+                    case questions::MATCH:
+                        // TODO.
                         break;
                     case questions::TRUE_FALSE:
                         $group = truefalse::get_ranking_for_question($group, $response, $answers, $session, $question);

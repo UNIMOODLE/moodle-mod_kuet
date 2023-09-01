@@ -32,7 +32,7 @@ class answer_exporter extends exporter {
     /**
      * @return array[]
      */
-    public static function define_properties() {
+    public static function define_properties():array {
         return [
             'answerid' => [
                 'type' => PARAM_INT,

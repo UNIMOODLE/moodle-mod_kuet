@@ -95,12 +95,21 @@ class nextquestion_external extends external_api {
                 $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
             );
             switch ($nextquestion->get('qtype')) {
-                case questions::MULTIPLE_CHOICE:
+                case questions::MULTICHOICE:
                     $data = questions::export_multichoice(
                         $nextquestion->get('id'),
                         $cmid,
                         $sessionid,
                         $nextquestion->get('jqshowid'));
+                    $data->showstatistics = true;
+                    break;
+                case questions::MATCH:
+                    $data = questions::export_match(
+                        $nextquestion->get('id'),
+                        $cmid,
+                        $sessionid,
+                        $nextquestion->get('jqshowid'));
+                    $data->showstatistics = false;
                     break;
                 case questions::TRUE_FALSE:
                     $data = questions::export_truefalse(
@@ -108,6 +117,7 @@ class nextquestion_external extends external_api {
                         $cmid,
                         $sessionid,
                         $nextquestion->get('jqshowid'));
+                    $data->showstatistics = true;
                     break;
                 default:
                     throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

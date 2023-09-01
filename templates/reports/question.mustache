@@ -14,7 +14,7 @@
                         <h6 class="correct-answers-title">{{#str}}scored_answers, mod_jqshow{{/str}}</h6>
                         <ul class="correct-answers">
                             {{#correctanswers}}
-                                <li>{{{response}}}: <b>{{score}}pt</b></li>
+                                <li>{{{response}}}{{#score}}: <b>{{.}}pt</b>{{/score}}</li>
                             {{/correctanswers}}
                         </ul>
                         <div class="question-preview bg-primary" data-action="question-preview" data-sessionid="{{sessionid}}" data-questionnid="{{jqid}}" data-cmid="{{cmid}}">
@@ -49,7 +49,8 @@
         </div>
     </div>
     <!-- Second data -->
-    <div class="row">
+    {{^ nostatistics }}
+        <div class="row">
         <div class="col-12 col-lg-12 container">
             <div class="answers">
                 <h5 class="titlecontainer bg-primary">
@@ -91,6 +92,7 @@
             </div>
         </div>
     </div>
+    {{/nostatistics}}
     <!-- Ranking question data -->
     {{#hasranking}}
         <div class="col-12 col-lg-12 container">
@@ -142,7 +144,7 @@
                             </div>
                         {{/questionranking}}
                         {{#questiongroupranking}}
-                            <div class="ELENA2 d-table-row ranking-users-data user-item" data-groupid="{{id}}">
+                            <div class="d-table-row ranking-users-data user-item" data-groupid="{{id}}">
                                 <div class="d-table-cell">
                                     <div class="participant" data-groupid="{{id}}">
                                         <a href="{{groupurl}}" target="_blank">

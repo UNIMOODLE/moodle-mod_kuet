@@ -77,7 +77,7 @@ class getquestionstatistics_external extends external_api {
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $statistics = [];
         switch ($jqshowquestion->get('qtype')) {
-            case questions::MULTIPLE_CHOICE:
+            case questions::MULTICHOICE:
                 foreach ($question->answers as $answer) {
                     $statistics[$answer->id] = ['answerid' => $answer->id, 'numberofreplies' => 0];
                 }
@@ -93,6 +93,8 @@ class getquestionstatistics_external extends external_api {
                         }
                     }
                 }
+                break;
+            case questions::MATCH:
                 break;
             case questions::TRUE_FALSE:
                 $statistics[$question->trueanswerid] = ['answerid' => $question->trueanswerid, 'numberofreplies' => 0];
