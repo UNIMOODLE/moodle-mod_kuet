@@ -34,7 +34,7 @@ abstract class websockets {
     protected $maxbuffersize;
     protected $master;
     protected $sockets = [];
-    protected $users = [];
+    protected $users = []; //TODO is it necessary?
     protected $heldmessages = [];
     protected $interactive = true;
     protected $addr;

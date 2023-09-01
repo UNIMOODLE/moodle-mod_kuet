@@ -90,12 +90,21 @@ class jumptoquestion_external extends external_api {
                 $question->get('jqshowid'), $sessionid, $USER->id, $cmid, $question->get('id')
             );
             switch ($question->get('qtype')) {
-                case 'multichoice':
+                case questions::MULTICHOICE:
                     $data = questions::export_multichoice(
                         $question->get('id'),
                         $cmid,
                         $sessionid,
                         $question->get('jqshowid'));
+                    $data->showstatistics = true;
+                    break;
+                case questions::MATCH:
+                    $data = questions::export_match(
+                        $question->get('id'),
+                        $cmid,
+                        $sessionid,
+                        $question->get('jqshowid'));
+                    $data->showstatistics = false;
                     break;
                 default:
                     throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

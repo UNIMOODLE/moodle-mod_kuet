@@ -116,6 +116,10 @@ class question_exporter extends exporter {
                 'type' => PARAM_BOOL,
                 'optional' => true
             ],
+            'match' => [
+                'type' => PARAM_BOOL,
+                'optional' => true
+            ],
             'endsession' => [
                 'type' => PARAM_BOOL,
                 'optional' => true
@@ -130,6 +134,10 @@ class question_exporter extends exporter {
             ],
             'reportlink' => [
                 'type' => PARAM_URL,
+                'optional' => true
+            ],
+            'showstatistics' => [
+                'type' => PARAM_BOOL,
                 'optional' => true
             ],
             'showquestionfeedback' => [
@@ -152,6 +160,16 @@ class question_exporter extends exporter {
             'isteacher' => [
                 'type' => PARAM_BOOL,
                 'optional' => true,
+            ],
+            'leftoptions' => [
+                'type' => matchoption_exporter::read_properties_definition(),
+                'optional' => true,
+                'multiple' => true
+            ],
+            'rightoptions' => [
+                'type' => matchoption_exporter::read_properties_definition(),
+                'optional' => true,
+                'multiple' => true
             ]
         ];
     }

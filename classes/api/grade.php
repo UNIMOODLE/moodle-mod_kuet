@@ -73,7 +73,7 @@ class grade {
         }
         $defaultmarkrounded = round($defaultmark, 2);
         $markrounded = round($mark, 2);
-        if ($mark == 0) {
+        if ((int)$mark === 0) {
             $status = questions::FAILURE;
         } else if ($markrounded === $defaultmarkrounded) {
             $status = questions::SUCCESS;
@@ -92,6 +92,7 @@ class grade {
      * @throws dml_exception
      */
     public static function get_simple_mark(jqshow_questions_responses $response) {
+        // TODO adapt to all kinds of questions.
         global $DB;
         $mark = 0;
 

@@ -29,6 +29,7 @@ use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
 use JsonException;
+use mod_jqshow\api\groupmode;
 use mod_jqshow\helpers\progress;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
@@ -97,7 +98,7 @@ class student_session_view implements renderable, templatable {
                     $question = jqshow_questions::get_question_by_jqid($newprogressdata->currentquestion);
                 }
                 switch ($question->get('qtype')) {
-                    case 'multichoice':
+                    case questions::MULTICHOICE:
                         $data = questions::export_multichoice(
                             $question->get('id'),
                             $cmid,
@@ -109,6 +110,20 @@ class student_session_view implements renderable, templatable {
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
                             $data = questions::export_multichoice_response($data, $response->get('response'));
+                        }
+                        break;
+                    case questions::MATCH:
+                        $data = questions::export_match(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = questions::export_match_response($data, $response->get('response'), $response->get('result'));
                         }
                         break;
                     default:
@@ -128,14 +143,23 @@ class student_session_view implements renderable, templatable {
                 $data->jqshowid = $session->get('jqshowid');
                 $data->userid = $USER->id;
                 $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
-                $userpicture = new user_picture($USER);
-                $userpicture->size = 1;
-                $data->userimage = $userpicture->get_url($PAGE)->out(false);
+
                 $data->manualmode = true;
                 $data->waitingroom = true;
                 $data->config = sessions::get_session_config($data->sid, $data->cmid);
                 $data->sessionname = $data->config[0]['configvalue'];
                 $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+                if ($session->is_group_mode()) {
+                    $data->isgroupmode = true;
+                    $group = groupmode::get_user_group($data->userid, $session->get('groupings'));
+                    $data->groupimage = groupmode::get_group_image($group, $sid, 1);
+                    $data->groupname = $group->name;
+                    $data->groupid = $group->id;
+                } else {
+                    $userpicture = new user_picture($USER);
+                    $userpicture->size = 1;
+                    $data->userimage = $userpicture->get_url($PAGE)->out(false);
+                }
                 break;
             default:
                 throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',

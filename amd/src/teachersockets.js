@@ -1,5 +1,6 @@
 "use strict";
-
+/* eslint-disable no-console*/
+/* eslint-disable no-unused-vars */
 import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
@@ -54,6 +55,7 @@ let TEMPLATES = {
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
     PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
+    GROUPPARTICIPANT: 'mod_jqshow/session/manual/waitingroom/groupparticipant',
     QUESTION: 'mod_jqshow/questions/encasement',
     SESSIONRESUME: 'mod_jqshow/session/sessionresume',
     LISTRESULTS: 'mod_jqshow/session/listresults',
@@ -300,6 +302,25 @@ Sockets.prototype.initSockets = function() {
                     };
                     Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html) {
                         identifier.append(html);
+                    }).fail(Notification.exception);
+                });
+                countusers.html(response.count);
+                break;
+            }
+            case 'newgroup': {
+                let participantshtml = jQuery(REGION.USERLIST);
+                let grouplist = response.groups;
+                participantshtml.html('');
+                jQuery.each(grouplist, function (i, group) {
+                    let templateContext = {
+                        'usersocketid': group.usersocketid,
+                        'groupimage': group.picture,
+                        'groupid': group.groupid,
+                        'name': group.name,
+                        'numgroupusers': group.numgroupusers,
+                    };
+                    Templates.render(TEMPLATES.GROUPPARTICIPANT, templateContext).then(function(html) {
+                        participantshtml.append(html);
                     }).fail(Notification.exception);
                 });
                 countusers.html(response.count);

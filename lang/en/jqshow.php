@@ -214,6 +214,7 @@ $string['sessionstarted_info'] = 'You have started the session, you need to keep
 $string['participants'] = 'Participants';
 $string['waitingroom_message'] = 'Hold on, we\'re leaving in no time...';
 $string['ready_users'] = 'Ready participants';
+$string['ready_groups'] = 'Ready groups';
 $string['session_closed'] = 'Session ended by the teacher';
 $string['session_closed_info'] = 'The teacher has ended the session. If there are more sessions for this activity, you can view them by logging back into the activity.';
 $string['system_error'] = 'An error has occurred and the connection has been closed.<br>It is not possible to continue with the session.';

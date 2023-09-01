@@ -28,8 +28,6 @@ namespace mod_jqshow\external;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
-use dml_exception;
-use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
@@ -41,6 +39,7 @@ use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
+use qtype_match_question;
 use question_bank;
 
 defined('MOODLE_INTERNAL') || die();
@@ -48,15 +47,13 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
-class multichoice_external extends external_api {
+class match_external extends external_api {
 
-    /**
-     * @return external_function_parameters
-     */
-    public static function multichoice_parameters(): external_function_parameters {
+    public static function match_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'answerids' => new external_value(PARAM_RAW, 'answer id, or comma-separated answers ids, or empty'),
+                'jsonresponse' => new external_value(PARAM_RAW, 'json with all responses'),
+                'result' => new external_value(PARAM_INT, 'const result'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
@@ -69,7 +66,8 @@ class multichoice_external extends external_api {
     }
 
     /**
-     * @param string $answerids
+     * @param string $jsonresponse
+     * @param int $result
      * @param int $sessionid
      * @param int $jqshowid
      * @param int $cmid
@@ -79,21 +77,28 @@ class multichoice_external extends external_api {
      * @param bool $preview
      * @return array
      * @throws JsonException
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws dml_transaction_exception
-     * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
+     * @throws coding_exception
+     * @throws invalid_parameter_exception
      */
-    public static function multichoice(
-        string $answerids, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $jqid, int $timeleft, bool $preview
+    public static function match(
+        string $jsonresponse,
+        int $result,
+        int $sessionid,
+        int $jqshowid,
+        int $cmid,
+        int $questionid,
+        int $jqid,
+        int $timeleft,
+        bool $preview
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
-            self::multichoice_parameters(),
+            self::match_parameters(),
             [
-                'answerids' => $answerids,
+                'jsonresponse' => $jsonresponse,
+                'result' => $result,
                 'sessionid' => $sessionid,
                 'jqshowid' => $jqshowid,
                 'cmid' => $cmid,
@@ -106,72 +111,100 @@ class multichoice_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
 
-        $question = question_bank::load_question($questionid);
-        $statmentfeedback = questions::get_text(
-            $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
-        );
-        $correctanswers = '';
-        $answerfeedback = '';
-        foreach ($question->answers as $key => $answer) {
-            if ($answer->fraction !== '0.0000000' && strpos($answer->fraction, '-') !== 0) {
-                $correctanswers .= $answer->id . ',';
-                // TODO obtain the value of the answer to score the question.
-            }
-            if (isset($answerids) && $answerids !== '' && $answerids !== '0') {
-                $arrayanswers = explode(',', $answerids);
-                foreach ($arrayanswers as $arrayanswer) {
-                    if ((int)$key === (int)$arrayanswer && $answerfeedback === '') {
-                        $answerfeedback .= questions::get_text(
-                            $cmid, $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
-                        ) . '<br>';
-                    }
-                }
-            }
-        }
-        $correctanswers = trim($correctanswers, ',');
-
-        if ($preview === false) {
-            responses::multichoice_response(
-                $jqid,
-                $answerids,
-                $correctanswers,
-                $questionid,
-                $sessionid,
-                $jqshowid,
-                $statmentfeedback,
-                $answerfeedback,
-                $USER->id,
-                $timeleft
-            );
-        }
         $session = new jqshow_sessions($sessionid);
+        $question = question_bank::load_question($questionid);
+        if (assert($question instanceof qtype_match_question)) {
+            $statmentfeedback = questions::get_text(
+                $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
+            );
+            switch ($result) {
+                case questions::SUCCESS:
+                    $answerfeedback = questions::get_text(
+                        $cmid,
+                        $question->correctfeedback,
+                        $question->correctfeedbackformat,
+                        $question->id,
+                        $question,
+                        'correctfeedback'
+                    );
+                    break;
+                case questions::PARTIALLY:
+                    $answerfeedback = questions::get_text(
+                        $cmid,
+                        $question->partiallycorrectfeedback,
+                        $question->partiallycorrectfeedbackformat,
+                        $question->id,
+                        $question,
+                        'partiallycorrectfeedback'
+                    );
+                    break;
+                case questions::FAILURE:
+                    $answerfeedback = questions::get_text(
+                        $cmid,
+                        $question->incorrectfeedback,
+                        $question->incorrectfeedbackformat,
+                        $question->id,
+                        $question,
+                        'incorrectfeedback'
+                    );
+                    break;
+                default:
+                    $answerfeedback = '';
+                    break;
+            }
+
+            if ($preview === false) {
+                responses::match_response(
+                    $jqid,
+                    $jsonresponse,
+                    $result,
+                    $questionid,
+                    $sessionid,
+                    $jqshowid,
+                    $statmentfeedback,
+                    $answerfeedback,
+                    $USER->id,
+                    $timeleft
+                );
+            }
+            return [
+                'reply_status' => true,
+                'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
+                'statment_feedback' => $statmentfeedback,
+                'answer_feedback' => $answerfeedback,
+                'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+                'preview' => $preview,
+            ];
+        }
+
         return [
-            'reply_status' => true,
-            'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
-            'statment_feedback' => $statmentfeedback,
-            'answer_feedback' => $answerfeedback,
-            'correct_answers' => $correctanswers,
+            'reply_status' => false,
+            'hasfeedbacks' => false,
             'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
             'preview' => $preview,
         ];
+
+
     }
 
     /**
      * @return external_single_structure
      */
-    public static function multichoice_returns(): external_single_structure {
+    public static function match_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'reply_status' => new external_value(PARAM_BOOL, 'Status of reply'),
                 'hasfeedbacks' => new external_value(PARAM_BOOL, 'Has feedback'),
                 'statment_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
-                'correct_answers' => new external_value(PARAM_RAW, 'correct ansewrs ids separated by commas', VALUE_OPTIONAL),
                 'programmedmode' => new external_value(PARAM_BOOL, 'Program mode for controls'),
                 'preview' => new external_value(PARAM_BOOL, 'Question preview'),
             ]
         );
     }
+
 }

@@ -16,8 +16,9 @@
 
 /**
  *
- * @package     XXXX
- * @author      202X Elena Barrios Galán <elena@tresipunt.com>
+ * @package     mod_jqshow
+ * @author      3&Punt <tresipunt.com>
+ * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -39,6 +40,6 @@ interface jqshowquestion {
      * @param jqshow_questions $question
      * @return mixed
      */
-    public static function get_ranking_for_question(\stdClass $participant, jqshow_questions_responses $response, array $answers, jqshow_sessions $session, jqshow_questions $question);
+    /*public static function get_ranking_for_question(\stdClass $participant, jqshow_questions_responses $response, array $answers, jqshow_sessions $session, jqshow_questions $question);*/
 }
 
