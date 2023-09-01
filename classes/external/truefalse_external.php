@@ -48,15 +48,15 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
-class multichoice_external extends external_api {
+class truefalse_external extends external_api {
 
     /**
      * @return external_function_parameters
      */
-    public static function multichoice_parameters(): external_function_parameters {
+    public static function truefalse_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'answerids' => new external_value(PARAM_RAW, 'answer id, or comma-separated answers ids, or empty'),
+                'answerid' => new external_value(PARAM_INT, 'answer id'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
@@ -69,7 +69,7 @@ class multichoice_external extends external_api {
     }
 
     /**
-     * @param string $answerids
+     * @param string $answerid
      * @param int $sessionid
      * @param int $jqshowid
      * @param int $cmid
@@ -86,14 +86,14 @@ class multichoice_external extends external_api {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function multichoice(
-        string $answerids, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $jqid, int $timeleft, bool $preview
+    public static function truefalse(
+        string $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $jqid, int $timeleft, bool $preview
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
-            self::multichoice_parameters(),
+            self::truefalse_parameters(),
             [
-                'answerids' => $answerids,
+                'answerid' => $answerid,
                 'sessionid' => $sessionid,
                 'jqshowid' => $jqshowid,
                 'cmid' => $cmid,
@@ -103,39 +103,28 @@ class multichoice_external extends external_api {
                 'preview' => $preview
             ]
         );
-        error_log(" ERRORRRRRR   NO TIENE QUE ENTRAR AQUI!!!!!");
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
 
         $question = question_bank::load_question($questionid);
         $statmentfeedback = questions::get_text(
-            $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
+            $cmid, $question->generalfeedback, 1, $question->id, $question, 'generalfeedback'
         );
-        $correctanswers = '';
-        $answerfeedback = '';
-        foreach ($question->answers as $key => $answer) {
-            if ($answer->fraction !== '0.0000000' && strpos($answer->fraction, '-') !== 0) {
-                $correctanswers .= $answer->id . ',';
-                // TODO obtain the value of the answer to score the question.
-            }
-            if (isset($answerids) && $answerids !== '' && $answerids !== '0') {
-                $arrayanswers = explode(',', $answerids);
-                foreach ($arrayanswers as $arrayanswer) {
-                    if ((int)$key === (int)$arrayanswer && $answerfeedback === '') {
-                        $answerfeedback .= questions::get_text(
-                            $cmid, $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
-                        ) . '<br>';
-                    }
-                }
-            }
+        $correctanswer = $question->rightanswer ? (int)$question->trueanswerid : (int)$question->falseanswerid;
+        if ((int)$answerid === (int)$question->trueanswerid) {
+            $answerfeedback = questions::get_text(
+                    $cmid, $question->truefeedback, 1, (int) $question->trueanswerid, $question, 'answerfeedback'
+                ) . '<br>';
+        } else {
+            $answerfeedback = questions::get_text(
+                    $cmid, $question->falsefeedback, 1, (int) $question->falseanswerid, $question, 'answerfeedback'
+                ) . '<br>';
         }
-        $correctanswers = trim($correctanswers, ',');
-
         if ($preview === false) {
-            responses::multichoice_response(
+            responses::truefalse_response(
                 $jqid,
-                $answerids,
-                $correctanswers,
+                $answerid,
+                $correctanswer,
                 $questionid,
                 $sessionid,
                 $jqshowid,
@@ -151,7 +140,7 @@ class multichoice_external extends external_api {
             'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
             'statment_feedback' => $statmentfeedback,
             'answer_feedback' => $answerfeedback,
-            'correct_answers' => $correctanswers,
+            'correct_answers' => $correctanswer,
             'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
                 $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
@@ -162,7 +151,7 @@ class multichoice_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function multichoice_returns(): external_single_structure {
+    public static function truefalse_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'reply_status' => new external_value(PARAM_BOOL, 'Status of reply'),

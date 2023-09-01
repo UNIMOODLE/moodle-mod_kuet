@@ -74,7 +74,7 @@ class responses {
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
             self::manage_response($jqid, $answerids, $correctanswers, $questionid, $sessionid, $jqshowid,
-                $statmentfeedback, $answerfeedback, $userid, $timeleft);
+                $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::MULTICHOICE);
         }
     }
 
@@ -140,6 +140,44 @@ class responses {
      * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @return void
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    public static function truefalse_response(
+        int $jqid,
+        string $answerids,
+        string $correctanswers,
+        int $questionid,
+        int $sessionid,
+        int $jqshowid,
+        string $statmentfeedback,
+        string $answerfeedback,
+        int $userid,
+        int $timeleft
+    ): void {
+        global $COURSE;
+        $coursecontext = context_course::instance($COURSE->id);
+        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        if (!$isteacher) {
+            self::manage_response($jqid, $answerids, $correctanswers, $questionid, $sessionid, $jqshowid,
+                $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::TRUE_FALSE);
+        }
+    }
+
+    /**
+     * @param int $jqid
+     * @param string $answerids
+     * @param string $correctanswers
+     * @param int $questionid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param string $statmentfeedback
+     * @param string $answerfeedback
+     * @param int $userid
+     * @param int $timeleft
      * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
@@ -155,7 +193,8 @@ class responses {
                                            string $statmentfeedback,
                                            string $answerfeedback,
                                            int $userid,
-                                           int $timeleft) : void {
+                                           int $timeleft,
+                                            string $qtype) : void {
         $result = self::get_status_response($answerids, $correctanswers, $questionid);
         $response = new stdClass(); // For snapshot.
         $response->questionid = $questionid;
@@ -163,7 +202,7 @@ class responses {
         $response->correct_answers = $correctanswers;
         $response->answerids = $answerids;
         $response->timeleft = $timeleft;
-        $response->type = questions::MULTICHOICE;
+        $response->type = $qtype;
         $session = new jqshow_sessions($sessionid);
         if ($session->is_group_mode()) {
             // All groupmembers has the same response saved on db.

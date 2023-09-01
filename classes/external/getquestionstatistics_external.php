@@ -96,6 +96,19 @@ class getquestionstatistics_external extends external_api {
                 break;
             case questions::MATCH:
                 break;
+            case questions::TRUE_FALSE:
+                $statistics[$question->trueanswerid] = ['answerid' => $question->trueanswerid, 'numberofreplies' => 0];
+                $statistics[$question->falseanswerid] = ['answerid' => $question->falseanswerid, 'numberofreplies' => 0];
+                $responses = jqshow_questions_responses::get_question_responses($sid, $jqshowquestion->get('jqshowid'), $jqid);
+                foreach ($responses as $response) {
+                    foreach ($question->answers as $answer) {
+                        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                        if ((int)$other->answerids === (int)$answer->id) {
+                            $statistics[$answer->id]['numberofreplies']++;
+                        }
+                    }
+                }
+                break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));

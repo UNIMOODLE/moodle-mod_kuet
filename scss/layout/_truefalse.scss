@@ -1,0 +1,231 @@
+.container-fluid.truefalse {
+    padding: 40px;
+    .content-indicators {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+        margin-bottom: 1em;
+        .users,
+        .timer {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #212529;
+            background-color: white;
+            .icon {
+                height: 20px;
+                width: auto;
+            }
+            .numusers,
+            .seconds {
+                font-weight: bold;
+                font-size: 25px;
+            }
+        }
+    }
+    .contain-statement {
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        background-color: white;
+        border-radius: 25px;
+        z-index: 1;
+        .statement-text {
+            text-align: center;
+            width: 100%;
+        }
+    }
+    .containt-answers {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        align-items: center;
+        margin-top: 1em;
+        .truefalse-answer {
+            border-radius: 8px;
+            padding: 45px;
+            color: #fff;
+            margin: 12px;
+            display: flex;
+            flex-direction: column;
+            flex-basis: 43%;
+            background-color: #00B0E8;
+            text-align: center;
+            z-index: 1;
+            position: relative;
+            &:hover {
+                cursor: pointer;
+                transform: scale(1.03);
+                transition: transform .5s;
+            }
+            .feedback-icons,
+            .statistics-icons {
+                .feedback-icon,
+                .statistics-icon {
+                    display: none;
+                    background-color: white;
+                    border-radius: 15px;
+                    height: 40px;
+                    width: 40px;
+                    flex-flow: row nowrap;
+                    justify-content: center;
+                    align-items: center;
+                    position: absolute;
+                    .icon {
+                        margin: 0;
+                        height: 15px;
+                        width: auto;
+                    }
+                }
+            }
+            .feedback-icons {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+            }
+            .statistics-icons {
+                position: absolute;
+                top: 10px;
+                right: 80px;
+                .statistics-icon {
+                    width: 70px;
+                    height: 40px;
+                    svg {
+                        margin-right: 5px;
+                    }
+                    .numberofreplies {
+                        font-size: 18px;
+                    }
+                }
+            }
+        }
+        @for $i from 1 through length($answercolors) {
+            .truefalse-answer:nth-child(#{length($answercolors)}n+#{$i}) {
+                background: nth($answercolors, $i);
+                .statistics-icons {
+                    .statistics-icon {
+                        .statistics-svg {
+                            fill: nth($answercolors, $i);
+                        }
+                        .numberofreplies {
+                            color: nth($answercolors, $i);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    .containt-feedbacks {
+        display: none;
+        margin-top: 1em;
+        border-radius: 25px;
+        color: white;
+        padding: 30px;
+        text-align: center;
+        .feedback-title {
+            font-size: 30px;
+            .icon {
+                height: 25px;
+                width: auto;
+            }
+        }
+        .content-feedbacks {
+            hr {
+                border-color: white;
+            }
+            .content-feedback,
+            .content-feedback-answer {
+                img {
+                    margin: 1em;
+                    max-width: 90% !important;
+                }
+            }
+            .content-feedback {
+                font-size: 20px;
+            }
+            .content-feedback-answer {
+                font-size: 17px;
+            }
+        }
+    }
+    .feedback-background {
+        display: none;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        border-radius: 0 0 25px 25px;
+        background-color: rgba(0, 0, 0, .6);
+    }
+    .contain-statement,
+    .containt-answers {
+        .statement-text,
+        .truefalse-answer {
+            img {
+                margin: 1em auto;
+                max-width: 90% !important;
+                height: auto;
+            }
+            pre {
+                font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;
+                clear: both;
+                color: #fff;
+                background: #262626;
+                padding: 0;
+                tab-size: 2;
+                word-break: normal;
+                hyphens: none;
+                position: relative;
+                line-height: 28px;
+                border-radius: 8px;
+                overflow: hidden;
+                code {
+                    text-align: left;
+                    background: none;
+                    white-space: pre;
+                    overflow-x: auto;
+                    display: block;
+                    max-width: 100%;
+                    min-width: 100px;
+                    font-size: 16px;
+                    padding: 15px 20px 12px 22px;
+                    line-height: 1.75;
+                }
+            }
+            &.answer-checked {
+                transform: scale(1.03);
+                filter: grayscale(.6);
+                box-shadow: 0 0 10px rgba(0,0,0,.06);
+            }
+        }
+    }
+}
+@media (max-width: 991px) {
+    .container-fluid.truefalse {
+        padding: 15px;
+        .content-indicators {
+            .users,
+            .timer {
+                border: none;
+                .icon {
+                    height: 13px;
+                    width: auto;
+                }
+                .numusers,
+                .seconds {
+                    font-weight: bold;
+                    font-size: 18px;
+                }
+            }
+        }
+    }
+}

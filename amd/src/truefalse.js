@@ -6,14 +6,12 @@ import Notification from 'core/notification';
 import Templates from 'core/templates';
 
 let ACTION = {
-    REPLY: '[data-action="multichoice-answer"]',
-    MULTIANSWER: '[data-action="multichoice-multianswer"]',
-    SENDMULTIANSWER: '[data-action="send-multianswer"]'
+    REPLY: '[data-action="truefalse-answer"]',
 };
 
 let REGION = {
     ROOT: '[data-region="question-content"]',
-    MULTICHOICE: '[data-region="multichoice"]',
+    TRUEFALSE: '[data-region="truefalse"]',
     LOADING: '[data-region="overlay-icon-container"]',
     CONTENTFEEDBACKS: '[data-region="containt-feedbacks"]',
     FEEDBACK: '[data-region="statement-feedback"]',
@@ -27,7 +25,7 @@ let REGION = {
 };
 
 let SERVICES = {
-    REPLY: 'mod_jqshow_multichoice'
+    REPLY: 'mod_jqshow_truefalse'
 };
 
 let TEMPLATES = {
@@ -51,7 +49,7 @@ let manualMode = false;
  * @param {Boolean} manualmode
  * @param {String} jsonresponse
  */
-function MultiChoice(selector, showquestionfeedback = false, manualmode = false, jsonresponse = '') {
+function TrueFalse(selector, showquestionfeedback = false, manualmode = false, jsonresponse = '') {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
@@ -70,93 +68,80 @@ function MultiChoice(selector, showquestionfeedback = false, manualmode = false,
             }
         }
     }
-    this.initMultichoice();
+    this.initTrueFalse();
 }
 
 /** @type {jQuery} The jQuery node for the page region. */
-MultiChoice.prototype.node = null;
-MultiChoice.prototype.endTimer = new Event('endTimer');
-MultiChoice.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
+TrueFalse.prototype.node = null;
+TrueFalse.prototype.endTimer = new Event('endTimer');
+TrueFalse.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
 
-MultiChoice.prototype.initMultichoice = function() {
+TrueFalse.prototype.initTrueFalse = function() {
     this.node.find(ACTION.REPLY).on('click', this.reply.bind(this));
-    this.node.find(ACTION.MULTIANSWER).on('click', this.markAnswer.bind(this));
-    this.node.find(ACTION.SENDMULTIANSWER).on('click', this.reply.bind(this));
-    MultiChoice.prototype.initEvents();
+    TrueFalse.prototype.initEvents();
 };
 
-MultiChoice.prototype.initEvents = function() {
+TrueFalse.prototype.initEvents = function() {
     addEventListener('timeFinish', () => {
-        MultiChoice.prototype.reply();
+        TrueFalse.prototype.reply();
     }, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
-            // eslint-disable-next-line no-console
-            console.log('teacherQuestionEnd_' + jqid);
             if (questionEnd !== true) {
-                MultiChoice.prototype.reply();
+                TrueFalse.prototype.reply();
             }
             e.detail.statistics.forEach((statistic) => {
                 jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
             });
         }, {once: true});
         addEventListener('pauseQuestion_' + jqid, () => {
-            MultiChoice.prototype.pauseQuestion();
+            TrueFalse.prototype.pauseQuestion();
         }, false);
         addEventListener('playQuestion_' + jqid, () => {
-            MultiChoice.prototype.playQuestion();
+            TrueFalse.prototype.playQuestion();
         }, false);
         addEventListener('showAnswers_' + jqid, () => {
-            MultiChoice.prototype.showAnswers();
+            TrueFalse.prototype.showAnswers();
         }, false);
         addEventListener('hideAnswers_' + jqid, () => {
-            MultiChoice.prototype.hideAnswers();
+            TrueFalse.prototype.hideAnswers();
         }, false);
         addEventListener('showStatistics_' + jqid, () => {
-            MultiChoice.prototype.showStatistics();
+            TrueFalse.prototype.showStatistics();
         }, false);
         addEventListener('hideStatistics_' + jqid, () => {
-            MultiChoice.prototype.hideStatistics();
+            TrueFalse.prototype.hideStatistics();
         }, false);
         addEventListener('showFeedback_' + jqid, () => {
-            MultiChoice.prototype.showFeedback();
+            TrueFalse.prototype.showFeedback();
         }, false);
         addEventListener('hideFeedback_' + jqid, () => {
-            MultiChoice.prototype.hideFeedback();
+            TrueFalse.prototype.hideFeedback();
         }, false);
     }
 
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
-            MultiChoice.prototype.reply();
+            TrueFalse.prototype.reply();
             return 'Because the question is overdue and an attempt has been made to reload the page,' +
                 ' the question has remained unanswered.';
         }
     };
 };
 
-MultiChoice.prototype.reply = function(e) {
+TrueFalse.prototype.reply = function(e) {
     let answerIds = '0';
-    let multiAnswer = e === undefined || jQuery(e.currentTarget).attr('data-action') === 'send-multianswer';
-    if (!multiAnswer) {
-        e.preventDefault();
-        e.stopPropagation();
-        answerIds = jQuery(e.currentTarget).attr('data-answerid');
-    } else { // MultiAnswer or empty.
-        let responses = [];
-        jQuery(REGION.ANSWERCHECKED).each(function(index, response) {
-            responses.push(jQuery(response).attr('data-answerid'));
-        });
-        answerIds = responses.toString();
-    }
+    e.preventDefault();
+    e.stopPropagation();
+    answerIds = jQuery(e.currentTarget).attr('data-answerid');
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
-        dispatchEvent(MultiChoice.prototype.endTimer);
+        dispatchEvent(TrueFalse.prototype.endTimer);
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
             methodname: SERVICES.REPLY,
             args: {
-                answerids: answerIds,
+                answerid: answerIds,
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,
@@ -168,30 +153,20 @@ MultiChoice.prototype.reply = function(e) {
         };
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
-                if (!multiAnswer) {
-                    jQuery(e.currentTarget).css({'z-index': 3, 'pointer-events': 'none'});
-                } else {
-                    let responses = answerIds.split(',');
-                    responses.forEach((rId) => {
-                        jQuery('[data-answerid="' + rId + '"]')
-                            .css({'z-index': 3, 'pointer-events': 'none'})
-                            .removeClass('answer-checked');
-                    });
-                    jQuery(ACTION.SENDMULTIANSWER).addClass('d-none');
-                }
-                MultiChoice.prototype.answered(response);
+                jQuery(e.currentTarget).css({'z-index': 3, 'pointer-events': 'none'});
+                TrueFalse.prototype.answered(response);
                 questionEnd = true;
-                dispatchEvent(MultiChoice.prototype.studentQuestionEnd);
+                dispatchEvent(TrueFalse.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
-                    MultiChoice.prototype.showAnswers();
+                    TrueFalse.prototype.showAnswers();
                     if (showQuestionFeedback === true) {
-                        MultiChoice.prototype.showFeedback();
+                        TrueFalse.prototype.showFeedback();
                     }
                 } else {
                     if (manualMode === false) {
-                        MultiChoice.prototype.showAnswers();
+                        TrueFalse.prototype.showAnswers();
                         if (showQuestionFeedback === true) {
-                            MultiChoice.prototype.showFeedback();
+                            TrueFalse.prototype.showFeedback();
                         }
                     }
                 }
@@ -203,15 +178,7 @@ MultiChoice.prototype.reply = function(e) {
     });
 };
 
-MultiChoice.prototype.markAnswer = function(e) {
-    if (jQuery(e.currentTarget).hasClass('answer-checked')) {
-        jQuery(e.currentTarget).removeClass('answer-checked');
-    } else {
-        jQuery(e.currentTarget).addClass('answer-checked');
-    }
-};
-
-MultiChoice.prototype.answered = function(response) {
+TrueFalse.prototype.answered = function(response) {
     questionEnd = true;
     if (response.hasfeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
@@ -226,7 +193,6 @@ MultiChoice.prototype.answered = function(response) {
         responses.forEach((rId) => {
             jQuery('[data-answerid="' + rId + '"]').css({'z-index': 3, 'pointer-events': 'none'});
         });
-        jQuery(ACTION.SENDMULTIANSWER).addClass('d-none');
     }
     if (response.correct_answers) {
         correctAnswers = response.correct_answers;
@@ -239,14 +205,14 @@ MultiChoice.prototype.answered = function(response) {
     }
 };
 
-MultiChoice.prototype.pauseQuestion = function() {
+TrueFalse.prototype.pauseQuestion = function() {
     dispatchEvent(new Event('pauseQuestion'));
     jQuery(REGION.TIMER).css('z-index', 3);
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(ACTION.REPLY).css('pointer-events', 'none');
 };
 
-MultiChoice.prototype.playQuestion = function() {
+TrueFalse.prototype.playQuestion = function() {
     if (questionEnd !== true) {
         dispatchEvent(new Event('playQuestion'));
         jQuery(REGION.TIMER).css('z-index', 1);
@@ -255,46 +221,43 @@ MultiChoice.prototype.playQuestion = function() {
     }
 };
 
-MultiChoice.prototype.showAnswers = function() {
+TrueFalse.prototype.showAnswers = function() {
     if (correctAnswers !== null && questionEnd === true) {
         jQuery('.feedback-icon').css('display', 'flex');
-        let correctAnswersSplit = correctAnswers.split(',');
-        correctAnswersSplit.forEach((answ) => {
-            jQuery('[data-answerid="' + answ + '"] .incorrect').css('display', 'none');
-        });
+        jQuery('[data-answerid="' + correctAnswers + '"] .incorrect').css('display', 'none');
     }
 };
 
-MultiChoice.prototype.hideAnswers = function() {
+TrueFalse.prototype.hideAnswers = function() {
     if (questionEnd === true) {
         jQuery('.feedback-icon').css('display', 'none');
     }
 };
 
-MultiChoice.prototype.showStatistics = function() {
+TrueFalse.prototype.showStatistics = function() {
     if (questionEnd === true) {
         jQuery('.statistics-icon').css('display', 'flex');
     }
 };
 
-MultiChoice.prototype.hideStatistics = function() {
+TrueFalse.prototype.hideStatistics = function() {
     if (questionEnd === true) {
         jQuery('.statistics-icon').css('display', 'none');
     }
 };
 
-MultiChoice.prototype.showFeedback = function() {
+TrueFalse.prototype.showFeedback = function() {
     if (questionEnd === true) {
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
     }
 };
 
-MultiChoice.prototype.hideFeedback = function() {
+TrueFalse.prototype.hideFeedback = function() {
     if (questionEnd === true) {
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'none', 'z-index': 0});
     }
 };
 
-export const initMultiChoice = (selector, showquestionfeedback, manualmode, jsonresponse) => {
-    return new MultiChoice(selector, showquestionfeedback, manualmode, jsonresponse);
+export const initTrueFalse = (selector, showquestionfeedback, manualmode, jsonresponse) => {
+    return new TrueFalse(selector, showquestionfeedback, manualmode, jsonresponse);
 };

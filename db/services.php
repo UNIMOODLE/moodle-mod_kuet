@@ -55,6 +55,7 @@ use mod_jqshow\external\deletequestion_external;
 use mod_jqshow\external\copyquestion_external;
 use mod_jqshow\external\editsessionsettings_external;
 use mod_jqshow\external\startsession_external;
+use mod_jqshow\external\truefalse_external;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -160,6 +161,14 @@ $functions = [
         'classname' => match_external::class,
         'methodname' => 'match',
         'description' => 'Match reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_truefalse' => [
+        'classname' => truefalse_external::class,
+        'methodname' => 'truefalse',
+        'description' => 'Truefalse reply.',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
@@ -357,6 +366,7 @@ $services = [
             'mod_jqshow_editsessionsettings',
             'mod_jqshow_multichoice',
             'mod_jqshow_match',
+            'mod_jqshow_truefalse',
             'mod_jqshow_nextquestion',
             'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',

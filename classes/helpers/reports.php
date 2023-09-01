@@ -39,6 +39,7 @@ use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\questions\match;
 use mod_jqshow\questions\multichoice;
+use mod_jqshow\questions\truefalse;
 use moodle_exception;
 use moodle_url;
 use question_bank;
@@ -411,6 +412,9 @@ class reports {
             case questions::MATCH:
                 $data = match::get_question_report($session, $questiondata, $data, $jqid);
                 break;
+            case questions::TRUE_FALSE:
+                $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
+                break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));
@@ -475,6 +479,12 @@ class reports {
             // TODO recfactor.
             case questions::MULTICHOICE:
                 $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
+                break;
+            case questions::MATCH:
+                // TODO.
+                break;
+            case questions::TRUE_FALSE:
+                $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             default:
                 break;
@@ -609,8 +619,6 @@ class reports {
         }
         $data->groupreport = true;
         $data->sessionname = $session->get('name');
-//        $userdata = $DB->get_record('user', ['id' => $userid]);
-//        $data = self::add_userdata($userdata, $data, $userid);
         $gmembers = groupmode::get_group_members($groupid);
         $gmember = reset($gmembers);
         $groupdata = groups_get_group($groupid);
@@ -774,6 +782,9 @@ class reports {
                         case questions::MATCH:
                             $user = match::get_ranking_for_question($user, $response, $session, $question);
                             break;
+                        case questions::TRUE_FALSE:
+                            $user = truefalse::get_ranking_for_question($user, $response, $answers, $session, $question);
+                            break;
                         default:
                             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                                 [], get_string('question_nosuitable', 'mod_jqshow'));
@@ -811,6 +822,12 @@ class reports {
                 switch ($other->type) {
                     case questions::MULTICHOICE:
                         $group = multichoice::get_ranking_for_question($group, $response, $answers, $session, $question);
+                        break;
+                    case questions::MATCH:
+                        // TODO.
+                        break;
+                    case questions::TRUE_FALSE:
+                        $group = truefalse::get_ranking_for_question($group, $response, $answers, $session, $question);
                         break;
                     default:
                         throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

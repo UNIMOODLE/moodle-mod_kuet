@@ -92,6 +92,14 @@ class firstquestion_external extends external_api {
                     $firstquestion->get('jqshowid'));
                 $question->showstatistics = false;
                 break;
+            case questions::TRUE_FALSE:
+                $question = questions::export_truefalse(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = true;
+                break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));
