@@ -89,8 +89,6 @@ MultiChoice.prototype.initEvents = function() {
     addEventListener('timeFinish', () => {
         MultiChoice.prototype.reply();
     }, {once: true});
-    // eslint-disable-next-line no-console
-    console.log(manualMode, 'manualMode');
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             // eslint-disable-next-line no-console

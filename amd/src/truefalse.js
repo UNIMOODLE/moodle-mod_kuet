@@ -78,45 +78,51 @@ TrueFalse.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
 
 TrueFalse.prototype.initTrueFalse = function() {
     this.node.find(ACTION.REPLY).on('click', this.reply.bind(this));
-    let that = this;
+    TrueFalse.prototype.initEvents();
+};
+
+TrueFalse.prototype.initEvents = function() {
     addEventListener('timeFinish', () => {
-        this.reply();
+        TrueFalse.prototype.reply();
     }, {once: true});
-    addEventListener('teacherQuestionEnd_' + jqid, (e) => {
-        if (questionEnd !== true) {
-            this.reply();
-        }
-        e.detail.statistics.forEach((statistic) => {
-            jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
-        });
-    }, {once: true});
-    addEventListener('pauseQuestion_' + jqid, () => {
-        this.pauseQuestion();
-    }, false);
-    addEventListener('playQuestion_' + jqid, () => {
-        this.playQuestion();
-    }, false);
-    addEventListener('showAnswers_' + jqid, () => {
-        this.showAnswers();
-    }, false);
-    addEventListener('hideAnswers_' + jqid, () => {
-        this.hideAnswers();
-    }, false);
-    addEventListener('showStatistics_' + jqid, () => {
-        this.showStatistics();
-    }, false);
-    addEventListener('hideStatistics_' + jqid, () => {
-        this.hideStatistics();
-    }, false);
-    addEventListener('showFeedback_' + jqid, () => {
-        this.showFeedback();
-    }, false);
-    addEventListener('hideFeedback_' + jqid, () => {
-        this.hideFeedback();
-    }, false);
+    if (manualMode !== false) {
+        addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                TrueFalse.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        addEventListener('pauseQuestion_' + jqid, () => {
+            TrueFalse.prototype.pauseQuestion();
+        }, false);
+        addEventListener('playQuestion_' + jqid, () => {
+            TrueFalse.prototype.playQuestion();
+        }, false);
+        addEventListener('showAnswers_' + jqid, () => {
+            TrueFalse.prototype.showAnswers();
+        }, false);
+        addEventListener('hideAnswers_' + jqid, () => {
+            TrueFalse.prototype.hideAnswers();
+        }, false);
+        addEventListener('showStatistics_' + jqid, () => {
+            TrueFalse.prototype.showStatistics();
+        }, false);
+        addEventListener('hideStatistics_' + jqid, () => {
+            TrueFalse.prototype.hideStatistics();
+        }, false);
+        addEventListener('showFeedback_' + jqid, () => {
+            TrueFalse.prototype.showFeedback();
+        }, false);
+        addEventListener('hideFeedback_' + jqid, () => {
+            TrueFalse.prototype.hideFeedback();
+        }, false);
+    }
+
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
-            that.reply();
+            TrueFalse.prototype.reply();
             return 'Because the question is overdue and an attempt has been made to reload the page,' +
                 ' the question has remained unanswered.';
         }
@@ -125,13 +131,12 @@ TrueFalse.prototype.initTrueFalse = function() {
 
 TrueFalse.prototype.reply = function(e) {
     let answerIds = '0';
-    let that = this;
     e.preventDefault();
     e.stopPropagation();
     answerIds = jQuery(e.currentTarget).attr('data-answerid');
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
-        that.node.append(html);
-        dispatchEvent(that.endTimer);
+        jQuery(REGION.ROOT).append(html);
+        dispatchEvent(TrueFalse.prototype.endTimer);
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
             methodname: SERVICES.REPLY,
@@ -149,19 +154,19 @@ TrueFalse.prototype.reply = function(e) {
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
                 jQuery(e.currentTarget).css({'z-index': 3, 'pointer-events': 'none'});
-                that.answered(response);
+                TrueFalse.prototype.answered(response);
                 questionEnd = true;
-                dispatchEvent(that.studentQuestionEnd);
+                dispatchEvent(TrueFalse.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
-                    that.showAnswers();
+                    TrueFalse.prototype.showAnswers();
                     if (showQuestionFeedback === true) {
-                        that.showFeedback();
+                        TrueFalse.prototype.showFeedback();
                     }
                 } else {
                     if (manualMode === false) {
-                        that.showAnswers();
+                        TrueFalse.prototype.showAnswers();
                         if (showQuestionFeedback === true) {
-                            that.showFeedback();
+                            TrueFalse.prototype.showFeedback();
                         }
                     }
                 }
@@ -208,10 +213,12 @@ TrueFalse.prototype.pauseQuestion = function() {
 };
 
 TrueFalse.prototype.playQuestion = function() {
-    dispatchEvent(new Event('playQuestion'));
-    jQuery(REGION.TIMER).css('z-index', 1);
-    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
-    jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    if (questionEnd !== true) {
+        dispatchEvent(new Event('playQuestion'));
+        jQuery(REGION.TIMER).css('z-index', 1);
+        jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
+        jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    }
 };
 
 TrueFalse.prototype.showAnswers = function() {
