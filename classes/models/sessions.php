@@ -759,6 +759,12 @@ class sessions {
             $update = true;
             $data->{'id'} = $id;
         }
+        if (!isset($data->sgrade)) {
+            $data->sgrade = 0;
+        }
+        if (!isset($data->countdown)) {
+            $data->countdown = 0;
+        }
         if (!isset($data->showfeedback)) {
             $data->showfeedback = 0;
         }
@@ -767,6 +773,15 @@ class sessions {
         }
         if (!isset($data->showfinalgrade)) {
             $data->showfinalgrade = 0;
+        }
+        if (!isset($data->showfinalgrade)) {
+            $data->showfinalgrade = 0;
+        }
+        if (!isset($data->randomquestions)) {
+            $data->randomquestions = 0;
+        }
+        if (!isset($data->randomanswers)) {
+            $data->randomanswers = 0;
         }
         if (!isset($data->automaticstart) || $data->automaticstart === 0) {
             $data->startdate = 0;

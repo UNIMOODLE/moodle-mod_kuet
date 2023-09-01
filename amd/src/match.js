@@ -82,19 +82,20 @@ function Match(selector, showquestionfeedback = false, manualmode = false, jsonr
     manualMode = manualmode;
     questionEnd = false;
     linkList = [];
+    this.createLinkCorrection();
     if (jsonresponse !== '') {
         this.answered(jsonresponse);
         if (manualMode === false || jQuery('.modal-body').length) {
-            this.showAnswers();
+            questionEnd = true;
             if (showQuestionFeedback === true) {
                 this.showFeedback();
             }
+            this.showAnswers();
         }
     }
     setTimeout(() => { // For modal preview, is executed before the DOM is rendered.
         this.initMatch();
     }, 500);
-    this.createLinkCorrection(); // TODO seems unnecessary, check.
 }
 
 Match.prototype.answered = function(jsonresponse) {
@@ -178,7 +179,8 @@ Match.prototype.initEvents = function() {
     };
 };
 
-Match.prototype.createLinkCorrection = function() { // TODO is unnecessary, for debugging.
+Match.prototype.createLinkCorrection = function() {
+    linkCorrection = [];
     jQuery.each(jQuery(REGION.LEFT_OPTION_SELECTOR), function(index, item) {
         let dragId = jQuery(item).data('stems') + '-draggable';
         let steam = Match.prototype.baseConvert(jQuery(item).data('stems'), 2, 16);
@@ -476,6 +478,8 @@ Match.prototype.drawCorrectLinks = function() {
     let canvas = jQuery(REGION.CANVAS).get(0);
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // eslint-disable-next-line no-console
+    console.log(linkCorrection);
     linkCorrection.forEach(link => Match.prototype.drawLink(link.dragId, link.dropId, link.color));
 };
 
@@ -674,10 +678,14 @@ Match.prototype.hideStatistics = function() {};
 Match.prototype.showFeedback = function() {
     if (questionEnd === true) {
         showingFeedback = true;
-        Match.prototype.hideResponse();
+        // eslint-disable-next-line no-console
+        console.log(jQuery('.modal-body').length, manualMode);
+        if (jQuery('.modal-body').length === 0 && manualMode === true) {
+            Match.prototype.hideResponse();
+            Match.prototype.showCorrects();
+            Match.prototype.drawCorrectLinks();
+        }
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
-        Match.prototype.showCorrects();
-        Match.prototype.drawCorrectLinks();
     }
 };
 

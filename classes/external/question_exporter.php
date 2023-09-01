@@ -137,7 +137,8 @@ class question_exporter extends exporter {
                 'optional' => true
             ],
             'showstatistics' => [
-                'type' => PARAM_BOOL
+                'type' => PARAM_BOOL,
+                'optional' => true
             ],
             'showquestionfeedback' => [
                 'type' => PARAM_BOOL
