@@ -27,7 +27,8 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_module;
-use core\invalid_persistent_exception;
+use dml_exception;
+use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
@@ -38,8 +39,7 @@ use mod_jqshow\helpers\responses;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
-use moodle_exception;
-use qtype_match_question;
+use qtype_shortanswer_question;
 use question_bank;
 
 defined('MOODLE_INTERNAL') || die();
@@ -47,13 +47,12 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
-class match_external extends external_api {
+class shortanswer_external extends external_api {
 
-    public static function match_parameters(): external_function_parameters {
+    public static function shortanswer_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'jsonresponse' => new external_value(PARAM_RAW, 'json with all responses'),
-                'result' => new external_value(PARAM_INT, 'const result'),
+                'responsetext' => new external_value(PARAM_RAW, 'User response text'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
@@ -66,8 +65,7 @@ class match_external extends external_api {
     }
 
     /**
-     * @param string $jsonresponse
-     * @param int $result
+     * @param string $responsetext
      * @param int $sessionid
      * @param int $jqshowid
      * @param int $cmid
@@ -77,14 +75,13 @@ class match_external extends external_api {
      * @param bool $preview
      * @return array
      * @throws JsonException
-     * @throws invalid_persistent_exception
-     * @throws moodle_exception
      * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      */
-    public static function match(
-        string $jsonresponse,
-        int $result,
+    public static function shortanswer(
+        string $responsetext,
         int $sessionid,
         int $jqshowid,
         int $cmid,
@@ -95,10 +92,9 @@ class match_external extends external_api {
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
-            self::match_parameters(),
+            self::shortanswer_parameters(),
             [
-                'jsonresponse' => $jsonresponse,
-                'result' => $result,
+                'responsetext' => $responsetext,
                 'sessionid' => $sessionid,
                 'jqshowid' => $jqshowid,
                 'cmid' => $cmid,
@@ -113,50 +109,16 @@ class match_external extends external_api {
 
         $session = new jqshow_sessions($sessionid);
         $question = question_bank::load_question($questionid);
-        if (assert($question instanceof qtype_match_question)) {
+        if (assert($question instanceof qtype_shortanswer_question)) {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
-            switch ($result) {
-                case questions::SUCCESS:
-                    $answerfeedback = questions::get_text(
-                        $cmid,
-                        $question->correctfeedback,
-                        $question->correctfeedbackformat,
-                        $question->id,
-                        $question,
-                        'correctfeedback'
-                    );
-                    break;
-                case questions::PARTIALLY:
-                    $answerfeedback = questions::get_text(
-                        $cmid,
-                        $question->partiallycorrectfeedback,
-                        $question->partiallycorrectfeedbackformat,
-                        $question->id,
-                        $question,
-                        'partiallycorrectfeedback'
-                    );
-                    break;
-                case questions::FAILURE:
-                    $answerfeedback = questions::get_text(
-                        $cmid,
-                        $question->incorrectfeedback,
-                        $question->incorrectfeedbackformat,
-                        $question->id,
-                        $question,
-                        'incorrectfeedback'
-                    );
-                    break;
-                default:
-                    $answerfeedback = '';
-                    break;
-            }
-
+            $answerfeedback = ''; // TODO get answerfeedback.
+            $result = 0; // TODO get result.
             if ($preview === false) {
-                responses::match_response(
+                responses::shortanswer_response(
                     $jqid,
-                    $jsonresponse,
+                    $responsetext,
                     $result,
                     $questionid,
                     $sessionid,
@@ -192,7 +154,7 @@ class match_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function match_returns(): external_single_structure {
+    public static function shortanswer_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'reply_status' => new external_value(PARAM_BOOL, 'Status of reply'),

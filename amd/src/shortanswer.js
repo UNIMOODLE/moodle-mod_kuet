@@ -89,77 +89,103 @@ function ShortAnswer(selector, showquestionfeedback = false, manualmode = false,
 }
 
 ShortAnswer.prototype.initShortAnswer = function() {
-    jQuery(REGION.INPUTANSWER).on('keydown', ShortAnswer.prototype.checkCharacter.bind(this));
+    jQuery(ACTION.SEND_RESPONSE).on('click', ShortAnswer.prototype.reply);
+    ShortAnswer.prototype.initEvents();
 };
 
-ShortAnswer.prototype.checkCharacter = function(e) {
-    let key = (document.all) ? e.keyCode : e.which;
-    let ctrl = e.ctrlKey ? e.ctrlKey : ((key === 17));
-    if (key === 86 && ctrl) { // Pasting text.
-        jQuery(REGION.ANSWERHELP).text(strings[1]);
-        return false;
+ShortAnswer.prototype.initEvents = function() {
+    addEventListener('timeFinish', () => {
+        ShortAnswer.prototype.reply();
+    }, {once: true});
+    if (manualMode !== false) {
+        addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            // eslint-disable-next-line no-console
+            console.log('teacherQuestionEnd_' + jqid);
+            if (questionEnd !== true) {
+                ShortAnswer.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        addEventListener('pauseQuestion_' + jqid, () => {
+            ShortAnswer.prototype.pauseQuestion();
+        }, false);
+        addEventListener('playQuestion_' + jqid, () => {
+            ShortAnswer.prototype.playQuestion();
+        }, false);
+        addEventListener('showAnswers_' + jqid, () => {
+            ShortAnswer.prototype.showAnswers();
+        }, false);
+        addEventListener('hideAnswers_' + jqid, () => {
+            ShortAnswer.prototype.hideAnswers();
+        }, false);
+        addEventListener('showStatistics_' + jqid, () => {
+            ShortAnswer.prototype.showStatistics();
+        }, false);
+        addEventListener('hideStatistics_' + jqid, () => {
+            ShortAnswer.prototype.hideStatistics();
+        }, false);
+        addEventListener('showFeedback_' + jqid, () => {
+            ShortAnswer.prototype.showFeedback();
+        }, false);
+        addEventListener('hideFeedback_' + jqid, () => {
+            ShortAnswer.prototype.hideFeedback();
+        }, false);
     }
-    let finalKey = String.fromCharCode(key);
-    // eslint-disable-next-line no-console
-    console.log(key, finalKey);
-    switch (key) {
-        case 8: // Backspace.
-        case 9: // Tab.
-        case 192: // The Ñ.
-        case 16: // Shift.
-        case 17: // Ctrl.
-        case 18: // Alt.
-        case 32: // Space.
-        case 35: // End.
-        case 37: // Left.
-        case 38: // Up.
-        case 39: // Right.
-        case 40: // Down.
-        case 45: // Insert.
-        case 46: // Delete.
-        case 91: // Left windows.
-        case 92: // Right windows.
-        case 96:
-        case 97:
-        case 98:
-        case 99:
-        case 100:
-        case 101:
-        case 102:
-        case 103:
-        case 104:
-        case 105:
-        case 106:
-        case 107:
-        case 109:
-        case 110:
-        case 111: // Num Pad.
-        case 186: // Semi-colon.
-        case 187: // Equal sign.
-        case 188: // Comma.
-        case 189: // Dash.
-        case 190: // Point.
-        case 191: // Forward slash.
-            jQuery(REGION.ANSWERHELP).text('');
-            return true;
-        case 33: // Page up.
-        case 34: // Page down.
-        case 219: // Interrogation.
-        case 221: // Exclamation.
-        case 226: // Interrogation.
-            jQuery(REGION.ANSWERHELP).text(strings[0]);
-            return false;
-    }
-    let filter = 'abcdefghijklmnñopqrstuvwxyzABCDEFGHIJKLMNÑOPQRSTUVWXYZ1234567890()&%$@ºª€=[];:\',._-Çç';
-    // eslint-disable-next-line no-console
-    console.log(finalKey, filter.indexOf(finalKey) > 0);
-    if (filter.indexOf(finalKey) > 0) {
-        jQuery(REGION.ANSWERHELP).text('');
-        return true;
-    } else {
-        jQuery(REGION.ANSWERHELP).text(strings[0]);
-        return false;
-    }
+
+    window.onbeforeunload = function() {
+        if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
+            ShortAnswer.prototype.reply();
+            return 'Because the question is overdue and an attempt has been made to reload the page,' +
+                ' the question has remained unanswered.';
+        }
+    };
+};
+
+ShortAnswer.prototype.reply = function() {
+    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+        jQuery(REGION.ROOT).append(html);
+        dispatchEvent(ShortAnswer.prototype.endTimer);
+        let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
+        let responseText = jQuery(REGION.INPUTANSWER).val();
+        let request = {
+            methodname: SERVICES.REPLY,
+            args: {
+                responsetext: responseText,
+                sessionid: sId,
+                jqshowid: jqshowId,
+                cmid: cmId,
+                questionid: questionid,
+                jqid: jqid,
+                timeleft: timeLeft || 0,
+                preview: false
+            }
+        };
+        Ajax.call([request])[0].done(function(response) {
+            if (response.reply_status === true) {
+                questionEnd = true;
+                ShortAnswer.prototype.answered(response);
+                dispatchEvent(ShortAnswer.prototype.studentQuestionEnd);
+                if (jQuery('.modal-body').length) { // Preview.
+                    ShortAnswer.prototype.showAnswers();
+                    if (showQuestionFeedback === true) {
+                        ShortAnswer.prototype.showFeedback();
+                    }
+                } else {
+                    if (manualMode === false) {
+                        ShortAnswer.prototype.showAnswers();
+                        if (showQuestionFeedback === true) {
+                            ShortAnswer.prototype.showFeedback();
+                        }
+                    }
+                }
+            } else {
+                alert('error');
+            }
+            jQuery(REGION.LOADING).remove();
+        }).fail(Notification.exception);
+    });
 };
 
 ShortAnswer.prototype.answered = function(jsonresponse) {

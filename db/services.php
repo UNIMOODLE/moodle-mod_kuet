@@ -54,6 +54,7 @@ use mod_jqshow\external\addquestions_external;
 use mod_jqshow\external\deletequestion_external;
 use mod_jqshow\external\copyquestion_external;
 use mod_jqshow\external\editsessionsettings_external;
+use mod_jqshow\external\shortanswer_external;
 use mod_jqshow\external\startsession_external;
 use mod_jqshow\external\truefalse_external;
 
@@ -169,6 +170,14 @@ $functions = [
         'classname' => truefalse_external::class,
         'methodname' => 'truefalse',
         'description' => 'Truefalse reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_shortanswer' => [
+        'classname' => shortanswer_external::class,
+        'methodname' => 'shortanswer',
+        'description' => 'Shortanswer reply.',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
@@ -367,6 +376,7 @@ $services = [
             'mod_jqshow_multichoice',
             'mod_jqshow_match',
             'mod_jqshow_truefalse',
+            'mod_jqshow_shortanswer',
             'mod_jqshow_nextquestion',
             'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',
