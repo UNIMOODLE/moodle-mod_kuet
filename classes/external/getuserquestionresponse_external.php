@@ -114,6 +114,8 @@ class getuserquestionresponse_external extends external_api {
                 return (array)questions::export_match_response($data, $json, $result);
             case questions::TRUE_FALSE:
                 return (array)questions::export_truefalse_response($data, $json);
+            case questions::SHORTANSWER:
+                return (array)questions::export_shortanswer_response($data, $json);
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));

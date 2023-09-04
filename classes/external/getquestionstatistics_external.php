@@ -95,6 +95,8 @@ class getquestionstatistics_external extends external_api {
                 }
                 break;
             case questions::MATCH:
+            case questions::SHORTANSWER:
+                // There are no statistics defined for these modes.
                 break;
             case questions::TRUE_FALSE:
                 $statistics[$question->trueanswerid] = ['answerid' => $question->trueanswerid, 'numberofreplies' => 0];

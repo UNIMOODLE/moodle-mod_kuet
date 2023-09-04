@@ -28,11 +28,13 @@ namespace mod_jqshow\external;
 use coding_exception;
 use context_module;
 use dml_exception;
+use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use JsonException;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_questions;
@@ -61,8 +63,9 @@ class firstquestion_external extends external_api {
      * @param int $cmid
      * @param int $sessionid
      * @return array
+     * @throws JsonException
+     * @throws dml_transaction_exception
      * @throws coding_exception
-     * @throws dml_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
@@ -99,6 +102,14 @@ class firstquestion_external extends external_api {
                     $sessionid,
                     $firstquestion->get('jqshowid'));
                 $question->showstatistics = true;
+                break;
+            case questions::SHORTANSWER:
+                $question = questions::export_shortanswer(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = false;
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

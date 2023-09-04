@@ -486,6 +486,9 @@ class reports {
             case questions::TRUE_FALSE:
                 $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
                 break;
+            case questions::SHORTANSWER:
+                // TODO.
+                break;
             default:
                 break;
         }
@@ -534,10 +537,10 @@ class reports {
         }
         return $data;
     }
+
     /**
      * @param int $cmid
      * @param int $sid
-     * @param int $jqid
      * @param int $userid
      * @param context_module $cmcontext
      * @return stdClass
@@ -784,6 +787,9 @@ class reports {
                             break;
                         case questions::TRUE_FALSE:
                             $user = truefalse::get_ranking_for_question($user, $response, $answers, $session, $question);
+                            break;
+                        case questions::SHORTANSWER:
+                            // TODO.
                             break;
                         default:
                             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

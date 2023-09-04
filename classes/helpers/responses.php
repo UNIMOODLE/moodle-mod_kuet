@@ -178,6 +178,7 @@ class responses {
      * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param string $qtype
      * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception

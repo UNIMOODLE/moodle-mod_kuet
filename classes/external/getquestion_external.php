@@ -89,6 +89,9 @@ class getquestion_external extends external_api {
             case questions::TRUE_FALSE:
                 $question = questions::export_truefalse($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
+            case questions::SHORTANSWER:
+                $question = questions::export_shortanswer($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));

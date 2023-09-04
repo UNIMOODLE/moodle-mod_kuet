@@ -97,6 +97,7 @@ class sessions {
             $ds->status === sessionsmodel::SESSION_STARTED ?
                 get_string('sessionstarted', 'mod_jqshow') : get_string('init_session', 'mod_jqshow');
         $ds->date = '';
+        $ds->automaticstart = false;
         if ($session->get('automaticstart') === 1) {
             $ds->automaticstart = true;
             $startdate = $session->get('startdate');
