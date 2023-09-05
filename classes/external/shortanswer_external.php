@@ -109,12 +109,29 @@ class shortanswer_external extends external_api {
 
         $session = new jqshow_sessions($sessionid);
         $question = question_bank::load_question($questionid);
+        $result = questions::FAILURE;
+        $answerfeedback = '';
         if (assert($question instanceof qtype_shortanswer_question)) {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
-            $answerfeedback = ''; // TODO get answerfeedback.
-            $result = 0; // TODO get result.
+            /* TODO move logic to API grades,
+            to have a method that returns the result constant and the feedback of the answer according to the type of question. */
+            foreach ($question->answers as $answer) {
+                $overlap = (int)$question->usecase === 0 ?
+                    (strcasecmp($responsetext, $answer->answer) === 0) : // Uppercase and lowercase letters are the same.
+                    (strcmp($responsetext, $answer->answer) === 0); // Uppercase and lowercase letters must match.
+                if ($overlap === true) {
+                    if ($answer->fraction === '1.0000000') {
+                        $result = questions::SUCCESS;
+                    } else {
+                        $result = questions::PARTIALLY;
+                    }
+                    $answerfeedback = questions::get_text(
+                        $cmid, $answer->feedback, $answer->feedbackformat, $question->id, $question, 'feedback'
+                    );
+                }
+            }
             if ($preview === false) {
                 responses::shortanswer_response(
                     $jqid,
@@ -134,6 +151,7 @@ class shortanswer_external extends external_api {
                 'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
                 'statment_feedback' => $statmentfeedback,
                 'answer_feedback' => $answerfeedback,
+                'shortanswerresponse' => $responsetext,
                 'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
@@ -161,6 +179,7 @@ class shortanswer_external extends external_api {
                 'hasfeedbacks' => new external_value(PARAM_BOOL, 'Has feedback'),
                 'statment_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
+                'shortanswerresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
                 'programmedmode' => new external_value(PARAM_BOOL, 'Program mode for controls'),
                 'preview' => new external_value(PARAM_BOOL, 'Question preview'),
             ]

@@ -37,6 +37,7 @@ use JsonException;
 use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\match_external;
 use mod_jqshow\external\multichoice_external;
+use mod_jqshow\external\shortanswer_external;
 use mod_jqshow\external\truefalse_external;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
@@ -534,7 +535,10 @@ class questions {
      * @param int $jqshowid
      * @param bool $preview
      * @return object
+     * @throws JsonException
      * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws moodle_exception
      */
     public static function export_shortanswer(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
@@ -560,8 +564,33 @@ class questions {
      * @param stdClass $data
      * @param string $response
      * @return stdClass
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
      */
     public static function export_shortanswer_response(stdClass $data, string $response): stdClass {
+        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $data->answered = true;
+        $dataanswer = shortanswer_external::shortanswer(
+            $responsedata->response,
+            $data->sessionid,
+            $data->jqshowid,
+            $data->cmid,
+            $responsedata->questionid,
+            $data->jqid,
+            $responsedata->timeleft,
+            true
+        );
+        $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
+        $data->shortanswerresponse = $responsedata->response;
+        $data->seconds = $responsedata->timeleft;
+        $data->programmedmode = $dataanswer['programmedmode'];
+        $data->statment_feedback = $dataanswer['statment_feedback'];
+        $data->answer_feedback = $dataanswer['answer_feedback'];
+        $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
+        $data->statistics = $dataanswer['statistics'] ?? '0';
         return $data;
     }
 

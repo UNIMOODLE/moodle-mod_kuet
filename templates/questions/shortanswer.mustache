@@ -23,10 +23,12 @@
             <div class="form-group input-content">
                 <label for="userShortAnswer"></label>
                 <input
-                        class="form-control {{#answered}}disabled{{/answered}}"
+                        class="form-control"
                         id="userShortAnswer"
+                        {{#answered}}disabled="disabled"{{/answered}}
                         maxlength="80"
                         data-initial-value="{{shortanswerresponse}}"
+                        value="{{shortanswerresponse}}"
                         pattern="[A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ][0-9]*$"
                 >
             </div>

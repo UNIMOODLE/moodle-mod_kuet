@@ -193,6 +193,7 @@ ShortAnswer.prototype.answered = function(jsonresponse) {
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(REGION.INPUTANSWER).css('z-index', 3).attr('disabled', 'disabled');
+    jQuery(REGION.NEXT).removeClass('d-none');
 };
 
 ShortAnswer.prototype.showFeedback = function() {

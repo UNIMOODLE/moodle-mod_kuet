@@ -134,6 +134,7 @@ class getuserquestionresponse_external extends external_api {
             'hasfeedbacks' => new external_value(PARAM_BOOL, 'Question has feedback', VALUE_OPTIONAL),
             'seconds' => new external_value(PARAM_INT, 'Seconds of questions', VALUE_OPTIONAL),
             'statment_feedback' => new external_value(PARAM_RAW, 'Question feedback', VALUE_OPTIONAL),
+            'shortanswerresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
             'answer_feedback' => new external_value(PARAM_RAW, 'Response feedback', VALUE_OPTIONAL),
             'correct_answers' => new external_value(PARAM_RAW, 'Correct answers ids', VALUE_OPTIONAL),
             'programmedmode' => new external_value(PARAM_BOOL, 'Program mode', VALUE_OPTIONAL),

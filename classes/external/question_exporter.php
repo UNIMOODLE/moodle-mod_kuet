@@ -178,6 +178,10 @@ class question_exporter extends exporter {
                 'type' => matchoption_exporter::read_properties_definition(),
                 'optional' => true,
                 'multiple' => true
+            ],
+            'shortanswerresponse' => [
+                'type' => PARAM_RAW,
+                'optional' => true,
             ]
         ];
     }
