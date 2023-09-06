@@ -678,8 +678,6 @@ Match.prototype.hideStatistics = function() {};
 Match.prototype.showFeedback = function() {
     if (questionEnd === true) {
         showingFeedback = true;
-        // eslint-disable-next-line no-console
-        console.log(jQuery('.modal-body').length, manualMode);
         if (jQuery('.modal-body').length === 0 && manualMode === true) {
             Match.prototype.hideResponse();
             Match.prototype.showCorrects();

@@ -39,6 +39,7 @@ use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\questions\match;
 use mod_jqshow\questions\multichoice;
+use mod_jqshow\questions\shortanswer;
 use mod_jqshow\questions\truefalse;
 use moodle_exception;
 use moodle_url;
@@ -415,6 +416,9 @@ class reports {
             case questions::TRUE_FALSE:
                 $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
                 break;
+            case questions::SHORTANSWER:
+                $data = shortanswer::get_question_report($session, $questiondata, $data, $jqid);
+                break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));
@@ -486,6 +490,9 @@ class reports {
             case questions::TRUE_FALSE:
                 $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
                 break;
+            case questions::SHORTANSWER:
+                // TODO.
+                break;
             default:
                 break;
         }
@@ -534,10 +541,10 @@ class reports {
         }
         return $data;
     }
+
     /**
      * @param int $cmid
      * @param int $sid
-     * @param int $jqid
      * @param int $userid
      * @param context_module $cmcontext
      * @return stdClass
@@ -784,6 +791,9 @@ class reports {
                             break;
                         case questions::TRUE_FALSE:
                             $user = truefalse::get_ranking_for_question($user, $response, $answers, $session, $question);
+                            break;
+                        case questions::SHORTANSWER:
+                            $user = shortanswer::get_ranking_for_question($user, $response, $answers, $session, $question);
                             break;
                         default:
                             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

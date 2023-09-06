@@ -27,7 +27,8 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_module;
-use core\invalid_persistent_exception;
+use dml_exception;
+use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
@@ -38,8 +39,7 @@ use mod_jqshow\helpers\responses;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
-use moodle_exception;
-use qtype_match_question;
+use qtype_shortanswer_question;
 use question_bank;
 
 defined('MOODLE_INTERNAL') || die();
@@ -47,13 +47,12 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
-class match_external extends external_api {
+class shortanswer_external extends external_api {
 
-    public static function match_parameters(): external_function_parameters {
+    public static function shortanswer_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'jsonresponse' => new external_value(PARAM_RAW, 'json with all responses'),
-                'result' => new external_value(PARAM_INT, 'const result'),
+                'responsetext' => new external_value(PARAM_RAW, 'User response text'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
@@ -66,8 +65,7 @@ class match_external extends external_api {
     }
 
     /**
-     * @param string $jsonresponse
-     * @param int $result
+     * @param string $responsetext
      * @param int $sessionid
      * @param int $jqshowid
      * @param int $cmid
@@ -77,14 +75,13 @@ class match_external extends external_api {
      * @param bool $preview
      * @return array
      * @throws JsonException
-     * @throws invalid_persistent_exception
-     * @throws moodle_exception
      * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      */
-    public static function match(
-        string $jsonresponse,
-        int $result,
+    public static function shortanswer(
+        string $responsetext,
         int $sessionid,
         int $jqshowid,
         int $cmid,
@@ -95,10 +92,9 @@ class match_external extends external_api {
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
-            self::match_parameters(),
+            self::shortanswer_parameters(),
             [
-                'jsonresponse' => $jsonresponse,
-                'result' => $result,
+                'responsetext' => $responsetext,
                 'sessionid' => $sessionid,
                 'jqshowid' => $jqshowid,
                 'cmid' => $cmid,
@@ -113,50 +109,35 @@ class match_external extends external_api {
 
         $session = new jqshow_sessions($sessionid);
         $question = question_bank::load_question($questionid);
-        if (assert($question instanceof qtype_match_question)) {
+        $result = questions::FAILURE;
+        $answerfeedback = '';
+        if (assert($question instanceof qtype_shortanswer_question)) {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
-            switch ($result) {
-                case questions::SUCCESS:
+            /* TODO move logic to API grades,
+            to have a method that returns the result constant and the feedback of the answer according to the type of question. */
+            $possibleanswers = '';
+            foreach ($question->answers as $answer) {
+                $possibleanswers .= $answer->answer . ' / ';
+                $overlap = (int)$question->usecase === 0 ?
+                    (strcasecmp($responsetext, $answer->answer) === 0) : // Uppercase and lowercase letters are the same.
+                    (strcmp($responsetext, $answer->answer) === 0); // Uppercase and lowercase letters must match.
+                if ($overlap === true) {
+                    if ($answer->fraction === '1.0000000') {
+                        $result = questions::SUCCESS;
+                    } else {
+                        $result = questions::PARTIALLY;
+                    }
                     $answerfeedback = questions::get_text(
-                        $cmid,
-                        $question->correctfeedback,
-                        $question->correctfeedbackformat,
-                        $question->id,
-                        $question,
-                        'correctfeedback'
+                        $cmid, $answer->feedback, $answer->feedbackformat, $question->id, $question, 'feedback'
                     );
-                    break;
-                case questions::PARTIALLY:
-                    $answerfeedback = questions::get_text(
-                        $cmid,
-                        $question->partiallycorrectfeedback,
-                        $question->partiallycorrectfeedbackformat,
-                        $question->id,
-                        $question,
-                        'partiallycorrectfeedback'
-                    );
-                    break;
-                case questions::FAILURE:
-                    $answerfeedback = questions::get_text(
-                        $cmid,
-                        $question->incorrectfeedback,
-                        $question->incorrectfeedbackformat,
-                        $question->id,
-                        $question,
-                        'incorrectfeedback'
-                    );
-                    break;
-                default:
-                    $answerfeedback = '';
-                    break;
+                }
             }
-
             if ($preview === false) {
-                responses::match_response(
+                responses::shortanswer_response(
                     $jqid,
-                    $jsonresponse,
+                    $responsetext,
                     $result,
                     $questionid,
                     $sessionid,
@@ -169,9 +150,12 @@ class match_external extends external_api {
             }
             return [
                 'reply_status' => true,
+                'result' => $result,
                 'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
                 'statment_feedback' => $statmentfeedback,
                 'answer_feedback' => $answerfeedback,
+                'possibleanswers' => rtrim($possibleanswers, '/ '),
+                'shortanswerresponse' => $responsetext,
                 'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
@@ -192,13 +176,16 @@ class match_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function match_returns(): external_single_structure {
+    public static function shortanswer_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'reply_status' => new external_value(PARAM_BOOL, 'Status of reply'),
+                'result' => new external_value(PARAM_INT, 'Result of reply'),
                 'hasfeedbacks' => new external_value(PARAM_BOOL, 'Has feedback'),
                 'statment_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
+                'possibleanswers' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
+                'shortanswerresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
                 'programmedmode' => new external_value(PARAM_BOOL, 'Program mode for controls'),
                 'preview' => new external_value(PARAM_BOOL, 'Question preview'),
             ]

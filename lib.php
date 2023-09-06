@@ -276,7 +276,7 @@ function jqshow_extend_settings_navigation(settings_navigation $settings, naviga
     $node = navigation_node::create(get_string('reports', 'mod_jqshow'),
         $url,
         navigation_node::TYPE_SETTING, null, 'mmod_jqshow_reports');
-    $navref->add_node($node, 'modedit');
+    $navref->add_node($node);
 }
 
 /**

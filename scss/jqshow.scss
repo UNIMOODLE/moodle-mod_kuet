@@ -8,7 +8,8 @@
 @import 'layout/listresume';
 @import 'layout/match';
 @import 'layout/question';
-@import 'layout/multichoice';
+@import 'layout/multichoice'; /* Also contains true_false, same design. */
+@import 'layout/shortanswer';
 @import 'layout/truefalse';
 @import 'layout/questions_encasement';
 @import 'layout/view';

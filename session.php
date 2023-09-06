@@ -65,6 +65,5 @@ if ($isteacher) {
 
 $output = $PAGE->get_renderer('mod_jqshow');
 echo $output->header();
-echo $output->heading(format_string($jqshow->name));
 echo $output->render($view);
 echo $output->footer();

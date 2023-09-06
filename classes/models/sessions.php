@@ -942,8 +942,7 @@ class sessions {
     private static function get_final_individual_ranking(jqshow_sessions $session, cm_info $cm, int $courseid,
                                                          context_module $context): array {
         global $PAGE;
-
-        $users = enrol_get_course_users($courseid, true);;
+        $users = enrol_get_course_users($courseid, true);
         $students = [];
         foreach ($users as $user) {
             if (!has_capability('mod/jqshow:startsession', $context, $user) &&

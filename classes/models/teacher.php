@@ -91,11 +91,13 @@ class teacher extends user {
     private function get_sessions_conflicts(array $sessions): array {
         $timestamps = [];// Avoid a notice.
         foreach ($sessions as $key => $session) {
-            $timestamps[$key] = $session->startdate;
+            $timestamps[$key] = $session->startdate ?? 0;
         }
         array_multisort($timestamps, SORT_ASC, $sessions);
         foreach ($sessions as $session1) {
             foreach ($sessions as $session2) {
+                $session1->automaticstart = $session1->automaticstart ?? 0;
+                $session2->automaticstart = $session2->automaticstart ?? 0;
                 if (($session1->automaticstart && $session2->automaticstart) && ($session1->sessionid !== $session2->sessionid)) {
                     if ($session1->startdate < $session2->startdate && $session1->enddate > $session2->startdate) {
                         $session2->hasconflict = true;

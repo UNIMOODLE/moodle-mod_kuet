@@ -114,6 +114,14 @@ class jumptoquestion_external extends external_api {
                         $question->get('jqshowid'));
                     $data->showstatistics = true;
                     break;
+                case questions::SHORTANSWER:
+                    $data = questions::export_shortanswer(
+                        $question->get('id'),
+                        $cmid,
+                        $sessionid,
+                        $question->get('jqshowid'));
+                    $data->showstatistics = false;
+                    break;
                 default:
                     throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                         [], get_string('question_nosuitable', 'mod_jqshow'));

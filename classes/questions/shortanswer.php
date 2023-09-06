@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_jqshow\questions;
+
 use coding_exception;
 use dml_exception;
 use JsonException;
@@ -26,37 +27,37 @@ use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use pix_icon;
+use qtype_shortanswer_question;
 use question_definition;
 use stdClass;
 
-/**
- *
- * @package     XXXX
- * @author      202X Elena Barrios Galán <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-class truefalse implements  jqshowquestion {
+class shortanswer implements  jqshowquestion {
 
     /**
      * @param jqshow_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
      * @param int $jqid
-     * @return stdClass
+     * @return void
      * @throws JsonException
-     * @throws coding_exception
      * @throws dml_exception
+     * @throws coding_exception
      */
-    public static function get_question_report(jqshow_sessions $session,
+    public static function get_question_report(jqshow_sessions     $session,
                                                question_definition $questiondata,
-                                               stdClass $data,
-                                               int $jqid): stdClass {
+                                               stdClass            $data,
+                                               int                 $jqid): stdClass {
+        $answers = [];
+        $correctanswers = [];
+        if (!assert($questiondata instanceof qtype_shortanswer_question)) {
+            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                [], get_string('question_nosuitable', 'mod_jqshow'));
+        }
         $answers = [];
         $correctanswers = [];
         foreach ($questiondata->answers as $key => $answer) {
-            $answers[$key]['answertext'] = $answer->answer; // TODO get text with images questions::get_text.
-            $answers[$key]['answerid'] = $key;
+            $answers[$key]['answertext'] = $answer->answer;
+            $answers[$key]['answerid'] = $answer->id;
             if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
                 $answers[$key]['result'] = 'incorrect';
                 $answers[$key]['resultstr'] = get_string('incorrect', 'mod_jqshow');
@@ -112,13 +113,13 @@ class truefalse implements  jqshowquestion {
                 continue;
             }
             $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-            if ($other->answerids !== '' && $other->answerids !== '0') { // TODO prepare for multianswer.
-                $arrayanswerids = explode(',', $other->answerids);
-                foreach ($arrayanswerids as $arrayanswerid) {
-                    $answers[$arrayanswerid]['numticked']++;
+            if (isset($other->response) && $other->response !== '') {
+                foreach ($answers as $key => $answer) {
+                    if ($answer['answertext'] === $other->response) {
+                        $answers[$key]['numticked']++;
+                    }
                 }
             }
-            // TODO obtain the average time to respond to each option ticked. ???
         }
         $data->correctanswers = array_values($correctanswers);
         $data->answers = array_values($answers);
@@ -126,7 +127,7 @@ class truefalse implements  jqshowquestion {
     }
 
     /**
-     * @param stdClass $user
+     * @param stdClass $participant
      * @param jqshow_questions_responses $response
      * @param array $answers
      * @param jqshow_sessions $session
@@ -136,46 +137,38 @@ class truefalse implements  jqshowquestion {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_ranking_for_question($participant, $response, $answers, $session, $question) {
+    public static function get_ranking_for_question(
+        stdClass $participant,
+        jqshow_questions_responses $response,
+        array $answers,
+        jqshow_sessions $session,
+        jqshow_questions $question): stdClass {
         $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-        $arrayresponses = explode(',', $other->answerids);
-        if (count($arrayresponses) === 1) {
-            foreach ($answers as $answer) {
-                if ((int)$answer['answerid'] === (int)$arrayresponses[0]) {
-                    $participant->response = $answer['result'];
-                    $participant->responsestr = get_string($answer['result'], 'mod_jqshow');
-                    $participant->answertext = $answer['answertext'];
-                } else if ((int)$arrayresponses[0] === 0) {
-                    $participant->response = 'noresponse';
-                    $participant->responsestr = get_string('qstatus_' . questions::NORESPONSE, 'mod_jqshow');
-                    $participant->answertext = '';
-                }
-                $points = grade::get_simple_mark($response);
-                $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-                    $session->get('jqshowid'));
-                $participant->userpoints = grade::get_rounded_mark($spoints);
-                $participant->score_moment = grade::get_rounded_mark($points);
-                $participant->time = reports::get_user_time_in_question($session, $question, $response);
-            }
-        } else {
-            $answertext = '';
-            foreach ($answers as $answer) {
-                foreach ($arrayresponses as $responseid) {
-                    if ((int)$answer['answerid'] === (int)$responseid) {
-                        $answertext .= $answer['answertext'] . '<br>';
-                    }
-                }
-            }
-            $status = grade::get_status_response_for_multiple_answers($other->questionid, $other->answerids);
-            $participant->response = get_string('qstatus_' . $status, 'mod_jqshow');
-            $participant->responsestr = get_string($participant->response, 'mod_jqshow');
-            $participant->answertext = trim($answertext, '<br>');
-            $points = grade::get_simple_mark($response);
-            $spoints = grade::get_session_grade($participant->id, $session->get('id'), $session->get('jqshowid'));
-            $participant->userpoints = grade::get_rounded_mark($spoints);
-            $participant->score_moment = grade::get_rounded_mark($points);
-            $participant->time = reports::get_user_time_in_question($session, $question, $response);
+        switch ($response->get('result')) {
+            case questions::FAILURE:
+                $participant->response = 'incorrect';
+                $participant->responsestr = get_string('incorrect', 'mod_jqshow');
+                break;
+            case questions::SUCCESS:
+                $participant->response = 'correct';
+                $participant->responsestr = get_string('correct', 'mod_jqshow');
+                break;
+            case questions::PARTIALLY:
+                $participant->response = 'partially';
+                $participant->responsestr = get_string('partially', 'mod_jqshow');
+                break;
+            case questions::NORESPONSE:
+            default:
+                $participant->response = 'noresponse';
+                $participant->responsestr = get_string('noresponse', 'mod_jqshow');
+                break;
         }
+        $points = grade::get_simple_mark($response);
+        $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
+            $session->get('jqshowid'));
+        $participant->userpoints = grade::get_rounded_mark($spoints);
+        $participant->score_moment = grade::get_rounded_mark($points);
+        $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;
     }
 }
