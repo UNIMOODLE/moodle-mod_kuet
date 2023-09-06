@@ -55,7 +55,7 @@ class match implements  jqshowquestion {
     public static function get_question_report(jqshow_sessions $session,
                                                question_definition $questiondata,
                                                stdClass $data,
-                                               int $jqid) {
+                                               int $jqid): stdClass {
         $answers = [];
         $correctanswers = [];
         if (!assert($questiondata instanceof qtype_match_question)) {

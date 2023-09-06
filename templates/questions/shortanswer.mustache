@@ -31,8 +31,13 @@
                         value="{{shortanswerresponse}}"
                         pattern="[A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ][0-9]*$"
                 >
+                <div class="feedback-icons d-none">
+                    <span class="feedback-icon correct">{{#pix}}q/correct, mod_jqshow{{/pix}}</span>
+                    <span class="feedback-icon partially">{{#pix}}q/partially, mod_jqshow{{/pix}}</span>
+                    <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_jqshow{{/pix}}</span>
+                </div>
             </div>
-            <small class="answer-help" id="userShortAnswerHelp"></small>
+            <small class="answer-help d-none" id="userShortAnswerHelp"></small>
         </div>
         {{^answered}}
             <div class="btn btn-primary ml-auto mt-3" data-action="send-response">

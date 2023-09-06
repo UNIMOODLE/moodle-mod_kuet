@@ -117,7 +117,9 @@ class shortanswer_external extends external_api {
             );
             /* TODO move logic to API grades,
             to have a method that returns the result constant and the feedback of the answer according to the type of question. */
+            $possibleanswers = '';
             foreach ($question->answers as $answer) {
+                $possibleanswers .= $answer->answer . ' / ';
                 $overlap = (int)$question->usecase === 0 ?
                     (strcasecmp($responsetext, $answer->answer) === 0) : // Uppercase and lowercase letters are the same.
                     (strcmp($responsetext, $answer->answer) === 0); // Uppercase and lowercase letters must match.
@@ -148,9 +150,11 @@ class shortanswer_external extends external_api {
             }
             return [
                 'reply_status' => true,
+                'result' => $result,
                 'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
                 'statment_feedback' => $statmentfeedback,
                 'answer_feedback' => $answerfeedback,
+                'possibleanswers' => rtrim($possibleanswers, '/ '),
                 'shortanswerresponse' => $responsetext,
                 'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
@@ -176,9 +180,11 @@ class shortanswer_external extends external_api {
         return new external_single_structure(
             [
                 'reply_status' => new external_value(PARAM_BOOL, 'Status of reply'),
+                'result' => new external_value(PARAM_INT, 'Result of reply'),
                 'hasfeedbacks' => new external_value(PARAM_BOOL, 'Has feedback'),
                 'statment_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
+                'possibleanswers' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
                 'shortanswerresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
                 'programmedmode' => new external_value(PARAM_BOOL, 'Program mode for controls'),
                 'preview' => new external_value(PARAM_BOOL, 'Question preview'),

@@ -24,6 +24,7 @@ let REGION = {
     FEEDBACKBACGROUND: '[data-region="feedback-background"]',
     INPUTANSWER: '#userShortAnswer',
     ANSWERHELP: '#userShortAnswerHelp',
+    FEEDBACKICONS: '.feedback-icons',
 };
 
 let SERVICES = {
@@ -188,12 +189,25 @@ ShortAnswer.prototype.reply = function() {
     });
 };
 
-ShortAnswer.prototype.answered = function(jsonresponse) {
+ShortAnswer.prototype.answered = function(response) {
     questionEnd = true;
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(REGION.INPUTANSWER).css('z-index', 3).attr('disabled', 'disabled');
     jQuery(REGION.NEXT).removeClass('d-none');
+    jQuery(REGION.ANSWERHELP).text(response.possibleanswers);
+    if (response.result === 0) {
+        jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
+        jQuery(REGION.FEEDBACKICONS + ' .partially').remove();
+    }
+    if (response.result === 1) {
+        jQuery(REGION.FEEDBACKICONS + ' .incorrect').remove();
+        jQuery(REGION.FEEDBACKICONS + ' .partially').remove();
+    }
+    if (response.result === 2) {
+        jQuery(REGION.FEEDBACKICONS + ' .incorrect').remove();
+        jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
+    }
 };
 
 ShortAnswer.prototype.showFeedback = function() {
@@ -205,6 +219,15 @@ ShortAnswer.prototype.showFeedback = function() {
 ShortAnswer.prototype.showAnswers = function() {
     if (questionEnd === true) {
         // TODO obtain the possible answers, and paint them in a list.
+        jQuery(REGION.ANSWERHELP).removeClass('d-none').css({'z-index': 3});
+        jQuery(REGION.FEEDBACKICONS).removeClass('d-none').css({'z-index': 3});
+    }
+};
+
+ShortAnswer.prototype.hideAnswers = function() {
+    if (questionEnd === true) {
+        jQuery(REGION.ANSWERHELP).addClass('d-none');
+        jQuery(REGION.FEEDBACKICONS).addClass('d-none');
     }
 };
 

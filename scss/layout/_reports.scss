@@ -314,6 +314,9 @@ body#page-mod-jqshow-reports.jqshow-reports {
                 .question-data-body {
                     text-align: center;
                     font-size: 16px;
+                    p {
+                        text-align: center !important;
+                    }
                     .correct-answers-title {
                         margin-top: 1em;
                     }
@@ -355,9 +358,11 @@ body#page-mod-jqshow-reports.jqshow-reports {
                     .answer {
                         padding: 1em;
                         margin-bottom: 1em;
-                        &.correct,
-                        &.partially {
+                        &.correct {
                             background-color: #d7e4d6;
+                        }
+                        &.partially {
+                            background-color: #f1f1f1;
                         }
                         &.incorrect {
                             background-color: #f4d6d2;

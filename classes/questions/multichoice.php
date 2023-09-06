@@ -52,7 +52,7 @@ class multichoice implements  jqshowquestion {
     public static function get_question_report(jqshow_sessions $session,
                                                question_definition $questiondata,
                                                stdClass $data,
-                                               int $jqid) {
+                                               int $jqid): stdClass {
         $answers = [];
         $correctanswers = [];
         foreach ($questiondata->answers as $key => $answer) {
@@ -90,7 +90,7 @@ class multichoice implements  jqshowquestion {
                     'class' => 'icon',
                     'title' => get_string('partially_correct', 'mod_jqshow')
                 ]);
-                $usersicon = new pix_icon('i/correct_users', '', 'mod_jqshow', [
+                $usersicon = new pix_icon('i/partially_users', '', 'mod_jqshow', [
                     'class' => 'icon',
                     'title' => ''
                 ]);
