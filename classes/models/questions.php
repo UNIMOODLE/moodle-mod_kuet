@@ -572,6 +572,9 @@ class questions {
      */
     public static function export_shortanswer_response(stdClass $data, string $response): stdClass {
         $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        if (count($responsedata->response) === 0) {
+            $responsedata->response = '';
+        }
         $data->answered = true;
         $dataanswer = shortanswer_external::shortanswer(
             $responsedata->response,

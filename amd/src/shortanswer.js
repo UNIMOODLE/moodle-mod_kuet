@@ -69,7 +69,7 @@ function ShortAnswer(selector, showquestionfeedback = false, manualmode = false,
     manualMode = manualmode;
     questionEnd = false;
     if (jsonresponse !== '') {
-        this.answered(jsonresponse);
+        this.answered(JSON.parse(jsonresponse));
         if (manualMode === false || jQuery('.modal-body').length) {
             questionEnd = true;
             if (showQuestionFeedback === true) {
@@ -191,6 +191,10 @@ ShortAnswer.prototype.reply = function() {
 
 ShortAnswer.prototype.answered = function(response) {
     questionEnd = true;
+    if (response.hasfeedbacks) {
+        jQuery(REGION.FEEDBACK).html(response.statment_feedback);
+        jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
+    }
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(REGION.INPUTANSWER).css('z-index', 3).attr('disabled', 'disabled');
@@ -210,9 +214,31 @@ ShortAnswer.prototype.answered = function(response) {
     }
 };
 
+ShortAnswer.prototype.pauseQuestion = function() {
+    dispatchEvent(new Event('pauseQuestion'));
+    jQuery(REGION.TIMER).css('z-index', 3);
+    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
+    jQuery(ACTION.REPLY).css('pointer-events', 'none');
+};
+
+ShortAnswer.prototype.playQuestion = function() {
+    if (questionEnd !== true) {
+        dispatchEvent(new Event('playQuestion'));
+        jQuery(REGION.TIMER).css('z-index', 1);
+        jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
+        jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    }
+};
+
 ShortAnswer.prototype.showFeedback = function() {
     if (questionEnd === true) {
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+    }
+};
+
+ShortAnswer.prototype.hideFeedback = function() {
+    if (questionEnd === true) {
+        jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'none', 'z-index': 0});
     }
 };
 
