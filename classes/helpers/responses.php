@@ -167,6 +167,23 @@ class responses {
         }
     }
 
+    /**
+     * @param int $jqid
+     * @param string $responsetext
+     * @param int $result
+     * @param int $questionid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param string $statmentfeedback
+     * @param string $answerfeedback
+     * @param int $userid
+     * @param int $timeleft
+     * @return void
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
     public static function shortanswer_response(
         int $jqid,
         string $responsetext,
@@ -193,6 +210,40 @@ class responses {
                 $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
                 $response->timeleft = $timeleft;
                 $response->type = questions::SHORTANSWER;
+                $response->response = $responsetext; // TODO validate html and special characters.
+                jqshow_questions_responses::add_response(
+                    $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                );
+            }
+        }
+    }
+
+    public static function numerical_response(
+        int $jqid,
+        string $responsetext,
+        int $result,
+        int $questionid,
+        int $sessionid,
+        int $jqshowid,
+        string $statmentfeedback,
+        string $answerfeedback,
+        int $userid,
+        int $timeleft
+    ): void {
+        global $COURSE;
+        $coursecontext = context_course::instance($COURSE->id);
+        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        if (!$isteacher) {
+            $session = new jqshow_sessions($sessionid);
+            if ($session->is_group_mode()) {
+                // TODO.
+            } else {
+                // Individual.
+                $response = new stdClass();
+                $response->questionid = $questionid;
+                $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
+                $response->timeleft = $timeleft;
+                $response->type = questions::NUMERICAL;
                 $response->response = $responsetext; // TODO validate html and special characters.
                 jqshow_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)

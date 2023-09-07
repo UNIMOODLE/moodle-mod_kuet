@@ -39,6 +39,7 @@ use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\questions\match;
 use mod_jqshow\questions\multichoice;
+use mod_jqshow\questions\numerical;
 use mod_jqshow\questions\shortanswer;
 use mod_jqshow\questions\truefalse;
 use moodle_exception;
@@ -459,6 +460,18 @@ class reports {
         }
         return $data;
     }
+
+    /**
+     * @param int $cmid
+     * @param int $sid
+     * @param int $jqid
+     * @return stdClass
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws moodle_exception
+     */
     public static function get_group_question_report(int $cmid, int $sid, int $jqid): stdClass {
         global $DB, $USER;
         $session = new jqshow_sessions($sid);
@@ -480,17 +493,19 @@ class reports {
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
 
         switch ($data->type) {
-            // TODO recfactor.
             case questions::MULTICHOICE:
                 $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             case questions::MATCH:
-                // TODO.
+                $data = match::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             case questions::TRUE_FALSE:
                 $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             case questions::SHORTANSWER:
+                $data = shortanswer::get_question_report($session, $questiondata, $data, $jqid);
+                break;
+            case questions::NUMERICAL:
                 // TODO.
                 break;
             default:
@@ -794,6 +809,9 @@ class reports {
                             break;
                         case questions::SHORTANSWER:
                             $user = shortanswer::get_ranking_for_question($user, $response, $answers, $session, $question);
+                            break;
+                        case questions::NUMERICAL:
+                            $user = numerical::get_ranking_for_question($user, $response, $answers, $session, $question);
                             break;
                         default:
                             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

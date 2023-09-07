@@ -1,4 +1,4 @@
-    <div class="container-fluid shortanswer question" data-region="shortanswer">
+    <div class="container-fluid numerical question" data-region="numerical">
     <div class="row">
         <div class="content-indicators">
             {{#managesession}}
@@ -21,23 +21,65 @@
         </div>
         <div class="col-12 containt-answers">
             <div class="form-group input-content">
-                <label for="userShortAnswer" id="userShortAnswerLabel"></label>
+                {{#unitdisplay}}
+                    {{#unitsleft}}
+                        <span class="units_title">{{#str}}unit, mod_jqshow{{/str}}:</span>
+                        {{#showunitsradio}}
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                {{#units}}
+                                    <label class="btn btn-primary">
+                                        <input type="radio" name="{{ unittext }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
+                                    </label>
+                                {{/units}}
+                            </div>
+                        {{/showunitsradio}}
+                        {{#showunitsselect}}
+                            <select class="custom-select">
+                                {{#units}}
+                                    <option value="{{ unittext }}" id="{{ unitid }}">{{ unittext }}</option>
+                                {{/units}}
+                            </select>
+                        {{/showunitsselect}}
+                    {{/unitsleft}}
+                {{/unitdisplay}}
+                <label for="userNumerical" id="userNumericalLabel"></label>
                 <input
                         class="form-control"
-                        id="userShortAnswer"
+                        id="userNumerical"
                         {{#answered}}disabled="disabled"{{/answered}}
                         maxlength="80"
-                        data-initial-value="{{shortanswerresponse}}"
-                        value="{{shortanswerresponse}}"
+                        data-initial-value="{{numericalresponse}}"
+                        value="{{numericalresponse}}"
                         pattern="[A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ][0-9]*$"
                 >
+                {{#unitdisplay}}
+                    {{^unitsleft}}
+                        <span class="units_title">{{#str}}unit, mod_jqshow{{/str}}:</span>
+                        {{#showunitsradio}}
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                {{#units}}
+                                    <label class="btn btn-primary">
+                                        <input type="radio" name="{{ unittext }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
+                                    </label>
+                                {{/units}}
+                            </div>
+                        {{/showunitsradio}}
+                        {{#showunitsselect}}
+                            <select class="custom-select">
+                                {{#units}}
+                                    <option value="{{ unittext }}" id="{{ unitid }}">{{ unittext }}</option>
+                                {{/units}}
+                            </select>
+                        {{/showunitsselect}}
+                    {{/unitsleft}}
+                {{/unitdisplay}}
                 <div class="feedback-icons d-none">
                     <span class="feedback-icon correct">{{#pix}}q/correct, mod_jqshow{{/pix}}</span>
                     <span class="feedback-icon partially">{{#pix}}q/partially, mod_jqshow{{/pix}}</span>
                     <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_jqshow{{/pix}}</span>
                 </div>
             </div>
-            <small class="answer-help d-none" id="userShortAnswerHelp"></small>
+            <small class="answer-help d-none" id="userNumericalHelp"></small>
         </div>
         {{^answered}}
             <div class="btn btn-primary ml-auto mt-3" data-action="send-response">
@@ -68,8 +110,8 @@
     </div>
 </div>
 {{#js}}
-    require(['mod_jqshow/shortanswer'{{#hastime}}, 'mod_jqshow/questiontimer'{{/hastime}}], function(ShortAnswer{{#hastime}}, QuestionTimer{{/hastime}}) {
-        ShortAnswer.initShortAnswer('[data-region="question-content"]',
+    require(['mod_jqshow/numerical'{{#hastime}}, 'mod_jqshow/questiontimer'{{/hastime}}], function(Numerical{{#hastime}}, QuestionTimer{{/hastime}}) {
+        Numerical.initNumerical('[data-region="question-content"]',
             {{#showquestionfeedback}}true{{/showquestionfeedback}}{{^showquestionfeedback}}false{{/showquestionfeedback}},
             {{#programmedmode}}false{{/programmedmode}}{{^programmedmode}}true{{/programmedmode}}{{#answered}}, '{{{jsonresponse}}}'{{/answered}});
         {{#hastime}}

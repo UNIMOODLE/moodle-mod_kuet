@@ -154,6 +154,20 @@ class student_session_view implements renderable, templatable {
                             $data = questions::export_shortanswer_response($data, $response->get('response'));
                         }
                         break;
+                    case questions::NUMERICAL:
+                        $data = questions::export_numerical(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = questions::export_numerical_response($data, $response->get('response'));
+                        }
+                        break;
                     default:
                         throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                             [], get_string('question_nosuitable', 'mod_jqshow'));

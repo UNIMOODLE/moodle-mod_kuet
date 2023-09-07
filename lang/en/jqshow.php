@@ -365,3 +365,5 @@ $string['nogroupingscreated'] = 'This activity is group mode type but no groupin
 It is required that you create firstly a grouping on this course to be able to choose it on this activity.';
 $string['notallowedspecialchars'] = 'No special characters allowed: ?!<>\\';
 $string['notallowedpasting'] = 'Pasting text is not allowed';
+$string['units'] = 'Units';
+$string['unit'] = 'Unit';

@@ -1,5 +1,6 @@
 "use strict";
 
+
 import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
@@ -19,13 +20,13 @@ let REGION = {
     FEEDBACK: '[data-region="statement-feedback"]',
     FEEDBACKANSWER: '[data-region="answer-feedback"]',
     FEEDBACKBACGROUND: '[data-region="feedback-background"]',
-    INPUTANSWER: '#userShortAnswer',
-    ANSWERHELP: '#userShortAnswerHelp',
+    INPUTANSWER: '#userNumerical',
+    ANSWERHELP: '#userNumericalHelp',
     FEEDBACKICONS: '.feedback-icons',
 };
 
 let SERVICES = {
-    REPLY: 'mod_jqshow_shortanswer'
+    REPLY: 'mod_jqshow_numerical'
 };
 
 let TEMPLATES = {
@@ -42,9 +43,9 @@ let showQuestionFeedback = false;
 let manualMode = false;
 
 /** @type {jQuery} The jQuery node for the page region. */
-ShortAnswer.prototype.node = null;
-ShortAnswer.prototype.endTimer = new Event('endTimer');
-ShortAnswer.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
+Numerical.prototype.node = null;
+Numerical.prototype.endTimer = new Event('endTimer');
+Numerical.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
 
 /**
  * @constructor
@@ -53,7 +54,7 @@ ShortAnswer.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
  * @param {Boolean} manualmode
  * @param {String} jsonresponse
  */
-function ShortAnswer(selector, showquestionfeedback = false, manualmode = false, jsonresponse = '') {
+function Numerical(selector, showquestionfeedback = false, manualmode = false, jsonresponse = '') {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
@@ -73,68 +74,69 @@ function ShortAnswer(selector, showquestionfeedback = false, manualmode = false,
             this.showAnswers();
         }
     }
-    ShortAnswer.prototype.initShortAnswer();
+    Numerical.prototype.initNumerical();
 }
 
-ShortAnswer.prototype.initShortAnswer = function() {
-    jQuery(ACTION.SEND_RESPONSE).on('click', ShortAnswer.prototype.reply);
-    ShortAnswer.prototype.initEvents();
+Numerical.prototype.initNumerical = function() {
+    jQuery(ACTION.SEND_RESPONSE).on('click', Numerical.prototype.reply);
+    Numerical.prototype.initEvents();
 };
 
-ShortAnswer.prototype.initEvents = function() {
+Numerical.prototype.initEvents = function() {
     addEventListener('timeFinish', () => {
-        ShortAnswer.prototype.reply();
+        Numerical.prototype.reply();
     }, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
-                ShortAnswer.prototype.reply();
+                Numerical.prototype.reply();
             }
             e.detail.statistics.forEach((statistic) => {
                 jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
             });
         }, {once: true});
         addEventListener('pauseQuestion_' + jqid, () => {
-            ShortAnswer.prototype.pauseQuestion();
+            Numerical.prototype.pauseQuestion();
         }, false);
         addEventListener('playQuestion_' + jqid, () => {
-            ShortAnswer.prototype.playQuestion();
+            Numerical.prototype.playQuestion();
         }, false);
         addEventListener('showAnswers_' + jqid, () => {
-            ShortAnswer.prototype.showAnswers();
+            Numerical.prototype.showAnswers();
         }, false);
         addEventListener('hideAnswers_' + jqid, () => {
-            ShortAnswer.prototype.hideAnswers();
+            Numerical.prototype.hideAnswers();
         }, false);
         addEventListener('showStatistics_' + jqid, () => {
-            ShortAnswer.prototype.showStatistics();
+            Numerical.prototype.showStatistics();
         }, false);
         addEventListener('hideStatistics_' + jqid, () => {
-            ShortAnswer.prototype.hideStatistics();
+            Numerical.prototype.hideStatistics();
         }, false);
         addEventListener('showFeedback_' + jqid, () => {
-            ShortAnswer.prototype.showFeedback();
+            Numerical.prototype.showFeedback();
         }, false);
         addEventListener('hideFeedback_' + jqid, () => {
-            ShortAnswer.prototype.hideFeedback();
+            Numerical.prototype.hideFeedback();
         }, false);
     }
 
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
-            ShortAnswer.prototype.reply();
+            Numerical.prototype.reply();
             return 'Because the question is overdue and an attempt has been made to reload the page,' +
                 ' the question has remained unanswered.';
         }
     };
 };
 
-ShortAnswer.prototype.reply = function() {
+Numerical.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
-        dispatchEvent(ShortAnswer.prototype.endTimer);
+        dispatchEvent(Numerical.prototype.endTimer);
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseText = jQuery(REGION.INPUTANSWER).val();
+        // TODO obtain units if the exercise has them.
         let request = {
             methodname: SERVICES.REPLY,
             args: {
@@ -151,18 +153,18 @@ ShortAnswer.prototype.reply = function() {
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
                 questionEnd = true;
-                ShortAnswer.prototype.answered(response);
-                dispatchEvent(ShortAnswer.prototype.studentQuestionEnd);
+                Numerical.prototype.answered(response);
+                dispatchEvent(Numerical.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
-                    ShortAnswer.prototype.showAnswers();
+                    Numerical.prototype.showAnswers();
                     if (showQuestionFeedback === true) {
-                        ShortAnswer.prototype.showFeedback();
+                        Numerical.prototype.showFeedback();
                     }
                 } else {
                     if (manualMode === false) {
-                        ShortAnswer.prototype.showAnswers();
+                        Numerical.prototype.showAnswers();
                         if (showQuestionFeedback === true) {
-                            ShortAnswer.prototype.showFeedback();
+                            Numerical.prototype.showFeedback();
                         }
                     }
                 }
@@ -174,7 +176,7 @@ ShortAnswer.prototype.reply = function() {
     });
 };
 
-ShortAnswer.prototype.answered = function(response) {
+Numerical.prototype.answered = function(response) {
     questionEnd = true;
     if (response.hasfeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
@@ -199,14 +201,14 @@ ShortAnswer.prototype.answered = function(response) {
     }
 };
 
-ShortAnswer.prototype.pauseQuestion = function() {
+Numerical.prototype.pauseQuestion = function() {
     dispatchEvent(new Event('pauseQuestion'));
     jQuery(REGION.TIMER).css('z-index', 3);
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(ACTION.REPLY).css('pointer-events', 'none');
 };
 
-ShortAnswer.prototype.playQuestion = function() {
+Numerical.prototype.playQuestion = function() {
     if (questionEnd !== true) {
         dispatchEvent(new Event('playQuestion'));
         jQuery(REGION.TIMER).css('z-index', 1);
@@ -215,19 +217,19 @@ ShortAnswer.prototype.playQuestion = function() {
     }
 };
 
-ShortAnswer.prototype.showFeedback = function() {
+Numerical.prototype.showFeedback = function() {
     if (questionEnd === true) {
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
     }
 };
 
-ShortAnswer.prototype.hideFeedback = function() {
+Numerical.prototype.hideFeedback = function() {
     if (questionEnd === true) {
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'none', 'z-index': 0});
     }
 };
 
-ShortAnswer.prototype.showAnswers = function() {
+Numerical.prototype.showAnswers = function() {
     if (questionEnd === true) {
         // TODO obtain the possible answers, and paint them in a list.
         jQuery(REGION.ANSWERHELP).removeClass('d-none').css({'z-index': 3});
@@ -235,13 +237,13 @@ ShortAnswer.prototype.showAnswers = function() {
     }
 };
 
-ShortAnswer.prototype.hideAnswers = function() {
+Numerical.prototype.hideAnswers = function() {
     if (questionEnd === true) {
         jQuery(REGION.ANSWERHELP).addClass('d-none');
         jQuery(REGION.FEEDBACKICONS).addClass('d-none');
     }
 };
 
-export const initShortAnswer = (selector, showquestionfeedback, manualmode, jsonresponse) => {
-    return new ShortAnswer(selector, showquestionfeedback, manualmode, jsonresponse);
+export const initNumerical = (selector, showquestionfeedback, manualmode, jsonresponse) => {
+    return new Numerical(selector, showquestionfeedback, manualmode, jsonresponse);
 };

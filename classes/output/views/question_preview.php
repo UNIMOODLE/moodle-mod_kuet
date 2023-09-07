@@ -79,6 +79,9 @@ class question_preview implements renderable, templatable {
             case questions::SHORTANSWER:
                 $data = questions::export_shortanswer($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
                 break;
+            case questions::NUMERICAL:
+                $data = questions::export_numerical($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));

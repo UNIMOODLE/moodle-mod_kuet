@@ -23,9 +23,25 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_jqshow\external;
 
-$plugin->version = 2023090700;
-$plugin->requires = 2022112801; // Moodle 4.1.1
-$plugin->component = 'mod_jqshow';
-$plugin->cron = 0;
+use core\external\exporter;
+
+class numericalunit_exporter extends exporter {
+
+    /**
+     * @return array[]
+     */
+    public static function define_properties():array {
+        return [
+            'unitid' => [
+                'type' => PARAM_RAW,
+                'optional' => true,
+            ],
+            'unittext' => [
+                'type' => PARAM_RAW,
+                'optional' => true,
+            ]
+        ];
+    }
+}
