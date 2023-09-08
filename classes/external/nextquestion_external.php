@@ -127,6 +127,14 @@ class nextquestion_external extends external_api {
                         $nextquestion->get('jqshowid'));
                     $data->showstatistics = false;
                     break;
+                case questions::NUMERICAL:
+                    $data = questions::export_numerical(
+                        $nextquestion->get('id'),
+                        $cmid,
+                        $sessionid,
+                        $nextquestion->get('jqshowid'));
+                    $data->showstatistics = false;
+                    break;
                 default:
                     throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                         [], get_string('question_nosuitable', 'mod_jqshow'));

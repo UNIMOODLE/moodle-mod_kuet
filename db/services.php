@@ -44,6 +44,7 @@ use mod_jqshow\external\jumptoquestion_external;
 use mod_jqshow\external\match_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
+use mod_jqshow\external\numerical_external;
 use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
 use mod_jqshow\external\session_getallquestions_external;
@@ -178,6 +179,14 @@ $functions = [
         'classname' => shortanswer_external::class,
         'methodname' => 'shortanswer',
         'description' => 'Shortanswer reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_numerical' => [
+        'classname' => numerical_external::class,
+        'methodname' => 'numerical',
+        'description' => 'Numerical reply.',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
@@ -377,6 +386,7 @@ $services = [
             'mod_jqshow_match',
             'mod_jqshow_truefalse',
             'mod_jqshow_shortanswer',
+            'mod_jqshow_numerical',
             'mod_jqshow_nextquestion',
             'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',
