@@ -103,7 +103,7 @@ class multichoice_external extends external_api {
                 'preview' => $preview
             ]
         );
-        error_log(" ERRORRRRRR   NO TIENE QUE ENTRAR AQUI!!!!!");
+
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
 
