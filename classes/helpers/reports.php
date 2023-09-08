@@ -60,10 +60,90 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_questions_data_for_teacher_report(int $jqshowid, int $cmid, int $sid): array {
-        global $DB;
         $session = new jqshow_sessions($sid);
         $questions = (new questions($jqshowid, $cmid, $sid))->get_list();
         $questionsdata = [];
+
+        foreach ($questions as $question) {
+            if ($session->is_group_mode()) {
+                $data = self::get_questions_data_for_teacher_report_groups($question, $jqshowid, $cmid, $session); // TODO grosups.
+            } else {
+                $data = self::get_questions_data_for_teacher_report_individual($question, $jqshowid, $cmid, $session);
+            }
+
+            $questionsdata[] = $data;
+        }
+        return $questionsdata;
+    }
+
+    /**
+     * @param jqshow_questions $question
+     * @param int $jqshowid
+     * @param int $cmid
+     * @param jqshow_sessions $session
+     * @return stdClass
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_questions_data_for_teacher_report_groups(jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session) {
+        global $DB;
+
+        $groupmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
+        $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
+        $data = new stdClass();
+        $data->questionnid = $question->get('id');
+        $data->position = $question->get('qorder');
+        $data->name = $questiondb->name;
+        $data->type = $question->get('qtype');
+        $data->success = 0;
+        $data->failures = 0;
+        $data->partyally = 0;
+        foreach ($groupmembers as $groupmember) {
+            $data->success += jqshow_questions_responses::count_records([
+                'jqshow' => $jqshowid,
+                'session' => $session->get('id'),
+                'jqid' => $question->get('id'),
+                'result' => questions::SUCCESS,
+                'userid' => $groupmember
+            ]);
+            $data->failures += jqshow_questions_responses::count_records([
+                'jqshow' => $jqshowid,
+                'session' => $session->get('id'),
+                'jqid' => $question->get('id'),
+                'result' => questions::FAILURE,
+                'userid' => $groupmember
+            ]);
+            $data->partyally += jqshow_questions_responses::count_records([
+                'jqshow' => $jqshowid,
+                'session' => $session->get('id'),
+                'jqid' => $question->get('id'),
+                'result' => questions::PARTIALLY,
+                'userid' => $groupmember
+            ]);
+        }
+
+        $data->noresponse = count($groupmembers) - ($data->success + $data->failures + $data->partyally);
+        $data->time = self::get_time_string($session, $question);
+        $data->questionreporturl = (new moodle_url('/mod/jqshow/reports.php',
+            ['cmid' => $cmid, 'sid' => $session->get('id'), 'jqid' => $question->get('id')]
+        ))->out(false);
+        return $data;
+    }
+
+    /**
+     * @param jqshow_questions $question
+     * @param int $jqshowid
+     * @param int $cmid
+     * @param jqshow_sessions $session
+     * @return stdClass
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function get_questions_data_for_teacher_report_individual(jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session) {
+        global $DB;
+
         $jqshow = new jqshow($jqshowid);
         $users = enrol_get_course_users($jqshow->get('course'), true);
         $cmcontext = context_module::instance($cmid);
@@ -72,41 +152,37 @@ class reports {
                 unset($users[$key]);
             }
         }
-        foreach ($questions as $question) {
-            $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
-            $data = new stdClass();
-            $data->questionnid = $question->get('id');
-            $data->position = $question->get('qorder');
-            $data->name = $questiondb->name;
-            $data->type = $question->get('qtype');
-            $data->success = jqshow_questions_responses::count_records([
-                'jqshow' => $jqshowid,
-                'session' => $sid,
-                'jqid' => $question->get('id'),
-                'result' => questions::SUCCESS
-            ]);
-            $data->failures = jqshow_questions_responses::count_records([
-                'jqshow' => $jqshowid,
-                'session' => $sid,
-                'jqid' => $question->get('id'),
-                'result' => questions::FAILURE
-            ]);
-            $data->partyally = jqshow_questions_responses::count_records([
-                'jqshow' => $jqshowid,
-                'session' => $sid,
-                'jqid' => $question->get('id'),
-                'result' => questions::PARTIALLY
-            ]);
-            $data->noresponse = count($users) - ($data->success + $data->failures + $data->partyally);
-            $data->time = self::get_time_string($session, $question);
-            $data->questionreporturl = (new moodle_url('/mod/jqshow/reports.php',
-                ['cmid' => $cmid, 'sid' => $sid, 'jqid' => $question->get('id')]
-            ))->out(false);
-            $questionsdata[] = $data;
-        }
-        return $questionsdata;
+        $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
+        $data = new stdClass();
+        $data->questionnid = $question->get('id');
+        $data->position = $question->get('qorder');
+        $data->name = $questiondb->name;
+        $data->type = $question->get('qtype');
+        $data->success = jqshow_questions_responses::count_records([
+            'jqshow' => $jqshowid,
+            'session' => $session->get('id'),
+            'jqid' => $question->get('id'),
+            'result' => questions::SUCCESS
+        ]);
+        $data->failures = jqshow_questions_responses::count_records([
+            'jqshow' => $jqshowid,
+            'session' => $session->get('id'),
+            'jqid' => $question->get('id'),
+            'result' => questions::FAILURE
+        ]);
+        $data->partyally = jqshow_questions_responses::count_records([
+            'jqshow' => $jqshowid,
+            'session' => $session->get('id'),
+            'jqid' => $question->get('id'),
+            'result' => questions::PARTIALLY
+        ]);
+        $data->noresponse = count($users) - ($data->success + $data->failures + $data->partyally);
+        $data->time = self::get_time_string($session, $question);
+        $data->questionreporturl = (new moodle_url('/mod/jqshow/reports.php',
+            ['cmid' => $cmid, 'sid' => $session->get('id'), 'jqid' => $question->get('id')]
+        ))->out(false);
+        return $data;
     }
-
     /**
      * @param int $cmid
      * @param int $sid

@@ -208,17 +208,10 @@ class groupmode {
      */
     public static function check_all_users_in_groups(int $cmid, int $groupingid) {
         global $COURSE;
-        $students = jqshow::get_students($cmid);
-        $newstudents = array_map(static function($user) {
-            return $user->id;
-        }, $students);
-
-        /*$groupmembers = groups_get_grouping_members($groupingid, 'u.id');
-        $newgrupmembers = array_map(function($user) {
-            return $user->id;
-        }, $groupmembers);*/
-        $newgrupmembers = self::get_grouping_userids($groupingid);
-        $diff = array_diff($newstudents, $newgrupmembers);
+        $students = jqshow::get_enrolled_students_in_course(0, $cmid);
+        $studentsids = array_keys($students);
+        $groupmembers = self::get_grouping_userids($groupingid);
+        $diff = array_diff($studentsids, $groupmembers);
         if (!empty($diff)) {
             $data = new stdClass();
             $data->name = get_string('fakegroup', 'mod_jqshow', random_string(5));

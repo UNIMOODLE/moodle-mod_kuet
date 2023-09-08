@@ -54,54 +54,54 @@ class truefalse implements  jqshowquestion {
                                                int $jqid): stdClass {
         $answers = [];
         $correctanswers = [];
-        foreach ($questiondata->answers as $key => $answer) {
-            $answers[$key]['answertext'] = $answer->answer; // TODO get text with images questions::get_text.
-            $answers[$key]['answerid'] = $key;
-            if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
-                $answers[$key]['result'] = 'incorrect';
-                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_jqshow');
-                $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_jqshow'), 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => get_string('incorrect', 'mod_jqshow')
-                ]);
-                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => ''
-                ]);
-            } else if ($answer->fraction === '1.0000000') {
-                $answers[$key]['result'] = 'correct';
-                $answers[$key]['resultstr'] = get_string('correct', 'mod_jqshow');
-                $answers[$key]['fraction'] = '1';
-                $icon = new pix_icon('i/correct', get_string('correct', 'mod_jqshow'), 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => get_string('correct', 'mod_jqshow')
-                ]);
-                $usersicon = new pix_icon('i/correct_users', '', 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => ''
-                ]);
-            } else {
-                $answers[$key]['result'] = 'partially';
-                $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_jqshow');
-                $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_jqshow'), 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => get_string('partially_correct', 'mod_jqshow')
-                ]);
-                $usersicon = new pix_icon('i/partially_users', '', 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => ''
-                ]);
-            }
-            $answers[$key]['resulticon'] = $icon->export_for_pix();
-            $answers[$key]['usersicon'] = $usersicon->export_for_pix();
-            $answers[$key]['numticked'] = 0;
-            if ($answer->fraction !== '0.0000000') { // Answers with punctuation, even if negative.
-                $correctanswers[$key]['response'] = $answer->answer;
-                $correctanswers[$key]['score'] = grade::get_rounded_mark($questiondata->defaultmark * $answer->fraction);
-            }
-        }
+
+        // True.
+        $answers[$questiondata->trueanswerid]['answertext'] = get_string('true', 'qtype_truefalse');
+        $answers[$questiondata->trueanswerid]['answerid'] = $questiondata->trueanswerid;
+        $statustrue = $questiondata->rightanswer ? 'correct' : 'incorrect';
+        $answers[$questiondata->trueanswerid]['result'] = $statustrue;
+        $answers[$questiondata->trueanswerid]['resultstr'] = get_string($statustrue, 'mod_jqshow');
+//            $answers[$key]['fraction'] = round(1, 2); // en las trufalse no existe.
+        $icon = new pix_icon('i/' . $statustrue,
+            get_string($statustrue, 'mod_jqshow'), 'mod_jqshow', [
+                'class' => 'icon',
+                'title' => get_string($statustrue, 'mod_jqshow')
+            ]);
+        $usersicon = new pix_icon('i/'. $statustrue .'_users', '', 'mod_jqshow', [
+            'class' => 'icon',
+            'title' => ''
+        ]);
+        $answers[$questiondata->trueanswerid]['resulticon'] = $icon->export_for_pix();
+        $answers[$questiondata->trueanswerid]['usersicon'] = $usersicon->export_for_pix();
+        $answers[$questiondata->trueanswerid]['numticked'] = 0;
+
+        // False.
+        $answers[$questiondata->falseanswerid]['answertext'] = get_string('false', 'qtype_truefalse');
+        $answers[$questiondata->falseanswerid]['answerid'] = $questiondata->falseanswerid;
+        $statusfalse = $questiondata->rightanswer ? 'incorrect' : 'correct';
+        $answers[$questiondata->falseanswerid]['result'] = $statusfalse;
+        $answers[$questiondata->falseanswerid]['resultstr'] = get_string($statusfalse, 'mod_jqshow');
+//            $answers[$questiondata->falseanswerid]['fraction'] = round(1, 2); // en las trufalse no existe.
+        $icon = new pix_icon('i/' . $statusfalse,
+            get_string($statusfalse, 'mod_jqshow'), 'mod_jqshow', [
+                'class' => 'icon',
+                'title' => get_string($statusfalse, 'mod_jqshow')
+            ]);
+        $usersicon = new pix_icon('i/'. $statusfalse .'_users', '', 'mod_jqshow', [
+            'class' => 'icon',
+            'title' => ''
+        ]);
+        $answers[$questiondata->falseanswerid]['resulticon'] = $icon->export_for_pix();
+        $answers[$questiondata->falseanswerid]['usersicon'] = $usersicon->export_for_pix();
+        $answers[$questiondata->falseanswerid]['numticked'] = 0;
+
+        // Correct answer.
+        $rightanswerkey = $questiondata->rightanswer ? $questiondata->trueanswerid : $questiondata->falseanswerid;
+        $rightanswertext = $questiondata->rightanswer ? get_string('true', 'qtype_truefalse') :
+            get_string('false', 'qtype_truefalse');
+        $correctanswers[$rightanswerkey]['response'] = $rightanswertext;
+        $correctanswers[$rightanswerkey]['score'] = grade::get_rounded_mark($questiondata->defaultmark);
+
         $gmembers = [];
         if ($session->is_group_mode()) {
             $gmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
@@ -122,6 +122,7 @@ class truefalse implements  jqshowquestion {
         }
         $data->correctanswers = array_values($correctanswers);
         $data->answers = array_values($answers);
+
         return $data;
     }
 
