@@ -96,6 +96,8 @@ class getquestionstatistics_external extends external_api {
                 break;
             case questions::MATCH:
             case questions::SHORTANSWER:
+            case questions::NUMERICAL:
+                // TODO review statistics for all, as most of them have to be applied.
                 // There are no statistics defined for these modes.
                 break;
             case questions::TRUE_FALSE:

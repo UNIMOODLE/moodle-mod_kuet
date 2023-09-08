@@ -1,5 +1,7 @@
 body.path-mod-jqshow {
-    *:focus {
+    *:focus,
+    .btn-primary:focus,
+    .btn-primary.focus {
         outline-style: none !important;
         outline-color: transparent !important;
         outline-offset: unset !important;

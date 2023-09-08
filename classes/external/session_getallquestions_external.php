@@ -96,6 +96,9 @@ class session_getallquestions_external extends external_api {
                 case questions::SHORTANSWER:
                     $questiondata[] = questions::export_shortanswer($jqid, $cmid, $sessionid, $jqshow->id, false);
                     break;
+                case questions::NUMERICAL:
+                    $questiondata[] = questions::export_numerical($jqid, $cmid, $sessionid, $jqshow->id, false);
+                    break;
                 default:
                     throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                         [], get_string('question_nosuitable', 'mod_jqshow'));
