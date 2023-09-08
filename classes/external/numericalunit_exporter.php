@@ -41,7 +41,15 @@ class numericalunit_exporter extends exporter {
             'unittext' => [
                 'type' => PARAM_RAW,
                 'optional' => true,
-            ]
+            ],
+            'multiplier' => [
+                'type' => PARAM_RAW,
+                'optional' => true,
+            ],
+            'unitselected' => [
+                'type' => PARAM_BOOL,
+                'optional' => true,
+            ],
         ];
     }
 }

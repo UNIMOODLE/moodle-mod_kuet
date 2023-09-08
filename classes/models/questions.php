@@ -60,6 +60,7 @@ use question_attempt;
 use question_bank;
 use question_definition;
 use question_engine;
+use ReflectionClass;
 use stdClass;
 use context_user;
 
@@ -613,6 +614,7 @@ class questions {
      * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws moodle_exception
+     * @throws \ReflectionException
      */
     public static function export_numerical(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
@@ -632,14 +634,18 @@ class questions {
         $data->name = $question->name;
         $data->unitsleft = isset($question->unitdisplay) && $question->unitdisplay === 1;
         if (isset($question->ap) && assert($question->ap instanceof qtype_numerical_answer_processor)) {
-            $data->units = array_values($question->ap->get_unit_options());
+            $data->units = [];
+            $reflection = new ReflectionClass($question->ap);
+            $units = $reflection->getProperty('units');
+            $units->setAccessible(true);
             $unitid = 0;
-            foreach ($data->units as $key => $unit) {
+            foreach ($units->getValue($question->ap) as $key => $unit) {
                 $data->units[$key] = [];
                 $data->units[$key]['unitid'] = 'unit_' . $unitid;
-                $data->units[$key]['unittext'] = $unit;
-                $unitid++;
+                $data->units[$key]['unittext'] = $key;
+                $data->units[$key]['multiplier'] = $unit;
             }
+            $data->units = array_values($data->units);
             if (isset($question->unitdisplay)) {
                 switch ($question->unitdisplay) {
                     case 0:
@@ -676,11 +682,23 @@ class questions {
         $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
+            $responsedata->unit = '';
+            $responsedata->multiplier = '';
+        }
+        if (isset($responsedata->unit) && $responsedata->unit !== '') {
+            foreach ($data->units as $key => $unit) {
+                if ($unit['unittext'] === $responsedata->unit) {
+                    $data->units[$key]['unitselected'] = true;
+                    break;
+                }
+            }
         }
         $data->answered = true;
         // TODO.
         $dataanswer = numerical_external::numerical(
             $responsedata->response,
+            $responsedata->unit,
+            (float)$responsedata->multiplier,
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
@@ -690,7 +708,7 @@ class questions {
             true
         );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
-        $data->shortanswerresponse = $responsedata->response;
+        $data->numericalresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
         $data->programmedmode = $dataanswer['programmedmode'];
         $data->statment_feedback = $dataanswer['statment_feedback'];

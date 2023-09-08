@@ -23,6 +23,7 @@ let REGION = {
     INPUTANSWER: '#userNumerical',
     ANSWERHELP: '#userNumericalHelp',
     FEEDBACKICONS: '.feedback-icons',
+    UNITSCONTENT: '#unitsContent'
 };
 
 let SERVICES = {
@@ -41,6 +42,7 @@ let jqid;
 let questionEnd = false;
 let showQuestionFeedback = false;
 let manualMode = false;
+let hasUnits = false;
 
 /** @type {jQuery} The jQuery node for the page region. */
 Numerical.prototype.node = null;
@@ -79,6 +81,9 @@ function Numerical(selector, showquestionfeedback = false, manualmode = false, j
 
 Numerical.prototype.initNumerical = function() {
     jQuery(ACTION.SEND_RESPONSE).on('click', Numerical.prototype.reply);
+    if (jQuery(REGION.UNITSCONTENT).length) {
+        hasUnits = true;
+    }
     Numerical.prototype.initEvents();
 };
 
@@ -135,12 +140,25 @@ Numerical.prototype.reply = function() {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Numerical.prototype.endTimer);
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
-        let responseText = jQuery(REGION.INPUTANSWER).val();
-        // TODO obtain units if the exercise has them.
+        let responseNum = jQuery(REGION.INPUTANSWER).val();
+        let unit = ''; // TODO prepare for no response, otherwise it would be marked as 0.
+        let multiplier = '';
+        if (hasUnits) {
+            let contentUnit = jQuery(REGION.UNITSCONTENT);
+            if (contentUnit.is('div')) {
+                unit = contentUnit.find('input[type="radio"]:checked').attr('name');
+                multiplier = contentUnit.find('input[type="radio"]:checked').data('multiplier');
+            } else if (contentUnit.is('select')) {
+                unit = contentUnit.find(':selected').val();
+                multiplier = contentUnit.find(':selected').data('multiplier');
+            }
+        }
         let request = {
             methodname: SERVICES.REPLY,
             args: {
-                responsetext: responseText,
+                responsenum: responseNum === null ? '' : responseNum,
+                unit: unit,
+                multiplier: multiplier,
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,

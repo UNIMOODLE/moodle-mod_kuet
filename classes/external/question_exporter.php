@@ -187,9 +187,14 @@ class question_exporter extends exporter {
                 'type' => PARAM_RAW,
                 'optional' => true,
             ],
+            'numericalresponse' => [
+                'type' => PARAM_RAW,
+                'optional' => true,
+            ],
             'units' => [
                 'type' => numericalunit_exporter::read_properties_definition(),
                 'optional' => true,
+                'multiple' => true
             ],
             'unitdisplay' => [
                 'type' => PARAM_BOOL,

@@ -25,18 +25,18 @@
                     {{#unitsleft}}
                         <span class="units_title">{{#str}}unit, mod_jqshow{{/str}}:</span>
                         {{#showunitsradio}}
-                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons" id="unitsContent">
                                 {{#units}}
                                     <label class="btn btn-primary">
-                                        <input type="radio" name="{{ unittext }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
+                                        <input type="radio" name="{{ unittext }}" {{#unitselected}}checked{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
                                     </label>
                                 {{/units}}
                             </div>
                         {{/showunitsradio}}
                         {{#showunitsselect}}
-                            <select class="custom-select">
+                            <select class="custom-select" id="unitsContent">
                                 {{#units}}
-                                    <option value="{{ unittext }}" id="{{ unitid }}">{{ unittext }}</option>
+                                    <option value="{{ unittext }}" {{#unitselected}}selected{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}">{{ unittext }}</option>
                                 {{/units}}
                             </select>
                         {{/showunitsselect}}
@@ -50,24 +50,24 @@
                         maxlength="80"
                         data-initial-value="{{numericalresponse}}"
                         value="{{numericalresponse}}"
-                        pattern="[A-Za-zÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõöøùúûüýþÿ][0-9]*$"
+                        pattern="[0-9]"
                 >
                 {{#unitdisplay}}
                     {{^unitsleft}}
                         <span class="units_title">{{#str}}unit, mod_jqshow{{/str}}:</span>
                         {{#showunitsradio}}
-                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons" id="unitsContent">
                                 {{#units}}
                                     <label class="btn btn-primary">
-                                        <input type="radio" name="{{ unittext }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
+                                        <input type="radio" name="{{ unittext }}" {{#unitselected}}checked{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
                                     </label>
                                 {{/units}}
                             </div>
                         {{/showunitsradio}}
                         {{#showunitsselect}}
-                            <select class="custom-select">
+                            <select class="custom-select" id="unitsContent">
                                 {{#units}}
-                                    <option value="{{ unittext }}" id="{{ unitid }}">{{ unittext }}</option>
+                                    <option value="{{ unittext }}" {{#unitselected}}selected{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}">{{ unittext }}</option>
                                 {{/units}}
                             </select>
                         {{/showunitsselect}}

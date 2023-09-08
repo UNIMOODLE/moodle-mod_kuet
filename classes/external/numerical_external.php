@@ -41,6 +41,9 @@ use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use qtype_numerical_question;
 use question_bank;
+use question_state_gradedpartial;
+use question_state_gradedright;
+use question_state_gradedwrong;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -52,7 +55,9 @@ class numerical_external extends external_api {
     public static function numerical_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'responsetext' => new external_value(PARAM_RAW, 'User response text'),
+                'responsenum' => new external_value(PARAM_RAW, 'User response text'),
+                'unit' => new external_value(PARAM_RAW, 'Unit for response, optional depending on configuration', VALUE_OPTIONAL),
+                'multiplier' => new external_value(PARAM_RAW, 'Multiplier of unit', VALUE_OPTIONAL),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
@@ -65,7 +70,9 @@ class numerical_external extends external_api {
     }
 
     /**
-     * @param string $responsetext
+     * @param int $responsenum
+     * @param string $unit
+     * @param string $multiplier
      * @param int $sessionid
      * @param int $jqshowid
      * @param int $cmid
@@ -81,7 +88,9 @@ class numerical_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function numerical(
-        string $responsetext,
+        string $responsenum,
+        string $unit,
+        string $multiplier,
         int $sessionid,
         int $jqshowid,
         int $cmid,
@@ -94,14 +103,16 @@ class numerical_external extends external_api {
         self::validate_parameters(
             self::numerical_parameters(),
             [
-                'responsetext' => $responsetext,
+                'responsenum' => $responsenum,
+                'unit' => $unit,
+                'multiplier' => $multiplier,
                 'sessionid' => $sessionid,
                 'jqshowid' => $jqshowid,
                 'cmid' => $cmid,
                 'questionid' => $questionid,
                 'jqid' => $jqid,
                 'timeleft' => $timeleft,
-                'preview' => $preview
+                'preview' => $preview,
             ]
         );
         $contextmodule = context_module::instance($cmid);
@@ -109,32 +120,48 @@ class numerical_external extends external_api {
 
         $session = new jqshow_sessions($sessionid);
         $question = question_bank::load_question($questionid);
-        $result = questions::FAILURE;
         $answerfeedback = '';
+        $result = questions::NORESPONSE;
         if (assert($question instanceof qtype_numerical_question)) {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
             /* TODO move logic to API grades,
             to have a method that returns the result constant and the feedback of the answer according to the type of question. */
+            $moodleresult = $question->grade_response(['answer' => $responsenum, 'unit' => $unit]);
+            if (isset($moodleresult[1])) {
+                switch (get_class($moodleresult[1])) {
+                    case 'question_state_gradedwrong':
+                        $result = questions::FAILURE;
+                        break;
+                    case 'question_state_gradedpartial':
+                        $result = questions::PARTIALLY;
+                        break;
+                    case 'question_state_gradedright':
+                        $result = questions::SUCCESS;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
+            if ($matchanswer !== null) {
+                $answerfeedback = questions::get_text(
+                    $cmid, $matchanswer->feedback, $matchanswer->feedbackformat, $question->id, $question, 'feedback'
+                );
+            }
 
             // TODO all logic for numeric response.
             $possibleanswers = '';
             foreach ($question->answers as $answer) {
-                $possibleanswers .= $answer->answer . ' / ';
-                if ($answer->fraction === '1.0000000') {
-                    $result = questions::SUCCESS;
-                } else {
-                    $result = questions::PARTIALLY;
-                }
-                $answerfeedback = questions::get_text(
-                    $cmid, $answer->feedback, $answer->feedbackformat, $question->id, $question, 'feedback'
-                );
+                $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
             }
             if ($preview === false) {
                 responses::numerical_response(
                     $jqid,
-                    $responsetext,
+                    $responsenum,
+                    $unit,
+                    $multiplier,
                     $result,
                     $questionid,
                     $sessionid,
@@ -152,7 +179,7 @@ class numerical_external extends external_api {
                 'statment_feedback' => $statmentfeedback,
                 'answer_feedback' => $answerfeedback,
                 'possibleanswers' => rtrim($possibleanswers, '/ '),
-                'numericalresponse' => $responsetext,
+                'numericalresponse' => (string)$responsenum,
                 'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::RACE_PROGRAMMED),

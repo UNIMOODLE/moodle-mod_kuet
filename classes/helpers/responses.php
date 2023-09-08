@@ -221,6 +221,8 @@ class responses {
     public static function numerical_response(
         int $jqid,
         string $responsetext,
+        string $unit,
+        string $multiplier,
         int $result,
         int $questionid,
         int $sessionid,
@@ -245,6 +247,8 @@ class responses {
                 $response->timeleft = $timeleft;
                 $response->type = questions::NUMERICAL;
                 $response->response = $responsetext; // TODO validate html and special characters.
+                $response->unit = $unit;
+                $response->multiplier = $multiplier;
                 jqshow_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );

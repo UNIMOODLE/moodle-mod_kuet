@@ -27,6 +27,7 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_module;
+use dml_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
@@ -39,6 +40,7 @@ use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
+use ReflectionException;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -65,8 +67,10 @@ class getquestion_external extends external_api {
      * @param int $jqid
      * @return array
      * @throws JsonException
-     * @throws dml_transaction_exception
+     * @throws ReflectionException
+     * @throws dml_exception
      * @throws coding_exception
+     * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
@@ -102,6 +106,7 @@ class getquestion_external extends external_api {
         $session = new jqshow_sessions($sessionid);
         $question->programmedmode = in_array($session->get('sessionmode'),
             [sessions::PODIUM_PROGRAMMED, sessions::INACTIVE_PROGRAMMED, sessions::RACE_PROGRAMMED], true);
+        // TODO prepare an exporter for each type of question.
         return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
     }
 
@@ -109,6 +114,7 @@ class getquestion_external extends external_api {
      * @return external_single_structure
      */
     public static function getquestion_returns(): external_single_structure {
+        // TODO prepare an exporter for each type of question.
         return question_exporter::get_read_structure();
     }
 }
