@@ -23,25 +23,25 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_jqshow\exporter;
 
 use core\external\exporter;
 
-class matchoption_exporter extends exporter {
+class finalranking_exporter extends exporter {
 
     /**
      * @return array[]
      */
-    public static function define_properties():array {
+    public static function define_properties() {
         return [
-            'questionid' => [
+            'userimageurl' => [
+                'type' => PARAM_URL,
+            ],
+            'userfullname' => [
+                'type' => PARAM_RAW,
+            ],
+            'userpoints' => [
                 'type' => PARAM_INT,
-            ],
-            'optionkey' => [
-                'type' => PARAM_RAW,
-            ],
-            'optiontext' => [
-                'type' => PARAM_RAW,
             ]
         ];
     }

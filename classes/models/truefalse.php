@@ -26,159 +26,90 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_module;
 use core\invalid_persistent_exception;
-use core_availability\info_module;
 use dml_exception;
 use dml_transaction_exception;
-use Exception;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\external\getfinalranking_external;
-use mod_jqshow\external\match_external;
-use mod_jqshow\external\multichoice_external;
-use mod_jqshow\external\numerical_external;
-use mod_jqshow\external\shortanswer_external;
 use mod_jqshow\external\truefalse_external;
-use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
-use moodle_url;
-use qbank_previewquestion\question_preview_options;
-use qtype_match_question;
-use qtype_multichoice;
-use qtype_multichoice_multi_question;
-use qtype_multichoice_single_question;
-use qtype_numerical_answer_processor;
-use qtype_numerical_question;
-use qtype_shortanswer_question;
-use question_answer;
-use question_attempt;
 use question_bank;
-use question_definition;
-use question_engine;
-use ReflectionClass;
 use stdClass;
-use context_user;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
+
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
-require_once($CFG->dirroot. '/question/type/truefalse/questiontype.php');
-require_once($CFG->dirroot. '/question/engine/lib.php');
-require_once($CFG->dirroot. '/question/engine/bank.php');
 
-class questions {
-    public const MULTICHOICE = 'multichoice';
-    public const MATCH = 'match';
-    public const TRUE_FALSE = 'truefalse';
-    public const SHORTANSWER = 'shortanswer';
-    public const NUMERICAL = 'numerical';
-
-    public const TYPES = [self::MULTICHOICE, self::MATCH, self::TRUE_FALSE, self::SHORTANSWER, self::NUMERICAL];
-
-    public const FAILURE = 0; // String: qstatus_0.
-    public const SUCCESS = 1; // String: qstatus_1.
-    public const PARTIALLY = 2; // String: qstatus_2.
-    public const NORESPONSE = 3; // String: qstatus_3.
-    public const NOTEVALUABLE = 4; // String: qstatus_4.
-    public const INVALID = 5; // String: qstatus_5.
-    public const CHARACTERS_TO_BE_STRIPPED = " \t\n\r\0\x0B\xC2\xA0";
-    protected int $jqshowid;
-    protected int $cmid;
-    protected int $sid;
-    /** @var jqshow_questions[] list */
-    protected array $list;
+class truefalse extends questions {
 
     /**
      * @param int $jqshowid
      * @param int $cmid
      * @param int $sid
-     */
-    public function __construct(int $jqshowid, int $cmid, int $sid) {
-        $this->jqshowid = $jqshowid;
-        $this->cmid = $cmid;
-        $this->sid = $sid;
-    }
-
-    /**
      * @return void
      */
-    public function set_list() {
-        $this->list = jqshow_questions::get_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid], 'qorder', 'ASC');
+    public function construct(int $jqshowid, int $cmid, int $sid) {
+        parent::__construct($jqshowid, $cmid, $sid);
     }
 
     /**
-     * @return jqshow_questions[]
-     */
-    public function get_list(): array {
-        if (empty($this->list)) {
-            $this->set_list();
-        }
-        return $this->list;
-    }
-
-    /**
-     * @return int
-     */
-    public function get_num_questions(): int {
-        return jqshow_questions::count_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid]);
-    }
-
-    /**
-     * @return int
-     * @throws coding_exception
-     */
-    public function get_sum_questions_times(): int {
-        $questions = $this->get_list();
-        $sessiontimedefault = (new jqshow_sessions($this->sid))->get('questiontime');
-        $time = 0;
-        foreach ($questions as $question) {
-            if ($question->get('timelimit') !== 0) {
-                $time = $question->get('timelimit') + $time;
-            } else {
-                $time = $sessiontimedefault + $time;
-            }
-        }
-        return $time;
-    }
-
-    /**
-     * @param jqshow_sessions $session
      * @param int $jqid
      * @param int $cmid
      * @param int $sessionid
      * @param int $jqshowid
      * @param bool $preview
-     * @param jqshow_questions $jqshowquestion
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    protected static function get_question_common_data(
-        jqshow_sessions $session,
-        int $jqid,
-        int $cmid,
-        int $sessionid,
-        int $jqshowid,
-        bool $preview,
-        jqshow_questions $jqshowquestion
-    ): stdClass {
+    public static function export_truefalse(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         global $USER;
+        $session = jqshow_sessions::get_record(['id' => $sessionid]);
+        $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
+        $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
+        $type = self::TRUE_FALSE;
+        $answers = [];
+        $feedbacks = [];
         $data = new stdClass();
+        // True answer.
+        $answers[] = [
+            'answerid' => $question->trueanswerid,
+            'questionid' => $jqshowquestion->get('questionid'),
+            'answertext' => get_string('true', 'qtype_truefalse'),
+            'fraction' => '1.0000000',
+        ];
+        $feedbacks[] = [
+            'answerid' => $question->trueanswerid,
+            'feedback' => self::escape_characters($question->truefeedback),
+            'feedbackformat' => $question->truefeedbackformat,
+        ];
+        // False answer.
+        $answers[] = [
+            'answerid' => $question->falseanswerid,
+            'questionid' => $jqshowquestion->get('questionid'),
+            'answertext' => get_string('false', 'qtype_truefalse'),
+            'fraction' => '1.0000000',
+        ];
+        $feedbacks[] = [
+            'answerid' => $question->falseanswerid,
+            'feedback' => self::escape_characters($question->falsefeedback),
+            'feedbackformat' => $question->falsefeedbackformat,
+        ];
         $data->cmid = $cmid;
         $data->sessionid = $sessionid;
         $data->jqshowid = $jqshowid;
         $data->questionid = $jqshowquestion->get('questionid');
         $data->jqid = $jqshowquestion->get('id');
         $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
-        $data->countdown = $session->get('countdown');
-        $data->preview = $preview;
+        $data->endsession = false;
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
@@ -223,6 +154,9 @@ class questions {
                 throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
                     [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
+        $data->questiontext =
+            self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
+        $data->questiontextformat = $question->questiontextformat;
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
             default:
@@ -247,64 +181,59 @@ class questions {
                     $jqshowquestion->get('timelimit') !== 0 ? $jqshowquestion->get('timelimit') : $session->get('questiontime');
                 break;
         }
+        $data->countdown = $session->get('countdown');
+        $data->preview = $preview;
+        $data->numanswers = 2;
+        $data->name = $question->name;
+        $data->qtype = $type;
+        $data->$type = true;
+        if ($session->get('randomanswers') === 1) {
+            shuffle($answers);
+        }
+        $data->answers = $answers;
+        $data->feedbacks = $feedbacks;
         $data->template = 'mod_jqshow/questions/encasement';
         return $data;
     }
 
     /**
-     * @param int $cmid
-     * @param string $text
-     * @param int $textformat
-     * @param int $id
-     * @param question_definition $question
-     * @param string $filearea
-     * @return string
-     * @throws dml_exception
+     * @param stdClass $data
+     * @param string $response
+     * @return stdClass
+     * @throws JsonException
+     * @throws invalid_persistent_exception
+     * @throws invalid_parameter_exception
+     * @throws coding_exception
      * @throws dml_transaction_exception
-     * @throws Exception
+     * @throws moodle_exception
      */
-    public static function get_text(
-        int $cmid, string $text, int $textformat, int $id, question_definition $question, string $filearea
-    ) : string {
-        global $DB;
-        $contextmodule = context_module::instance($cmid);
-        $usage = $DB->get_record('question_usages', ['component' => 'mod_jqshow', 'contextid' => $contextmodule->id]);
-        $options = new question_preview_options($question);
-        $options->load_user_defaults();
-        $options->set_from_request();
-        $maxvariant = min($question->get_num_variants(), 100);
-        if ($usage !== false) {
-            $quba = question_engine::load_questions_usage_by_activity($usage->id);
-        } else {
-            $quba = question_engine::make_questions_usage_by_activity(
-                'mod_jqshow', context_module::instance($cmid));
+    public static function export_truefalse_response(stdClass $data, string $response): stdClass {
+        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $data->answered = true;
+        $dataanswer = truefalse_external::truefalse(
+            $responsedata->answerids,
+            $data->sessionid,
+            $data->jqshowid,
+            $data->cmid,
+            $responsedata->questionid,
+            $data->jqid,
+            $responsedata->timeleft,
+            true
+        );
+        $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
+        $dataanswer['answerids'] = $responsedata->answerids;
+        $data->seconds = $responsedata->timeleft;
+        $data->correct_answers = $dataanswer['correct_answers'];
+        $data->programmedmode = $dataanswer['programmedmode'];
+        if ($data->hasfeedbacks) {
+            $dataanswer['statment_feedback'] = self::escape_characters($dataanswer['statment_feedback']);
+            $dataanswer['answer_feedback'] = self::escape_characters($dataanswer['answer_feedback']);
         }
-        $quba->set_preferred_behaviour('immediatefeedback');
-        $slot = $quba->add_question($question, $options->maxmark);
-        if ($options->variant) {
-            $options->variant = min($maxvariant, max(1, $options->variant));
-        } else {
-            $options->variant = random_int(1, $maxvariant);
-        }
-        $quba->start_question($slot, $options->variant);
-        if ($usage === false) {
-            $transaction = $DB->start_delegated_transaction();
-            question_engine::save_questions_usage_by_activity($quba);
-            $transaction->allow_commit();
-        }
-        $qa = new question_attempt($question, $quba->get_id());
-        $qa->set_slot($slot);
-        return $qa->get_question()->format_text($text, $textformat, $qa, 'question', $filearea, $id);
-    }
+        $data->statment_feedback = $dataanswer['statment_feedback'];
+        $data->answer_feedback = $dataanswer['answer_feedback'];
+        $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
+        $data->statistics = $dataanswer['statistics'] ?? '0';
 
-    /**
-     * @param string $text
-     * @return string
-     */
-    protected static function escape_characters(string $text) : string {
-        // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
-        $text = trim(html_entity_decode($text), self::CHARACTERS_TO_BE_STRIPPED);
-        $text = str_replace('"', '\"', $text);
-        return $text;
+        return $data;
     }
 }

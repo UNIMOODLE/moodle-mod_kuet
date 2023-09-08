@@ -56,8 +56,8 @@ class numerical_external extends external_api {
         return new external_function_parameters(
             [
                 'responsenum' => new external_value(PARAM_RAW, 'User response text'),
-                'unit' => new external_value(PARAM_RAW, 'Unit for response, optional depending on configuration', VALUE_OPTIONAL),
-                'multiplier' => new external_value(PARAM_RAW, 'Multiplier of unit', VALUE_OPTIONAL),
+                'unit' => new external_value(PARAM_RAW, 'Unit for response, optional depending on configuration'),
+                'multiplier' => new external_value(PARAM_RAW, 'Multiplier of unit'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
                 'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),

@@ -23,7 +23,7 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_jqshow\exporter;
 
 use core\external\exporter;
 

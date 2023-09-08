@@ -35,8 +35,14 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\exporter\question_exporter;
+use mod_jqshow\models\match as matchQuestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
@@ -85,19 +91,19 @@ class getquestion_external extends external_api {
         $session = new jqshow_sessions($sessionid);
         switch ((new jqshow_questions($jqid))->get('qtype')){
             case questions::MULTICHOICE:
-                $question = questions::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = multichoice::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             case questions::MATCH:
-                $question = questions::export_match($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = matchQuestion::export_match($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             case questions::TRUE_FALSE:
-                $question = questions::export_truefalse($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = truefalse::export_truefalse($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             case questions::SHORTANSWER:
-                $question = questions::export_shortanswer($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = shortanswer::export_shortanswer($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             case questions::NUMERICAL:
-                $question = questions::export_numerical($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = numerical::export_numerical($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

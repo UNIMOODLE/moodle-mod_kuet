@@ -35,8 +35,15 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\exporter\question_exporter;
 use mod_jqshow\helpers\progress;
+use mod_jqshow\models\match as matchQuestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
+use mod_jqshow\models\sessions;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
@@ -91,7 +98,7 @@ class jumptoquestion_external extends external_api {
             );
             switch ($question->get('qtype')) {
                 case questions::MULTICHOICE:
-                    $data = questions::export_multichoice(
+                    $data = multichoice::export_multichoice(
                         $question->get('id'),
                         $cmid,
                         $sessionid,
@@ -99,7 +106,7 @@ class jumptoquestion_external extends external_api {
                     $data->showstatistics = true;
                     break;
                 case questions::MATCH:
-                    $data = questions::export_match(
+                    $data = matchQuestion::export_match(
                         $question->get('id'),
                         $cmid,
                         $sessionid,
@@ -107,7 +114,7 @@ class jumptoquestion_external extends external_api {
                     $data->showstatistics = false;
                     break;
                 case questions::TRUE_FALSE:
-                    $data = questions::export_truefalse(
+                    $data = truefalse::export_truefalse(
                         $question->get('id'),
                         $cmid,
                         $sessionid,
@@ -115,7 +122,7 @@ class jumptoquestion_external extends external_api {
                     $data->showstatistics = true;
                     break;
                 case questions::SHORTANSWER:
-                    $data = questions::export_shortanswer(
+                    $data = shortanswer::export_shortanswer(
                         $question->get('id'),
                         $cmid,
                         $sessionid,
@@ -123,7 +130,7 @@ class jumptoquestion_external extends external_api {
                     $data->showstatistics = false;
                     break;
                 case questions::NUMERICAL:
-                    $data = questions::export_numerical(
+                    $data = numerical::export_numerical(
                         $question->get('id'),
                         $cmid,
                         $sessionid,
@@ -141,7 +148,7 @@ class jumptoquestion_external extends external_api {
             jqshow_user_progress::add_progress(
                 $session->get('jqshowid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
             );
-            $data = questions::export_endsession(
+            $data = sessions::export_endsession(
                 $cmid,
                 $sessionid);
         }

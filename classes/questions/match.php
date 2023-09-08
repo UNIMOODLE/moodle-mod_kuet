@@ -39,7 +39,7 @@ use stdClass;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class match implements  jqshowquestion {
+class match implements jqshowquestion {
 
     /**
      * @param jqshow_sessions $session

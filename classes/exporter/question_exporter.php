@@ -23,12 +23,14 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_jqshow\exporter;
 
 use context;
 use core\external\exporter;
 
 class question_exporter extends exporter {
+
+    // TODO split in exports according to the type of question.
 
     /**
      * @return array[]

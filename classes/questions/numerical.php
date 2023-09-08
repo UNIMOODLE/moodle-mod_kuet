@@ -31,6 +31,9 @@ use qtype_shortanswer_question;
 use question_definition;
 use stdClass;
 
+/**
+ * @method static export_numerical(bool|mixed|null $get, int $cmid, int $sessionid, bool|mixed|null $get1)
+ */
 class numerical implements  jqshowquestion {
 
     /**

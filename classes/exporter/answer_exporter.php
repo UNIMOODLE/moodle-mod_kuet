@@ -23,25 +23,28 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_jqshow\exporter;
 
 use core\external\exporter;
 
-class finalranking_exporter extends exporter {
+class answer_exporter extends exporter {
 
     /**
      * @return array[]
      */
-    public static function define_properties() {
+    public static function define_properties():array {
         return [
-            'userimageurl' => [
-                'type' => PARAM_URL,
+            'answerid' => [
+                'type' => PARAM_INT,
             ],
-            'userfullname' => [
+            'questionid' => [
+                'type' => PARAM_TEXT,
+            ],
+            'answertext' => [
                 'type' => PARAM_RAW,
             ],
-            'userpoints' => [
-                'type' => PARAM_INT,
+            'fraction' => [
+                'type' => PARAM_RAW,
             ]
         ];
     }

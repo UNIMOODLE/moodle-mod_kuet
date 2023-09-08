@@ -35,7 +35,12 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\models\match as matchQuestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use moodle_exception;
@@ -109,15 +114,15 @@ class getuserquestionresponse_external extends external_api {
         }
         switch ($other->type) {
             case questions::MULTICHOICE:
-                return (array)questions::export_multichoice_response($data, $json);
+                return (array)multichoice::export_multichoice_response($data, $json);
             case questions::MATCH:
-                return (array)questions::export_match_response($data, $json, $result);
+                return (array)matchQuestion::export_match_response($data, $json, $result);
             case questions::TRUE_FALSE:
-                return (array)questions::export_truefalse_response($data, $json);
+                return (array)truefalse::export_truefalse_response($data, $json);
             case questions::SHORTANSWER:
-                return (array)questions::export_shortanswer_response($data, $json);
+                return (array)shortanswer::export_shortanswer_response($data, $json);
             case questions::NUMERICAL:
-                return (array)questions::export_numerical_response($data, $json);
+                return (array)numerical::export_numerical_response($data, $json);
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));
