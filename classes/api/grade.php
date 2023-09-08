@@ -173,7 +173,10 @@ class grade {
             if ($qtime && !empty($useranswer)) {
                 $useranswer = json_decode($useranswer);
                 $timeleft = $useranswer->timeleft; // Time answering question.
-                $percent = ($qtime - $timeleft) * 100 / $qtime;
+                $percent = 0; // UNIMOOD-150.
+                if ($qtime > $timeleft) {
+                    $percent = ($qtime - $timeleft) * 100 / $qtime;
+                }
             }
             $mark += $usermark * $percent;
         }
