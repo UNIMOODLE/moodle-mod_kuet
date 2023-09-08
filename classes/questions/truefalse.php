@@ -140,41 +140,27 @@ class truefalse implements  jqshowquestion {
     public static function get_ranking_for_question($participant, $response, $answers, $session, $question) {
         $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
         $arrayresponses = explode(',', $other->answerids);
-        if (count($arrayresponses) === 1) {
-            foreach ($answers as $answer) {
-                if ((int)$answer['answerid'] === (int)$arrayresponses[0]) {
-                    $participant->response = $answer['result'];
-                    $participant->responsestr = get_string($answer['result'], 'mod_jqshow');
-                    $participant->answertext = $answer['answertext'];
-                } else if ((int)$arrayresponses[0] === 0) {
-                    $participant->response = 'noresponse';
-                    $participant->responsestr = get_string('qstatus_' . questions::NORESPONSE, 'mod_jqshow');
-                    $participant->answertext = '';
-                }
-                $points = grade::get_simple_mark($response);
-                $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-                    $session->get('jqshowid'));
+
+        foreach ($answers as $answer) {
+            if ((int)$answer['answerid'] === (int)$arrayresponses[0]) {
+                $participant->response = $answer['result'];
+                $participant->responsestr = get_string($answer['result'], 'mod_jqshow');
+                $participant->answertext = $answer['answertext'];
+            } else if ((int)$arrayresponses[0] === 0) {
+                $participant->response = 'noresponse';
+                $participant->responsestr = get_string('qstatus_' . questions::NORESPONSE, 'mod_jqshow');
+                $participant->answertext = '';
+            }
+            $points = grade::get_simple_mark($response);
+            $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
+                $session->get('jqshowid'));
+            if ($session->is_group_mode()) {
+                $participant->grouppoints = grade::get_rounded_mark($spoints);
+                $participant->score_moment = grade::get_rounded_mark($points);
+            } else {
                 $participant->userpoints = grade::get_rounded_mark($spoints);
                 $participant->score_moment = grade::get_rounded_mark($points);
-                $participant->time = reports::get_user_time_in_question($session, $question, $response);
             }
-        } else {
-            $answertext = '';
-            foreach ($answers as $answer) {
-                foreach ($arrayresponses as $responseid) {
-                    if ((int)$answer['answerid'] === (int)$responseid) {
-                        $answertext .= $answer['answertext'] . '<br>';
-                    }
-                }
-            }
-            $status = grade::get_status_response_for_multiple_answers($other->questionid, $other->answerids);
-            $participant->response = get_string('qstatus_' . $status, 'mod_jqshow');
-            $participant->responsestr = get_string($participant->response, 'mod_jqshow');
-            $participant->answertext = trim($answertext, '<br>');
-            $points = grade::get_simple_mark($response);
-            $spoints = grade::get_session_grade($participant->id, $session->get('id'), $session->get('jqshowid'));
-            $participant->userpoints = grade::get_rounded_mark($spoints);
-            $participant->score_moment = grade::get_rounded_mark($points);
             $participant->time = reports::get_user_time_in_question($session, $question, $response);
         }
         return $participant;
