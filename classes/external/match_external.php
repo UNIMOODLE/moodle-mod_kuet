@@ -38,6 +38,7 @@ use mod_jqshow\helpers\responses;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\questions\matchquestion;
 use moodle_exception;
 use qtype_match_question;
 use question_bank;
@@ -154,7 +155,7 @@ class match_external extends external_api {
             }
 
             if ($preview === false) {
-                responses::match_response(
+                matchquestion::match_response(
                     $jqid,
                     $jsonresponse,
                     $result,

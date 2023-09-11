@@ -16,6 +16,8 @@
 
 namespace mod_jqshow\questions;
 use coding_exception;
+use context_course;
+use core\invalid_persistent_exception;
 use dml_exception;
 use JsonException;
 use mod_jqshow\api\grade;
@@ -25,6 +27,7 @@ use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
 use pix_icon;
 use question_definition;
 use stdClass;
@@ -183,5 +186,128 @@ class multichoice implements  jqshowquestion {
             $participant->time = reports::get_user_time_in_question($session, $question, $response);
         }
         return $participant;
+    }
+
+    /**
+     * @param int $jqid
+     * @param string $answerids
+     * @param string $correctanswers
+     * @param int $questionid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param string $statmentfeedback
+     * @param string $answerfeedback
+     * @param int $userid
+     * @param int $timeleft
+     * @return void
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    public static function multichoice_response(
+        int $jqid,
+        string $answerids,
+        string $correctanswers,
+        int $questionid,
+        int $sessionid,
+        int $jqshowid,
+        string $statmentfeedback,
+        string $answerfeedback,
+        int $userid,
+        int $timeleft
+    ): void {
+        global $COURSE;
+        $coursecontext = context_course::instance($COURSE->id);
+        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        if (!$isteacher) {
+            self::manage_response($jqid, $answerids, $correctanswers, $questionid, $sessionid, $jqshowid,
+                $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::MULTICHOICE);
+        }
+    }
+
+    /**
+     * @param int $jqid
+     * @param string $answerids
+     * @param string $correctanswers
+     * @param int $questionid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param string $statmentfeedback
+     * @param string $answerfeedback
+     * @param int $userid
+     * @param int $timeleft
+     * @param string $qtype
+     * @throws JsonException
+     * @throws moodle_exception
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     */
+    public static function manage_response(
+       int $jqid,
+       string $answerids,
+       string $correctanswers,
+       int $questionid,
+       int $sessionid,
+       int $jqshowid,
+       string $statmentfeedback,
+       string $answerfeedback,
+       int $userid,
+       int $timeleft,
+       string $qtype
+    ) : void {
+        $result = self::get_status_response($answerids, $correctanswers, $questionid);
+        $response = new stdClass(); // For snapshot.
+        $response->questionid = $questionid;
+        $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
+        $response->correct_answers = $correctanswers;
+        $response->answerids = $answerids;
+        $response->timeleft = $timeleft;
+        $response->type = $qtype;
+        $session = new jqshow_sessions($sessionid);
+        if ($session->is_group_mode()) {
+            // All groupmembers has the same response saved on db.
+            $num = jqshow_questions_responses::count_records(
+                ['jqshow' => $jqshowid, 'session' => $sessionid, 'jqid' => $jqid, 'userid' => $userid]);
+            if ($num > 0) {
+                return;
+            }
+            // Groups.
+            $gmemberids = groupmode::get_grouping_group_members_by_userid($session->get('groupings'), $userid);
+            foreach ($gmemberids as $gmemberid) {
+                jqshow_questions_responses::add_response(
+                    $jqshowid, $sessionid, $jqid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                );
+            }
+        } else {
+            // Individual.
+            jqshow_questions_responses::add_response(
+                $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+            );
+        }
+    }
+
+    /**
+     * @param string $answerids
+     * @param string $correctanswers
+     * @param int $questionid
+     * @return string
+     * @throws dml_exception
+     */
+    private static function get_status_response(string $answerids, string $correctanswers, int $questionid) : string {
+        $result = questions::INVALID; // Invalid response.
+        if ($answerids === '0' || $answerids === '') {
+            $result = questions::NORESPONSE; // No response.
+        } else if ($correctanswers !== '') {
+            $correctids = explode(',', $correctanswers);
+            if (count($correctids) > 1) { // Multianswers.
+                $result = grade::get_status_response_for_multiple_answers($questionid, $answerids);
+            } else if (in_array($answerids, $correctids, false)) {
+                $result = questions::SUCCESS; // Correct.
+            } else {
+                $result = questions::FAILURE; // Incorrect.
+            }
+        }
+        return $result;
     }
 }

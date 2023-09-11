@@ -4,6 +4,7 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
+import mEvent from 'core/event';
 
 let ACTION = {
     REPLY: '[data-action="multichoice-answer"]',
@@ -86,13 +87,9 @@ MultiChoice.prototype.initMultichoice = function() {
 };
 
 MultiChoice.prototype.initEvents = function() {
-    addEventListener('timeFinish', () => {
-        MultiChoice.prototype.reply();
-    }, {once: true});
+    addEventListener('timeFinish', MultiChoice.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
-            // eslint-disable-next-line no-console
-            console.log('teacherQuestionEnd_' + jqid);
             if (questionEnd !== true) {
                 MultiChoice.prototype.reply();
             }
@@ -135,6 +132,10 @@ MultiChoice.prototype.initEvents = function() {
     };
 };
 
+MultiChoice.prototype.removeEvents = function() {
+    removeEventListener('timeFinish', () => MultiChoice.prototype.reply, {once: true});
+};
+
 MultiChoice.prototype.reply = function(e) {
     let answerIds = '0';
     let multiAnswer = e === undefined || jQuery(e.currentTarget).attr('data-action') === 'send-multianswer';
@@ -149,14 +150,17 @@ MultiChoice.prototype.reply = function(e) {
         });
         answerIds = responses.toString();
     }
+    // eslint-disable-next-line no-console
+    console.log(answerIds);
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(MultiChoice.prototype.endTimer);
+        MultiChoice.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
             methodname: SERVICES.REPLY,
             args: {
-                answerids: answerIds,
+                answerids: answerIds === undefined ? '0' : answerIds,
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,
@@ -237,6 +241,7 @@ MultiChoice.prototype.answered = function(response) {
             jQuery('[data-answerid="' + statistic.answerids + '"] .numberofreplies').html(statistic.numberofreplies);
         });
     }
+    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
 };
 
 MultiChoice.prototype.pauseQuestion = function() {

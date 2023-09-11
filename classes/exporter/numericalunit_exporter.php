@@ -23,29 +23,33 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_jqshow\exporter;
 
 use core\external\exporter;
 
-class answer_exporter extends exporter {
+class numericalunit_exporter extends exporter {
 
     /**
      * @return array[]
      */
     public static function define_properties():array {
         return [
-            'answerid' => [
-                'type' => PARAM_INT,
-            ],
-            'questionid' => [
-                'type' => PARAM_TEXT,
-            ],
-            'answertext' => [
+            'unitid' => [
                 'type' => PARAM_RAW,
+                'optional' => true,
             ],
-            'fraction' => [
+            'unittext' => [
                 'type' => PARAM_RAW,
-            ]
+                'optional' => true,
+            ],
+            'multiplier' => [
+                'type' => PARAM_RAW,
+                'optional' => true,
+            ],
+            'unitselected' => [
+                'type' => PARAM_BOOL,
+                'optional' => true,
+            ],
         ];
     }
 }

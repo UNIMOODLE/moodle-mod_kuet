@@ -23,26 +23,41 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_jqshow\exporter;
 
-use core\external\exporter;
 
-class finalranking_exporter extends exporter {
+class numerical_exporter extends commondata_exporter {
 
     /**
-     * @return array[]
+     * @return array
      */
-    public static function define_properties() {
+    public static function define_properties(): array {
         return [
-            'userimageurl' => [
-                'type' => PARAM_URL,
-            ],
-            'userfullname' => [
+            'numericalresponse' => [
                 'type' => PARAM_RAW,
+                'optional' => true,
             ],
-            'userpoints' => [
-                'type' => PARAM_INT,
-            ]
+            'units' => [
+                'type' => numericalunit_exporter::read_properties_definition(),
+                'multiple' => true,
+                'optional' => true
+            ],
+            'unitdisplay' => [
+                'type' => PARAM_BOOL,
+                'optional' => true,
+            ],
+            'showunitsradio' => [
+                'type' => PARAM_BOOL,
+                'optional' => true,
+            ],
+            'showunitsselect' => [
+                'type' => PARAM_BOOL,
+                'optional' => true,
+            ],
+            'numerical' => [
+                'type' => PARAM_BOOL,
+                'optional' => true
+            ],
         ];
     }
 }

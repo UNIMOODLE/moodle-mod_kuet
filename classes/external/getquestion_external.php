@@ -35,8 +35,20 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\exporter\endsession_exporter;
+use mod_jqshow\exporter\matchquestion_exporter;
+use mod_jqshow\exporter\multichoice_exporter;
+use mod_jqshow\exporter\numerical_exporter;
+use mod_jqshow\exporter\question_exporter;
+use mod_jqshow\exporter\shortanswer_exporter;
+use mod_jqshow\exporter\truefalse_exporter;
+use mod_jqshow\models\matchquestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
@@ -47,6 +59,8 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
 class getquestion_external extends external_api {
+
+    private static string $qtype;
 
     /**
      * @return external_function_parameters
@@ -83,21 +97,22 @@ class getquestion_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $session = new jqshow_sessions($sessionid);
-        switch ((new jqshow_questions($jqid))->get('qtype')){
+        self::$qtype = (new jqshow_questions($jqid))->get('qtype');
+        switch (self::$qtype){
             case questions::MULTICHOICE:
-                $question = questions::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = multichoice::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             case questions::MATCH:
-                $question = questions::export_match($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = matchquestion::export_match($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             case questions::TRUE_FALSE:
-                $question = questions::export_truefalse($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = truefalse::export_truefalse($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             case questions::SHORTANSWER:
-                $question = questions::export_shortanswer($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = shortanswer::export_shortanswer($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             case questions::NUMERICAL:
-                $question = questions::export_numerical($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                $question = numerical::export_numerical($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
@@ -106,7 +121,6 @@ class getquestion_external extends external_api {
         $session = new jqshow_sessions($sessionid);
         $question->programmedmode = in_array($session->get('sessionmode'),
             [sessions::PODIUM_PROGRAMMED, sessions::INACTIVE_PROGRAMMED, sessions::RACE_PROGRAMMED], true);
-        // TODO prepare an exporter for each type of question.
         return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
     }
 
@@ -114,7 +128,6 @@ class getquestion_external extends external_api {
      * @return external_single_structure
      */
     public static function getquestion_returns(): external_single_structure {
-        // TODO prepare an exporter for each type of question.
         return question_exporter::get_read_structure();
     }
 }

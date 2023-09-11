@@ -16,6 +16,8 @@
 
 namespace mod_jqshow\questions;
 use coding_exception;
+use context_course;
+use core\invalid_persistent_exception;
 use dml_exception;
 use JsonException;
 use mod_jqshow\api\grade;
@@ -25,6 +27,7 @@ use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
 use pix_icon;
 use question_definition;
 use stdClass;
@@ -156,13 +159,50 @@ class truefalse implements  jqshowquestion {
                 $session->get('jqshowid'));
             if ($session->is_group_mode()) {
                 $participant->grouppoints = grade::get_rounded_mark($spoints);
-                $participant->score_moment = grade::get_rounded_mark($points);
             } else {
                 $participant->userpoints = grade::get_rounded_mark($spoints);
-                $participant->score_moment = grade::get_rounded_mark($points);
             }
+            $participant->score_moment = grade::get_rounded_mark($points);
             $participant->time = reports::get_user_time_in_question($session, $question, $response);
         }
         return $participant;
+    }
+
+    /**
+     * @param int $jqid
+     * @param string $answerids
+     * @param string $correctanswers
+     * @param int $questionid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param string $statmentfeedback
+     * @param string $answerfeedback
+     * @param int $userid
+     * @param int $timeleft
+     * @return void
+     * @throws JsonException
+     * @throws moodle_exception
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     */
+    public static function truefalse_response(
+        int $jqid,
+        string $answerids,
+        string $correctanswers,
+        int $questionid,
+        int $sessionid,
+        int $jqshowid,
+        string $statmentfeedback,
+        string $answerfeedback,
+        int $userid,
+        int $timeleft
+    ): void {
+        global $COURSE;
+        $coursecontext = context_course::instance($COURSE->id);
+        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        if (!$isteacher) {
+            multichoice::manage_response($jqid, $answerids, $correctanswers, $questionid, $sessionid, $jqshowid,
+                $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::TRUE_FALSE);
+        }
     }
 }

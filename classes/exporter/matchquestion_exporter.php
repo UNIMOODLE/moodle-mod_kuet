@@ -23,32 +23,29 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_jqshow\exporter;
 
-use core\external\exporter;
 
-class numericalunit_exporter extends exporter {
+class matchquestion_exporter extends commondata_exporter {
 
     /**
-     * @return array[]
+     * @return array
      */
-    public static function define_properties():array {
+    public static function define_properties(): array {
         return [
-            'unitid' => [
-                'type' => PARAM_RAW,
-                'optional' => true,
+            'leftoptions' => [
+                'type' => matchoption_exporter::read_properties_definition(),
+                'multiple' => true,
+                'optional' => true
             ],
-            'unittext' => [
-                'type' => PARAM_RAW,
-                'optional' => true,
+            'rightoptions' => [
+                'type' => matchoption_exporter::read_properties_definition(),
+                'multiple' => true,
+                'optional' => true
             ],
-            'multiplier' => [
-                'type' => PARAM_RAW,
-                'optional' => true,
-            ],
-            'unitselected' => [
+            'match' => [
                 'type' => PARAM_BOOL,
-                'optional' => true,
+                'optional' => true
             ],
         ];
     }

@@ -31,9 +31,14 @@ use dml_transaction_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\helpers\progress;
+use mod_jqshow\models\matchquestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\models\sessions as sessionsmodel;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -80,7 +85,7 @@ class student_session_view implements renderable, templatable {
                     $progressdata = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
                     if (isset($progressdata->endSession)) {
                         // END SESSION, no more question.
-                        $data = questions::export_endsession(
+                        $data = sessions::export_endsession(
                             $cmid,
                             $sid);
                         $data->programmedmode = true;
@@ -97,9 +102,10 @@ class student_session_view implements renderable, templatable {
                     $newprogressdata = json_decode($newprogress->get('other'), false, 512, JSON_THROW_ON_ERROR);
                     $question = jqshow_questions::get_question_by_jqid($newprogressdata->currentquestion);
                 }
+
                 switch ($question->get('qtype')) {
                     case questions::MULTICHOICE:
-                        $data = questions::export_multichoice(
+                        $data = multichoice::export_multichoice(
                             $question->get('id'),
                             $cmid,
                             $sid,
@@ -109,12 +115,11 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = questions::export_multichoice_response($data, $response->get('response'));
+                            $data = multichoice::export_multichoice_response($data, $response->get('response'));
                         }
                         break;
                     case questions::MATCH:
-                        $data = questions::export_match(
-                            $question->get('id'),
+                        $data = matchquestion::export_match($question->get('id'),
                             $cmid,
                             $sid,
                             $question->get('jqshowid'));
@@ -123,11 +128,12 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = questions::export_match_response($data, $response->get('response'), $response->get('result'));
+                            $data =
+                                matchquestion::export_match_response($data, $response->get('response'), $response->get('result'));
                         }
                         break;
                     case questions::TRUE_FALSE:
-                        $data = questions::export_truefalse(
+                        $data = truefalse::export_truefalse(
                             $question->get('id'),
                             $cmid,
                             $sid,
@@ -137,11 +143,11 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = questions::export_truefalse_response($data, $response->get('response'));
+                            $data = truefalse::export_truefalse_response($data, $response->get('response'));
                         }
                         break;
                     case questions::SHORTANSWER:
-                        $data = questions::export_shortanswer(
+                        $data = shortanswer::export_shortanswer(
                             $question->get('id'),
                             $cmid,
                             $sid,
@@ -151,11 +157,11 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = questions::export_shortanswer_response($data, $response->get('response'));
+                            $data = shortanswer::export_shortanswer_response($data, $response->get('response'));
                         }
                         break;
                     case questions::NUMERICAL:
-                        $data = questions::export_numerical(
+                        $data = numerical::export_numerical(
                             $question->get('id'),
                             $cmid,
                             $sid,
@@ -165,7 +171,7 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = questions::export_numerical_response($data, $response->get('response'));
+                            $data = numerical::export_numerical_response($data, $response->get('response'));
                         }
                         break;
                     default:
@@ -207,6 +213,7 @@ class student_session_view implements renderable, templatable {
                 throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
                     [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
+        // TODO pass $data through the exporter.
         return $data;
     }
 }

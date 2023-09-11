@@ -23,8 +23,41 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\helpers;
+namespace mod_jqshow\exporter;
 
-class responses {
 
+class multichoice_exporter extends commondata_exporter {
+
+    /**
+     * @return array
+     */
+    public static function define_properties(): array {
+        return [
+            'questiontext' => [
+                'type' => PARAM_RAW,
+                'optional' => true
+            ],
+            'numanswers' => [
+                'type' => PARAM_INT,
+                'optional' => true
+            ],
+            'name' => [
+                'type' => PARAM_RAW,
+                'optional' => true
+            ],
+            'answers' => [
+                'type' => answer_exporter::read_properties_definition(),
+                'multiple' => true,
+                'optional' => true
+            ],
+            'multianswers' => [
+                'type' => PARAM_BOOL,
+                'optional' => true
+            ],
+            'multichoice' => [
+                'type' => PARAM_BOOL,
+                'optional' => true
+            ],
+        ];
+    }
 }

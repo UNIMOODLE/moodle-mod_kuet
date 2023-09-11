@@ -4,6 +4,7 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
+import mEvent from 'core/event';
 
 let ACTION = {
     SEND_RESPONSE: '[data-action="send-response"]',
@@ -82,9 +83,7 @@ ShortAnswer.prototype.initShortAnswer = function() {
 };
 
 ShortAnswer.prototype.initEvents = function() {
-    addEventListener('timeFinish', () => {
-        ShortAnswer.prototype.reply();
-    }, {once: true});
+    addEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
@@ -129,10 +128,15 @@ ShortAnswer.prototype.initEvents = function() {
     };
 };
 
+ShortAnswer.prototype.removeEvents = function() {
+    removeEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
+};
+
 ShortAnswer.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(ShortAnswer.prototype.endTimer);
+        ShortAnswer.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseText = jQuery(REGION.INPUTANSWER).val();
         let request = {
@@ -197,6 +201,7 @@ ShortAnswer.prototype.answered = function(response) {
         jQuery(REGION.FEEDBACKICONS + ' .incorrect').remove();
         jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
     }
+    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
 };
 
 ShortAnswer.prototype.pauseQuestion = function() {

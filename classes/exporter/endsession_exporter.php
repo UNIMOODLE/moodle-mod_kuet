@@ -23,9 +23,32 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_jqshow\exporter;
 
-$plugin->version = 2023091100;
-$plugin->requires = 2022112801; // Moodle 4.1.1
-$plugin->component = 'mod_jqshow';
-$plugin->cron = 0;
+
+class endsession_exporter extends commondata_exporter {
+
+    /**
+     * @return array
+     */
+    public static function define_properties(): array {
+        return [
+            'endsession' => [
+                'type' => PARAM_BOOL,
+                'optional' => true
+            ],
+            'endsessionimage' => [
+                'type' => PARAM_RAW,
+                'optional' => true
+            ],
+            'courselink' => [
+                'type' => PARAM_URL,
+                'optional' => true
+            ],
+            'reportlink' => [
+                'type' => PARAM_URL,
+                'optional' => true
+            ],
+        ];
+    }
+}

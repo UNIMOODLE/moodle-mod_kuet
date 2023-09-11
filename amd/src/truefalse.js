@@ -4,6 +4,7 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
+import mEvent from 'core/event';
 
 let ACTION = {
     REPLY: '[data-action="truefalse-answer"]',
@@ -82,9 +83,7 @@ TrueFalse.prototype.initTrueFalse = function() {
 };
 
 TrueFalse.prototype.initEvents = function() {
-    addEventListener('timeFinish', () => {
-        TrueFalse.prototype.reply();
-    }, {once: true});
+    addEventListener('timeFinish', TrueFalse.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
@@ -129,19 +128,23 @@ TrueFalse.prototype.initEvents = function() {
     };
 };
 
+TrueFalse.prototype.removeEvents = function() {
+    removeEventListener('timeFinish', TrueFalse.prototype.reply, {once: true});
+};
+
 TrueFalse.prototype.reply = function(e) {
-    let answerIds = '0';
     e.preventDefault();
     e.stopPropagation();
-    answerIds = jQuery(e.currentTarget).attr('data-answerid');
+    let answerIds = jQuery(e.currentTarget).attr('data-answerid');
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(TrueFalse.prototype.endTimer);
+        TrueFalse.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
             methodname: SERVICES.REPLY,
             args: {
-                answerid: answerIds,
+                answerid: answerIds === undefined ? 0 : answerIds,
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,
@@ -203,6 +206,7 @@ TrueFalse.prototype.answered = function(response) {
             jQuery('[data-answerid="' + statistic.answerids + '"] .numberofreplies').html(statistic.numberofreplies);
         });
     }
+    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
 };
 
 TrueFalse.prototype.pauseQuestion = function() {

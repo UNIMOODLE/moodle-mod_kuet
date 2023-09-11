@@ -23,26 +23,33 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_jqshow\exporter;
 
-use core\external\exporter;
 
-class feedback_exporter extends exporter {
+class truefalse_exporter extends commondata_exporter {
 
     /**
-     * @return array[]
+     * @return array
      */
-    public static function define_properties() {
+    public static function define_properties(): array {
         return [
-            'answerid' => [
-                'type' => PARAM_INT,
-            ],
-            'feedback' => [
+            'questiontext' => [
                 'type' => PARAM_RAW,
+                'optional' => true
             ],
-            'feedbackformat' => [
-                'type' => PARAM_INT,
-            ]
+            'name' => [
+                'type' => PARAM_RAW,
+                'optional' => true
+            ],
+            'answers' => [
+                'type' => answer_exporter::read_properties_definition(),
+                'multiple' => true,
+                'optional' => true
+            ],
+            'truefalse' => [
+                'type' => PARAM_BOOL,
+                'optional' => true
+            ],
         ];
     }
 }

@@ -23,9 +23,32 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_jqshow\exporter;
 
-$plugin->version = 2023091100;
-$plugin->requires = 2022112801; // Moodle 4.1.1
-$plugin->component = 'mod_jqshow';
-$plugin->cron = 0;
+use context;
+use core\external\exporter;
+
+class question_exporter extends exporter {
+
+    /**
+     * @return array[]
+     */
+    public static function define_properties(): array {
+        return array_merge(
+            commondata_exporter::define_properties(),
+            multichoice_exporter::define_properties(),
+            truefalse_exporter::define_properties(),
+            matchquestion_exporter::define_properties(),
+            shortanswer_exporter::define_properties(),
+            numerical_exporter::define_properties(),
+            endsession_exporter::define_properties()
+        );
+    }
+
+    /**
+     * @return string[]
+     */
+    protected static function define_related() {
+        return array('context' => context::class);
+    }
+}

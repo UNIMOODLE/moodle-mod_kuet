@@ -35,8 +35,10 @@ use dml_exception;
 use Exception;
 use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
+use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\forms\sessionform;
+use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -990,6 +992,70 @@ class sessions {
         foreach ($data as $student) {
             $student->userposition = ++$position;
         }
+        return $data;
+    }
+
+    /**
+     * @param int $cmid
+     * @param int $sessionid
+     * @return stdClass
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public static function export_endsession(int $cmid, int $sessionid): object {
+        global $USER;
+        $session = new jqshow_sessions($sessionid);
+        $jqshow = new jqshow($session->get('jqshowid'));
+        $data = new stdClass();
+        $data->cmid = $cmid;
+        $data->sessionid = $sessionid;
+        $data->jqshowid = $session->get('jqshowid');
+        $data->courselink = (new moodle_url('/course/view.php', ['id' => $jqshow->get('course')]))->out(false);
+        $data->reportlink = (new moodle_url('/mod/jqshow/reports.php',
+            ['cmid' => $cmid, 'sid' => $sessionid, 'userid' => $USER->id]))->out(false);
+        $contextmodule = context_module::instance($cmid);
+        switch ($session->get('sessionmode')) {
+            case self::INACTIVE_PROGRAMMED:
+            case self::INACTIVE_MANUAL:
+                $data = self::get_normal_endsession($data);
+                break;
+            case self::PODIUM_PROGRAMMED:
+            case self::PODIUM_MANUAL:
+            case self::RACE_MANUAL:
+            case self::RACE_PROGRAMMED:
+                if ((int)$session->get('showfinalgrade') === 0) {
+                    $data = self::get_normal_endsession($data);
+                } else {
+                    $data = (object)getfinalranking_external::getfinalranking($sessionid, $cmid);
+                    $data = self::get_normal_endsession($data);
+                    $data->endsession = true;
+                    $data->ranking = true;
+                    $data->isteacher = has_capability('mod/jqshow:startsession', $contextmodule);
+                    // TODO export ranking.
+                }
+                break;
+            default:
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
+        }
+        return $data;
+    }
+
+    /**
+     * @param stdClass $data
+     * @return stdClass
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    private static function get_normal_endsession(stdClass $data): stdClass {
+        global $OUTPUT;
+        $data->questionid = 0;
+        $data->jqid = 0;
+        $data->question_index_string = '';
+        $data->endsessionimage = $OUTPUT->image_url('f/end_session', 'mod_jqshow')->out(false);
+        $data->qtype = 'endsession';
+        $data->endsession = true;
         return $data;
     }
 }

@@ -16,6 +16,8 @@
 
 namespace mod_jqshow\questions;
 use coding_exception;
+use context_course;
+use core\invalid_persistent_exception;
 use dml_exception;
 use JsonException;
 use mod_jqshow\api\grade;
@@ -39,7 +41,7 @@ use stdClass;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class match implements  jqshowquestion {
+class matchquestion implements jqshowquestion {
 
     /**
      * @param jqshow_sessions $session
@@ -62,27 +64,10 @@ class match implements  jqshowquestion {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
-        foreach ($questiondata->steam as $key => $answer) {
-            $correctanswers[$key]['response'] = $answer . ' -> ' . $questiondata->stemformat[$key];
-        }
-
-        $gmembers = [];
-        if ($session->is_group_mode()) {
-            $gmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
-        }
-        $responses = jqshow_questions_responses::get_question_responses($session->get('id'), $data->jqshowid, $jqid);
-        foreach ($responses as $response) {
-            if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
-                continue;
+        if (isset($questiondata->stems)) {
+            foreach ($questiondata->stems as $key => $answer) {
+                $correctanswers[$key]['response'] = $answer . ' -> ' . $questiondata->choices[$key];
             }
-            $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-            if ($other->answerids !== '' && $other->answerids !== '0') { // TODO prepare for multianswer.
-                $arrayanswerids = explode(',', $other->answerids);
-                foreach ($arrayanswerids as $arrayanswerid) {
-                    $answers[$arrayanswerid]['numticked']++;
-                }
-            }
-            // TODO obtain the average time to respond to each option ticked. ???
         }
         $data->correctanswers = array_values($correctanswers);
         $data->answers = array_values($answers);
@@ -109,22 +94,19 @@ class match implements  jqshowquestion {
         switch ($response->get('result')) {
             case questions::FAILURE:
                 $participant->response = 'incorrect';
-                $participant->responsestr = get_string('incorrect', 'mod_jqshow');
                 break;
             case questions::SUCCESS:
                 $participant->response = 'correct';
-                $participant->responsestr = get_string('correct', 'mod_jqshow');
                 break;
             case questions::PARTIALLY:
                 $participant->response = 'partially';
-                $participant->responsestr = get_string('partially', 'mod_jqshow');
                 break;
             case questions::NORESPONSE:
             default:
                 $participant->response = 'noresponse';
-                $participant->responsestr = get_string('noresponse', 'mod_jqshow');
                 break;
         }
+        $participant->responsestr = get_string($participant->response, 'mod_jqshow');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
@@ -132,5 +114,56 @@ class match implements  jqshowquestion {
         $participant->score_moment = grade::get_rounded_mark($points);
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;
+    }
+
+    /**
+     * @param int $jqid
+     * @param string $jsonresponse
+     * @param int $result
+     * @param int $questionid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param string $statmentfeedback
+     * @param string $answerfeedback
+     * @param int $userid
+     * @param int $timeleft
+     * @return void
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    public static function match_response(
+        int $jqid,
+        string $jsonresponse,
+        int $result,
+        int $questionid,
+        int $sessionid,
+        int $jqshowid,
+        string $statmentfeedback,
+        string $answerfeedback,
+        int $userid,
+        int $timeleft
+    ):void {
+        global $COURSE;
+        $coursecontext = context_course::instance($COURSE->id);
+        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        if (!$isteacher) {
+            $session = new jqshow_sessions($sessionid);
+            if ($session->is_group_mode()) {
+                // TODO.
+            } else {
+                // Individual.
+                $response = new stdClass();
+                $response->questionid = $questionid;
+                $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
+                $response->timeleft = $timeleft;
+                $response->type = questions::MATCH;
+                $response->response = json_decode($jsonresponse);
+                jqshow_questions_responses::add_response(
+                    $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                );
+            }
+        }
     }
 }

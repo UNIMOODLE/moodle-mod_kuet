@@ -38,6 +38,7 @@ use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\questions\match;
+use mod_jqshow\questions\matchquestion;
 use mod_jqshow\questions\multichoice;
 use mod_jqshow\questions\numerical;
 use mod_jqshow\questions\shortanswer;
@@ -488,13 +489,16 @@ class reports {
                 $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             case questions::MATCH:
-                $data = match::get_question_report($session, $questiondata, $data, $jqid);
+                $data = matchquestion::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             case questions::TRUE_FALSE:
                 $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             case questions::SHORTANSWER:
                 $data = shortanswer::get_question_report($session, $questiondata, $data, $jqid);
+                break;
+            case questions::NUMERICAL:
+                $data = numerical::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
@@ -573,7 +577,7 @@ class reports {
                 $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             case questions::MATCH:
-                $data = match::get_question_report($session, $questiondata, $data, $jqid);
+                $data = matchquestion::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             case questions::TRUE_FALSE:
                 $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
@@ -878,7 +882,7 @@ class reports {
                             $user = multichoice::get_ranking_for_question($user, $response, $answers, $session, $question);
                             break;
                         case questions::MATCH:
-                            $user = match::get_ranking_for_question($user, $response, $session, $question);
+                            $user = matchquestion::get_ranking_for_question($user, $response, $session, $question);
                             break;
                         case questions::TRUE_FALSE:
                             $user = truefalse::get_ranking_for_question($user, $response, $answers, $session, $question);

@@ -23,9 +23,26 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+namespace mod_jqshow\exporter;
 
-$plugin->version = 2023091100;
-$plugin->requires = 2022112801; // Moodle 4.1.1
-$plugin->component = 'mod_jqshow';
-$plugin->cron = 0;
+use core\external\exporter;
+
+class matchoption_exporter extends exporter {
+
+    /**
+     * @return array[]
+     */
+    public static function define_properties():array {
+        return [
+            'questionid' => [
+                'type' => PARAM_INT,
+            ],
+            'optionkey' => [
+                'type' => PARAM_RAW,
+            ],
+            'optiontext' => [
+                'type' => PARAM_RAW,
+            ]
+        ];
+    }
+}
