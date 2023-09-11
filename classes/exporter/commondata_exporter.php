@@ -26,7 +26,6 @@
 namespace mod_jqshow\exporter;
 
 use context;
-use core\external\exporter;
 
 class commondata_exporter extends question_exporter {
 

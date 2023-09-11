@@ -28,6 +28,7 @@ namespace mod_jqshow\external;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
+use dml_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
@@ -48,6 +49,7 @@ use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
+use ReflectionException;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -75,9 +77,10 @@ class nextquestion_external extends external_api {
      * @param int $sessionid
      * @param int $jqid
      * @param bool $manual
-     * @param bool $isranking
      * @return array
      * @throws JsonException
+     * @throws ReflectionException
+     * @throws dml_exception
      * @throws coding_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
