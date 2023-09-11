@@ -83,9 +83,7 @@ ShortAnswer.prototype.initShortAnswer = function() {
 };
 
 ShortAnswer.prototype.initEvents = function() {
-    addEventListener('timeFinish', () => {
-        ShortAnswer.prototype.reply();
-    }, {once: true});
+    addEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
@@ -130,10 +128,15 @@ ShortAnswer.prototype.initEvents = function() {
     };
 };
 
+ShortAnswer.prototype.removeEvents = function() {
+    removeEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
+};
+
 ShortAnswer.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(ShortAnswer.prototype.endTimer);
+        ShortAnswer.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseText = jQuery(REGION.INPUTANSWER).val();
         let request = {

@@ -83,9 +83,7 @@ TrueFalse.prototype.initTrueFalse = function() {
 };
 
 TrueFalse.prototype.initEvents = function() {
-    addEventListener('timeFinish', () => {
-        TrueFalse.prototype.reply();
-    }, {once: true});
+    addEventListener('timeFinish', TrueFalse.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
@@ -130,6 +128,10 @@ TrueFalse.prototype.initEvents = function() {
     };
 };
 
+TrueFalse.prototype.removeEvents = function() {
+    removeEventListener('timeFinish', TrueFalse.prototype.reply, {once: true});
+};
+
 TrueFalse.prototype.reply = function(e) {
     let answerIds = '0';
     e.preventDefault();
@@ -138,6 +140,7 @@ TrueFalse.prototype.reply = function(e) {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(TrueFalse.prototype.endTimer);
+        TrueFalse.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
             methodname: SERVICES.REPLY,

@@ -57,9 +57,11 @@ class commondata_exporter extends question_exporter {
             ],
             'countdown' => [
                 'type' => PARAM_BOOL,
+                'optional' => true
             ],
             'preview' => [
                 'type' => PARAM_BOOL,
+                'optional' => true
             ],
             'programmedmode' => [
                 'type' => PARAM_BOOL
@@ -71,13 +73,16 @@ class commondata_exporter extends question_exporter {
                 'type' => PARAM_INT
             ],
             'sessionprogress' => [
-                'type' => PARAM_INT
+                'type' => PARAM_INT,
+                'optional' => true
             ],
             'hastime' => [
-                'type' => PARAM_BOOL
+                'type' => PARAM_BOOL,
+                'optional' => true
             ],
             'seconds' => [
-                'type' => PARAM_INT
+                'type' => PARAM_INT,
+                'optional' => true
             ],
             'qtype' => [
                 'type' => PARAM_RAW

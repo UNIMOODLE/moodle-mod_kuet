@@ -70,7 +70,7 @@ class numerical_external extends external_api {
     }
 
     /**
-     * @param int $responsenum
+     * @param string $responsenum
      * @param string $unit
      * @param string $multiplier
      * @param int $sessionid

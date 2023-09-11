@@ -178,7 +178,7 @@ Sockets.prototype.measuringSpeed = function() {
         }
     } else {
         // eslint-disable-next-line no-console
-        console.log("Connection speed detection is not supported in this browser.");
+        console.error("Connection speed detection is not supported in this browser.");
     }
 };
 

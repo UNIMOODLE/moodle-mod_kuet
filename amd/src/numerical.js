@@ -81,6 +81,7 @@ function Numerical(selector, showquestionfeedback = false, manualmode = false, j
 }
 
 Numerical.prototype.initNumerical = function() {
+    jQuery(ACTION.SEND_RESPONSE).off('click');
     jQuery(ACTION.SEND_RESPONSE).on('click', Numerical.prototype.reply);
     if (jQuery(REGION.UNITSCONTENT).length) {
         hasUnits = true;
@@ -89,9 +90,7 @@ Numerical.prototype.initNumerical = function() {
 };
 
 Numerical.prototype.initEvents = function() {
-    addEventListener('timeFinish', () => {
-        Numerical.prototype.reply();
-    }, {once: true});
+    addEventListener('timeFinish', Numerical.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
@@ -136,10 +135,15 @@ Numerical.prototype.initEvents = function() {
     };
 };
 
+Numerical.prototype.removeEvents = function() {
+    removeEventListener('timeFinish', Numerical.prototype.reply, {once: true});
+};
+
 Numerical.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Numerical.prototype.endTimer);
+        Numerical.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseNum = jQuery(REGION.INPUTANSWER).val();
         let unit = ''; // TODO prepare for no response, otherwise it would be marked as 0.

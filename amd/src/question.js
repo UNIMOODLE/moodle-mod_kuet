@@ -109,8 +109,6 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
     let identifier = jQuery(REGION.SESSIONCONTENT);
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         identifier.append(html);
-        // eslint-disable-next-line no-console
-        console.log('isRanking', isRanking);
         let requestConfig = {
             methodname: SERVICES.GETSESSIONCONFIG,
             args: {

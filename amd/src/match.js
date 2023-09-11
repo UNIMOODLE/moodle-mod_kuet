@@ -132,14 +132,13 @@ Match.prototype.initMatch = function() {
     Match.prototype.drawLinks();
     jQuery(REGION.CLEARPATH).on('click', Match.prototype.clearPath.bind(this));
     jQuery(REGION.LEFT_OPTION_CLICKABLE).on('click', Match.prototype.leftOptionSelected.bind(this));
+    jQuery(ACTION.SEND_RESPONSE).off('click');
     jQuery(ACTION.SEND_RESPONSE).on('click', Match.prototype.sendResponse);
     Match.prototype.initEvents();
 };
 
 Match.prototype.initEvents = function() {
-    addEventListener('timeFinish', () => {
-        Match.prototype.sendResponse();
-    }, {once: true});
+    addEventListener('timeFinish', Match.prototype.sendResponse, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
@@ -179,6 +178,10 @@ Match.prototype.initEvents = function() {
                 ' the question has remained unanswered.';
         }
     };
+};
+
+Match.prototype.removeEvents = function() {
+    removeEventListener('timeFinish', () => Match.prototype.sendResponse, {once: true});
 };
 
 Match.prototype.createLinkCorrection = function() {
@@ -262,6 +265,7 @@ Match.prototype.sendResponse = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Match.prototype.endTimer);
+        Match.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let result = 3; // No response.
         let [corrects, fails] = Match.prototype.drawResponse();
@@ -480,8 +484,6 @@ Match.prototype.drawCorrectLinks = function() {
     let canvas = jQuery(REGION.CANVAS).get(0);
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // eslint-disable-next-line no-console
-    console.log(linkCorrection);
     linkCorrection.forEach(link => Match.prototype.drawLink(link.dragId, link.dropId, link.color));
 };
 
