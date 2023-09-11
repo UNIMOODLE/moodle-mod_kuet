@@ -27,7 +27,7 @@ namespace mod_jqshow\output\views;
 
 use dml_exception;
 use JsonException;
-use mod_jqshow\models\match as matchQuestion;
+use mod_jqshow\models\matchquestion as matchQuestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;

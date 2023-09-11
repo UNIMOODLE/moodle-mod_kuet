@@ -4,6 +4,7 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
+import mEvent from 'core/event';
 
 let ACTION = {
     REPLY: '[data-action="truefalse-answer"]',
@@ -203,6 +204,7 @@ TrueFalse.prototype.answered = function(response) {
             jQuery('[data-answerid="' + statistic.answerids + '"] .numberofreplies').html(statistic.numberofreplies);
         });
     }
+    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
 };
 
 TrueFalse.prototype.pauseQuestion = function() {

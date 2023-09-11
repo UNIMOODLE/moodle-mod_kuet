@@ -82,12 +82,10 @@ class multichoice extends questions {
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion);
-        $data->qtype = $type;
+        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->questiontext =
             self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
-        $data->questiontextformat = $question->questiontextformat;
         $answers = [];
         $feedbacks = [];
         foreach ($question->answers as $response) {

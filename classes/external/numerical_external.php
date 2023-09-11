@@ -144,7 +144,11 @@ class numerical_external extends external_api {
                         break;
                 }
             }
-            $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
+            if ($multiplier === '') {
+                $matchanswer = $question->get_matching_answer($responsenum, null);
+            } else {
+                $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
+            }
             if ($matchanswer !== null) {
                 $answerfeedback = questions::get_text(
                     $cmid, $matchanswer->feedback, $matchanswer->feedbackformat, $question->id, $question, 'feedback'

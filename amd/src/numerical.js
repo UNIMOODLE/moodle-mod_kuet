@@ -5,6 +5,7 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
+import mEvent from 'core/event';
 
 let ACTION = {
     SEND_RESPONSE: '[data-action="send-response"]',
@@ -217,6 +218,7 @@ Numerical.prototype.answered = function(response) {
         jQuery(REGION.FEEDBACKICONS + ' .incorrect').remove();
         jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
     }
+    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
 };
 
 Numerical.prototype.pauseQuestion = function() {

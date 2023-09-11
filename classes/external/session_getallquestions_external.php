@@ -35,7 +35,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\models\match as matchQuestion;
+use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
@@ -93,7 +93,7 @@ class session_getallquestions_external extends external_api {
                     $questiondata[] = multichoice::export_multichoice($jqid, $cmid, $sessionid, $jqshow->id, false);
                     break;
                 case questions::MATCH:
-                    $questiondata[] = matchQuestion::export_match($jqid, $cmid, $sessionid, $jqshow->id, false);
+                    $questiondata[] = matchquestion::export_match($jqid, $cmid, $sessionid, $jqshow->id, false);
                     break;
                 case questions::TRUE_FALSE:
                     $questiondata[] = truefalse::export_truefalse($jqid, $cmid, $sessionid, $jqshow->id, false);

@@ -37,7 +37,7 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\exporter\question_exporter;
 use mod_jqshow\helpers\progress;
-use mod_jqshow\models\match as matchQuestion;
+use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;

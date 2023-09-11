@@ -31,7 +31,7 @@ use dml_transaction_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\helpers\progress;
-use mod_jqshow\models\match as matchQuestion;
+use mod_jqshow\models\matchquestion as matchQuestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
@@ -213,6 +213,7 @@ class student_session_view implements renderable, templatable {
                 throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
                     [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
+        // TODO pass $data through the exporter.
         return $data;
     }
 }

@@ -27,6 +27,7 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_module;
+use dml_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
@@ -35,7 +36,7 @@ use external_value;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\exporter\question_exporter;
-use mod_jqshow\models\match as matchQuestion;
+use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
@@ -70,7 +71,7 @@ class firstquestion_external extends external_api {
      * @param int $sessionid
      * @return array
      * @throws JsonException
-     * @throws \dml_exception
+     * @throws dml_exception
      * @throws coding_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
@@ -95,7 +96,7 @@ class firstquestion_external extends external_api {
                 $question->showstatistics = true;
                 break;
             case questions::MATCH:
-                $question = matchQuestion::export_match(
+                $question = matchquestion::export_match(
                     $firstquestion->get('id'),
                     $cmid,
                     $sessionid,

@@ -4,6 +4,7 @@
 import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
+import mEvent from 'core/event';
 
 let ACTION = {
     SEND_RESPONSE: '[data-action="send-match"]',
@@ -109,6 +110,7 @@ Match.prototype.answered = function(jsonresponse) {
     if (manualMode === false) {
         jQuery(REGION.NEXT).removeClass('d-none');
     }
+    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
 };
 
 Match.prototype.initMatch = function() {

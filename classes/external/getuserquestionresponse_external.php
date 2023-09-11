@@ -35,7 +35,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\models\match as matchQuestion;
+use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
@@ -116,7 +116,7 @@ class getuserquestionresponse_external extends external_api {
             case questions::MULTICHOICE:
                 return (array)multichoice::export_multichoice_response($data, $json);
             case questions::MATCH:
-                return (array)matchQuestion::export_match_response($data, $json, $result);
+                return (array)matchquestion::export_match_response($data, $json, $result);
             case questions::TRUE_FALSE:
                 return (array)truefalse::export_truefalse_response($data, $json);
             case questions::SHORTANSWER:

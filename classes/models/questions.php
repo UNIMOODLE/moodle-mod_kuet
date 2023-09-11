@@ -154,6 +154,7 @@ class questions {
      * @param int $jqshowid
      * @param bool $preview
      * @param jqshow_questions $jqshowquestion
+     * @param string $type
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -166,7 +167,8 @@ class questions {
         int $sessionid,
         int $jqshowid,
         bool $preview,
-        jqshow_questions $jqshowquestion
+        jqshow_questions $jqshowquestion,
+        string $type
     ): stdClass {
         global $USER;
         $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
@@ -179,6 +181,7 @@ class questions {
         $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
         $data->countdown = $session->get('countdown');
         $data->preview = $preview;
+        $data->qtype = $type;
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
@@ -207,6 +210,7 @@ class questions {
                     $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
                     $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 }
+                $data->numquestions = $numsessionquestions;
                 break;
             case sessions::INACTIVE_MANUAL:
             case sessions::PODIUM_MANUAL:
@@ -215,6 +219,7 @@ class questions {
                 $a = new stdClass();
                 $a->num = $order;
                 $a->total = $numsessionquestions;
+                $data->programmedmode = false;
                 $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
                 $data->numquestions = $numsessionquestions;
                 $data->sessionprogress = round($order * 100 / $numsessionquestions);
@@ -247,7 +252,6 @@ class questions {
                     $jqshowquestion->get('timelimit') !== 0 ? $jqshowquestion->get('timelimit') : $session->get('questiontime');
                 break;
         }
-        $data->template = 'mod_jqshow/questions/encasement';
         return $data;
     }
 
