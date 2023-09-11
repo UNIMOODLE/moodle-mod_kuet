@@ -27,6 +27,7 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_module;
+use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
 use external_api;
@@ -39,6 +40,8 @@ use mod_jqshow\helpers\responses;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\questions\numerical;
+use moodle_exception;
 use qtype_numerical_question;
 use question_bank;
 use question_state_gradedpartial;
@@ -82,6 +85,8 @@ class numerical_external extends external_api {
      * @param bool $preview
      * @return array
      * @throws JsonException
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      * @throws coding_exception
      * @throws dml_exception
      * @throws dml_transaction_exception
@@ -161,7 +166,7 @@ class numerical_external extends external_api {
                 $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
             }
             if ($preview === false) {
-                responses::numerical_response(
+                numerical::numerical_response(
                     $jqid,
                     $responsenum,
                     $unit,

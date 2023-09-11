@@ -133,10 +133,9 @@ TrueFalse.prototype.removeEvents = function() {
 };
 
 TrueFalse.prototype.reply = function(e) {
-    let answerIds = '0';
     e.preventDefault();
     e.stopPropagation();
-    answerIds = jQuery(e.currentTarget).attr('data-answerid');
+    let answerIds = jQuery(e.currentTarget).attr('data-answerid');
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(TrueFalse.prototype.endTimer);
@@ -145,7 +144,7 @@ TrueFalse.prototype.reply = function(e) {
         let request = {
             methodname: SERVICES.REPLY,
             args: {
-                answerid: answerIds,
+                answerid: answerIds === undefined ? 0 : answerIds,
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,

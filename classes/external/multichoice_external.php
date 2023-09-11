@@ -40,6 +40,7 @@ use mod_jqshow\helpers\responses;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\questions\multichoice;
 use moodle_exception;
 use question_bank;
 
@@ -130,9 +131,8 @@ class multichoice_external extends external_api {
             }
         }
         $correctanswers = trim($correctanswers, ',');
-
         if ($preview === false) {
-            responses::multichoice_response(
+            multichoice::multichoice_response(
                 $jqid,
                 $answerids,
                 $correctanswers,

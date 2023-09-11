@@ -497,6 +497,9 @@ class reports {
             case questions::SHORTANSWER:
                 $data = shortanswer::get_question_report($session, $questiondata, $data, $jqid);
                 break;
+            case questions::NUMERICAL:
+                $data = numerical::get_question_report($session, $questiondata, $data, $jqid);
+                break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));

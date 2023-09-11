@@ -87,7 +87,7 @@ MultiChoice.prototype.initMultichoice = function() {
 };
 
 MultiChoice.prototype.initEvents = function() {
-    addEventListener('timeFinish', () => MultiChoice.prototype.reply, {once: true});
+    addEventListener('timeFinish', MultiChoice.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
@@ -150,6 +150,8 @@ MultiChoice.prototype.reply = function(e) {
         });
         answerIds = responses.toString();
     }
+    // eslint-disable-next-line no-console
+    console.log(answerIds);
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(MultiChoice.prototype.endTimer);
@@ -158,7 +160,7 @@ MultiChoice.prototype.reply = function(e) {
         let request = {
             methodname: SERVICES.REPLY,
             args: {
-                answerids: answerIds,
+                answerids: answerIds === undefined ? '0' : answerIds,
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,

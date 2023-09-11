@@ -40,6 +40,7 @@ use mod_jqshow\helpers\responses;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\questions\truefalse;
 use moodle_exception;
 use question_bank;
 
@@ -87,7 +88,7 @@ class truefalse_external extends external_api {
      * @throws moodle_exception
      */
     public static function truefalse(
-        string $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $jqid, int $timeleft, bool $preview
+        int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $jqid, int $timeleft, bool $preview
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
@@ -121,7 +122,7 @@ class truefalse_external extends external_api {
                 ) . '<br>';
         }
         if ($preview === false) {
-            responses::truefalse_response(
+            truefalse::truefalse_response(
                 $jqid,
                 $answerid,
                 $correctanswer,
