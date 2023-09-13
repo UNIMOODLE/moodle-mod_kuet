@@ -34,15 +34,15 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
-use mod_jqshow\external\numerical_external;
+use mod_jqshow\external\calculated_external;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use pix_icon;
+use qtype_calculated_question;
 use qtype_numerical_answer_processor;
-use qtype_numerical_question;
 use question_bank;
 use question_definition;
 use ReflectionClass;
@@ -54,7 +54,7 @@ global $CFG;
 
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 
-class numerical extends questions {
+class calculated extends questions {
 
     /**
      * @param int $jqshowid
@@ -80,11 +80,11 @@ class numerical extends questions {
      * @throws moodle_exception
      * @throws ReflectionException
      */
-    public static function export_numerical(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_calculated(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
-        if (!assert($question instanceof qtype_numerical_question)) {
+        if (!assert($question instanceof qtype_calculated_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
@@ -92,11 +92,11 @@ class numerical extends questions {
         $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
-        $data->questiontext =
-            self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
+        self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
         $data->name = $question->name;
         $data->unitsleft = isset($question->unitdisplay) && $question->unitdisplay === 1;
+        $data->questiontext = $question->questiontext;
         if (isset($question->ap) && assert($question->ap instanceof qtype_numerical_answer_processor)) {
             $data->units = [];
             $reflection = new ReflectionClass($question->ap);
@@ -141,8 +141,10 @@ class numerical extends questions {
      * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
-    public static function export_numerical_response(stdClass $data, string $response): stdClass {
+    public static function export_calculated_response(stdClass $data, string $response): stdClass {
         $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
@@ -159,7 +161,7 @@ class numerical extends questions {
         }
         $data->answered = true;
         // TODO.
-        $dataanswer = numerical_external::numerical(
+        $dataanswer = calculated_external::calculated(
             $responsedata->response,
             $responsedata->unit,
             $responsedata->multiplier,
@@ -172,7 +174,7 @@ class numerical extends questions {
             true
         );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
-        $data->numericalresponse = $responsedata->response;
+        $data->calculatedresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
         $data->programmedmode = $dataanswer['programmedmode'];
         $data->statment_feedback = $dataanswer['statment_feedback'];
@@ -199,7 +201,7 @@ class numerical extends questions {
                                                int                 $jqid): stdClass {
         $answers = [];
         $correctanswers = [];
-        if (!assert($questiondata instanceof qtype_numerical_question)) {
+        if (!assert($questiondata instanceof qtype_calculated_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
@@ -273,6 +275,10 @@ class numerical extends questions {
         }
         $data->correctanswers = array_values($correctanswers);
         $data->answers = array_values($answers);
+        self::get_text(
+            $data->cmid, $data->questiontext, $data->questiontextformat, $data->questionnid, $questiondata, 'questiontext'
+        );
+        $data->questiontext = $questiondata->questiontext;
         return $data;
     }
 
@@ -341,7 +347,7 @@ class numerical extends questions {
      * @throws coding_exception
      * @throws invalid_persistent_exception
      */
-    public static function numerical_response(
+    public static function calculated_response(
         int $jqid,
         string $responsetext,
         string $unit,
@@ -368,7 +374,7 @@ class numerical extends questions {
                 $response->questionid = $questionid;
                 $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
                 $response->timeleft = $timeleft;
-                $response->type = questions::NUMERICAL;
+                $response->type = questions::CALCULATED;
                 $response->response = $responsetext; // TODO validate html and special characters.
                 $response->unit = $unit;
                 $response->multiplier = $multiplier;

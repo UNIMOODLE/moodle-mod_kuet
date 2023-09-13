@@ -35,6 +35,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\models\calculated;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -123,6 +124,8 @@ class getuserquestionresponse_external extends external_api {
                 return (array)shortanswer::export_shortanswer_response($data, $json);
             case questions::NUMERICAL:
                 return (array)numerical::export_numerical_response($data, $json);
+            case questions::CALCULATED:
+                return (array)calculated::export_calculated_response($data, $json);
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));
@@ -143,6 +146,7 @@ class getuserquestionresponse_external extends external_api {
             'statment_feedback' => new external_value(PARAM_RAW, 'Question feedback', VALUE_OPTIONAL),
             'shortanswerresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
             'numericalresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
+            'calculatedresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
             'answer_feedback' => new external_value(PARAM_RAW, 'Response feedback', VALUE_OPTIONAL),
             'correct_answers' => new external_value(PARAM_RAW, 'Correct answers ids', VALUE_OPTIONAL),
             'programmedmode' => new external_value(PARAM_BOOL, 'Program mode', VALUE_OPTIONAL),

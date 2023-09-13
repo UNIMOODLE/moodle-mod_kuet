@@ -69,7 +69,8 @@ class commondata_exporter extends question_exporter {
                 'type' => PARAM_RAW
             ],
             'numquestions' => [
-                'type' => PARAM_INT
+                'type' => PARAM_INT,
+                'optional' => true
             ],
             'sessionprogress' => [
                 'type' => PARAM_INT,

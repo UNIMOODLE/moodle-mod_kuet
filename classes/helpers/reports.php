@@ -31,6 +31,7 @@ use dml_exception;
 use dml_transaction_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
+use mod_jqshow\models\calculated;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -482,6 +483,7 @@ class reports {
         $data->questiontext = questions::get_text(
             $cmid, $questiondata->questiontext, $questiondata->questiontextformat, $questiondata->id, $questiondata, 'questiontext'
         );
+        $data->questiontextformat = $questiondata->questiontextformat;
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
         switch ($data->type) {
             case questions::MULTICHOICE:
@@ -498,6 +500,9 @@ class reports {
                 break;
             case questions::NUMERICAL:
                 $data = numerical::get_question_report($session, $questiondata, $data, $jqid);
+                break;
+            case questions::CALCULATED:
+                $data = calculated::get_question_report($session, $questiondata, $data, $jqid);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
@@ -891,6 +896,9 @@ class reports {
                             break;
                         case questions::NUMERICAL:
                             $user = numerical::get_ranking_for_question($user, $response, $answers, $session, $question);
+                            break;
+                        case questions::CALCULATED:
+                            $user = calculated::get_ranking_for_question($user, $response, $answers, $session, $question);
                             break;
                         default:
                             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

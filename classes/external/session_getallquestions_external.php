@@ -35,6 +35,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\models\calculated;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -43,6 +44,7 @@ use mod_jqshow\models\shortanswer;
 use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use moodle_exception;
+use ReflectionException;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -68,9 +70,10 @@ class session_getallquestions_external extends external_api {
      * @param int $sessionid
      * @return array
      * @throws JsonException
+     * @throws ReflectionException
      * @throws coding_exception
-     * @throws dml_transaction_exception
      * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
@@ -103,6 +106,9 @@ class session_getallquestions_external extends external_api {
                     break;
                 case questions::NUMERICAL:
                     $questiondata[] = numerical::export_numerical($jqid, $cmid, $sessionid, $jqshow->id, false);
+                    break;
+                case questions::CALCULATED:
+                    $questiondata[] = calculated::export_calculated($jqid, $cmid, $sessionid, $jqshow->id, false);
                     break;
                 default:
                     throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

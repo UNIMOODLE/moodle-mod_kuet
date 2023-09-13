@@ -28,6 +28,7 @@ namespace mod_jqshow\external;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
+use dml_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
@@ -37,6 +38,7 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\exporter\question_exporter;
 use mod_jqshow\helpers\progress;
+use mod_jqshow\models\calculated;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -48,6 +50,7 @@ use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
+use ReflectionException;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -77,6 +80,8 @@ class jumptoquestion_external extends external_api {
      * @param bool $manual
      * @return array
      * @throws JsonException
+     * @throws ReflectionException
+     * @throws dml_exception
      * @throws coding_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
@@ -131,6 +136,14 @@ class jumptoquestion_external extends external_api {
                     break;
                 case questions::NUMERICAL:
                     $data = numerical::export_numerical(
+                        $question->get('id'),
+                        $cmid,
+                        $sessionid,
+                        $question->get('jqshowid'));
+                    $data->showstatistics = false;
+                    break;
+                case questions::CALCULATED:
+                    $data = calculated::export_calculated(
                         $question->get('id'),
                         $cmid,
                         $sessionid,

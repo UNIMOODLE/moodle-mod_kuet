@@ -38,6 +38,7 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\exporter\question_exporter;
 use mod_jqshow\helpers\progress;
+use mod_jqshow\models\calculated;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -138,6 +139,14 @@ class nextquestion_external extends external_api {
                     break;
                 case questions::NUMERICAL:
                     $data = numerical::export_numerical(
+                        $nextquestion->get('id'),
+                        $cmid,
+                        $sessionid,
+                        $nextquestion->get('jqshowid'));
+                    $data->showstatistics = false;
+                    break;
+                case questions::CALCULATED:
+                    $data = calculated::export_calculated(
                         $nextquestion->get('id'),
                         $cmid,
                         $sessionid,

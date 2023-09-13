@@ -77,8 +77,9 @@ class questions {
     public const TRUE_FALSE = 'truefalse';
     public const SHORTANSWER = 'shortanswer';
     public const NUMERICAL = 'numerical';
+    public const CALCULATED = 'calculated';
 
-    public const TYPES = [self::MULTICHOICE, self::MATCH, self::TRUE_FALSE, self::SHORTANSWER, self::NUMERICAL];
+    public const TYPES = [self::MULTICHOICE, self::MATCH, self::TRUE_FALSE, self::SHORTANSWER, self::NUMERICAL, self::CALCULATED];
 
     public const FAILURE = 0; // String: qstatus_0.
     public const SUCCESS = 1; // String: qstatus_1.

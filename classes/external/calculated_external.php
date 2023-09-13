@@ -37,12 +37,12 @@ use external_value;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\helpers\responses;
-use mod_jqshow\models\numerical;
+use mod_jqshow\models\calculated;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
-use qtype_numerical_question;
+use qtype_calculated_question;
 use question_bank;
 use question_state_gradedpartial;
 use question_state_gradedright;
@@ -53,9 +53,9 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
-class numerical_external extends external_api {
+class calculated_external extends external_api {
 
-    public static function numerical_parameters(): external_function_parameters {
+    public static function calculated_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'responsenum' => new external_value(PARAM_RAW, 'User response text'),
@@ -92,7 +92,7 @@ class numerical_external extends external_api {
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      */
-    public static function numerical(
+    public static function calculated(
         string $responsenum,
         string $unit,
         string $multiplier,
@@ -106,7 +106,7 @@ class numerical_external extends external_api {
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
-            self::numerical_parameters(),
+            self::calculated_parameters(),
             [
                 'responsenum' => $responsenum,
                 'unit' => $unit,
@@ -128,7 +128,7 @@ class numerical_external extends external_api {
         $question = question_bank::load_question($questionid);
         $answerfeedback = '';
         $result = questions::NORESPONSE;
-        if (assert($question instanceof qtype_numerical_question)) {
+        if (assert($question instanceof qtype_calculated_question)) {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
@@ -166,7 +166,7 @@ class numerical_external extends external_api {
                 $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
             }
             if ($preview === false) {
-                numerical::numerical_response(
+                calculated::calculated_response(
                     $jqid,
                     $responsenum,
                     $unit,
@@ -188,7 +188,7 @@ class numerical_external extends external_api {
                 'statment_feedback' => $statmentfeedback,
                 'answer_feedback' => $answerfeedback,
                 'possibleanswers' => rtrim($possibleanswers, '/ '),
-                'numericalresponse' => (string)$responsenum,
+                'calculatedresponse' => (string)$responsenum,
                 'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
@@ -209,7 +209,7 @@ class numerical_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function numerical_returns(): external_single_structure {
+    public static function calculated_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'reply_status' => new external_value(PARAM_BOOL, 'Status of reply'),
@@ -218,7 +218,7 @@ class numerical_external extends external_api {
                 'statment_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
                 'possibleanswers' => new external_value(PARAM_RAW, 'HTML answer feedback', VALUE_OPTIONAL),
-                'numericalresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
+                'calculatedresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
                 'programmedmode' => new external_value(PARAM_BOOL, 'Program mode for controls'),
                 'preview' => new external_value(PARAM_BOOL, 'Question preview'),
             ]
