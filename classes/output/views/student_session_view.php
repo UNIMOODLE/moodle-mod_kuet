@@ -28,9 +28,11 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
+use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\helpers\progress;
+use mod_jqshow\models\calculated;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -44,6 +46,7 @@ use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
+use ReflectionException;
 use renderable;
 use stdClass;
 use templatable;
@@ -56,9 +59,11 @@ class student_session_view implements renderable, templatable {
      * @param renderer_base $output
      * @return stdClass
      * @throws JsonException
-     * @throws dml_transaction_exception
+     * @throws ReflectionException
+     * @throws invalid_parameter_exception
      * @throws coding_exception
      * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
@@ -172,6 +177,20 @@ class student_session_view implements renderable, templatable {
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
                             $data = numerical::export_numerical_response($data, $response->get('response'));
+                        }
+                        break;
+                    case questions::CALCULATED:
+                        $data = calculated::export_calculated(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = calculated::export_calculated_response($data, $response->get('response'));
                         }
                         break;
                     default:

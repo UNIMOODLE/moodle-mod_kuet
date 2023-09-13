@@ -382,6 +382,9 @@ Sockets.prototype.initSockets = function() {
                 '<div class="alert alert-danger" role="alert">' + s + '</div>'
             );
         });
+        that.root.find(ACTION.INITSESSION).addClass('disabled');
+        that.root.find(ACTION.INITSESSION).off('click');
+        that.root.find(ACTION.ENDSESSION).off('click');
     };
 
     Sockets.prototype.webSocket.onclose = function(ev) {
@@ -394,6 +397,9 @@ Sockets.prototype.initSockets = function() {
                 '<div class="alert alert-danger" role="alert">' + s + '</div>'
             );
         });
+        that.root.find(ACTION.INITSESSION).addClass('disabled');
+        that.root.find(ACTION.INITSESSION).off('click');
+        that.root.find(ACTION.ENDSESSION).off('click');
     };
 };
 
