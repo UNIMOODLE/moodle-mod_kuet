@@ -46,8 +46,6 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
-
 class matchquestion extends questions {
 
     /**

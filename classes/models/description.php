@@ -34,14 +34,14 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
-use mod_jqshow\external\shortanswer_external;
+use mod_jqshow\external\description_external;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use pix_icon;
-use qtype_shortanswer_question;
+use qtype_description_question;
 use question_bank;
 use question_definition;
 use stdClass;
@@ -49,7 +49,9 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-class shortanswer extends questions {
+require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
+
+class description extends questions {
 
     /**
      * @param int $jqshowid
@@ -74,11 +76,11 @@ class shortanswer extends questions {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_shortanswer(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_description(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
-        if (!assert($question instanceof qtype_shortanswer_question)) {
+        if (!assert($question instanceof qtype_description_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
@@ -106,14 +108,13 @@ class shortanswer extends questions {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_shortanswer_response(stdClass $data, string $response): stdClass {
+    public static function export_description_response(stdClass $data, string $response): stdClass {
         $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
         }
         $data->answered = true;
-        $dataanswer = shortanswer_external::shortanswer(
-            $responsedata->response,
+        $dataanswer = description_external::description(
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
@@ -148,82 +149,10 @@ class shortanswer extends questions {
                                                question_definition $questiondata,
                                                stdClass            $data,
                                                int                 $jqid): stdClass {
-        $answers = [];
-        $correctanswers = [];
-        if (!assert($questiondata instanceof qtype_shortanswer_question)) {
+        if (!assert($questiondata instanceof qtype_description_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
-        $answers = [];
-        $correctanswers = [];
-        foreach ($questiondata->answers as $key => $answer) {
-            $answers[$key]['answertext'] = $answer->answer;
-            $answers[$key]['answerid'] = $answer->id;
-            if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
-                $answers[$key]['result'] = 'incorrect';
-                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_jqshow');
-                $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_jqshow'), 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => get_string('incorrect', 'mod_jqshow')
-                ]);
-                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => ''
-                ]);
-            } else if ($answer->fraction === '1.0000000') {
-                $answers[$key]['result'] = 'correct';
-                $answers[$key]['resultstr'] = get_string('correct', 'mod_jqshow');
-                $answers[$key]['fraction'] = '1';
-                $icon = new pix_icon('i/correct', get_string('correct', 'mod_jqshow'), 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => get_string('correct', 'mod_jqshow')
-                ]);
-                $usersicon = new pix_icon('i/correct_users', '', 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => ''
-                ]);
-            } else {
-                $answers[$key]['result'] = 'partially';
-                $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_jqshow');
-                $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_jqshow'), 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => get_string('partially_correct', 'mod_jqshow')
-                ]);
-                $usersicon = new pix_icon('i/partially_users', '', 'mod_jqshow', [
-                    'class' => 'icon',
-                    'title' => ''
-                ]);
-            }
-            $answers[$key]['resulticon'] = $icon->export_for_pix();
-            $answers[$key]['usersicon'] = $usersicon->export_for_pix();
-            $answers[$key]['numticked'] = 0;
-            if ($answer->fraction !== '0.0000000') { // Answers with punctuation, even if negative.
-                $correctanswers[$key]['response'] = $answer->answer;
-                $correctanswers[$key]['score'] = grade::get_rounded_mark($questiondata->defaultmark * $answer->fraction);
-            }
-        }
-        $gmembers = [];
-        if ($session->is_group_mode()) {
-            $gmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
-        }
-        $responses = jqshow_questions_responses::get_question_responses($session->get('id'), $data->jqshowid, $jqid);
-        foreach ($responses as $response) {
-            if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
-                continue;
-            }
-            $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-            if (isset($other->response) && $other->response !== '') {
-                foreach ($answers as $key => $answer) {
-                    if ($answer['answertext'] === $other->response) {
-                        $answers[$key]['numticked']++;
-                    }
-                }
-            }
-        }
-        $data->correctanswers = array_values($correctanswers);
-        $data->answers = array_values($answers);
         return $data;
     }
 
@@ -244,44 +173,21 @@ class shortanswer extends questions {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-        switch ($response->get('result')) {
-            case questions::FAILURE:
-                $participant->response = 'incorrect';
-                $participant->responsestr = get_string('incorrect', 'mod_jqshow');
-                break;
-            case questions::SUCCESS:
-                $participant->response = 'correct';
-                $participant->responsestr = get_string('correct', 'mod_jqshow');
-                break;
-            case questions::PARTIALLY:
-                $participant->response = 'partially';
-                $participant->responsestr = get_string('partially', 'mod_jqshow');
-                break;
-            case questions::NORESPONSE:
-            default:
-                $participant->response = 'noresponse';
-                $participant->responsestr = get_string('noresponse', 'mod_jqshow');
-                break;
-        }
-        $points = grade::get_simple_mark($response);
-        $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-            $session->get('jqshowid'));
-        $participant->userpoints = grade::get_rounded_mark($spoints);
-        $participant->score_moment = grade::get_rounded_mark($points);
+        $participant->response = 'noevaluable';
+        $participant->responsestr = get_string('noevaluable', 'mod_jqshow');
+        $participant->userpoints = 0;
+        $participant->score_moment = 0;
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;
     }
 
     /**
      * @param int $jqid
-     * @param string $responsetext
      * @param int $result
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
-     * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
      * @return void
@@ -290,15 +196,13 @@ class shortanswer extends questions {
      * @throws coding_exception
      * @throws invalid_persistent_exception
      */
-    public static function shortanswer_response(
+    public static function description_response(
         int $jqid,
-        string $responsetext,
         int $result,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
-        string $answerfeedback,
         int $userid,
         int $timeleft
     ): void {
@@ -313,10 +217,10 @@ class shortanswer extends questions {
                 // Individual.
                 $response = new stdClass();
                 $response->questionid = $questionid;
-                $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
+                $response->hasfeedbacks = (bool)($statmentfeedback !== '');
                 $response->timeleft = $timeleft;
-                $response->type = questions::SHORTANSWER;
-                $response->response = $responsetext; // TODO validate html and special characters.
+                $response->type = questions::DESCRIPTION;
+                $response->response = '';
                 jqshow_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );

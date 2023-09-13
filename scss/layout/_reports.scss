@@ -244,11 +244,16 @@ body#page-mod-jqshow-reports.jqshow-reports {
                                 color: #818182;
                             }
                         }
-                        .noresponse,
-                        .noevaluable {
+                        .noresponse {
                             background-color: #fff7e6;
                             span {
                                 color: #feac16;
+                            }
+                        }
+                        .noevaluable {
+                            background-color: #fefefe;
+                            span {
+                                color: #1b1e21;
                             }
                         }
                         .invalid {

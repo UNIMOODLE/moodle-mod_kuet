@@ -32,6 +32,7 @@ use dml_transaction_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\models\calculated;
+use mod_jqshow\models\description;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -504,6 +505,9 @@ class reports {
             case questions::CALCULATED:
                 $data = calculated::get_question_report($session, $questiondata, $data, $jqid);
                 break;
+            case questions::DESCRIPTION:
+                $data = description::get_question_report($session, $questiondata, $data, $jqid);
+                break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));
@@ -539,6 +543,9 @@ class reports {
             }
         } else {
             $data->hasranking = true;
+            if (!isset($data->answers)) {
+                $data->answers = [];
+            }
             $data->questionranking =
                 self::get_ranking_for_question($users, $data->answers, $session, $question, $cmid, $sid, $jqid);
         }
@@ -899,6 +906,9 @@ class reports {
                             break;
                         case questions::CALCULATED:
                             $user = calculated::get_ranking_for_question($user, $response, $answers, $session, $question);
+                            break;
+                        case questions::DESCRIPTION:
+                            $user = description::get_ranking_for_question($user, $response, $answers, $session, $question);
                             break;
                         default:
                             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

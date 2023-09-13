@@ -19,14 +19,11 @@ let REGION = {
     CONTENTFEEDBACKS: '[data-region="containt-feedbacks"]',
     FEEDBACK: '[data-region="statement-feedback"]',
     FEEDBACKANSWER: '[data-region="answer-feedback"]',
-    FEEDBACKBACGROUND: '[data-region="feedback-background"]',
-    INPUTANSWER: '#userShortAnswer',
-    ANSWERHELP: '#userShortAnswerHelp',
-    FEEDBACKICONS: '.feedback-icons',
+    FEEDBACKBACGROUND: '[data-region="feedback-background"]'
 };
 
 let SERVICES = {
-    REPLY: 'mod_jqshow_shortanswer'
+    REPLY: 'mod_jqshow_description'
 };
 
 let TEMPLATES = {
@@ -43,9 +40,9 @@ let showQuestionFeedback = false;
 let manualMode = false;
 
 /** @type {jQuery} The jQuery node for the page region. */
-ShortAnswer.prototype.node = null;
-ShortAnswer.prototype.endTimer = new Event('endTimer');
-ShortAnswer.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
+Description.prototype.node = null;
+Description.prototype.endTimer = new Event('endTimer');
+Description.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
 
 /**
  * @constructor
@@ -54,7 +51,7 @@ ShortAnswer.prototype.studentQuestionEnd = new Event('studentQuestionEnd');
  * @param {Boolean} manualmode
  * @param {String} jsonresponse
  */
-function ShortAnswer(selector, showquestionfeedback = false, manualmode = false, jsonresponse = '') {
+function Description(selector, showquestionfeedback = false, manualmode = false, jsonresponse = '') {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
@@ -74,75 +71,73 @@ function ShortAnswer(selector, showquestionfeedback = false, manualmode = false,
             this.showAnswers();
         }
     }
-    ShortAnswer.prototype.initShortAnswer();
+    Description.prototype.initDescription();
 }
 
-ShortAnswer.prototype.initShortAnswer = function() {
-    jQuery(ACTION.SEND_RESPONSE).on('click', ShortAnswer.prototype.reply);
-    ShortAnswer.prototype.initEvents();
+Description.prototype.initDescription = function() {
+    jQuery(ACTION.SEND_RESPONSE).on('click', Description.prototype.reply);
+    Description.prototype.initEvents();
 };
 
-ShortAnswer.prototype.initEvents = function() {
-    addEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
+Description.prototype.initEvents = function() {
+    addEventListener('timeFinish', Description.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
-                ShortAnswer.prototype.reply();
+                Description.prototype.reply();
             }
             e.detail.statistics.forEach((statistic) => {
                 jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
             });
         }, {once: true});
         addEventListener('pauseQuestion_' + jqid, () => {
-            ShortAnswer.prototype.pauseQuestion();
+            Description.prototype.pauseQuestion();
         }, false);
         addEventListener('playQuestion_' + jqid, () => {
-            ShortAnswer.prototype.playQuestion();
+            Description.prototype.playQuestion();
         }, false);
         addEventListener('showAnswers_' + jqid, () => {
-            ShortAnswer.prototype.showAnswers();
+            Description.prototype.showAnswers();
         }, false);
         addEventListener('hideAnswers_' + jqid, () => {
-            ShortAnswer.prototype.hideAnswers();
+            Description.prototype.hideAnswers();
         }, false);
         addEventListener('showStatistics_' + jqid, () => {
-            ShortAnswer.prototype.showStatistics();
+            Description.prototype.showStatistics();
         }, false);
         addEventListener('hideStatistics_' + jqid, () => {
-            ShortAnswer.prototype.hideStatistics();
+            Description.prototype.hideStatistics();
         }, false);
         addEventListener('showFeedback_' + jqid, () => {
-            ShortAnswer.prototype.showFeedback();
+            Description.prototype.showFeedback();
         }, false);
         addEventListener('hideFeedback_' + jqid, () => {
-            ShortAnswer.prototype.hideFeedback();
+            Description.prototype.hideFeedback();
         }, false);
     }
 
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
-            ShortAnswer.prototype.reply();
+            Description.prototype.reply();
             return 'Because the question is overdue and an attempt has been made to reload the page,' +
                 ' the question has remained unanswered.';
         }
     };
 };
 
-ShortAnswer.prototype.removeEvents = function() {
-    removeEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
+Description.prototype.removeEvents = function() {
+    removeEventListener('timeFinish', Description.prototype.reply, {once: true});
 };
 
-ShortAnswer.prototype.reply = function() {
+Description.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
-        dispatchEvent(ShortAnswer.prototype.endTimer);
-        ShortAnswer.prototype.removeEvents();
+        dispatchEvent(Description.prototype.endTimer);
+        Description.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
-        let responseText = jQuery(REGION.INPUTANSWER).val();
         let request = {
             methodname: SERVICES.REPLY,
             args: {
-                responsetext: responseText === undefined || responseText === null ? '' : responseText,
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,
@@ -155,18 +150,18 @@ ShortAnswer.prototype.reply = function() {
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
                 questionEnd = true;
-                ShortAnswer.prototype.answered(response);
-                dispatchEvent(ShortAnswer.prototype.studentQuestionEnd);
+                Description.prototype.answered(response);
+                dispatchEvent(Description.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
-                    ShortAnswer.prototype.showAnswers();
+                    Description.prototype.showAnswers();
                     if (showQuestionFeedback === true) {
-                        ShortAnswer.prototype.showFeedback();
+                        Description.prototype.showFeedback();
                     }
                 } else {
                     if (manualMode === false) {
-                        ShortAnswer.prototype.showAnswers();
+                        Description.prototype.showAnswers();
                         if (showQuestionFeedback === true) {
-                            ShortAnswer.prototype.showFeedback();
+                            Description.prototype.showFeedback();
                         }
                     }
                 }
@@ -178,7 +173,7 @@ ShortAnswer.prototype.reply = function() {
     });
 };
 
-ShortAnswer.prototype.answered = function(response) {
+Description.prototype.answered = function(response) {
     questionEnd = true;
     if (response.hasfeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
@@ -186,32 +181,18 @@ ShortAnswer.prototype.answered = function(response) {
     }
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
-    jQuery(REGION.INPUTANSWER).css('z-index', 3).attr('disabled', 'disabled');
     jQuery(REGION.NEXT).removeClass('d-none');
-    jQuery(REGION.ANSWERHELP).text(response.possibleanswers);
-    if (response.result === 0) {
-        jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
-        jQuery(REGION.FEEDBACKICONS + ' .partially').remove();
-    }
-    if (response.result === 1) {
-        jQuery(REGION.FEEDBACKICONS + ' .incorrect').remove();
-        jQuery(REGION.FEEDBACKICONS + ' .partially').remove();
-    }
-    if (response.result === 2) {
-        jQuery(REGION.FEEDBACKICONS + ' .incorrect').remove();
-        jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
-    }
     mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
 };
 
-ShortAnswer.prototype.pauseQuestion = function() {
+Description.prototype.pauseQuestion = function() {
     dispatchEvent(new Event('pauseQuestion'));
     jQuery(REGION.TIMER).css('z-index', 3);
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(ACTION.REPLY).css('pointer-events', 'none');
 };
 
-ShortAnswer.prototype.playQuestion = function() {
+Description.prototype.playQuestion = function() {
     if (questionEnd !== true) {
         dispatchEvent(new Event('playQuestion'));
         jQuery(REGION.TIMER).css('z-index', 1);
@@ -220,33 +201,31 @@ ShortAnswer.prototype.playQuestion = function() {
     }
 };
 
-ShortAnswer.prototype.showFeedback = function() {
+Description.prototype.showFeedback = function() {
     if (questionEnd === true) {
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
     }
 };
 
-ShortAnswer.prototype.hideFeedback = function() {
+Description.prototype.hideFeedback = function() {
     if (questionEnd === true) {
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'none', 'z-index': 0});
     }
 };
 
-ShortAnswer.prototype.showAnswers = function() {
+Description.prototype.showAnswers = function() {
     if (questionEnd === true) {
         // TODO obtain the possible answers, and paint them in a list.
         jQuery(REGION.ANSWERHELP).removeClass('d-none').css({'z-index': 3});
-        jQuery(REGION.FEEDBACKICONS).removeClass('d-none').css({'z-index': 3});
     }
 };
 
-ShortAnswer.prototype.hideAnswers = function() {
+Description.prototype.hideAnswers = function() {
     if (questionEnd === true) {
         jQuery(REGION.ANSWERHELP).addClass('d-none');
-        jQuery(REGION.FEEDBACKICONS).addClass('d-none');
     }
 };
 
-export const initShortAnswer = (selector, showquestionfeedback, manualmode, jsonresponse) => {
-    return new ShortAnswer(selector, showquestionfeedback, manualmode, jsonresponse);
+export const initDescription = (selector, showquestionfeedback, manualmode, jsonresponse) => {
+    return new Description(selector, showquestionfeedback, manualmode, jsonresponse);
 };

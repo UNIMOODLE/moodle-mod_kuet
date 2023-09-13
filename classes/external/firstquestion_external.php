@@ -37,6 +37,7 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\exporter\question_exporter;
 use mod_jqshow\models\calculated;
+use mod_jqshow\models\description;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -132,6 +133,14 @@ class firstquestion_external extends external_api {
                 break;
             case questions::CALCULATED:
                 $question = calculated::export_calculated(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = false;
+                break;
+            case questions::DESCRIPTION:
+                $question = description::export_description(
                     $firstquestion->get('id'),
                     $cmid,
                     $sessionid,

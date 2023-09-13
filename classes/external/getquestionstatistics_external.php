@@ -98,6 +98,7 @@ class getquestionstatistics_external extends external_api {
             case questions::SHORTANSWER:
             case questions::NUMERICAL:
             case questions::CALCULATED:
+            case questions::DESCRIPTION:
                 // TODO review statistics for all, as most of them have to be applied.
                 // There are no statistics defined for these modes.
                 break;

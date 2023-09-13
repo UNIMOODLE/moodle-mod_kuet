@@ -33,6 +33,7 @@ use JsonException;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\helpers\progress;
 use mod_jqshow\models\calculated;
+use mod_jqshow\models\description;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -191,6 +192,20 @@ class student_session_view implements renderable, templatable {
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
                             $data = calculated::export_calculated_response($data, $response->get('response'));
+                        }
+                        break;
+                    case questions::DESCRIPTION:
+                        $data = description::export_description(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = description::export_description_response($data, $response->get('response'));
                         }
                         break;
                     default:
