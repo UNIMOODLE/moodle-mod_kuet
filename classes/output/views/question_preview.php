@@ -30,6 +30,7 @@ use dml_exception;
 use dml_transaction_exception;
 use JsonException;
 use mod_jqshow\models\calculated;
+use mod_jqshow\models\description;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -96,6 +97,9 @@ class question_preview implements renderable, templatable {
                 break;
             case questions::CALCULATED:
                 $data = calculated::export_calculated($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                break;
+            case questions::DESCRIPTION:
+                $data = description::export_description($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

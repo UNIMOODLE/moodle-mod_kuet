@@ -28,6 +28,7 @@ use mod_jqshow\external\calculated_external;
 use mod_jqshow\external\copysession_external;
 use mod_jqshow\external\deleteresponses_external;
 use mod_jqshow\external\deletesession_external;
+use mod_jqshow\external\description_external;
 use mod_jqshow\external\finishsession_external;
 use mod_jqshow\external\firstquestion_external;
 use mod_jqshow\external\getactivesession_external;
@@ -196,6 +197,14 @@ $functions = [
         'classname' => calculated_external::class,
         'methodname' => 'calculated',
         'description' => 'Calculated reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_description' => [
+        'classname' => description_external::class,
+        'methodname' => 'description',
+        'description' => 'Description reply.',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
@@ -397,6 +406,7 @@ $services = [
             'mod_jqshow_shortanswer',
             'mod_jqshow_numerical',
             'mod_jqshow_calculated',
+            'mod_jqshow_description',
             'mod_jqshow_nextquestion',
             'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',

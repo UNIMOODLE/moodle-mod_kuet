@@ -644,6 +644,7 @@ class sessions {
             $questionsdata[$key]->studentsresponse = [];
             foreach ($userresults as $user) {
                 $userresponse = jqshow_questions_responses::get_question_response_for_user($user->id, $sid, $question->get('id'));
+                $questionsdata[$key]->studentsresponse[$user->id] = new stdClass();
                 $questionsdata[$key]->studentsresponse[$user->id]->userid = $user->id;
                 if ($userresponse !== false) {
                     $questionsdata[$key]->studentsresponse[$user->id]->response = $userresponse;

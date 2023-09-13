@@ -36,6 +36,7 @@ use external_value;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\models\calculated;
+use mod_jqshow\models\description;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
 use mod_jqshow\models\numerical;
@@ -109,6 +110,9 @@ class session_getallquestions_external extends external_api {
                     break;
                 case questions::CALCULATED:
                     $questiondata[] = calculated::export_calculated($jqid, $cmid, $sessionid, $jqshow->id, false);
+                    break;
+                case questions::DESCRIPTION:
+                    $questiondata[] = description::export_description($jqid, $cmid, $sessionid, $jqshow->id, false);
                     break;
                 default:
                     throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

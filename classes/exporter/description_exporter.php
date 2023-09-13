@@ -25,32 +25,18 @@
 
 namespace mod_jqshow\exporter;
 
-use context;
-use core\external\exporter;
 
-class question_exporter extends exporter {
+class description_exporter extends commondata_exporter {
 
     /**
-     * @return array[]
+     * @return array
      */
     public static function define_properties(): array {
-        return array_merge(
-            commondata_exporter::define_properties(),
-            multichoice_exporter::define_properties(),
-            truefalse_exporter::define_properties(),
-            matchquestion_exporter::define_properties(),
-            shortanswer_exporter::define_properties(),
-            numerical_exporter::define_properties(),
-            calculated_exporter::define_properties(),
-            description_exporter::define_properties(),
-            endsession_exporter::define_properties()
-        );
-    }
-
-    /**
-     * @return string[]
-     */
-    protected static function define_related() {
-        return array('context' => context::class);
+        return [
+            'description' => [
+                'type' => PARAM_BOOL,
+                'optional' => true
+            ]
+        ];
     }
 }
