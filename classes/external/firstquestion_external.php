@@ -38,14 +38,15 @@ use JsonException;
 use mod_jqshow\exporter\question_exporter;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\models\shortanswer;
 use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\questions\numerical;
 use moodle_exception;
+use ReflectionException;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -71,8 +72,9 @@ class firstquestion_external extends external_api {
      * @param int $sessionid
      * @return array
      * @throws JsonException
-     * @throws dml_exception
+     * @throws ReflectionException
      * @throws coding_exception
+     * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception

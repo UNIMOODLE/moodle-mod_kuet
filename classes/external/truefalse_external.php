@@ -36,11 +36,10 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\helpers\responses;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\questions\truefalse;
 use moodle_exception;
 use question_bank;
 
