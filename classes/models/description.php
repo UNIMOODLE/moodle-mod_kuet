@@ -227,4 +227,13 @@ class description extends questions {
             }
         }
     }
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer) {
+        //Not graded.
+        return 0;
+    }
 }

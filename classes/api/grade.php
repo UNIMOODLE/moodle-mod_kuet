@@ -18,8 +18,15 @@ namespace mod_jqshow\api;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
+use mod_jqshow\models\calculated;
+use mod_jqshow\models\description;
+use mod_jqshow\models\matchquestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_grades;
 use mod_jqshow\persistents\jqshow_questions;
@@ -92,8 +99,6 @@ class grade {
      * @throws dml_exception
      */
     public static function get_simple_mark(jqshow_questions_responses $response) {
-        // TODO adapt to all kinds of questions.
-        global $DB;
         $mark = 0;
 
         // Check ignore grading setting.
@@ -106,15 +111,28 @@ class grade {
         $useranswer = $response->get('response');
         if (!empty($useranswer)) {
             $useranswer = json_decode($useranswer);
-            $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
-            $answerids = $useranswer->{'answerids'} ?? '';
-            if (empty($answerids)) {
-                return $mark;
-            }
-            $answerids = explode(',', $answerids);
-            foreach ($answerids as $answerid) {
-                $fraction = $DB->get_field('question_answers', 'fraction', ['id' => $answerid]);
-                $mark += $defaultmark * $fraction;
+            switch($useranswer->{'type'}) {
+                case 'truefalse':
+                    $mark = truefalse::get_simple_mark($useranswer);
+                    break;
+                case 'multichoice':
+                    $mark = multichoice::get_simple_mark($useranswer);
+                    break;
+                case 'match':
+                    $mark = matchquestion::get_simple_mark($useranswer);
+                    break;
+                case 'calculated':
+                    $mark = calculated::get_simple_mark($useranswer, $response);
+                    break;
+                case 'numerical':
+                    $mark = numerical::get_simple_mark($useranswer, $response);
+                    break;
+                case 'description':
+                    $mark = description::get_simple_mark($useranswer);
+                    break;
+                case 'shortanswer':
+                    $mark = shortanswer::get_simple_mark($useranswer);
+                    break;
             }
         }
 

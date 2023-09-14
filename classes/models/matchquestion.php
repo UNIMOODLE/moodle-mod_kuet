@@ -281,4 +281,19 @@ class matchquestion extends questions {
             }
         }
     }
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+
+        global $DB;
+        $mark = 0;
+        if ((int) $response->get('result') == 1) {
+            $mark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+        }
+
+        return $mark;
+    }
 }

@@ -376,4 +376,25 @@ class numerical extends questions {
             }
         }
     }
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
+        global $DB;
+
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+        if ((int)$response->get('result') == 1) {
+            return $defaultmark;
+        } else if ((int)$response->get('result') == 0 || (int)$response->get('result') == 3) {
+            return 0;
+        }
+        // Partialyy correct.
+        $question = question_bank::load_question($useranswer->{'questionid'});
+        $moodleresult = $question->grade_response(['answer' => $useranswer->{'response'}, 'unit' => $useranswer->{'unit'}]);
+
+        return (float)$moodleresult[0] * $defaultmark;
+
+    }
 }

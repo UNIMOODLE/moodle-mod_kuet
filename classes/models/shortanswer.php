@@ -264,11 +264,11 @@ class shortanswer extends questions {
                 $participant->responsestr = get_string('noresponse', 'mod_jqshow');
                 break;
         }
-        $points = grade::get_simple_mark($response);
+        $points = '-';// It is not graded.
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
         $participant->userpoints = grade::get_rounded_mark($spoints);
-        $participant->score_moment = grade::get_rounded_mark($points);
+        $participant->score_moment = '-';
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;
     }
@@ -322,5 +322,14 @@ class shortanswer extends questions {
                 );
             }
         }
+    }
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer) {
+        //Not graded.
+        return 0;
     }
 }

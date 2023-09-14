@@ -65,6 +65,7 @@ class calculated extends questions {
     }
 
     /**
+     * PINTAR LA PREGUNTA
      * @param int $jqid
      * @param int $cmid
      * @param int $sessionid
@@ -90,6 +91,7 @@ class calculated extends questions {
         $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
+        //TODO: send correct answer and question text to front base_encode.
         self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
         $data->name = $question->name;
@@ -327,6 +329,7 @@ class calculated extends questions {
     }
 
     /**
+     * PINTA LA RESPUESTA
      * @param int $jqid
      * @param string $responsetext
      * @param string $unit
@@ -381,5 +384,20 @@ class calculated extends questions {
                 );
             }
         }
+    }
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
+
+        global $DB;
+        $mark = 0;
+        if ((int) $response->get('result') == 1) {
+            $mark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+        }
+
+        return $mark;
     }
 }

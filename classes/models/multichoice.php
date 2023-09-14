@@ -436,4 +436,25 @@ class multichoice extends questions {
         }
         return $result;
     }
+
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer) {
+        global $DB;
+        $mark = 0;
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+        $answerids = $useranswer->{'answerids'} ?? '';
+        if (empty($answerids)) {
+            return $mark;
+        }
+        $answerids = explode(',', $answerids);
+        foreach ($answerids as $answerid) {
+            $fraction = $DB->get_field('question_answers', 'fraction', ['id' => $answerid]);
+            $mark += $defaultmark * $fraction;
+        }
+        return $mark;
+    }
 }
