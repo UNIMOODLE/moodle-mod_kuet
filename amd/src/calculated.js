@@ -158,6 +158,7 @@ Calculated.prototype.reply = function() {
                 multiplier = contentUnit.find(':selected').data('multiplier');
             }
         }
+        //TODO: take questiontext and correct answers.
         let request = {
             methodname: SERVICES.REPLY,
             args: {
@@ -170,7 +171,7 @@ Calculated.prototype.reply = function() {
                 questionid: questionid,
                 jqid: jqid,
                 timeleft: timeLeft || 0,
-                preview: false
+                preview: false,
             }
         };
         // eslint-disable-next-line no-console
