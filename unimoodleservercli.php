@@ -96,7 +96,7 @@ class unimoodleservercli extends websockets {
                 'action' => 'userdisconnected',
                 'usersocketid' => $user->usersocketid,
                 'message' =>
-                    '<span style="color: red">' . get_string('userdisconnected', 'mod_jqshow', $user->dataname) . '</span>',
+                    '<span style="color: red">' . "User $user->dataname has been disconnected."  . '</span>',
                 'count' => isset($this->students[$user->sid]) ? count($this->students[$user->sid]) : 0
             ], JSON_THROW_ON_ERROR)));
         if (isset($this->sidusers[$user->sid])) {
@@ -111,14 +111,8 @@ class unimoodleservercli extends websockets {
                     $this->disconnect($socket->socket);
                     fclose($socket->socket);
                     unset($this->students[$user->sid], $this->sidusers[$user->sid]);
-                    // TODO control the end of manual sessions in another way.
-                    // jqshow_sessions::mark_session_finished((int)$user->sid);
                 }
             }
-        }
-        if ((count($this->sockets) === 0) || (count($this->users) === 0)) {
-            // TODO to decomment, for development we don't want to close the socket.
-            // die(); // No one is connected to the socket. It closes and will be reopened by the first teacher who logs in.
         }
     }
 
@@ -280,11 +274,6 @@ class unimoodleservercli extends websockets {
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'shutdownTest':
-                foreach ($this->sockets as $socket) {
-                    stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
-                    fclose($socket);
-                }
-                die();
             default:
                 return '';
         }
@@ -331,7 +320,7 @@ class unimoodleservercli extends websockets {
             $response = $this->mask(
                 encrypt($this->password, json_encode([
                         'action' => 'alreadyteacher',
-                        'message' => get_string('alreadyteacher', 'mod_jqshow')
+                        'message' => 'There is already a teacher imparting this session, so you cannot connect. Please wait for the current session to end before you can enter.'
                     ], JSON_THROW_ON_ERROR)
                 ));
             $usersocket = $this->get_socket_by_user($user);
@@ -430,7 +419,7 @@ abstract class websockets {
     public function __construct($addr, $bufferlength = 2048) {
         global $CFG;
         $this->addr = $addr;
-
+        $this->print_signature();
         if (PHP_SAPI !== 'cli') {
             throw new Exception('This application must be run on the command line.');
         }
@@ -458,8 +447,7 @@ This port must be open, and must be provided to the Moodle platforms to be conne
                         // Local_cert and local_pk must be in PEM format.
                         stream_context_set_option($context, 'ssl', 'local_cert', $certificate);
                         stream_context_set_option($context, 'ssl', 'local_pk', $privatekey);
-                        /* TODO add possibility of passphrase in certificates per setting.
-                        stream_context_set_option($context, 'ssl', 'passphrase', $passphrase) */
+                        // stream_context_set_option($context, 'ssl', 'passphrase', $passphrase)
                         stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
                         stream_context_set_option($context, 'ssl', 'verify_peer', false);
                         stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
@@ -478,23 +466,20 @@ This port must be open, and must be provided to the Moodle platforms to be conne
                         $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: $this->master\n");
                     } else {
                         print($port . ' It is not a valid private key. Rerun the script');
-                        print_signature();
+                        $this->print_signature();
                     }
                 } else {
                     print($port . ' It is not a valid certificate. Rerun the script');
-                    print_signature();
+                    $this->print_signature();
                 }
             } else {
                 print($port . ' port is not responding, or the fsockopen method could not check it.');
-                print_signature();
+                $this->print_signature();
             }
         } else {
             print($port . ' Not a valid port. Rerun the script');
-            print_signature();
+            $this->print_signature();
         }
-
-
-
     }
 
     /**
@@ -675,13 +660,6 @@ This port must be open, and must be provided to the Moodle platforms to be conne
                 $ip = stream_socket_get_name( $client, true );
                 $this->stdout("Connection attempt from $ip");
                 stream_set_blocking($client, true);
-                // TODO review stream_socket_enable_crypto.
-                /* if (!stream_socket_enable_crypto($client, true, STREAM_CRYPTO_METHOD_TLSv1_2_SERVER)) {
-                    $this->stderr('Error enabling TLS encryption on the connection.');
-                    fclose($client);
-                    continue;
-                }
-                $this->stderr('Enabled TLS encryption.');*/
                 $headers = fread($client, 1500);
                 $this->handshake($client, $headers);
                 stream_set_blocking($client, false);
@@ -937,10 +915,10 @@ This port must be open, and must be provided to the Moodle platforms to be conne
             $n = strlen($hexlength) - 2;
 
             for ($i = $n; $i >= 0; $i -= 2) {
-                $lengthfield = chr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
+                $lengthfield = unimoodleservercli . phpchr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
             }
             while (strlen($lengthfield) < 2) {
-                $lengthfield = chr(0) . $lengthfield;
+                $lengthfield = unimoodleservercli . phpchr(0) . $lengthfield;
             }
         } else {
             $b2 = 127;
@@ -951,14 +929,14 @@ This port must be open, and must be provided to the Moodle platforms to be conne
             $n = strlen($hexlength) - 2;
 
             for ($i = $n; $i >= 0; $i -= 2) {
-                $lengthfield = chr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
+                $lengthfield = unimoodleservercli . phpchr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
             }
             while (strlen($lengthfield) < 8) {
-                $lengthfield = chr(0) . $lengthfield;
+                $lengthfield = unimoodleservercli . phpchr(0) . $lengthfield;
             }
         }
 
-        return chr($b1) . chr($b2) . $lengthfield . $message;
+        return unimoodleservercli . phpchr($b1) . chr($b2) . $lengthfield . $message;
     }
 
     /**
@@ -979,7 +957,6 @@ This port must be open, and must be provided to the Moodle platforms to be conne
     }
 
     /**
-     * TODO Review logic of this method to take advantage of what can, and eliminate, no longer used.
      * @param $message
      * @param $user
      * @return false|int|mixed|string
@@ -995,7 +972,6 @@ This port must be open, and must be provided to the Moodle platforms to be conne
             case 2:
                 break;
             case 8:
-                // TODO: close the connection.
                 $user->hasSentClose = true;
                 return "";
             case 9:
@@ -1011,7 +987,6 @@ This port must be open, and must be provided to the Moodle platforms to be conne
         }
 
         if ($willclose) {
-            // TODO: fail the connection.
             return false;
         }
 
@@ -1167,6 +1142,88 @@ This port must be open, and must be provided to the Moodle platforms to be conne
         }
         echo ")\n";
     }
+}
+
+class websocketuser {
+
+    public $socket;
+    public $usersocketid;
+    public $ip;
+    public $headers = [];
+    public $dataname; // Moodle Username.
+    public $isteacher;
+    public $handshake = false;
+    public $cmid;
+    public $sid;
+    public $userid;
+
+    /**
+     * @param $id
+     * @param $socket
+     * @param $ip
+     */
+    public function __construct($id, $socket, $ip) {
+        $this->usersocketid = $id;
+        $this->socket = $socket;
+        $this->ip = $ip;
+        $this->handshake = true;
+    }
+
+    public function update_user($data) {
+        $this->cmid = $data['cmid'];
+        $this->sid = $data['sid'];
+    }
+}
+
+/**
+ * @param $password
+ * @param $text
+ * @return string|null
+ */
+function encrypt($password, $text) {
+    $base64 = base64_encode($text);
+    $arr = str_split($base64);
+    $arrpass = str_split($password);
+    $lastpassletter = 0;
+    $encrypted = '';
+    foreach ($arr as $value) {
+        $letter = $value;
+        $passwordletter = $arrpass[$lastpassletter];
+        $temp = get_letter_from_alphabet_for_letter($passwordletter, $letter);
+        if ($temp !== null) {
+            $encrypted .= $temp;
+        } else {
+            return null;
+        }
+        if ($lastpassletter === (count($arrpass) - 1)) {
+            $lastpassletter = 0;
+        } else {
+            $lastpassletter++;
+        }
+    }
+    return $encrypted;
+}
+
+/**
+ * @param $letter
+ * @param $lettertochange
+ * @return mixed|null
+ */
+function get_letter_from_alphabet_for_letter($letter, $lettertochange) {
+    $abc = 'abcdefghijklmnopqrstuvwxyz0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ/+-*';
+    $posletter = strpos($abc, $letter);
+    if ($posletter === false) {
+        return null;
+    }
+    $poslettertochange = strpos($abc, $lettertochange);
+    if ($poslettertochange === false) {
+        return null;
+    }
+    $part1 = substr($abc, $posletter, strlen($abc));
+    $part2 = substr($abc, 0, $posletter);
+    $newabc = $part1 . $part2;
+    $temp = str_split($newabc);
+    return $temp[$poslettertochange];
 }
 
 $server = new unimoodleservercli('0.0.0.0', 2048);
