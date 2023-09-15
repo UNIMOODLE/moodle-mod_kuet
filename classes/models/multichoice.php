@@ -392,19 +392,7 @@ class multichoice extends questions {
         $response->type = $qtype;
         $session = new jqshow_sessions($sessionid);
         if ($session->is_group_mode()) {
-            // All groupmembers has the same response saved on db.
-            $num = jqshow_questions_responses::count_records(
-                ['jqshow' => $jqshowid, 'session' => $sessionid, 'jqid' => $jqid, 'userid' => $userid]);
-            if ($num > 0) {
-                return;
-            }
-            // Groups.
-            $gmemberids = groupmode::get_grouping_group_members_by_userid($session->get('groupings'), $userid);
-            foreach ($gmemberids as $gmemberid) {
-                jqshow_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
-                );
-            }
+            parent::add_group_response($jqshowid, $session, $jqid, $userid, $result, $response);
         } else {
             // Individual.
             jqshow_questions_responses::add_response(
@@ -442,7 +430,7 @@ class multichoice extends questions {
      * @return float|int
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer) {
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);

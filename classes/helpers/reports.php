@@ -127,6 +127,10 @@ class reports {
 
         $data->noresponse = count($groupmembers) - ($data->success + $data->failures + $data->partyally);
         $data->time = self::get_time_string($session, $question);
+        $type = questions::get_question_class_by_string_type($question->get('qtype'));
+        if ($type::is_evaluable()) {
+            $data->isevaluable = true;
+        }
         $data->questionreporturl = (new moodle_url('/mod/jqshow/reports.php',
             ['cmid' => $cmid, 'sid' => $session->get('id'), 'jqid' => $question->get('id')]
         ))->out(false);
@@ -180,6 +184,10 @@ class reports {
         ]);
         $data->noresponse = count($users) - ($data->success + $data->failures + $data->partyally);
         $data->time = self::get_time_string($session, $question);
+        $type = questions::get_question_class_by_string_type($question->get('qtype'));
+        if ($type::is_evaluable()) {
+            $data->isevaluable = true;
+        }
         $data->questionreporturl = (new moodle_url('/mod/jqshow/reports.php',
             ['cmid' => $cmid, 'sid' => $session->get('id'), 'jqid' => $question->get('id')]
         ))->out(false);
@@ -486,32 +494,35 @@ class reports {
         );
         $data->questiontextformat = $questiondata->questiontextformat;
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
-        switch ($data->type) {
-            case questions::MULTICHOICE:
-                $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            case questions::MATCH:
-                $data = matchquestion::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            case questions::TRUE_FALSE:
-                $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            case questions::SHORTANSWER:
-                $data = shortanswer::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            case questions::NUMERICAL:
-                $data = numerical::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            case questions::CALCULATED:
-                $data = calculated::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            case questions::DESCRIPTION:
-                $data = description::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                    [], get_string('question_nosuitable', 'mod_jqshow'));
-        }
+        $type = questions::get_question_class_by_string_type($data->type);
+        $data = $type::get_question_report($session, $questiondata, $data, $jqid);
+
+//        switch ($data->type) {
+//            case questions::MULTICHOICE:
+//                $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::MATCH:
+//                $data = matchquestion::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::TRUE_FALSE:
+//                $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::SHORTANSWER:
+//                $data = shortanswer::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::NUMERICAL:
+//                $data = numerical::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::CALCULATED:
+//                $data = calculated::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::DESCRIPTION:
+//                $data = description::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            default:
+//                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+//                    [], get_string('question_nosuitable', 'mod_jqshow'));
+//        }
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $cmcontext = context_module::instance($cmid);
         $users = enrol_get_course_users($course->id, true);
@@ -583,25 +594,33 @@ class reports {
         );
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
 
-        switch ($data->type) {
-            case questions::MULTICHOICE:
-                $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            case questions::MATCH:
-                $data = matchquestion::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            case questions::TRUE_FALSE:
-                $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            case questions::SHORTANSWER:
-                $data = shortanswer::get_question_report($session, $questiondata, $data, $jqid);
-                break;
-            case questions::NUMERICAL:
-                // TODO.
-                break;
-            default:
-                break;
-        }
+        $type = questions::get_question_class_by_string_type($data->type);
+        $data = $type::get_question_report($session, $questiondata, $data, $jqid);
+//        switch ($data->type) {
+//            case questions::MULTICHOICE:
+//                $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::MATCH:
+//                $data = matchquestion::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::TRUE_FALSE:
+//                $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::SHORTANSWER:
+//                $data = shortanswer::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::NUMERICAL:
+//                $data = numerical::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::CALCULATED:
+//                $data = calculated::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            case questions::DESCRIPTION:
+//                $data = description::get_question_report($session, $questiondata, $data, $jqid);
+//                break;
+//            default:
+//                break;
+//        }
         $cmcontext = context_module::instance($cmid);
         $groups = groupmode::get_grouping_groups($session->get('groupings'));
         $data->numgroups = count($groups);
@@ -633,6 +652,10 @@ class reports {
         $data->percent_incorrect = round(($data->numincorrect / $data->numgroups) * 100, 2);
         $data->percent_partially = round(($data->numpartial / $data->numgroups) * 100, 2);
         $data->percent_noresponse = round(($data->numnoresponse / $data->numgroups) * 100, 2);
+        if (is_null($data->answers)) {
+            $data->hasnoanswers = true;
+            return $data;
+        }
         if ($session->get('anonymousanswer') === 1) {
             if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
                 $data->hasranking = true;
@@ -888,32 +911,35 @@ class reports {
                 $response = jqshow_questions_responses::get_record(['userid' => $userdata->id, 'session' => $sid, 'jqid' => $jqid]);
                 if ($response !== false) {
                     $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-                    switch ($other->type) {
-                        case questions::MULTICHOICE:
-                            $user = multichoice::get_ranking_for_question($user, $response, $answers, $session, $question);
-                            break;
-                        case questions::MATCH:
-                            $user = matchquestion::get_ranking_for_question($user, $response, $session, $question);
-                            break;
-                        case questions::TRUE_FALSE:
-                            $user = truefalse::get_ranking_for_question($user, $response, $answers, $session, $question);
-                            break;
-                        case questions::SHORTANSWER:
-                            $user = shortanswer::get_ranking_for_question($user, $response, $answers, $session, $question);
-                            break;
-                        case questions::NUMERICAL:
-                            $user = numerical::get_ranking_for_question($user, $response, $answers, $session, $question);
-                            break;
-                        case questions::CALCULATED:
-                            $user = calculated::get_ranking_for_question($user, $response, $answers, $session, $question);
-                            break;
-                        case questions::DESCRIPTION:
-                            $user = description::get_ranking_for_question($user, $response, $answers, $session, $question);
-                            break;
-                        default:
-                            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                                [], get_string('question_nosuitable', 'mod_jqshow'));
-                    }
+
+                    $type = questions::get_question_class_by_string_type($other->type);
+                    $user = $type::get_ranking_for_question($user, $response, $answers, $session, $question);
+//                    switch ($other->type) {
+//                        case questions::MULTICHOICE:
+//                            $user = multichoice::get_ranking_for_question($user, $response, $answers, $session, $question);
+//                            break;
+//                        case questions::MATCH:
+//                            $user = matchquestion::get_ranking_for_question($user, $response, $session, $question);
+//                            break;
+//                        case questions::TRUE_FALSE:
+//                            $user = truefalse::get_ranking_for_question($user, $response, $answers, $session, $question);
+//                            break;
+//                        case questions::SHORTANSWER:
+//                            $user = shortanswer::get_ranking_for_question($user, $response, $answers, $session, $question);
+//                            break;
+//                        case questions::NUMERICAL:
+//                            $user = numerical::get_ranking_for_question($user, $response, $answers, $session, $question);
+//                            break;
+//                        case questions::CALCULATED:
+//                            $user = calculated::get_ranking_for_question($user, $response, $answers, $session, $question);
+//                            break;
+//                        case questions::DESCRIPTION:
+//                            $user = description::get_ranking_for_question($user, $response, $answers, $session, $question);
+//                            break;
+//                        default:
+//                            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+//                                [], get_string('question_nosuitable', 'mod_jqshow'));
+//                    }
                 } else {
                     $questiontimestr = self::get_time_string($session, $question);
                     $user->response = 'noresponse';
@@ -925,6 +951,12 @@ class reports {
                 }
                 $results[] = $user;
             }
+        }
+        // Reorder by points.
+        usort($results, static fn($a, $b) => $b->userpoints <=> $a->userpoints);
+        $position = 0;
+        foreach ($results as $result) {
+            $result->userposition = ++$position;
         }
         return $results;
     }
@@ -944,20 +976,28 @@ class reports {
             $response = jqshow_questions_responses::get_record(['userid' => $gmember->id, 'session' => $sid, 'jqid' => $jqid]);
             if ($response !== false) {
                 $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-                switch ($other->type) {
-                    case questions::MULTICHOICE:
-                        $group = multichoice::get_ranking_for_question($group, $response, $answers, $session, $question);
-                        break;
-                    case questions::MATCH:
-                        // TODO.
-                        break;
-                    case questions::TRUE_FALSE:
-                        $group = truefalse::get_ranking_for_question($group, $response, $answers, $session, $question);
-                        break;
-                    default:
-                        throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                            [], get_string('question_nosuitable', 'mod_jqshow'));
-                }
+                $type = questions::get_question_class_by_string_type($other->type);
+                $group = $type::get_ranking_for_question($group, $response, $answers, $session, $question);
+//                switch ($other->type) {
+//                    case questions::MULTICHOICE:
+//                        $group = multichoice::get_ranking_for_question($group, $response, $answers, $session, $question);
+//                        break;
+//                    case questions::MATCH:
+//                        $group = matchquestion::get_ranking_for_question($group, $response, $session, $question);
+//                        break;
+//                    case questions::TRUE_FALSE:
+//                        $group = truefalse::get_ranking_for_question($group, $response, $answers, $session, $question);
+//                        break;
+//                    case questions::CALCULATED:
+//                        $group = calculated::get_ranking_for_question($group, $response, $answers, $session, $question);
+//                        break;
+//                    case questions::NUMERICAL:
+//                        $group = numerical::get_ranking_for_question($group, $response, $answers, $session, $question);
+//                        break;
+//                    default:
+//                        throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+//                            [], get_string('question_nosuitable', 'mod_jqshow'));
+//                }
             } else {
                 $questiontimestr = self::get_time_string($session, $question);
                 $group->response = 'noresponse';

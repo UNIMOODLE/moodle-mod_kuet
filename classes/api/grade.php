@@ -111,29 +111,8 @@ class grade {
         $useranswer = $response->get('response');
         if (!empty($useranswer)) {
             $useranswer = json_decode($useranswer);
-            switch($useranswer->{'type'}) {
-                case 'truefalse':
-                    $mark = truefalse::get_simple_mark($useranswer);
-                    break;
-                case 'multichoice':
-                    $mark = multichoice::get_simple_mark($useranswer);
-                    break;
-                case 'match':
-                    $mark = matchquestion::get_simple_mark($useranswer);
-                    break;
-                case 'calculated':
-                    $mark = calculated::get_simple_mark($useranswer, $response);
-                    break;
-                case 'numerical':
-                    $mark = numerical::get_simple_mark($useranswer, $response);
-                    break;
-                case 'description':
-                    $mark = description::get_simple_mark($useranswer);
-                    break;
-                case 'shortanswer':
-                    $mark = shortanswer::get_simple_mark($useranswer);
-                    break;
-            }
+            $type = questions::get_question_class_by_string_type($useranswer->{'type'});
+            $mark = $type::get_simple_mark($useranswer);
         }
 
         return $mark;
@@ -248,9 +227,6 @@ class grade {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
-            if ($usermark === 0) {
-                continue;
-            }
             $mark += $usermark;
         }
         return $mark;

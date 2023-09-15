@@ -130,6 +130,8 @@ class shortanswer_external extends external_api {
                 if ($overlap === true) {
                     if ($answer->fraction === '1.0000000') {
                         $result = questions::SUCCESS;
+                    } else if ($answer->fraction === '0.0000000' ) {
+                        $result = questions::FAILURE;
                     } else {
                         $result = questions::PARTIALLY;
                     }

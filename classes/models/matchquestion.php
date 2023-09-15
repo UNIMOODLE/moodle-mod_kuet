@@ -32,6 +32,7 @@ use dml_exception;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\api\grade;
+use mod_jqshow\api\groupmode;
 use mod_jqshow\external\match_external;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\persistents\jqshow_questions;
@@ -193,16 +194,18 @@ class matchquestion extends questions {
     /**
      * @param stdClass $participant
      * @param jqshow_questions_responses $response
+     * @param array $answers
      * @param jqshow_sessions $session
      * @param jqshow_questions $question
      * @return stdClass
      * @throws JsonException
-     * @throws dml_exception
      * @throws coding_exception
+     * @throws dml_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,
         jqshow_questions_responses $response,
+        array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
         $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
@@ -226,6 +229,9 @@ class matchquestion extends questions {
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
         $participant->userpoints = grade::get_rounded_mark($spoints);
+        if ($session->is_group_mode()) {
+            $participant->grouppoints = grade::get_rounded_mark($spoints);
+        }
         $participant->score_moment = grade::get_rounded_mark($points);
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;
@@ -265,16 +271,16 @@ class matchquestion extends questions {
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
             $session = new jqshow_sessions($sessionid);
+            $response = new stdClass();
+            $response->questionid = $questionid;
+            $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
+            $response->timeleft = $timeleft;
+            $response->type = questions::MATCH;
+            $response->response = json_decode($jsonresponse);
             if ($session->is_group_mode()) {
-                // TODO.
+                parent::add_group_response($jqshowid, $session, $jqid, $userid, $result, $response);
             } else {
                 // Individual.
-                $response = new stdClass();
-                $response->questionid = $questionid;
-                $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
-                $response->timeleft = $timeleft;
-                $response->type = questions::MATCH;
-                $response->response = json_decode($jsonresponse);
                 jqshow_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
@@ -290,10 +296,9 @@ class matchquestion extends questions {
 
         global $DB;
         $mark = 0;
-        if ((int) $response->get('result') == 1) {
+        if ((int) $response->get('result') === 1) {
             $mark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
         }
-
         return $mark;
     }
 }

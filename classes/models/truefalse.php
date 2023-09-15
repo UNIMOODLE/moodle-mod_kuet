@@ -413,7 +413,7 @@ class truefalse extends questions {
      * @return float|int
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer) {
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);

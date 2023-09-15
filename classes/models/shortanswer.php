@@ -264,11 +264,11 @@ class shortanswer extends questions {
                 $participant->responsestr = get_string('noresponse', 'mod_jqshow');
                 break;
         }
-        $points = '-';// It is not graded.
+        $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
         $participant->userpoints = grade::get_rounded_mark($spoints);
-        $participant->score_moment = '-';
+        $participant->score_moment = grade::get_rounded_mark($points);
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;
     }
@@ -307,16 +307,16 @@ class shortanswer extends questions {
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
             $session = new jqshow_sessions($sessionid);
+            $response = new stdClass();
+            $response->questionid = $questionid;
+            $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
+            $response->timeleft = $timeleft;
+            $response->type = questions::SHORTANSWER;
+            $response->response = $responsetext; // TODO validate html and special characters.
             if ($session->is_group_mode()) {
-                // TODO.
+                parent::add_group_response($jqshowid, $session, $jqid, $userid, $result, $response);
             } else {
                 // Individual.
-                $response = new stdClass();
-                $response->questionid = $questionid;
-                $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
-                $response->timeleft = $timeleft;
-                $response->type = questions::SHORTANSWER;
-                $response->response = $responsetext; // TODO validate html and special characters.
                 jqshow_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
@@ -328,8 +328,13 @@ class shortanswer extends questions {
      * @return float|int
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer) {
-        //Not graded.
-        return 0;
+    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
+        global $DB;
+        $mark = 0;
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+        if ((int)$response->get('result') == 1) {
+            return $defaultmark;
+        }
+        return $mark;
     }
 }
