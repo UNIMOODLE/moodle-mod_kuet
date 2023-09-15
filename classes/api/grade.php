@@ -112,7 +112,7 @@ class grade {
         if (!empty($useranswer)) {
             $useranswer = json_decode($useranswer);
             $type = questions::get_question_class_by_string_type($useranswer->{'type'});
-            $mark = $type::get_simple_mark($useranswer);
+            $mark = $type::get_simple_mark($useranswer, $response);
         }
 
         return $mark;
@@ -150,13 +150,14 @@ class grade {
         return $mark;
     }
 
+
     /**
      * @param jqshow_questions_responses[] $responses
      * @return float|int
      * @throws coding_exception
      * @throws dml_exception
      */
-    private static function get_session_podium_manual_grade(array $responses) {
+    private static function get_session_podium_manual_grade(array $responses, jqshow_sessions $session) {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
@@ -164,15 +165,16 @@ class grade {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
-            $qtime = $jqquestion->get('timelimit'); // All the time that participants have had to answer the question.
+            // All the time that participants have had to answer the question.
+            $qtime = questions::get_question_time($jqquestion, $session);
             $useranswer = $response->get('response');
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
                 $useranswer = json_decode($useranswer);
                 $timeleft = $useranswer->timeleft; // Time answering question.
                 $percent = 0; // UNIMOOD-150.
-                if ($qtime > $timeleft) {
-                    $percent = ($qtime - $timeleft) * 100 / $qtime;
+                if ($timeleft) {
+                    $percent = $timeleft * 100 / $qtime;
                 }
             }
             $mark += $usermark * $percent;
@@ -188,15 +190,6 @@ class grade {
      * @throws dml_exception
      */
     private static function get_session_podium_programmed_grade(array $responses, jqshow_sessions $session) {
-        $qtime = 0;
-        if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
-            $total = $session->get('sessiontime');
-            $numq = jqshow_questions::count_records(['sessionid' => $session->get('id'),
-                'jqshowid' => $session->get('jqshowid')]);
-            $qtime = $total / $numq;
-        } else if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
-            $qtime = $session->get('questiontime');
-        }
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
@@ -204,13 +197,13 @@ class grade {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
-            $qtime = !$qtime ? $jqquestion->get('timelimit') : 40;
+            $qtime = questions::get_question_time($jqquestion, $session);
             $useranswer = $response->get('response');
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
                 $useranswer = json_decode($useranswer);
                 $timeleft = $useranswer->timeleft; // Time answering question.
-                $percent = ($qtime - $timeleft) * 100 / $qtime;
+                $percent = $timeleft * 100 / $qtime;
             }
             $mark += $usermark * $percent;
         }
