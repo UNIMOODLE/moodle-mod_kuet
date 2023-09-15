@@ -424,40 +424,105 @@ abstract class websockets {
 
     /**
      * @param $addr
-     * @param $port
-     * @param $certificate
-     * @param $privatekey
      * @param int $bufferlength
+     * @throws Exception
      */
-    public function __construct($addr, $port, $certificate, $privatekey, $bufferlength = 2048) {
+    public function __construct($addr, $bufferlength = 2048) {
         global $CFG;
         $this->addr = $addr;
-        $this->port = $port;
-        $this->maxbuffersize = $bufferlength;
-        // Certificate data.
-        $context = stream_context_create();
-        // Local_cert and local_pk must be in PEM format.
-        stream_context_set_option($context, 'ssl', 'local_cert', $certificate);
-        stream_context_set_option($context, 'ssl', 'local_pk', $privatekey);
-        /* TODO add possibility of passphrase in certificates per setting.
-        stream_context_set_option($context, 'ssl', 'passphrase', $passphrase) */
-        stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
-        stream_context_set_option($context, 'ssl', 'verify_peer', false);
-        stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
 
-        // Create the server socket.
-        $this->master = stream_socket_server(
-            "ssl://$addr:$port",
-            $errno,
-            $errstr,
-            STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
-            $context);
-        if ($this->master === false || $errno > 0) {
-            throw new UnexpectedValueException("Main socket error ($errno): $errstr");
+        if (PHP_SAPI !== 'cli') {
+            throw new Exception('This application must be run on the command line.');
         }
 
-        $this->sockets['m'] = $this->master;
-        $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: $this->master\n");
+        $port = readline("Enter the port number for external connections.\r
+This port must be open, and must be provided to the Moodle platforms to be connected: ");
+        if (is_numeric($port)) {
+            //$connection = @fsockopen('localhost', (int)$port);
+            if ($port !== '') {
+                $certificate = readline("Enter the path where the server certificate is located.\r\n
+            The file must have .crt or .pem extension file of a valid SSL certificate for the server.\r\n
+            This file may already be generated on the same server as this script:");
+                if (@file_exists($certificate) &&
+                    (pathinfo($certificate)['extension'] === 'crt' || pathinfo($certificate)['extension'] === 'pem')) {
+                    $privatekey = readline("Enter the path where the Private Key file is located.\r\n
+            The file must have .key or .pem extension file of a valid SSL Private Key for the server.\r\n
+            This file may already be generated on the same server as this script:");
+                    if (@file_exists($privatekey) &&
+                        (pathinfo($privatekey)['extension'] === 'crt' || pathinfo($privatekey)['extension'] === 'pem')) {
+
+                        $this->port = (int)$port;
+                        $this->maxbuffersize = $bufferlength;
+                        // Certificate data.
+                        $context = stream_context_create();
+                        // Local_cert and local_pk must be in PEM format.
+                        stream_context_set_option($context, 'ssl', 'local_cert', $certificate);
+                        stream_context_set_option($context, 'ssl', 'local_pk', $privatekey);
+                        /* TODO add possibility of passphrase in certificates per setting.
+                        stream_context_set_option($context, 'ssl', 'passphrase', $passphrase) */
+                        stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
+                        stream_context_set_option($context, 'ssl', 'verify_peer', false);
+                        stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
+
+                        // Create the server socket.
+                        $this->master = stream_socket_server(
+                            "ssl://$addr:$port",
+                            $errno,
+                            $errstr,
+                            STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
+                            $context);
+                        if ($this->master === false || $errno > 0) {
+                            throw new UnexpectedValueException("Main socket error ($errno): $errstr");
+                        }
+                        $this->sockets['m'] = $this->master;
+                        $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: $this->master\n");
+                    } else {
+                        print($port . ' It is not a valid private key. Rerun the script');
+                        print_signature();
+                    }
+                } else {
+                    print($port . ' It is not a valid certificate. Rerun the script');
+                    print_signature();
+                }
+            } else {
+                print($port . ' port is not responding, or the fsockopen method could not check it.');
+                print_signature();
+            }
+        } else {
+            print($port . ' Not a valid port. Rerun the script');
+            print_signature();
+        }
+
+
+
+    }
+
+    /**
+     * @return void
+     */
+    public function print_signature() {
+        $file = 'https://tresipunt.com/wp-content/uploads/2020/04/logo3ipunt.png';
+        $img = imagecreatefromstring(file_get_contents($file));
+        [$width, $height] = getimagesize($file);
+        $scale = 10;
+        $chars = array(
+            ' ', '\'', '.', ':',
+            '|', 'T',  'X', '0',
+            '#',
+        );
+        $chars = array_reverse($chars);
+        $ccount = count($chars);
+        for ($y = 0; $y <= $height - $scale - 1; $y += $scale) {
+            for ($x = 0; $x <= $width - ($scale / 2) - 1; $x += ($scale / 2)) {
+                $rgb = imagecolorat($img, $x, $y);
+                $r = (($rgb >> 16) & 0xFF);
+                $g = (($rgb >> 8) & 0xFF);
+                $b = ($rgb & 0xFF);
+                $sat = ($r + $g + $b) / (255 * 3);
+                echo $chars[ (int)( $sat * ($ccount - 1) ) ];
+            }
+            echo PHP_EOL;
+        }
     }
 
     /**
@@ -1104,74 +1169,10 @@ abstract class websockets {
     }
 }
 
-function print_signature() {
-    $file = 'https://tresipunt.com/wp-content/uploads/2020/04/logo3ipunt.png';
-    $img = imagecreatefromstring(file_get_contents($file));
-    [$width, $height] = getimagesize($file);
-    $scale = 10;
-    $chars = array(
-        ' ', '\'', '.', ':',
-        '|', 'T',  'X', '0',
-        '#',
-    );
-    $chars = array_reverse($chars);
-    $ccount = count($chars);
-    for ($y = 0; $y <= $height - $scale - 1; $y += $scale) {
-        for ($x = 0; $x <= $width - ($scale / 2) - 1; $x += ($scale / 2)) {
-            $rgb = imagecolorat($img, $x, $y);
-            $r = (($rgb >> 16) & 0xFF);
-            $g = (($rgb >> 8) & 0xFF);
-            $b = ($rgb & 0xFF);
-            $sat = ($r + $g + $b) / (255 * 3);
-            echo $chars[ (int)( $sat * ($ccount - 1) ) ];
-        }
-        echo PHP_EOL;
-    }
+$server = new unimoodleservercli('0.0.0.0', 2048);
+try {
+    $server->run();
+} catch (Exception $e) {
+    $server->stdout($e->getMessage());
+    throw $e;
 }
-
-if (PHP_SAPI !== 'cli') {
-    throw new Exception('This application must be run on the command line.');
-}
-
-print_signature();
-
-$port = readline("Enter the port number for external connections.\r
-This port must be open, and must be provided to the Moodle platforms to be connected: ");
-if (is_numeric($port)) {
-    $connection = @fsockopen('localhost', (int)$port);
-    if (is_resource($connection)) {
-        $certificate = readline("Enter the path where the server certificate is located.\r\n
-            The file must have .crt or .pem extension file of a valid SSL certificate for the server.\r\n
-            This file may already be generated on the same server as this script:");
-        if (@file_exists($certificate) &&
-            (pathinfo($certificate)['extension'] === 'crt' || pathinfo($certificate)['extension'] === 'pem')) {
-            $privatekey = readline("Enter the path where the Private Key file is located.\r\n
-            The file must have .key or .pem extension file of a valid SSL Private Key for the server.\r\n
-            This file may already be generated on the same server as this script:");
-            if (@file_exists($privatekey) &&
-                (pathinfo($privatekey)['extension'] === 'crt' || pathinfo($privatekey)['extension'] === 'pem')) {
-                $server = new unimoodleservercli('0.0.0.0', $port, $certificate, $privatekey, 2048);
-                try {
-                    $server->run();
-                } catch (Exception $e) {
-                    $server->stdout($e->getMessage());
-                    throw $e;
-                }
-            } else {
-                print($port . ' It is not a valid private key. Rerun the script');
-                print_signature();
-            }
-        } else {
-            print($port . ' It is not a valid certificate. Rerun the script');
-            print_signature();
-        }
-    } else {
-        print($port . ' port is not responding, or the fsockopen method could not check it.');
-        print_signature();
-    }
-} else {
-    print($port . ' Not a valid port. Rerun the script');
-    print_signature();
-}
-
-exit();
