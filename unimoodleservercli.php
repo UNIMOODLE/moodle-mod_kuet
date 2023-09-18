@@ -1,5 +1,14 @@
 <?php
 
+/**
+ *
+ * @package     mod_jqshow
+ * @author      3&Punt <tresipunt.com>
+ * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
+ * @copyright   3iPunt <https://www.tresipunt.com/>
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 declare(strict_types=1);
 
 class unimoodleservercli extends websockets {
@@ -69,7 +78,6 @@ class unimoodleservercli extends websockets {
         // Add the user to the list of all users on the socket.
         $this->users[$user->usersocketid] = $user;
         $this->sockets[$user->usersocketid] = $socket;
-
         $response = $this->mask(
             encrypt($this->password, json_encode([
                 'action' => 'connect',
@@ -78,7 +86,6 @@ class unimoodleservercli extends websockets {
         );
         // We return the usersocketid only to the new user so that responds by identifying with newuser.
         fwrite($user->socket, $response, strlen($response));
-
         $this->connecting($user);
     }
 
@@ -295,6 +302,7 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * @param websocketuser $user
      * @param array $data
      * @return void
      */
@@ -307,12 +315,12 @@ class unimoodleservercli extends websockets {
         $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
         $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->userid = $data['userid'];
     }
+
     /**
      * @param websocketuser $user
      * @param array $data
      * @return string
      * @throws JsonException
-     * @throws coding_exception
      */
     private function manage_newteacher_for_sid(websocketuser $user, array $data): string {
         if (isset($this->teacher[$data['sid']]) && count($this->teacher[$data['sid']]) === 1) {
@@ -424,22 +432,27 @@ abstract class websockets {
             throw new Exception('This application must be run on the command line.');
         }
 
-        $port = readline("Enter the port number for external connections.\r
-This port must be open, and must be provided to the Moodle platforms to be connected: ");
+        echo "\033[34m". "Enter the port number for external connections." . PHP_EOL .
+            "This port must be open, and must be provided to the Moodle platforms to be connected: " . "\033[0m" . PHP_EOL;
+        $port = readline("");
         if (is_numeric($port)) {
-            //$connection = @fsockopen('localhost', (int)$port);
+            // $connection = @fsockopen('localhost', (int)$port); TODO system to check ports.
             if ($port !== '') {
-                $certificate = readline("Enter the path where the server certificate is located.\r\n
-            The file must have .crt or .pem extension file of a valid SSL certificate for the server.\r\n
-            This file may already be generated on the same server as this script:");
+                readline_add_history($port);
+                echo "\033[35m". PHP_EOL . "Enter the path where the server certificate is located." . PHP_EOL .
+                    "The file must have .crt or .pem extension file of a valid SSL certificate for the server." . PHP_EOL .
+                    "This file may already be generated on the same server as this script:" . "\033[0m" . PHP_EOL;
+                $certificate = readline("");
                 if (@file_exists($certificate) &&
                     (pathinfo($certificate)['extension'] === 'crt' || pathinfo($certificate)['extension'] === 'pem')) {
-                    $privatekey = readline("Enter the path where the Private Key file is located.\r\n
-            The file must have .key or .pem extension file of a valid SSL Private Key for the server.\r\n
-            This file may already be generated on the same server as this script:");
+                    readline_add_history($certificate);
+                    echo "\033[33m". PHP_EOL . "Enter the path where the Private Key file is located." . PHP_EOL .
+                        "The file must have .key or .pem extension file of a valid SSL Private Key for the server." . PHP_EOL .
+                        "This file may already be generated on the same server as this script:" . "\033[0m" . PHP_EOL;
+                    $privatekey = readline( "");
                     if (@file_exists($privatekey) &&
                         (pathinfo($privatekey)['extension'] === 'crt' || pathinfo($privatekey)['extension'] === 'pem')) {
-
+                        readline_add_history($privatekey);
                         $this->port = (int)$port;
                         $this->maxbuffersize = $bufferlength;
                         // Certificate data.
@@ -447,7 +460,6 @@ This port must be open, and must be provided to the Moodle platforms to be conne
                         // Local_cert and local_pk must be in PEM format.
                         stream_context_set_option($context, 'ssl', 'local_cert', $certificate);
                         stream_context_set_option($context, 'ssl', 'local_pk', $privatekey);
-                        // stream_context_set_option($context, 'ssl', 'passphrase', $passphrase)
                         stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
                         stream_context_set_option($context, 'ssl', 'verify_peer', false);
                         stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
@@ -463,22 +475,26 @@ This port must be open, and must be provided to the Moodle platforms to be conne
                             throw new UnexpectedValueException("Main socket error ($errno): $errstr");
                         }
                         $this->sockets['m'] = $this->master;
-                        $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: $this->master\n");
+                        $this->stdout(PHP_EOL . "\033[37m" .
+                            "Server started" . PHP_EOL . "Listening on: $addr:$port " . PHP_EOL . "Master socket: $this->master" .
+                            "\033[0m");
                     } else {
-                        print($port . ' It is not a valid private key. Rerun the script');
-                        $this->print_signature();
+                        echo "\033[31m" . $privatekey . ' It is not a valid private key. Rerun the script' . "\033[0m" . PHP_EOL;
+                        exit();
                     }
                 } else {
-                    print($port . ' It is not a valid certificate. Rerun the script');
-                    $this->print_signature();
+                    echo "\033[31m" . $certificate . ' It is not a valid certificate. Rerun the script' . "\033[0m" . PHP_EOL;
+                    exit();
                 }
             } else {
-                print($port . ' port is not responding, or the fsockopen method could not check it.');
-                $this->print_signature();
+                echo "\033[31m" . $port .
+                    ' port is not responding, or the fsockopen method could not check it.' .
+                    "\033[0m" . PHP_EOL;
+                exit();
             }
         } else {
-            print($port . ' Not a valid port. Rerun the script');
-            $this->print_signature();
+            echo "\033[31m" . $port . ' Not a valid port. Rerun the script' . "\033[0m" . PHP_EOL;
+            exit();
         }
     }
 
@@ -504,7 +520,7 @@ This port must be open, and must be provided to the Moodle platforms to be conne
                 $g = (($rgb >> 8) & 0xFF);
                 $b = ($rgb & 0xFF);
                 $sat = ($r + $g + $b) / (255 * 3);
-                echo $chars[ (int)( $sat * ($ccount - 1) ) ];
+                echo "\033[31m". $chars[ (int)( $sat * ($ccount - 1) ) ] . "\033[0m";
             }
             echo PHP_EOL;
         }
@@ -653,12 +669,12 @@ This port must be open, and must be provided to the Moodle platforms to be conne
             $this->tick();
             stream_select($read, $write, $except, 10);
             if (in_array($this->master, $read, true)) {
-                $client = stream_socket_accept($this->master, 20);
+                $client = @stream_socket_accept($this->master, 20);
                 if (!$client) {
                     continue;
                 }
                 $ip = stream_socket_get_name( $client, true );
-                $this->stdout("Connection attempt from $ip");
+                $this->stdout("\033[34m" . "Connection attempt from $ip" . "\033[0m");
                 stream_set_blocking($client, true);
                 $headers = fread($client, 1500);
                 $this->handshake($client, $headers);
@@ -667,15 +683,15 @@ This port must be open, and must be provided to the Moodle platforms to be conne
                 $foundsocket = array_search($this->master, $read, true);
                 unset($read[$foundsocket]);
 
-                $this->stdout("Handshake $ip");
+                $this->stdout("\033[33m" . "Handshake $ip" . "\033[0m");
 
                 if ($client < 0) {
-                    $this->stderr("Failed: socket_accept()");
+                    $this->stdout("\033[31m" . "Failed: socket_accept()" . "\033[0m");
                     continue;
                 }
 
                 $this->connect($client, $ip);
-                $this->stdout("Client connected. $client\n");
+                $this->stdout("\033[32m" . "Client connected. $client" . "\033[0m");
             }
 
             foreach ($read as $socket) {
@@ -685,7 +701,7 @@ This port must be open, and must be provided to the Moodle platforms to be conne
                 if ($buffer === false || strlen($buffer) <= 8) {
                     if ($this->unmask($buffer) !== '') { // Necessary to stabilise connections, review.
                         $this->disconnect($socket);
-                        $this->stdout("Client disconnected. TCP connection lost: " . $socket);
+                        $this->stdout("\033[1;30m" . "Client disconnected. TCP connection lost: " . $socket . "\033[0m");
                         @fclose($socket);
                         $foundsocket = array_search($socket, $this->sockets, true);
                         unset($this->sockets[$foundsocket]);
@@ -725,10 +741,10 @@ This port must be open, and must be provided to the Moodle platforms to be conne
                 unset($this->sockets[$disconnecteduser->usersocketid]);
             }
             if (!is_null($sockerrno)) {
-                $this->stdout($sockerrno);
+                $this->stdout("\033[31m" . $sockerrno . "\033[0m");
             }
             if ($triggerclosed) {
-                $this->stdout("Client disconnected. ".$disconnecteduser->socket);
+                $this->stdout("\033[1;30m" . "Client disconnected. ".$disconnecteduser->socket . "\033[0m");
                 $this->closed($disconnecteduser);
                 stream_socket_shutdown($disconnecteduser->socket, STREAM_SHUT_RDWR);
             } else {
@@ -853,7 +869,7 @@ This port must be open, and must be provided to the Moodle platforms to be conne
      */
     public function stdout($message) {
         if ($this->interactive) {
-            echo "$message\n";
+            echo "$message" . " - " . "\033[1;30m" . date("D d M Y H:i:s") . "\033[0m" . PHP_EOL;
         }
     }
 
@@ -863,7 +879,7 @@ This port must be open, and must be provided to the Moodle platforms to be conne
      */
     public function stderr($message) {
         if ($this->interactive) {
-            debugging("$message\n");
+            echo "$message" . " - " . "\033[1;30m" . date("D d M Y H:i:s") . "\033[0m" . PHP_EOL;
         }
     }
 
@@ -937,80 +953,6 @@ This port must be open, and must be provided to the Moodle platforms to be conne
         }
 
         return unimoodleservercli . phpchr($b1) . chr($b2) . $lengthfield . $message;
-    }
-
-    /**
-     * @param $headers
-     * @return int
-     */
-    protected function calc_offset($headers) {
-        $offset = 2;
-        if ($headers['hasmask']) {
-            $offset += 4;
-        }
-        if ($headers['length'] > 65535) {
-            $offset += 8;
-        } else if ($headers['length'] > 125) {
-            $offset += 2;
-        }
-        return $offset;
-    }
-
-    /**
-     * @param $message
-     * @param $user
-     * @return false|int|mixed|string
-     */
-    protected function deframe($message, $user) {
-        $headers = $this->extract_headers($message);
-        $pongreply = false;
-        $willclose = false;
-        switch($headers['opcode']) {
-            case 0:
-            case 1:
-            case 10:
-            case 2:
-                break;
-            case 8:
-                $user->hasSentClose = true;
-                return "";
-            case 9:
-                $pongreply = true;
-                break;
-            default:
-                $willclose = true;
-                break;
-        }
-
-        if ($this->check_rsv_bits($headers, $user)) {
-            return false;
-        }
-
-        if ($willclose) {
-            return false;
-        }
-
-        $payload = $user->partialMessage . $this->extract_payload($message, $headers);
-
-        if ($pongreply) {
-            $reply = $this->frame($payload, $user, 'pong');
-            stream_socket_sendto($user->socket, $reply);
-            return false;
-        }
-        if ($headers['length'] > strlen($this->apply_mask($headers, $payload))) {
-            $user->handlingPartialPacket = true;
-            $user->partialBuffer = $message;
-            return false;
-        }
-
-        $payload = $this->apply_mask($headers, $payload);
-
-        if ($headers['fin']) {
-            $user->partialMessage = "";
-            return $payload;
-        }
-        $user->partialMessage = $payload;
-        return false;
     }
 
     /**
@@ -1230,6 +1172,6 @@ $server = new unimoodleservercli('0.0.0.0', 2048);
 try {
     $server->run();
 } catch (Exception $e) {
-    $server->stdout($e->getMessage());
+    $server->stdout("\033[31m" . $e->getMessage() . "\033[0m");
     throw $e;
 }
