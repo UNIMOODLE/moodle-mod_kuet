@@ -312,13 +312,12 @@ class shortanswer extends questions {
             } else {
                 // Individual.
                 $response = new stdClass();
-                $response->questionid = $questionid;
                 $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
                 $response->timeleft = $timeleft;
                 $response->type = questions::SHORTANSWER;
                 $response->response = $responsetext; // TODO validate html and special characters.
                 jqshow_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }

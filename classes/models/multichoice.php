@@ -384,7 +384,6 @@ class multichoice extends questions {
     ) : void {
         $result = self::get_status_response($answerids, $correctanswers, $questionid);
         $response = new stdClass(); // For snapshot.
-        $response->questionid = $questionid;
         $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
         $response->correct_answers = $correctanswers;
         $response->answerids = $answerids;
@@ -402,13 +401,13 @@ class multichoice extends questions {
             $gmemberids = groupmode::get_grouping_group_members_by_userid($session->get('groupings'), $userid);
             foreach ($gmemberids as $gmemberid) {
                 jqshow_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $jqshowid, $sessionid, $jqid, $questionid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         } else {
             // Individual.
             jqshow_questions_responses::add_response(
-                $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
     }

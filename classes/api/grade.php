@@ -106,7 +106,7 @@ class grade {
         $useranswer = $response->get('response');
         if (!empty($useranswer)) {
             $useranswer = json_decode($useranswer);
-            $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+            $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->{'questionid'}]);
             $answerids = $useranswer->{'answerids'} ?? '';
             if (empty($answerids)) {
                 return $mark;

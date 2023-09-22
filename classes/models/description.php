@@ -216,13 +216,12 @@ class description extends questions {
             } else {
                 // Individual.
                 $response = new stdClass();
-                $response->questionid = $questionid;
                 $response->hasfeedbacks = (bool)($statmentfeedback !== '');
                 $response->timeleft = $timeleft;
                 $response->type = questions::DESCRIPTION;
                 $response->response = '';
                 jqshow_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
