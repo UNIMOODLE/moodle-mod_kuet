@@ -135,6 +135,7 @@
         <FIELD NAME="jqshow" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow.id."/>
         <FIELD NAME="session" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow_sessions.id."/>
         <FIELD NAME="jqid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow_questions.id."/>
+        <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references question.id."/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references user.id."/>
         <FIELD NAME="anonymise" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 not anonymise, 1 Anonymise student response"/>
         <FIELD NAME="result" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="The status of the answer: 0 error, 1 success, 2 not answered, 3 not evaluable, 4 invalid"/>
@@ -147,13 +148,15 @@
         <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshow" REFTABLE="jqshow" REFFIELDS="id"/>
         <KEY NAME="session" TYPE="foreign" FIELDS="session" REFTABLE="jqshow_sessions" REFFIELDS="id"/>
         <KEY NAME="jqid" TYPE="foreign" FIELDS="jqid" REFTABLE="jqshow_questions" REFFIELDS="id"/>
+        <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
         <KEY NAME="user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshow"/>
         <INDEX NAME="session" UNIQUE="false" FIELDS="session"/>
-        <INDEX NAME="jquid" UNIQUE="false" FIELDS="jqid"/>
+        <INDEX NAME="jqid" UNIQUE="false" FIELDS="jqid"/>
+        <INDEX NAME="questionid" UNIQUE="false" FIELDS="questionid"/>
         <INDEX NAME="questionresponses" UNIQUE="true" FIELDS="userid, session, jqid"/>
         <INDEX NAME="userresponsesinsession" UNIQUE="false" FIELDS="userid, session"/>
       </INDEXES>
