@@ -217,6 +217,7 @@ class student_session_view implements renderable, templatable {
             case sessions::INACTIVE_MANUAL:
             case sessions::PODIUM_MANUAL:
             case sessions::RACE_MANUAL:
+                global $CFG;
                 // SOCKETS!
                 // Always start with waitingroom, and the socket will place you in the appropriate question if it has started.
                 $data = new stdClass();
@@ -230,7 +231,15 @@ class student_session_view implements renderable, templatable {
                 $data->waitingroom = true;
                 $data->config = sessions::get_session_config($data->sid, $data->cmid);
                 $data->sessionname = $data->config[0]['configvalue'];
-                $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+                $typesocket = get_config('jqshow', 'sockettype');
+                if ($typesocket === 'local') {
+                    $data->socketurl = $CFG->wwwroot;
+                    $data->port = get_config('jqshow', 'localport') !== false ? get_config('jqshow', 'localport') : '8080';
+                }
+                if ($typesocket === 'external') {
+                    $data->socketurl = get_config('jqshow', 'externalurl');
+                    $data->port = get_config('jqshow', 'externalport') !== false ? get_config('jqshow', 'externalport') : '8080';
+                }
                 if ($session->is_group_mode()) {
                     $data->isgroupmode = true;
                     $group = groupmode::get_user_group($data->userid, $session->get('groupings'));

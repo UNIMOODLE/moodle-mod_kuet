@@ -1,15 +1,18 @@
 define(['jquery', 'core/str', 'core/notification'], function($, str, notification) {
     "use strict";
 
+    let socketUrl = '';
     let portUrl = '8080';
 
     /**
      * @constructor
      * @param {String} region
+     * @param {String} socketurl
      * @param {String} port
      */
-    function TestSockets(region, port) {
+    function TestSockets(region, socketurl, port) {
         this.root = $(region);
+        socketUrl = socketurl;
         portUrl = port;
         this.initTestSockets();
     }
@@ -23,7 +26,7 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
         messageBox = this.root.find('#testresult');
 
         TestSockets.prototype.webSocket = new WebSocket(
-            'wss://' + M.cfg.wwwroot.replace(/^https?:\/\//, '') + ':' + portUrl + '/testjqshow'
+            'wss://' + socketUrl.replace(/^https?:\/\//, '') + ':' + portUrl + '/testjqshow'
         );
 
         TestSockets.prototype.webSocket.onopen = function() {
@@ -31,14 +34,12 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
                 {key: 'validcertificates', component: 'mod_jqshow'}
             ]).done(function(strings) {
                 messageBox.append('<div class="alert alert-success" role="alert">' + strings[0] + '</div>');
-                let msg = {
-                    'action': 'shutdownTest',
-                };
-                TestSockets.prototype.sendMessageSocket(JSON.stringify(msg));
             }).fail(notification.exception);
         };
 
-        TestSockets.prototype.webSocket.onerror = function() {
+        TestSockets.prototype.webSocket.onerror = function(event) {
+            // eslint-disable-next-line no-console
+            console.error(event);
             str.get_strings([
                 {key: 'invalidcertificates', component: 'mod_jqshow'}
             ]).done(function(strings) {
@@ -62,11 +63,12 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
     return {
         /**
          * @param {String} region
+         * @param {String} socketurl
          * @param {String} port
          * @return {TestSockets}
          */
-        initTestSockets: function(region, port) {
-            return new TestSockets(region, port);
+        initTestSockets: function(region, socketurl, port) {
+            return new TestSockets(region, socketurl, port);
         },
     };
 });

@@ -91,6 +91,10 @@ class commondata_exporter extends question_exporter {
                 'type' => PARAM_RAW,
                 'optional' => true
             ],
+            'socketurl' => [
+                'type' => PARAM_URL,
+                'optional' => true
+            ],
             'showstatistics' => [
                 'type' => PARAM_BOOL,
                 'optional' => true
