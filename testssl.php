@@ -26,7 +26,12 @@
 require_once('../../config.php');
 require_once('lib.php');
 global $OUTPUT, $PAGE, $CFG;
+
+$PAGE->set_url('/mod/jqshow/testssl.php');
 require_login();
+$context = context_system::instance();
+$PAGE->set_context($context);
+$PAGE->set_heading(get_string('testssl', 'mod_jqshow'));
 $PAGE->set_title(get_string('testssl', 'mod_jqshow'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('testssl', 'mod_jqshow'));

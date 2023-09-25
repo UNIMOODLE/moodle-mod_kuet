@@ -71,6 +71,7 @@ if ($ADMIN->fulltree) {
         ['maxfiles' => 1, 'accepted_types' => ['.crt', '.pem'], 'maxbytes' => $maxbytes]
     );
     $settings->hide_if('jqshow/certificate', 'jqshow/sockettype', 'neq', 'local');
+    $setting->set_updatedcallback('theme_reset_all_caches');
     $page->add($setting);
 
     $setting = new admin_setting_configstoredfile (
@@ -82,6 +83,7 @@ if ($ADMIN->fulltree) {
         ['maxfiles' => 1, 'accepted_types' => ['.pem', '.key'], 'maxbytes' => $maxbytes]
     );
     $settings->hide_if('jqshow/privatekey', 'jqshow/sockettype', 'neq', 'local');
+    $setting->set_updatedcallback('theme_reset_all_caches');
     $page->add($setting);
 
     $setting = new admin_setting_configtext(

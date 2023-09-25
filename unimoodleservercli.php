@@ -425,13 +425,55 @@ abstract class websockets {
      * @throws Exception
      */
     public function __construct($addr, $bufferlength = 2048) {
-        global $CFG;
+        global $_SERVER;
         $this->addr = $addr;
-        $this->print_signature();
         if (PHP_SAPI !== 'cli') {
             throw new Exception('This application must be run on the command line.');
         }
 
+        $port = '';
+        $certificate = '';
+        $privatekey = '';
+        if (isset($_SERVER['argv'][1]) && isset($_SERVER['argv'][2]) && isset($_SERVER['argv'][3])) {
+            [$script, $port, $certificate, $privatekey] = $_SERVER['argv'];
+        } else {
+            $this->print_signature();
+            $this->executeform();
+            echo "\033[32m". PHP_EOL .
+                'Socket is running in the background. You can see the process running in the process list of your server.' .
+                "\033[0m" . PHP_EOL;
+            die();
+        }
+
+        $this->port = (int)$port;
+        $this->maxbuffersize = $bufferlength;
+        // Certificate data.
+        $context = stream_context_create();
+        // Local_cert and local_pk must be in PEM format.
+        stream_context_set_option($context, 'ssl', 'local_cert', $certificate);
+        stream_context_set_option($context, 'ssl', 'local_pk', $privatekey);
+        stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
+        stream_context_set_option($context, 'ssl', 'verify_peer', false);
+        stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
+
+        // Create the server socket.
+        $this->master = stream_socket_server(
+            "ssl://$addr:$port",
+            $errno,
+            $errstr,
+            STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
+            $context);
+        if ($this->master === false || $errno > 0) {
+            throw new UnexpectedValueException("Main socket error ($errno): $errstr");
+        }
+        $this->sockets['m'] = $this->master;
+        $this->stdout(PHP_EOL . "\033[37m" .
+            "Server started" . PHP_EOL . "Listening on: $addr:$port " . PHP_EOL . "Master socket: $this->master" .
+            "\033[0m");
+
+    }
+
+    private function executeform() {
         echo "\033[34m". "Enter the port number for external connections." . PHP_EOL .
             "This port must be open, and must be provided to the Moodle platforms to be connected: " . "\033[0m" . PHP_EOL;
         $port = readline("");
@@ -453,31 +495,18 @@ abstract class websockets {
                     if (@file_exists($privatekey) &&
                         (pathinfo($privatekey)['extension'] === 'crt' || pathinfo($privatekey)['extension'] === 'pem')) {
                         readline_add_history($privatekey);
-                        $this->port = (int)$port;
-                        $this->maxbuffersize = $bufferlength;
-                        // Certificate data.
-                        $context = stream_context_create();
-                        // Local_cert and local_pk must be in PEM format.
-                        stream_context_set_option($context, 'ssl', 'local_cert', $certificate);
-                        stream_context_set_option($context, 'ssl', 'local_pk', $privatekey);
-                        stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
-                        stream_context_set_option($context, 'ssl', 'verify_peer', false);
-                        stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
-
-                        // Create the server socket.
-                        $this->master = stream_socket_server(
-                            "ssl://$addr:$port",
-                            $errno,
-                            $errstr,
-                            STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
-                            $context);
-                        if ($this->master === false || $errno > 0) {
-                            throw new UnexpectedValueException("Main socket error ($errno): $errstr");
+                        $reference = $port . ' ' . $certificate . ' ' . $privatekey;
+                        switch (strtolower(PHP_OS_FAMILY)) {
+                            case "windows":
+                                pclose(popen("start /B php unimoodleservercli.php $reference", "r"));
+                                break;
+                            case "linux":
+                                exec("php unimoodleservercli.php $reference > /dev/null &");
+                                break;
+                            default:
+                                echo "Unsupported OS" . strtolower(PHP_OS_FAMILY);
+                                die();
                         }
-                        $this->sockets['m'] = $this->master;
-                        $this->stdout(PHP_EOL . "\033[37m" .
-                            "Server started" . PHP_EOL . "Listening on: $addr:$port " . PHP_EOL . "Master socket: $this->master" .
-                            "\033[0m");
                     } else {
                         echo "\033[31m" . $privatekey . ' It is not a valid private key. Rerun the script' . "\033[0m" . PHP_EOL;
                         exit();

@@ -27,7 +27,7 @@
                         {{#showunitsradio}}
                             <div class="btn-group btn-group-toggle" data-toggle="buttons" id="unitsContent">
                                 {{#units}}
-                                    <label class="btn btn-primary">
+                                    <label class="btn btn-primary {{#unitselected}}active{{/unitselected}}">
                                         <input type="radio" name="{{ unittext }}" {{#unitselected}}checked{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
                                     </label>
                                 {{/units}}
@@ -59,7 +59,7 @@
                         {{#showunitsradio}}
                             <div class="btn-group btn-group-toggle" data-toggle="buttons" id="unitsContent">
                                 {{#units}}
-                                    <label class="btn btn-primary">
+                                    <label class="btn btn-primary {{#unitselected}}active{{/unitselected}}">
                                         <input type="radio" name="{{ unittext }}" {{#unitselected}}checked{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
                                     </label>
                                 {{/units}}
