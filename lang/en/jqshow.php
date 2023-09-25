@@ -69,6 +69,7 @@ $string['testssl_desc'] = 'Socket connection test with SSL certificates';
 $string['validcertificates'] = 'Valid SSL Certificates and Port';
 $string['invalidcertificates'] = 'Invalid certificates or Port';
 $string['socketclosed'] = 'Socket closed';
+$string['connectionclosed'] = 'Connection closed';
 $string['port'] = 'Port';
 $string['port_desc'] = 'Port to make the connection. This port needs to be open, so you will need to check with your system administrator.';
 $string['warningtest'] = 'This will attempt a connection to the socket with the current configuration. <b>Save the configuration before testing.</b>';

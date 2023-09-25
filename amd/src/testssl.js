@@ -49,7 +49,7 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
 
         TestSockets.prototype.webSocket.onclose = function() {
             str.get_strings([
-                {key: 'socketclosed', component: 'mod_jqshow'}
+                {key: 'connectionclosed', component: 'mod_jqshow'}
             ]).done(function(strings) {
                 messageBox.append('<div class="alert alert-warning" role="alert">' + strings[0] + '</div>');
             }).fail(notification.exception);
