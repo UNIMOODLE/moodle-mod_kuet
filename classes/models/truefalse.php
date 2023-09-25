@@ -222,7 +222,7 @@ class truefalse extends questions {
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
-            $responsedata->questionid,
+            $data->questionid,
             $data->jqid,
             $responsedata->timeleft,
             true

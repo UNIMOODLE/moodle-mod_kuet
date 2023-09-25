@@ -56,11 +56,21 @@
                         {{> mod_jqshow/session/manual/teachercontrolpanel }}
                     {{/isteacher}}
                 </div>
-                {{#programmedmode}}
+                {{#description}}
                     {{^preview}}
-                        <div class="btn btn-primary m-3 float-right d-none" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
+                        <div class="btn btn-primary m-3 float-right" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
                             {{#str}}next{{/str}}
                         </div>
+                    {{/preview}}
+                {{/description}}
+
+                {{#programmedmode}}
+                    {{^preview}}
+                        {{^description}}
+                            <div class="btn btn-primary m-3 float-right d-none" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
+                                {{#str}}next{{/str}}
+                            </div>
+                        {{/description}}
                     {{/preview}}
                 {{/programmedmode}}
             {{/endsession}}

@@ -139,6 +139,8 @@ class numerical extends questions {
      * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public static function export_numerical_response(stdClass $data, string $response): stdClass {
         $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
@@ -164,7 +166,7 @@ class numerical extends questions {
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
-            $responsedata->questionid,
+            $data->questionid,
             $data->jqid,
             $responsedata->timeleft,
             true

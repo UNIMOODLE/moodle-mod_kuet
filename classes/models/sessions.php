@@ -127,16 +127,24 @@ class sessions {
             self::ANONYMOUS_ANSWERS_NO => get_string('noanonymiseresponses', 'mod_jqshow'),
             self::ANONYMOUS_ANSWERS => get_string('anonymiseresponses', 'mod_jqshow')
         ];
-        $sessionmodechoices = [
-            self::INACTIVE_MANUAL => get_string('inactive_manual', 'mod_jqshow'),
-            self::INACTIVE_PROGRAMMED => get_string('inactive_programmed', 'mod_jqshow'),
-            self::PODIUM_MANUAL => get_string('podium_manual', 'mod_jqshow'),
-            self::PODIUM_PROGRAMMED => get_string('podium_programmed', 'mod_jqshow'),
-            self::RACE_MANUAL => get_string('race_manual', 'mod_jqshow'),
-            self::RACE_PROGRAMMED => get_string('race_programmed', 'mod_jqshow'),
-        ];
+        if (get_config('jqshow', 'sockettype') !== 'nosocket') {
+            $sessionmodechoices = [
+                self::INACTIVE_MANUAL => get_string('inactive_manual', 'mod_jqshow'),
+                self::INACTIVE_PROGRAMMED => get_string('inactive_programmed', 'mod_jqshow'),
+                self::PODIUM_MANUAL => get_string('podium_manual', 'mod_jqshow'),
+                self::PODIUM_PROGRAMMED => get_string('podium_programmed', 'mod_jqshow'),
+                self::RACE_MANUAL => get_string('race_manual', 'mod_jqshow'),
+                self::RACE_PROGRAMMED => get_string('race_programmed', 'mod_jqshow'),
+            ];
+        } else {
+            $sessionmodechoices = [
+                self::INACTIVE_PROGRAMMED => get_string('inactive_programmed', 'mod_jqshow'),
+                self::PODIUM_PROGRAMMED => get_string('podium_programmed', 'mod_jqshow'),
+                self::RACE_PROGRAMMED => get_string('race_programmed', 'mod_jqshow'),
+            ];
+        }
         $timemode = [
-//            self::NO_TIME => get_string('no_time', 'mod_jqshow'),
+//            self::NO_TIME => get_string('no_time', 'mod_jqshow'), // TODO enable for inactive.
             self::SESSION_TIME => get_string('session_time', 'mod_jqshow'),
             self::QUESTION_TIME => get_string('question_time', 'mod_jqshow'),
         ];

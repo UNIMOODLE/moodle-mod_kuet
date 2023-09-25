@@ -26,7 +26,9 @@
 namespace mod_jqshow\external;
 
 use coding_exception;
+use context_module;
 use core\invalid_persistent_exception;
+use dml_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
@@ -35,6 +37,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\exporter\question_exporter;
 use mod_jqshow\models\calculated;
 use mod_jqshow\models\description;
 use mod_jqshow\models\matchquestion;
@@ -46,6 +49,7 @@ use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use moodle_exception;
+use ReflectionException;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -75,6 +79,8 @@ class getuserquestionresponse_external extends external_api {
      * @param int $uid
      * @return array
      * @throws JsonException
+     * @throws ReflectionException
+     * @throws dml_exception
      * @throws coding_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
@@ -86,7 +92,9 @@ class getuserquestionresponse_external extends external_api {
             self::getuserquestionresponse_parameters(),
             ['jqid' => $jqid, 'cmid' => $cmid, 'sid' => $sid, 'uid' => $uid]
         );
-        global $USER;
+        global $USER, $PAGE;
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
         $userid = $uid === 0 ? $USER->id : $uid;
         $response = jqshow_questions_responses::get_question_response_for_user($userid, $sid, $jqid);
         $data = new stdClass();
@@ -97,6 +105,7 @@ class getuserquestionresponse_external extends external_api {
             $json = $response->get('response');
             $other = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
             $data->jqshowid = $response->get('jqshow');
+            $data->questionid = $response->get('questionid');
             $result = $response->get('result');
         } else if ($uid !== 0) { // It is a response review, where there is no response for the user. Mock required.
             $question = new jqshow_questions($jqid);
@@ -124,8 +133,18 @@ class getuserquestionresponse_external extends external_api {
             case questions::SHORTANSWER:
                 return (array)shortanswer::export_shortanswer_response($data, $json);
             case questions::NUMERICAL:
-                return (array)numerical::export_numerical_response($data, $json);
+                $dataexport = numerical::export_numerical(
+                    $data->jqid,
+                    $cmid,
+                    $sid,
+                    $data->jqshowid);
+                return (array)numerical::export_numerical_response($dataexport, $json);
             case questions::CALCULATED:
+                $dataexport = calculated::export_calculated(
+                    $data->jqid,
+                    $cmid,
+                    $sid,
+                    $data->jqshowid);
                 return (array)calculated::export_calculated_response($data, $json);
             case questions::DESCRIPTION:
                 return (array)description::export_description_response($data, $json);
@@ -139,21 +158,6 @@ class getuserquestionresponse_external extends external_api {
      * @return external_single_structure
      */
     public static function getuserquestionresponse_returns(): external_single_structure {
-        return new external_single_structure([
-            'sessionid'   => new external_value(PARAM_INT, 'Session id', VALUE_OPTIONAL),
-            'jqshowid' => new external_value(PARAM_INT, 'id of jqshow_questions', VALUE_OPTIONAL),
-            'cmid' => new external_value(PARAM_INT, 'course module id', VALUE_OPTIONAL),
-            'answered' => new external_value(PARAM_BOOL, 'State of question', VALUE_OPTIONAL),
-            'hasfeedbacks' => new external_value(PARAM_BOOL, 'Question has feedback', VALUE_OPTIONAL),
-            'seconds' => new external_value(PARAM_INT, 'Seconds of questions', VALUE_OPTIONAL),
-            'statment_feedback' => new external_value(PARAM_RAW, 'Question feedback', VALUE_OPTIONAL),
-            'shortanswerresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
-            'numericalresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
-            'calculatedresponse' => new external_value(PARAM_RAW, 'User text response', VALUE_OPTIONAL),
-            'answer_feedback' => new external_value(PARAM_RAW, 'Response feedback', VALUE_OPTIONAL),
-            'correct_answers' => new external_value(PARAM_RAW, 'Correct answers ids', VALUE_OPTIONAL),
-            'programmedmode' => new external_value(PARAM_BOOL, 'Program mode', VALUE_OPTIONAL),
-            'jsonresponse' => new external_value(PARAM_RAW, 'Json response', VALUE_OPTIONAL)
-        ]);
+        return question_exporter::get_read_structure();
     }
 }
