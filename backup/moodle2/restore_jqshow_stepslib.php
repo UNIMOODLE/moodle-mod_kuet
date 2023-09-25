@@ -18,32 +18,19 @@ defined('MOODLE_INTERNAL') || die();
 
 class restore_jqshow_activity_structure_step extends restore_questions_activity_structure_step {
 
-    /**
-     * @var \stdClass for inform_new_usage_id
-     */
-    private $currentattempt;
-
     protected function define_structure() {
         $userinfo = $this->get_setting_value('userinfo');
         $paths = [];
         $paths[] = new restore_path_element('jqshow', '/activity/jqshow');
-        $paths[] = new restore_path_element('jqshow_question',
-           '/activity/jqshow/questions/question');
+        $paths[] = new restore_path_element('jqshow_session','/activity/jqshow/sessions/session');
+        $question = new restore_path_element('jqshow_question', '/activity/jqshow/questions/question');
+        $paths[] = $question;
+        $this->add_question_usages($question, $paths);
         if ($userinfo) {
-            $paths[] = new restore_path_element('jqshow_session',
-               '/activity/jqshow/sessions/session');
-            $paths[] = new restore_path_element('jqshow_session_question',
-               '/activity/jqshow/sessions/session/sessionquestions/sessionquestion');
-            $paths[] = new restore_path_element('jqshow_merge',
-               '/activity/jqshow/sessions/session/merges/merge');
-            $paths[] = new restore_path_element('jqshow_vote',
-               '/activity/jqshow/sessions/session/votes/vote');
-            $paths[] = new restore_path_element('jqshow_attendance',
-               '/activity/jqshow/sessions/session/attendances/attendance');
-            $attempt = new restore_path_element('jqshow_attempt',
-               '/activity/jqshow/sessions/session/attempts/attempt');
-            $paths[] = $attempt;
-            $this->add_question_usages($attempt, $paths);
+            $paths[] = new restore_path_element('jqshow_grade','/activity/jqshow/grades/grade');
+            $paths[] = new restore_path_element('jqshow_session_grade','/activity/jqshow/sessions_grades/session_grade');
+            $paths[] = new restore_path_element('jqshow_user_progres', '/activity/jqshow/user_progress/user_progres');
+            $paths[] = new restore_path_element('jqshow_questions_response','/activity/jqshow/questions_responses/questions_response');
         }
         return $this->prepare_activity_structure($paths);
     }
@@ -58,17 +45,41 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
         $this->apply_activity_instance($newitemid);
     }
 
+    protected function process_jqshow_grade($data) {
+        global $DB;
+        $data = (object)$data;
+        $data->jqshow = $this->get_new_parentid('jqshow');
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $DB->insert_record('jqshow_grades', $data);
+    }
+
     protected function process_jqshow_question($data) {
         global $DB;
         $data = (object)$data;
         $oldid = $data->id;
-        $data->jqshowid = $this->get_new_parentid('jqshow');
-        $data->questionid = $this->get_mappingid('question', $data->questionid);
-        if (!$data->questionid) {
-            return;
+        $newquestionid = $this->get_mappingid('question', $data->questionid);
+        if ($newquestionid) {
+            $data->questionid = $newquestionid;
         }
+        $data->sessionid = $this->get_mappingid('jqshow_sessions', $data->sessionid);
+        $data->jqshowid = $this->get_new_parentid('jqshow');
         $newitemid = $DB->insert_record('jqshow_questions', $data);
-        $this->set_mapping('jqshow_question', $oldid, $newitemid);
+        $this->set_mapping('jqshow_questions', $oldid, $newitemid);
+    }
+
+    protected function process_jqshow_questions_response($data) {
+        //TODO: missing answerid! multichoice at least.
+        global $DB;
+        $data = (object)$data;
+        $data->jqshow = $this->get_new_parentid('jqshow');
+        $data->session = $this->get_mappingid('jqshow_sessions', $data->session);
+        $data->jqid = $this->get_mappingid('jqshow_questions', $data->jqid);
+        $newquestionid = $this->get_mappingid('question', $data->questionid);
+        if ($newquestionid) {
+            $data->questionid = $newquestionid;
+        }
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $DB->insert_record('jqshow_questions_responses', $data);
     }
 
     protected function process_jqshow_session($data) {
@@ -76,74 +87,41 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
         $data = (object)$data;
         $oldid = $data->id;
         $data->jqshowid = $this->get_new_parentid('jqshow');
-        $data->created = $this->apply_date_offset($data->created);
-        $newitemid = $DB->insert_record('jqshow_sessions', $data);
-        $this->set_mapping('jqshow_session', $oldid, $newitemid);
-    }
-
-    protected function process_jqshow_attempt($data) {
-        $data = (object)$data;
-        $data->sessionid = $this->get_new_parentid('jqshow_session');
-        $data->userid = $this->get_mappingid('user', $data->userid);
-        $data->timestart = $this->apply_date_offset($data->timestart);
-        $data->timefinish = $this->apply_date_offset($data->timefinish);
+        $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
-        $this->currentattempt = clone($data);
+        $data->groupings = $this->get_mappingid('groupings', $data->groupings);
+        $newitemid = $DB->insert_record('jqshow_sessions', $data);
+        $this->set_mapping('jqshow_sessions', $oldid, $newitemid);
     }
 
-    protected function inform_new_usage_id($newusageid) {
-        global $DB;
-        $data = $this->currentattempt;
-        $oldid = $data->id;
-        $data->questionengid = $newusageid;
-        $newitemid = $DB->insert_record('jqshow_attempts', $data);
-        $this->set_mapping('jqshow_attempt', $oldid, $newitemid);
-    }
-
-    protected function process_jqshow_session_question($data) {
+    protected function process_jqshow_session_grade($data) {
         global $DB;
         $data = (object)$data;
-        $data->sessionid = $this->get_new_parentid('jqshow_session');
-        $data->questionid = $this->get_mappingid('question', $data->questionid);
-        if (!$data->questionid) {
-            return;
-        }
-        $oldid = $data->id;
-        $newitemid = $DB->insert_record('jqshow_session_questions', $data);
-        $this->set_mapping('jqshow_session_question', $oldid, $newitemid);
-    }
-
-    protected function process_jqshow_merge($data) {
-        global $DB;
-        $data = (object)$data;
-        $oldid = $data->id;
-        $data->sessionid = $this->get_new_parentid('jqshow_session');
-        $newitemid = $DB->insert_record('jqshow_merges', $data);
-        $this->set_mapping('jqshow_merge', $oldid, $newitemid);
-    }
-
-    protected function process_jqshow_vote($data) {
-        global $DB;
-        $data = (object)$data;
-        $oldid = $data->id;
-        $data->jqshowid = $this->get_mappingid('jqshow', $data->jqshowid);
-        $data->sessionid = $this->get_new_parentid('jqshow_session');
-        $newitemid = $DB->insert_record('jqshow_votes', $data);
-        $this->set_mapping('jqshow_vote', $oldid, $newitemid);
-    }
-
-    protected function process_jqshow_attendance($data) {
-        global $DB;
-        $data = (object)$data;
-        $oldid = $data->id;
+        $data->session = $this->get_mappingid('jqshow_sessions', $data->session);
+        $data->jqshow = $this->get_new_parentid('jqshow');
+        $data->timecreated = $this->apply_date_offset($data->timecreated);
+        $data->timemodified = $this->apply_date_offset($data->timemodified);
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $data->sessionid = $this->get_new_parentid('jqshow_session');
-        $newitemid = $DB->insert_record('jqshow_attendance', $data);
-        $this->set_mapping('jqshow_attendance', $oldid, $newitemid);
+        $DB->insert_record('jqshow_sessions_grades', $data);
     }
+
+    protected function process_jqshow_user_progres($data) {
+        global $DB;
+        $data = (object)$data;
+        $data->jqshow = $this->get_new_parentid('jqshow');
+        $data->timecreated = $this->apply_date_offset($data->timecreated);
+        $data->timemodified = $this->apply_date_offset($data->timemodified);
+        $data->session = $this->get_mappingid('jqshow_sessions', $data->session);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $DB->insert_record('jqshow_user_progress', $data);
+    }
+    protected function inform_new_usage_id($newusageid) {
+        // Not used in this activity module.
+    }
+
+
 
     protected function after_execute() {
         $this->add_related_files('mod_jqshow', 'intro', null);
     }
-
 }

@@ -33,9 +33,9 @@ class backup_jqshow_activity_structure_step extends backup_questions_activity_st
             'introformat',
             'teamgrade',
             'grademethod',
-            'grademethod',
             'completionanswerall',
             'usermodified',
+            'timecreated',
             'timemodified',
         ]);
 
@@ -60,6 +60,7 @@ class backup_jqshow_activity_structure_step extends backup_questions_activity_st
             'groupings',
             'status',
             'usermodified',
+            'timecreated',
             'timemodified',
         ]);
 
@@ -74,90 +75,86 @@ class backup_jqshow_activity_structure_step extends backup_questions_activity_st
             'isvalid',
             'config',
             'usermodified',
+            'timecreated',
             'timemodified'
         ]);
-
+        $this->add_question_usages($question, 'questionid');
         $questionsresponses = new backup_nested_element('questions_responses');
         $questionsresponse = new backup_nested_element('questions_response', ['id'], [
-            'jqshow',
             'session',
             'jqid',
+            'questionid',
             'userid',
             'anonymise',
             'result',
             'response',
+            'timecreated',
             'timemodified'
         ]);
 
         $grades = new backup_nested_element('grades');
         $grade = new backup_nested_element('grade', ['id'], [
-            'jqshow',
             'userid',
             'grade',
             'timemodified'
         ]);
 
         $sessionsgrades = new backup_nested_element('sessions_grades');
-        $sessionsgrade = new backup_nested_element('sessions_grade', ['id'], [
-            'jqshow',
+        $sessiongrade = new backup_nested_element('session_grade', ['id'], [
             'session',
             'userid',
             'grade',
+            'timecreated',
             'timemodified'
         ]);
 
         $userprogress = new backup_nested_element('user_progress');
         $userprogres = new backup_nested_element('user_progres', ['id'], [
-            'jqshow',
             'session',
             'userid',
             'randomquestion',
             'other',
+            'timecreated',
             'timemodified'
         ]);
 
         // Build the tree.
-        $jqshow->add_child($sessions);
         $jqshow->add_child($grades);
-        $jqshow->add_child($questions);
-        $jqshow->add_child($questionsresponses);
-        $jqshow->add_child($sessionsgrades);
-        $jqshow->add_child($userprogress);
-
-        $sessions->add_child($session);
-        $session->add_child($questions);
-        $session->add_child($questionsresponses);
-        $session->add_child($sessionsgrades);
-        $session->add_child($userprogress);
-
-        $questions->add_child($question);
-        $question->add_child($questionsresponses);
-
-        $questionsresponses->add_child($questionsresponse);
         $grades->add_child($grade);
-        $sessionsgrades->add_child($sessionsgrade);
+
+        $jqshow->add_child($sessions);
+        $sessions->add_child($session);
+
+        $jqshow->add_child($questions);
+        $questions->add_child($question);
+
+        $jqshow->add_child($sessionsgrades);
+        $sessionsgrades->add_child($sessiongrade);
+
+        $jqshow->add_child($userprogress);
         $userprogress->add_child($userprogres);
+
+        $jqshow->add_child($questionsresponses);
+        $questionsresponses->add_child($questionsresponse);
 
         // Define sources.
         $jqshow->set_source_table('jqshow', ['id' => backup::VAR_ACTIVITYID]);
+        $session->set_source_table('jqshow_sessions', ['jqshowid' => backup::VAR_PARENTID]);
         $question->set_source_table('jqshow_questions', ['jqshowid' => backup::VAR_PARENTID]);
-        if ($userinfo) {
-            $session->set_source_table('jqshow_sessions', ['jqshowid' => backup::VAR_PARENTID]);
-            $sessionquestion->set_source_table('jqshow_session_questions', ['sessionid' => backup::VAR_PARENTID]);
-            $attempt->set_source_table('jqshow_attempts', ['sessionid' => backup::VAR_PARENTID]);
-            $attendance->set_source_table('jqshow_attendance', ['sessionid' => backup::VAR_PARENTID]);
-            $merge->set_source_table('jqshow_merges', ['sessionid' => backup::VAR_PARENTID]);
-            $vote->set_source_table('jqshow_votes', [
-                'jqshowid' => backup::VAR_ACTIVITYID,
-                'sessionid' => backup::VAR_PARENTID
-            ]);
-        }
 
+        if ($userinfo) {
+            $grade->set_source_table('jqshow_grades', ['jqshow' => backup::VAR_PARENTID]);
+            $sessiongrade->set_source_table('jqshow_sessions_grades', ['jqshow' => backup::VAR_PARENTID]);
+            $userprogres->set_source_table('jqshow_user_progress', ['jqshow' => backup::VAR_PARENTID]);
+            $questionsresponse->set_source_table('jqshow_questions_responses', ['jqshow' => backup::VAR_PARENTID]);
+        }
         // Define id annotations.
-        $attempt->annotate_ids('user', 'userid');
-        $attendance->annotate_ids('user', 'userid');
+        $session->annotate_ids('groupings', 'groupings');
         $question->annotate_ids('question', 'questionid');
-        $sessionquestion->annotate_ids('question', 'questionid');
+        $sessiongrade->annotate_ids('user', 'userid');
+        $userprogres->annotate_ids('user', 'userid');
+        $questionsresponse->annotate_ids('user', 'userid');
+        $questionsresponse->annotate_ids('question', 'questionid');
 
         // Define file annotations.
         $jqshow->annotate_files('mod_jqshow', 'intro', null);
@@ -165,5 +162,4 @@ class backup_jqshow_activity_structure_step extends backup_questions_activity_st
         // Return the root element (choice), wrapped into standard activity structure.
         return $this->prepare_activity_structure($jqshow);
     }
-
 }

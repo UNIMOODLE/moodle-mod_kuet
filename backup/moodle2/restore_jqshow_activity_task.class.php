@@ -52,8 +52,8 @@ class restore_jqshow_activity_task extends restore_activity_task {
      */
     public static function define_decode_rules() {
         return [
-            new restore_decode_rule('JAZZQUIZVIEWBYID', '/mod/jqshow/view.php?id=$1', 'course_module'),
-            new restore_decode_rule('JAZZQUIZINDEX', '/mod/jqshow/index.php?id=$1', 'course')
+            new restore_decode_rule('JQSHOVIEWBYID', '/mod/jqshow/view.php?id=$1', 'course_module'),
+            new restore_decode_rule('JQSHOWINDEX', '/mod/jqshow/index.php?id=$1', 'course')
         ];
     }
 

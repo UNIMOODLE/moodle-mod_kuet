@@ -64,9 +64,12 @@ function jqshow_supports(string $feature): ?bool {
  * @throws dml_exception
  */
 function jqshow_add_instance(stdClass $data): int {
-    global $DB;
+    global $DB, $USER;
 
     $cmid = $data->coursemodule;
+    $data->usermodified = $USER->id;
+    $data->timecreated = time();
+    $data->timemodified = time();
     $id = $DB->insert_record('jqshow', $data);
 
     // Update course module record - from now on this instance properly exists and all function may be used.
@@ -119,33 +122,28 @@ function jqshow_update_instance(stdClass $data): bool {
 function jqshow_delete_instance(int $id): bool {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/lib/gradelib.php');
-    try {
-        $jqshow = $DB->get_record('jqshow', ['id' => $id], '*', MUST_EXIST);
-        if (!$jqshow) {
-            return false;
-        }
-        // Finally delete the jqshow object.
-        $DB->delete_records('jqshow', ['id' => $id]);
-        $DB->delete_records('jqshow_grades', ['jqshow' => $id]);
-        $DB->delete_records('jqshow_questions', ['jqshowid' => $id]);
-        $DB->delete_records('questions_responses', ['jqid' => $id]);
-        $DB->delete_records('jqshow_sessions', ['jqshowid' => $id]);
-        $DB->delete_records('jqshow_sessions_grades', ['jqshow' => $id]);
-        $DB->delete_records('jqshow_user_progress', ['jqshow' => $id]);
-
-        grade_update('mod/assign',
-            $jqshow->course,
-            'mod',
-            'jqshow',
-            $jqshow->id,
-            0,
-            null,
-            ['deleted' => 1]);
-        return true;
-    } catch (Exception $e) {
-        throw new moodle_exception('error_delete_instance', 'mod_jqshow', '', $e->getMessage());
+    $jqshow = $DB->get_record('jqshow', ['id' => $id], '*', MUST_EXIST);
+    if (!$jqshow) {
         return false;
     }
+    // Finally delete the jqshow object.
+    $DB->delete_records('jqshow', ['id' => $id]);
+    $DB->delete_records('jqshow_grades', ['jqshow' => $id]);
+    $DB->delete_records('jqshow_questions', ['jqshowid' => $id]);
+    $DB->delete_records('jqshow_questions_responses', ['jqid' => $id]);
+    $DB->delete_records('jqshow_sessions', ['jqshowid' => $id]);
+    $DB->delete_records('jqshow_sessions_grades', ['jqshow' => $id]);
+    $DB->delete_records('jqshow_user_progress', ['jqshow' => $id]);
+
+    grade_update('mod/jqshow',
+        $jqshow->course,
+        'mod',
+        'jqshow',
+        $id,
+        0,
+        null,
+        ['deleted' => 1]);
+    return true;
 }
 
 /**

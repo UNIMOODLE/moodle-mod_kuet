@@ -49,10 +49,10 @@ class backup_jqshow_activity_task extends backup_activity_task {
         $base = preg_quote($CFG->wwwroot, '/');
         // Link to the list of JazzQuizes.
         $search = "/(" . $base . "\/mod\/jqshow\/index.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@JAZZQUIZINDEX*$2@$', $content);
+        $content = preg_replace($search, '$@JQSHOWINDEX*$2@$', $content);
         // Link to JazzQuiz view by moduleid.
         $search = "/(" . $base . "\/mod\/jqshow\/view.php\?id\=)([0-9]+)/";
-        $content = preg_replace($search, '$@JAZZQUIZVIEWBYID*$2@$', $content);
+        $content = preg_replace($search, '$@JQSHOWVIEWBYID*$2@$', $content);
         return $content;
     }
 
