@@ -52,7 +52,8 @@ class commondata_exporter extends question_exporter {
                 'type' => PARAM_INT,
             ],
             'showquestionfeedback' => [
-                'type' => PARAM_BOOL
+                'type' => PARAM_BOOL,
+                'optional' => true
             ],
             'countdown' => [
                 'type' => PARAM_BOOL,
@@ -66,7 +67,8 @@ class commondata_exporter extends question_exporter {
                 'type' => PARAM_BOOL
             ],
             'question_index_string' => [
-                'type' => PARAM_RAW
+                'type' => PARAM_RAW,
+                'optional' => true
             ],
             'numquestions' => [
                 'type' => PARAM_INT,
@@ -85,7 +87,8 @@ class commondata_exporter extends question_exporter {
                 'optional' => true
             ],
             'qtype' => [
-                'type' => PARAM_RAW
+                'type' => PARAM_RAW,
+                'optional' => true
             ],
             'port' => [
                 'type' => PARAM_RAW,
@@ -110,6 +113,22 @@ class commondata_exporter extends question_exporter {
             ],
             'isteacher' => [
                 'type' => PARAM_BOOL,
+                'optional' => true,
+            ],
+            'answered' => [
+                'type' => PARAM_BOOL,
+                'optional' => true,
+            ],
+            'hasfeedbacks' => [
+                'type' => PARAM_BOOL,
+                'optional' => true,
+            ],
+            'statment_feedback' => [
+                'type' => PARAM_RAW,
+                'optional' => true,
+            ],
+            'jsonresponse' => [
+                'type' => PARAM_RAW,
                 'optional' => true,
             ]
         ];
