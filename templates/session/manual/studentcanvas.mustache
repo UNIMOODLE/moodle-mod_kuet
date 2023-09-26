@@ -40,7 +40,7 @@
 
 {{#js}}
     require(['mod_jqshow/studentsockets'], function(Sockets) {
-        Sockets.studentInitSockets('[data-region="student-canvas"]', {{port}});
+        Sockets.studentInitSockets('[data-region="student-canvas"]', '{{socketurl}}', {{port}});
         /*window.onbeforeunload = function(e) {
             // TODO review.
             e.returnValue = confirm(

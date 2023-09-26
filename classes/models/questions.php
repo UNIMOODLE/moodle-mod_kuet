@@ -327,6 +327,7 @@ class questions {
      * @param $jqshowid
      * @param jqshow_sessions $session
      * @param int $jqid
+     * @param int $questionid
      * @param int $userid
      * @param int $result
      * @param stdClass $response
@@ -336,7 +337,7 @@ class questions {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    protected static function add_group_response($jqshowid, jqshow_sessions $session, int $jqid, int $userid, int $result, stdClass $response) : void {
+    protected static function add_group_response($jqshowid, jqshow_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response) : void {
         // All groupmembers has the same response saved on db.
         $num = jqshow_questions_responses::count_records(
             ['jqshow' => $jqshowid, 'session' => $session->get('id'), 'jqid' => $jqid, 'userid' => $userid]);
@@ -347,7 +348,7 @@ class questions {
         $gmemberids = groupmode::get_grouping_group_members_by_userid($session->get('groupings'), $userid);
         foreach ($gmemberids as $gmemberid) {
             jqshow_questions_responses::add_response(
-                $jqshowid, $session->get('id'), $jqid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                $jqshowid, $session->get('id'), $jqid, $questionid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
     }

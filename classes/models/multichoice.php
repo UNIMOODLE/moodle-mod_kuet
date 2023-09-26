@@ -144,7 +144,7 @@ class multichoice extends questions {
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
-            $responsedata->questionid,
+            $data->questionid,
             $data->jqid,
             $responsedata->timeleft,
             true
@@ -384,7 +384,6 @@ class multichoice extends questions {
     ) : void {
         $result = self::get_status_response($answerids, $correctanswers, $questionid);
         $response = new stdClass(); // For snapshot.
-        $response->questionid = $questionid;
         $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
         $response->correct_answers = $correctanswers;
         $response->answerids = $answerids;
@@ -392,11 +391,11 @@ class multichoice extends questions {
         $response->type = $qtype;
         $session = new jqshow_sessions($sessionid);
         if ($session->is_group_mode()) {
-            parent::add_group_response($jqshowid, $session, $jqid, $userid, $result, $response);
+            parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
         } else {
             // Individual.
             jqshow_questions_responses::add_response(
-                $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
     }
@@ -433,7 +432,7 @@ class multichoice extends questions {
     public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
         global $DB;
         $mark = 0;
-        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
         $answerids = $useranswer->{'answerids'} ?? '';
         if (empty($answerids)) {
             return $mark;

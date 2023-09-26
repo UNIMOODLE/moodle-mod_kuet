@@ -117,7 +117,7 @@ class shortanswer extends questions {
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
-            $responsedata->questionid,
+            $data->questionid,
             $data->jqid,
             $responsedata->timeleft,
             true
@@ -308,17 +308,16 @@ class shortanswer extends questions {
         if (!$isteacher) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
-            $response->questionid = $questionid;
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
             $response->timeleft = $timeleft;
             $response->type = questions::SHORTANSWER;
             $response->response = $responsetext; // TODO validate html and special characters.
             if ($session->is_group_mode()) {
-                parent::add_group_response($jqshowid, $session, $jqid, $userid, $result, $response);
+                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
                 jqshow_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
@@ -331,7 +330,7 @@ class shortanswer extends questions {
     public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
         global $DB;
         $mark = 0;
-        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
         if ((int)$response->get('result') == 1) {
             return $defaultmark;
         }

@@ -118,7 +118,7 @@ class description extends questions {
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
-            $responsedata->questionid,
+            $data->questionid,
             $data->jqid,
             $responsedata->timeleft,
             true
@@ -212,17 +212,16 @@ class description extends questions {
         if (!$isteacher) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
-            $response->questionid = $questionid;
             $response->hasfeedbacks = (bool)($statmentfeedback !== '');
             $response->timeleft = $timeleft;
             $response->type = questions::DESCRIPTION;
             $response->response = '';
             if ($session->is_group_mode()) {
-                parent::add_group_response($jqshowid, $session, $jqid, $userid, $result, $response);
+                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
                 jqshow_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }

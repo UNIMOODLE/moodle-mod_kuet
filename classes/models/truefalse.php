@@ -222,7 +222,7 @@ class truefalse extends questions {
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
-            $responsedata->questionid,
+            $data->questionid,
             $data->jqid,
             $responsedata->timeleft,
             true
@@ -416,7 +416,7 @@ class truefalse extends questions {
     public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
         global $DB;
         $mark = 0;
-        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
         $answerids = $useranswer->{'answerids'} ?? '';
         if (empty($answerids)) {
             return $mark;

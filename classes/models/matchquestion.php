@@ -272,17 +272,16 @@ class matchquestion extends questions {
         if (!$isteacher) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
-            $response->questionid = $questionid;
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
             $response->timeleft = $timeleft;
             $response->type = questions::MATCH;
             $response->response = json_decode($jsonresponse);
             if ($session->is_group_mode()) {
-                parent::add_group_response($jqshowid, $session, $jqid, $userid, $result, $response);
+                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
                 jqshow_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
@@ -297,7 +296,7 @@ class matchquestion extends questions {
         global $DB;
         $mark = 0;
         if ((int) $response->get('result') === 1) {
-            $mark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+            $mark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
         }
         return $mark;
     }

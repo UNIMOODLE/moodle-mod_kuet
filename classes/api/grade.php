@@ -100,7 +100,7 @@ class grade {
      */
     public static function get_simple_mark(jqshow_questions_responses $response) {
         $mark = 0;
-
+error_log(__FUNCTION__ . ' response: '.var_export($response, true));
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
         if ($jquestion->get('ignorecorrectanswer')) {
@@ -112,9 +112,10 @@ class grade {
         if (!empty($useranswer)) {
             $useranswer = json_decode($useranswer);
             $type = questions::get_question_class_by_string_type($useranswer->{'type'});
+            error_log(__FUNCTION__ . ' type: '.var_export($type, true));
             $mark = $type::get_simple_mark($useranswer, $response);
         }
-
+        error_log(__FUNCTION__ . ' mark: '.var_export($mark, true));
         return $mark;
     }
 
@@ -150,14 +151,13 @@ class grade {
         return $mark;
     }
 
-
     /**
      * @param jqshow_questions_responses[] $responses
      * @return float|int
      * @throws coding_exception
      * @throws dml_exception
      */
-    private static function get_session_podium_manual_grade(array $responses, jqshow_sessions $session) {
+    private static function get_session_podium_manual_grade(array $responses) {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
@@ -165,16 +165,15 @@ class grade {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
-            // All the time that participants have had to answer the question.
-            $qtime = questions::get_question_time($jqquestion, $session);
+            $qtime = $jqquestion->get('timelimit'); // All the time that participants have had to answer the question.
             $useranswer = $response->get('response');
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
                 $useranswer = json_decode($useranswer);
                 $timeleft = $useranswer->timeleft; // Time answering question.
                 $percent = 0; // UNIMOOD-150.
-                if ($timeleft) {
-                    $percent = $timeleft * 100 / $qtime;
+                if ($qtime > $timeleft) {
+                    $percent = ($qtime - $timeleft) * 100 / $qtime;
                 }
             }
             $mark += $usermark * $percent;
@@ -190,6 +189,15 @@ class grade {
      * @throws dml_exception
      */
     private static function get_session_podium_programmed_grade(array $responses, jqshow_sessions $session) {
+        $qtime = 0;
+        if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
+            $total = $session->get('sessiontime');
+            $numq = jqshow_questions::count_records(['sessionid' => $session->get('id'),
+                'jqshowid' => $session->get('jqshowid')]);
+            $qtime = $total / $numq;
+        } else if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
+            $qtime = $session->get('questiontime');
+        }
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
@@ -197,13 +205,13 @@ class grade {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
-            $qtime = questions::get_question_time($jqquestion, $session);
+            $qtime = !$qtime ? $jqquestion->get('timelimit') : 40;
             $useranswer = $response->get('response');
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
                 $useranswer = json_decode($useranswer);
                 $timeleft = $useranswer->timeleft; // Time answering question.
-                $percent = $timeleft * 100 / $qtime;
+                $percent = ($qtime - $timeleft) * 100 / $qtime;
             }
             $mark += $usermark * $percent;
         }
@@ -220,6 +228,9 @@ class grade {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
+            if ($usermark === 0) {
+                continue;
+            }
             $mark += $usermark;
         }
         return $mark;

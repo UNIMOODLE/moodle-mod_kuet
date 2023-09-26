@@ -50,6 +50,9 @@ class jqshow_questions_responses extends persistent {
             'jqid' => [
                 'type' => PARAM_INT,
             ],
+            'questionid' => [
+                'type' => PARAM_INT,
+            ],
             'userid' => [
                 'type' => PARAM_INT,
             ],
@@ -116,7 +119,7 @@ class jqshow_questions_responses extends persistent {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function add_response(int $jqshow, int $session, int $jqid, int $userid, int $result, string $response): bool {
+    public static function add_response(int $jqshow, int $session, int $jqid, int $questionid, int $userid, int $result, string $response): bool {
         $sessiondata = jqshow_sessions::get_record(['id' => $session], MUST_EXIST);
         $record = self::get_record(['jqshow' => $jqshow, 'session' => $session, 'jqid' => $jqid, 'userid' => $userid]);
         try {
@@ -125,6 +128,7 @@ class jqshow_questions_responses extends persistent {
                 $data->jqshow = $jqshow;
                 $data->session = $session;
                 $data->jqid = $jqid;
+                $data->questionid = $questionid;
                 $data->userid = $userid;
                 $data->anonymise = $sessiondata->get('anonymousanswer');
                 $data->result = $result;
@@ -150,6 +154,7 @@ class jqshow_questions_responses extends persistent {
      * @throws dml_exception
      */
     public static function delete_question_resonses(int $jqshow, int $sid, int $jqid): bool {
+        // TODO: fix function name!
         global $DB;
         return  $DB->delete_records(self::TABLE, ['jqshow' => $jqshow, 'session' => $sid, 'jqid' => $jqid]);
     }
@@ -160,6 +165,7 @@ class jqshow_questions_responses extends persistent {
      * @throws dml_exception
      */
     public static function delete_questions_resonses(int $sid): bool {
+        // TODO: fix function name!
         global $DB;
         return  $DB->delete_records(self::TABLE, ['session' => $sid]);
     }

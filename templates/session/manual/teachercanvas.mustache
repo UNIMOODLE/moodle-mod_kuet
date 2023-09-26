@@ -74,7 +74,7 @@
 
 {{#js}}
     require(['mod_jqshow/teachersockets'], function(Sockets) {
-        Sockets.teacherInitSockets('[data-region="teacher-canvas-content"]', {{port}}, '{{sessionmode}}', {{groupmode}});
+        Sockets.teacherInitSockets('[data-region="teacher-canvas-content"]', '{{socketurl}}', {{port}}, '{{sessionmode}}', {{groupmode}});
         /*window.onbeforeunload = function(e) {
             // TODO review.
             e.returnValue = confirm(

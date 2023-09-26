@@ -26,7 +26,12 @@
 require_once('../../config.php');
 require_once('lib.php');
 global $OUTPUT, $PAGE, $CFG;
+
+$PAGE->set_url('/mod/jqshow/testssl.php');
 require_login();
+$context = context_system::instance();
+$PAGE->set_context($context);
+$PAGE->set_heading(get_string('testssl', 'mod_jqshow'));
 $PAGE->set_title(get_string('testssl', 'mod_jqshow'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('testssl', 'mod_jqshow'));
@@ -35,9 +40,21 @@ $server = $CFG->dirroot . '/mod/jqshow/classes/testserver.php';
 run_server_background($server);
 
 echo html_writer::div('', '', ['id' => 'testresult']);
-$port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+$typesocket = get_config('jqshow', 'sockettype');
+if ($typesocket === 'local') {
+    $socketurl = $CFG->wwwroot;
+    $port = get_config('jqshow', 'localport') !== false ? get_config('jqshow', 'localport') : '8080';
+}
+if ($typesocket === 'external') {
+    $socketurl = get_config('jqshow', 'externalurl');
+    $port = get_config('jqshow', 'externalport') !== false ? get_config('jqshow', 'externalport') : '8080';
+}
+if ($typesocket === 'nosocket') {
+    throw new moodle_exception('nosocket', 'mod_jqshow', '',
+        [], get_string('nosocket', 'mod_jqshow'));
+}
 $PAGE->requires->js_amd_inline("require(['mod_jqshow/testssl'], function(TestSockets) {
-    TestSockets.initTestSockets('[data-region=\"mainpage\"]', '" . $port . "');
+    TestSockets.initTestSockets('[data-region=\"mainpage\"]', '" . $socketurl . "', '" . $port . "');
 });");
 
 echo $OUTPUT->footer();

@@ -31,14 +31,17 @@ let TEMPLATES = {
 };
 
 let portUrl = '8080';
+let socketUrl = '';
 
 /**
  * @constructor
  * @param {String} region
+ * @param {String} socketurl
  * @param {String} port
  */
-function Sockets(region, port) {
+function Sockets(region, socketurl, port) {
     this.root = jQuery(region);
+    socketUrl = socketurl;
     portUrl = port;
     this.initSockets();
     this.disableDevTools();
@@ -95,7 +98,7 @@ Sockets.prototype.initSockets = function() {
     }
 
     Sockets.prototype.webSocket = new WebSocket(
-        'wss://' + M.cfg.wwwroot.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
+        'wss://' + socketUrl.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
     );
 
     Sockets.prototype.webSocket.onopen = function() {
@@ -301,6 +304,6 @@ Sockets.prototype.sendMessageSocket = function(msg) {
     this.webSocket.send(msg);
 };
 
-export const studentInitSockets = (region, port, groupmode, groupid) => {
-    return new Sockets(region, port, groupmode, groupid);
+export const studentInitSockets = (region, socketurl, port) => {
+    return new Sockets(region, socketurl, port);
 };

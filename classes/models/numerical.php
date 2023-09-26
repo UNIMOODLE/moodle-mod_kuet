@@ -139,6 +139,8 @@ class numerical extends questions {
      * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public static function export_numerical_response(stdClass $data, string $response): stdClass {
         $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
@@ -164,7 +166,7 @@ class numerical extends questions {
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
-            $responsedata->questionid,
+            $data->questionid,
             $data->jqid,
             $responsedata->timeleft,
             true
@@ -315,9 +317,6 @@ class numerical extends questions {
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
         $participant->userpoints = grade::get_rounded_mark($spoints);
-        if ($session->is_group_mode()) {
-            $participant->grouppoints = grade::get_rounded_mark($spoints);
-        }
         $participant->score_moment = grade::get_rounded_mark($points);
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;
@@ -362,7 +361,6 @@ class numerical extends questions {
         if (!$isteacher) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
-            $response->questionid = $questionid;
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
             $response->timeleft = $timeleft;
             $response->type = questions::NUMERICAL;
@@ -370,11 +368,11 @@ class numerical extends questions {
             $response->unit = $unit;
             $response->multiplier = $multiplier;
             if ($session->is_group_mode()) {
-                parent::add_group_response($jqshowid, $session, $jqid, $userid, $result, $response);
+                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
                 jqshow_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
@@ -387,14 +385,14 @@ class numerical extends questions {
     public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
         global $DB;
 
-        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
         if ((int)$response->get('result') == 1) {
             return $defaultmark;
         } else if ((int)$response->get('result') == 0 || (int)$response->get('result') == 3) {
             return 0;
         }
         // Partialyy correct.
-        $question = question_bank::load_question($useranswer->{'questionid'});
+        $question = question_bank::load_question($response->get('questionid'));
         $moodleresult = $question->grade_response(['answer' => $useranswer->{'response'}, 'unit' => $useranswer->{'unit'}]);
 
         return (float)$moodleresult[0] * $defaultmark;

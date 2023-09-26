@@ -63,6 +63,7 @@ let TEMPLATES = {
     RACERESULTS: 'mod_jqshow/session/raceresults'
 };
 
+let socketUrl = '';
 let portUrl = '8080'; // It is rewritten in the constructor.
 let userid = null;
 let usersocketid = null;
@@ -87,12 +88,14 @@ let currentQuestionDataForRace = {};
 /**
  * @constructor
  * @param {String} region
+ * @param {String} socketurl
  * @param {String} port
  * @param {String} sessionmode
  * @param {Boolean} groupmode
  */
-function Sockets(region, port, sessionmode, groupmode) {
+function Sockets(region, socketurl, port, sessionmode, groupmode) {
     this.root = jQuery(region);
+    socketUrl = socketurl;
     portUrl = port;
     userid = this.root[0].dataset.userid;
     username = this.root[0].dataset.username;
@@ -229,7 +232,7 @@ Sockets.prototype.initSockets = function() {
 
     db = Database.initDb(sid, userid);
     Sockets.prototype.webSocket = new WebSocket(
-        'wss://' + M.cfg.wwwroot.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
+        'wss://' + socketUrl.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
     );
 
     Sockets.prototype.webSocket.onopen = function() { // Waitingroom.
@@ -1058,6 +1061,6 @@ Sockets.prototype.sendMessageSocket = function(msg) {
     this.webSocket.send(msg);
 };
 
-export const teacherInitSockets = (region, port, sessionmode, groupmode) => {
-    return new Sockets(region, port, sessionmode, groupmode);
+export const teacherInitSockets = (region, socketurl, port, sessionmode, groupmode) => {
+    return new Sockets(region, socketurl, port, sessionmode, groupmode);
 };

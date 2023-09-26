@@ -65,7 +65,6 @@ class calculated extends questions {
     }
 
     /**
-     * PINTAR LA PREGUNTA
      * @param int $jqid
      * @param int $cmid
      * @param int $sessionid
@@ -91,7 +90,6 @@ class calculated extends questions {
         $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
-        //TODO: send correct answer and question text to front base_encode.
         self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
         $data->name = $question->name;
@@ -168,7 +166,7 @@ class calculated extends questions {
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
-            $responsedata->questionid,
+            $data->questionid,
             $data->jqid,
             $responsedata->timeleft,
             true
@@ -332,7 +330,6 @@ class calculated extends questions {
     }
 
     /**
-     * PINTA LA RESPUESTA
      * @param int $jqid
      * @param string $responsetext
      * @param string $unit
@@ -371,7 +368,6 @@ class calculated extends questions {
         if (!$isteacher) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
-            $response->questionid = $questionid;
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
             $response->timeleft = $timeleft;
             $response->type = questions::CALCULATED;
@@ -379,11 +375,11 @@ class calculated extends questions {
             $response->unit = $unit;
             $response->multiplier = $multiplier;
             if ($session->is_group_mode()) {
-                parent::add_group_response($jqshowid, $session, $jqid, $userid, $result, $response);
+                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
                 jqshow_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
@@ -397,8 +393,8 @@ class calculated extends questions {
 
         global $DB;
         $mark = 0;
-        if ((int) $response->get('result') == 1) {
-            $mark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
+        if ((int) $response->get('result') === 1) {
+            $mark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
         }
 
         return $mark;
