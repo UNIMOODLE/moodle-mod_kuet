@@ -30,26 +30,26 @@ use context_course;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
+use enrol_self\self_test;
+use html_writer;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\api\grade;
-use mod_jqshow\api\groupmode;
-use mod_jqshow\external\description_external;
+use mod_jqshow\external\ddwtos_external;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
-use pix_icon;
-use qtype_description_question;
+use qtype_ddwtos_question;
 use question_bank;
 use question_definition;
+use question_display_options;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-class description extends questions {
+class ddwtos extends questions {
 
     /**
      * @param int $jqshowid
@@ -74,11 +74,11 @@ class description extends questions {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_description(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_ddwtos(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
-        if (!assert($question instanceof qtype_description_question)) {
+        if (!assert($question instanceof qtype_ddwtos_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
@@ -86,11 +86,146 @@ class description extends questions {
         $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
-        $data->questiontext =
-            self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
+
+        $questiontext = '';
+        $embeddedelements = [];
+        $placeholders = self::get_fragments_glue_placeholders($question->textfragments);
+        $options = new question_display_options();
+        foreach ($question->textfragments as $i => $fragment) {
+            if ($i > 0) {
+                $questiontext .= $placeholders[$i];
+                $embeddedelements[$placeholders[$i]] =
+                    preg_replace('/\$(\d)/', '\\\$$1', self::embedded_element($question, $i, $options));
+            }
+            $questiontext .= $fragment;
+        }
+        $questiontext =
+            self::get_text($cmid, $questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
+        foreach ($placeholders as $i => $placeholder) {
+            $questiontext = preg_replace('/'. preg_quote($placeholder, '/') . '/',
+                $embeddedelements[$placeholder], $questiontext);
+        }
+        $result = html_writer::tag('div', $questiontext, array('class' => 'qtext'));
+
+        $result .= self::post_qtext_elements($question, $options);
+
         $data->questiontextformat = $question->questiontextformat;
         $data->name = $question->name;
+        $data->questiontext = $result;
         return $data;
+    }
+
+    /**
+     * @param array $fragments
+     * @return array
+     */
+    private static function get_fragments_glue_placeholders(array $fragments): array {
+        $fragmentscount = count($fragments);
+        if ($fragmentscount <= 1) {
+            return [];
+        }
+        $prefix = '[[$';
+        $postfix = ']]';
+        $text = implode('', $fragments);
+        while (preg_match('/' . preg_quote($prefix, '/') . '\\d+' . preg_quote($postfix, '/') . '/', $text)) {
+            $prefix .= '$';
+        }
+        $glues = [];
+        for ($i = 1; $i < $fragmentscount; $i++) {
+            $glues[$i] = $prefix . $i . $postfix;
+        }
+        return $glues;
+    }
+
+    /**
+     * @param qtype_ddwtos_question $question
+     * @param int $place
+     * @param question_display_options $options
+     * @return string
+     * @throws coding_exception
+     */
+    private static function embedded_element(qtype_ddwtos_question $question,
+                                               int $place,
+                                               question_display_options $options): string {
+        $group = $question->places[$place];
+        $label = $options->add_question_identifier_to_label(get_string('blanknumber', 'qtype_ddwtos', $place));
+        $boxcontents = '&#160;' . html_writer::tag('span', $label, ['class' => 'accesshide']);
+        $attributes = [
+            'class' => 'place' . $place . ' drop active group' . $group
+        ];
+
+        if ($options->readonly) {
+            $attributes['class'] .= ' readonly';
+        } else {
+            $attributes['tabindex'] = '0';
+        }
+        return html_writer::tag('span', $boxcontents, $attributes);
+    }
+
+
+    /**
+     * @param qtype_ddwtos_question $question
+     * @param question_display_options $options
+     * @return string
+     */
+    private static function post_qtext_elements(qtype_ddwtos_question $question,
+                                                  question_display_options $options): string {
+        $result = '';
+        $dragboxs = '';
+        foreach ($question->choices as $group => $choices) {
+            $dragboxs .= self::drag_boxes(
+                $question->get_ordered_choices($group));
+        }
+        $classes = ['answercontainer'];
+        if ($options->readonly) {
+            $classes[] = 'readonly';
+        }
+        $result .= html_writer::tag('div', $dragboxs, array('class' => implode(' ', $classes)));
+        if (!$options->clearwrong) {
+            $result .= self::clear_wrong($question);
+        }
+        return $result;
+    }
+
+    /**
+     * @param qtype_ddwtos_question $question
+     * @return string
+     */
+    public function clear_wrong(qtype_ddwtos_question $question): string {
+        $output = '';
+        foreach ($question->places as $place => $group) {
+            $fieldname = $question->field($place);
+            $value = '0';
+            $cleanvalue = '0';
+            $output .= html_writer::empty_tag('input', array(
+                'type' => 'hidden',
+                'id' => uniqid('', true),
+                'class' => 'placeinput place' . $place . ' group' . $group,
+                'name' => uniqid('', true),
+                'value' => s($value)));
+        }
+        return $output;
+    }
+
+    /**
+     * @param array $choices
+     * @return string
+     */
+    private static function drag_boxes(array $choices): string {
+        $boxes = '';
+        foreach ($choices as $key => $choice) {
+            $content = str_replace(['-', ' '], ['&#x2011;', '&#160;'], $choice->text);
+            $infinite = '';
+            if ($choice->infinite) {
+                $infinite = ' infinite';
+            }
+            $boxes .= html_writer::tag('span', $content, [
+                    'class' => 'draghome user-select-none choice' . $key . ' group' .
+                        $choice->draggroup . $infinite,
+                    'draggable' => true]) . ' ';
+        }
+        return html_writer::nonempty_tag('div', $boxes,
+            ['class' => 'user-select-none draggrouphomes' . $choice->draggroup]);
     }
 
 
@@ -106,13 +241,13 @@ class description extends questions {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_description_response(stdClass $data, string $response): stdClass {
+    public static function export_ddwtos_response(stdClass $data, string $response): stdClass {
         $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
         }
         $data->answered = true;
-        $dataanswer = description_external::description(
+        $dataanswer = ddwtos_external::ddwtos(
             $data->sessionid,
             $data->jqshowid,
             $data->cmid,
@@ -147,7 +282,7 @@ class description extends questions {
                                                question_definition $questiondata,
                                                stdClass            $data,
                                                int                 $jqid): stdClass {
-        if (!assert($questiondata instanceof qtype_description_question)) {
+        if (!assert($questiondata instanceof qtype_ddwtos_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
@@ -194,7 +329,7 @@ class description extends questions {
      * @throws coding_exception
      * @throws invalid_persistent_exception
      */
-    public static function description_response(
+    public static function ddwtos_response(
         int $jqid,
         int $result,
         int $questionid,
@@ -216,7 +351,7 @@ class description extends questions {
                 $response = new stdClass();
                 $response->hasfeedbacks = (bool)($statmentfeedback !== '');
                 $response->timeleft = $timeleft;
-                $response->type = questions::DESCRIPTION;
+                $response->type = questions::DDWTOS;
                 $response->response = '';
                 jqshow_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)

@@ -36,12 +36,12 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\models\description;
+use mod_jqshow\models\ddwtos;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
-use qtype_description_question;
+use qtype_ddwtos_question;
 use question_bank;
 
 defined('MOODLE_INTERNAL') || die();
@@ -49,9 +49,9 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
-class description_external extends external_api {
+class ddwtos_external extends external_api {
 
-    public static function description_parameters(): external_function_parameters {
+    public static function ddwtos_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
@@ -82,7 +82,7 @@ class description_external extends external_api {
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      */
-    public static function description(
+    public static function ddwtos(
         int $sessionid,
         int $jqshowid,
         int $cmid,
@@ -93,7 +93,7 @@ class description_external extends external_api {
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
-            self::description_parameters(),
+            self::ddwtos_parameters(),
             [
                 'sessionid' => $sessionid,
                 'jqshowid' => $jqshowid,
@@ -110,14 +110,14 @@ class description_external extends external_api {
         $session = new jqshow_sessions($sessionid);
         $question = question_bank::load_question($questionid);
         $result = questions::NOTEVALUABLE;
-        if (assert($question instanceof qtype_description_question)) {
+        if (assert($question instanceof qtype_ddwtos_question)) {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
             /* TODO move logic to API grades,
             to have a method that returns the result constant and the feedback of the answer according to the type of question. */
             if ($preview === false) {
-                description::description_response(
+                ddwtos::ddwtos_response(
                     $jqid,
                     $result,
                     $questionid,
@@ -153,7 +153,7 @@ class description_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function description_returns(): external_single_structure {
+    public static function ddwtos_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'reply_status' => new external_value(PARAM_BOOL, 'Status of reply'),

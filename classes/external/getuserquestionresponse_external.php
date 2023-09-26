@@ -39,6 +39,7 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\exporter\question_exporter;
 use mod_jqshow\models\calculated;
+use mod_jqshow\models\ddwtos;
 use mod_jqshow\models\description;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;
@@ -148,6 +149,8 @@ class getuserquestionresponse_external extends external_api {
                 return (array)calculated::export_calculated_response($data, $json);
             case questions::DESCRIPTION:
                 return (array)description::export_description_response($data, $json);
+            case questions::DDWTOS:
+                return (array)ddwtos::export_ddwtos_response($data, $json);
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));
