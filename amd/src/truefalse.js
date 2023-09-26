@@ -133,9 +133,16 @@ TrueFalse.prototype.removeEvents = function() {
 };
 
 TrueFalse.prototype.reply = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    let answerIds = jQuery(e.currentTarget).attr('data-answerid');
+    let answerIds = 0;
+    if (e !== undefined && e !== null) {
+        e.preventDefault();
+        e.stopPropagation();
+        let answerval = jQuery(e.currentTarget).attr('data-answerid');
+        if (answerval !== null) {
+            answerIds = answerval;
+        }
+    }
+
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(TrueFalse.prototype.endTimer);
@@ -144,7 +151,7 @@ TrueFalse.prototype.reply = function(e) {
         let request = {
             methodname: SERVICES.REPLY,
             args: {
-                answerid: answerIds === undefined ? 0 : answerIds,
+                answerid: parseInt(answerIds),
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,
@@ -156,7 +163,9 @@ TrueFalse.prototype.reply = function(e) {
         };
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
-                jQuery(e.currentTarget).css({'z-index': 3, 'pointer-events': 'none'});
+                if (e !== undefined) {
+                    jQuery(e.currentTarget).css({'z-index': 3, 'pointer-events': 'none'});
+                }
                 TrueFalse.prototype.answered(response);
                 questionEnd = true;
                 dispatchEvent(TrueFalse.prototype.studentQuestionEnd);

@@ -48,6 +48,7 @@ use mod_jqshow\models\shortanswer;
 use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use ReflectionException;
 use stdClass;
@@ -93,6 +94,7 @@ class getuserquestionresponse_external extends external_api {
             ['jqid' => $jqid, 'cmid' => $cmid, 'sid' => $sid, 'uid' => $uid]
         );
         global $USER, $PAGE;
+        error_log(__FUNCTION__ . ' ' . __LINE__);
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $userid = $uid === 0 ? $USER->id : $uid;
@@ -121,7 +123,16 @@ class getuserquestionresponse_external extends external_api {
             $data->jqshowid = $question->get('jqshowid');
             $result = questions::NORESPONSE;
         } else {
-            return [];
+            $question = new jqshow_questions($jqid);
+            $session = new jqshow_sessions($sid);
+            return [
+                'cmid' => $cmid,
+                'sessionid' => $sid,
+                'jqshowid' => $question->get('jqshowid'),
+                'questionid' => $question->get('questionid'),
+                'jqid' => $jqid,
+                'programmedmode' => $session->is_programmed_mode(),
+            ];
         }
         switch ($other->type) {
             case questions::MULTICHOICE:
@@ -145,7 +156,7 @@ class getuserquestionresponse_external extends external_api {
                     $cmid,
                     $sid,
                     $data->jqshowid);
-                return (array)calculated::export_calculated_response($data, $json);
+                return (array)calculated::export_calculated_response($dataexport, $json);
             case questions::DESCRIPTION:
                 return (array)description::export_description_response($data, $json);
             default:
@@ -159,5 +170,6 @@ class getuserquestionresponse_external extends external_api {
      */
     public static function getuserquestionresponse_returns(): external_single_structure {
         return question_exporter::get_read_structure();
+//        return null;
     }
 }

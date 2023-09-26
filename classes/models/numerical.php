@@ -171,6 +171,7 @@ class numerical extends questions {
             $responsedata->timeleft,
             true
         );
+        $data->cmid = $data->cmid;
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $data->numericalresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
