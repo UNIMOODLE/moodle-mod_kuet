@@ -440,7 +440,7 @@ class server extends websockets {
     }
 }
 
-$port = get_config('jqshow', 'port');
+$port = get_config('jqshow', 'localport');
 $server = new server('0.0.0.0', $port, 2048);
 
 try {

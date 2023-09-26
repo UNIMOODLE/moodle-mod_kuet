@@ -79,6 +79,7 @@ class questions {
     public const NUMERICAL = 'numerical';
     public const CALCULATED = 'calculated';
     public const DESCRIPTION = 'description';
+    public const DDWTOS = 'ddwtos';
 
     public const TYPES = [
         self::MULTICHOICE,
@@ -87,7 +88,8 @@ class questions {
         self::SHORTANSWER,
         self::NUMERICAL,
         self::CALCULATED,
-        self::DESCRIPTION
+        self::DESCRIPTION,
+        self::DDWTOS
     ];
 
     public const FAILURE = 0; // String: qstatus_0.
