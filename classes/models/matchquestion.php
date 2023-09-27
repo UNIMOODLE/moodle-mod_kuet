@@ -157,7 +157,6 @@ class matchquestion extends questions {
         $data->statment_feedback = $dataanswer['statment_feedback'];
         $data->answer_feedback = $dataanswer['answer_feedback'];
         $data->statistics = $dataanswer['statistics'] ?? '0';
-        // TODO feedbacks.
         return $data;
     }
 
