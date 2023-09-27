@@ -68,7 +68,6 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
     }
 
     protected function process_jqshow_questions_response($data) {
-        //TODO: missing answerid! multichoice at least.
         global $DB;
         $data = (object)$data;
         $data->jqshow = $this->get_new_parentid('jqshow');
@@ -126,19 +125,15 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
         $this->add_related_files('mod_jqshow', 'intro', null);
     }
     private function replace_answerids(string $responsejson, int $newquestionid) : string {
-        error_log(__FUNCTION__ . ' newquestionid: '.var_export($newquestionid, true));
-        error_log(__FUNCTION__ . ' 1 responsejson: '.var_export($responsejson, true));
         if (!$newquestionid) {
             return $responsejson;
         }
         $resp = json_decode($responsejson, false, 512, JSON_THROW_ON_ERROR);
-        error_log(__FUNCTION__ . ' resp->type: '.var_export($resp->{'type'}, true));
         if ($resp->{'type'} == 'truefalse') {
             return $this->replace_answerids_truefalse($resp, $newquestionid);
         } else if ($resp->{'type'} == 'multichoice') {
             return $this->replace_answerids_multichoice($resp, $newquestionid);
         }
-        error_log(__FUNCTION__ . ' 2 responsejson: '.var_export($responsejson, true));
         return $responsejson;
 
     }
@@ -148,8 +143,6 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
         $newanswerids = [];
         $answertexts = json_decode($answertexts);
         $question = question_bank::load_question($newquestionid);
-        error_log(__FUNCTION__ . ' question: '.var_export($question, true));
-        error_log(__FUNCTION__ . ' response: '.var_export($response, true));
         foreach ($question->answers as $key => $answer) {
             foreach ($answerids as $answerid) {
                 $text = $answertexts->{$answerid};
@@ -161,20 +154,16 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
         $newanswerids = implode(',', $newanswerids);
         $response->{'answerids'} = $newanswerids;
 
-        error_log(__FUNCTION__ . ' 2 response: '.var_export($response, true));
         return json_encode($response);
     }
     private function replace_answerids_truefalse(stdClass $response, $newquestionid) : string {
         $question = question_bank::load_question($newquestionid);
-        error_log(__FUNCTION__ . ' question: '.var_export($question, true));
-        error_log(__FUNCTION__ . ' response: '.var_export($response, true));
         $answertext = $response->{'answertexts'};
         $newanswerids = $question->falseanswerid;
         if ($answertext == '1' && $question->rightanswer) {
             $newanswerids  = $question->trueanswerid;
         }
         $response->{'answerids'} = $newanswerids;
-        error_log(__FUNCTION__ . ' 2 response: '.var_export($response, true));
         return json_encode($response);
     }
 }
