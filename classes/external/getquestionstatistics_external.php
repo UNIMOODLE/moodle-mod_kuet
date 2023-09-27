@@ -119,12 +119,8 @@ class getquestionstatistics_external extends external_api {
                 $statistics[$question->trueanswerid] = ['answerid' => $question->trueanswerid, 'numberofreplies' => 0];
                 $statistics[$question->falseanswerid] = ['answerid' => $question->falseanswerid, 'numberofreplies' => 0];
                 foreach ($responses as $response) {
-//                    foreach ($question->answers as $answer) {
-                        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-//                        if ((int)$other->answerids === (int)$answer->id) {
-                            $statistics[(int)$other->answerids]['numberofreplies']++;
-//                        }
-//                    }
+                    $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                    $statistics[(int)$other->answerids]['numberofreplies']++;
                 }
                 break;
             default:

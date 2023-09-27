@@ -366,49 +366,6 @@ class jqshow_sessions extends persistent {
         return $DB->get_records_select('jqshow_sessions', $select, $params, 'timecreated ASC');
     }
 
-    /**
-     * @param int $jqshowid
-     * @return void
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws invalid_persistent_exception
-     */
-    public static function check_automatic_sessions(int $jqshowid): void {
-        // TODO this logic is obsolete, now in cron task.
-        $sessions = self::get_automaticstart_sessions($jqshowid);
-        $activesession = null;
-        $now = time();
-        foreach ($sessions as $session) {
-            if ($session->startdate !== 0 && $session->startdate < $now) { // If there is a start date and it has been met.
-                if ($session->enddate !== 0 && $session->enddate > $now) { // If there is an end date and it has not been met.
-                    if ($session->status !== sessionsmodel::SESSION_STARTED) { // If not marked as started.
-                        (new jqshow_sessions($session->id))->set('status', sessionsmodel::SESSION_STARTED)->update();
-                        // We mark session as logged in.
-                        $session->status = sessionsmodel::SESSION_STARTED;
-                    }
-                    $activesession = $session;
-                }
-                if ($session->enddate !== 0 && $session->enddate < $now) { // If there is an end date and it has been met.
-                    (new jqshow_sessions($session->id))->set('status', sessionsmodel::SESSION_FINISHED)->update();
-                    // We mark the session as ended.
-                }
-            }
-        }
-        if ($activesession !== null) {
-            // There can only be one started session, and it will be the one chosen in the previous loop.
-            foreach ($sessions as $session) {
-                if ($session->status === sessionsmodel::SESSION_STARTED && $session->id !== $activesession->id) {
-                    // If the session has a current deadline we leave it as active.
-                    if ($session->startdate < $now || $session->enddate > $now) {
-                        (new jqshow_sessions($session->id))->set('status', sessionsmodel::SESSION_ACTIVE)->update();
-                    } else {
-                        // In any other case, this session is closed.
-                        (new jqshow_sessions($session->id))->set('status', sessionsmodel::SESSION_FINISHED)->update();
-                    }
-                }
-            }
-        }
-    }
     public function is_programmed_mode() : bool {
         return ($this->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
             $this->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||

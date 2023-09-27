@@ -158,7 +158,7 @@ class calculated extends questions {
             }
         }
         $data->answered = true;
-        // TODO.
+        // TODO review jmtz
         $dataanswer = calculated_external::calculated(
             $responsedata->response,
             $responsedata->unit,
