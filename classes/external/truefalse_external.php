@@ -110,7 +110,6 @@ class truefalse_external extends external_api {
         $statmentfeedback = questions::get_text(
             $cmid, $question->generalfeedback, 1, $question->id, $question, 'generalfeedback'
         );
-        error_log(__FUNCTION__ . " quesiton: ".var_export($question, true));
         $answertext = '0';
         $correctanswer = $question->rightanswer ? (int)$question->trueanswerid : (int)$question->falseanswerid;
         if ((int)$answerid === (int)$question->trueanswerid) {
