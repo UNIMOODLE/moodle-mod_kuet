@@ -68,7 +68,7 @@ class deleteresponses_external extends external_api {
         if (has_capability('mod/jqshow:startsession', $cmcontext)) {
             $jqshow = new jqshow($cmid);
             return [
-                'deleted' => jqshow_questions_responses::delete_question_resonses($jqshow->get_jqshow()->id, $sessionid, $jqid)
+                'deleted' => jqshow_questions_responses::delete_question_responses($jqshow->get_jqshow()->id, $sessionid, $jqid)
             ];
         }
         return [

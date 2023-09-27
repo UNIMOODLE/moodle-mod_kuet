@@ -76,7 +76,7 @@ class deletesession_external extends external_api {
         if ($coursecontext !== null && has_capability('mod/jqshow:managesessions', $coursecontext, $USER)) {
             $ds = jqshow_sessions::delete_session($sessionid);
             $dq = jqshow_questions::delete_session_questions($sessionid);
-            $dresponses = jqshow_questions_responses::delete_questions_resonses($sessionid);
+            $dresponses = jqshow_questions_responses::delete_questions_responses($sessionid);
             $dsgrades = jqshow_sessions_grades::delete_session_grades($sessionid);
             $duprogress = jqshow_user_progress::delete_session_user_progress($sessionid);
             $deleted = $dq && $ds && $dresponses && $dsgrades && $duprogress;
