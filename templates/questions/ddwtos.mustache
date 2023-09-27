@@ -42,7 +42,7 @@
         Ddwtos.initDdwtos('[data-region="question-content"]',
             {{#showquestionfeedback}}true{{/showquestionfeedback}}{{^showquestionfeedback}}false{{/showquestionfeedback}},
             {{#programmedmode}}false{{/programmedmode}}{{^programmedmode}}true{{/programmedmode}}{{#answered}}, '{{{jsonresponse}}}'{{/answered}});
-        //CoreDdwtos.init('drag_and_drop_area', false);
+        // CoreDdwtos.init('drag_and_drop_area', false);
         {{#hastime}}
             {{^answered}}
                 QuestionTimer.initQuestionTimer('[data-region="question-content"]');
