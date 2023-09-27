@@ -68,7 +68,7 @@ class reports {
 
         foreach ($questions as $question) {
             if ($session->is_group_mode()) {
-                $data = self::get_questions_data_for_teacher_report_groups($question, $jqshowid, $cmid, $session); // TODO grosups.
+                $data = self::get_questions_data_for_teacher_report_groups($question, $jqshowid, $cmid, $session);
             } else {
                 $data = self::get_questions_data_for_teacher_report_individual($question, $jqshowid, $cmid, $session);
             }

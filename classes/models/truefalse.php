@@ -391,6 +391,7 @@ class truefalse extends questions {
     public static function truefalse_response(
         int $jqid,
         string $answerids,
+        string $answertexts,
         string $correctanswers,
         int $questionid,
         int $sessionid,
@@ -404,7 +405,7 @@ class truefalse extends questions {
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
-            multichoice::manage_response($jqid, $answerids, $correctanswers, $questionid, $sessionid, $jqshowid,
+            multichoice::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::TRUE_FALSE);
         }
     }

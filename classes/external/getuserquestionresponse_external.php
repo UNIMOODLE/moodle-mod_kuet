@@ -94,7 +94,6 @@ class getuserquestionresponse_external extends external_api {
             ['jqid' => $jqid, 'cmid' => $cmid, 'sid' => $sid, 'uid' => $uid]
         );
         global $USER, $PAGE;
-        error_log(__FUNCTION__ . ' ' . __LINE__);
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $userid = $uid === 0 ? $USER->id : $uid;

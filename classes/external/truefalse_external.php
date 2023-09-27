@@ -110,12 +110,16 @@ class truefalse_external extends external_api {
         $statmentfeedback = questions::get_text(
             $cmid, $question->generalfeedback, 1, $question->id, $question, 'generalfeedback'
         );
+        error_log(__FUNCTION__ . " quesiton: ".var_export($question, true));
+        $answertext = '0';
         $correctanswer = $question->rightanswer ? (int)$question->trueanswerid : (int)$question->falseanswerid;
         if ((int)$answerid === (int)$question->trueanswerid) {
+            $answertext = '1';
             $answerfeedback = questions::get_text(
                     $cmid, $question->truefeedback, 1, (int) $question->trueanswerid, $question, 'answerfeedback'
                 ) . '<br>';
         } else {
+            $answertext = $question->rightanswer;
             $answerfeedback = questions::get_text(
                     $cmid, $question->falsefeedback, 1, (int) $question->falseanswerid, $question, 'answerfeedback'
                 ) . '<br>';
@@ -124,6 +128,7 @@ class truefalse_external extends external_api {
             truefalse::truefalse_response(
                 $jqid,
                 $answerid,
+                $answertext,
                 $correctanswer,
                 $questionid,
                 $sessionid,

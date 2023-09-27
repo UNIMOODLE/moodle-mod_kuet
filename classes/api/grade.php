@@ -100,7 +100,6 @@ class grade {
      */
     public static function get_simple_mark(jqshow_questions_responses $response) {
         $mark = 0;
-error_log(__FUNCTION__ . ' response: '.var_export($response, true));
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
         if ($jquestion->get('ignorecorrectanswer')) {
@@ -112,10 +111,8 @@ error_log(__FUNCTION__ . ' response: '.var_export($response, true));
         if (!empty($useranswer)) {
             $useranswer = json_decode($useranswer);
             $type = questions::get_question_class_by_string_type($useranswer->{'type'});
-            error_log(__FUNCTION__ . ' type: '.var_export($type, true));
             $mark = $type::get_simple_mark($useranswer, $response);
         }
-        error_log(__FUNCTION__ . ' mark: '.var_export($mark, true));
         return $mark;
     }
 

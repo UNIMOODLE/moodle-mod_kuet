@@ -334,6 +334,7 @@ class multichoice extends questions {
     public static function multichoice_response(
         int $jqid,
         string $answerids,
+        string $answertexts,
         string $correctanswers,
         int $questionid,
         int $sessionid,
@@ -347,7 +348,7 @@ class multichoice extends questions {
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
-            self::manage_response($jqid, $answerids, $correctanswers, $questionid, $sessionid, $jqshowid,
+            self::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::MULTICHOICE);
         }
     }
@@ -372,6 +373,7 @@ class multichoice extends questions {
     public static function manage_response(
         int $jqid,
         string $answerids,
+        string $answertexts,
         string $correctanswers,
         int $questionid,
         int $sessionid,
@@ -387,6 +389,7 @@ class multichoice extends questions {
         $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
         $response->correct_answers = $correctanswers;
         $response->answerids = $answerids;
+        $response->answertexts = $answertexts;
         $response->timeleft = $timeleft;
         $response->type = $qtype;
         $session = new jqshow_sessions($sessionid);
