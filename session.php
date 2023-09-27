@@ -58,7 +58,7 @@ if ($activesession !== 0 && $activesession !== $sid) {
 if ($isteacher) {
     if (get_config('jqshow', 'sockettype') === 'local') {
         $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
-//        run_server_background($server);
+        run_server_background($server);
     }
     $view = new teacher_session_view();
 } else {
