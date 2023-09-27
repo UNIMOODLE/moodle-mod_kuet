@@ -318,7 +318,7 @@ class truefalse extends questions {
                 continue;
             }
             $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-            if ($other->answerids !== '' && $other->answerids !== '0') { // TODO prepare for multianswer.
+            if ($other->answerids !== '' && $other->answerids !== '0') {
                 $arrayanswerids = explode(',', $other->answerids);
                 foreach ($arrayanswerids as $arrayanswerid) {
                     $answers[$arrayanswerid]['numticked']++;
