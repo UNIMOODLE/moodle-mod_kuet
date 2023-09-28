@@ -3,123 +3,172 @@ body#page-mod-jqshow-view {
         #page-content {
             #region-main {
                 [role="main"] {
-                    .container-fluid {
-                        .mobile-create-session {
-                            display: none;
-                        }
-                        .sessions-list {
-                            margin-top: 25px;
-                            padding: 0;
-                            border-radius: 8px;
-                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
-                            background-color: white;
-                            .sessions-list-header {
-                                padding: 20px;
-                                display: flex;
-                                flex-flow: row nowrap;
-                                justify-content: space-between;
-                                align-items: center;
-                                border-radius: 8px 8px 0 0;
-                                max-height: 60px;
-                                .sessions-list-header-title {
-                                    display: flex;
-                                    flex-flow: row nowrap;
-                                    justify-content: flex-start;
-                                    align-items: center;
-                                    color: white;
-                                    h5 {
-                                        margin-bottom: 0;
-                                    }
-                                }
-                                .create-session {
-                                    background-color: white;
-
+                    .imageQr {
+                        .item {
+                            a {
+                                img {
+                                    width: 60px;
+                                    height: 60px;
+                                    position: absolute;
+                                    top: 0;
+                                    right: 0;
                                 }
                             }
-                            .sessions-list-body {
-                                width: 100%;
-                                .sessions-list-thead {
-                                    font-weight: bold;
-                                    .d-table-cell {
-                                        color: #2B2B2B !important;
-                                    }
+                        }
+                    }
+                    .lightbox {
+                        background: rgba(0, 0, 0, 0.8);
+                        display: none;
+                        position: fixed;
+                        z-index: 1000;
+                    }
+                    .lightbox:target {
+                        align-items: center;
+                        bottom: 0;
+                        display: flex;
+                        justify-content: center;
+                        left: 0;
+                        right: 0;
+                        top: 0;
+                    }
+                    .lightbox img {
+                        border-radius: 1em;
+                        display: block;
+                        margin: auto;
+                        max-height: 80vh;
+                        max-width: 90vh;
+                    }
+                    .lightbox .close {
+                        color: #fff;
+                        font-size: 4em;
+                        font-weight: bold;
+                        height: 1em;
+                        position: fixed;
+                        right: 1em;
+                        top: 1.5em;
+                        width: 1em;
+                        z-index: 1001;
+                    }
+                    .lightbox p {
+                        font-size: 2em;
+                        font-weight: bold;
+                        text-align: center;
+                    }
+                    .mobile-create-session {
+                        display: none;
+                    }
+                    .sessions-list {
+                        margin-top: 25px;
+                        padding: 0;
+                        border-radius: 8px;
+                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                        background-color: white;
+                        .sessions-list-header {
+                            padding: 20px;
+                            display: flex;
+                            flex-flow: row nowrap;
+                            justify-content: space-between;
+                            align-items: center;
+                            border-radius: 8px 8px 0 0;
+                            max-height: 60px;
+                            .sessions-list-header-title {
+                                display: flex;
+                                flex-flow: row nowrap;
+                                justify-content: flex-start;
+                                align-items: center;
+                                color: white;
+                                h5 {
+                                    margin-bottom: 0;
                                 }
-                                .sessions-list-data {
-                                    font-weight: normal;
-                                    &:nth-child(even) {
-                                        background-color: rgba(0,0,0,.03);
-                                    }
-                                    &.session-started {
-                                        background-color: #d7e4d6;
-                                        color: #1c3f1a;
-                                    }
-                                    &.session-warning {
-                                        background-color: #fcefdc;
-                                        color: #7d5a29;
-                                    }
-                                    &.session-conflict {
-                                        background-color: #f4d6d2;
-                                        color: #691911;
-                                    }
-                                    .d-table-cell {
-                                        border-top: 1px solid #EDEBF4;
-                                        color: #929292 !important;
-                                    }
+                            }
+                            .create-session {
+                                background-color: white;
+
+                            }
+                        }
+                        .sessions-list-body {
+                            width: 100%;
+                            .sessions-list-thead {
+                                font-weight: bold;
+                                .d-table-cell {
+                                    color: #2B2B2B !important;
+                                }
+                            }
+                            .sessions-list-data {
+                                font-weight: normal;
+                                &:nth-child(even) {
+                                    background-color: rgba(0,0,0,.03);
+                                }
+                                &.session-started {
+                                    background-color: #d7e4d6;
+                                    color: #1c3f1a;
+                                }
+                                &.session-warning {
+                                    background-color: #fcefdc;
+                                    color: #7d5a29;
+                                }
+                                &.session-conflict {
+                                    background-color: #f4d6d2;
+                                    color: #691911;
                                 }
                                 .d-table-cell {
-                                    padding: 15px;
-                                    &.actions {
-                                        .content-actions {
-                                            display: flex;
-                                            flex-flow: row nowrap;
-                                            justify-content: flex-start;
-                                            align-items: center;
-                                            .session-action {
-                                                background-color: black;
-                                                height: 32px;
-                                                width: 32px;
-                                                border-radius: 8px;
-                                                display: flex;
-                                                justify-content: center;
-                                                align-items: center;
-                                                margin: 0 7px;
-                                                .icon {
-                                                    margin: 0 !important;
-                                                }
-                                                &:hover {
-                                                    cursor: pointer;
-                                                }
-                                            }
-                                        }
-                                        .mobile-content-actions {
-                                            display: none;
-                                        }
-                                    }
-                                    &.initsession,
-                                    &.viewreport-session {
-                                        div, a {
-                                            width: 125px;
-                                            height: 32px;
-                                            color: white;
+                                    border-top: 1px solid #EDEBF4;
+                                    color: #929292 !important;
+                                }
+                            }
+                            .d-table-cell {
+                                padding: 15px;
+                                &.actions {
+                                    .content-actions {
+                                        display: flex;
+                                        flex-flow: row nowrap;
+                                        justify-content: flex-start;
+                                        align-items: center;
+                                        .session-action {
                                             background-color: black;
+                                            height: 32px;
+                                            width: 32px;
                                             border-radius: 8px;
                                             display: flex;
                                             justify-content: center;
                                             align-items: center;
-                                            margin: 0 auto;
+                                            margin: 0 7px;
+                                            .icon {
+                                                margin: 0 !important;
+                                            }
                                             &:hover {
                                                 cursor: pointer;
-                                                text-decoration: none;
                                             }
                                         }
-                                        .icon-warning {
-                                            display: block;
-                                            text-align: center;
-                                            img {
-                                                height: 28px;
-                                                width: auto;
-                                                margin: 0;
-                                            }
+                                    }
+                                    .mobile-content-actions {
+                                        display: none;
+                                    }
+                                }
+                                &.initsession,
+                                &.viewreport-session {
+                                    div, a {
+                                        width: 125px;
+                                        height: 32px;
+                                        color: white;
+                                        background-color: black;
+                                        border-radius: 8px;
+                                        display: flex;
+                                        justify-content: center;
+                                        align-items: center;
+                                        margin: 0 auto;
+                                        &:hover {
+                                            cursor: pointer;
+                                            text-decoration: none;
+                                        }
+                                    }
+                                    .icon-warning {
+                                        display: block;
+                                        text-align: center;
+                                        img {
+                                            height: 28px;
+                                            width: auto;
+                                            margin: 0;
                                         }
                                     }
                                 }

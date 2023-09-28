@@ -28,12 +28,14 @@ namespace mod_jqshow\models;
 use coding_exception;
 use context_course;
 use dml_exception;
+use Endroid\QrCode\Exception\InvalidWriterException;
 use mod_jqshow\helpers\sessions as sessionshelper;
 use mod_jqshow\jqshow;
 use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
+use RuntimeException;
 use stdClass;
 
 class teacher extends user {
@@ -51,12 +53,13 @@ class teacher extends user {
     /**
      * @param $cmid
      * @return Object
-     * @throws dml_exception
+     * @throws InvalidWriterException
      * @throws coding_exception
+     * @throws dml_exception
      * @throws moodle_exception
      */
     public function export_sessions($cmid) : Object {
-        global $COURSE;
+        global $COURSE, $CFG;
         $jqshow = new jqshow($cmid);
         $actives = [];
         $inactives = [];
@@ -72,6 +75,9 @@ class teacher extends user {
                 $inactives[] = $ds;
             }
         }
+        if (!file_exists($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg')) {
+            generate_jqshow_qrcode((new moodle_url('/mod/jqshow/view.php', ['id' => $cmid]))->out(false), $cmid);
+        }
         $actives = $this->get_sessions_conflicts($actives);
         $data = new stdClass();
         $data->activesessions = $actives;
@@ -80,6 +86,8 @@ class teacher extends user {
         $data->jqshowid = $jqshow->cm->instance;
         $data->cmid = $cmid;
         $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
+        $data->hasqrcodeimage = file_exists($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg');
+        $data->urlqrcodeimage = (new moodle_url($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg'))->out(false);
         $data->hasactivesession = jqshow_sessions::get_active_session_id(($jqshow->get_jqshow())->id) !== 0;
         return $data;
     }

@@ -26,11 +26,14 @@
 require_once('../../config.php');
 require_once('lib.php');
 
+
+
 use mod_jqshow\output\views\student_view;
 use mod_jqshow\output\views\teacher_view;
 use mod_jqshow\persistents\jqshow_sessions;
 
 global $CFG, $PAGE, $DB, $COURSE, $USER;
+require_once($CFG->dirroot . '/blocks/qrcode/thirdparty/vendor/autoload.php');
 $id = required_param('id', PARAM_INT);    // Course Module ID.
 
 $cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
