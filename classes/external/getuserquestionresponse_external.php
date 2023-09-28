@@ -49,6 +49,7 @@ use mod_jqshow\models\shortanswer;
 use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use ReflectionException;
 use stdClass;
@@ -122,7 +123,16 @@ class getuserquestionresponse_external extends external_api {
             $data->jqshowid = $question->get('jqshowid');
             $result = questions::NORESPONSE;
         } else {
-            return [];
+            $question = new jqshow_questions($jqid);
+            $session = new jqshow_sessions($sid);
+            return [
+                'cmid' => $cmid,
+                'sessionid' => $sid,
+                'jqshowid' => $question->get('jqshowid'),
+                'questionid' => $question->get('questionid'),
+                'jqid' => $jqid,
+                'programmedmode' => $session->is_programmed_mode(),
+            ];
         }
         switch ($other->type) {
             case questions::MULTICHOICE:

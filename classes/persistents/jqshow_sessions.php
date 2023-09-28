@@ -409,4 +409,14 @@ class jqshow_sessions extends persistent {
             }
         }
     }
+
+    /**
+     * @return bool
+     * @throws coding_exception
+     */
+    public function is_programmed_mode() : bool {
+        return ($this->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+            $this->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+            $this->get('sessionmode') === sessions::RACE_PROGRAMMED);
+    }
 }

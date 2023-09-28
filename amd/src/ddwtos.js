@@ -23,6 +23,7 @@ let REGION = {
     FEEDBACKANSWER: '[data-region="answer-feedback"]',
     FEEDBACKBACGROUND: '[data-region="feedback-background"]',
     AREA: '#drag_and_drop_area',
+    DRAGHOME: '.draghome',
     DRAGELEMENT: '.draghome.user-select-none',
     DROPELEMENT: '.drop.active',
     INPUTPLACE: '.placeinput',
@@ -269,19 +270,19 @@ Ddwtos.prototype.answered = function(response, fromService = false) {
     if (manualMode === false) {
         jQuery(REGION.NEXT).removeClass('d-none');
     }
-    let dragItems = document.querySelectorAll(REGION.DRAGELEMENT);
-    dragItems.forEach(function(dragElement) {
-        dragElement.setAttribute('draggable', 'false');
-        jQuery(dragElement).unbind('mousedown touchstart');
-        jQuery(dragElement).off('mousedown touchstart');
-        jQuery(dragElement).css({'pointer-events': 'none'});
-    });
     if (fromService === true) {
         jQuery(REGION.STATEMENTTEXT_CONTENT).html(decodeURIComponent(escape(atob(response.question_text_feedback))));
         Ddwtos.prototype.resizeAllDragsAndDrops();
         Ddwtos.prototype.cloneDrags();
         Ddwtos.prototype.positionDrags();
     }
+    let dragItems = document.querySelectorAll(REGION.DRAGHOME);
+    dragItems.forEach(function(dragElement) {
+        dragElement.setAttribute('draggable', 'false');
+        jQuery(dragElement).unbind('mousedown touchstart');
+        jQuery(dragElement).off('mousedown touchstart');
+        jQuery(dragElement).css({'pointer-events': 'none'});
+    });
     mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
 };
 
@@ -321,7 +322,7 @@ Ddwtos.prototype.showAnswers = function() {
 
 Ddwtos.prototype.hideAnswers = function() {
     if (questionEnd === true) {
-        jQuery(REGION.ANSWERHELP).addClass('d-none');
+        jQuery(REGION.ICONSANSWERS).css({'display': 'none'});
     }
 };
 
