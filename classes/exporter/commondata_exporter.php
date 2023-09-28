@@ -51,6 +51,10 @@ class commondata_exporter extends question_exporter {
             'jqid' => [
                 'type' => PARAM_INT,
             ],
+            'questiontext' => [
+                'type' => PARAM_RAW,
+                'optional' => true
+            ],
             'showquestionfeedback' => [
                 'type' => PARAM_BOOL,
                 'optional' => true

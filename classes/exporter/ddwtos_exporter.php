@@ -36,6 +36,18 @@ class ddwtos_exporter extends commondata_exporter {
             'ddwtos' => [
                 'type' => PARAM_BOOL,
                 'optional' => true
+            ],
+            'ddwtosresponse' => [
+                'type' => PARAM_RAW,
+                'optional' => true
+            ],
+            'correct_response' => [
+                'type' => PARAM_RAW,
+                'optional' => true
+            ],
+            'question_text_feedback' => [
+                'type' => PARAM_RAW,
+                'optional' => true
             ]
         ];
     }

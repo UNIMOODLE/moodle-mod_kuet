@@ -1,4 +1,10 @@
 .container-fluid.ddwtos.question {
+	.statement-text {
+		.icon.text-success,
+		.icon.text-danger {
+			display: none;
+		}
+	}
 	.qtext {
 		margin-bottom: 0.5em;
 		display: block;
@@ -15,7 +21,7 @@
 	.drop.active {
 		display: inline-block;
 		text-align: center;
-		border: 1px solid #000;
+		border: none;
 		margin-bottom: 2px;
 	}
 
@@ -31,8 +37,9 @@
 		display: inline-block;
 		text-align: center;
 		background: transparent;
-		border: 1px solid #000;
+		border: none;
 		cursor: move;
+		color: white;
 	}
 
 	.qtype_ddwtos-readonly .draghome {
@@ -41,7 +48,7 @@
 
 	.draghome.beingdragged {
 		z-index: 3;
-		box-shadow: 3px 3px 4px #000;
+		box-shadow: 3px 3px 4px rgba(0,0,0,.08);
 		position: absolute;
 	}
 
@@ -75,41 +82,41 @@
 	}
 
 	.group1 {
-		background-color: #fff;
+		background-color: nth($answercolors, 1);
 	}
 
 	.group2 {
-		background-color: #dcdcdc;
+		background-color: nth($answercolors, 2);
 		border-radius: 10px 0 0 0;
 	}
 
 	.group3 {
-		background-color: #b0c4de;
+		background-color: nth($answercolors, 3);
 		border-radius: 0 10px 0 0;
 	}
 
 	.group4 {
-		background-color: #d8bfd8;
+		background-color: nth($answercolors, 4);
 		border-radius: 0 0 10px 0;
 	}
 
 	.group5 {
-		background-color: #87cefa;
+		background-color: nth($answercolors, 5);
 		border-radius: 0 0 0 10px;
 	}
 
 	.group6 {
-		background-color: #daa520;
+		background-color: nth($answercolors, 6);
 		border-radius: 0 10px 10px 0;
 	}
 
 	.group7 {
-		background-color: #ffd700;
+		background-color: nth($answercolors, 7);
 		border-radius: 10px 0 0 10px;
 	}
 
 	.group8 {
-		background-color: #f0e68c;
+		background-color: nth($answercolors, 8);
 		border-radius: 10px 10px 10px 10px;
 	}
 

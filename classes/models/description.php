@@ -122,7 +122,6 @@ class description extends questions {
             true
         );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
-        $data->shortanswerresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
         $data->programmedmode = $dataanswer['programmedmode'];
         $data->statment_feedback = $dataanswer['statment_feedback'];

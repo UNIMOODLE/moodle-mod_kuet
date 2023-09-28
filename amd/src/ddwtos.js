@@ -24,7 +24,11 @@ let REGION = {
     FEEDBACKBACGROUND: '[data-region="feedback-background"]',
     AREA: '#drag_and_drop_area',
     DRAGELEMENT: '.draghome.user-select-none',
-    DROPELEMENT: '.drop.active'
+    DROPELEMENT: '.drop.active',
+    INPUTPLACE: '.placeinput',
+    STATEMENTTEXT: '[data-region="statement-text"]',
+    STATEMENTTEXT_CONTENT: '[data-region="statement-text"] .statement-text',
+    ICONSANSWERS: '.icon.text-success, .icon.text-danger'
 };
 
 let SERVICES = {
@@ -68,7 +72,7 @@ function Ddwtos(selector, showquestionfeedback = false, manualmode = false, json
     manualMode = manualmode;
     questionEnd = false;
     if (jsonresponse !== '') {
-        this.answered(JSON.parse(jsonresponse));
+        this.answered(JSON.parse(jsonresponse), false);
         if (manualMode === false || jQuery('.modal-body').length) {
             questionEnd = true;
             if (showQuestionFeedback === true) {
@@ -87,7 +91,9 @@ Ddwtos.prototype.initDdwtos = function() {
     Ddwtos.prototype.resizeAllDragsAndDrops();
     Ddwtos.prototype.cloneDrags();
     Ddwtos.prototype.positionDrags();
-    Ddwtos.prototype.initDragAndDrop();
+    if (questionEnd === false) {
+        Ddwtos.prototype.initDragAndDrop();
+    }
 };
 
 Ddwtos.prototype.initEvents = function() {
@@ -145,6 +151,13 @@ Ddwtos.prototype.reply = function() {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Ddwtos.prototype.endTimer);
         Ddwtos.prototype.removeEvents();
+        let inputPlaces = document.querySelectorAll(REGION.INPUTPLACE);
+        let response = {};
+        let i = 1;
+        inputPlaces.forEach(function(input) {
+            response['p' + i] = input.value;
+            i++;
+        });
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
             methodname: SERVICES.REPLY,
@@ -155,13 +168,14 @@ Ddwtos.prototype.reply = function() {
                 questionid: questionid,
                 jqid: jqid,
                 timeleft: timeLeft || 0,
-                preview: false
+                preview: false,
+                response: JSON.stringify(response)
             }
         };
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
                 questionEnd = true;
-                Ddwtos.prototype.answered(response);
+                Ddwtos.prototype.answered(response, true);
                 dispatchEvent(Ddwtos.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
                     Ddwtos.prototype.showAnswers();
@@ -242,7 +256,7 @@ Ddwtos.prototype.handleDragStart = function(e) {
 
 
 /* EVENTS */
-Ddwtos.prototype.answered = function(response) {
+Ddwtos.prototype.answered = function(response, fromService = false) {
     questionEnd = true;
     if (response.hasfeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
@@ -250,7 +264,24 @@ Ddwtos.prototype.answered = function(response) {
     }
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
-    jQuery(REGION.NEXT).removeClass('d-none');
+    jQuery(REGION.STATEMENTTEXT).css({'z-index': 3, 'padding': '15px'});
+    jQuery(REGION.TIMER).css('z-index', 3);
+    if (manualMode === false) {
+        jQuery(REGION.NEXT).removeClass('d-none');
+    }
+    let dragItems = document.querySelectorAll(REGION.DRAGELEMENT);
+    dragItems.forEach(function(dragElement) {
+        dragElement.setAttribute('draggable', 'false');
+        jQuery(dragElement).unbind('mousedown touchstart');
+        jQuery(dragElement).off('mousedown touchstart');
+        jQuery(dragElement).css({'pointer-events': 'none'});
+    });
+    if (fromService === true) {
+        jQuery(REGION.STATEMENTTEXT_CONTENT).html(decodeURIComponent(escape(atob(response.question_text_feedback))));
+        Ddwtos.prototype.resizeAllDragsAndDrops();
+        Ddwtos.prototype.cloneDrags();
+        Ddwtos.prototype.positionDrags();
+    }
     mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
 };
 
@@ -284,8 +315,7 @@ Ddwtos.prototype.hideFeedback = function() {
 
 Ddwtos.prototype.showAnswers = function() {
     if (questionEnd === true) {
-        // TODO obtain the possible answers, and paint them in a list.
-        jQuery(REGION.ANSWERHELP).removeClass('d-none').css({'z-index': 3});
+        jQuery(REGION.ICONSANSWERS).css({'display': 'inline-block'});
     }
 };
 
@@ -604,6 +634,10 @@ Ddwtos.prototype.dragEnd = function(pageX, pageY, drag) {
             // Empty drop.
             drop = dropZone;
         }
+        if (drop.hasClass('draghome')) {
+            // Not this drop zone.
+            return true;
+        }
         // Now put this drag into the drop.
         drop.removeClass('valid-drag-over-drop');
         Ddwtos.prototype.sendDragToDrop(drag, drop);
@@ -633,6 +667,10 @@ Ddwtos.prototype.isQuestionInteracted = function() {
     });
 
     return isInteracted;
+};
+
+Ddwtos.prototype.getUnplacedChoice = function(group, choice) {
+    return jQuery(REGION.AREA).find('.draghome.group' + group + '.choice' + choice + '.unplaced').slice(0, 1);
 };
 
 let questionManager = {

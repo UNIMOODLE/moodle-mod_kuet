@@ -146,11 +146,16 @@ class getuserquestionresponse_external extends external_api {
                     $cmid,
                     $sid,
                     $data->jqshowid);
-                return (array)calculated::export_calculated_response($data, $json);
+                return (array)calculated::export_calculated_response($dataexport, $json);
             case questions::DESCRIPTION:
                 return (array)description::export_description_response($data, $json);
             case questions::DDWTOS:
-                return (array)ddwtos::export_ddwtos_response($data, $json);
+                $dataexport = ddwtos::export_ddwtos(
+                    $data->jqid,
+                    $cmid,
+                    $sid,
+                    $data->jqshowid);
+                return (array)ddwtos::export_ddwtos_response($dataexport, $json);
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));

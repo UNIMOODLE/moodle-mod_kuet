@@ -33,10 +33,6 @@ class multichoice_exporter extends commondata_exporter {
      */
     public static function define_properties(): array {
         return [
-            'questiontext' => [
-                'type' => PARAM_RAW,
-                'optional' => true
-            ],
             'numanswers' => [
                 'type' => PARAM_INT,
                 'optional' => true
