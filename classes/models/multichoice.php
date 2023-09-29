@@ -429,7 +429,9 @@ class multichoice extends questions {
 
     /**
      * @param stdClass $useranswer
+     * @param jqshow_questions_responses $response
      * @return float|int
+     * @throws coding_exception
      * @throws dml_exception
      */
     public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {

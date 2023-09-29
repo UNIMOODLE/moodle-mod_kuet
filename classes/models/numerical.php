@@ -36,6 +36,7 @@ use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\external\numerical_external;
 use mod_jqshow\helpers\reports;
+use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -378,25 +379,33 @@ class numerical extends questions {
             }
         }
     }
+
     /**
      * @param stdClass $useranswer
+     * @param jqshow_questions_responses $response
      * @return float|int
+     * @throws JsonException
+     * @throws coding_exception
      * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws moodle_exception
      */
     public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
-        global $DB;
-
-        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
-        if ((int)$response->get('result') == 1) {
-            return $defaultmark;
-        } else if ((int)$response->get('result') == 0 || (int)$response->get('result') == 3) {
-            return 0;
-        }
-        // Partialyy correct.
+        global $DB, $COURSE;
+        $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
-        $moodleresult = $question->grade_response(['answer' => $useranswer->{'response'}, 'unit' => $useranswer->{'unit'}]);
-
-        return (float)$moodleresult[0] * $defaultmark;
-
+        $jqshow = new jqshow($response->get('jqshow'));
+        [$course, $cm] = get_course_and_cm_from_instance($response->get('jqshow'), 'jqshow', $jqshow->get('course'));
+        if (assert($question instanceof qtype_numerical_question)) {
+            questions::get_text(
+                $cm->id, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
+            );
+            $jsonresponse = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+            $moodleresult = $question->grade_response(['answer' => $jsonresponse->response, 'unit' => $jsonresponse->unit]);
+            if (isset($moodleresult[0])) {
+                $mark = $moodleresult[0];
+            }
+        }
+        return $mark;
     }
 }

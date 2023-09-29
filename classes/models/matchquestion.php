@@ -285,15 +285,18 @@ class matchquestion extends questions {
             }
         }
     }
+
     /**
      * @param stdClass $useranswer
+     * @param jqshow_questions_responses $response
      * @return float|int
+     * @throws coding_exception
      * @throws dml_exception
      */
     public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
-
         global $DB;
         $mark = 0;
+        // TODO prepare the json of the response to pass logic through grade_response.
         if ((int) $response->get('result') === 1) {
             $mark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
         }

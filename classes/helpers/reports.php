@@ -265,6 +265,7 @@ class reports {
      * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
     public static function get_questions_data_for_user_report(int $jqshowid, int $cmid, int $sid, int $userid): array {
         global $DB;
@@ -322,6 +323,8 @@ class reports {
             $data->cmid = $cmid;
             $data->sessionid = $sid;
             $data->userid = $userid;
+            $type = questions::get_question_class_by_string_type($question->get('qtype'));
+            $data->score = round($type::get_simple_mark(json_decode($response->get('response')), $response), 2);
             $questionsdata[] = $data;
         }
         return $questionsdata;

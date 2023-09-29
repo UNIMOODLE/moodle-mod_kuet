@@ -322,17 +322,28 @@ class shortanswer extends questions {
             }
         }
     }
+
     /**
      * @param stdClass $useranswer
+     * @param jqshow_questions_responses $response
      * @return float|int
-     * @throws dml_exception
+     * @throws JsonException
+     * @throws coding_exception
      */
     public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
         global $DB;
         $mark = 0;
-        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
-        if ((int)$response->get('result') == 1) {
-            return $defaultmark;
+        $question = question_bank::load_question($response->get('questionid'));
+        if (assert($question instanceof qtype_shortanswer_question)) {
+            $jsonresponse = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+            foreach ($question->answers as $answer) {
+                $overlap = (int)$question->usecase === 0 ?
+                    (strcasecmp($jsonresponse->response, $answer->answer) === 0) : // Uppercase and lowercase letters are the same.
+                    (strcmp($jsonresponse->response, $answer->answer) === 0); // Uppercase and lowercase letters must match.
+                if ($overlap === true) {
+                    $mark = $answer->fraction;
+                }
+            }
         }
         return $mark;
     }
