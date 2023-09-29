@@ -207,7 +207,6 @@ class matchquestion extends questions {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
         switch ($response->get('result')) {
             case questions::FAILURE:
                 $participant->response = 'incorrect';

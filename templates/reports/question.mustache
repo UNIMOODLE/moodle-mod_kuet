@@ -11,12 +11,14 @@
                     <div class="question-data-body">
                         {{{questiontext}}}
                         <br>
-                        <h6 class="correct-answers-title">{{#str}}scored_answers, mod_jqshow{{/str}}</h6>
-                        <ul class="correct-answers">
-                            {{#correctanswers}}
-                                <li>{{{response}}}{{#score}}: <b>{{.}}pt</b>{{/score}}</li>
-                            {{/correctanswers}}
-                        </ul>
+                        {{^hasnoanswers}}
+                            <h6 class="correct-answers-title">{{#str}}scored_answers, mod_jqshow{{/str}}</h6>
+                            <ul class="correct-answers">
+                                {{#correctanswers}}
+                                    <li>{{{response}}}{{#score}}: <b>{{.}}pt</b>{{/score}}</li>
+                                {{/correctanswers}}
+                            </ul>
+                        {{/hasnoanswers}}
                         <div class="question-preview bg-primary" data-action="question-preview" data-sessionid="{{sessionid}}" data-questionnid="{{jqid}}" data-cmid="{{cmid}}">
                             <span>{{#str}}preview, mod_jqshow{{/str}}</span>
                         </div>

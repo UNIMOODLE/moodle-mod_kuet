@@ -31,16 +31,8 @@ use dml_exception;
 use dml_transaction_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
-use mod_jqshow\models\calculated;
-use mod_jqshow\models\ddwtos;
-use mod_jqshow\models\description;
-use mod_jqshow\models\matchquestion;
-use mod_jqshow\models\multichoice;
-use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
@@ -89,9 +81,9 @@ class reports {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_questions_data_for_teacher_report_groups(jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session) {
+    public static function get_questions_data_for_teacher_report_groups(
+        jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session) {
         global $DB;
-
         $groupmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
         $data = new stdClass();
@@ -148,7 +140,9 @@ class reports {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_questions_data_for_teacher_report_individual(jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session) {
+    public static function get_questions_data_for_teacher_report_individual(
+        jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session
+    ) {
         global $DB;
 
         $jqshow = new jqshow($jqshowid);
@@ -501,32 +495,6 @@ class reports {
         $type = questions::get_question_class_by_string_type($data->type);
         $data = $type::get_question_report($session, $questiondata, $data, $jqid);
 
-//        switch ($data->type) {
-//            case questions::MULTICHOICE:
-//                $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::MATCH:
-//                $data = matchquestion::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::TRUE_FALSE:
-//                $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::SHORTANSWER:
-//                $data = shortanswer::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::NUMERICAL:
-//                $data = numerical::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::CALCULATED:
-//                $data = calculated::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::DESCRIPTION:
-//                $data = description::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            default:
-//                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-//                    [], get_string('question_nosuitable', 'mod_jqshow'));
-//        }
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $cmcontext = context_module::instance($cmid);
         $users = enrol_get_course_users($course->id, true);
@@ -600,31 +568,7 @@ class reports {
 
         $type = questions::get_question_class_by_string_type($data->type);
         $data = $type::get_question_report($session, $questiondata, $data, $jqid);
-//        switch ($data->type) {
-//            case questions::MULTICHOICE:
-//                $data = multichoice::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::MATCH:
-//                $data = matchquestion::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::TRUE_FALSE:
-//                $data = truefalse::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::SHORTANSWER:
-//                $data = shortanswer::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::NUMERICAL:
-//                $data = numerical::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::CALCULATED:
-//                $data = calculated::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            case questions::DESCRIPTION:
-//                $data = description::get_question_report($session, $questiondata, $data, $jqid);
-//                break;
-//            default:
-//                break;
-//        }
+
         $cmcontext = context_module::instance($cmid);
         $groups = groupmode::get_grouping_groups($session->get('groupings'));
         $data->numgroups = count($groups);
@@ -915,35 +859,8 @@ class reports {
                 $response = jqshow_questions_responses::get_record(['userid' => $userdata->id, 'session' => $sid, 'jqid' => $jqid]);
                 if ($response !== false) {
                     $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-
                     $type = questions::get_question_class_by_string_type($other->type);
                     $user = $type::get_ranking_for_question($user, $response, $answers, $session, $question);
-//                    switch ($other->type) {
-//                        case questions::MULTICHOICE:
-//                            $user = multichoice::get_ranking_for_question($user, $response, $answers, $session, $question);
-//                            break;
-//                        case questions::MATCH:
-//                            $user = matchquestion::get_ranking_for_question($user, $response, $session, $question);
-//                            break;
-//                        case questions::TRUE_FALSE:
-//                            $user = truefalse::get_ranking_for_question($user, $response, $answers, $session, $question);
-//                            break;
-//                        case questions::SHORTANSWER:
-//                            $user = shortanswer::get_ranking_for_question($user, $response, $answers, $session, $question);
-//                            break;
-//                        case questions::NUMERICAL:
-//                            $user = numerical::get_ranking_for_question($user, $response, $answers, $session, $question);
-//                            break;
-//                        case questions::CALCULATED:
-//                            $user = calculated::get_ranking_for_question($user, $response, $answers, $session, $question);
-//                            break;
-//                        case questions::DESCRIPTION:
-//                            $user = description::get_ranking_for_question($user, $response, $answers, $session, $question);
-//                            break;
-//                        default:
-//                            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-//                                [], get_string('question_nosuitable', 'mod_jqshow'));
-//                    }
                 } else {
                     $questiontimestr = self::get_time_string($session, $question);
                     $user->response = 'noresponse';
@@ -957,7 +874,7 @@ class reports {
             }
         }
         // Reorder by points.
-        usort($results, static fn($a, $b) => $b->userpoints <=> $a->userpoints);
+        usort($results, static fn($a, $b) => $b->score_moment <=> $a->score_moment);
         $position = 0;
         foreach ($results as $result) {
             $result->userposition = ++$position;

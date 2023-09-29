@@ -31,7 +31,8 @@ let REGION = {
     STATEMENTTEXT_CONTENT: '[data-region="statement-text"] .statement-text',
     ICONSANSWERS: '.icon.text-success, .icon.text-danger',
     ANSWERSCONTENT: '.answercontainer',
-    ANSWERSCONTENTGROUP: '.answercontainer [class*="draggrouphomes"]'
+    ANSWERSCONTENTGROUP: '.answercontainer [class*="draggrouphomes"]',
+    MODALBODY: '.modal-body'
 };
 
 let SERVICES = {
@@ -76,7 +77,7 @@ function Ddwtos(selector, showquestionfeedback = false, manualmode = false, json
     questionEnd = false;
     if (jsonresponse !== '') {
         this.answered(JSON.parse(jsonresponse), false);
-        if (manualMode === false || jQuery('.modal-body').length) {
+        if (manualMode === false || jQuery(REGION.MODALBODY).length) {
             questionEnd = true;
             if (showQuestionFeedback === true) {
                 this.showFeedback();
@@ -84,8 +85,14 @@ function Ddwtos(selector, showquestionfeedback = false, manualmode = false, json
             this.showAnswers();
         }
     }
-    Ddwtos.prototype.initDdwtos();
-    questionManager.init('drag_and_drop_area', false);
+    if (jQuery(REGION.MODALBODY).length) {
+        setTimeout(() => {
+            Ddwtos.prototype.initDdwtos();
+        }, 500); // For modal preview, is executed before the DOM is rendered.
+    } else {
+        Ddwtos.prototype.initDdwtos();
+    }
+    questionManager.init('drag_and_drop_area');
 }
 
 Ddwtos.prototype.initDdwtos = function() {
