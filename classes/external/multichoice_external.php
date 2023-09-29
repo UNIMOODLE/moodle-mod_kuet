@@ -113,7 +113,10 @@ class multichoice_external extends external_api {
         );
         $correctanswers = '';
         $answerfeedback = '';
+        $answertexts = [];
         foreach ($question->answers as $key => $answer) {
+            // TODO the text of the questions cannot go to the database, as it may contain HTML.
+            $answertexts[$answer->id] = $answer->answer;
             if ($answer->fraction !== '0.0000000' && strpos($answer->fraction, '-') !== 0) {
                 $correctanswers .= $answer->id . ',';
                 // TODO obtain the value of the answer to score the question.
@@ -129,11 +132,13 @@ class multichoice_external extends external_api {
                 }
             }
         }
+        $answertexts = json_encode($answertexts, JSON_THROW_ON_ERROR);
         $correctanswers = trim($correctanswers, ',');
         if ($preview === false) {
             multichoice::multichoice_response(
                 $jqid,
                 $answerids,
+                $answertexts, // TODO try to do backup/restore logic with oldids instead of text.
                 $correctanswers,
                 $questionid,
                 $sessionid,

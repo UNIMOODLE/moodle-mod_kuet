@@ -158,7 +158,7 @@ class calculated extends questions {
             }
         }
         $data->answered = true;
-        // TODO.
+        // TODO review jmtz
         $dataanswer = calculated_external::calculated(
             $responsedata->response,
             $responsedata->unit,
@@ -274,7 +274,7 @@ class calculated extends questions {
         $data->correctanswers = array_values($correctanswers);
         $data->answers = array_values($answers);
         self::get_text(
-            $data->cmid, $data->questiontext, $data->questiontextformat, $data->questionnid, $questiondata, 'questiontext'
+            $data->cmid, $data->questiontext, (int) $data->questiontextformat, $data->questionnid, $questiondata, 'questiontext'
         );
         $data->questiontext = $questiondata->questiontext;
         return $data;
@@ -321,6 +321,9 @@ class calculated extends questions {
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
         $participant->userpoints = grade::get_rounded_mark($spoints);
+        if ($session->is_group_mode()) {
+            $participant->grouppoints = grade::get_rounded_mark($spoints);
+        }
         $participant->score_moment = grade::get_rounded_mark($points);
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;
@@ -364,21 +367,36 @@ class calculated extends questions {
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
             $session = new jqshow_sessions($sessionid);
+            $response = new stdClass();
+            $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
+            $response->timeleft = $timeleft;
+            $response->type = questions::CALCULATED;
+            $response->response = $responsetext; // TODO validate html and special characters.
+            $response->unit = $unit;
+            $response->multiplier = $multiplier;
             if ($session->is_group_mode()) {
-                // TODO.
+                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
-                $response = new stdClass();
-                $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
-                $response->timeleft = $timeleft;
-                $response->type = questions::CALCULATED;
-                $response->response = $responsetext; // TODO validate html and special characters.
-                $response->unit = $unit;
-                $response->multiplier = $multiplier;
                 jqshow_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
+    }
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
+
+        global $DB;
+        $mark = 0;
+        if ((int) $response->get('result') === 1) {
+            $mark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
+        }
+
+        return $mark;
     }
 }

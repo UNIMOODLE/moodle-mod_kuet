@@ -61,13 +61,14 @@
                     {{/isteacher}}
                 </div>
                 {{#description}}
-                    {{^preview}}
-                        <div class="btn btn-primary m-3 float-right" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
-                            {{#str}}next{{/str}}
-                        </div>
-                    {{/preview}}
-                {{/description}}
-
+                    {{#programmedmode}}
+                        {{^preview}}
+                            <div class="btn btn-primary m-3 float-right" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
+                                {{#str}}next{{/str}}
+                            </div>
+                        {{/preview}}
+                    {{/programmedmode}}
+                    {{/description}}
                 {{#programmedmode}}
                     {{^preview}}
                         {{^description}}

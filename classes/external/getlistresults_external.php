@@ -66,7 +66,6 @@ class getlistresults_external extends external_api {
         );
         $session = new jqshow_sessions($sid);
         if ($session->is_group_mode()) {
-            $groupmode = true;
             $groupresults = sessions::get_group_session_results($sid, $cmid);
             return ['groupmode' => true, 'groupresults' => $groupresults];
         }

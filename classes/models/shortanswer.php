@@ -307,19 +307,33 @@ class shortanswer extends questions {
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
             $session = new jqshow_sessions($sessionid);
+            $response = new stdClass();
+            $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
+            $response->timeleft = $timeleft;
+            $response->type = questions::SHORTANSWER;
+            $response->response = $responsetext; // TODO validate html and special characters.
             if ($session->is_group_mode()) {
-                // TODO.
+                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
-                $response = new stdClass();
-                $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
-                $response->timeleft = $timeleft;
-                $response->type = questions::SHORTANSWER;
-                $response->response = $responsetext; // TODO validate html and special characters.
                 jqshow_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
+    }
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
+        global $DB;
+        $mark = 0;
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
+        if ((int)$response->get('result') == 1) {
+            return $defaultmark;
+        }
+        return $mark;
     }
 }

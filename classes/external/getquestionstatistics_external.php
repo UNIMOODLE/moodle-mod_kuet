@@ -33,9 +33,11 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\api\groupmode;
 use mod_jqshow\models\questions;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use question_bank;
 
@@ -76,12 +78,23 @@ class getquestionstatistics_external extends external_api {
         $jqshowquestion = jqshow_questions::get_question_by_jqid($jqid);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         $statistics = [];
+        $session = new jqshow_sessions($sid);
+        $responses = jqshow_questions_responses::get_question_responses($sid, $jqshowquestion->get('jqshowid'), $jqid);
+        if ($session->is_group_mode()) {
+            $members = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
+            $groupresponses = [];
+            foreach ($responses as $response) {
+                if (in_array($response->get('userid'), $members)) {
+                    $groupresponses[] = $response;
+                }
+            }
+            $responses = $groupresponses;
+        }
         switch ($jqshowquestion->get('qtype')) {
             case questions::MULTICHOICE:
                 foreach ($question->answers as $answer) {
                     $statistics[$answer->id] = ['answerid' => $answer->id, 'numberofreplies' => 0];
                 }
-                $responses = jqshow_questions_responses::get_question_responses($sid, $jqshowquestion->get('jqshowid'), $jqid);
                 foreach ($responses as $response) {
                     foreach ($question->answers as $answer) {
                         $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
@@ -106,14 +119,9 @@ class getquestionstatistics_external extends external_api {
             case questions::TRUE_FALSE:
                 $statistics[$question->trueanswerid] = ['answerid' => $question->trueanswerid, 'numberofreplies' => 0];
                 $statistics[$question->falseanswerid] = ['answerid' => $question->falseanswerid, 'numberofreplies' => 0];
-                $responses = jqshow_questions_responses::get_question_responses($sid, $jqshowquestion->get('jqshowid'), $jqid);
                 foreach ($responses as $response) {
-                    foreach ($question->answers as $answer) {
-                        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-                        if ((int)$other->answerids === (int)$answer->id) {
-                            $statistics[$answer->id]['numberofreplies']++;
-                        }
-                    }
+                    $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                    $statistics[(int)$other->answerids]['numberofreplies']++;
                 }
                 break;
             default:

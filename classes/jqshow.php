@@ -192,7 +192,7 @@ class jqshow {
         $courseparticipants = enrol_get_course_users($courseid, true);
         $students = [];
         foreach ($courseparticipants as $courseparticipant) {
-            if (has_capability('managegroups', $context)) {
+            if (has_capability('moodle/course:managegroups', $context)) {
                 continue;
             }
             $students[$courseparticipant->id] = $courseparticipant;

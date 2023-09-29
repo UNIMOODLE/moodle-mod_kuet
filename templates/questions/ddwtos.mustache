@@ -15,7 +15,7 @@
             {{/hastime}}
         </div>
         <div class="col-12 contain-statement ddwtos" id="drag_and_drop_area" data-region="statement-text">
-            <div class="statement-text">
+            <div class="statement-text {{#randomanswers}}randomanswers{{/randomanswers}}">
                 {{{ questiontext }}}
             </div>
         </div>
@@ -48,11 +48,10 @@
     </div>
 </div>
 {{#js}}
-    require(['mod_jqshow/ddwtos', 'qtype_ddwtos/ddwtos'{{#hastime}}, 'mod_jqshow/questiontimer'{{/hastime}}], function(Ddwtos, CoreDdwtos{{#hastime}}, QuestionTimer{{/hastime}}) {
+    require(['mod_jqshow/ddwtos'{{#hastime}}, 'mod_jqshow/questiontimer'{{/hastime}}], function(Ddwtos{{#hastime}}, QuestionTimer{{/hastime}}) {
         Ddwtos.initDdwtos('[data-region="question-content"]',
             {{#showquestionfeedback}}true{{/showquestionfeedback}}{{^showquestionfeedback}}false{{/showquestionfeedback}},
             {{#programmedmode}}false{{/programmedmode}}{{^programmedmode}}true{{/programmedmode}}{{#answered}}, '{{{jsonresponse}}}'{{/answered}});
-        // CoreDdwtos.init('drag_and_drop_area', false);
         {{#hastime}}
             {{^answered}}
                 QuestionTimer.initQuestionTimer('[data-region="question-content"]');

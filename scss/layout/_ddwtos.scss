@@ -40,6 +40,7 @@
 		border: none;
 		cursor: move;
 		color: white;
+		margin-right: 10px;
 	}
 
 	.qtype_ddwtos-readonly .draghome {
@@ -50,6 +51,7 @@
 		z-index: 3;
 		box-shadow: 3px 3px 4px rgba(0,0,0,.08);
 		position: absolute;
+		margin-right: 0;
 	}
 
 	.draghome.dragplaceholder {
@@ -63,6 +65,7 @@
 
 	.draghome.placed {
 		margin-bottom: 2px;
+		margin-right: 0;
 	}
 
 	.drop:focus,

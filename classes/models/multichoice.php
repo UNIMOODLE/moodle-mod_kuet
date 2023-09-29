@@ -334,6 +334,7 @@ class multichoice extends questions {
     public static function multichoice_response(
         int $jqid,
         string $answerids,
+        string $answertexts,
         string $correctanswers,
         int $questionid,
         int $sessionid,
@@ -347,7 +348,7 @@ class multichoice extends questions {
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
-            self::manage_response($jqid, $answerids, $correctanswers, $questionid, $sessionid, $jqshowid,
+            self::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::MULTICHOICE);
         }
     }
@@ -372,6 +373,7 @@ class multichoice extends questions {
     public static function manage_response(
         int $jqid,
         string $answerids,
+        string $answertexts,
         string $correctanswers,
         int $questionid,
         int $sessionid,
@@ -387,23 +389,12 @@ class multichoice extends questions {
         $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
         $response->correct_answers = $correctanswers;
         $response->answerids = $answerids;
+        $response->answertexts = $answertexts;
         $response->timeleft = $timeleft;
         $response->type = $qtype;
         $session = new jqshow_sessions($sessionid);
         if ($session->is_group_mode()) {
-            // All groupmembers has the same response saved on db.
-            $num = jqshow_questions_responses::count_records(
-                ['jqshow' => $jqshowid, 'session' => $sessionid, 'jqid' => $jqid, 'userid' => $userid]);
-            if ($num > 0) {
-                return;
-            }
-            // Groups.
-            $gmemberids = groupmode::get_grouping_group_members_by_userid($session->get('groupings'), $userid);
-            foreach ($gmemberids as $gmemberid) {
-                jqshow_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $questionid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
-                );
-            }
+            parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
         } else {
             // Individual.
             jqshow_questions_responses::add_response(
@@ -434,5 +425,26 @@ class multichoice extends questions {
             }
         }
         return $result;
+    }
+
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+        global $DB;
+        $mark = 0;
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
+        $answerids = $useranswer->{'answerids'} ?? '';
+        if (empty($answerids)) {
+            return $mark;
+        }
+        $answerids = explode(',', $answerids);
+        foreach ($answerids as $answerid) {
+            $fraction = $DB->get_field('question_answers', 'fraction', ['id' => $answerid]);
+            $mark += $defaultmark * $fraction;
+        }
+        return $mark;
     }
 }

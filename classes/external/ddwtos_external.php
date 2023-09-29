@@ -121,7 +121,6 @@ class ddwtos_external extends external_api {
             /* TODO move logic to API grades,
             to have a method that returns the result constant and the feedback of the answer according to the type of question. */
             $responsejson = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
-            $correctresponse = ddwtos::correct_response($question, $cmid);
             $moodleresult = $question->grade_response((array)$responsejson);
             $answerfeedback = '';
             if (isset($moodleresult[1])) {
@@ -192,7 +191,6 @@ class ddwtos_external extends external_api {
                 'hasfeedbacks' => (bool)($statmentfeedback !== ''),
                 'statment_feedback' => $statmentfeedback,
                 'answer_feedback' => $answerfeedback,
-                /*'correct_response' => $correctresponse,*/
                 'question_text_feedback' => base64_encode($questiontextfeedback),
                 'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
@@ -222,7 +220,6 @@ class ddwtos_external extends external_api {
                 'hasfeedbacks' => new external_value(PARAM_BOOL, 'Has feedback'),
                 'statment_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
                 'answer_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
-                /*'correct_response' => new external_value(PARAM_RAW, 'Correct response', VALUE_OPTIONAL),*/
                 'question_text_feedback' => new external_value(PARAM_RAW, 'HTML text with feedback', VALUE_OPTIONAL),
                 'programmedmode' => new external_value(PARAM_BOOL, 'Program mode for controls'),
                 'preview' => new external_value(PARAM_BOOL, 'Question preview'),

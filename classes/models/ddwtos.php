@@ -83,6 +83,7 @@ class ddwtos extends questions {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
+        $question->shufflechoices = 0;
         $type = $question->get_type_name();
         $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
@@ -90,7 +91,7 @@ class ddwtos extends questions {
         $data->questiontextformat = $question->questiontextformat;
         $data->name = $question->name;
         $data->questiontext = self::get_question_text($cmid, $question);
-        $data->correct_response = self::correct_response($question, $cmid);
+        $data->randomanswers = $session->get('randomanswers') === 1;
         return $data;
     }
 
@@ -127,6 +128,7 @@ class ddwtos extends questions {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
+        $question->shufflechoices = 0;
         $data->questiontext = self::get_question_text(
             $data->cmid, $question,
             (array)json_decode($responsedata->response, false, 512, JSON_THROW_ON_ERROR)
@@ -269,9 +271,6 @@ class ddwtos extends questions {
         $choiceorderarray = [];
         foreach ($question->choices as $group => $choices) {
             $choiceorder = array_keys($choices);
-            if ($question->shufflechoices) {
-                shuffle($choiceorder);
-            }
             foreach ($choiceorder as $key => $value) {
                 $choiceorderarray[$group][$key + 1] = $value;
             }
@@ -480,5 +479,22 @@ class ddwtos extends questions {
                 );
             }
         }
+    }
+
+    /**
+     * @param stdClass $useranswer
+     * @param jqshow_questions_responses $response
+     * @return float|int
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
+        global $DB;
+        $mark = 0;
+        if ((int) $response->get('result') === 1) {
+            $mark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
+        }
+
+        return $mark;
     }
 }

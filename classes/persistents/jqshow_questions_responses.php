@@ -153,8 +153,7 @@ class jqshow_questions_responses extends persistent {
      * @return bool
      * @throws dml_exception
      */
-    public static function delete_question_resonses(int $jqshow, int $sid, int $jqid): bool {
-        // TODO: fix function name!
+    public static function delete_question_responses(int $jqshow, int $sid, int $jqid): bool {
         global $DB;
         return  $DB->delete_records(self::TABLE, ['jqshow' => $jqshow, 'session' => $sid, 'jqid' => $jqid]);
     }
@@ -164,8 +163,7 @@ class jqshow_questions_responses extends persistent {
      * @return bool
      * @throws dml_exception
      */
-    public static function delete_questions_resonses(int $sid): bool {
-        // TODO: fix function name!
+    public static function delete_questions_responses(int $sid): bool {
         global $DB;
         return  $DB->delete_records(self::TABLE, ['session' => $sid]);
     }

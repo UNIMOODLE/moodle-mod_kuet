@@ -29,8 +29,6 @@ use context;
 
 class commondata_exporter extends question_exporter {
 
-    // TODO split in exports according to the type of question.
-
     /**
      * @return array[]
      */

@@ -49,7 +49,7 @@
         </div>
     </div>
     <!-- Second data -->
-    {{^ nostatistics }}
+    {{^ nostatistics }} {{^hasnoanswers}}
         <div class="row">
         <div class="col-12 col-lg-12 container">
             <div class="answers">
@@ -92,7 +92,7 @@
             </div>
         </div>
     </div>
-    {{/nostatistics}}
+    {{/hasnoanswers}} {{/nostatistics}}
     <!-- Ranking question data -->
     {{#hasranking}}
         <div class="col-12 col-lg-12 container">
@@ -112,7 +112,7 @@
                             <div class="d-table-cell text-center"></div>
                         </div>
                         {{#questionranking}}
-                            <div class="INDIVIDUAL QUESTION d-table-row ranking-users-data user-item" data-userid="{{userid}}">
+                            <div class="d-table-row ranking-users-data user-item" data-userid="{{userid}}">
                                 <div class="d-table-cell">
                                     <div class="participant" data-userid="{{userid}}">
                                         <a href="{{userprofileurl}}" target="_blank">

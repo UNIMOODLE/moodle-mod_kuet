@@ -34,6 +34,7 @@ use dml_transaction_exception;
 use Exception;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\api\groupmode;
 use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\match_external;
 use mod_jqshow\external\multichoice_external;
@@ -322,5 +323,79 @@ class questions {
         $text = trim(html_entity_decode($text), self::CHARACTERS_TO_BE_STRIPPED);
         $text = str_replace('"', '\"', $text);
         return $text;
+    }
+
+    /**
+     * @param $jqshowid
+     * @param jqshow_sessions $session
+     * @param int $jqid
+     * @param int $questionid
+     * @param int $userid
+     * @param int $result
+     * @param stdClass $response
+     * @return void
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    protected static function add_group_response($jqshowid, jqshow_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response) : void {
+        // All groupmembers has the same response saved on db.
+        $num = jqshow_questions_responses::count_records(
+            ['jqshow' => $jqshowid, 'session' => $session->get('id'), 'jqid' => $jqid, 'userid' => $userid]);
+        if ($num > 0) {
+            return;
+        }
+        // Groups.
+        $gmemberids = groupmode::get_grouping_group_members_by_userid($session->get('groupings'), $userid);
+        foreach ($gmemberids as $gmemberid) {
+            jqshow_questions_responses::add_response(
+                $jqshowid, $session->get('id'), $jqid, $questionid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+            );
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public static function is_evaluable() : bool {
+        return true;
+    }
+
+    /**
+     * @param string $type
+     * @return string
+     * @throws moodle_exception
+     */
+    public static function get_question_class_by_string_type(string $type) : string {
+        if ($type == 'match') {
+            $type = 'matchquestion';
+        }
+        $type = "mod_jqshow\models\\$type";
+        if (!class_exists($type)) {
+            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                [], get_string('question_nosuitable', 'mod_jqshow'));
+        }
+        return $type;
+    }
+    /**
+     * @param jqshow_questions $jqquestion
+     * @param jqshow_sessions $session
+     * @return int
+     * @throws coding_exception
+     */
+    public static function get_question_time(jqshow_questions $jqquestion, jqshow_sessions $session) : int {
+
+        $qtime = $jqquestion->get('timelimit');
+        if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
+            $sessiontime = $session->get('sessiontime');
+            $numq = jqshow_questions::count_records(['sessionid' => $session->get('id'),
+                'jqshowid' => $session->get('jqshowid')]);
+            $qtime = round($sessiontime / $numq);
+        } else if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
+            $qtime = ($qtime > 0) ? $qtime : $session->get('questiontime');
+        }
+
+        return $qtime;
     }
 }

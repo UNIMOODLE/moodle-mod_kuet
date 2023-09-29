@@ -177,5 +177,6 @@ class getuserquestionresponse_external extends external_api {
      */
     public static function getuserquestionresponse_returns(): external_single_structure {
         return question_exporter::get_read_structure();
+//        return null;
     }
 }

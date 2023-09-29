@@ -208,19 +208,31 @@ class description extends questions {
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
             $session = new jqshow_sessions($sessionid);
+            $response = new stdClass();
+            $response->hasfeedbacks = (bool)($statmentfeedback !== '');
+            $response->timeleft = $timeleft;
+            $response->type = questions::DESCRIPTION;
+            $response->response = '';
             if ($session->is_group_mode()) {
-                // TODO.
+                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
-                $response = new stdClass();
-                $response->hasfeedbacks = (bool)($statmentfeedback !== '');
-                $response->timeleft = $timeleft;
-                $response->type = questions::DESCRIPTION;
-                $response->response = '';
                 jqshow_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
+    }
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+        //Not graded.
+        return 0;
+    }
+    public static function is_evaluable() : bool {
+        return false;
     }
 }

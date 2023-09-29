@@ -318,7 +318,7 @@ class truefalse extends questions {
                 continue;
             }
             $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-            if ($other->answerids !== '' && $other->answerids !== '0') { // TODO prepare for multianswer.
+            if ($other->answerids !== '' && $other->answerids !== '0') {
                 $arrayanswerids = explode(',', $other->answerids);
                 foreach ($arrayanswerids as $arrayanswerid) {
                     $answers[$arrayanswerid]['numticked']++;
@@ -391,6 +391,7 @@ class truefalse extends questions {
     public static function truefalse_response(
         int $jqid,
         string $answerids,
+        string $answertexts,
         string $correctanswers,
         int $questionid,
         int $sessionid,
@@ -404,8 +405,28 @@ class truefalse extends questions {
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
         if (!$isteacher) {
-            multichoice::manage_response($jqid, $answerids, $correctanswers, $questionid, $sessionid, $jqshowid,
+            multichoice::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::TRUE_FALSE);
         }
+    }
+    /**
+     * @param stdClass $useranswer
+     * @return float|int
+     * @throws dml_exception
+     */
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+        global $DB;
+        $mark = 0;
+        $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
+        $answerids = $useranswer->{'answerids'} ?? '';
+        if (empty($answerids)) {
+            return $mark;
+        }
+        $answerids = explode(',', $answerids);
+        foreach ($answerids as $answerid) {
+            $fraction = $DB->get_field('question_answers', 'fraction', ['id' => $answerid]);
+            $mark += $defaultmark * $fraction;
+        }
+        return $mark;
     }
 }

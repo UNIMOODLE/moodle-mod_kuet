@@ -18,8 +18,15 @@ namespace mod_jqshow\api;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
+use mod_jqshow\models\calculated;
+use mod_jqshow\models\description;
+use mod_jqshow\models\matchquestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_grades;
 use mod_jqshow\persistents\jqshow_questions;
@@ -92,10 +99,7 @@ class grade {
      * @throws dml_exception
      */
     public static function get_simple_mark(jqshow_questions_responses $response) {
-        // TODO adapt to all kinds of questions.
-        global $DB;
         $mark = 0;
-
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
         if ($jquestion->get('ignorecorrectanswer')) {
@@ -106,18 +110,9 @@ class grade {
         $useranswer = $response->get('response');
         if (!empty($useranswer)) {
             $useranswer = json_decode($useranswer);
-            $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
-            $answerids = $useranswer->{'answerids'} ?? '';
-            if (empty($answerids)) {
-                return $mark;
-            }
-            $answerids = explode(',', $answerids);
-            foreach ($answerids as $answerid) {
-                $fraction = $DB->get_field('question_answers', 'fraction', ['id' => $answerid]);
-                $mark += $defaultmark * $fraction;
-            }
+            $type = questions::get_question_class_by_string_type($useranswer->{'type'});
+            $mark = $type::get_simple_mark($useranswer, $response);
         }
-
         return $mark;
     }
 

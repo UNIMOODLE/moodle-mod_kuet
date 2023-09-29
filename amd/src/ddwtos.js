@@ -29,7 +29,9 @@ let REGION = {
     INPUTPLACE: '.placeinput',
     STATEMENTTEXT: '[data-region="statement-text"]',
     STATEMENTTEXT_CONTENT: '[data-region="statement-text"] .statement-text',
-    ICONSANSWERS: '.icon.text-success, .icon.text-danger'
+    ICONSANSWERS: '.icon.text-success, .icon.text-danger',
+    ANSWERSCONTENT: '.answercontainer',
+    ANSWERSCONTENTGROUP: '.answercontainer [class*="draggrouphomes"]'
 };
 
 let SERVICES = {
@@ -88,6 +90,19 @@ function Ddwtos(selector, showquestionfeedback = false, manualmode = false, json
 
 Ddwtos.prototype.initDdwtos = function() {
     jQuery(ACTION.SEND_RESPONSE).on('click', Ddwtos.prototype.reply);
+    if (jQuery(REGION.STATEMENTTEXT_CONTENT).hasClass('randomanswers')) {
+        let groups = document.querySelectorAll(REGION.ANSWERSCONTENTGROUP);
+        groups.forEach(function(element){
+            let draghomes = Array.prototype.slice.call(element.getElementsByClassName('draghome'));
+            draghomes.forEach(function(drag){
+                element.removeChild(drag);
+            });
+            Ddwtos.prototype.shuffleArray(draghomes);
+            draghomes.forEach(function(drag){
+                element.appendChild(drag);
+            });
+        });
+    }
     Ddwtos.prototype.initEvents();
     Ddwtos.prototype.resizeAllDragsAndDrops();
     Ddwtos.prototype.cloneDrags();
@@ -95,6 +110,16 @@ Ddwtos.prototype.initDdwtos = function() {
     if (questionEnd === false) {
         Ddwtos.prototype.initDragAndDrop();
     }
+};
+
+Ddwtos.prototype.shuffleArray = function(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        let temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+    return array;
 };
 
 Ddwtos.prototype.initEvents = function() {

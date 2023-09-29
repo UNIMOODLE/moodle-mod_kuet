@@ -68,7 +68,6 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
     }
 
     protected function process_jqshow_questions_response($data) {
-        //TODO: missing answerid! multichoice at least.
         global $DB;
         $data = (object)$data;
         $data->jqshow = $this->get_new_parentid('jqshow');
@@ -77,6 +76,7 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
         $newquestionid = $this->get_mappingid('question', $data->questionid);
         if ($newquestionid) {
             $data->questionid = $newquestionid;
+            $data->response = $this->replace_answerids($data->response, $newquestionid);
         }
         $data->userid = $this->get_mappingid('user', $data->userid);
         $DB->insert_record('jqshow_questions_responses', $data);
@@ -123,5 +123,47 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
 
     protected function after_execute() {
         $this->add_related_files('mod_jqshow', 'intro', null);
+    }
+    private function replace_answerids(string $responsejson, int $newquestionid) : string {
+        if (!$newquestionid) {
+            return $responsejson;
+        }
+        $resp = json_decode($responsejson, false, 512, JSON_THROW_ON_ERROR);
+        if ($resp->{'type'} == 'truefalse') {
+            return $this->replace_answerids_truefalse($resp, $newquestionid);
+        } else if ($resp->{'type'} == 'multichoice') {
+            return $this->replace_answerids_multichoice($resp, $newquestionid);
+        }
+        return $responsejson;
+
+    }
+    private function replace_answerids_multichoice(stdClass $response, $newquestionid) : string {
+        $answertexts = $response->{'answertexts'};
+        $answerids = explode(',', $response->{'answerids'});
+        $newanswerids = [];
+        $answertexts = json_decode($answertexts);
+        $question = question_bank::load_question($newquestionid);
+        foreach ($question->answers as $key => $answer) {
+            foreach ($answerids as $answerid) {
+                $text = $answertexts->{$answerid};
+                if (strcmp($text, $answer->answer) == 0) {
+                    $newanswerids[] = $key;
+                }
+            }
+        }
+        $newanswerids = implode(',', $newanswerids);
+        $response->{'answerids'} = $newanswerids;
+
+        return json_encode($response);
+    }
+    private function replace_answerids_truefalse(stdClass $response, $newquestionid) : string {
+        $question = question_bank::load_question($newquestionid);
+        $answertext = $response->{'answertexts'};
+        $newanswerids = $question->falseanswerid;
+        if ($answertext == '1' && $question->rightanswer) {
+            $newanswerids  = $question->trueanswerid;
+        }
+        $response->{'answerids'} = $newanswerids;
+        return json_encode($response);
     }
 }

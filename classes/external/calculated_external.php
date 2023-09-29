@@ -134,6 +134,7 @@ class calculated_external extends external_api {
             );
             /* TODO move logic to API grades,
             to have a method that returns the result constant and the feedback of the answer according to the type of question. */
+            // TODO: $moodleresultndoes not take correct answer.
             $moodleresult = $question->grade_response(['answer' => $responsenum, 'unit' => $unit]);
             if (isset($moodleresult[1])) {
                 switch (get_class($moodleresult[1])) {
@@ -166,6 +167,7 @@ class calculated_external extends external_api {
                 $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
             }
             if ($preview === false) {
+                //TODO: save question text and correctanswer from front.
                 calculated::calculated_response(
                     $jqid,
                     $responsenum,
