@@ -146,7 +146,7 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
         foreach ($question->answers as $key => $answer) {
             foreach ($answerids as $answerid) {
                 $text = $answertexts->{$answerid};
-                if (strcmp($text, $answer->answer) == 0) {
+                if (strcmp($text, strip_tags($answer->answer)) == 0) {
                     $newanswerids[] = $key;
                 }
             }

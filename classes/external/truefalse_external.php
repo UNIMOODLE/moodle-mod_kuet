@@ -118,7 +118,6 @@ class truefalse_external extends external_api {
                     $cmid, $question->truefeedback, 1, (int) $question->trueanswerid, $question, 'answerfeedback'
                 ) . '<br>';
         } else {
-            $answertext = $question->rightanswer;
             $answerfeedback = questions::get_text(
                     $cmid, $question->falsefeedback, 1, (int) $question->falseanswerid, $question, 'answerfeedback'
                 ) . '<br>';
