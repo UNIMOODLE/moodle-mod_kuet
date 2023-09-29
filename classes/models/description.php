@@ -223,13 +223,13 @@ class description extends questions {
             }
         }
     }
+
     /**
      * @param stdClass $useranswer
+     * @param jqshow_questions_responses $response
      * @return float|int
-     * @throws dml_exception
      */
     public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
-        //Not graded.
         return 0;
     }
     public static function is_evaluable() : bool {

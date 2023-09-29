@@ -374,6 +374,7 @@ class truefalse extends questions {
     /**
      * @param int $jqid
      * @param string $answerids
+     * @param string $answertexts
      * @param string $correctanswers
      * @param int $questionid
      * @param int $sessionid
@@ -384,9 +385,9 @@ class truefalse extends questions {
      * @param int $timeleft
      * @return void
      * @throws JsonException
-     * @throws moodle_exception
      * @throws coding_exception
      * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public static function truefalse_response(
         int $jqid,
@@ -409,9 +410,12 @@ class truefalse extends questions {
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::TRUE_FALSE);
         }
     }
+
     /**
      * @param stdClass $useranswer
+     * @param jqshow_questions_responses $response
      * @return float|int
+     * @throws coding_exception
      * @throws dml_exception
      */
     public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {

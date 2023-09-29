@@ -36,6 +36,7 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\external\ddwtos_external;
 use mod_jqshow\helpers\reports;
+use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -485,16 +486,30 @@ class ddwtos extends questions {
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
      * @return float|int
+     * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws moodle_exception
      */
     public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
         global $DB;
         $mark = 0;
-        if ((int) $response->get('result') === 1) {
-            $mark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
+        $jqshow = new jqshow($response->get('jqshow'));
+        [$course, $cm] = get_course_and_cm_from_instance($response->get('jqshow'), 'jqshow', $jqshow->get('course'));
+        $question = question_bank::load_question($response->get('questionid'));
+        if (assert($question instanceof qtype_ddwtos_question)) {
+            $question->shufflechoices = 0;
+            questions::get_text(
+                $cm->id, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
+            );
+            $json = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+            $responsejson = json_decode($json->response, false, 512, JSON_THROW_ON_ERROR);
+            $moodleresult = $question->grade_response((array)$responsejson);
+            if (isset($moodleresult[0])) {
+                $mark = $moodleresult[0];
+            }
         }
-
         return $mark;
     }
 }
