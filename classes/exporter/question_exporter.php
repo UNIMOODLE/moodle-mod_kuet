@@ -43,6 +43,7 @@ class question_exporter extends exporter {
             numerical_exporter::define_properties(),
             calculated_exporter::define_properties(),
             description_exporter::define_properties(),
+            ddwtos_exporter::define_properties(),
             endsession_exporter::define_properties()
         );
     }

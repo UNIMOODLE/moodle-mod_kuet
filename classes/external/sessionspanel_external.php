@@ -78,6 +78,8 @@ class sessionspanel_external extends external_api {
             'endedsessions' => self::get_session_structure(),
             'courseid' => new external_value(PARAM_RAW, 'Course id'),
             'cmid' => new external_value(PARAM_INT, 'Course module id'),
+            'hasqrcodeimage' => new external_value(PARAM_BOOL, 'Course module id'),
+            'urlqrcode' => new external_value(PARAM_RAW, 'QRCode svg', VALUE_OPTIONAL),
             'createsessionurl' => new external_value(PARAM_URL, 'URL for create session'),
             'hasactivesession' => new external_value(PARAM_BOOL, 'URL for create session'),
         ]);

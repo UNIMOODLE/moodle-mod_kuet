@@ -33,10 +33,6 @@ class truefalse_exporter extends commondata_exporter {
      */
     public static function define_properties(): array {
         return [
-            'questiontext' => [
-                'type' => PARAM_RAW,
-                'optional' => true
-            ],
             'name' => [
                 'type' => PARAM_RAW,
                 'optional' => true

@@ -436,3 +436,31 @@ function jqshow_questions_in_use($questionids) {
              WHERE jq.questionid $sqlfragment";
     return $DB->record_exists_sql($sql, $params);
 }
+
+/**
+ * @param string $url
+ * @param int $cmid
+ * @return void
+ * @throws \Endroid\QrCode\Exception\InvalidWriterException
+ */
+function generate_jqshow_qrcode(string $url, int $cmid) {
+    if (class_exists('\block_qrcode\output_image')) {
+        global $CFG;
+        require_once($CFG->dirroot . '/blocks/qrcode/thirdparty/vendor/autoload.php');
+        // Creates new directory.
+        if (!is_dir($CFG->localcachedir . '/mod_jqshow') &&
+            !mkdir($concurrentdirectory =
+                dirname($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg'), $CFG->directorypermissions, true) &&
+            !is_dir($concurrentdirectory)) {
+            throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentdirectory));
+        }
+        $qrcode = new \Endroid\QrCode\QrCode($url);
+        $qrcode->setMargin(10);
+        $qrcode->setEncoding('UTF-8');
+        $qrcode->setErrorCorrectionLevel('high');
+        $qrcode->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0]);
+        $qrcode->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255]);
+        $qrcode->setWriterByName('svg');
+        $qrcode->writeFile($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg');
+    }
+}

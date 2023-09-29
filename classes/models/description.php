@@ -49,8 +49,6 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
-
 class description extends questions {
 
     /**
@@ -124,7 +122,6 @@ class description extends questions {
             true
         );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
-        $data->shortanswerresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
         $data->programmedmode = $dataanswer['programmedmode'];
         $data->statment_feedback = $dataanswer['statment_feedback'];

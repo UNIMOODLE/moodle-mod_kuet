@@ -26,6 +26,7 @@
 use mod_jqshow\external\activesession_external;
 use mod_jqshow\external\calculated_external;
 use mod_jqshow\external\copysession_external;
+use mod_jqshow\external\ddwtos_external;
 use mod_jqshow\external\deleteresponses_external;
 use mod_jqshow\external\deletesession_external;
 use mod_jqshow\external\description_external;
@@ -205,6 +206,14 @@ $functions = [
         'classname' => description_external::class,
         'methodname' => 'description',
         'description' => 'Description reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_ddwtos' => [
+        'classname' => ddwtos_external::class,
+        'methodname' => 'ddwtos',
+        'description' => 'Ddwtos reply.',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
@@ -407,6 +416,7 @@ $services = [
             'mod_jqshow_numerical',
             'mod_jqshow_calculated',
             'mod_jqshow_description',
+            'mod_jqshow_ddwtos',
             'mod_jqshow_nextquestion',
             'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',

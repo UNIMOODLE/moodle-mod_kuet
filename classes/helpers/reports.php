@@ -32,6 +32,7 @@ use dml_transaction_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\models\calculated;
+use mod_jqshow\models\ddwtos;
 use mod_jqshow\models\description;
 use mod_jqshow\models\matchquestion;
 use mod_jqshow\models\multichoice;

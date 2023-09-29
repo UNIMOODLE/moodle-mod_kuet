@@ -36,12 +36,12 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\models\description;
+use mod_jqshow\models\ddwtos;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
-use qtype_description_question;
+use qtype_ddwtos_question;
 use question_bank;
 
 defined('MOODLE_INTERNAL') || die();
@@ -49,9 +49,9 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
-class description_external extends external_api {
+class ddwtos_external extends external_api {
 
-    public static function description_parameters(): external_function_parameters {
+    public static function ddwtos_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
@@ -61,6 +61,7 @@ class description_external extends external_api {
                 'jqid' => new external_value(PARAM_INT, 'id of question in jqshow_questions'),
                 'timeleft' => new external_value(PARAM_INT, 'Time left of question, if question has time, else 0.'),
                 'preview' => new external_value(PARAM_BOOL, 'preview or not for grade'),
+                'response' => new external_value(PARAM_RAW, 'Json string with responses'),
             ]
         );
     }
@@ -73,27 +74,29 @@ class description_external extends external_api {
      * @param int $jqid
      * @param int $timeleft
      * @param bool $preview
+     * @param string $response
      * @return array
      * @throws JsonException
-     * @throws invalid_persistent_exception
-     * @throws moodle_exception
      * @throws coding_exception
      * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
-    public static function description(
+    public static function ddwtos(
         int $sessionid,
         int $jqshowid,
         int $cmid,
         int $questionid,
         int $jqid,
         int $timeleft,
-        bool $preview
+        bool $preview,
+        string $response
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
-            self::description_parameters(),
+            self::ddwtos_parameters(),
             [
                 'sessionid' => $sessionid,
                 'jqshowid' => $jqshowid,
@@ -101,7 +104,8 @@ class description_external extends external_api {
                 'questionid' => $questionid,
                 'jqid' => $jqid,
                 'timeleft' => $timeleft,
-                'preview' => $preview
+                'preview' => $preview,
+                'response' => $response
             ]
         );
         $contextmodule = context_module::instance($cmid);
@@ -109,30 +113,85 @@ class description_external extends external_api {
 
         $session = new jqshow_sessions($sessionid);
         $question = question_bank::load_question($questionid);
-        $result = questions::NOTEVALUABLE;
-        if (assert($question instanceof qtype_description_question)) {
+        $result = questions::NORESPONSE;
+        if (assert($question instanceof qtype_ddwtos_question)) {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
             /* TODO move logic to API grades,
             to have a method that returns the result constant and the feedback of the answer according to the type of question. */
+            $responsejson = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+            $moodleresult = $question->grade_response((array)$responsejson);
+            $answerfeedback = '';
+            if (isset($moodleresult[1])) {
+                switch (get_class($moodleresult[1])) {
+                    case 'question_state_gradedwrong':
+                        $result = questions::FAILURE;
+                        $answerfeedback = questions::get_text(
+                            $cmid,
+                            $question->incorrectfeedback,
+                            $question->incorrectfeedbackformat,
+                            $question->id,
+                            $question,
+                            'feedback'
+                        );
+                        break;
+                    case 'question_state_gradedpartial':
+                        $result = questions::PARTIALLY;
+                        $answerfeedback = questions::get_text(
+                            $cmid,
+                            $question->partiallycorrectfeedback,
+                            $question->partiallycorrectfeedbackformat,
+                            $question->id,
+                            $question,
+                            'feedback'
+                        );
+                        break;
+                    case 'question_state_gradedright':
+                        $result = questions::SUCCESS;
+                        $answerfeedback = questions::get_text(
+                            $cmid,
+                            $question->correctfeedback,
+                            $question->correctfeedbackformat,
+                            $question->id,
+                            $question,
+                            'feedback'
+                        );
+                        break;
+                    default:
+                        break;
+                }
+            }
             if ($preview === false) {
-                description::description_response(
+                ddwtos::ddwtos_response(
                     $jqid,
+                    $response,
                     $result,
                     $questionid,
                     $sessionid,
                     $jqshowid,
                     $statmentfeedback,
+                    $answerfeedback,
                     $USER->id,
                     $timeleft
                 );
             }
+            $question = question_bank::load_question($questionid);
+            if (!assert($question instanceof qtype_ddwtos_question)) {
+                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                    [], get_string('question_nosuitable', 'mod_jqshow'));
+            }
+            $questiontextfeedback = ddwtos::get_question_text(
+                $cmid, $question,
+                (array)json_decode($response, false, 512, JSON_THROW_ON_ERROR)
+            );
             return [
                 'reply_status' => true,
                 'result' => $result,
                 'hasfeedbacks' => (bool)($statmentfeedback !== ''),
                 'statment_feedback' => $statmentfeedback,
+                'answer_feedback' => $answerfeedback,
+                'question_text_feedback' => base64_encode($questiontextfeedback),
                 'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
                     $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
@@ -153,13 +212,15 @@ class description_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function description_returns(): external_single_structure {
+    public static function ddwtos_returns(): external_single_structure {
         return new external_single_structure(
             [
                 'reply_status' => new external_value(PARAM_BOOL, 'Status of reply'),
                 'result' => new external_value(PARAM_INT, 'Result of reply'),
                 'hasfeedbacks' => new external_value(PARAM_BOOL, 'Has feedback'),
                 'statment_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
+                'answer_feedback' => new external_value(PARAM_RAW, 'HTML statment feedback', VALUE_OPTIONAL),
+                'question_text_feedback' => new external_value(PARAM_RAW, 'HTML text with feedback', VALUE_OPTIONAL),
                 'programmedmode' => new external_value(PARAM_BOOL, 'Program mode for controls'),
                 'preview' => new external_value(PARAM_BOOL, 'Question preview'),
             ]

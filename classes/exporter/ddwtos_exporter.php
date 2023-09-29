@@ -26,34 +26,29 @@
 namespace mod_jqshow\exporter;
 
 
-class multichoice_exporter extends commondata_exporter {
+class ddwtos_exporter extends commondata_exporter {
 
     /**
      * @return array
      */
     public static function define_properties(): array {
         return [
-            'numanswers' => [
-                'type' => PARAM_INT,
+            'ddwtos' => [
+                'type' => PARAM_BOOL,
                 'optional' => true
             ],
-            'name' => [
+            'ddwtosresponse' => [
                 'type' => PARAM_RAW,
                 'optional' => true
             ],
-            'answers' => [
-                'type' => answer_exporter::read_properties_definition(),
-                'multiple' => true,
+            'correct_response' => [
+                'type' => PARAM_RAW,
                 'optional' => true
             ],
-            'multianswers' => [
-                'type' => PARAM_BOOL,
+            'question_text_feedback' => [
+                'type' => PARAM_RAW,
                 'optional' => true
-            ],
-            'multichoice' => [
-                'type' => PARAM_BOOL,
-                'optional' => true
-            ],
+            ]
         ];
     }
 }
