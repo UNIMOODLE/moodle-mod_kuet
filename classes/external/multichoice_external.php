@@ -115,7 +115,6 @@ class multichoice_external extends external_api {
         $answerfeedback = '';
         $answertexts = [];
         foreach ($question->answers as $key => $answer) {
-            $answertexts[$answer->id] = $answer->answer;
             if ($answer->fraction !== '0.0000000' && strpos($answer->fraction, '-') !== 0) {
                 $correctanswers .= $answer->id . ',';
                 // TODO obtain the value of the answer to score the question.
@@ -124,9 +123,12 @@ class multichoice_external extends external_api {
                 $arrayanswers = explode(',', $answerids);
                 foreach ($arrayanswers as $arrayanswer) {
                     if ((int)$key === (int)$arrayanswer && $answerfeedback === '') {
+                        $answertexts[$answer->id] = strip_tags($answer->answer);
                         $answerfeedback .= questions::get_text(
                             $cmid, $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
                         ) . '<br>';
+                    } else if ((int)$key === (int)$arrayanswer) {
+                        $answertexts[$answer->id] = strip_tags($answer->answer);
                     }
                 }
             }
