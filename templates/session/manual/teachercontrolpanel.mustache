@@ -6,12 +6,20 @@
                 <span>{{#str}}control, mod_jqshow{{/str}}</span>
                 <div class="line-separator"></div>
             </div>
-            <div class="control-action" data-action="next">
+            <div class="control-action {{^ranking}}d-none{{/ranking}}" data-action="next">
                 <div class="control-action-icon bg-primary">
                     {{#pix}}i/next, mod_jqshow{{/pix}}
                 </div>
                 <span>{{#str}}next, mod_jqshow{{/str}}</span>
             </div>
+            {{^ranking}}
+                <div class="control-action" data-action="finishquestion">
+                    <div class="control-action-icon bg-primary">
+                        {{#pix}}i/close, mod_jqshow{{/pix}}
+                    </div>
+                    <span>{{#str}}finishquestion, mod_jqshow{{/str}}</span>
+                </div>
+            {{/ranking}}
             {{^ranking}}
                 <div class="control-action" data-action="pause">
                     <div class="control-action-icon bg-primary">
@@ -49,14 +57,6 @@
                     </div>
                 </div>
             </div>
-            {{^ranking}}
-                <div class="control-action" data-action="finishquestion">
-                    <div class="control-action-icon bg-primary">
-                        {{#pix}}i/close, mod_jqshow{{/pix}}
-                    </div>
-                    <span>{{#str}}finishquestion, mod_jqshow{{/str}}</span>
-                </div>
-            {{/ranking}}
 
             {{^ranking}}
                 <div class="separator">
@@ -120,16 +120,16 @@
             {{/ranking}}
 
             <div class="separator">
-                <span>{{#str}}questions, mod_jqshow{{/str}}</span>
+                <span>{{#str}}question_actions, mod_jqshow{{/str}}</span>
                 <div class="line-separator"></div>
             </div>
-            <div class="control-action" data-action="improvise">
+            <div class="special-action control-action {{^ranking}}disabled{{/ranking}}" data-action="improvise">
                 <div class="control-action-icon bg-primary">
                     {{#pix}}i/improvise, mod_jqshow{{/pix}}
                 </div>
                 <span>{{#str}}improvise, mod_jqshow{{/str}}</span>
             </div>
-            <div class="control-action" data-action="vote">
+            <div class="special-action control-action {{^ranking}}disabled{{/ranking}}" data-action="vote">
                 <div class="control-action-icon bg-primary">
                     {{#pix}}i/vote, mod_jqshow{{/pix}}
                 </div>

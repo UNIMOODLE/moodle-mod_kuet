@@ -28,6 +28,7 @@ class unimoodleservercli extends websockets {
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
+        // TODO utf8_encode;
         $data = json_decode(
             mb_convert_encoding($message, 'UTF-8', 'UTF-8'),
             true,
@@ -282,6 +283,25 @@ class unimoodleservercli extends websockets {
                 return $this->mask(
                     encrypt($this->password, json_encode([
                             'action' => 'hideFeedback',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'improvising':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'improvising',
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'closeImprovise':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'closeImprovise',
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'vote':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'vote',
                             'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));

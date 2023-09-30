@@ -309,15 +309,29 @@ class server extends websockets {
                 return $this->mask(
                     encrypt($this->password, json_encode([
                             'action' => 'hideFeedback',
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'improvising':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'improvising',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'closeImprovise':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'closeImprovise',
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'vote':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'vote',
                             'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'shutdownTest':
-                foreach ($this->sockets as $socket) {
-                    stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
-                    fclose($socket);
-                }
-                die();
             default:
                 return '';
         }

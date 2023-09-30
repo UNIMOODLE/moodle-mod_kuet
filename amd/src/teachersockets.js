@@ -1,5 +1,5 @@
 "use strict";
-/* eslint-disable no-console*/
+/* eslint-disable no-console*/ // TODO delete.
 /* eslint-disable no-unused-vars */
 import jQuery from 'jquery';
 import Templates from 'core/templates';
@@ -24,12 +24,15 @@ let REGION = {
     LISTRESULTS: '[data-region="list-results"]',
     RACERESULTS: '[data-region="race-results"]',
     SWITCHS: '.showhide-action',
+    ESPECIALS: '.special-action',
+    IMPROVISE: '[data-region="teacher-improvise"]',
 };
 
 let ACTION = {
     BACKSESSION: '[data-action="back-session"]',
     INITSESSION: '[data-action="init-session"]',
-    ENDSESSION: '[data-action="end-session"]'
+    ENDSESSION: '[data-action="end-session"]',
+    CLOSEIMPROVISE: '[data-action="close-improvise"]'
 };
 
 let SERVICES = {
@@ -229,6 +232,7 @@ Sockets.prototype.root = null;
 Sockets.prototype.initSockets = function() {
     let that = this;
     this.root.find(ACTION.BACKSESSION).on('click', this.backSession);
+    this.root.find(ACTION.CLOSEIMPROVISE).on('click', this.closeImprovise);
 
     db = Database.initDb(sid, userid);
     Sockets.prototype.webSocket = new WebSocket(
@@ -443,6 +447,7 @@ Sockets.prototype.initListeners = function() {
                 identifier.html(html);
                 Templates.runTemplateJS(js);
                 jQuery(REGION.SWITCHS).removeClass('disabled');
+                jQuery(REGION.ESPECIALS).removeClass('disabled');
                 that.questionEnd();
             }).fail(Notification.exception);
         } else {
@@ -471,6 +476,12 @@ Sockets.prototype.initListeners = function() {
     addEventListener('endSession', () => {
         that.endSession();
     }, {once: true});
+    addEventListener('improvise', () => {
+        that.improvise();
+    }, false);
+    addEventListener('vote', () => {
+        that.vote();
+    }, false);
 };
 
 Sockets.prototype.setCurrentQuestion = function(currentQuestion) {
@@ -1037,6 +1048,34 @@ Sockets.prototype.hideFeedback = function() {
         'action': 'hideFeedback',
         'sid': sid,
         'jqid': currentQuestionJqid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.closeImprovise = function () {
+    let msg = {
+        'action': 'closeImprovise',
+        'sid': sid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+    jQuery(REGION.IMPROVISE).addClass('d-none');
+    jQuery(REGION.TEACHERCANVAS).addClass('d-flex').removeClass('d-none');
+};
+
+Sockets.prototype.improvise = function() {
+    let msg = {
+        'action': 'improvising',
+        'sid': sid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+    jQuery(REGION.IMPROVISE).removeClass('d-none');
+    jQuery(REGION.TEACHERCANVAS).removeClass('d-flex').addClass('d-none');
+};
+
+Sockets.prototype.vote = function() {
+    let msg = {
+        'action': 'vote',
+        'sid': sid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };

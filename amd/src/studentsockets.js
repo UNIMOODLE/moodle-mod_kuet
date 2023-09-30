@@ -11,7 +11,8 @@ let REGION = {
     MESSAGEBOX: '#message-box',
     USERLIST: '[data-region="active-users"]',
     COUNTUSERS: '#countusers',
-    ROOT: '[data-region="student-canvas"]'
+    ROOT: '[data-region="student-canvas"]',
+    IMPROVISE: '[data-region="student-improvise"]',
 };
 
 let SERVICES = {
@@ -234,7 +235,17 @@ Sockets.prototype.initSockets = function() {
             case 'hideFeedback':
                 dispatchEvent(new Event('hideFeedback_' + response.jqid));
                 break;
+            case 'improvising':
+                jQuery(REGION.IMPROVISE).removeClass('d-none');
+                jQuery(REGION.ROOT).addClass('d-none');
+                break;
+            case 'closeImprovise':
+                jQuery(REGION.IMPROVISE).addClass('d-none');
+                jQuery(REGION.ROOT).removeClass('d-none');
+                break;
             case 'endSession':
+                jQuery(REGION.IMPROVISE).addClass('d-none');
+                jQuery(REGION.ROOT).removeClass('d-none');
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.ROOT);
                     identifier.append(html);
@@ -266,6 +277,8 @@ Sockets.prototype.initSockets = function() {
     };
 
     Sockets.prototype.webSocket.onclose = function() {
+        jQuery(REGION.IMPROVISE).addClass('d-none');
+        jQuery(REGION.ROOT).removeClass('d-none');
         let request = {
             methodname: SERVICES.SESSIONFIINISHED,
             args: {
