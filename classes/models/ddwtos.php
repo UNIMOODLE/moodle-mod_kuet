@@ -34,6 +34,7 @@ use enrol_self\self_test;
 use html_writer;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\api\grade;
 use mod_jqshow\external\ddwtos_external;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\persistents\jqshow;
@@ -405,6 +406,8 @@ class ddwtos extends questions {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
+        $data->questiontext = self::correct_response($questiondata, $data->cmid);
+        $data->hasnoanswers = true;
         return $data;
     }
 
@@ -417,6 +420,7 @@ class ddwtos extends questions {
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
+     * @throws dml_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,
@@ -424,10 +428,30 @@ class ddwtos extends questions {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-        $participant->response = 'noevaluable';
-        $participant->responsestr = get_string('noevaluable', 'mod_jqshow');
-        $participant->userpoints = 0;
-        $participant->score_moment = 0;
+        switch ($response->get('result')) {
+            case questions::FAILURE:
+                $participant->response = 'incorrect';
+                break;
+            case questions::SUCCESS:
+                $participant->response = 'correct';
+                break;
+            case questions::PARTIALLY:
+                $participant->response = 'partially';
+                break;
+            case questions::NORESPONSE:
+            default:
+                $participant->response = 'noresponse';
+                break;
+        }
+        $participant->responsestr = get_string($participant->response, 'mod_jqshow');
+        $points = grade::get_simple_mark($response);
+        $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
+            $session->get('jqshowid'));
+        $participant->userpoints = grade::get_rounded_mark($spoints);
+        if ($session->is_group_mode()) {
+            $participant->grouppoints = grade::get_rounded_mark($spoints);
+        }
+        $participant->score_moment = grade::get_rounded_mark($points);
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;
     }

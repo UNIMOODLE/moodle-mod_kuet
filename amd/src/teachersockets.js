@@ -841,6 +841,7 @@ Sockets.prototype.manageNext = function() {
                     'sid': sid,
                     'context': provisionalRanking
                 };
+                console.log(JSON.stringify(msg));
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 showRankingBetweenQuestionsSwitch = false;
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {

@@ -339,7 +339,9 @@ class questions {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    protected static function add_group_response($jqshowid, jqshow_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response) : void {
+    protected static function add_group_response(
+        $jqshowid, jqshow_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response
+    ) : void {
         // All groupmembers has the same response saved on db.
         $num = jqshow_questions_responses::count_records(
             ['jqshow' => $jqshowid, 'session' => $session->get('id'), 'jqid' => $jqid, 'userid' => $userid]);
@@ -368,7 +370,7 @@ class questions {
      * @throws moodle_exception
      */
     public static function get_question_class_by_string_type(string $type) : string {
-        if ($type == 'match') {
+        if ($type === 'match') {
             $type = 'matchquestion';
         }
         $type = "mod_jqshow\models\\$type";
@@ -385,7 +387,6 @@ class questions {
      * @throws coding_exception
      */
     public static function get_question_time(jqshow_questions $jqquestion, jqshow_sessions $session) : int {
-
         $qtime = $jqquestion->get('timelimit');
         if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
             $sessiontime = $session->get('sessiontime');
@@ -395,7 +396,6 @@ class questions {
         } else if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
             $qtime = ($qtime > 0) ? $qtime : $session->get('questiontime');
         }
-
         return $qtime;
     }
 }

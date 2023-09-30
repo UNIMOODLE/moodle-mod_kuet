@@ -28,7 +28,12 @@ class unimoodleservercli extends websockets {
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
-        $data = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode(
+            mb_convert_encoding($message, 'UTF-8', 'UTF-8'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
         if (isset($data['oft']) && $data['oft'] === true) {
             // Only for teacher.
             $responsetext = $this->get_response_from_action_for_teacher($user, $data['action'], $data);
@@ -797,18 +802,20 @@ abstract class websockets {
                 $headers[$matches[1]] = $matches[2];
             }
         }
-        $seckey = $headers['Sec-WebSocket-Key'];
-        $secaccept = base64_encode(pack('H*', sha1($seckey . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
-        // Handshaking header.
-        $upgrade  = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n" .
-            "Upgrade: websocket\r\n" .
-            "Connection: Upgrade\r\n" .
-            "WebSocket-Origin: $this->addr\r\n" .
-            "WebSocket-Location: wss://$this->addr:$this->port\r\n".
-            "Sec-WebSocket-Version: 13\r\n" .
-            "Sec-WebSocket-Accept:$secaccept\r\n\r\n";
-        fwrite($client, $upgrade);
-        $this->connected($client);
+        if (isset($headers['Sec-WebSocket-Key'])) {
+            $seckey = $headers['Sec-WebSocket-Key'];
+            $secaccept = base64_encode(pack('H*', sha1($seckey . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
+            // Handshaking header.
+            $upgrade  = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n" .
+                "Upgrade: websocket\r\n" .
+                "Connection: Upgrade\r\n" .
+                "WebSocket-Origin: $this->addr\r\n" .
+                "WebSocket-Location: wss://$this->addr:$this->port\r\n".
+                "Sec-WebSocket-Version: 13\r\n" .
+                "Sec-WebSocket-Accept:$secaccept\r\n\r\n";
+            fwrite($client, $upgrade);
+            $this->connected($client);
+        }
     }
 
     /**
