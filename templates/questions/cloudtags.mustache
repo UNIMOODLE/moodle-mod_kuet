@@ -1,0 +1,24 @@
+<div class="container-fluid cloudtags question" data-region="cloudtags">
+    <div class="row">
+        <div class="col-12 contain-statement" data-region="statement-text">
+            <h3 class="statement-text">
+                {{{ questiontext }}}
+            </h3>
+        </div>
+        <div class="tags-content">
+            <ul class="cloud" data-show-value="true" data-region="tags-content">
+                {{#tags}}
+                    <li><span class="tag" data-size="{{size}}" data-count="{{count}}">
+                        {{#isteacher}}
+                            <div class="delete-tag" data-name="{{name}}" data-action="delete-tag">
+                                x
+                            </div>
+                        {{/isteacher}}
+                        {{name}}
+                    </span></li>
+                {{/tags}}
+
+            </ul>
+        </div>
+    </div>
+</div>

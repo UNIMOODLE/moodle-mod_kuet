@@ -44,4 +44,19 @@ body#page-mod-jqshow-view {
             align-items: center;
         }
     }
+    .improvise-response-content {
+        position: relative;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: center;
+        min-height: 50vh;
+        width: 80%;
+        .improvise-student-form {
+            min-width: 80%;
+        }
+        #reply_student_improvise {
+            width: 30% !important;
+        }
+    }
 }

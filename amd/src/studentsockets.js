@@ -1,5 +1,6 @@
 "use strict";
-
+/* eslint-disable no-console*/ // TODO delete.
+/* eslint-disable no-unused-vars */
 import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
@@ -13,6 +14,12 @@ let REGION = {
     COUNTUSERS: '#countusers',
     ROOT: '[data-region="student-canvas"]',
     IMPROVISE: '[data-region="student-improvise"]',
+    IMPROVISEREPLY: '.improvise-student-form #reply_student_improvise',
+    TAGSCONTENT: '[data-region="tags-content"]',
+};
+
+let ACTIONS = {
+    REPLYIMPROVISE: '.improvise-response-content [data-action="submit-improvise"]'
 };
 
 let SERVICES = {
@@ -28,7 +35,8 @@ let TEMPLATES = {
     GROUPPARTICIPANT: 'mod_jqshow/session/manual/waitingroom/groupparticipant',
     SESSIONFIINISHED: 'mod_jqshow/session/manual/closeconnection',
     QUESTION: 'mod_jqshow/questions/encasement',
-    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional'
+    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional',
+    IMPROVISESTUDENTRESPONSE: 'mod_jqshow/session/manual/improvise/studentresponse',
 };
 
 let portUrl = '8080';
@@ -81,6 +89,7 @@ let groupid = 0;
 let groupmode = 0;
 let groupimage = null;
 let groupname = null;
+let improviseReplied = false;
 
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
@@ -243,6 +252,28 @@ Sockets.prototype.initSockets = function() {
                 jQuery(REGION.IMPROVISE).addClass('d-none');
                 jQuery(REGION.ROOT).removeClass('d-none');
                 break;
+            case 'improvised':
+                Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+                    jQuery(REGION.IMPROVISE).addClass('d-none');
+                    jQuery(REGION.ROOT).removeClass('d-none');
+                    let identifier = jQuery(REGION.ROOT);
+                    identifier.append(html);
+                    Templates.render(TEMPLATES.IMPROVISESTUDENTRESPONSE, response).then(function(html, js) {
+                        identifier.html(html);
+                        jQuery(ACTIONS.REPLYIMPROVISE).on('click', Sockets.prototype.replyImprovise);
+                        jQuery(REGION.LOADING).remove();
+                    }).fail(Notification.exception);
+                });
+                break;
+            case 'printNewTag':
+                // eslint-disable-next-line no-case-declarations
+                let htmlTags = '';
+                response.tags.forEach(tag => {
+                    htmlTags += '<li><span class="tag" data-count="' + tag.count + '"  data-size="' + tag.size + '">' +
+                        tag.name + '</span></li>';
+                });
+                jQuery(REGION.TAGSCONTENT).html(htmlTags);
+                break;
             case 'endSession':
                 jQuery(REGION.IMPROVISE).addClass('d-none');
                 jQuery(REGION.ROOT).removeClass('d-none');
@@ -311,6 +342,48 @@ Sockets.prototype.initListeners = function() {
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
     }, false);
+};
+
+Sockets.prototype.replyImprovise = function() {
+    let improviseReply = jQuery(REGION.IMPROVISEREPLY).val();
+    if (improviseReply === '') {
+        jQuery(REGION.IMPROVISEREPLY).focus(() => {
+            jQuery(REGION.IMPROVISEREPLY).css({'border-color': 'red'});
+        });
+    } else {
+        improviseReplied = true;
+        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+            jQuery(REGION.IMPROVISE).addClass('d-none');
+            jQuery(REGION.ROOT).removeClass('d-none');
+            jQuery(REGION.IMPROVISEREPLY).val('');
+            let cloudtagsData = {
+                'sessionid': sid,
+                'cmid': cmid,
+                'question_index_string': 'improvised',
+                'sessionprogress': 0,
+                'cloudtags': true,
+                'isteacher': false,
+                'questiontext': jQuery('.improvise-statement').text(),
+                'programmedmode': false,
+                'preview': false,
+                'tags': [{name: improviseReply, count: 1, size: 9}]
+            };
+            Templates.render(TEMPLATES.QUESTION, cloudtagsData).then(function(html) {
+                jQuery(REGION.ROOT).html(html);
+                jQuery(REGION.LOADING).remove();
+                let msg = {
+                    'action': 'ImproviseStudentTag',
+                    'sid': sid,
+                    'oft': true, // IMPORTANT: Only for teacher.
+                    'improvisereply': improviseReply,
+                    'sessionid': sid,
+                    'cmid': cmid,
+                    'userid': userid,
+                };
+                Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+            }).fail(Notification.exception);
+        });
+    }
 };
 
 Sockets.prototype.sendMessageSocket = function(msg) {

@@ -386,4 +386,5 @@ $string['statement_improvise'] = 'Statement of the cloud of tags';
 $string['statement_improvise_help'] = 'Remember that it should be a question that can preferably be answered in one word.';
 $string['reply_improvise'] = 'Response';
 $string['reply_improvise_help'] = 'Be the first to add a word to the word cloud. (Optional)';
+$string['reply_improvise_student_help'] = 'Try to answer the question with one word.';
 $string['submit'] = 'Submit';
