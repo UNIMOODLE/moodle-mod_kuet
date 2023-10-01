@@ -28,6 +28,7 @@ class unimoodleservercli extends websockets {
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
+        // TODO utf8_encode;
         $data = json_decode(
             mb_convert_encoding($message, 'UTF-8', 'UTF-8'),
             true,
@@ -144,6 +145,16 @@ class unimoodleservercli extends websockets {
                             'onlyforteacher' => true,
                             'context' => $data,
                             'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta' // TODO delete.
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'ImproviseStudentTag':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'ImproviseStudentTag',
+                            'onlyforteacher' => true,
+                            'improvisereply' => $data['improvisereply'],
+                            'userid' => $data['userid'],
+                            'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta improvisada con la palabra: ' . $data['improvisereply'] // TODO delete.
                         ], JSON_THROW_ON_ERROR)
                     ));
             default:
@@ -282,6 +293,42 @@ class unimoodleservercli extends websockets {
                 return $this->mask(
                     encrypt($this->password, json_encode([
                             'action' => 'hideFeedback',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'improvising':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'improvising',
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'closeImprovise':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'closeImprovise',
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'improvised':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'improvised',
+                            'improvisestatement' => $data['improvisestatement'],
+                            'improvisereply' => $data['improvisereply'],
+                            'cmid' => $data['cmid'],
+                            'sessionid' => $data['sid'],
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'printNewTag':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'printNewTag',
+                            'tags' => $data['tags']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'vote':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'vote',
                             'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));

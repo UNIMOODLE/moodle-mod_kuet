@@ -33,9 +33,17 @@
         {{> mod_jqshow/session/manual/waitingroom/student }}
     {{/waitingroom}}
 
-
     <div id="message-box"></div>
     <div id="student_messages"></div>
+</div>
+<div class="d-none student-improvising" data-region="student-improvise">
+    <div class="improvising-image">
+        {{#pix}}f/not_session, mod_jqshow{{/pix}}
+    </div>
+    <div class="improvising-text">
+        <h2>{{#str}}waitteacher, mod_jqshow{{/str}}</h2>
+        <p>{{#str}}teacherimprovising, mod_jqshow{{/str}}</p>
+    </div>
 </div>
 
 {{#js}}

@@ -1,0 +1,12 @@
+<div class="container-fluid improvise-response-content" data-sid="{{sessionid}}" data-cmid="{{cmid}}" data-region="improvise-response-content">
+    <div class="improvise-student-form">
+        <h2 class="improvise-statement">{{improvisestatement}}</h2>
+        <hr>
+        <div class="form-group">
+            <label for="reply_improvise">{{#str}}reply_improvise, mod_jqshow{{/str}}</label>
+            <input type="text" class="form-control" maxlength="30" id="reply_student_improvise">
+            <small id="statementHelp" class="form-text text-muted">{{#str}}reply_improvise_student_help, mod_jqshow{{/str}}</small>
+        </div>
+        <button type="submit" data-action="submit-improvise" class="btn btn-primary">{{#str}}submit, mod_jqshow{{/str}}</button>
+    </div>
+</div>

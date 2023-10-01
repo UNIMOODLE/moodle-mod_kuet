@@ -56,4 +56,41 @@ body#page-mod-jqshow-view {
             }
         }
     }
+    .teacher-improvise-form {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        z-index: 100;
+        padding: 3em;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 10px rgba(0,0,0,.06);
+        border-radius: 25px;
+        min-height: 55vh;
+        .close-improvise {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            position: absolute;
+            top: 1em;
+            right: 1em;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
+            img {
+                margin: 0;
+            }
+        }
+        .improvise-form {
+            width: 80%;
+            #reply_improvise {
+                width: 30% !important;
+            }
+        }
+    }
 }
