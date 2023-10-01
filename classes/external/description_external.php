@@ -114,8 +114,6 @@ class description_external extends external_api {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
-            /* TODO move logic to API grades,
-            to have a method that returns the result constant and the feedback of the answer according to the type of question. */
             if ($preview === false) {
                 description::description_response(
                     $jqid,

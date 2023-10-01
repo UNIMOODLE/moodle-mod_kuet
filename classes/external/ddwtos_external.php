@@ -118,8 +118,6 @@ class ddwtos_external extends external_api {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
-            /* TODO move logic to API grades,
-            to have a method that returns the result constant and the feedback of the answer according to the type of question. */
             $responsejson = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
             $moodleresult = $question->grade_response((array)$responsejson);
             $answerfeedback = '';

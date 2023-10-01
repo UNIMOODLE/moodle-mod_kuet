@@ -1,7 +1,4 @@
 "use strict";
-/* eslint-disable no-console*/
-// TODO delete.
-/* eslint-disable no-unused-vars */
 import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
@@ -280,7 +277,6 @@ Sockets.prototype.initSockets = function() {
     };
 
     Sockets.prototype.webSocket.onmessage = function(ev) {
-        // TODO Refactor.
         let msgDecrypt = Encryptor.decrypt(ev.data);
         let response = JSON.parse(msgDecrypt); // PHP sends Json data.
         switch (response.action) {
@@ -291,7 +287,7 @@ Sockets.prototype.initSockets = function() {
                     let msg = {
                         'userid': userid,
                         'name': username,
-                        'pic': userimage, // TODO encrypt.
+                        'pic': userimage,
                         'isteacher': true,
                         'cmid': cmid,
                         'sid': sid,
@@ -1145,7 +1141,7 @@ Sockets.prototype.manageCloudTags = function(newtag) {
         cloudTags.push({name: newtag, count: 1});
     }
     const maxCount = Math.max(...cloudTags.map(item => item.count));
-    cloudTags.forEach((item, index) => {
+    cloudTags.forEach((item) => {
         item.size = Math.ceil((item.count / maxCount) * 10);
     });
 };

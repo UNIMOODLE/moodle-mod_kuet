@@ -255,7 +255,6 @@ Numerical.prototype.hideFeedback = function() {
 
 Numerical.prototype.showAnswers = function() {
     if (questionEnd === true) {
-        // TODO obtain the possible answers, and paint them in a list.
         jQuery(REGION.ANSWERHELP).removeClass('d-none').css({'z-index': 3});
         jQuery(REGION.FEEDBACKICONS).removeClass('d-none').css({'z-index': 3});
     }

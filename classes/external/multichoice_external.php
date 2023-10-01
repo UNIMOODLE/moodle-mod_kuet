@@ -118,7 +118,6 @@ class multichoice_external extends external_api {
             $answertexts[$answer->id] = $answer->answer;
             if ($answer->fraction !== '0.0000000' && strpos($answer->fraction, '-') !== 0) {
                 $correctanswers .= $answer->id . ',';
-                // TODO obtain the value of the answer to score the question.
             }
             if (isset($answerids) && $answerids !== '' && $answerids !== '0') {
                 $arrayanswers = explode(',', $answerids);

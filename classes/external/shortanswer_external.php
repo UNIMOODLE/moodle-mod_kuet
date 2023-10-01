@@ -119,8 +119,6 @@ class shortanswer_external extends external_api {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
-            /* TODO move logic to API grades,
-            to have a method that returns the result constant and the feedback of the answer according to the type of question. */
             $possibleanswers = '';
             foreach ($question->answers as $answer) {
                 $possibleanswers .= $answer->answer . ' / ';

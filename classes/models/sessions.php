@@ -414,7 +414,6 @@ class sessions {
      * @throws moodle_exception
      */
     public static function get_session_config(int $sid, int $cmid): array {
-        // TODO finish setting with all icons and session settings to be shown.
         $sessiondata = new jqshow_sessions($sid);
         $data = [];
         $data[] = [
@@ -1040,7 +1039,6 @@ class sessions {
                     $data->endsession = true;
                     $data->ranking = true;
                     $data->isteacher = has_capability('mod/jqshow:startsession', $contextmodule);
-                    // TODO export ranking.
                 }
                 break;
             default:

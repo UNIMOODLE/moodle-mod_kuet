@@ -1,6 +1,4 @@
 "use strict";
-/* eslint-disable no-console*/ // TODO delete.
-/* eslint-disable no-unused-vars */
 import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
@@ -89,7 +87,6 @@ let groupid = 0;
 let groupmode = 0;
 let groupimage = null;
 let groupname = null;
-let improviseReplied = false;
 
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
@@ -127,7 +124,7 @@ Sockets.prototype.initSockets = function() {
                     let msg = {
                         'userid': userid,
                         'name': username,
-                        'pic': userimage, // TODO encrypt.
+                        'pic': userimage,
                         'cmid': cmid,
                         'sid': sid,
                         'usersocketid': usersocketid,
@@ -136,7 +133,7 @@ Sockets.prototype.initSockets = function() {
                     if (groupmode) {
                         msg.action = 'newgroup';
                         msg.name = groupname;
-                        msg.pic = groupimage; // TODO encrypt.
+                        msg.pic = groupimage;
                         msg.groupid = groupid;
                     }
                     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
@@ -258,7 +255,7 @@ Sockets.prototype.initSockets = function() {
                     jQuery(REGION.ROOT).removeClass('d-none');
                     let identifier = jQuery(REGION.ROOT);
                     identifier.append(html);
-                    Templates.render(TEMPLATES.IMPROVISESTUDENTRESPONSE, response).then(function(html, js) {
+                    Templates.render(TEMPLATES.IMPROVISESTUDENTRESPONSE, response).then(function(html) {
                         identifier.html(html);
                         jQuery(ACTIONS.REPLYIMPROVISE).on('click', Sockets.prototype.replyImprovise);
                         jQuery(REGION.LOADING).remove();
@@ -328,15 +325,11 @@ Sockets.prototype.initSockets = function() {
 
 Sockets.prototype.initListeners = function() {
     addEventListener('studentQuestionEnd', () => {
-        // TODO get the result and score of the user's response and send it to the socket for the teacher to receive.
-        // TODO there is no way to get the note yet, it can be stored in dataSotarge with id->currentsid so that it can pick it up.
         let msg = {
             'userid': userid,
             'sid': sid,
             'usersocketid': usersocketid,
             'jqid': currentCuestionJqid,
-            'answer': '', // TODO get pulsed response.
-            'points': '', // TODO obtain total score.
             'oft': true, // IMPORTANT: Only for teacher.
             'action': 'studentQuestionEnd',
         };
@@ -351,8 +344,7 @@ Sockets.prototype.replyImprovise = function() {
             jQuery(REGION.IMPROVISEREPLY).css({'border-color': 'red'});
         });
     } else {
-        improviseReplied = true;
-        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function() {
             jQuery(REGION.IMPROVISE).addClass('d-none');
             jQuery(REGION.ROOT).removeClass('d-none');
             jQuery(REGION.IMPROVISEREPLY).val('');

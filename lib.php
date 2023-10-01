@@ -313,7 +313,6 @@ function encrypt($password, $text) {
  * @return mixed|null
  */
 function get_letter_from_alphabet_for_letter($letter, $lettertochange) {
-    // TODO it is possible that new characters will pop up as errors. In this case, add here and in js.
     $abc = 'abcdefghijklmnopqrstuvwxyz0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ/+-*';
     $posletter = strpos($abc, $letter);
     if ($posletter === false) {

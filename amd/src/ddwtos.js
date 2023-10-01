@@ -242,7 +242,6 @@ Ddwtos.prototype.initDragAndDrop = function() {
 };
 
 Ddwtos.prototype.handleDragStart = function(e) {
-    // TODO there is an error in closest when dropping an option on the options, check that the container is not answercontainer.
     let drag = jQuery(e.target).closest('.draghome');
     let info = dragDrop.prepare(e);
     if (!info.start || drag.hasClass('beingdragged')) {

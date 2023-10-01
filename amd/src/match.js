@@ -623,7 +623,7 @@ Match.prototype.allDisabled = function() {
     jQuery(ACTION.SEND_RESPONSE).off('click');
 };
 
-/* EVENTS */ // TODO adjust.
+/* EVENTS */
 Match.prototype.pauseQuestion = function() {
     dispatchEvent(new Event('pauseQuestion'));
     jQuery(REGION.TIMER).css('z-index', 3);

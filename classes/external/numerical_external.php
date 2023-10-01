@@ -132,8 +132,6 @@ class numerical_external extends external_api {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
-            /* TODO move logic to API grades,
-            to have a method that returns the result constant and the feedback of the answer according to the type of question. */
             $moodleresult = $question->grade_response(['answer' => $responsenum, 'unit' => $unit]);
             if (isset($moodleresult[1])) {
                 switch (get_class($moodleresult[1])) {

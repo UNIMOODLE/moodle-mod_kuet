@@ -144,13 +144,11 @@ class server extends websockets {
                     $this->disconnect($socket->socket);
                     fclose($socket->socket);
                     unset($this->students[$user->sid], $this->sidusers[$user->sid]);
-                    // TODO control the end of manual sessions in another way.
                     // jqshow_sessions::mark_session_finished((int)$user->sid);
                 }
             }
         }
         if ((count($this->sockets) === 0) || (count($this->users) === 0)) {
-            // TODO to decomment, for development we don't want to close the socket.
             // die(); // No one is connected to the socket. It closes and will be reopened by the first teacher who logs in.
         }
     }

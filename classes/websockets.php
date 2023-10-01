@@ -34,7 +34,7 @@ abstract class websockets {
     protected $maxbuffersize;
     protected $master;
     protected $sockets = [];
-    protected $users = []; //TODO is it necessary?
+    protected $users = [];
     protected $heldmessages = [];
     protected $interactive = true;
     protected $addr;
@@ -264,7 +264,6 @@ abstract class websockets {
                 $ip = stream_socket_get_name( $client, true );
                 $this->stdout("Connection attempt from $ip");
                 stream_set_blocking($client, true);
-                // TODO review stream_socket_enable_crypto.
                 /* if (!stream_socket_enable_crypto($client, true, STREAM_CRYPTO_METHOD_TLSv1_2_SERVER)) {
                     $this->stderr('Error enabling TLS encryption on the connection.');
                     fclose($client);

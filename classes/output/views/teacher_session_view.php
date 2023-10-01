@@ -49,7 +49,6 @@ class teacher_session_view implements renderable, templatable {
      * @throws dml_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        // TODO refactor duplicate code for teacher and student.
         global $USER, $DB, $PAGE, $COURSE;
         $data = new stdClass();
         $data->cmid = required_param('cmid', PARAM_INT);

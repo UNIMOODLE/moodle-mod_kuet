@@ -313,12 +313,12 @@ class reports {
                         break;
                 }
                 $data->time = self::get_user_time_in_question($session, $question, $response);
+                $type = questions::get_question_class_by_string_type($question->get('qtype'));
+                $data->score = round($type::get_simple_mark(json_decode($response->get('response')), $response), 2);
             }
             $data->cmid = $cmid;
             $data->sessionid = $sid;
             $data->userid = $userid;
-            $type = questions::get_question_class_by_string_type($question->get('qtype'));
-            $data->score = round($type::get_simple_mark(json_decode($response->get('response')), $response), 2);
             $questionsdata[] = $data;
         }
         return $questionsdata;

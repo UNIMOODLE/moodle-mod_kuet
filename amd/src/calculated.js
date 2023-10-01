@@ -158,7 +158,6 @@ Calculated.prototype.reply = function() {
                 multiplier = contentUnit.find(':selected').data('multiplier');
             }
         }
-        //TODO: take questiontext and correct answers.
         let request = {
             methodname: SERVICES.REPLY,
             args: {
@@ -174,8 +173,6 @@ Calculated.prototype.reply = function() {
                 preview: false,
             }
         };
-        // eslint-disable-next-line no-console
-        console.log(request);
         Ajax.call([request])[0].done(function(response) {
             if (response.reply_status === true) {
                 questionEnd = true;
@@ -258,7 +255,6 @@ Calculated.prototype.hideFeedback = function() {
 
 Calculated.prototype.showAnswers = function() {
     if (questionEnd === true) {
-        // TODO obtain the possible answers, and paint them in a list.
         jQuery(REGION.ANSWERHELP).removeClass('d-none').css({'z-index': 3});
         jQuery(REGION.FEEDBACKICONS).removeClass('d-none').css({'z-index': 3});
     }

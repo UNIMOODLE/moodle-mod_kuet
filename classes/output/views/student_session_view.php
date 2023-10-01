@@ -70,7 +70,6 @@ class student_session_view implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        // TODO refactor duplicate code for teacher and student.
         global $USER, $PAGE;
         $cmid = required_param('cmid', PARAM_INT);
         $sid = required_param('sid', PARAM_INT);
@@ -271,7 +270,6 @@ class student_session_view implements renderable, templatable {
                 throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
                     [], get_string('incorrect_sessionmode', 'mod_jqshow'));
         }
-        // TODO pass $data through the exporter.
         return $data;
     }
 }

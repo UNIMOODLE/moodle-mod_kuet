@@ -217,7 +217,6 @@ class jqshow_sessions extends persistent {
      * @throws dml_exception
      */
     public static function get_next_session(int $jqshowid): int {
-        // TODO review.
         global $DB;
         $allsessions = $DB->get_records(self::TABLE, ['jqshowid' => $jqshowid, 'status' => sessionsmodel::SESSION_ACTIVE],
             'startdate DESC', 'startdate');
@@ -256,7 +255,6 @@ class jqshow_sessions extends persistent {
      */
     public static function mark_session_started(int $sid): void {
         global $DB;
-        // TODO check operation, there is now a cron job that normalises this.
         // All open sessions end, ensuring that no more than one session is logged on.
         $activesession = $DB->get_records(self::TABLE, ['status' => sessionsmodel::SESSION_STARTED]);
         foreach ($activesession as $active) {

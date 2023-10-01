@@ -242,13 +242,12 @@ class multichoice extends questions {
                 continue;
             }
             $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-            if ($other->answerids !== '' && $other->answerids !== '0') { // TODO prepare for multianswer.
+            if ($other->answerids !== '' && $other->answerids !== '0') {
                 $arrayanswerids = explode(',', $other->answerids);
                 foreach ($arrayanswerids as $arrayanswerid) {
                     $answers[$arrayanswerid]['numticked']++;
                 }
             }
-            // TODO obtain the average time to respond to each option ticked. ???
         }
         $data->correctanswers = array_values($correctanswers);
         $data->answers = array_values($answers);
