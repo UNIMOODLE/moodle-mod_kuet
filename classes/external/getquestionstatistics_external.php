@@ -140,8 +140,8 @@ class getquestionstatistics_external extends external_api {
                 'statistics' => new external_multiple_structure(
                 new external_single_structure(
                     [
-                        'answerid' => new external_value(PARAM_INT, 'Answer id'),
-                        'numberofreplies' => new external_value(PARAM_INT, 'Number of replies')
+                        'answerid' => new external_value(PARAM_INT, 'Answer id', VALUE_OPTIONAL),
+                        'numberofreplies' => new external_value(PARAM_INT, 'Number of replies', VALUE_OPTIONAL)
                     ], 'Number of replies for one answer.'
                 ), 'List of answers with number of replies.', VALUE_OPTIONAL)
             ]

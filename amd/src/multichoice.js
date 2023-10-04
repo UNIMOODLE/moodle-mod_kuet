@@ -121,6 +121,9 @@ MultiChoice.prototype.initEvents = function() {
         addEventListener('hideFeedback_' + jqid, () => {
             MultiChoice.prototype.hideFeedback();
         }, false);
+        addEventListener('removeEvents', () => {
+            MultiChoice.prototype.removeEvents();
+        }, {once: true});
     }
 
     window.onbeforeunload = function() {
@@ -134,6 +137,43 @@ MultiChoice.prototype.initEvents = function() {
 
 MultiChoice.prototype.removeEvents = function() {
     removeEventListener('timeFinish', () => MultiChoice.prototype.reply, {once: true});
+    if (manualMode !== false) {
+        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                MultiChoice.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        removeEventListener('pauseQuestion_' + jqid, () => {
+            MultiChoice.prototype.pauseQuestion();
+        }, false);
+        removeEventListener('playQuestion_' + jqid, () => {
+            MultiChoice.prototype.playQuestion();
+        }, false);
+        removeEventListener('showAnswers_' + jqid, () => {
+            MultiChoice.prototype.showAnswers();
+        }, false);
+        removeEventListener('hideAnswers_' + jqid, () => {
+            MultiChoice.prototype.hideAnswers();
+        }, false);
+        removeEventListener('showStatistics_' + jqid, () => {
+            MultiChoice.prototype.showStatistics();
+        }, false);
+        removeEventListener('hideStatistics_' + jqid, () => {
+            MultiChoice.prototype.hideStatistics();
+        }, false);
+        removeEventListener('showFeedback_' + jqid, () => {
+            MultiChoice.prototype.showFeedback();
+        }, false);
+        removeEventListener('hideFeedback_' + jqid, () => {
+            MultiChoice.prototype.hideFeedback();
+        }, false);
+        removeEventListener('removeEvents', () => {
+            MultiChoice.prototype.removeEvents();
+        }, {once: true});
+    }
 };
 
 MultiChoice.prototype.reply = function(e) {
@@ -150,8 +190,6 @@ MultiChoice.prototype.reply = function(e) {
         });
         answerIds = responses.toString();
     }
-    // eslint-disable-next-line no-console
-    console.log(answerIds);
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(MultiChoice.prototype.endTimer);

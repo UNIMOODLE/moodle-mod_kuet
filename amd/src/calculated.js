@@ -124,6 +124,9 @@ Calculated.prototype.initEvents = function() {
         addEventListener('hideFeedback_' + jqid, () => {
             Calculated.prototype.hideFeedback();
         }, false);
+        addEventListener('removeEvents', () => {
+            Calculated.prototype.removeEvents();
+        }, {once: true});
     }
 
     window.onbeforeunload = function() {
@@ -137,6 +140,43 @@ Calculated.prototype.initEvents = function() {
 
 Calculated.prototype.removeEvents = function() {
     removeEventListener('timeFinish', Calculated.prototype.reply, {once: true});
+    if (manualMode !== false) {
+        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                Calculated.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        removeEventListener('pauseQuestion_' + jqid, () => {
+            Calculated.prototype.pauseQuestion();
+        }, false);
+        removeEventListener('playQuestion_' + jqid, () => {
+            Calculated.prototype.playQuestion();
+        }, false);
+        removeEventListener('showAnswers_' + jqid, () => {
+            Calculated.prototype.showAnswers();
+        }, false);
+        removeEventListener('hideAnswers_' + jqid, () => {
+            Calculated.prototype.hideAnswers();
+        }, false);
+        removeEventListener('showStatistics_' + jqid, () => {
+            Calculated.prototype.showStatistics();
+        }, false);
+        removeEventListener('hideStatistics_' + jqid, () => {
+            Calculated.prototype.hideStatistics();
+        }, false);
+        removeEventListener('showFeedback_' + jqid, () => {
+            Calculated.prototype.showFeedback();
+        }, false);
+        removeEventListener('hideFeedback_' + jqid, () => {
+            Calculated.prototype.hideFeedback();
+        }, false);
+        removeEventListener('removeEvents', () => {
+            Calculated.prototype.removeEvents();
+        }, {once: true});
+    }
 };
 
 Calculated.prototype.reply = function() {

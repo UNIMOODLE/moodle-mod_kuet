@@ -432,6 +432,7 @@ Sockets.prototype.initListeners = function() {
                 that.manageNext();
                 break;
         }
+        // TODO send tag cloud to a service to persist it in DB for retrieval in reports..
         cloudTags = [];
     }, false);
     addEventListener('pauseQuestionSelf', () => {
@@ -711,6 +712,8 @@ Sockets.prototype.nextQuestion = function() {
                 };
                 currentQuestionDataForRace = nextQuestionData.result.value;
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                let removeEvents = new CustomEvent('removeEvents');
+                dispatchEvent(removeEvents);
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.TEACHERCANVAS);
                     identifier.append(html);
@@ -903,6 +906,8 @@ Sockets.prototype.resendSelf = function() {
             jqid: currentQuestionJqid
         }
     };
+    let removeEvents = new CustomEvent('removeEvents');
+    dispatchEvent(removeEvents);
     Ajax.call([request])[0].done(function(response) {
         if (response.deleted === true) {
             let currentQuestionData = db.get('questions', currentQuestionJqid);
@@ -947,6 +952,8 @@ Sockets.prototype.jumpTo = function(questionNumber) {
         }
     };
     nextQuestionJqid = null;
+    let removeEvents = new CustomEvent('removeEvents');
+    dispatchEvent(removeEvents);
     Ajax.call([request])[0].done(function(question) {
         let data = {
             jqid: question.jqid,

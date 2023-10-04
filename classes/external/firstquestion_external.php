@@ -165,6 +165,8 @@ class firstquestion_external extends external_api {
             $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
             $session->get('sessionmode') === sessions::RACE_PROGRAMMED) {
             $question->programmedmode = true;
+        } else {
+            $question->programmedmode = false;
         }
         return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
     }

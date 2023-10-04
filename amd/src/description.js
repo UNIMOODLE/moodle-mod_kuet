@@ -114,6 +114,9 @@ Description.prototype.initEvents = function() {
         addEventListener('hideFeedback_' + jqid, () => {
             Description.prototype.hideFeedback();
         }, false);
+        addEventListener('removeEvents', () => {
+            Description.prototype.removeEvents();
+        }, {once: true});
     }
 
     window.onbeforeunload = function() {
@@ -127,6 +130,43 @@ Description.prototype.initEvents = function() {
 
 Description.prototype.removeEvents = function() {
     removeEventListener('timeFinish', Description.prototype.reply, {once: true});
+    if (manualMode !== false) {
+        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                Description.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        removeEventListener('pauseQuestion_' + jqid, () => {
+            Description.prototype.pauseQuestion();
+        }, false);
+        removeEventListener('playQuestion_' + jqid, () => {
+            Description.prototype.playQuestion();
+        }, false);
+        removeEventListener('showAnswers_' + jqid, () => {
+            Description.prototype.showAnswers();
+        }, false);
+        removeEventListener('hideAnswers_' + jqid, () => {
+            Description.prototype.hideAnswers();
+        }, false);
+        removeEventListener('showStatistics_' + jqid, () => {
+            Description.prototype.showStatistics();
+        }, false);
+        removeEventListener('hideStatistics_' + jqid, () => {
+            Description.prototype.hideStatistics();
+        }, false);
+        removeEventListener('showFeedback_' + jqid, () => {
+            Description.prototype.showFeedback();
+        }, false);
+        removeEventListener('hideFeedback_' + jqid, () => {
+            Description.prototype.hideFeedback();
+        }, false);
+        removeEventListener('removeEvents', () => {
+            Description.prototype.removeEvents();
+        }, {once: true});
+    }
 };
 
 Description.prototype.reply = function() {

@@ -322,7 +322,7 @@ class questions {
         // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
         $text = trim(html_entity_decode($text), self::CHARACTERS_TO_BE_STRIPPED);
         $text = str_replace('"', '\"', $text);
-        return $text;
+        return preg_replace('/[\x00-\x1F\x7F]/u', '', $text);;
     }
 
     /**

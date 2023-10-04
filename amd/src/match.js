@@ -169,6 +169,9 @@ Match.prototype.initEvents = function() {
         addEventListener('hideFeedback_' + jqid, () => {
             Match.prototype.hideFeedback();
         }, false);
+        addEventListener('removeEvents', () => {
+            Match.prototype.removeEvents();
+        }, {once: true});
     }
 
     window.onbeforeunload = function() {
@@ -182,6 +185,40 @@ Match.prototype.initEvents = function() {
 
 Match.prototype.removeEvents = function() {
     removeEventListener('timeFinish', () => Match.prototype.sendResponse, {once: true});
+    if (manualMode !== false) {
+        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                Match.prototype.sendResponse();
+            }
+        }, {once: true});
+        removeEventListener('pauseQuestion_' + jqid, () => {
+            Match.prototype.pauseQuestion();
+        }, false);
+        removeEventListener('playQuestion_' + jqid, () => {
+            Match.prototype.playQuestion();
+        }, false);
+        removeEventListener('showAnswers_' + jqid, () => {
+            Match.prototype.showAnswers();
+        }, false);
+        removeEventListener('hideAnswers_' + jqid, () => {
+            Match.prototype.hideAnswers();
+        }, false);
+        removeEventListener('showStatistics_' + jqid, () => {
+            Match.prototype.showStatistics();
+        }, false);
+        removeEventListener('hideStatistics_' + jqid, () => {
+            Match.prototype.hideStatistics();
+        }, false);
+        removeEventListener('showFeedback_' + jqid, () => {
+            Match.prototype.showFeedback();
+        }, false);
+        removeEventListener('hideFeedback_' + jqid, () => {
+            Match.prototype.hideFeedback();
+        }, false);
+        removeEventListener('removeEvents', () => {
+            Match.prototype.removeEvents();
+        }, {once: true});
+    }
 };
 
 Match.prototype.createLinkCorrection = function() {

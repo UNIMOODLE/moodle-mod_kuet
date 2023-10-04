@@ -117,6 +117,9 @@ ShortAnswer.prototype.initEvents = function() {
         addEventListener('hideFeedback_' + jqid, () => {
             ShortAnswer.prototype.hideFeedback();
         }, false);
+        addEventListener('removeEvents', () => {
+            ShortAnswer.prototype.removeEvents();
+        }, {once: true});
     }
 
     window.onbeforeunload = function() {
@@ -130,6 +133,43 @@ ShortAnswer.prototype.initEvents = function() {
 
 ShortAnswer.prototype.removeEvents = function() {
     removeEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
+    if (manualMode !== false) {
+        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                ShortAnswer.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        removeEventListener('pauseQuestion_' + jqid, () => {
+            ShortAnswer.prototype.pauseQuestion();
+        }, false);
+        removeEventListener('playQuestion_' + jqid, () => {
+            ShortAnswer.prototype.playQuestion();
+        }, false);
+        removeEventListener('showAnswers_' + jqid, () => {
+            ShortAnswer.prototype.showAnswers();
+        }, false);
+        removeEventListener('hideAnswers_' + jqid, () => {
+            ShortAnswer.prototype.hideAnswers();
+        }, false);
+        removeEventListener('showStatistics_' + jqid, () => {
+            ShortAnswer.prototype.showStatistics();
+        }, false);
+        removeEventListener('hideStatistics_' + jqid, () => {
+            ShortAnswer.prototype.hideStatistics();
+        }, false);
+        removeEventListener('showFeedback_' + jqid, () => {
+            ShortAnswer.prototype.showFeedback();
+        }, false);
+        removeEventListener('hideFeedback_' + jqid, () => {
+            ShortAnswer.prototype.hideFeedback();
+        }, false);
+        removeEventListener('removeEvents', () => {
+            ShortAnswer.prototype.removeEvents();
+        }, {once: true});
+    }
 };
 
 ShortAnswer.prototype.reply = function() {

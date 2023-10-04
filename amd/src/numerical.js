@@ -124,6 +124,9 @@ Numerical.prototype.initEvents = function() {
         addEventListener('hideFeedback_' + jqid, () => {
             Numerical.prototype.hideFeedback();
         }, false);
+        addEventListener('removeEvents', () => {
+            Numerical.prototype.removeEvents();
+        }, {once: true});
     }
 
     window.onbeforeunload = function() {
@@ -137,6 +140,43 @@ Numerical.prototype.initEvents = function() {
 
 Numerical.prototype.removeEvents = function() {
     removeEventListener('timeFinish', Numerical.prototype.reply, {once: true});
+    if (manualMode !== false) {
+        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                Numerical.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        removeEventListener('pauseQuestion_' + jqid, () => {
+            Numerical.prototype.pauseQuestion();
+        }, false);
+        removeEventListener('playQuestion_' + jqid, () => {
+            Numerical.prototype.playQuestion();
+        }, false);
+        removeEventListener('showAnswers_' + jqid, () => {
+            Numerical.prototype.showAnswers();
+        }, false);
+        removeEventListener('hideAnswers_' + jqid, () => {
+            Numerical.prototype.hideAnswers();
+        }, false);
+        removeEventListener('showStatistics_' + jqid, () => {
+            Numerical.prototype.showStatistics();
+        }, false);
+        removeEventListener('hideStatistics_' + jqid, () => {
+            Numerical.prototype.hideStatistics();
+        }, false);
+        removeEventListener('showFeedback_' + jqid, () => {
+            Numerical.prototype.showFeedback();
+        }, false);
+        removeEventListener('hideFeedback_' + jqid, () => {
+            Numerical.prototype.hideFeedback();
+        }, false);
+        removeEventListener('removeEvents', () => {
+            Numerical.prototype.removeEvents();
+        }, {once: true});
+    }
 };
 
 Numerical.prototype.reply = function() {

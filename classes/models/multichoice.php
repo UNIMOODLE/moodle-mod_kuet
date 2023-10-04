@@ -156,10 +156,8 @@ class multichoice extends questions {
         $data->programmedmode = $dataanswer['programmedmode'];
         if ($data->hasfeedbacks) {
             // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
-            $dataanswer['statment_feedback'] = trim(html_entity_decode($dataanswer['statment_feedback']), " \t\n\r\0\x0B\xC2\xA0");
-            $dataanswer['statment_feedback'] = str_replace('"', '\"', $dataanswer['statment_feedback']);
-            $dataanswer['answer_feedback'] = trim(html_entity_decode($dataanswer['answer_feedback']), " \t\n\r\0\x0B\xC2\xA0");
-            $dataanswer['answer_feedback'] = str_replace('"', '\"', $dataanswer['answer_feedback']);
+            $dataanswer['statment_feedback'] = self::escape_characters($dataanswer['statment_feedback']);
+            $dataanswer['answer_feedback'] = self::escape_characters($dataanswer['answer_feedback']);
         }
         $data->statment_feedback = $dataanswer['statment_feedback'];
         $data->answer_feedback = $dataanswer['answer_feedback'];

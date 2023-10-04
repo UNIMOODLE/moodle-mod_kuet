@@ -164,6 +164,9 @@ Ddwtos.prototype.initEvents = function() {
         addEventListener('hideFeedback_' + jqid, () => {
             Ddwtos.prototype.hideFeedback();
         }, false);
+        addEventListener('removeEvents', () => {
+            Ddwtos.prototype.removeEvents();
+        }, {once: true});
     }
 
     window.onbeforeunload = function() {
@@ -177,6 +180,43 @@ Ddwtos.prototype.initEvents = function() {
 
 Ddwtos.prototype.removeEvents = function() {
     removeEventListener('timeFinish', Ddwtos.prototype.reply, {once: true});
+    if (manualMode !== false) {
+        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                Ddwtos.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        removeEventListener('pauseQuestion_' + jqid, () => {
+            Ddwtos.prototype.pauseQuestion();
+        }, false);
+        removeEventListener('playQuestion_' + jqid, () => {
+            Ddwtos.prototype.playQuestion();
+        }, false);
+        removeEventListener('showAnswers_' + jqid, () => {
+            Ddwtos.prototype.showAnswers();
+        }, false);
+        removeEventListener('hideAnswers_' + jqid, () => {
+            Ddwtos.prototype.hideAnswers();
+        }, false);
+        removeEventListener('showStatistics_' + jqid, () => {
+            Ddwtos.prototype.showStatistics();
+        }, false);
+        removeEventListener('hideStatistics_' + jqid, () => {
+            Ddwtos.prototype.hideStatistics();
+        }, false);
+        removeEventListener('showFeedback_' + jqid, () => {
+            Ddwtos.prototype.showFeedback();
+        }, false);
+        removeEventListener('hideFeedback_' + jqid, () => {
+            Ddwtos.prototype.hideFeedback();
+        }, false);
+        removeEventListener('removeEvents', () => {
+            Ddwtos.prototype.removeEvents();
+        }, {once: true});
+    }
 };
 
 Ddwtos.prototype.reply = function() {

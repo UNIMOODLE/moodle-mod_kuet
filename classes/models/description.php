@@ -124,8 +124,8 @@ class description extends questions {
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $data->seconds = $responsedata->timeleft;
         $data->programmedmode = $dataanswer['programmedmode'];
-        $data->statment_feedback = $dataanswer['statment_feedback'];
-        $data->answer_feedback = $dataanswer['answer_feedback'];
+        $data->statment_feedback = self::escape_characters($dataanswer['statment_feedback']);
+        $data->answer_feedback = self::escape_characters($dataanswer['answer_feedback']);
         $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
         $data->statistics = $dataanswer['statistics'] ?? '0';
         return $data;

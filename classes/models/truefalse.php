@@ -217,6 +217,9 @@ class truefalse extends questions {
     public static function export_truefalse_response(stdClass $data, string $response): stdClass {
         $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
         $data->answered = true;
+        if (!isset($responsedata->answerids)) {
+            $responsedata->answerids = 0;
+        }
         $dataanswer = truefalse_external::truefalse(
             $responsedata->answerids,
             $data->sessionid,

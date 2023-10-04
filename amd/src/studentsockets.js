@@ -192,6 +192,8 @@ Sockets.prototype.initSockets = function() {
                             uid: 0
                         }
                     };
+                    let removeEvents = new CustomEvent('removeEvents');
+                    dispatchEvent(removeEvents);
                     Ajax.call([request])[0].done(function(answer) {
                         const questionData = {
                             ...response.context.value,
