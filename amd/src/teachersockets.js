@@ -23,6 +23,8 @@ let REGION = {
     RACERESULTS: '[data-region="race-results"]',
     SWITCHS: '.showhide-action',
     ESPECIALS: '.special-action',
+    VOTEIMPROVISE: '.special-action.vote-question',
+    CLOUDTAGS: '.cloud',
     IMPROVISE: '[data-region="teacher-improvise"]',
     IMPROVISESTATEMENT: '.improvise-form #statement',
     IMPROVISEREPLY: '.improvise-form #reply_improvise',
@@ -90,6 +92,7 @@ let showRankingFinal = false;
 let groupMode = false;
 let currentQuestionDataForRace = {};
 let cloudTags = [];
+let voting = false;
 
 /**
  * @constructor
@@ -380,8 +383,20 @@ Sockets.prototype.initSockets = function() {
                 dispatchEvent(new Event('hideFeedback_' + response.jqid));
                 break;
             case 'ImproviseStudentTag':
-                Sockets.prototype.manageCloudTags(response.improvisereply);
-                Sockets.prototype.printNewTag();
+                if (voting === false) {
+                    if (response.improvisereply !== '') {
+                        Sockets.prototype.manageCloudTags(response.improvisereply);
+                    }
+                    Sockets.prototype.printNewTag();
+                }
+                break;
+            case 'StudentVotedTag':
+                // eslint-disable-next-line no-console
+                console.log(response, voting);
+                if (voting === true) {
+                    Sockets.prototype.manageTagsVotes(response.votedtag);
+                    Sockets.prototype.printNewTag();
+                }
                 break;
             default:
                 break;
@@ -434,6 +449,7 @@ Sockets.prototype.initListeners = function() {
         }
         // TODO send tag cloud to a service to persist it in DB for retrieval in reports..
         cloudTags = [];
+        voting = false;
     }, false);
     addEventListener('pauseQuestionSelf', () => {
         that.pauseQuestion();
@@ -455,6 +471,7 @@ Sockets.prototype.initListeners = function() {
                 identifier.html(html);
                 Templates.runTemplateJS(js);
                 jQuery(REGION.SWITCHS).removeClass('disabled');
+                // TODO only improvise.
                 jQuery(REGION.ESPECIALS).removeClass('disabled');
                 that.questionEnd();
             }).fail(Notification.exception);
@@ -487,7 +504,7 @@ Sockets.prototype.initListeners = function() {
     addEventListener('improvise', () => {
         that.improvise();
     }, false);
-    addEventListener('vote', () => {
+    addEventListener('initVote', () => {
         that.vote();
     }, false);
 };
@@ -1065,7 +1082,7 @@ Sockets.prototype.hideFeedback = function() {
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
 
-Sockets.prototype.closeImprovise = function () {
+Sockets.prototype.closeImprovise = function() {
     let msg = {
         'action': 'closeImprovise',
         'sid': sid
@@ -1128,6 +1145,7 @@ Sockets.prototype.submitImprovise = function() {
                 jQuery('[data-action="delete-tag"]').on('click', Sockets.prototype.deleteTag.bind(this));
                 Templates.runTemplateJS(js);
                 jQuery(REGION.LOADING).remove();
+                jQuery(REGION.VOTEIMPROVISE).removeClass('disabled');
             }).fail(Notification.exception);
         });
     }
@@ -1139,13 +1157,14 @@ Sockets.prototype.manageCloudTags = function(newtag) {
         cloudTags = cloudTags.map((tag) => {
             if (tag.name.toLowerCase() === newtag.toLowerCase()) {
                 tag.count = tag.count + 1;
+                tag.votenum = 0;
                 exist = true;
             }
             return tag;
         });
     }
     if (!exist) {
-        cloudTags.push({name: newtag, count: 1});
+        cloudTags.push({name: newtag, count: 1, votenum: 0});
     }
     const maxCount = Math.max(...cloudTags.map(item => item.count));
     cloudTags.forEach((item) => {
@@ -1153,11 +1172,26 @@ Sockets.prototype.manageCloudTags = function(newtag) {
     });
 };
 
+Sockets.prototype.manageTagsVotes = function(voteTag) {
+    if (cloudTags.length) {
+        cloudTags = cloudTags.map((tag) => {
+            if (tag.name.toLowerCase() === voteTag.toLowerCase()) {
+                tag.votenum = tag.votenum + 1;
+            }
+            return tag;
+        });
+        const maxCount = Math.max(...cloudTags.map(item => item.votenum));
+        cloudTags.forEach((item) => {
+            item.size = Math.ceil((item.votenum / maxCount) * 10);
+        });
+    }
+};
+
 Sockets.prototype.printNewTag = function() {
     let htmlTags = '';
     cloudTags.forEach(tag => {
         htmlTags +=
-            '<li><span class="tag" data-count="' + tag.count + '"  data-size="' + tag.size + '">' +
+            '<li><span class="tag" data-count="' + tag.count + '" data-vote="' + tag.votenum + '"  data-size="' + tag.size + '">' +
                 '<div class="delete-tag" data-name="' + tag.name + '" data-action="delete-tag">' +
                     'x' +
                 '</div>' +
@@ -1186,8 +1220,12 @@ Sockets.prototype.deleteTag = function(e) {
 };
 
 Sockets.prototype.vote = function() {
+    voting = true;
+    jQuery(REGION.VOTEIMPROVISE).addClass('disabled');
+    jQuery(REGION.CLOUDTAGS).attr('data-show-votes', true);
+    jQuery(REGION.CLOUDTAGS).attr('data-show-value', false);
     let msg = {
-        'action': 'vote',
+        'action': 'initVote',
         'sid': sid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));

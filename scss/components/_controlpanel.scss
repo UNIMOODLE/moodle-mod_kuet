@@ -80,6 +80,7 @@
             margin: 0 30px 15px 0;
             &.disabled {
                 pointer-events: none;
+                opacity: .5;
                 .custom-control-input {
                     pointer-events: none;
                 }

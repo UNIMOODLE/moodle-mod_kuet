@@ -87,7 +87,7 @@ class teacher extends user {
         $data->cmid = $cmid;
         $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
         $data->hasqrcodeimage = file_exists($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg');
-        $data->urlqrcode = file_get_contents( $CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg');
+        $data->urlqrcode = $data->hasqrcodeimage === true ? file_get_contents( $CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg') : '';
         $data->hasactivesession = jqshow_sessions::get_active_session_id(($jqshow->get_jqshow())->id) !== 0;
         return $data;
     }

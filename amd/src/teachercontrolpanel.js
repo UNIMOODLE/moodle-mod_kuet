@@ -12,6 +12,7 @@ let REGION = {
     JUMPTOINPUT: '[data-input="jumpto"]',
     SWITCHS: '.showhide-action',
     ESPECIALS: '.special-action',
+    IMPROVISE: '.special-action.improvise-question',
 };
 
 let ACTION = {
@@ -58,7 +59,7 @@ const hideStatistics = new Event('hideStatisticsSelf');
 const showFeedback = new Event('showFeedbackSelf');
 const hideFeedback = new Event('hideFeedbackSelf');
 const improvise = new Event('improvise');
-const vote = new Event('vote');
+const vote = new Event('initVote');
 let finishquestionEvent = null;
 let questionEnd = false;
 
@@ -177,7 +178,7 @@ TeacherControlPanel.prototype.finishquestion = function() {
     dispatchEvent(finishquestionEventSelf);
     questionEnd = true;
     jQuery(REGION.SWITCHS).removeClass('disabled');
-    jQuery(REGION.ESPECIALS).removeClass('disabled');
+    jQuery(REGION.IMPROVISE).removeClass('disabled');
     jQuery(ACTION.FINISHQUESTION).addClass('d-none');
     jQuery(ACTION.NEXT).removeClass('d-none');
 };
