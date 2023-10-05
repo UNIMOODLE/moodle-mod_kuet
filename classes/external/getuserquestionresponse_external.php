@@ -69,7 +69,7 @@ class getuserquestionresponse_external extends external_api {
                 'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sid' => new external_value(PARAM_INT, 'session id'),
-                'uid' => new external_value(PARAM_INT, 'user id', VALUE_OPTIONAL)
+                'uid' => new external_value(PARAM_INT, 'user id')
             ]
         );
     }
@@ -104,8 +104,8 @@ class getuserquestionresponse_external extends external_api {
         $data->cmid = $cmid;
         $data->jqid = $jqid;
         if ($response !== false) {
-            $json = $response->get('response');
-            $other = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+            $json = base64_decode($response->get('response'));
+            $other = json_decode($json, false);
             $data->jqshowid = $response->get('jqshow');
             $data->questionid = $response->get('questionid');
             $result = $response->get('result');
@@ -149,6 +149,7 @@ class getuserquestionresponse_external extends external_api {
                     $cmid,
                     $sid,
                     $data->jqshowid);
+                $dataexport->uid = $uid;
                 return (array)numerical::export_numerical_response($dataexport, $json);
             case questions::CALCULATED:
                 $dataexport = calculated::export_calculated(
@@ -175,8 +176,7 @@ class getuserquestionresponse_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function getuserquestionresponse_returns(): external_single_structure {
+    public static function getuserquestionresponse_returns() {
         return question_exporter::get_read_structure();
-//        return null;
     }
 }

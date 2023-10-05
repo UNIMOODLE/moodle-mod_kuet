@@ -97,7 +97,7 @@ class getquestionstatistics_external extends external_api {
                 }
                 foreach ($responses as $response) {
                     foreach ($question->answers as $answer) {
-                        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                        $other = json_decode(base64_decode($response->get('response')), false);
                         $arrayresponses = explode(',', $other->answerids);
                         foreach ($arrayresponses as $responseid) {
                             if ((int)$responseid === (int)$answer->id) {
@@ -120,7 +120,7 @@ class getquestionstatistics_external extends external_api {
                 $statistics[$question->trueanswerid] = ['answerid' => $question->trueanswerid, 'numberofreplies' => 0];
                 $statistics[$question->falseanswerid] = ['answerid' => $question->falseanswerid, 'numberofreplies' => 0];
                 foreach ($responses as $response) {
-                    $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                    $other = json_decode(base64_decode($response->get('response')), false);
                     $statistics[(int)$other->answerids]['numberofreplies']++;
                 }
                 break;

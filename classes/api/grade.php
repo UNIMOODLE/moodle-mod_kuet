@@ -33,6 +33,7 @@ use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_sessions_grades;
+use moodle_exception;
 
 /**
  *
@@ -95,8 +96,8 @@ class grade {
      * Get the answer mark without considering session mode.
      * @param jqshow_questions_responses $response
      * @return float
+     * @throws moodle_exception
      * @throws coding_exception
-     * @throws dml_exception
      */
     public static function get_simple_mark(jqshow_questions_responses $response) {
         $mark = 0;
@@ -109,9 +110,11 @@ class grade {
         // Get answer mark.
         $useranswer = $response->get('response');
         if (!empty($useranswer)) {
-            $useranswer = json_decode($useranswer);
-            $type = questions::get_question_class_by_string_type($useranswer->{'type'});
-            $mark = $type::get_simple_mark($useranswer, $response);
+            $useranswer = json_decode(base64_decode($useranswer), false);
+            if (isset($useranswer->type)) {
+                $type = questions::get_question_class_by_string_type($useranswer->type);
+                $mark = $type::get_simple_mark($useranswer, $response);
+            }
         }
         return $mark;
     }
@@ -163,7 +166,7 @@ class grade {
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
             $qtime = $jqquestion->get('timelimit'); // All the time that participants have had to answer the question.
-            $useranswer = $response->get('response');
+            $useranswer = base64_decode($response->get('response'));
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
                 $useranswer = json_decode($useranswer);
@@ -203,7 +206,7 @@ class grade {
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
             $qtime = !$qtime ? $jqquestion->get('timelimit') : 40;
-            $useranswer = $response->get('response');
+            $useranswer = base64_decode($response->get('response'));
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
                 $useranswer = json_decode($useranswer);

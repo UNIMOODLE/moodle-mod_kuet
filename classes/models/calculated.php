@@ -144,7 +144,7 @@ class calculated extends questions {
      * @throws moodle_exception
      */
     public static function export_calculated_response(stdClass $data, string $response): stdClass {
-        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $responsedata = json_decode($response, false);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
             $responsedata->unit = '';
@@ -176,9 +176,7 @@ class calculated extends questions {
         $data->calculatedresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
         $data->programmedmode = $dataanswer['programmedmode'];
-        $data->statment_feedback = self::escape_characters($dataanswer['statment_feedback']);
-        $data->answer_feedback = self::escape_characters($dataanswer['answer_feedback']);
-        $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
+        $data->jsonresponse = base64_encode(json_encode($dataanswer, JSON_THROW_ON_ERROR));
         $data->statistics = $dataanswer['statistics'] ?? '0';
         return $data;
     }
@@ -263,7 +261,7 @@ class calculated extends questions {
             if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
                 continue;
             }
-            $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+            $other = json_decode(base64_decode($response->get('response')), false);
             if (isset($other->response) && $other->response !== '') {
                 foreach ($answers as $key => $answer) {
                     if ($answer['answertext'] === $other->response) {
@@ -298,7 +296,7 @@ class calculated extends questions {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+        $other = json_decode(base64_decode($response->get('response')), false);
         switch ($response->get('result')) {
             case questions::FAILURE:
                 $participant->response = 'incorrect';
@@ -366,7 +364,7 @@ class calculated extends questions {
         global $COURSE;
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
-        if (!$isteacher) {
+        if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
@@ -406,7 +404,7 @@ class calculated extends questions {
             questions::get_text(
                 $cm->id, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
-            $jsonresponse = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+            $jsonresponse = json_decode(base64_decode($response->get('response')), false);
             $moodleresult = $question->grade_response(['answer' => $jsonresponse->response, 'unit' => $jsonresponse->unit]);
             if (isset($moodleresult[0])) {
                 $mark = $moodleresult[0];

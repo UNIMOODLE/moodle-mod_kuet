@@ -110,7 +110,7 @@ class ddwtos extends questions {
      * @throws moodle_exception
      */
     public static function export_ddwtos_response(stdClass $data, string $response): stdClass {
-        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $responsedata = json_decode($response, false);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
         }
@@ -133,7 +133,7 @@ class ddwtos extends questions {
         $question->shufflechoices = 0;
         $data->questiontext = self::get_question_text(
             $data->cmid, $question,
-            (array)json_decode($responsedata->response, false, 512, JSON_THROW_ON_ERROR)
+            (array)json_decode($responsedata->response, false)
         );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $data->ddwtosresponse = $responsedata->response;
@@ -486,9 +486,10 @@ class ddwtos extends questions {
         int $timeleft
     ): void {
         global $COURSE;
+        // TODO use course_module context.
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
-        if (!$isteacher) {
+        if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
@@ -526,8 +527,8 @@ class ddwtos extends questions {
             questions::get_text(
                 $cm->id, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
-            $json = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
-            $responsejson = json_decode($json->response, false, 512, JSON_THROW_ON_ERROR);
+            $json = json_decode(base64_decode($response->get('response')), false);
+            $responsejson = json_decode($json->response, false);
             $moodleresult = $question->grade_response((array)$responsejson);
             if (isset($moodleresult[0])) {
                 $mark = $moodleresult[0];

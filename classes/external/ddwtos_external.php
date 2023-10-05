@@ -118,7 +118,7 @@ class ddwtos_external extends external_api {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
-            $responsejson = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+            $responsejson = json_decode($response, false);
             $moodleresult = $question->grade_response((array)$responsejson);
             $answerfeedback = '';
             if (isset($moodleresult[1])) {
@@ -181,7 +181,7 @@ class ddwtos_external extends external_api {
             }
             $questiontextfeedback = ddwtos::get_question_text(
                 $cmid, $question,
-                (array)json_decode($response, false, 512, JSON_THROW_ON_ERROR)
+                (array)json_decode($response, false)
             );
             return [
                 'reply_status' => true,

@@ -126,7 +126,7 @@ class truefalse extends questions {
                     $USER->id, $session->get('id'), $session->get('jqshowid')
                 );
                 if ($progress !== false) {
-                    $dataprogress = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $dataprogress = json_decode($progress->get('other'), false);
                     if (!isset($dataprogress->endSession)) {
                         $dataorder = explode(',', $dataprogress->questionsorder);
                         $order = (int)array_search($dataprogress->currentquestion, $dataorder, false);
@@ -215,7 +215,7 @@ class truefalse extends questions {
      * @throws moodle_exception
      */
     public static function export_truefalse_response(stdClass $data, string $response): stdClass {
-        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $responsedata = json_decode($response, false);
         $data->answered = true;
         if (!isset($responsedata->answerids)) {
             $responsedata->answerids = 0;
@@ -241,7 +241,7 @@ class truefalse extends questions {
         }
         $data->statment_feedback = $dataanswer['statment_feedback'];
         $data->answer_feedback = $dataanswer['answer_feedback'];
-        $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
+        $data->jsonresponse = base64_encode(json_encode($dataanswer, JSON_THROW_ON_ERROR));
         $data->statistics = $dataanswer['statistics'] ?? '0';
 
         return $data;
@@ -320,7 +320,7 @@ class truefalse extends questions {
             if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
                 continue;
             }
-            $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+            $other = json_decode(base64_decode($response->get('response')), false);
             if ($other->answerids !== '' && $other->answerids !== '0') {
                 $arrayanswerids = explode(',', $other->answerids);
                 foreach ($arrayanswerids as $arrayanswerid) {
@@ -347,7 +347,7 @@ class truefalse extends questions {
      * @throws dml_exception
      */
     public static function get_ranking_for_question($participant, $response, $answers, $session, $question) {
-        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+        $other = json_decode(base64_decode($response->get('response')), false);
         $arrayresponses = explode(',', $other->answerids);
 
         foreach ($answers as $answer) {
@@ -408,7 +408,7 @@ class truefalse extends questions {
         global $COURSE;
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
-        if (!$isteacher) {
+        if ($isteacher !== true) {
             multichoice::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::TRUE_FALSE);
         }

@@ -128,7 +128,7 @@ class matchquestion extends questions {
      * @throws moodle_exception
      */
     public static function export_match_response(stdClass $data, string $response, int $result):stdClass {
-        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $responsedata = json_decode($response, false);
         $data->answered = true;
         $jsonresponse = json_encode($responsedata->response, JSON_THROW_ON_ERROR);
         $dataanswer = match_external::match(
@@ -146,7 +146,7 @@ class matchquestion extends questions {
         $data->seconds = $responsedata->timeleft;
         $data->correct_answers = $dataanswer['correct_answers'];
         $data->programmedmode = $dataanswer['programmedmode'];
-        $data->jsonresponse = $jsonresponse;
+        $data->jsonresponse = base64_encode($jsonresponse);
         if ($data->hasfeedbacks) {
             $dataanswer['statment_feedback'] = self::escape_characters($dataanswer['statment_feedback']);
             $dataanswer['answer_feedback'] = self::escape_characters($dataanswer['answer_feedback']);
@@ -264,7 +264,7 @@ class matchquestion extends questions {
         global $COURSE;
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
-        if (!$isteacher) {
+        if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
