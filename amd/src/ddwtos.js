@@ -76,7 +76,7 @@ function Ddwtos(selector, showquestionfeedback = false, manualmode = false, json
     manualMode = manualmode;
     questionEnd = false;
     if (jsonresponse !== '') {
-        this.answered(JSON.parse(jsonresponse), false);
+        this.answered(jsonresponse, false);
         if (manualMode === false || jQuery(REGION.MODALBODY).length) {
             questionEnd = true;
             if (showQuestionFeedback === true) {

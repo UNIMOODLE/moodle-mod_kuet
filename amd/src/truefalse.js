@@ -61,9 +61,10 @@ function TrueFalse(selector, showquestionfeedback = false, manualmode = false, j
     manualMode = manualmode;
     questionEnd = false;
     if (jsonresponse !== '') {
-        this.answered(JSON.parse(jsonresponse));
+        this.answered(JSON.parse(atob(jsonresponse)));
         if (manualMode === false || jQuery('.modal-body').length) {
             this.showAnswers();
+            questionEnd = true;
             if (showQuestionFeedback === true) {
                 this.showFeedback();
             }
@@ -177,8 +178,8 @@ TrueFalse.prototype.reply = function(e) {
     if (e !== undefined && e !== null) {
         e.preventDefault();
         e.stopPropagation();
-        let answerIds = parseInt(jQuery(e.currentTarget).attr('data-answerid'));
-        if (answerIds !== null) {
+        answerIds = parseInt(jQuery(e.currentTarget).attr('data-answerid'));
+        if (answerIds === null) {
             answerIds = 0;
         }
     }

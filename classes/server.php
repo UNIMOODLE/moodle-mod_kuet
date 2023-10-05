@@ -327,6 +327,7 @@ class server extends websockets {
                 return $this->mask(
                     encrypt($this->password, json_encode([
                             'action' => 'hideFeedback',
+                            'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'improvising':

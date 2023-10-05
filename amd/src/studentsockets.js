@@ -88,6 +88,11 @@ let groupid = 0;
 let groupmode = 0;
 let groupimage = null;
 let groupname = null;
+// Flags for improvised flow.
+let userHasImprovised = false;
+let userHasVoted = false;
+let initVote = false;
+let notImprovised = false;
 
 Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
@@ -252,7 +257,11 @@ Sockets.prototype.initSockets = function() {
                 jQuery(REGION.IMPROVISE).addClass('d-none');
                 jQuery(REGION.ROOT).removeClass('d-none');
                 break;
-            case 'improvised':
+            case 'improvised': // Teacher sen question improvised.
+                userHasImprovised = false;
+                userHasVoted = false;
+                initVote = false;
+                notImprovised = false;
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     jQuery(REGION.IMPROVISE).addClass('d-none');
                     jQuery(REGION.ROOT).removeClass('d-none');
@@ -267,27 +276,45 @@ Sockets.prototype.initSockets = function() {
                 break;
             case 'printNewTag':
                 // eslint-disable-next-line no-case-declarations
-                let htmlTags = '';
-                response.tags.forEach(tag => {
-                    // eslint-disable-next-line max-len
-                    htmlTags += '<li><span class="tag" data-count="' + tag.count + '" data-vote="' + tag.votenum + '" data-size="' + tag.size + '">' +
-                        '<div class="vote-tag d-none" data-name="' + tag.name + '" data-action="vote-tag">' +
+                let printTags = false;
+                if (initVote === true) {
+                    if (userHasVoted === true && notImprovised === false) {
+                        printTags = true;
+                    }
+                    if (notImprovised === true) {
+                        printTags = true;
+                        notImprovised = false;
+                    }
+                } else {
+                    printTags = true;
+                }
+                if (printTags === true) {
+                    // eslint-disable-next-line no-case-declarations
+                    let htmlTags = '';
+                    response.tags.forEach(tag => {
+                        // eslint-disable-next-line max-len
+                        htmlTags += '<li><span class="tag" data-count="' + tag.count + '" data-vote="' + tag.votenum + '" data-size="' + tag.size + '">' +
+                            '<div class="vote-tag d-none" data-name="' + tag.name + '" data-action="vote-tag">' +
                             // eslint-disable-next-line max-len
                             '<svg id="vote-layer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 115.29">' +
-                                '<defs><style>.cls-1{fill:#212121;}.cls-2{fill:#33a867;fill-rule:evenodd;}</style></defs>' +
-                                // eslint-disable-next-line max-len
-                                '<path d="M45.22,30.83a5.78,5.78,0,0,1,2.9-3,6.83,6.83,0,0,1,4.66-.26,12.88,12.88,0,0,1,4.45,2.27,22,22,0,0,1,8.14,15.82,45.93,45.93,0,0,1-.1,7c-.13,1.64-.34,3.37-.63,5.16H81.57a18.21,18.21,0,0,1,7.64,1.94,12.43,12.43,0,0,1,4.69,4.12,10.55,10.55,0,0,1,1.71,6.31A14.93,14.93,0,0,1,94.08,76a18.42,18.42,0,0,1,.46,7,8.22,8.22,0,0,1-2.33,4.75A21.3,21.3,0,0,1,91,95.65a16.62,16.62,0,0,1-3.77,5.9,24,24,0,0,1-.75,4.21,14.4,14.4,0,0,1-2.1,4.52h0c-2.88,4.06-5.18,4-8.82,3.81-.51,0-1,0-1.89,0h-33a16,16,0,0,1-7.42-1.49,17.68,17.68,0,0,1-5.83-5.08L27,106.07V67.62l1.68-.45C32.9,66,36.24,62.39,38.85,58a64.87,64.87,0,0,0,5.83-13.95v-10a6.17,6.17,0,0,1,.54-3.25ZM3.38,63.6H19.73A3.39,3.39,0,0,1,23.11,67v44.93a3.39,3.39,0,0,1-3.38,3.38H3.38A3.39,3.39,0,0,1,0,111.91V67A3.39,3.39,0,0,1,3.38,63.6ZM50,31.87a1.82,1.82,0,0,0-.83,1.32V44.4l-.1.64a69.3,69.3,0,0,1-6.38,15.3C39.87,65,36.22,69.09,31.47,71v34.32a12.18,12.18,0,0,0,3.82,3.25,11.76,11.76,0,0,0,5.42,1h33c.59,0,1.35,0,2.07.06,2.16.08,3.52.14,5-1.92h0a9.93,9.93,0,0,0,1.43-3.14,20.11,20.11,0,0,0,.67-4.15l.69-1.48a12.6,12.6,0,0,0,3.27-4.83,17.75,17.75,0,0,0,.87-7.28l-.08-1.33,1.13-.7a3.44,3.44,0,0,0,1.38-2.51,14.87,14.87,0,0,0-.57-6l.18-1.63A11.34,11.34,0,0,0,91.13,70a6.15,6.15,0,0,0-1-3.68,8.06,8.06,0,0,0-3-2.61,13.58,13.58,0,0,0-5.63-1.43H59.26l.5-2.66c.48-2.58.83-5,1-7.37a42.55,42.55,0,0,0,.11-6.33,17.42,17.42,0,0,0-6.39-12.53,8.43,8.43,0,0,0-2.86-1.5,2.56,2.56,0,0,0-1.65,0Z"/>' +
+                            '<defs><style>.cls-1{fill:#212121;}.cls-2{fill:#33a867;fill-rule:evenodd;}</style></defs>' +
+                            // eslint-disable-next-line max-len
+                            '<path d="M45.22,30.83a5.78,5.78,0,0,1,2.9-3,6.83,6.83,0,0,1,4.66-.26,12.88,12.88,0,0,1,4.45,2.27,22,22,0,0,1,8.14,15.82,45.93,45.93,0,0,1-.1,7c-.13,1.64-.34,3.37-.63,5.16H81.57a18.21,18.21,0,0,1,7.64,1.94,12.43,12.43,0,0,1,4.69,4.12,10.55,10.55,0,0,1,1.71,6.31A14.93,14.93,0,0,1,94.08,76a18.42,18.42,0,0,1,.46,7,8.22,8.22,0,0,1-2.33,4.75A21.3,21.3,0,0,1,91,95.65a16.62,16.62,0,0,1-3.77,5.9,24,24,0,0,1-.75,4.21,14.4,14.4,0,0,1-2.1,4.52h0c-2.88,4.06-5.18,4-8.82,3.81-.51,0-1,0-1.89,0h-33a16,16,0,0,1-7.42-1.49,17.68,17.68,0,0,1-5.83-5.08L27,106.07V67.62l1.68-.45C32.9,66,36.24,62.39,38.85,58a64.87,64.87,0,0,0,5.83-13.95v-10a6.17,6.17,0,0,1,.54-3.25ZM3.38,63.6H19.73A3.39,3.39,0,0,1,23.11,67v44.93a3.39,3.39,0,0,1-3.38,3.38H3.38A3.39,3.39,0,0,1,0,111.91V67A3.39,3.39,0,0,1,3.38,63.6ZM50,31.87a1.82,1.82,0,0,0-.83,1.32V44.4l-.1.64a69.3,69.3,0,0,1-6.38,15.3C39.87,65,36.22,69.09,31.47,71v34.32a12.18,12.18,0,0,0,3.82,3.25,11.76,11.76,0,0,0,5.42,1h33c.59,0,1.35,0,2.07.06,2.16.08,3.52.14,5-1.92h0a9.93,9.93,0,0,0,1.43-3.14,20.11,20.11,0,0,0,.67-4.15l.69-1.48a12.6,12.6,0,0,0,3.27-4.83,17.75,17.75,0,0,0,.87-7.28l-.08-1.33,1.13-.7a3.44,3.44,0,0,0,1.38-2.51,14.87,14.87,0,0,0-.57-6l.18-1.63A11.34,11.34,0,0,0,91.13,70a6.15,6.15,0,0,0-1-3.68,8.06,8.06,0,0,0-3-2.61,13.58,13.58,0,0,0-5.63-1.43H59.26l.5-2.66c.48-2.58.83-5,1-7.37a42.55,42.55,0,0,0,.11-6.33,17.42,17.42,0,0,0-6.39-12.53,8.43,8.43,0,0,0-2.86-1.5,2.56,2.56,0,0,0-1.65,0Z"/>' +
                             '</svg>' +
-                        '</div>' +
-                        tag.name + '</span></li>';
-                });
-                jQuery(REGION.TAGSCONTENT).html(htmlTags);
+                            '</div>' +
+                            tag.name + '</span></li>';
+                    });
+                    jQuery(REGION.TAGSCONTENT).html(htmlTags);
+                    if (initVote === true && userHasVoted === false) {
+                        jQuery(REGION.VOTETAG).removeClass('d-none').on('click', Sockets.prototype.voteTags);
+                    }
+                }
                 break;
-            case 'initVote':
-                jQuery(REGION.IMPROVISE).addClass('d-none');
-                /* TODO if the student has not yet improvised, an empty word should be handed out and the words should
-                    be painted so that they can be voted on. */
-                jQuery(REGION.ROOT).removeClass('d-none');
+            case 'initVote': // Teacher init vote.
+                initVote = true;
+                if (userHasImprovised === false) {
+                    Sockets.prototype.replyImprovise();
+                }
                 jQuery(REGION.VOTETAG).removeClass('d-none').on('click', Sockets.prototype.voteTags);
                 break;
             case 'endSession':
@@ -357,12 +384,16 @@ Sockets.prototype.initListeners = function() {
 };
 
 Sockets.prototype.replyImprovise = function() {
-    let improviseReply = jQuery(REGION.IMPROVISEREPLY).val();
-    if (improviseReply === '') {
-        jQuery(REGION.IMPROVISEREPLY).focus(() => {
-            jQuery(REGION.IMPROVISEREPLY).css({'border-color': 'red'});
-        });
-    } else {
+    let improviseReply = '';
+    if (initVote === false) {
+        improviseReply = jQuery(REGION.IMPROVISEREPLY).val();
+        if (improviseReply === '') {
+            jQuery(REGION.IMPROVISEREPLY).focus(() => {
+                jQuery(REGION.IMPROVISEREPLY).css({'border-color': 'red'});
+            });
+        }
+    }
+    if ((initVote === false && improviseReply !== '') || initVote === true) {
         Templates.render(TEMPLATES.LOADING, {visible: true}).done(function() {
             jQuery(REGION.IMPROVISE).addClass('d-none');
             jQuery(REGION.ROOT).removeClass('d-none');
@@ -370,7 +401,7 @@ Sockets.prototype.replyImprovise = function() {
             let cloudtagsData = {
                 'sessionid': sid,
                 'cmid': cmid,
-                'question_index_string': 'improvised',
+                'improvised': true,
                 'sessionprogress': 0,
                 'cloudtags': true,
                 'isteacher': false,
@@ -392,6 +423,11 @@ Sockets.prototype.replyImprovise = function() {
                     'userid': userid,
                 };
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                if (userHasImprovised === false) {
+                    jQuery(REGION.VOTETAG).removeClass('d-none').on('click', Sockets.prototype.voteTags);
+                    notImprovised = true;
+                }
+                userHasImprovised = true;
             }).fail(Notification.exception);
         });
     }
@@ -403,6 +439,7 @@ Sockets.prototype.voteTags = function(e) {
     jQuery(REGION.TAGSCONTENT).attr('data-show-value', false);
     let votedTag = e.target.getAttribute('data-name');
     if (votedTag) {
+        userHasVoted = true;
         let msg = {
             'action': 'StudentVotedTag',
             'sid': sid,

@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-12 question-container">
             {{^endsession}}
-                <div class="question-heading bg-primary">
+                <div class="question-heading bg-primary {{#improvied}}d-none{{/improvied}}">
                     <span class="session-index">
                         <span class="question-text">{{#str}}question, mod_jqshow{{/str}}</span> {{ question_index_string }}
                     </span>

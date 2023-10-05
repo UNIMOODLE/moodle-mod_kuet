@@ -85,7 +85,7 @@ function Match(selector, showquestionfeedback = false, manualmode = false, jsonr
     linkList = [];
     this.createLinkCorrection();
     if (jsonresponse !== '') {
-        this.answered(jsonresponse);
+        this.answered(JSON.parse(atob(jsonresponse)));
         if (manualMode === false || jQuery('.modal-body').length) {
             questionEnd = true;
             if (showQuestionFeedback === true) {
@@ -101,7 +101,7 @@ function Match(selector, showquestionfeedback = false, manualmode = false, jsonr
 
 Match.prototype.answered = function(jsonresponse) {
     Match.prototype.allDisabled();
-    linkList = JSON.parse(jsonresponse);
+    linkList = jsonresponse;
     Match.prototype.drawResponse();
     questionEnd = true;
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');

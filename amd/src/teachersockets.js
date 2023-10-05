@@ -36,7 +36,11 @@ let ACTION = {
     INITSESSION: '[data-action="init-session"]',
     ENDSESSION: '[data-action="end-session"]',
     CLOSEIMPROVISE: '[data-action="close-improvise"]',
-    SUBMITIMPROVISE: '[data-action="submit-improvise"]'
+    SUBMITIMPROVISE: '[data-action="submit-improvise"]',
+    NEXT: '[data-action="next"]',
+    VOTE: '[data-action="vote"]',
+    JUMP: '[data-action="jump"]',
+    FINISHQUESTION: '[data-action="finishquestion"]',
 };
 
 let SERVICES = {
@@ -383,16 +387,10 @@ Sockets.prototype.initSockets = function() {
                 dispatchEvent(new Event('hideFeedback_' + response.jqid));
                 break;
             case 'ImproviseStudentTag':
-                if (voting === false) {
-                    if (response.improvisereply !== '') {
-                        Sockets.prototype.manageCloudTags(response.improvisereply);
-                    }
-                    Sockets.prototype.printNewTag();
-                }
+                Sockets.prototype.manageCloudTags(response.improvisereply);
+                Sockets.prototype.printNewTag();
                 break;
             case 'StudentVotedTag':
-                // eslint-disable-next-line no-console
-                console.log(response, voting);
                 if (voting === true) {
                     Sockets.prototype.manageTagsVotes(response.votedtag);
                     Sockets.prototype.printNewTag();
@@ -473,7 +471,16 @@ Sockets.prototype.initListeners = function() {
                 jQuery(REGION.SWITCHS).removeClass('disabled');
                 // TODO only improvise.
                 jQuery(REGION.ESPECIALS).removeClass('disabled');
-                that.questionEnd();
+                setTimeout(() => {
+                    that.questionEnd();
+                    jQuery(REGION.SWITCHS).removeClass('disabled');
+                    jQuery(REGION.IMPROVISE).removeClass('disabled');
+                    jQuery(ACTION.FINISHQUESTION).addClass('d-none');
+                    jQuery(ACTION.NEXT).removeClass('d-none');
+                    jQuery(ACTION.VOTE).addClass('disabled');
+                    jQuery(ACTION.JUMP).addClass('disabled');
+                    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                }, 250);
             }).fail(Notification.exception);
         } else {
             that.questionEnd();
@@ -1131,7 +1138,7 @@ Sockets.prototype.submitImprovise = function() {
             let cloudtagsData = {
                 'sessionid': sid,
                 'cmid': cmid,
-                'question_index_string': 'improvised',
+                'improvised': true,
                 'sessionprogress': 0,
                 'cloudtags': true,
                 'isteacher': true,
@@ -1152,24 +1159,26 @@ Sockets.prototype.submitImprovise = function() {
 };
 
 Sockets.prototype.manageCloudTags = function(newtag) {
-    let exist = false;
-    if (cloudTags.length) {
-        cloudTags = cloudTags.map((tag) => {
-            if (tag.name.toLowerCase() === newtag.toLowerCase()) {
-                tag.count = tag.count + 1;
-                tag.votenum = 0;
-                exist = true;
-            }
-            return tag;
+    if (newtag !== '') {
+        let exist = false;
+        if (cloudTags.length) {
+            cloudTags = cloudTags.map((tag) => {
+                if (tag.name.toLowerCase() === newtag.toLowerCase()) {
+                    tag.count = tag.count + 1;
+                    tag.votenum = 0;
+                    exist = true;
+                }
+                return tag;
+            });
+        }
+        if (!exist) {
+            cloudTags.push({name: newtag, count: 1, votenum: 0});
+        }
+        const maxCount = Math.max(...cloudTags.map(item => item.count));
+        cloudTags.forEach((item) => {
+            item.size = Math.ceil((item.count / maxCount) * 10);
         });
     }
-    if (!exist) {
-        cloudTags.push({name: newtag, count: 1, votenum: 0});
-    }
-    const maxCount = Math.max(...cloudTags.map(item => item.count));
-    cloudTags.forEach((item) => {
-        item.size = Math.ceil((item.count / maxCount) * 10);
-    });
 };
 
 Sockets.prototype.manageTagsVotes = function(voteTag) {

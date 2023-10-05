@@ -111,6 +111,7 @@ class jqshow_questions_responses extends persistent {
      * @param int $jqshow
      * @param int $session
      * @param int $jqid
+     * @param int $questionid
      * @param int $userid
      * @param int $result
      * @param string $response
@@ -132,12 +133,12 @@ class jqshow_questions_responses extends persistent {
                 $data->userid = $userid;
                 $data->anonymise = $sessiondata->get('anonymousanswer');
                 $data->result = $result;
-                $data->response = $response;
+                $data->response = base64_encode($response);
                 $a = new self(0, $data);
                 $a->create();
             } else {
                 $record->set('result', $result);
-                $record->set('response', $response);
+                $record->set('response', base64_encode($response));
                 $record->update();
             }
         } catch (moodle_exception $e) {

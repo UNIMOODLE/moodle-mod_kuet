@@ -27,6 +27,7 @@ namespace mod_jqshow\models;
 
 use coding_exception;
 use context_course;
+use context_module;
 use dml_exception;
 use Endroid\QrCode\Exception\InvalidWriterException;
 use mod_jqshow\helpers\sessions as sessionshelper;
@@ -59,14 +60,14 @@ class teacher extends user {
      * @throws moodle_exception
      */
     public function export_sessions($cmid) : Object {
-        global $COURSE, $CFG;
+        global $CFG;
         $jqshow = new jqshow($cmid);
         $actives = [];
         $inactives = [];
         $sessions = $jqshow->get_sessions();
-        $coursecontext = context_course::instance($COURSE->id);
-        $managesessions = has_capability('mod/jqshow:managesessions', $coursecontext);
-        $initsession = has_capability('mod/jqshow:startsession', $coursecontext);
+        $coursemodulecontext = context_module::instance($cmid);
+        $managesessions = has_capability('mod/jqshow:managesessions', $coursemodulecontext);
+        $initsession = has_capability('mod/jqshow:startsession', $coursemodulecontext);
         foreach ($sessions as $session) {
             $ds = sessionshelper::get_data_session($session, $cmid, $managesessions, $initsession);
             if ((int)$session->get('status') !== sessionsmodel::SESSION_FINISHED) {
