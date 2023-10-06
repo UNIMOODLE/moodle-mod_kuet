@@ -45,6 +45,13 @@ use user_picture;
 
 class reports {
 
+    const QUESTION_REPORT = 'questionreport';
+    const SESSION_QUESTIONS_REPORT = 'sessionquestionsreport';
+    const SESSION_RANKING_REPORT = 'sessionrankingreport';
+    const GROUP_SESSION_RANKING_REPORT = 'groupsessionrankingreport';
+    const USER_REPORT = 'userreport';
+    const GROUP_QUESTION_REPORT = 'groupquestionreport';
+    const GROUP_REPORT = 'groupreport';
     /**
      * @param int $jqshowid
      * @param int $cmid
@@ -437,7 +444,30 @@ class reports {
                 $data->thirduserpoints = $data->rankingusers[2]->userpoints;
             }
         }
+        $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::SESSION_QUESTIONS_REPORT];
+        $data->downloadsessionquestionreport = self::get_downloadhtml($params);
+        if ($session->is_group_mode()) {
+            $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::GROUP_SESSION_RANKING_REPORT];
+            $data->downloadsessionrankingreport = self::get_downloadhtml($params);
+        } else {
+            $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::SESSION_RANKING_REPORT];
+            $data->downloadsessionrankingreport = self::get_downloadhtml($params);
+        }
+
         return $data;
+    }
+
+    /**
+     * @param array $urlparams
+     * @return string
+     * @throws coding_exception
+     */
+    private static function  get_downloadhtml(array $urlparams) : string {
+        global $OUTPUT;
+
+        $urlbase = new moodle_url('/mod/jqshow/dwn_report.php');
+        return $OUTPUT->download_dataformat_selector(get_string('downloadas', 'table'),
+            $urlbase, 'download', $urlparams);
     }
 
     /**
@@ -532,6 +562,8 @@ class reports {
             $data->questionranking =
                 self::get_ranking_for_question($users, $data->answers, $session, $question, $cmid, $sid, $jqid);
         }
+        $params = ['cmid' => $cmid, 'sid' => $sid, 'name' => self::QUESTION_REPORT, 'jqid' => $jqid];
+        $data->downloadquestionreport = self::get_downloadhtml($params);
         return $data;
     }
 
@@ -616,6 +648,8 @@ class reports {
             $data->questiongroupranking =
                 self::get_group_ranking_for_question($groups, $data->answers, $session, $question, $cmid, $sid, $jqid);
         }
+        $params = ['cmid' => $cmid, 'sid' => $sid, 'jqid' => $jqid, 'name' => self::GROUP_QUESTION_REPORT];
+        $data->downloadquestionreport = self::get_downloadhtml($params);
         return $data;
     }
 
@@ -675,6 +709,8 @@ class reports {
                     break;
             }
         }
+        $params = ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userid, 'name' => self::USER_REPORT];
+        $data->downloaduserreport = self::get_downloadhtml($params);
         return $data;
     }
 
@@ -738,6 +774,8 @@ class reports {
                     break;
             }
         }
+        $params = ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $groupid, 'name' => self::GROUP_REPORT];
+        $data->downloaduserreport = self::get_downloadhtml($params);
         return $data;
     }
 
@@ -791,6 +829,8 @@ class reports {
                     break;
             }
         }
+        $params = ['cmid' => $cmid, 'sid' => $sid, 'userid' => $USER->id, 'name' => self::USER_REPORT];
+        $data->downloaduserreport = self::get_downloadhtml($params);
         return $data;
     }
 
@@ -899,26 +939,6 @@ class reports {
                 $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
                 $type = questions::get_question_class_by_string_type($other->type);
                 $group = $type::get_ranking_for_question($group, $response, $answers, $session, $question);
-//                switch ($other->type) {
-//                    case questions::MULTICHOICE:
-//                        $group = multichoice::get_ranking_for_question($group, $response, $answers, $session, $question);
-//                        break;
-//                    case questions::MATCH:
-//                        $group = matchquestion::get_ranking_for_question($group, $response, $session, $question);
-//                        break;
-//                    case questions::TRUE_FALSE:
-//                        $group = truefalse::get_ranking_for_question($group, $response, $answers, $session, $question);
-//                        break;
-//                    case questions::CALCULATED:
-//                        $group = calculated::get_ranking_for_question($group, $response, $answers, $session, $question);
-//                        break;
-//                    case questions::NUMERICAL:
-//                        $group = numerical::get_ranking_for_question($group, $response, $answers, $session, $question);
-//                        break;
-//                    default:
-//                        throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-//                            [], get_string('question_nosuitable', 'mod_jqshow'));
-//                }
             } else {
                 $questiontimestr = self::get_time_string($session, $question);
                 $group->response = 'noresponse';

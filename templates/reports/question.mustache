@@ -183,6 +183,12 @@
         </div>
     {{/hasranking}}
 </div>
+<div class="download-report" data-region="download-report">
+    <div class="row">
+        {{{downloadquestionreport}}}
+    </div>
+</div>
+
 {{#js}}
     require(['mod_jqshow/question_report'], function(questionReport) {
         questionReport.questionReport('[data-region="question-report"]');

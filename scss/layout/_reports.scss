@@ -137,6 +137,13 @@ body#page-mod-jqshow-reports.jqshow-reports {
             }
         }
     }
+    .download-report {
+        margin-top: 25px;
+        padding: 0;
+        form {
+            margin: 25px auto !important;
+        }
+    }
     .questions-list,
     .ranking-list {
         margin-top: 25px;

@@ -36,7 +36,11 @@
         </div>
     </div>
 </div>
-
+<div class="download-report" data-region="download-report">
+    <div class="row">
+        {{{downloaduserreport}}}
+    </div>
+</div>
 {{#js}}
     require(['mod_jqshow/user_report'], function(userReport) {
         userReport.userReport('[data-region="question-list"]');
