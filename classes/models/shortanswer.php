@@ -107,7 +107,7 @@ class shortanswer extends questions {
      * @throws moodle_exception
      */
     public static function export_shortanswer_response(stdClass $data, string $response): stdClass {
-        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $responsedata = json_decode($response, false);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
         }
@@ -128,7 +128,7 @@ class shortanswer extends questions {
         $data->programmedmode = $dataanswer['programmedmode'];
         $data->statment_feedback = self::escape_characters($dataanswer['statment_feedback']);
         $data->answer_feedback = self::escape_characters($dataanswer['answer_feedback']);
-        $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
+        $data->jsonresponse = base64_encode(json_encode($dataanswer, JSON_THROW_ON_ERROR));
         $data->statistics = $dataanswer['statistics'] ?? '0';
         return $data;
     }
@@ -213,7 +213,7 @@ class shortanswer extends questions {
             if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
                 continue;
             }
-            $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+            $other = json_decode(base64_decode($response->get('response')), false);
             if (isset($other->response) && $other->response !== '') {
                 foreach ($answers as $key => $answer) {
                     if ($answer['answertext'] === $other->response) {
@@ -244,7 +244,7 @@ class shortanswer extends questions {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+        $other = json_decode(base64_decode($response->get('response')), false);
         switch ($response->get('result')) {
             case questions::FAILURE:
                 $participant->response = 'incorrect';
@@ -305,7 +305,7 @@ class shortanswer extends questions {
         global $COURSE;
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
-        if (!$isteacher) {
+        if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
@@ -335,7 +335,7 @@ class shortanswer extends questions {
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
         if (assert($question instanceof qtype_shortanswer_question)) {
-            $jsonresponse = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+            $jsonresponse = json_decode(base64_decode($response->get('response')), false);
             foreach ($question->answers as $answer) {
                 $overlap = (int)$question->usecase === 0 ?
                     (strcasecmp($jsonresponse->response, $answer->answer) === 0) : // Uppercase and lowercase letters are the same.

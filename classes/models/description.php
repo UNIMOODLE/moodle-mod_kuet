@@ -107,7 +107,7 @@ class description extends questions {
      * @throws moodle_exception
      */
     public static function export_description_response(stdClass $data, string $response): stdClass {
-        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $responsedata = json_decode($response, false);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
         }
@@ -124,9 +124,7 @@ class description extends questions {
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $data->seconds = $responsedata->timeleft;
         $data->programmedmode = $dataanswer['programmedmode'];
-        $data->statment_feedback = self::escape_characters($dataanswer['statment_feedback']);
-        $data->answer_feedback = self::escape_characters($dataanswer['answer_feedback']);
-        $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
+        $data->jsonresponse = base64_encode(json_encode($dataanswer, JSON_THROW_ON_ERROR));
         $data->statistics = $dataanswer['statistics'] ?? '0';
         return $data;
     }
@@ -206,7 +204,7 @@ class description extends questions {
         global $COURSE;
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
-        if (!$isteacher) {
+        if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
             $response->hasfeedbacks = (bool)($statmentfeedback !== '');

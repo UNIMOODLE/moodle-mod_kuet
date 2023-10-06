@@ -68,7 +68,7 @@ function Calculated(selector, showquestionfeedback = false, manualmode = false, 
     manualMode = manualmode;
     questionEnd = false;
     if (jsonresponse !== '') {
-        this.answered(JSON.parse(jsonresponse));
+        this.answered(JSON.parse(atob(jsonresponse)));
         if (manualMode === false || jQuery('.modal-body').length) {
             questionEnd = true;
             if (showQuestionFeedback === true) {

@@ -88,7 +88,7 @@ class student_session_view implements renderable, templatable {
                     $USER->id, $session->get('id'), $session->get('jqshowid')
                 );
                 if ($progress !== false) {
-                    $progressdata = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $progressdata = json_decode($progress->get('other'), false);
                     if (isset($progressdata->endSession)) {
                         // END SESSION, no more question.
                         $data = sessions::export_endsession(
@@ -105,7 +105,7 @@ class student_session_view implements renderable, templatable {
                     $newprogress = jqshow_user_progress::get_session_progress_for_user(
                         $USER->id, $session->get('id'), $session->get('jqshowid')
                     );
-                    $newprogressdata = json_decode($newprogress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $newprogressdata = json_decode($newprogress->get('other'), false);
                     $question = jqshow_questions::get_question_by_jqid($newprogressdata->currentquestion);
                 }
 
@@ -121,7 +121,7 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = multichoice::export_multichoice_response($data, $response->get('response'));
+                            $data = multichoice::export_multichoice_response($data, base64_decode($response->get('response')));
                         }
                         break;
                     case questions::MATCH:
@@ -135,7 +135,7 @@ class student_session_view implements renderable, templatable {
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
                             $data =
-                                matchquestion::export_match_response($data, $response->get('response'), $response->get('result'));
+                                matchquestion::export_match_response($data, base64_decode($response->get('response')), $response->get('result'));
                         }
                         break;
                     case questions::TRUE_FALSE:
@@ -149,7 +149,7 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = truefalse::export_truefalse_response($data, $response->get('response'));
+                            $data = truefalse::export_truefalse_response($data, base64_decode($response->get('response')));
                         }
                         break;
                     case questions::SHORTANSWER:
@@ -163,7 +163,7 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = shortanswer::export_shortanswer_response($data, $response->get('response'));
+                            $data = shortanswer::export_shortanswer_response($data, base64_decode($response->get('response')));
                         }
                         break;
                     case questions::NUMERICAL:
@@ -177,7 +177,7 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = numerical::export_numerical_response($data, $response->get('response'));
+                            $data = numerical::export_numerical_response($data, base64_decode($response->get('response')));
                         }
                         break;
                     case questions::CALCULATED:
@@ -191,7 +191,7 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = calculated::export_calculated_response($data, $response->get('response'));
+                            $data = calculated::export_calculated_response($data, base64_decode($response->get('response')));
                         }
                         break;
                     case questions::DESCRIPTION:
@@ -205,7 +205,7 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = description::export_description_response($data, $response->get('response'));
+                            $data = description::export_description_response($data, base64_decode($response->get('response')));
                         }
                         break;
                     case questions::DDWTOS:
@@ -219,7 +219,7 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = ddwtos::export_ddwtos_response($data, $response->get('response'));
+                            $data = ddwtos::export_ddwtos_response($data, base64_decode($response->get('response')));
                         }
                         break;
                     default:

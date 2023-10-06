@@ -128,7 +128,7 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
         if (!$newquestionid) {
             return $responsejson;
         }
-        $resp = json_decode($responsejson, false, 512, JSON_THROW_ON_ERROR);
+        $resp = json_decode($responsejson, false);
         if ($resp->{'type'} == 'truefalse') {
             return $this->replace_answerids_truefalse($resp, $newquestionid);
         } else if ($resp->{'type'} == 'multichoice') {

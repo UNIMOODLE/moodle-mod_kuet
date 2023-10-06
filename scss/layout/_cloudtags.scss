@@ -18,6 +18,7 @@
 					padding: 2px 0.25rem 2px 20px;
 					text-decoration: none;
 					position: relative;
+					&[data-size="0"],
 					&[data-size="1"] {
 						--size: 1;
 					}
@@ -50,26 +51,12 @@
 					}
 					--size: 10;
 					font-size: calc(var(--size) * 0.25rem + 0.5rem);
-					&:before {
-						content: "";
-						position: absolute;
-						top: 0;
-						left: 50%;
-						width: 0;
-						height: 100%;
-						background: lightgrey;
-						transform: translate(-50%, 0);
-						opacity: 0.15;
-						transition: width 0.25s;
-					}
+
 					&:focus {
 						outline: 1px dashed;
 					}
-					&:focus:before,
-					&:hover:before {
-						width: 100%;
-					}
-					div.delete-tag {
+					div.delete-tag,
+					div.vote-tag {
 						cursor: pointer;
 						position: absolute;
 						top: 0;
@@ -87,6 +74,18 @@
 						text-align: center;
 						vertical-align: middle;
 					}
+					div.vote-tag {
+						top: 0;
+						right: 0;
+						background-color: transparent;
+						cursor: pointer;
+						left: unset;
+						height: 20px;
+						align-items: flex-end;
+						svg {
+							pointer-events: none !important;
+						}
+					}
 				}
 				&:nth-child(2n+1) span.tag { color: nth($answercolors, 2); }
 				&:nth-child(3n+1) span.tag { color: nth($answercolors, 3); }
@@ -98,6 +97,21 @@
 						&:after {
 							content: " (" attr(data-count) ")";
 							font-size: 1rem;
+						}
+					}
+				}
+			}
+			&[data-show-votes="true"] {
+				li {
+					span.tag {
+						&:after {
+							content: " " attr(data-vote) "";
+							font-size: 1rem;
+							font-weight: bold;
+							/*position: absolute;
+							top: 0;
+							right: 8px;*/
+							color: black;
 						}
 					}
 				}

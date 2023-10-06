@@ -204,7 +204,7 @@ class questions {
                     $USER->id, $session->get('id'), $session->get('jqshowid')
                 );
                 if ($progress !== false) {
-                    $dataprogress = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $dataprogress = json_decode($progress->get('other'), false);
                     if (!isset($dataprogress->endSession)) {
                         $dataorder = explode(',', $dataprogress->questionsorder);
                         $order = (int)array_search($dataprogress->currentquestion, $dataorder, false);
@@ -322,7 +322,8 @@ class questions {
         // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
         $text = trim(html_entity_decode($text), self::CHARACTERS_TO_BE_STRIPPED);
         $text = str_replace('"', '\"', $text);
-        return preg_replace('/[\x00-\x1F\x7F]/u', '', $text);;
+        $replace = preg_replace('/[\x00-\x1F\x7F]/u', '', $text);
+        return $replace ?? $text;
     }
 
     /**

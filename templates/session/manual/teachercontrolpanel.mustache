@@ -34,108 +34,99 @@
                     </div>
                 {{/cloudtags}}
             {{/ranking}}
-            {{^cloudtags}}
-                <div class="control-action" data-action="resend">
+
+            <div class="control-action {{#cloudtags}}disabled{{/cloudtags}} {{#ranking}}disabled{{/ranking}}" data-action="resend">
+                <div class="control-action-icon bg-primary">
+                    {{#pix}}i/resend, mod_jqshow{{/pix}}
+                </div>
+                <span>{{#str}}resend, mod_jqshow{{/str}}</span>
+            </div>
+            <div class="dropdown show {{#cloudtags}}disabled{{/cloudtags}}">
+                <div class="control-action dropdown-toggle" role="button" id="jumpTo" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <div class="control-action-icon bg-primary">
-                        {{#pix}}i/resend, mod_jqshow{{/pix}}
+                        {{#pix}}i/jump, mod_jqshow{{/pix}}
                     </div>
-                    <span>{{#str}}resend, mod_jqshow{{/str}}</span>
+                    <span>{{#str}}jump, mod_jqshow{{/str}}</span>
                 </div>
-                <div class="dropdown show">
-                    <div class="control-action dropdown-toggle" role="button" id="jumpTo" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <div class="control-action-icon bg-primary">
-                            {{#pix}}i/jump, mod_jqshow{{/pix}}
+                <div class="dropdown-menu" aria-labelledby="jumpTo">
+                    <div class="form-inline">
+                        <div class="form-group ml-2 mr-2 mb-2">
+                            <label for="jumpToNumber" class="sr-only">{{#str}}question_number, mod_jqshow{{/str}}</label>
+                            <input type="number" class="form-control" id="jumpToNumber" data-input="jumpto" data-numquestions="{{numquestions}}" placeholder="{{#str}}question_number, mod_jqshow{{/str}}" min="1" max="{{numquestions}}">
                         </div>
-                        <span>{{#str}}jump, mod_jqshow{{/str}}</span>
-                    </div>
-                    <div class="dropdown-menu" aria-labelledby="jumpTo">
-                        <div class="form-inline">
-                            <div class="form-group ml-2 mr-2 mb-2">
-                                <label for="jumpToNumber" class="sr-only">{{#str}}question_number, mod_jqshow{{/str}}</label>
-                                <input type="number" class="form-control" id="jumpToNumber" data-input="jumpto" data-numquestions="{{numquestions}}" placeholder="{{#str}}question_number, mod_jqshow{{/str}}" min="1" max="{{numquestions}}">
-                            </div>
-                            <div data-action="jump" class="btn btn-primary mb-2 mr-2">{{#str}}jump, mod_jqshow{{/str}}</div>
-                        </div>
+                        <div data-action="jump" class="btn btn-primary mb-2 mr-2">{{#str}}jump, mod_jqshow{{/str}}</div>
                     </div>
                 </div>
-            {{/cloudtags}}
-
-            {{^ranking}}
-                <div class="separator">
-                    <span>{{#str}}showhide, mod_jqshow{{/str}}</span>
-                    <div class="line-separator"></div>
-                </div>
-                <div class="showhide-action disabled" data-action="answers">
-                    <div class="d-flex align-items-center">
-                        <div class="showhide-action-icon">
-                            {{#pix}}i/eye, mod_jqshow{{/pix}}
-                        </div>
-                        <span>{{#str}}responses, mod_jqshow{{/str}}</span>
-                    </div>
-                    <div class="custom-control custom-switch">
-                        <input id="showhide_responses" type="checkbox"
-                               data-action="showhide_responses"
-                               class="custom-control-input"
-                                >
-                        <label for="showhide_responses" class="custom-control-label"
-                               title="{{#str}}responses, mod_jqshow{{/str}}" >
-                        </label>
-                    </div>
-                </div>
-                {{#showstatistics}}
-                    <div class="showhide-action disabled" data-action="statistics">
-                        <div class="d-flex align-items-center">
-                            <div class="showhide-action-icon">
-                                {{#pix}}i/statistics, mod_jqshow{{/pix}}
-                            </div>
-                            <span>{{#str}}statistics, mod_jqshow{{/str}}</span>
-                        </div>
-                        <div class="custom-control custom-switch">
-                            <input id="showhide_statistics" type="checkbox"
-                                   data-action="showhide_statistics"
-                                   class="custom-control-input">
-                            <label for="showhide_statistics" class="custom-control-label"
-                                   title="{{#str}}statistics, mod_jqshow{{/str}}" >
-                            </label>
-                        </div>
-                    </div>
-                {{/showstatistics}}
-                {{#showquestionfeedback}}
-                    <div class="showhide-action disabled" data-action="feedback">
-                        <div class="d-flex align-items-center">
-                            <div class="showhide-action-icon">
-                                {{#pix}}i/feedback, mod_jqshow{{/pix}}
-                            </div>
-                            <span>{{#str}}feedback, mod_jqshow{{/str}}</span>
-                        </div>
-                        <div class="custom-control custom-switch">
-                            <input id="showhide_feedback" type="checkbox"
-                                   data-action="showhide_feedback"
-                                   class="custom-control-input"
-                                    >
-                            <label for="showhide_feedback" class="custom-control-label"
-                                   title="{{#str}}feedback, mod_jqshow{{/str}}" >
-                            </label>
-                        </div>
-                    </div>
-                {{/showquestionfeedback}}
-            {{/ranking}}
-
+            </div>
             <div class="separator">
-                <span>{{#str}}question_actions, mod_jqshow{{/str}}</span>
+                <span>{{#str}}showhide, mod_jqshow{{/str}}</span>
                 <div class="line-separator"></div>
             </div>
-            <div class="special-action control-action {{^ranking}}disabled{{/ranking}}" data-action="improvise">
+            <div class="showhide-action disabled" data-action="answers">
+                <div class="d-flex align-items-center">
+                    <div class="showhide-action-icon">
+                        {{#pix}}i/eye, mod_jqshow{{/pix}}
+                    </div>
+                    <span>{{#str}}responses, mod_jqshow{{/str}}</span>
+                </div>
+                <div class="custom-control custom-switch">
+                    <input id="showhide_responses" type="checkbox"
+                           data-action="showhide_responses"
+                           class="custom-control-input"
+                    >
+                    <label for="showhide_responses" class="custom-control-label"
+                           title="{{#str}}responses, mod_jqshow{{/str}}" >
+                    </label>
+                </div>
+            </div>
+            <div class="showhide-action disabled" data-action="statistics">
+                <div class="d-flex align-items-center">
+                    <div class="showhide-action-icon">
+                        {{#pix}}i/statistics, mod_jqshow{{/pix}}
+                    </div>
+                    <span>{{#str}}statistics, mod_jqshow{{/str}}</span>
+                </div>
+                <div class="custom-control custom-switch">
+                    <input id="showhide_statistics" type="checkbox"
+                           data-action="showhide_statistics"
+                           class="custom-control-input">
+                    <label for="showhide_statistics" class="custom-control-label"
+                           title="{{#str}}statistics, mod_jqshow{{/str}}" >
+                    </label>
+                </div>
+            </div>
+            <div class="showhide-action disabled" data-action="feedback">
+                <div class="d-flex align-items-center">
+                    <div class="showhide-action-icon">
+                        {{#pix}}i/feedback, mod_jqshow{{/pix}}
+                    </div>
+                    <span>{{#str}}feedback, mod_jqshow{{/str}}</span>
+                </div>
+                <div class="custom-control custom-switch">
+                    <input id="showhide_feedback" type="checkbox"
+                           data-action="showhide_feedback"
+                           class="custom-control-input"
+                    >
+                    <label for="showhide_feedback" class="custom-control-label"
+                           title="{{#str}}feedback, mod_jqshow{{/str}}" >
+                    </label>
+                </div>
+            </div>
+            <div class="separator">
+                <span>{{#str}}improvise_cloudtags, mod_jqshow{{/str}}</span>
+                <div class="line-separator"></div>
+            </div>
+            <div class="special-action control-action {{^ranking}}disabled{{/ranking}} improvise-question" data-action="improvise">
                 <div class="control-action-icon bg-primary">
                     {{#pix}}i/improvise, mod_jqshow{{/pix}}
                 </div>
                 <span>{{#str}}improvise, mod_jqshow{{/str}}</span>
             </div>
-            <div class="special-action control-action {{^ranking}}disabled{{/ranking}}" data-action="vote">
+            <div class="special-action control-action disabled vote-question" data-action="vote">
                 <div class="control-action-icon bg-primary">
                     {{#pix}}i/vote, mod_jqshow{{/pix}}
                 </div>
-                <span>{{#str}}vote, mod_jqshow{{/str}}</span>
+                <span>{{#str}}vote_tags, mod_jqshow{{/str}}</span>
             </div>
 
             <div class="btn btn-primary endsession" data-action="endsession">

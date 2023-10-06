@@ -181,6 +181,16 @@ class server extends websockets {
                             'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta improvisada con la palabra: ' . $data['improvisereply'] // TODO delete.
                         ], JSON_THROW_ON_ERROR)
                     ));
+            case 'StudentVotedTag':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'StudentVotedTag',
+                            'onlyforteacher' => true,
+                            'votedtag' => $data['votedtag'],
+                            'userid' => $data['userid'],
+                            'message' => 'El alumno ' . $data['userid'] . ' ha votado una pregunta improvisada con la palabra: ' . $data['votedtag'] // TODO delete.
+                        ], JSON_THROW_ON_ERROR)
+                    ));
             default:
                 return '';
         }
@@ -317,6 +327,7 @@ class server extends websockets {
                 return $this->mask(
                     encrypt($this->password, json_encode([
                             'action' => 'hideFeedback',
+                            'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'improvising':
@@ -349,11 +360,10 @@ class server extends websockets {
                             'tags' => $data['tags']
                         ], JSON_THROW_ON_ERROR)
                     ));
-            case 'vote':
+            case 'initVote':
                 return $this->mask(
                     encrypt($this->password, json_encode([
-                            'action' => 'vote',
-                            'jqid' => $data['jqid']
+                            'action' => 'initVote'
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'shutdownTest':

@@ -137,7 +137,7 @@ class multichoice extends questions {
      * @throws moodle_exception
      */
     public static function export_multichoice_response(stdClass $data, string $response): stdClass {
-        $responsedata = json_decode($response, false, 512, JSON_THROW_ON_ERROR);
+        $responsedata = json_decode($response, false);
         $data->answered = true;
         $dataanswer = multichoice_external::multichoice(
             $responsedata->answerids,
@@ -161,7 +161,7 @@ class multichoice extends questions {
         }
         $data->statment_feedback = $dataanswer['statment_feedback'];
         $data->answer_feedback = $dataanswer['answer_feedback'];
-        $data->jsonresponse = json_encode($dataanswer, JSON_THROW_ON_ERROR);
+        $data->jsonresponse = base64_encode(json_encode($dataanswer, JSON_THROW_ON_ERROR));
         $data->statistics = $dataanswer['statistics'] ?? '0';
         return $data;
     }
@@ -239,7 +239,7 @@ class multichoice extends questions {
             if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
                 continue;
             }
-            $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+            $other = json_decode(base64_decode($response->get('response')), false);
             if ($other->answerids !== '' && $other->answerids !== '0') {
                 $arrayanswerids = explode(',', $other->answerids);
                 foreach ($arrayanswerids as $arrayanswerid) {
@@ -269,7 +269,7 @@ class multichoice extends questions {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-        $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+        $other = json_decode(base64_decode($response->get('response')), false);
         $arrayresponses = explode(',', $other->answerids);
         if (count($arrayresponses) === 1) {
             foreach ($answers as $answer) {
@@ -344,7 +344,7 @@ class multichoice extends questions {
         global $COURSE;
         $coursecontext = context_course::instance($COURSE->id);
         $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
-        if (!$isteacher) {
+        if ($isteacher !== true) {
             self::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::MULTICHOICE);
         }

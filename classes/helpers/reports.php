@@ -321,7 +321,7 @@ class reports {
                 }
                 $data->time = self::get_user_time_in_question($session, $question, $response);
                 $type = questions::get_question_class_by_string_type($question->get('qtype'));
-                $data->score = round($type::get_simple_mark(json_decode($response->get('response')), $response), 2);
+                $data->score = round($type::get_simple_mark(json_decode(base64_decode($response->get('response'))), $response), 2);
             }
             $data->cmid = $cmid;
             $data->sessionid = $sid;
@@ -342,7 +342,7 @@ class reports {
     public static function get_user_time_in_question(
         jqshow_sessions $session, jqshow_questions $question, jqshow_questions_responses $response
     ): string {
-        $responsedata = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+        $responsedata = json_decode(base64_decode($response->get('response')), false);
         $usertimelast = $responsedata->timeleft;
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
@@ -898,7 +898,7 @@ class reports {
                     ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userdata->id]))->out(false);
                 $response = jqshow_questions_responses::get_record(['userid' => $userdata->id, 'session' => $sid, 'jqid' => $jqid]);
                 if ($response !== false) {
-                    $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                    $other = json_decode(base64_decode($response->get('response')), false);
                     $type = questions::get_question_class_by_string_type($other->type);
                     $user = $type::get_ranking_for_question($user, $response, $answers, $session, $question);
                 } else {
@@ -936,7 +936,7 @@ class reports {
             $group->participantid = $gmember->id;
             $response = jqshow_questions_responses::get_record(['userid' => $gmember->id, 'session' => $sid, 'jqid' => $jqid]);
             if ($response !== false) {
-                $other = json_decode($response->get('response'), false, 512, JSON_THROW_ON_ERROR);
+                $other = json_decode(base64_decode($response->get('response')), false);
                 $type = questions::get_question_class_by_string_type($other->type);
                 $group = $type::get_ranking_for_question($group, $response, $answers, $session, $question);
             } else {
