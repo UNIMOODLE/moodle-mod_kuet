@@ -246,9 +246,8 @@ Sockets.prototype.initSockets = function() {
     this.root.find(ACTION.SUBMITIMPROVISE).on('click', this.submitImprovise);
 
     db = Database.initDb(sid, userid);
-    Sockets.prototype.webSocket = new WebSocket(
-        'wss://' + socketUrl.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
-    );
+    let normalizeSocketUrl = Sockets.prototype.normalizeSocketUrl(socketUrl, portUrl);
+    Sockets.prototype.webSocket = new WebSocket(normalizeSocketUrl);
 
     Sockets.prototype.webSocket.onopen = function() { // Waitingroom.
         /* The first and second questions are obtained.
@@ -427,6 +426,21 @@ Sockets.prototype.initSockets = function() {
         that.root.find(ACTION.INITSESSION).off('click');
         that.root.find(ACTION.ENDSESSION).off('click');
     };
+};
+
+Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
+    let jsUrl = new URL(socketUrl);
+    if (jsUrl.protocol === 'https:') {
+        jsUrl.port = port;
+        jsUrl.protocol = 'wss:';
+        if (jsUrl.pathname === '/') {
+            jsUrl.pathname = jsUrl.pathname + 'jqshow';
+        } else {
+            jsUrl.pathname = jsUrl.pathname + '/jqshow';
+        }
+        return jsUrl.toString();
+    }
+    return '';
 };
 
 Sockets.prototype.initListeners = function() {
