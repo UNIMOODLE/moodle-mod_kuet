@@ -90,44 +90,15 @@ class getquestionstatistics_external extends external_api {
             }
             $responses = $groupresponses;
         }
-        switch ($jqshowquestion->get('qtype')) {
-            case questions::MULTICHOICE:
-                foreach ($question->answers as $answer) {
-                    $statistics[$answer->id] = ['answerid' => $answer->id, 'numberofreplies' => 0];
-                }
-                foreach ($responses as $response) {
-                    foreach ($question->answers as $answer) {
-                        $other = json_decode(base64_decode($response->get('response')), false);
-                        $arrayresponses = explode(',', $other->answerids);
-                        foreach ($arrayresponses as $responseid) {
-                            if ((int)$responseid === (int)$answer->id) {
-                                $statistics[$answer->id]['numberofreplies']++;
-                            }
-                        }
-                    }
-                }
-                break;
-            case questions::MATCH:
-            case questions::SHORTANSWER:
-            case questions::NUMERICAL:
-            case questions::CALCULATED:
-            case questions::DESCRIPTION:
-            case questions::DDWTOS:
-                // TODO review statistics for all, as most of them have to be applied.
-                // There are no statistics defined for these modes.
-                break;
-            case questions::TRUE_FALSE:
-                $statistics[$question->trueanswerid] = ['answerid' => $question->trueanswerid, 'numberofreplies' => 0];
-                $statistics[$question->falseanswerid] = ['answerid' => $question->falseanswerid, 'numberofreplies' => 0];
-                foreach ($responses as $response) {
-                    $other = json_decode(base64_decode($response->get('response')), false);
-                    $statistics[(int)$other->answerids]['numberofreplies']++;
-                }
-                break;
-            default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                    [], get_string('question_nosuitable', 'mod_jqshow'));
+        try {
+            /** @var questions $type */
+            $type = questions::get_question_class_by_string_type($jqshowquestion->get('qtype'));
+            $statistics = $type::get_question_statistics($question, $responses);
+        } catch(moodle_exception $exception) {
+            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
+                [], get_string('question_nosuitable', 'mod_jqshow'));
         }
+
         return ['statistics' => $statistics];
     }
 
@@ -138,12 +109,17 @@ class getquestionstatistics_external extends external_api {
         return new external_single_structure(
             [
                 'statistics' => new external_multiple_structure(
-                new external_single_structure(
-                    [
-                        'answerid' => new external_value(PARAM_INT, 'Answer id', VALUE_OPTIONAL),
-                        'numberofreplies' => new external_value(PARAM_INT, 'Number of replies', VALUE_OPTIONAL)
-                    ], 'Number of replies for one answer.'
-                ), 'List of answers with number of replies.', VALUE_OPTIONAL)
+                    new external_single_structure(
+                        [
+                            'answerid' => new external_value(PARAM_INT, 'Answer id', VALUE_OPTIONAL),
+                            'numberofreplies' => new external_value(PARAM_INT, 'Number of replies', VALUE_OPTIONAL),
+                            'correct' => new external_value(PARAM_FLOAT, 'number of correct answers', VALUE_OPTIONAL),
+                            'failure' => new external_value(PARAM_FLOAT, 'number of failures answers', VALUE_OPTIONAL),
+                            'partially' => new external_value(PARAM_FLOAT, 'number of failures answers', VALUE_OPTIONAL),
+                            'noresponse' => new external_value(PARAM_FLOAT, 'number of noresponse answers', VALUE_OPTIONAL),
+                            'invalid' => new external_value(PARAM_FLOAT, 'number of invalid answers', VALUE_OPTIONAL),
+                        ], 'Number of replies for one answer.'
+                    ), 'List of answers with number of replies.', VALUE_OPTIONAL),
             ]
         );
     }

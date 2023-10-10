@@ -127,6 +127,7 @@ class reports {
 
         $data->noresponse = count($groupmembers) - ($data->success + $data->failures + $data->partyally);
         $data->time = self::get_time_string($session, $question);
+        /** @var questions $type */
         $type = questions::get_question_class_by_string_type($question->get('qtype'));
         if ($type::is_evaluable()) {
             $data->isevaluable = true;
@@ -186,6 +187,7 @@ class reports {
         ]);
         $data->noresponse = count($users) - ($data->success + $data->failures + $data->partyally);
         $data->time = self::get_time_string($session, $question);
+        /** @var questions $type */
         $type = questions::get_question_class_by_string_type($question->get('qtype'));
         if ($type::is_evaluable()) {
             $data->isevaluable = true;
@@ -320,6 +322,7 @@ class reports {
                         break;
                 }
                 $data->time = self::get_user_time_in_question($session, $question, $response);
+                /** @var questions $type */
                 $type = questions::get_question_class_by_string_type($question->get('qtype'));
                 $data->score = round($type::get_simple_mark(json_decode(base64_decode($response->get('response'))), $response), 2);
             }
@@ -522,6 +525,7 @@ class reports {
         );
         $data->questiontextformat = $questiondata->questiontextformat;
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
+        /** @var questions $type */
         $type = questions::get_question_class_by_string_type($data->type);
         $data = $type::get_question_report($session, $questiondata, $data, $jqid);
 
@@ -597,7 +601,7 @@ class reports {
             $cmid, $questiondata->questiontext, $questiondata->questiontextformat, $questiondata->id, $questiondata, 'questiontext'
         );
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
-
+        /** @var questions $type */
         $type = questions::get_question_class_by_string_type($data->type);
         $data = $type::get_question_report($session, $questiondata, $data, $jqid);
 
@@ -899,6 +903,7 @@ class reports {
                 $response = jqshow_questions_responses::get_record(['userid' => $userdata->id, 'session' => $sid, 'jqid' => $jqid]);
                 if ($response !== false) {
                     $other = json_decode(base64_decode($response->get('response')), false);
+                    /** @var questions $type */
                     $type = questions::get_question_class_by_string_type($other->type);
                     $user = $type::get_ranking_for_question($user, $response, $answers, $session, $question);
                 } else {
@@ -937,6 +942,7 @@ class reports {
             $response = jqshow_questions_responses::get_record(['userid' => $gmember->id, 'session' => $sid, 'jqid' => $jqid]);
             if ($response !== false) {
                 $other = json_decode(base64_decode($response->get('response')), false);
+                /** @var questions $type */
                 $type = questions::get_question_class_by_string_type($other->type);
                 $group = $type::get_ranking_for_question($group, $response, $answers, $session, $question);
             } else {

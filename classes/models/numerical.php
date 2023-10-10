@@ -405,4 +405,34 @@ class numerical extends questions {
         }
         return $mark;
     }
+    /**
+     * @param question_definition $question
+     * @param jqshow_questions_responses[] $responses
+     * @return array
+     */
+    public static function get_question_statistics( question_definition $question, array $responses) : array {
+        $statistics = [];
+        $correct = 0;
+        $incorrect = 0;
+        $partially = 0;
+        $noresponse = 0;
+        $invalid = 0;
+        $total = count($responses);
+        foreach ($responses as $response) {
+            $result = $response->get('result');
+            switch ($result) {
+                case questions::SUCCESS: $correct++; break;
+                case questions::FAILURE: $incorrect++; break;
+                case questions::INVALID: $invalid++; break;
+                case questions::PARTIALLY: $partially++; break;
+                case questions::NORESPONSE: $noresponse++; break;
+            }
+        }
+        $statistics[0]['correct'] = $correct * 100 / $total;
+        $statistics[0]['failure'] = $incorrect  * 100 / $total;
+//        $statistics[0]['invalid'] = $invalid  * 100 / $total;
+        $statistics[0]['partially'] = $partially  * 100 / $total;
+        $statistics[0]['noresponse'] = $noresponse  * 100 / $total;
+        return $statistics;
+    }
 }

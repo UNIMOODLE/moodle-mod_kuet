@@ -446,4 +446,28 @@ class multichoice extends questions {
         }
         return $mark;
     }
+
+    /**
+     * @param question_definition $question
+     * @param jqshow_questions_responses[] $responses
+     * @return array
+     */
+    public static function get_question_statistics( question_definition $question, array $responses) : array {
+        $statistics = [];
+        foreach ($question->answers as $answer) {
+            $statistics[$answer->id] = ['answerid' => $answer->id, 'numberofreplies' => 0];
+        }
+        foreach ($responses as $response) {
+            foreach ($question->answers as $answer) {
+                $other = json_decode(base64_decode($response->get('response')), false);
+                $arrayresponses = explode(',', $other->answerids);
+                foreach ($arrayresponses as $responseid) {
+                    if ((int)$responseid === (int)$answer->id) {
+                        $statistics[$answer->id]['numberofreplies']++;
+                    }
+                }
+            }
+        }
+        return $statistics;
+    }
 }

@@ -97,7 +97,16 @@ Calculated.prototype.initEvents = function() {
                 Calculated.prototype.reply();
             }
             e.detail.statistics.forEach((statistic) => {
-                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+                jQuery('#statistics .correct').attr('aria-valuenow', statistic.correct)
+                    .width(statistic.correct + '%').html(statistic.correct + '%');
+                jQuery('#statistics .failure').attr('aria-valuenow', statistic.failure)
+                    .width(statistic.failure + '%').html(statistic.failure + '%');
+                jQuery('#statistics .invalid').attr('aria-valuenow', statistic.invalid)
+                    .width(statistic.invalid + '%').html(statistic.invalid + '%');
+                jQuery('#statistics .noresponse').attr('aria-valuenow', statistic.noresponse)
+                    .width(statistic.noresponse + '%').html(statistic.noresponse + '%');
+                jQuery('#statistics .partially').attr('aria-valuenow', statistic.partially)
+                    .width(statistic.partially + '%').html(statistic.partially + '%');
             });
         }, {once: true});
         addEventListener('pauseQuestion_' + jqid, () => {
@@ -146,7 +155,16 @@ Calculated.prototype.removeEvents = function() {
                 Calculated.prototype.reply();
             }
             e.detail.statistics.forEach((statistic) => {
-                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+                jQuery('#statistics .correct').attr('aria-valuenow', statistic.correct)
+                    .width(statistic.correct + '%').html(statistic.correct + '%');
+                jQuery('#statistics .failure').attr('aria-valuenow', statistic.failure)
+                    .width(statistic.failure + '%').html(statistic.failure + '%');
+                jQuery('#statistics .invalid').attr('aria-valuenow', statistic.invalid)
+                    .width(statistic.invalid + '%').html(statistic.invalid + '%');
+                jQuery('#statistics .noresponse').attr('aria-valuenow', statistic.noresponse)
+                    .width(statistic.noresponse + '%').html(statistic.noresponse + '%');
+                jQuery('#statistics .partially').attr('aria-valuenow', statistic.partially)
+                    .width(statistic.partially + '%').html(statistic.partially + '%');
             });
         }, {once: true});
         removeEventListener('pauseQuestion_' + jqid, () => {
@@ -278,6 +296,18 @@ Calculated.prototype.playQuestion = function() {
         jQuery(REGION.TIMER).css('z-index', 1);
         jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
         jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    }
+};
+
+Calculated.prototype.showStatistics = function() {
+    if (questionEnd === true) {
+        jQuery('#statistics').css({'display': 'block', 'z-index': 3});
+    }
+};
+
+Calculated.prototype.hideStatistics = function() {
+    if (questionEnd === true) {
+        jQuery('#statistics').css({'display': 'none', 'z-index': 0});
     }
 };
 

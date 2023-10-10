@@ -90,7 +90,16 @@ ShortAnswer.prototype.initEvents = function() {
                 ShortAnswer.prototype.reply();
             }
             e.detail.statistics.forEach((statistic) => {
-                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+                jQuery('#statistics .correct').attr('aria-valuenow', statistic.correct)
+                    .width(statistic.correct + '%').html(statistic.correct + '%');
+                jQuery('#statistics .failure').attr('aria-valuenow', statistic.failure)
+                    .width(statistic.failure + '%').html(statistic.failure + '%');
+                jQuery('#statistics .invalid').attr('aria-valuenow', statistic.invalid)
+                    .width(statistic.invalid + '%').html(statistic.invalid + '%');
+                jQuery('#statistics .noresponse').attr('aria-valuenow', statistic.noresponse)
+                    .width(statistic.noresponse + '%').html(statistic.noresponse + '%');
+                jQuery('#statistics .partially').attr('aria-valuenow', statistic.partially)
+                    .width(statistic.partially + '%').html(statistic.partially + '%');
             });
         }, {once: true});
         addEventListener('pauseQuestion_' + jqid, () => {
@@ -131,6 +140,17 @@ ShortAnswer.prototype.initEvents = function() {
     };
 };
 
+ShortAnswer.prototype.showStatistics = function() {
+    if (questionEnd === true) {
+        jQuery('#statistics').css({'display': 'block', 'z-index': 3});
+    }
+};
+ShortAnswer.prototype.hideStatistics = function() {
+    if (questionEnd === true) {
+        jQuery('#statistics').css({'display': 'none', 'z-index': 0});
+    }
+};
+
 ShortAnswer.prototype.removeEvents = function() {
     removeEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
     if (manualMode !== false) {
@@ -139,7 +159,16 @@ ShortAnswer.prototype.removeEvents = function() {
                 ShortAnswer.prototype.reply();
             }
             e.detail.statistics.forEach((statistic) => {
-                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+                jQuery('#statistics .correct').attr('aria-valuenow', statistic.correct)
+                    .width(statistic.correct + '%').html(statistic.correct + '%');
+                jQuery('#statistics .failure').attr('aria-valuenow', statistic.failure)
+                    .width(statistic.failure + '%').html(statistic.failure + '%');
+                jQuery('#statistics .invalid').attr('aria-valuenow', statistic.invalid)
+                    .width(statistic.invalid + '%').html(statistic.invalid + '%');
+                jQuery('#statistics .noresponse').attr('aria-valuenow', statistic.noresponse)
+                    .width(statistic.noresponse + '%').html(statistic.noresponse + '%');
+                jQuery('#statistics .partially').attr('aria-valuenow', statistic.partially)
+                    .width(statistic.partially + '%').html(statistic.partially + '%');
             });
         }, {once: true});
         removeEventListener('pauseQuestion_' + jqid, () => {

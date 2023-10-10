@@ -112,6 +112,7 @@ class grade {
         if (!empty($useranswer)) {
             $useranswer = json_decode(base64_decode($useranswer), false);
             if (isset($useranswer->type)) {
+                /** @var questions $type */
                 $type = questions::get_question_class_by_string_type($useranswer->type);
                 $mark = $type::get_simple_mark($useranswer, $response);
             }

@@ -1,0 +1,39 @@
+.question {
+	#statistics {
+		display: none;
+		width: 100%;
+		background-color: #FFFFFF;
+		padding: 1.5em;
+		border-radius: 1em;
+		margin-bottom: 1em;
+		margin-top: 1em;
+		.onestatistic {
+			margin-bottom: 1em;
+			display: flex;
+			span {
+				width: 30%;
+			}
+			.progress {
+				width: 70%;
+				.progress-bar {
+					&.correct {
+						color: #1c3f1a;
+						background-color: #d7e4d6 !important;
+					}
+					&.partially {
+						color: #818182;
+						background-color: #fefefe !important;
+					}
+					&.failure {
+						color: #691911;
+						background-color: #f4d6d2 !important;
+					}
+					&.noresponse {
+						color: #7d5a29;
+						background-color: #fcefdc !important;
+					}
+				}
+			}
+		}
+	}
+}

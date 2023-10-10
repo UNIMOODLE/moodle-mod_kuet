@@ -436,4 +436,19 @@ class truefalse extends questions {
         }
         return $mark;
     }
+    /**
+     * @param question_definition $question
+     * @param jqshow_questions_responses[] $responses
+     * @return array
+     */
+    public static function get_question_statistics( question_definition $question, array $responses) : array {
+        $statistics = [];
+        $statistics[$question->trueanswerid] = ['answerid' => $question->trueanswerid, 'numberofreplies' => 0];
+        $statistics[$question->falseanswerid] = ['answerid' => $question->falseanswerid, 'numberofreplies' => 0];
+        foreach ($responses as $response) {
+            $other = json_decode(base64_decode($response->get('response')), false);
+            $statistics[(int)$other->answerids]['numberofreplies']++;
+        }
+        return $statistics;
+    }
 }
