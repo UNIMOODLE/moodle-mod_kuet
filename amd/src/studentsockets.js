@@ -110,9 +110,8 @@ Sockets.prototype.initSockets = function() {
         groupname = this.root[0].dataset.groupname;
     }
 
-    Sockets.prototype.webSocket = new WebSocket(
-        'wss://' + socketUrl.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
-    );
+    let normalizeSocketUrl = Sockets.prototype.normalizeSocketUrl(socketUrl, portUrl);
+    Sockets.prototype.webSocket = new WebSocket(normalizeSocketUrl);
 
     Sockets.prototype.webSocket.onopen = function() {
 
@@ -367,6 +366,21 @@ Sockets.prototype.initSockets = function() {
             }).fail(Notification.exception);
         });
     };
+};
+
+Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
+    let jsUrl = new URL(socketUrl);
+    if (jsUrl.protocol === 'https:') {
+        jsUrl.port = port;
+        jsUrl.protocol = 'wss:';
+        if (jsUrl.pathname === '/') {
+            jsUrl.pathname = jsUrl.pathname + 'jqshow';
+        } else {
+            jsUrl.pathname = jsUrl.pathname + '/jqshow';
+        }
+        return jsUrl.toString();
+    }
+    return '';
 };
 
 Sockets.prototype.initListeners = function() {
