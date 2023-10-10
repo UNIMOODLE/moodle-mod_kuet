@@ -224,8 +224,10 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_individual_ranking_for_teacher_report(int $cmid, int $sid): array {
-        global $DB;
+        global $DB, $USER;
 
+        $session = new jqshow_sessions($sid);
+        $cmcontext = context_module::instance($cmid);
         $results = sessions::get_session_results($sid, $cmid);
         foreach ($results as $user) {
             $userdata = $DB->get_record('user', ['id' => $user->userid]);
@@ -233,6 +235,10 @@ class reports {
                 $user = self::add_userdata($userdata, $user, $user->userid, 200);
                 $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $cmid, 'sid' => $sid, 'userid' => $user->userid]))->out(false);
+                if ($session->get('anonymousanswer') === 1
+                    && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                    unset($user->viewreporturl);
+                }
             }
         }
         return $results;
@@ -248,13 +254,20 @@ class reports {
      */
     public static function get_groups_ranking_for_teacher_report(int $cmid, int $sid): array {
 
+        global $USER;
         $results = sessions::get_group_session_results($sid, $cmid);
+        $session = new jqshow_sessions($sid);
+        $cmcontext = context_module::instance($cmid);
         foreach ($results as $group) {
             $group->sid = $sid;
             $groupdata = groups_get_group($group->id);
             $group = self::add_groupdata($groupdata, $group, 200);
             $group->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $group->id]))->out(false);
+            if ($session->get('anonymousanswer') === 1
+                && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                unset($group->viewreporturl);
+            }
         }
         return $results;
     }
@@ -402,7 +415,7 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_session_report(int $jqshowid, int $cmid, int $sid, context_module $cmcontext): stdClass {
-        global $USER;
+
         $data = new stdClass();
         $data->jqshowid = $jqshowid;
         $data->cmid = $cmid;
@@ -413,18 +426,11 @@ class reports {
         $data->config = sessions::get_session_config($sid, $cmid);
         $data->sessionquestions = self::get_questions_data_for_teacher_report($jqshowid, $cmid, $sid);
         $rankingusers = $session->is_group_mode() ? 'rankinggroups' : 'rankingusers';
-        if ($session->get('anonymousanswer') === 1) {
-            if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
-                $data->hasranking = true;
-                $data->$rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
-            }
-        } else {
-            $data->hasranking = true;
-            $data->$rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
-        }
+        $data->hasranking = true;
+        $data->$rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
+        $data->showfinalranking = true;
         if ($mode !== sessions::INACTIVE_PROGRAMMED && $mode !== sessions::INACTIVE_MANUAL) {
             if ($session->is_group_mode()) {
-                $data->showfinalranking = true;
                 $data->firstuserimageurl = $data->rankinggroups[0]->groupimage;
                 $data->firstuserfullname = $data->rankinggroups[0]->groupname;
                 $data->firstuserpoints = $data->rankinggroups[0]->grouppoints;
@@ -435,7 +441,6 @@ class reports {
                 $data->thirduserfullname = $data->rankinggroups[2]->groupname;
                 $data->thirduserpoints = $data->rankinggroups[2]->grouppoints;
             } else {
-                $data->showfinalranking = true;
                 $data->firstuserimageurl = $data->rankingusers[0]->userimage;
                 $data->firstuserfullname = $data->rankingusers[0]->userfullname;
                 $data->firstuserpoints = $data->rankingusers[0]->userpoints;

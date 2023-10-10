@@ -34,9 +34,12 @@
                     <div class="d-table-cell text-center">{{partially}}</div>
                     <div class="d-table-cell text-center">{{notanswers}}</div>
                     <div class="d-table-cell text-center viewreport">
-                        <a href="{{viewreporturl}}">
-                            + <span>{{#str}}viewreport_user, mod_jqshow{{/str}}</span>
-                        </a>
+                        {{#viewreporturl}}
+                            <a href="{{viewreporturl}}">
+                                + <span>{{#str}}viewreport_user, mod_jqshow{{/str}}</span>
+                            </a>
+                        {{/viewreporturl}}
+
                     </div>
                 </div>
             {{/rankingusers}}
@@ -60,9 +63,11 @@
                     <div class="d-table-cell text-center">{{partially}}</div>
                     <div class="d-table-cell text-center">{{notanswers}}</div>
                     <div class="d-table-cell text-center viewreport">
-                        <a href="{{viewreporturl}}">
-                            + <span>{{#str}}viewreport_group, mod_jqshow{{/str}}</span>
-                        </a>
+                        {{#viewreporturl}}
+                            <a href="{{viewreporturl}}">
+                                + <span>{{#str}}viewreport_group, mod_jqshow{{/str}}</span>
+                            </a>
+                        {{/viewreporturl}}
                     </div>
                 </div>
             {{/rankinggroups}}
