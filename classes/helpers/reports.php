@@ -428,8 +428,9 @@ class reports {
         $rankingusers = $session->is_group_mode() ? 'rankinggroups' : 'rankingusers';
         $data->hasranking = true;
         $data->$rankingusers = self::get_ranking_for_teacher_report($cmid, $sid);
-        $data->showfinalranking = true;
+
         if ($mode !== sessions::INACTIVE_PROGRAMMED && $mode !== sessions::INACTIVE_MANUAL) {
+            $data->showfinalranking = true;
             if ($session->is_group_mode()) {
                 $data->firstuserimageurl = $data->rankinggroups[0]->groupimage;
                 $data->firstuserfullname = $data->rankinggroups[0]->groupname;
