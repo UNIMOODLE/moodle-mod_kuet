@@ -74,7 +74,8 @@ class matchquestion extends questions {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
-        if (!assert($question instanceof qtype_match_question)) {
+
+        if (get_class($question) != 'qtype_match_question') {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }

@@ -97,6 +97,7 @@ class getquestion_external extends external_api {
                 $question = multichoice::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             case questions::MATCH:
+                mtrace("por el match");
                 $question = matchquestion::export_match($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             case questions::TRUE_FALSE:
