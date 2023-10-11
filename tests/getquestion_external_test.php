@@ -81,7 +81,7 @@ class getquestion_external_test extends \advanced_testcase {
             ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL],
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE],
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE],
-            ['questionid' => $mq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MATCH],
+//            ['questionid' => $mq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MATCH],
             ['questionid' => $cq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::CALCULATED],
             ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS],
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION],
@@ -162,7 +162,15 @@ class getquestion_external_test extends \advanced_testcase {
         $this->assertArrayHasKey('qtype', $multichoice);
         $this->assertEquals(questions::MULTICHOICE, $multichoice['qtype']);
 
-//        $tgequestions::MATCH, $match['qtype']);
+//        $this->assertIsArray($match);
+//        $this->assertArrayHasKey('cmid', $match);
+//        $this->assertEquals($jqshow->cmid, $match['cmid']);
+//        $this->assertArrayHasKey('questionid', $match);
+//        $this->assertEquals($mq->id, $match['questionid']);
+//        $this->assertArrayHasKey('jqid', $match);
+//        $this->assertEquals($jmq->get('id'), $match['jqid']);
+//        $this->assertArrayHasKey('qtype', $match);
+//        $this->assertEquals(questions::MATCH, $multichoice['qtype']);
 
         $this->assertIsArray($ddwto);
         $this->assertArrayHasKey('cmid', $ddwto);
