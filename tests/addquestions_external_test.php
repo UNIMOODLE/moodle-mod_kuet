@@ -83,14 +83,12 @@ class addquestions_external_test extends advanced_testcase {
         $data = \mod_jqshow\external\addquestions_external::add_questions([
             ['questionid' => $essayq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => 'essay']
         ]);
+        $total = mod_jqshow\persistents\jqshow_questions::count_records(['sessionid' => $createdsid, 'jqshowid' => $jqshow->id]);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('added', $data);
         $this->assertTrue($data['added']);
 
-        //TODO: count number of questions in a session. error obtained on the test.
-//        // Revisamos a ver si realmente se ha añadido.
-//        $total = mod_jqshow\persistents\jqshow_questions::count_records(['sessionid' >= $createdsid, 'jqshowid' => $jqshow->id]);
-//        mtrace( ' \n' . 'total: '. $total . ' \n');
-//        $this->assertSame(2, $total);
+        // Revisamos a ver si realmente se ha añadido.
+        $this->assertEquals(2, $total);
     }
 }
