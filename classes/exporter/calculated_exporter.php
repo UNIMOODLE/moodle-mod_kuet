@@ -54,6 +54,10 @@ class calculated_exporter extends commondata_exporter {
                 'type' => PARAM_BOOL,
                 'optional' => true,
             ],
+            'variant' => [
+                'type' => PARAM_INT,
+                'optional' => true
+            ],
             'calculated' => [
                 'type' => PARAM_BOOL,
                 'optional' => true

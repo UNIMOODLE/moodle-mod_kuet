@@ -275,14 +275,14 @@ class questions {
      * @param int $id
      * @param question_definition $question
      * @param string $filearea
+     * @param int $variant
      * @return string
      * @throws dml_exception
      * @throws dml_transaction_exception
-     * @throws Exception
      */
     public static function get_text(
-        int $cmid, string $text, int $textformat, int $id, question_definition $question, string $filearea
-    ) : string {
+        int $cmid, string $text, int $textformat, int $id, question_definition $question, string $filearea, int $variant = 0
+    ): string {
         global $DB;
         $contextmodule = context_module::instance($cmid);
         $usage = $DB->get_record('question_usages', ['component' => 'mod_jqshow', 'contextid' => $contextmodule->id]);
@@ -303,7 +303,12 @@ class questions {
         } else {
             $options->variant = random_int(1, $maxvariant);
         }
-        $quba->start_question($slot, $options->variant);
+        $question->variant = $options->variant;
+        if ($variant === 0) {
+            $quba->start_question($slot, $options->variant);
+        } else {
+            $quba->start_question($slot, $variant);
+        }
         if ($usage === false) {
             $transaction = $DB->start_delegated_transaction();
             question_engine::save_questions_usage_by_activity($quba);

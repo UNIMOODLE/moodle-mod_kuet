@@ -204,6 +204,7 @@ Calculated.prototype.reply = function() {
         Calculated.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseNum = jQuery(REGION.INPUTANSWER).val();
+        let variant = jQuery(REGION.INPUTANSWER).data('variant');
         let unit = '0';
         let multiplier = '';
         if (hasUnits) {
@@ -220,6 +221,7 @@ Calculated.prototype.reply = function() {
             methodname: SERVICES.REPLY,
             args: {
                 responsenum: responseNum === undefined || responseNum === null ? '' : responseNum,
+                variant: variant || 1,
                 unit: unit === undefined ? '0' : unit,
                 multiplier: multiplier === undefined ? '0' : multiplier,
                 sessionid: sId,

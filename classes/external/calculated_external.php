@@ -59,6 +59,7 @@ class calculated_external extends external_api {
         return new external_function_parameters(
             [
                 'responsenum' => new external_value(PARAM_RAW, 'User response text'),
+                'variant' => new external_value(PARAM_INT, 'Variant of the statement'),
                 'unit' => new external_value(PARAM_RAW, 'Unit for response, optional depending on configuration'),
                 'multiplier' => new external_value(PARAM_RAW, 'Multiplier of unit'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
@@ -74,6 +75,7 @@ class calculated_external extends external_api {
 
     /**
      * @param string $responsenum
+     * @param int $variant
      * @param string $unit
      * @param string $multiplier
      * @param int $sessionid
@@ -85,15 +87,16 @@ class calculated_external extends external_api {
      * @param bool $preview
      * @return array
      * @throws JsonException
-     * @throws invalid_persistent_exception
-     * @throws moodle_exception
      * @throws coding_exception
      * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public static function calculated(
         string $responsenum,
+        int $variant,
         string $unit,
         string $multiplier,
         int $sessionid,
@@ -109,6 +112,7 @@ class calculated_external extends external_api {
             self::calculated_parameters(),
             [
                 'responsenum' => $responsenum,
+                'variant' => $variant,
                 'unit' => $unit,
                 'multiplier' => $multiplier,
                 'sessionid' => $sessionid,
@@ -130,7 +134,7 @@ class calculated_external extends external_api {
         $result = questions::NORESPONSE;
         if (assert($question instanceof qtype_calculated_question)) {
             $statmentfeedback = questions::get_text(
-                $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
+                $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback', $variant
             );
             $moodleresult = $question->grade_response(['answer' => $responsenum, 'unit' => $unit]);
             if (isset($moodleresult[1])) {
@@ -167,6 +171,7 @@ class calculated_external extends external_api {
                 calculated::calculated_response(
                     $jqid,
                     $responsenum,
+                    $variant,
                     $unit,
                     $multiplier,
                     $result,
