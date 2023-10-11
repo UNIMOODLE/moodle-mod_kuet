@@ -21,6 +21,8 @@ namespace mod_jqshow\completion;
 use coding_exception;
 use core_completion\activity_custom_completion;
 use dml_exception;
+use mod_jqshow\persistents\jqshow_questions_responses;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 
 /**
@@ -47,13 +49,22 @@ class custom_completion extends activity_custom_completion {
 
         $this->validate_rule($rule);
         $jqshowid = $this->cm->instance;
+        $userid = $this->userid;
 
         if (!$DB->get_record('jqshow', ['id' => $jqshowid])) {
             throw new moodle_exception('jqshownotexist', 'mod_jqshow', '',
                 [], get_string('jqshownotexist', 'mod_jqshow', $jqshowid));
         }
-        // TODO: get status.
-        return COMPLETION_INCOMPLETE;
+
+        $numsessions = jqshow_sessions::count_records(['jqshowid' => $jqshowid]);
+        if ($numsessions == 0) {
+            return COMPLETION_INCOMPLETE;
+        }
+        $hasparticipate = false;
+        if (jqshow_questions_responses::count_records(['jqshow' => $jqshowid]) > 0) {
+            $hasparticipate = true;
+        }
+        return $hasparticipate ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
     }
 
     /**
