@@ -27,12 +27,38 @@ class activesession_external_test extends advanced_testcase {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
-        $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
+        $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
+        self::setUser($teacher);
+
+        $sessionmock = [
+            'name' => 'Session Test',
+            'jqshowid' => $jqshow->id,
+            'anonymousanswer' => 0,
+            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sgrade' => 0,
+            'countdown' => 0,
+            'showgraderanking' => 0,
+            'randomquestions' => 0,
+            'randomanswers' => 0,
+            'showfeedback' => 0,
+            'showfinalgrade' => 0,
+            'startdate' => 1680534000,
+            'enddate' => 1683133200,
+            'automaticstart' => 0,
+            'timemode' => 0,
+            'sessiontime' => 0,
+            'questiontime' => 10,
+            'groupings' => 0,
+            'status' => 1,
+            'sessionid' => 0,
+            'submitbutton' => 0,
+            'showgraderanking' => 0,
+        ];
+        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
         $data = \mod_jqshow\external\activesession_external::activesession($jqshow->cmid, $createdsid);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('active', $data);
-        $this->assertSame(true, $data['active']);
+        $this->assertTrue($data['active']);
     }
 }
