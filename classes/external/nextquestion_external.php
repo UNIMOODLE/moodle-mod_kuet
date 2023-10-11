@@ -70,7 +70,7 @@ class nextquestion_external extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
                 'jqid' => new external_value(PARAM_INT, 'question id of jqshow_questions'),
-                'manual' => new external_value(PARAM_BOOL, 'Mode of session', VALUE_OPTIONAL)
+                'manual' => new external_value(PARAM_BOOL, 'Mode of session')
             ]
         );
     }
