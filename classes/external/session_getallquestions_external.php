@@ -35,6 +35,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\exporter\question_exporter;
 use mod_jqshow\models\calculated;
 use mod_jqshow\models\ddwtos;
 use mod_jqshow\models\description;
@@ -51,6 +52,7 @@ use ReflectionException;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
+require_once($CFG->dirroot . '/question/editlib.php');
 
 class session_getallquestions_external extends external_api {
 
@@ -80,15 +82,15 @@ class session_getallquestions_external extends external_api {
      * @throws moodle_exception
      */
     public static function session_getallquestions(int $cmid, int $sessionid): array {
-        global $DB, $PAGE, $COURSE;
+        global $DB, $PAGE;
         self::validate_parameters(
             self::session_getallquestions_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
-        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'jqshow', $COURSE);
-        $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], 'id', MUST_EXIST);
+        [$modrec, $cmrec] = get_module_from_cmid($cmid);
+        $jqshow = $DB->get_record('jqshow', ['id' => $modrec->instance], 'id', MUST_EXIST);
         $allquestions = (new questions($jqshow->id, $cmid, $sessionid))->get_list();
         $questiondata = [];
         foreach ($allquestions as $question) {
@@ -123,6 +125,7 @@ class session_getallquestions_external extends external_api {
                         [], get_string('question_nosuitable', 'mod_jqshow'));
             }
         }
+
         return $questiondata;
     }
 
@@ -130,7 +133,6 @@ class session_getallquestions_external extends external_api {
      * @return external_single_structure
      */
     public static function session_getallquestions_returns() {
-        // TODO.
-        return null;
+        return new external_multiple_structure(question_exporter::get_read_structure());
     }
 }
