@@ -114,7 +114,7 @@ class ddwtos_external extends external_api {
         $session = new jqshow_sessions($sessionid);
         $question = question_bank::load_question($questionid);
         $result = questions::NORESPONSE;
-        if (assert($question instanceof qtype_ddwtos_question)) {
+        if (get_class($question) == 'qtype_ddwtos_question') {
             $statmentfeedback = questions::get_text(
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
@@ -175,7 +175,7 @@ class ddwtos_external extends external_api {
                 );
             }
             $question = question_bank::load_question($questionid);
-            if (!assert($question instanceof qtype_ddwtos_question)) {
+            if (get_class($question) != 'qtype_ddwtos_question') {
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));
             }
