@@ -92,6 +92,7 @@ class description_external_test extends advanced_testcase {
             $jqshow->cmid, $dq->id, $jdq->get('id'), 10, false);
         $this->assertIsArray($data1);
         $this->assertArrayHasKey('reply_status', $data1);
+        $this->assertArrayHasKey('result', $data1);
         $this->assertArrayHasKey('hasfeedbacks', $data1);
         $this->assertArrayHasKey('statment_feedback', $data1);
         $this->assertArrayHasKey('programmedmode', $data1);
