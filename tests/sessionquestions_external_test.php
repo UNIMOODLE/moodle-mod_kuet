@@ -335,7 +335,322 @@ class sessionquestions_external_test extends advanced_testcase {
             $data['sessionquestions'][5]->{'question_preview_url'});
         $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
             $data['sessionquestions'][5]->{'editquestionurl'});
+    }
+    public function test_export_question() {
+        global $DB;
+        $this->resetAfterTest(true);
+        $course = self::getDataGenerator()->create_course();
+        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
 
+        // Only a user with capability can add questions.
+        $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
+        self::setUser($teacher);
+        // Create session.
+        $sessionmock = [
+            'name' => 'Session Test',
+            'jqshowid' => $jqshow->id,
+            'anonymousanswer' => 0,
+            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sgrade' => 0,
+            'countdown' => 0,
+            'showgraderanking' => 0,
+            'randomquestions' => 0,
+            'randomanswers' => 0,
+            'showfeedback' => 0,
+            'showfinalgrade' => 0,
+            'startdate' => 0,
+            'enddate' => 0,
+            'automaticstart' => 0,
+            'timemode' => sessions::QUESTION_TIME,
+            'sessiontime' => 0,
+            'questiontime' => 10,
+            'groupings' => 0,
+            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'sessionid' => 0,
+            'submitbutton' => 0,
+            'showgraderanking' => 0,
+        ];
+        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
 
+        // Create questions.
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $cat = $questiongenerator->create_question_category();
+        $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, array('category' => $cat->id));
+        $nq = $questiongenerator->create_question(questions::NUMERICAL, null, array('category' => $cat->id));
+        $tfq = $questiongenerator->create_question(questions::TRUE_FALSE, null, array('category' => $cat->id));
+        $mcq = $questiongenerator->create_question(questions::MULTICHOICE, null, array('category' => $cat->id));
+        $ddwtosq = $questiongenerator->create_question(questions::DDWTOS, null, array('category' => $cat->id));
+        $dq = $questiongenerator->create_question(questions::DESCRIPTION, null, array('category' => $cat->id));
+
+        // Add questions to a session.
+        $questions = [
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER],
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL],
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE],
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE],
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS],
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION],
+        ];
+        $generator->add_questions_to_session($questions);
+
+        // Question 1.
+        $jsaq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER]);
+        $datasaq = \mod_jqshow\external\sessionquestions_external::export_question($jsaq, $jqshow->cmid);
+        $this->assertIsObject($datasaq);
+        $this->assertObjectHasAttribute('sid', $datasaq);
+        $this->assertObjectHasAttribute('cmid', $datasaq);
+        $this->assertObjectHasAttribute('jqshowid', $datasaq);
+        $this->assertObjectHasAttribute('questionnid', $datasaq);
+        $this->assertObjectHasAttribute('position', $datasaq);
+        $this->assertObjectHasAttribute('name', $datasaq);
+        $this->assertObjectHasAttribute('type', $datasaq);
+        $this->assertObjectHasAttribute('isvalid', $datasaq);
+        $this->assertObjectHasAttribute('time', $datasaq);
+        $this->assertObjectHasAttribute('version', $datasaq);
+        $this->assertObjectHasAttribute('managesessions', $datasaq);
+        $this->assertObjectHasAttribute('question_preview_url', $datasaq);
+        $this->assertObjectHasAttribute('editquestionurl', $datasaq);
+        $this->assertEquals($createdsid, $datasaq->{'sid'});
+        $this->assertEquals($jqshow->cmid, $datasaq->{'cmid'});
+        $this->assertEquals($jqshow->id, $datasaq->{'jqshowid'});
+        $qbs = $DB->get_record('question', ['id' => $saq->id], '*', MUST_EXIST);
+        $jsaq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER]);
+        $this->assertEquals($jsaq->get('id'), $datasaq->{'questionnid'});
+        $this->assertEquals(1, $datasaq->{'position'});
+        $this->assertEquals($qbs->name, $datasaq->{'name'});
+        $this->assertEquals(questions::SHORTANSWER, $datasaq->{'type'});
+        $this->assertEquals(0, $datasaq->{'isvalid'});
+        $this->assertEquals('10s', $datasaq->{'time'});
+        $this->assertEquals(true, $datasaq->{'managesessions'});
+        $args = [
+            'id' => $jqshow->cmid,
+            'jqid' => $jsaq->get('id'),
+            'sid' => $createdsid,
+            'jqsid' => $jqshow->id,
+            'cid' => $jqshow->course,
+        ];
+        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+            $datasaq->{'question_preview_url'});
+        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+            $datasaq->{'editquestionurl'});
+
+        // Question 2.
+        $jnq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL]);
+        $datanq = \mod_jqshow\external\sessionquestions_external::export_question($jnq, $jqshow->cmid);
+        $this->assertIsObject($datanq);
+        $this->assertObjectHasAttribute('sid', $datanq);
+        $this->assertObjectHasAttribute('cmid', $datanq);
+        $this->assertObjectHasAttribute('jqshowid', $datanq);
+        $this->assertObjectHasAttribute('questionnid', $datanq);
+        $this->assertObjectHasAttribute('position', $datanq);
+        $this->assertObjectHasAttribute('name', $datanq);
+        $this->assertObjectHasAttribute('type', $datanq);
+        $this->assertObjectHasAttribute('isvalid', $datanq);
+        $this->assertObjectHasAttribute('time', $datanq);
+        $this->assertObjectHasAttribute('version', $datanq);
+        $this->assertObjectHasAttribute('managesessions', $datanq);
+        $this->assertObjectHasAttribute('question_preview_url', $datanq);
+        $this->assertObjectHasAttribute('editquestionurl', $datanq);
+        $this->assertEquals($createdsid, $datanq->{'sid'});
+        $this->assertEquals($jqshow->cmid, $datanq->{'cmid'});
+        $this->assertEquals($jqshow->id, $datanq->{'jqshowid'});
+        $qbs = $DB->get_record('question', ['id' => $nq->id], '*', MUST_EXIST);
+        $jnq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL]);
+        $this->assertEquals($jnq->get('id'), $datanq->{'questionnid'});
+        $this->assertEquals(2, $datanq->{'position'});
+        $this->assertEquals($qbs->name, $datanq->{'name'});
+        $this->assertEquals(questions::NUMERICAL, $datanq->{'type'});
+        $this->assertEquals(0, $datanq->{'isvalid'});
+        $this->assertEquals('10s', $datanq->{'time'});
+        $this->assertEquals(true, $datanq->{'managesessions'});
+        $args = [
+            'id' => $jqshow->cmid,
+            'jqid' => $jnq->get('id'),
+            'sid' => $createdsid,
+            'jqsid' => $jqshow->id,
+            'cid' => $jqshow->course,
+        ];
+        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+            $datanq->{'question_preview_url'});
+        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+            $datanq->{'editquestionurl'});
+
+        // Question 3.
+        $jtfq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]);
+        $datatfq = \mod_jqshow\external\sessionquestions_external::export_question($jtfq, $jqshow->cmid);
+        $this->assertIsObject($datatfq);
+        $this->assertObjectHasAttribute('sid', $datatfq);
+        $this->assertObjectHasAttribute('cmid', $datatfq);
+        $this->assertObjectHasAttribute('jqshowid', $datatfq);
+        $this->assertObjectHasAttribute('questionnid', $datatfq);
+        $this->assertObjectHasAttribute('position', $datatfq);
+        $this->assertObjectHasAttribute('name', $datatfq);
+        $this->assertObjectHasAttribute('type', $datatfq);
+        $this->assertObjectHasAttribute('isvalid', $datatfq);
+        $this->assertObjectHasAttribute('time', $datatfq);
+        $this->assertObjectHasAttribute('version', $datatfq);
+        $this->assertObjectHasAttribute('managesessions', $datatfq);
+        $this->assertObjectHasAttribute('question_preview_url', $datatfq);
+        $this->assertObjectHasAttribute('editquestionurl', $datatfq);
+        $this->assertEquals($createdsid, $datatfq->{'sid'});
+        $this->assertEquals($jqshow->cmid, $datatfq->{'cmid'});
+        $this->assertEquals($jqshow->id, $datatfq->{'jqshowid'});
+        $qbs = $DB->get_record('question', ['id' => $tfq->id], '*', MUST_EXIST);
+        $jtfq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]);
+        $this->assertEquals($jtfq->get('id'), $datatfq->{'questionnid'});
+        $this->assertEquals(3, $datatfq->{'position'});
+        $this->assertEquals($qbs->name, $datatfq->{'name'});
+        $this->assertEquals(questions::TRUE_FALSE, $datatfq->{'type'});
+        $this->assertEquals(0, $datatfq->{'isvalid'});
+        $this->assertEquals('10s', $datatfq->{'time'});
+        $this->assertEquals(true, $datatfq->{'managesessions'});
+        $args = [
+            'id' => $jqshow->cmid,
+            'jqid' => $jtfq->get('id'),
+            'sid' => $createdsid,
+            'jqsid' => $jqshow->id,
+            'cid' => $jqshow->course,
+        ];
+        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+            $datatfq->{'question_preview_url'});
+        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+            $datatfq->{'editquestionurl'});
+
+        // Question 4.
+        $jmcq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]);
+        $datamcq = \mod_jqshow\external\sessionquestions_external::export_question($jmcq, $jqshow->cmid);
+        $this->assertIsObject($datamcq);
+        $this->assertObjectHasAttribute('sid', $datamcq);
+        $this->assertObjectHasAttribute('cmid', $datamcq);
+        $this->assertObjectHasAttribute('jqshowid', $datamcq);
+        $this->assertObjectHasAttribute('questionnid', $datamcq);
+        $this->assertObjectHasAttribute('position', $datamcq);
+        $this->assertObjectHasAttribute('name', $datamcq);
+        $this->assertObjectHasAttribute('type', $datamcq);
+        $this->assertObjectHasAttribute('isvalid', $datamcq);
+        $this->assertObjectHasAttribute('time', $datamcq);
+        $this->assertObjectHasAttribute('version', $datamcq);
+        $this->assertObjectHasAttribute('managesessions', $datamcq);
+        $this->assertObjectHasAttribute('question_preview_url', $datamcq);
+        $this->assertObjectHasAttribute('editquestionurl', $datamcq);
+        $this->assertEquals($createdsid, $datamcq->{'sid'});
+        $this->assertEquals($jqshow->cmid, $datamcq->{'cmid'});
+        $this->assertEquals($jqshow->id, $datamcq->{'jqshowid'});
+        $qbs = $DB->get_record('question', ['id' => $mcq->id], '*', MUST_EXIST);
+        $jmcq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]);
+        $this->assertEquals($jmcq->get('id'), $datamcq->{'questionnid'});
+        $this->assertEquals(4, $datamcq->{'position'});
+        $this->assertEquals($qbs->name, $datamcq->{'name'});
+        $this->assertEquals(questions::MULTICHOICE, $datamcq->{'type'});
+        $this->assertEquals(0, $datamcq->{'isvalid'});
+        $this->assertEquals('10s', $datamcq->{'time'});
+        $this->assertEquals(true, $datamcq->{'managesessions'});
+        $args = [
+            'id' => $jqshow->cmid,
+            'jqid' => $jmcq->get('id'),
+            'sid' => $createdsid,
+            'jqsid' => $jqshow->id,
+            'cid' => $jqshow->course,
+        ];
+        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+            $datamcq->{'question_preview_url'});
+        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+            $datamcq->{'editquestionurl'});
+
+        // Question 5.
+        $jddwtosq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS]);
+        $dataddwtosq = \mod_jqshow\external\sessionquestions_external::export_question($jddwtosq, $jqshow->cmid);
+        $this->assertIsObject($dataddwtosq);
+        $this->assertObjectHasAttribute('sid', $dataddwtosq);
+        $this->assertObjectHasAttribute('cmid', $dataddwtosq);
+        $this->assertObjectHasAttribute('jqshowid', $dataddwtosq);
+        $this->assertObjectHasAttribute('questionnid', $dataddwtosq);
+        $this->assertObjectHasAttribute('position', $dataddwtosq);
+        $this->assertObjectHasAttribute('name', $dataddwtosq);
+        $this->assertObjectHasAttribute('type', $dataddwtosq);
+        $this->assertObjectHasAttribute('isvalid', $dataddwtosq);
+        $this->assertObjectHasAttribute('time', $dataddwtosq);
+        $this->assertObjectHasAttribute('version', $dataddwtosq);
+        $this->assertObjectHasAttribute('managesessions', $dataddwtosq);
+        $this->assertObjectHasAttribute('question_preview_url', $dataddwtosq);
+        $this->assertObjectHasAttribute('editquestionurl', $dataddwtosq);
+        $this->assertEquals($createdsid, $dataddwtosq->{'sid'});
+        $this->assertEquals($jqshow->cmid, $dataddwtosq->{'cmid'});
+        $this->assertEquals($jqshow->id, $dataddwtosq->{'jqshowid'});
+        $qbs = $DB->get_record('question', ['id' => $ddwtosq->id], '*', MUST_EXIST);
+        $jsddwtosq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS]);
+        $this->assertEquals($jsddwtosq->get('id'), $dataddwtosq->{'questionnid'});
+        $this->assertEquals(5, $dataddwtosq->{'position'});
+        $this->assertEquals($qbs->name, $dataddwtosq->{'name'});
+        $this->assertEquals(questions::DDWTOS, $dataddwtosq->{'type'});
+        $this->assertEquals(0, $dataddwtosq->{'isvalid'});
+        $this->assertEquals('10s', $dataddwtosq->{'time'});
+        $this->assertEquals(true, $dataddwtosq->{'managesessions'});
+        $args = [
+            'id' => $jqshow->cmid,
+            'jqid' => $jsddwtosq->get('id'),
+            'sid' => $createdsid,
+            'jqsid' => $jqshow->id,
+            'cid' => $jqshow->course,
+        ];
+        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+            $dataddwtosq->{'question_preview_url'});
+        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+            $dataddwtosq->{'editquestionurl'});
+
+        // Question 6.
+        $jdq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION]);
+        $datadq = \mod_jqshow\external\sessionquestions_external::export_question($jdq, $jqshow->cmid);
+        $this->assertIsObject($datadq);
+        $this->assertObjectHasAttribute('sid', $datadq);
+        $this->assertObjectHasAttribute('cmid', $datadq);
+        $this->assertObjectHasAttribute('jqshowid', $datadq);
+        $this->assertObjectHasAttribute('questionnid', $datadq);
+        $this->assertObjectHasAttribute('position', $datadq);
+        $this->assertObjectHasAttribute('name', $datadq);
+        $this->assertObjectHasAttribute('type', $datadq);
+        $this->assertObjectHasAttribute('isvalid', $datadq);
+        $this->assertObjectHasAttribute('time', $datadq);
+        $this->assertObjectHasAttribute('version', $datadq);
+        $this->assertObjectHasAttribute('managesessions', $datadq);
+        $this->assertObjectHasAttribute('question_preview_url', $datadq);
+        $this->assertObjectHasAttribute('editquestionurl', $datadq);
+        $this->assertEquals($createdsid, $datadq->{'sid'});
+        $this->assertEquals($jqshow->cmid, $datadq->{'cmid'});
+        $this->assertEquals($jqshow->id, $datadq->{'jqshowid'});
+        $qbs = $DB->get_record('question', ['id' => $dq->id], '*', MUST_EXIST);
+        $jdq = \mod_jqshow\persistents\jqshow_questions::get_record(
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION]);
+        $this->assertEquals($jdq->get('id'), $datadq->{'questionnid'});
+        $this->assertEquals(6, $datadq->{'position'});
+        $this->assertEquals($qbs->name, $datadq->{'name'});
+        $this->assertEquals(questions::DESCRIPTION, $datadq->{'type'});
+        $this->assertEquals(0, $datadq->{'isvalid'});
+        $this->assertEquals('10s', $datadq->{'time'});
+        $this->assertEquals(true, $datadq->{'managesessions'});
+        $args = [
+            'id' => $jqshow->cmid,
+            'jqid' => $jdq->get('id'),
+            'sid' => $createdsid,
+            'jqsid' => $jqshow->id,
+            'cid' => $jqshow->course,
+        ];
+        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+            $datadq->{'question_preview_url'});
+        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+            $datadq->{'editquestionurl'});
     }
 }
