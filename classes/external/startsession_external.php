@@ -95,7 +95,7 @@ class startsession_external extends external_api {
     public static function startsession_returns(): external_single_structure {
         return new external_single_structure(
             [
-                'started' => new external_value(PARAM_BOOL, 'finished'),
+                'started' => new external_value(PARAM_BOOL, 'Mark session as started'),
             ]
         );
     }
