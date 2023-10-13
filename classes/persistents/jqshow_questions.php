@@ -96,7 +96,7 @@ class jqshow_questions extends persistent {
     public static function add_question(int $questionid, int $sessionid, int $jqshowid, string $qtype) : bool {
         global $USER;
         $order = parent::count_records(['sessionid' => $sessionid]) + 1;
-        $isvalid = 0; // Teacher must configured the question for this session.
+        $isvalid = 0; // TODO. Teacher must configured the question for this session.
         $data = new stdClass();
         $data->questionid = $questionid;
         $data->sessionid = $sessionid;
