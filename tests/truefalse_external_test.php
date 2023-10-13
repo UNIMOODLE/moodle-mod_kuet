@@ -81,17 +81,7 @@ class truefalse_external_test extends advanced_testcase {
         $jtfq = \mod_jqshow\persistents\jqshow_questions::get_record(
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]
         );
-        $truefalsequestion = \mod_jqshow\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jtfq->get('id'));
-        $correctanswerid = 0;
-        $incorrectanswerid = 0;
 
-        foreach ($truefalsequestion['answers'] as $answer) {
-            if ($answer['fraction'] === '1.0000000') {
-                $correctanswerid = $answer['answerid'];
-            } else {
-                $incorrectanswerid = $answer['answerid'];;
-            }
-        }
         // User 1 answers a correct answer.
         self::setUser($student);
         $user1answerid = $qbtf->trueanswerid;
@@ -125,7 +115,7 @@ class truefalse_external_test extends advanced_testcase {
 
         // User 2 answers an incorrect answer.
         self::setUser($student2);
-        $user2answerid = $incorrectanswerid;
+        $user2answerid = $qbtf->falseanswerid;
         $data = \mod_jqshow\external\truefalse_external::truefalse($user2answerid, $createdsid, $jqshow->id,
             $jqshow->cmid, $tfq->id, $jtfq->get('id'), 10, false);
 
