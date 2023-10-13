@@ -49,4 +49,16 @@ class mod_jqshow_generator extends testing_module_generator {
         $sessions = new \mod_jqshow\models\sessions($jqshow, $jqshow->cmid);
         return $sessions::save_session($sessionmock);
     }
+
+    /**
+     * @param array $questions
+     * @return bool[]
+     * @throws \core\invalid_persistent_exception
+     * @throws coding_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
+    public function add_questions_to_session(array $questions) {
+        return \mod_jqshow\external\addquestions_external::add_questions($questions);
+    }
 }
