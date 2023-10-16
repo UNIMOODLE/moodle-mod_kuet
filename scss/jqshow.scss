@@ -5,8 +5,16 @@
 @import 'components/forms';
 @import 'components/fullscreen';
 @import 'components/modal';
+@import 'layout/cloudtags';
 @import 'layout/listresume';
-@import 'layout/multichoice';
+@import 'layout/match';
+@import 'layout/question';
+@import 'layout/multichoice'; /* Also contains true_false, same design. */
+@import 'layout/shortanswer';
+@import 'layout/numerical';
+@import 'layout/calculated';
+@import 'layout/ddwtos';
+@import 'layout/truefalse';
 @import 'layout/questions_encasement';
 @import 'layout/view';
 @import 'layout/raceresults';
@@ -15,6 +23,7 @@
 @import 'layout/sessionpage';
 @import 'layout/student_canvas';
 @import 'layout/teacher_canvas';
+@import 'layout/statistics';
 @import 'pages/questionslist';
 @import 'pages/resumesession';
 @import 'pages/sessionspanel';

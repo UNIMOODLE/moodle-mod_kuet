@@ -56,8 +56,10 @@ if ($activesession !== 0 && $activesession !== $sid) {
 }
 
 if ($isteacher) {
-    $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
-    run_server_background($server);
+    if (get_config('jqshow', 'sockettype') === 'local') {
+        $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
+        run_server_background($server);
+    }
     $view = new teacher_session_view();
 } else {
     $view = new student_session_view();
@@ -65,6 +67,5 @@ if ($isteacher) {
 
 $output = $PAGE->get_renderer('mod_jqshow');
 echo $output->header();
-echo $output->heading(format_string($jqshow->name));
 echo $output->render($view);
 echo $output->footer();

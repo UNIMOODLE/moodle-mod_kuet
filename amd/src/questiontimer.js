@@ -40,13 +40,16 @@ QuestionTimer.prototype.initTimer = function() {
     }, 1000);
     addEventListener('endTimer', () => {
         clearInterval(this.countDown);
-    }, false);
+    }, {once: true});
     addEventListener('pauseQuestion', () => {
         this.isPaused = true;
     }, false);
     addEventListener('playQuestion', () => {
         this.isPaused = false;
     }, false);
+    addEventListener('removeEvents', () => {
+        removeEventListener('endTimer', clearInterval(this.countDown), {once: true});
+    }, {once: true});
 };
 
 export const initQuestionTimer = (selector) => {

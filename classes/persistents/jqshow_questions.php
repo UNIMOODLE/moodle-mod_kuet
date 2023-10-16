@@ -145,7 +145,7 @@ class jqshow_questions extends persistent {
                     $USER->id, $session->get('id'), $session->get('jqshowid')
                 );
                 if ($progress !== false) {
-                    $data = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $data = json_decode($progress->get('other'), false);
                     $order = explode(',', $data->questionsorder);
                     $current = array_search($data->currentquestion, $order, false);
                     if ($current !== false && isset($order[$current + 1])) {

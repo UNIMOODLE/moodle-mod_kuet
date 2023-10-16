@@ -68,7 +68,6 @@ Question.prototype.initQuestion = function() {
         }
     });
     addEventListener('questionEnd', () => {
-        // TODO this button is only for programmed mode, in manual mode the teacher controls.
         jQuery(ACTION.NEXTQUESTION).removeClass('d-none');
     }, false);
 };
@@ -109,8 +108,6 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
     let identifier = jQuery(REGION.SESSIONCONTENT);
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         identifier.append(html);
-        // eslint-disable-next-line no-console
-        console.log('isRanking', isRanking);
         let requestConfig = {
             methodname: SERVICES.GETSESSIONCONFIG,
             args: {

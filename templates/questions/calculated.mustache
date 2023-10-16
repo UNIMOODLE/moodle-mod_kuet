@@ -1,0 +1,127 @@
+    <div class="container-fluid calculated question" data-region="calculated">
+    <div class="row">
+        <div class="content-indicators">
+            {{#managesession}}
+                <div class="users">
+                    {{#pix}}q/users, mod_jqshow{{/pix}}
+                    <span class="numusers">{{ numusers }}</span>
+                </div>
+            {{/managesession}}
+            {{#hastime}}
+                <div class="timer {{^countdown}}d-none{{/countdown}}" data-region="question-timer">
+                    {{#pix}}q/timer, mod_jqshow{{/pix}}
+                    <span class="seconds" data-region="seconds">{{ seconds }}</span>
+                </div>
+            {{/hastime}}
+        </div>
+        <div class="col-12 contain-statement" data-region="statement-text">
+            <div class="statement-text" data-correctanswer="" data-variant="{{variant}}">
+                {{{ questiontext }}}
+            </div>
+        </div>
+        <div class="col-12 containt-answers">
+            <div class="form-group input-content">
+                {{#unitdisplay}}
+                    {{#unitsleft}}
+                        <span class="units_title">{{#str}}unit, mod_jqshow{{/str}}:</span>
+                        {{#showunitsradio}}
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons" id="unitsContent">
+                                {{#units}}
+                                    <label class="btn btn-primary {{#unitselected}}active{{/unitselected}}">
+                                        <input type="radio" name="{{ unittext }}" {{#unitselected}}checked{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
+                                    </label>
+                                {{/units}}
+                            </div>
+                        {{/showunitsradio}}
+                        {{#showunitsselect}}
+                            <select class="custom-select" id="unitsContent">
+                                <option value="...{{#str}}choose, moodle{{/str}}" data-multiplier="" id="0">...{{#str}}choose, moodle{{/str}}</option>
+                                {{#units}}
+                                    <option value="{{ unittext }}" {{#unitselected}}selected{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}">{{ unittext }}</option>
+                                {{/units}}
+                            </select>
+                        {{/showunitsselect}}
+                    {{/unitsleft}}
+                {{/unitdisplay}}
+                <label for="userCalculated" id="userCalculatedLabel"></label>
+                <input
+                        class="form-control"
+                        id="userCalculated"
+                        {{#answered}}disabled="disabled"{{/answered}}
+                        maxlength="80"
+                        data-initial-value="{{calculatedresponse}}"
+                        value="{{calculatedresponse}}"
+                        pattern="[0-9]"
+                        data-variant="{{variant}}"
+                >
+                {{#unitdisplay}}
+                    {{^unitsleft}}
+                        <span class="units_title">{{#str}}unit, mod_jqshow{{/str}}:</span>
+                        {{#showunitsradio}}
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons" id="unitsContent">
+                                {{#units}}
+                                    <label class="btn btn-primary {{#unitselected}}active{{/unitselected}}">
+                                        <input type="radio" name="{{ unittext }}" {{#unitselected}}checked{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
+                                    </label>
+                                {{/units}}
+                            </div>
+                        {{/showunitsradio}}
+                        {{#showunitsselect}}
+                            <select class="custom-select" id="unitsContent">
+                                <option value="...{{#str}}choose, moodle{{/str}}" data-multiplier="" id="0">...{{#str}}choose, moodle{{/str}}</option>
+                                {{#units}}
+                                    <option value="{{ unittext }}" {{#unitselected}}selected{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}">{{ unittext }}</option>
+                                {{/units}}
+                            </select>
+                        {{/showunitsselect}}
+                    {{/unitsleft}}
+                {{/unitdisplay}}
+                <div class="feedback-icons d-none">
+                    <span class="feedback-icon correct">{{#pix}}q/correct, mod_jqshow{{/pix}}</span>
+                    <span class="feedback-icon partially">{{#pix}}q/partially, mod_jqshow{{/pix}}</span>
+                    <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_jqshow{{/pix}}</span>
+                </div>
+            </div>
+            <small class="answer-help d-none" id="userCalculatedHelp"></small>
+        </div>
+        {{^answered}}
+            <div class="btn btn-primary ml-auto mt-3" data-action="send-response">
+                {{#str}}send_response, mod_jqshow{{/str}}
+            </div>
+        {{/answered}}
+        {{> mod_jqshow/questions/statistics }}
+        <div class="col-12 containt-feedbacks bg-primary" data-region="containt-feedbacks">
+            <div class="feedback-title">
+                {{#pix}}q/feedback, mod_jqshow{{/pix}}
+                {{#str}}feedback, mod_jqshow{{/str}}
+            </div>
+            <div class="content-feedbacks" data-region="content-feedback">
+                <hr>
+                <div class="content-feedback" data-region="statement-feedback">
+                    {{#answered}}
+                        {{{ statment_feedback }}}
+                    {{/answered}}
+                </div>
+                <hr>
+                <div class="content-feedback-answer" data-region="answer-feedback">
+                    {{#answered}}
+                        {{{ answer_feedback }}}
+                    {{/answered}}
+                </div>
+            </div>
+        </div>
+        <div class="feedback-background" data-region="feedback-background"></div>
+    </div>
+</div>
+{{#js}}
+    require(['mod_jqshow/calculated'{{#hastime}}, 'mod_jqshow/questiontimer'{{/hastime}}], function(Calculated{{#hastime}}, QuestionTimer{{/hastime}}) {
+        Calculated.initCalculated('[data-region="question-content"]',
+            {{#showquestionfeedback}}true{{/showquestionfeedback}}{{^showquestionfeedback}}false{{/showquestionfeedback}},
+            {{#programmedmode}}false{{/programmedmode}}{{^programmedmode}}true{{/programmedmode}}{{#answered}}, '{{{jsonresponse}}}'{{/answered}});
+        {{#hastime}}
+            {{^answered}}
+                QuestionTimer.initQuestionTimer('[data-region="question-content"]');
+            {{/answered}}
+        {{/hastime}}
+    });
+{{/js}}

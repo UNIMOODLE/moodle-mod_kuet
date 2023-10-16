@@ -97,7 +97,7 @@ class testserver extends websockets {
     }
 }
 
-$port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+$port = get_config('jqshow', 'localport') !== false ? get_config('jqshow', 'localport') : '8080';
 $server = new testserver("0.0.0.0", $port, 2048);
 
 try {

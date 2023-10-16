@@ -1,0 +1,62 @@
+    <div class="container-fluid ddwtos question" data-region="ddwtos">
+    <div class="row">
+        <div class="content-indicators">
+            {{#managesession}}
+                <div class="users">
+                    {{#pix}}q/users, mod_jqshow{{/pix}}
+                    <span class="numusers">{{ numusers }}</span>
+                </div>
+            {{/managesession}}
+            {{#hastime}}
+                <div class="timer {{^countdown}}d-none{{/countdown}}" data-region="question-timer">
+                    {{#pix}}q/timer, mod_jqshow{{/pix}}
+                    <span class="seconds" data-region="seconds">{{ seconds }}</span>
+                </div>
+            {{/hastime}}
+        </div>
+        <div class="col-12 contain-statement ddwtos" id="drag_and_drop_area" data-region="statement-text">
+            <div class="statement-text {{#randomanswers}}randomanswers{{/randomanswers}}">
+                {{{ questiontext }}}
+            </div>
+        </div>
+        {{^answered}}
+            <div class="btn btn-primary ml-auto mt-3" data-action="send-response">
+                {{#str}}send_response, mod_jqshow{{/str}}
+            </div>
+        {{/answered}}
+        {{> mod_jqshow/questions/statistics }}
+        <div class="col-12 containt-feedbacks bg-primary" data-region="containt-feedbacks">
+            <div class="feedback-title">
+                {{#pix}}q/feedback, mod_jqshow{{/pix}}
+                {{#str}}feedback, mod_jqshow{{/str}}
+            </div>
+            <div class="content-feedbacks" data-region="content-feedback">
+                <hr>
+                <div class="content-feedback" data-region="statement-feedback">
+                    {{#answered}}
+                        {{{ statment_feedback }}}
+                    {{/answered}}
+                </div>
+                <hr>
+                <div class="content-feedback-answer" data-region="answer-feedback">
+                    {{#answered}}
+                        {{{ answer_feedback }}}
+                    {{/answered}}
+                </div>
+            </div>
+        </div>
+        <div class="feedback-background" data-region="feedback-background"></div>
+    </div>
+</div>
+{{#js}}
+    require(['mod_jqshow/ddwtos'{{#hastime}}, 'mod_jqshow/questiontimer'{{/hastime}}], function(Ddwtos{{#hastime}}, QuestionTimer{{/hastime}}) {
+        Ddwtos.initDdwtos('[data-region="question-content"]',
+            {{#showquestionfeedback}}true{{/showquestionfeedback}}{{^showquestionfeedback}}false{{/showquestionfeedback}},
+            {{#programmedmode}}false{{/programmedmode}}{{^programmedmode}}true{{/programmedmode}}{{#answered}}, '{{{jsonresponse}}}'{{/answered}});
+        {{#hastime}}
+            {{^answered}}
+                QuestionTimer.initQuestionTimer('[data-region="question-content"]');
+            {{/answered}}
+        {{/hastime}}
+    });
+{{/js}}

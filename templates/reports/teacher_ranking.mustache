@@ -34,15 +34,18 @@
                     <div class="d-table-cell text-center">{{partially}}</div>
                     <div class="d-table-cell text-center">{{notanswers}}</div>
                     <div class="d-table-cell text-center viewreport">
-                        <a href="{{viewreporturl}}">
-                            + <span>{{#str}}viewreport_user, mod_jqshow{{/str}}</span>
-                        </a>
+                        {{#viewreporturl}}
+                            <a href="{{viewreporturl}}">
+                                + <span>{{#str}}viewreport_user, mod_jqshow{{/str}}</span>
+                            </a>
+                        {{/viewreporturl}}
+
                     </div>
                 </div>
             {{/rankingusers}}
 
             {{#rankinggroups}}
-                <div class=" ELENA 1 d-table-row ranking-users-data user-item" data-userid="{{groupid}}">
+                <div class="d-table-row ranking-users-data user-item" data-userid="{{groupid}}">
                     <div class="d-table-cell">{{groupposition}}º</div>
                     <div class="d-table-cell">
                         <div class="participant" data-userid="{{groupid}}">
@@ -60,12 +63,21 @@
                     <div class="d-table-cell text-center">{{partially}}</div>
                     <div class="d-table-cell text-center">{{notanswers}}</div>
                     <div class="d-table-cell text-center viewreport">
-                        <a href="{{viewreporturl}}">
-                            + <span>{{#str}}viewreport_group, mod_jqshow{{/str}}</span>
-                        </a>
+                        {{#viewreporturl}}
+                            <a href="{{viewreporturl}}">
+                                + <span>{{#str}}viewreport_group, mod_jqshow{{/str}}</span>
+                            </a>
+                        {{/viewreporturl}}
                     </div>
                 </div>
             {{/rankinggroups}}
         </div>
+    </div>
+
+</div>
+
+<div class="download-report" data-region="download-report">
+    <div class="row">
+        {{{downloadsessionrankingreport}}}
     </div>
 </div>

@@ -50,6 +50,9 @@ class jqshow_questions_responses extends persistent {
             'jqid' => [
                 'type' => PARAM_INT,
             ],
+            'questionid' => [
+                'type' => PARAM_INT,
+            ],
             'userid' => [
                 'type' => PARAM_INT,
             ],
@@ -108,6 +111,7 @@ class jqshow_questions_responses extends persistent {
      * @param int $jqshow
      * @param int $session
      * @param int $jqid
+     * @param int $questionid
      * @param int $userid
      * @param int $result
      * @param string $response
@@ -116,7 +120,7 @@ class jqshow_questions_responses extends persistent {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function add_response(int $jqshow, int $session, int $jqid, int $userid, int $result, string $response): bool {
+    public static function add_response(int $jqshow, int $session, int $jqid, int $questionid, int $userid, int $result, string $response): bool {
         $sessiondata = jqshow_sessions::get_record(['id' => $session], MUST_EXIST);
         $record = self::get_record(['jqshow' => $jqshow, 'session' => $session, 'jqid' => $jqid, 'userid' => $userid]);
         try {
@@ -125,15 +129,16 @@ class jqshow_questions_responses extends persistent {
                 $data->jqshow = $jqshow;
                 $data->session = $session;
                 $data->jqid = $jqid;
+                $data->questionid = $questionid;
                 $data->userid = $userid;
                 $data->anonymise = $sessiondata->get('anonymousanswer');
                 $data->result = $result;
-                $data->response = $response;
+                $data->response = base64_encode($response);
                 $a = new self(0, $data);
                 $a->create();
             } else {
                 $record->set('result', $result);
-                $record->set('response', $response);
+                $record->set('response', base64_encode($response));
                 $record->update();
             }
         } catch (moodle_exception $e) {
@@ -149,7 +154,7 @@ class jqshow_questions_responses extends persistent {
      * @return bool
      * @throws dml_exception
      */
-    public static function delete_question_resonses(int $jqshow, int $sid, int $jqid): bool {
+    public static function delete_question_responses(int $jqshow, int $sid, int $jqid): bool {
         global $DB;
         return  $DB->delete_records(self::TABLE, ['jqshow' => $jqshow, 'session' => $sid, 'jqid' => $jqid]);
     }
@@ -159,7 +164,7 @@ class jqshow_questions_responses extends persistent {
      * @return bool
      * @throws dml_exception
      */
-    public static function delete_questions_resonses(int $sid): bool {
+    public static function delete_questions_responses(int $sid): bool {
         global $DB;
         return  $DB->delete_records(self::TABLE, ['session' => $sid]);
     }

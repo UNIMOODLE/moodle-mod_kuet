@@ -1,5 +1,4 @@
 "use strict";
-
 import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
@@ -23,12 +22,25 @@ let REGION = {
     LISTRESULTS: '[data-region="list-results"]',
     RACERESULTS: '[data-region="race-results"]',
     SWITCHS: '.showhide-action',
+    ESPECIALS: '.special-action',
+    VOTEIMPROVISE: '.special-action.vote-question',
+    CLOUDTAGS: '.cloud',
+    IMPROVISE: '[data-region="teacher-improvise"]',
+    IMPROVISESTATEMENT: '.improvise-form #statement',
+    IMPROVISEREPLY: '.improvise-form #reply_improvise',
+    TAGSCONTENT: '[data-region="tags-content"]',
 };
 
 let ACTION = {
     BACKSESSION: '[data-action="back-session"]',
     INITSESSION: '[data-action="init-session"]',
-    ENDSESSION: '[data-action="end-session"]'
+    ENDSESSION: '[data-action="end-session"]',
+    CLOSEIMPROVISE: '[data-action="close-improvise"]',
+    SUBMITIMPROVISE: '[data-action="submit-improvise"]',
+    NEXT: '[data-action="next"]',
+    VOTE: '[data-action="vote"]',
+    JUMP: '[data-action="jump"]',
+    FINISHQUESTION: '[data-action="finishquestion"]',
 };
 
 let SERVICES = {
@@ -54,6 +66,7 @@ let TEMPLATES = {
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
     PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
+    GROUPPARTICIPANT: 'mod_jqshow/session/manual/waitingroom/groupparticipant',
     QUESTION: 'mod_jqshow/questions/encasement',
     SESSIONRESUME: 'mod_jqshow/session/sessionresume',
     LISTRESULTS: 'mod_jqshow/session/listresults',
@@ -61,6 +74,7 @@ let TEMPLATES = {
     RACERESULTS: 'mod_jqshow/session/raceresults'
 };
 
+let socketUrl = '';
 let portUrl = '8080'; // It is rewritten in the constructor.
 let userid = null;
 let usersocketid = null;
@@ -81,16 +95,20 @@ let showRankingBetweenQuestionsSwitch = false;
 let showRankingFinal = false;
 let groupMode = false;
 let currentQuestionDataForRace = {};
+let cloudTags = [];
+let voting = false;
 
 /**
  * @constructor
  * @param {String} region
+ * @param {String} socketurl
  * @param {String} port
  * @param {String} sessionmode
  * @param {Boolean} groupmode
  */
-function Sockets(region, port, sessionmode, groupmode) {
+function Sockets(region, socketurl, port, sessionmode, groupmode) {
     this.root = jQuery(region);
+    socketUrl = socketurl;
     portUrl = port;
     userid = this.root[0].dataset.userid;
     username = this.root[0].dataset.username;
@@ -176,7 +194,7 @@ Sockets.prototype.measuringSpeed = function() {
         }
     } else {
         // eslint-disable-next-line no-console
-        console.log("Connection speed detection is not supported in this browser.");
+        console.error("Connection speed detection is not supported in this browser.");
     }
 };
 
@@ -224,11 +242,12 @@ Sockets.prototype.root = null;
 Sockets.prototype.initSockets = function() {
     let that = this;
     this.root.find(ACTION.BACKSESSION).on('click', this.backSession);
+    this.root.find(ACTION.CLOSEIMPROVISE).on('click', this.closeImprovise);
+    this.root.find(ACTION.SUBMITIMPROVISE).on('click', this.submitImprovise);
 
     db = Database.initDb(sid, userid);
-    Sockets.prototype.webSocket = new WebSocket(
-        'wss://' + M.cfg.wwwroot.replace(/^https?:\/\//, '') + ':' + portUrl + '/jqshow'
-    );
+    let normalizeSocketUrl = Sockets.prototype.normalizeSocketUrl(socketUrl, portUrl);
+    Sockets.prototype.webSocket = new WebSocket(normalizeSocketUrl);
 
     Sockets.prototype.webSocket.onopen = function() { // Waitingroom.
         /* The first and second questions are obtained.
@@ -264,7 +283,6 @@ Sockets.prototype.initSockets = function() {
     };
 
     Sockets.prototype.webSocket.onmessage = function(ev) {
-        // TODO Refactor.
         let msgDecrypt = Encryptor.decrypt(ev.data);
         let response = JSON.parse(msgDecrypt); // PHP sends Json data.
         switch (response.action) {
@@ -275,7 +293,7 @@ Sockets.prototype.initSockets = function() {
                     let msg = {
                         'userid': userid,
                         'name': username,
-                        'pic': userimage, // TODO encrypt.
+                        'pic': userimage,
                         'isteacher': true,
                         'cmid': cmid,
                         'sid': sid,
@@ -305,12 +323,30 @@ Sockets.prototype.initSockets = function() {
                 countusers.html(response.count);
                 break;
             }
+            case 'newgroup': {
+                let participantshtml = jQuery(REGION.USERLIST);
+                let grouplist = response.groups;
+                participantshtml.html('');
+                jQuery.each(grouplist, function (i, group) {
+                    let templateContext = {
+                        'usersocketid': group.usersocketid,
+                        'groupimage': group.picture,
+                        'groupid': group.groupid,
+                        'name': group.name,
+                        'numgroupusers': group.numgroupusers,
+                    };
+                    Templates.render(TEMPLATES.GROUPPARTICIPANT, templateContext).then(function(html) {
+                        participantshtml.append(html);
+                    }).fail(Notification.exception);
+                });
+                countusers.html(response.count);
+                break;
+            }
             case 'countusers':
                 countusers.html(response.count);
                 break;
             case 'studentQuestionEnd':
                 messageBox.append('<div>' + response.message + '</div>');
-                // TODO mark the corresponding tab on the scoreboard if it is career mode.
                 if (sessionMode === 'race_manual') {
                     Sockets.prototype.raceResults();
                 }
@@ -349,6 +385,16 @@ Sockets.prototype.initSockets = function() {
             case 'hideFeedback':
                 dispatchEvent(new Event('hideFeedback_' + response.jqid));
                 break;
+            case 'ImproviseStudentTag':
+                Sockets.prototype.manageCloudTags(response.improvisereply);
+                Sockets.prototype.printNewTag();
+                break;
+            case 'StudentVotedTag':
+                if (voting === true) {
+                    Sockets.prototype.manageTagsVotes(response.votedtag);
+                    Sockets.prototype.printNewTag();
+                }
+                break;
             default:
                 break;
         }
@@ -361,6 +407,9 @@ Sockets.prototype.initSockets = function() {
                 '<div class="alert alert-danger" role="alert">' + s + '</div>'
             );
         });
+        that.root.find(ACTION.INITSESSION).addClass('disabled');
+        that.root.find(ACTION.INITSESSION).off('click');
+        that.root.find(ACTION.ENDSESSION).off('click');
     };
 
     Sockets.prototype.webSocket.onclose = function(ev) {
@@ -373,7 +422,25 @@ Sockets.prototype.initSockets = function() {
                 '<div class="alert alert-danger" role="alert">' + s + '</div>'
             );
         });
+        that.root.find(ACTION.INITSESSION).addClass('disabled');
+        that.root.find(ACTION.INITSESSION).off('click');
+        that.root.find(ACTION.ENDSESSION).off('click');
     };
+};
+
+Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
+    let jsUrl = new URL(socketUrl);
+    if (jsUrl.protocol === 'https:') {
+        jsUrl.port = port;
+        jsUrl.protocol = 'wss:';
+        if (jsUrl.pathname === '/') {
+            jsUrl.pathname = jsUrl.pathname + 'jqshow';
+        } else {
+            jsUrl.pathname = jsUrl.pathname + '/jqshow';
+        }
+        return jsUrl.toString();
+    }
+    return '';
 };
 
 Sockets.prototype.initListeners = function() {
@@ -392,6 +459,9 @@ Sockets.prototype.initListeners = function() {
                 that.manageNext();
                 break;
         }
+        // TODO send tag cloud to a service to persist it in DB for retrieval in reports..
+        cloudTags = [];
+        voting = false;
     }, false);
     addEventListener('pauseQuestionSelf', () => {
         that.pauseQuestion();
@@ -413,12 +483,23 @@ Sockets.prototype.initListeners = function() {
                 identifier.html(html);
                 Templates.runTemplateJS(js);
                 jQuery(REGION.SWITCHS).removeClass('disabled');
-                that.questionEnd();
+                // TODO only improvise.
+                jQuery(REGION.ESPECIALS).removeClass('disabled');
+                setTimeout(() => {
+                    that.questionEnd();
+                    jQuery(REGION.SWITCHS).removeClass('disabled');
+                    jQuery(REGION.IMPROVISE).removeClass('disabled');
+                    jQuery(ACTION.FINISHQUESTION).addClass('d-none');
+                    jQuery(ACTION.NEXT).removeClass('d-none');
+                    jQuery(ACTION.VOTE).addClass('disabled');
+                    jQuery(ACTION.JUMP).addClass('disabled');
+                    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                }, 250);
             }).fail(Notification.exception);
         } else {
             that.questionEnd();
         }
-
+        cloudTags = [];
     }, false);
     addEventListener('showAnswersSelf', () => {
         that.showAnswers();
@@ -441,6 +522,12 @@ Sockets.prototype.initListeners = function() {
     addEventListener('endSession', () => {
         that.endSession();
     }, {once: true});
+    addEventListener('improvise', () => {
+        that.improvise();
+    }, false);
+    addEventListener('initVote', () => {
+        that.vote();
+    }, false);
 };
 
 Sockets.prototype.setCurrentQuestion = function(currentQuestion) {
@@ -663,6 +750,8 @@ Sockets.prototype.nextQuestion = function() {
                 };
                 currentQuestionDataForRace = nextQuestionData.result.value;
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+                let removeEvents = new CustomEvent('removeEvents');
+                dispatchEvent(removeEvents);
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.TEACHERCANVAS);
                     identifier.append(html);
@@ -855,6 +944,8 @@ Sockets.prototype.resendSelf = function() {
             jqid: currentQuestionJqid
         }
     };
+    let removeEvents = new CustomEvent('removeEvents');
+    dispatchEvent(removeEvents);
     Ajax.call([request])[0].done(function(response) {
         if (response.deleted === true) {
             let currentQuestionData = db.get('questions', currentQuestionJqid);
@@ -899,6 +990,8 @@ Sockets.prototype.jumpTo = function(questionNumber) {
         }
     };
     nextQuestionJqid = null;
+    let removeEvents = new CustomEvent('removeEvents');
+    dispatchEvent(removeEvents);
     Ajax.call([request])[0].done(function(question) {
         let data = {
             jqid: question.jqid,
@@ -1010,6 +1103,157 @@ Sockets.prototype.hideFeedback = function() {
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
 
+Sockets.prototype.closeImprovise = function() {
+    let msg = {
+        'action': 'closeImprovise',
+        'sid': sid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+    jQuery(REGION.IMPROVISE).addClass('d-none');
+    jQuery(REGION.TEACHERCANVAS).addClass('d-flex').removeClass('d-none');
+};
+
+Sockets.prototype.improvise = function() {
+    let msg = {
+        'action': 'improvising',
+        'sid': sid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+    jQuery(REGION.IMPROVISE).removeClass('d-none');
+    jQuery(REGION.TEACHERCANVAS).removeClass('d-flex').addClass('d-none');
+};
+
+Sockets.prototype.submitImprovise = function() {
+    let improviseStatement = jQuery(REGION.IMPROVISESTATEMENT).val();
+    let improviseReply = jQuery(REGION.IMPROVISEREPLY).val();
+    if (improviseStatement === '') {
+        jQuery(REGION.IMPROVISESTATEMENT).focus(() => {
+            jQuery(REGION.IMPROVISESTATEMENT).css({'border-color': 'red'});
+        });
+    } else {
+        jQuery(REGION.IMPROVISESTATEMENT).val('');
+        jQuery(REGION.IMPROVISEREPLY).val('');
+        let msg = {
+            'action': 'improvised',
+            'sid': sid,
+            'improvisestatement': improviseStatement,
+            'improvisereply': improviseReply,
+            'cmid': cmid
+        };
+        Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+            jQuery(REGION.IMPROVISE).addClass('d-none');
+            jQuery(REGION.TEACHERCANVAS).addClass('d-flex').removeClass('d-none');
+            let identifier = jQuery(REGION.TEACHERCANVAS);
+            identifier.append(html);
+            if (improviseReply !== '') {
+                Sockets.prototype.manageCloudTags(improviseReply);
+            }
+            let cloudtagsData = {
+                'sessionid': sid,
+                'cmid': cmid,
+                'improvised': true,
+                'sessionprogress': 0,
+                'cloudtags': true,
+                'isteacher': true,
+                'questiontext': improviseStatement,
+                'programmedmode': false,
+                'preview': false,
+                'tags': cloudTags
+            };
+            Templates.render(TEMPLATES.QUESTION, cloudtagsData).then(function(html, js) {
+                identifier.html(html);
+                jQuery('[data-action="delete-tag"]').on('click', Sockets.prototype.deleteTag.bind(this));
+                Templates.runTemplateJS(js);
+                jQuery(REGION.LOADING).remove();
+                jQuery(REGION.VOTEIMPROVISE).removeClass('disabled');
+            }).fail(Notification.exception);
+        });
+    }
+};
+
+Sockets.prototype.manageCloudTags = function(newtag) {
+    if (newtag !== '') {
+        let exist = false;
+        if (cloudTags.length) {
+            cloudTags = cloudTags.map((tag) => {
+                if (tag.name.toLowerCase() === newtag.toLowerCase()) {
+                    tag.count = tag.count + 1;
+                    tag.votenum = 0;
+                    exist = true;
+                }
+                return tag;
+            });
+        }
+        if (!exist) {
+            cloudTags.push({name: newtag, count: 1, votenum: 0});
+        }
+        const maxCount = Math.max(...cloudTags.map(item => item.count));
+        cloudTags.forEach((item) => {
+            item.size = Math.ceil((item.count / maxCount) * 10);
+        });
+    }
+};
+
+Sockets.prototype.manageTagsVotes = function(voteTag) {
+    if (cloudTags.length) {
+        cloudTags = cloudTags.map((tag) => {
+            if (tag.name.toLowerCase() === voteTag.toLowerCase()) {
+                tag.votenum = tag.votenum + 1;
+            }
+            return tag;
+        });
+        const maxCount = Math.max(...cloudTags.map(item => item.votenum));
+        cloudTags.forEach((item) => {
+            item.size = Math.ceil((item.votenum / maxCount) * 10);
+        });
+    }
+};
+
+Sockets.prototype.printNewTag = function() {
+    let htmlTags = '';
+    cloudTags.forEach(tag => {
+        htmlTags +=
+            '<li><span class="tag" data-count="' + tag.count + '" data-vote="' + tag.votenum + '"  data-size="' + tag.size + '">' +
+                '<div class="delete-tag" data-name="' + tag.name + '" data-action="delete-tag">' +
+                    'x' +
+                '</div>' +
+            tag.name +
+            '</span></li>';
+    });
+    jQuery(REGION.TAGSCONTENT).html(htmlTags);
+    jQuery('[data-action="delete-tag"]').on('click', Sockets.prototype.deleteTag.bind(this));
+    let msg = {
+        'action': 'printNewTag',
+        'sid': sid,
+        'tags': cloudTags
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
+Sockets.prototype.deleteTag = function(e) {
+    let nameToDelete = jQuery(e.currentTarget).attr('data-name');
+    if (cloudTags.length) {
+        const indexToDelete = cloudTags.findIndex(item => item.name === nameToDelete);
+        if (indexToDelete !== -1) {
+            cloudTags.splice(indexToDelete, 1);
+        }
+    }
+    Sockets.prototype.printNewTag();
+};
+
+Sockets.prototype.vote = function() {
+    voting = true;
+    jQuery(REGION.VOTEIMPROVISE).addClass('disabled');
+    jQuery(REGION.CLOUDTAGS).attr('data-show-votes', true);
+    jQuery(REGION.CLOUDTAGS).attr('data-show-value', false);
+    let msg = {
+        'action': 'initVote',
+        'sid': sid
+    };
+    Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+};
+
 Sockets.prototype.normalizeUser = function(usersocketid) {
     let currentQuestion = db.get('statequestions', 'currentQuestion');
     currentQuestion.onsuccess = function() {
@@ -1031,6 +1275,6 @@ Sockets.prototype.sendMessageSocket = function(msg) {
     this.webSocket.send(msg);
 };
 
-export const teacherInitSockets = (region, port, sessionmode, groupmode) => {
-    return new Sockets(region, port, sessionmode, groupmode);
+export const teacherInitSockets = (region, socketurl, port, sessionmode, groupmode) => {
+    return new Sockets(region, socketurl, port, sessionmode, groupmode);
 };

@@ -27,12 +27,20 @@
                     <div class="d-table-cell text-center">{{noresponse}}</div>
                     <div class="d-table-cell text-center">{{time}}</div>
                     <div class="d-table-cell text-center viewreport">
-                        <a href="{{questionreporturl}}">
-                            + <span>{{#str}}questionreport, mod_jqshow{{/str}}</span>
-                        </a>
+                        {{#isevaluable}}
+                            <a href="{{questionreporturl}}">
+                                + <span>{{#str}}questionreport, mod_jqshow{{/str}}</span>
+                            </a>
+                        {{/isevaluable}}
                     </div>
                 </div>
             {{/sessionquestions}}
         </div>
+    </div>
+</div>
+
+<div class="download-report" data-region="download-report">
+    <div class="row">
+        {{{downloadsessionquestionreport}}}
     </div>
 </div>

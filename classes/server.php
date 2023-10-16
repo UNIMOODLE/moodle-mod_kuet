@@ -36,6 +36,7 @@ class server extends websockets {
     protected $students = [];
     protected $teacher = [];
     protected $sidusers = [];
+    protected $sidgroups = [];
     protected $password = 'elktkktagqes';
 
     /**
@@ -46,7 +47,12 @@ class server extends websockets {
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
-        $data = json_decode($message, true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode(
+            mb_convert_encoding($message, 'UTF-8', 'UTF-8'),
+            true,
+            512,
+            JSON_THROW_ON_ERROR
+        );
         if (isset($data['oft']) && $data['oft'] === true) {
             // Only for teacher.
             $responsetext = $this->get_response_from_action_for_teacher($user, $data['action'], $data);
@@ -138,13 +144,11 @@ class server extends websockets {
                     $this->disconnect($socket->socket);
                     fclose($socket->socket);
                     unset($this->students[$user->sid], $this->sidusers[$user->sid]);
-                    // TODO control the end of manual sessions in another way.
                     // jqshow_sessions::mark_session_finished((int)$user->sid);
                 }
             }
         }
         if ((count($this->sockets) === 0) || (count($this->users) === 0)) {
-            // TODO to decomment, for development we don't want to close the socket.
             // die(); // No one is connected to the socket. It closes and will be reopened by the first teacher who logs in.
         }
     }
@@ -165,6 +169,26 @@ class server extends websockets {
                             'onlyforteacher' => true,
                             'context' => $data,
                             'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta' // TODO delete.
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'ImproviseStudentTag':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'ImproviseStudentTag',
+                            'onlyforteacher' => true,
+                            'improvisereply' => $data['improvisereply'],
+                            'userid' => $data['userid'],
+                            'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta improvisada con la palabra: ' . $data['improvisereply'] // TODO delete.
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'StudentVotedTag':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'StudentVotedTag',
+                            'onlyforteacher' => true,
+                            'votedtag' => $data['votedtag'],
+                            'userid' => $data['userid'],
+                            'message' => 'El alumno ' . $data['userid'] . ' ha votado una pregunta improvisada con la palabra: ' . $data['votedtag'] // TODO delete.
                         ], JSON_THROW_ON_ERROR)
                     ));
             default:
@@ -204,6 +228,10 @@ class server extends websockets {
     protected function get_response_from_action(websocketuser $user, string $useraction, array $data): string {
         // Prepare data to be sent to client.
         switch ($useraction) {
+            case 'newgroup':
+                $this->newuser($user, $data);
+                $this->newgroup($user, $data);
+                return $this->manage_newgroup_for_sid($user, $data);
             case 'newuser':
                 $this->newuser($user, $data);
                 if (isset($data['isteacher']) && $data['isteacher'] === true) {
@@ -302,12 +330,43 @@ class server extends websockets {
                             'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));
+            case 'improvising':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'improvising',
+                            'jqid' => $data['jqid']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'closeImprovise':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'closeImprovise',
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'improvised':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'improvised',
+                            'improvisestatement' => $data['improvisestatement'],
+                            'improvisereply' => $data['improvisereply'],
+                            'cmid' => $data['cmid'],
+                            'sessionid' => $data['sid'],
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'printNewTag':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'printNewTag',
+                            'tags' => $data['tags']
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            case 'initVote':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'initVote'
+                        ], JSON_THROW_ON_ERROR)
+                    ));
             case 'shutdownTest':
-                foreach ($this->sockets as $socket) {
-                    stream_socket_shutdown($socket, STREAM_SHUT_RDWR);
-                    fclose($socket);
-                }
-                die();
             default:
                 return '';
         }
@@ -328,6 +387,19 @@ class server extends websockets {
         $user->update_user($data);
     }
 
+    /**
+     * @param array $data
+     * @return void
+     */
+    private function newgroup(websocketuser $user, array $data) {
+        $this->sidgroups[$data['sid']][$data['groupid']]->groupid = $data['groupid'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->groupname = $data['name'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->grouppicture = $data['pic'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->sid = $data['sid'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->cmid = $data['cmid'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
+        $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->userid = $data['userid'];
+    }
     /**
      * @param websocketuser $user
      * @param array $data
@@ -391,9 +463,38 @@ class server extends websockets {
             ], JSON_THROW_ON_ERROR)
         ));
     }
+
+    /**
+     * @param websocketuser $user
+     * @param array $data
+     * @return string
+     * @throws JsonException
+     */
+    private function manage_newgroup_for_sid(websocketuser $user, array $data): string {
+        $this->users[$user->usersocketid]->isteacher = false;
+        $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
+        $this->students[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
+
+        $groupsdata = [];
+        foreach ($this->sidgroups[$data['sid']] as $key => $group) {
+            $groupsdata[$key]['groupid'] = $group->groupid;
+            $groupsdata[$key]['picture'] = $group->grouppicture;
+            $groupsdata[$key]['usersocketid'] = $data['usersocketid'];
+            $groupsdata[$key]['name'] = $group->groupname;
+            $groupsdata[$key]['numgroupusers'] = count($group->users);
+        }
+        return $this->mask(
+            encrypt($this->password, json_encode([
+                    'action' => 'newgroup',
+                    'usersocketid' => $user->usersocketid,
+                    'groups' => array_values($groupsdata),
+                    'count' => count($this->sidgroups[$data['sid']])
+                ], JSON_THROW_ON_ERROR)
+            ));
+    }
 }
 
-$port = get_config('jqshow', 'port');
+$port = get_config('jqshow', 'localport');
 $server = new server('0.0.0.0', $port, 2048);
 
 try {

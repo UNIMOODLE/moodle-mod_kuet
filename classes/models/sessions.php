@@ -35,8 +35,10 @@ use dml_exception;
 use Exception;
 use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
+use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\forms\sessionform;
+use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -125,16 +127,24 @@ class sessions {
             self::ANONYMOUS_ANSWERS_NO => get_string('noanonymiseresponses', 'mod_jqshow'),
             self::ANONYMOUS_ANSWERS => get_string('anonymiseresponses', 'mod_jqshow')
         ];
-        $sessionmodechoices = [
-            self::INACTIVE_MANUAL => get_string('inactive_manual', 'mod_jqshow'),
-            self::INACTIVE_PROGRAMMED => get_string('inactive_programmed', 'mod_jqshow'),
-            self::PODIUM_MANUAL => get_string('podium_manual', 'mod_jqshow'),
-            self::PODIUM_PROGRAMMED => get_string('podium_programmed', 'mod_jqshow'),
-            self::RACE_MANUAL => get_string('race_manual', 'mod_jqshow'),
-            self::RACE_PROGRAMMED => get_string('race_programmed', 'mod_jqshow'),
-        ];
+        if (get_config('jqshow', 'sockettype') !== 'nosocket') {
+            $sessionmodechoices = [
+                self::INACTIVE_MANUAL => get_string('inactive_manual', 'mod_jqshow'),
+                self::INACTIVE_PROGRAMMED => get_string('inactive_programmed', 'mod_jqshow'),
+                self::PODIUM_MANUAL => get_string('podium_manual', 'mod_jqshow'),
+                self::PODIUM_PROGRAMMED => get_string('podium_programmed', 'mod_jqshow'),
+                self::RACE_MANUAL => get_string('race_manual', 'mod_jqshow'),
+                self::RACE_PROGRAMMED => get_string('race_programmed', 'mod_jqshow'),
+            ];
+        } else {
+            $sessionmodechoices = [
+                self::INACTIVE_PROGRAMMED => get_string('inactive_programmed', 'mod_jqshow'),
+                self::PODIUM_PROGRAMMED => get_string('podium_programmed', 'mod_jqshow'),
+                self::RACE_PROGRAMMED => get_string('race_programmed', 'mod_jqshow'),
+            ];
+        }
         $timemode = [
-//            self::NO_TIME => get_string('no_time', 'mod_jqshow'),
+//            self::NO_TIME => get_string('no_time', 'mod_jqshow'), // TODO enable for inactive.
             self::SESSION_TIME => get_string('session_time', 'mod_jqshow'),
             self::QUESTION_TIME => get_string('question_time', 'mod_jqshow'),
         ];
@@ -336,7 +346,7 @@ class sessions {
                 'title' => ''
             ]);
             $question->icon = $icon->export_for_pix();
-            $question->issuitable = in_array($question->qtype, questions::TYPES);
+            $question->issuitable = in_array($question->qtype, questions::TYPES, true);
             $question->questionpreview =
                 (new moodle_url('/question/bank/previewquestion/preview.php', ['id' => $key]))->out(false);
             $question->questionedit =
@@ -404,7 +414,6 @@ class sessions {
      * @throws moodle_exception
      */
     public static function get_session_config(int $sid, int $cmid): array {
-        // TODO finish setting with all icons and session settings to be shown.
         $sessiondata = new jqshow_sessions($sid);
         $data = [];
         $data[] = [
@@ -642,6 +651,7 @@ class sessions {
             $questionsdata[$key]->studentsresponse = [];
             foreach ($userresults as $user) {
                 $userresponse = jqshow_questions_responses::get_question_response_for_user($user->id, $sid, $question->get('id'));
+                $questionsdata[$key]->studentsresponse[$user->id] = new stdClass();
                 $questionsdata[$key]->studentsresponse[$user->id]->userid = $user->id;
                 if ($userresponse !== false) {
                     $questionsdata[$key]->studentsresponse[$user->id]->response = $userresponse;
@@ -759,6 +769,12 @@ class sessions {
             $update = true;
             $data->{'id'} = $id;
         }
+        if (!isset($data->sgrade)) {
+            $data->sgrade = 0;
+        }
+        if (!isset($data->countdown)) {
+            $data->countdown = 0;
+        }
         if (!isset($data->showfeedback)) {
             $data->showfeedback = 0;
         }
@@ -767,6 +783,15 @@ class sessions {
         }
         if (!isset($data->showfinalgrade)) {
             $data->showfinalgrade = 0;
+        }
+        if (!isset($data->showfinalgrade)) {
+            $data->showfinalgrade = 0;
+        }
+        if (!isset($data->randomquestions)) {
+            $data->randomquestions = 0;
+        }
+        if (!isset($data->randomanswers)) {
+            $data->randomanswers = 0;
         }
         if (!isset($data->automaticstart) || $data->automaticstart === 0) {
             $data->startdate = 0;
@@ -927,8 +952,7 @@ class sessions {
     private static function get_final_individual_ranking(jqshow_sessions $session, cm_info $cm, int $courseid,
                                                          context_module $context): array {
         global $PAGE;
-
-        $users = enrol_get_course_users($courseid, true);;
+        $users = enrol_get_course_users($courseid, true);
         $students = [];
         foreach ($users as $user) {
             if (!has_capability('mod/jqshow:startsession', $context, $user) &&
@@ -976,6 +1000,69 @@ class sessions {
         foreach ($data as $student) {
             $student->userposition = ++$position;
         }
+        return $data;
+    }
+
+    /**
+     * @param int $cmid
+     * @param int $sessionid
+     * @return stdClass
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public static function export_endsession(int $cmid, int $sessionid): object {
+        global $USER;
+        $session = new jqshow_sessions($sessionid);
+        $jqshow = new jqshow($session->get('jqshowid'));
+        $data = new stdClass();
+        $data->cmid = $cmid;
+        $data->sessionid = $sessionid;
+        $data->jqshowid = $session->get('jqshowid');
+        $data->courselink = (new moodle_url('/course/view.php', ['id' => $jqshow->get('course')]))->out(false);
+        $data->reportlink = (new moodle_url('/mod/jqshow/reports.php',
+            ['cmid' => $cmid, 'sid' => $sessionid, 'userid' => $USER->id]))->out(false);
+        $contextmodule = context_module::instance($cmid);
+        switch ($session->get('sessionmode')) {
+            case self::INACTIVE_PROGRAMMED:
+            case self::INACTIVE_MANUAL:
+                $data = self::get_normal_endsession($data);
+                break;
+            case self::PODIUM_PROGRAMMED:
+            case self::PODIUM_MANUAL:
+            case self::RACE_MANUAL:
+            case self::RACE_PROGRAMMED:
+                if ((int)$session->get('showfinalgrade') === 0) {
+                    $data = self::get_normal_endsession($data);
+                } else {
+                    $data = (object)getfinalranking_external::getfinalranking($sessionid, $cmid);
+                    $data = self::get_normal_endsession($data);
+                    $data->endsession = true;
+                    $data->ranking = true;
+                    $data->isteacher = has_capability('mod/jqshow:startsession', $contextmodule);
+                }
+                break;
+            default:
+                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
+                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
+        }
+        return $data;
+    }
+
+    /**
+     * @param stdClass $data
+     * @return stdClass
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    private static function get_normal_endsession(stdClass $data): stdClass {
+        global $OUTPUT;
+        $data->questionid = 0;
+        $data->jqid = 0;
+        $data->question_index_string = '';
+        $data->endsessionimage = $OUTPUT->image_url('f/end_session', 'mod_jqshow')->out(false);
+        $data->qtype = 'endsession';
+        $data->endsession = true;
         return $data;
     }
 }

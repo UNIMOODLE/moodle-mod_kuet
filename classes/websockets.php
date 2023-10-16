@@ -264,7 +264,6 @@ abstract class websockets {
                 $ip = stream_socket_get_name( $client, true );
                 $this->stdout("Connection attempt from $ip");
                 stream_set_blocking($client, true);
-                // TODO review stream_socket_enable_crypto.
                 /* if (!stream_socket_enable_crypto($client, true, STREAM_CRYPTO_METHOD_TLSv1_2_SERVER)) {
                     $this->stderr('Error enabling TLS encryption on the connection.');
                     fclose($client);
@@ -363,18 +362,20 @@ abstract class websockets {
                 $headers[$matches[1]] = $matches[2];
             }
         }
-        $seckey = $headers['Sec-WebSocket-Key'];
-        $secaccept = base64_encode(pack('H*', sha1($seckey . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
-        // Handshaking header.
-        $upgrade  = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n" .
-            "Upgrade: websocket\r\n" .
-            "Connection: Upgrade\r\n" .
-            "WebSocket-Origin: $this->addr\r\n" .
-            "WebSocket-Location: wss://$this->addr:$this->port\r\n".
-            "Sec-WebSocket-Version: 13\r\n" .
-            "Sec-WebSocket-Accept:$secaccept\r\n\r\n";
-        fwrite($client, $upgrade);
-        $this->connected($client);
+        if (isset($headers['Sec-WebSocket-Key'])) {
+            $seckey = $headers['Sec-WebSocket-Key'];
+            $secaccept = base64_encode(pack('H*', sha1($seckey . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
+            // Handshaking header.
+            $upgrade  = "HTTP/1.1 101 Web Socket Protocol Handshake\r\n" .
+                "Upgrade: websocket\r\n" .
+                "Connection: Upgrade\r\n" .
+                "WebSocket-Origin: $this->addr\r\n" .
+                "WebSocket-Location: wss://$this->addr:$this->port\r\n".
+                "Sec-WebSocket-Version: 13\r\n" .
+                "Sec-WebSocket-Accept:$secaccept\r\n\r\n";
+            fwrite($client, $upgrade);
+            $this->connected($client);
+        }
     }
 
     /**

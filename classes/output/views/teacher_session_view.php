@@ -49,7 +49,6 @@ class teacher_session_view implements renderable, templatable {
      * @throws dml_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        // TODO refactor duplicate code for teacher and student.
         global $USER, $DB, $PAGE, $COURSE;
         $data = new stdClass();
         $data->cmid = required_param('cmid', PARAM_INT);
@@ -93,6 +92,7 @@ class teacher_session_view implements renderable, templatable {
             case sessions::INACTIVE_MANUAL:
             case sessions::PODIUM_MANUAL:
             case sessions::RACE_MANUAL:
+                global $CFG;
                 // SOCKETS! Always start with waitingroom.
                 [$course, $cm] = get_course_and_cm_from_cmid($data->cmid, 'jqshow', $COURSE);
                 $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
@@ -113,7 +113,15 @@ class teacher_session_view implements renderable, templatable {
                 $data->sessionquestions = $questiondata;
                 $data->numquestions = count($questiondata);
                 $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
-                $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+                $typesocket = get_config('jqshow', 'sockettype');
+                if ($typesocket === 'local') {
+                    $data->socketurl = $CFG->wwwroot;
+                    $data->port = get_config('jqshow', 'localport') !== false ? get_config('jqshow', 'localport') : '8080';
+                }
+                if ($typesocket === 'external') {
+                    $data->socketurl = get_config('jqshow', 'externalurl');
+                    $data->port = get_config('jqshow', 'externalport') !== false ? get_config('jqshow', 'externalport') : '8080';
+                }
                 $data->sessionmode = $session->get('sessionmode');
                 $data->groupmode = $session->is_group_mode();
                 $data->courseid = $course->id;

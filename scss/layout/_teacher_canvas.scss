@@ -1,0 +1,96 @@
+body#page-mod-jqshow-view {
+    [data-region="teacher-panel"] {
+        margin-top: 2em;
+        .resume-config,
+        .users-results {
+            padding: 0;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,.06);
+            .titlecontainer {
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                border-radius: 8px 8px 0 0;
+                color: #FFFFFF;
+                padding: 1em;
+            }
+        }
+        .users-results {
+            .list-results {
+                max-height: 700px;
+                overflow-y: auto;
+                &::-webkit-scrollbar {
+                    width: 8px;
+                }
+                &::-webkit-scrollbar-track {
+                    background: #e0e0e0;
+                }
+                &::-webkit-scrollbar-thumb {
+                    background-color: #6a737b;
+                    border-radius: 4px;
+                }
+                .list-results-body {
+                    width: 100%;
+                    .d-table-cell {
+                        padding: 15px;
+                    }
+                    .list-results-thead {
+                        font-weight: bold;
+                        .d-table-cell {
+                            color: #2B2B2B !important;
+                        }
+                    }
+                    .result-list-data {
+                        font-weight: normal;
+                        background-color: white;
+                        .d-table-cell {
+                            border-top: 1px solid #EDEBF4;
+                            color: #929292 !important;
+                        }
+                        &:nth-child(even) {
+                            background-color: rgba(0,0,0,.03);
+                        }
+                    }
+                }
+            }
+            .race-results {
+
+            }
+        }
+    }
+    .teacher-improvise-form {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        z-index: 100;
+        padding: 3em;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 0 10px rgba(0,0,0,.06);
+        border-radius: 25px;
+        min-height: 55vh;
+        .close-improvise {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            cursor: pointer;
+            position: absolute;
+            top: 1em;
+            right: 1em;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
+            img {
+                margin: 0;
+            }
+        }
+        .improvise-form {
+            width: 80%;
+            #reply_improvise {
+                width: 30% !important;
+            }
+        }
+    }
+}

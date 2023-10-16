@@ -11,4 +11,52 @@ body#page-mod-jqshow-view {
             }
         }
     }
+    .student-improvising {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        background-color: white;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: flex-start;
+        align-items: center;
+        padding: 2em;
+        z-index: 100;
+        box-shadow: 0 0 10px rgba(0,0,0,.06);
+        border-radius: 25px;
+        min-height: 55vh;
+        .improvising-image {
+            margin: 0;
+            img {
+                width: 60%;
+                height: auto !important;
+                display: block;
+                margin: 0 auto;
+            }
+        }
+        .improvising-text {
+            margin-top: 1em;
+            width: 70%;
+            display: flex;
+            text-align: center;
+            flex-flow: column nowrap;
+            justify-content: center;
+            align-items: center;
+        }
+    }
+    .improvise-response-content {
+        position: relative;
+        display: flex;
+        flex-flow: column nowrap;
+        justify-content: center;
+        align-items: center;
+        min-height: 50vh;
+        width: 80%;
+        .improvise-student-form {
+            min-width: 80%;
+        }
+        #reply_student_improvise {
+            width: 30% !important;
+        }
+    }
 }

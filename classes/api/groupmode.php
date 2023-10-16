@@ -26,9 +26,11 @@
 namespace mod_jqshow\api;
 
 use cache;
+use cache_application;
 use coding_exception;
 use dml_exception;
 use mod_jqshow\jqshow;
+use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use stdClass;
 
@@ -46,9 +48,8 @@ class groupmode {
      * @throws coding_exception
      */
     public static function get_group_image(stdClass $groupdata, int $sid, int $imagesize = 1): string {
-        global $PAGE;
+
         $grouppicture = get_group_picture_url($groupdata, $groupdata->courseid);
-        $image = '';
         if (!is_null($grouppicture)) {
             $grouppicture->size = $imagesize;
             $image = $grouppicture->out(false);
@@ -58,9 +59,10 @@ class groupmode {
             $cachekey = 'groupid_' . $groupdata->id . '_sid_' . $sid;
             $cachedata = $cache->get($cachekey);
             if (!$cachedata) {
-                $render = $PAGE->get_renderer('mod_jqshow');
-                $image = $render->get_generated_image_for_id($groupdata->id);
-                $cache->set($cachekey, $image);
+                $image = self::set_group_image_for_session($sid, $cache);
+                if (!empty($image)) {
+                    $cache->set($cachekey, $image);
+                }
             } else {
                 $image = $cachedata;
             }
@@ -68,6 +70,43 @@ class groupmode {
         return $image;
     }
 
+    /**
+     * @param int $sid
+     * @param cache_application $cache
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public static function set_group_image_for_session(int $sid, cache_application $cache) : string {
+
+        $session = new jqshow_sessions($sid);
+        $groupingid = $session->get('groupings');
+        $groups = self::get_grouping_groups($groupingid);
+        $images = [];
+        foreach ($groups as $group) {
+            $cachekey = 'groupid_' . $group->id . '_sid_' . $sid;
+            $cachedata = $cache->get($cachekey);
+            $findme   = 'pattern_';
+            $pos = strpos($cachedata, $findme);
+            if ($pos === false) {
+                continue;
+            } else {
+                $images[] = $cachedata;
+            }
+        }
+        if (count($images) >= 7) {
+            $name = '';
+        } else {
+            for($i = 1; $i<8; $i++) {
+                $name   = '/mod/jqshow/pix/pattern_0' . $i . '.png';
+                if (!in_array($name, $images)) {
+                    break;
+                }
+            }
+        }
+
+        return $name;
+    }
     /**
      * @param int $grouping
      * @return array
@@ -169,17 +208,10 @@ class groupmode {
      */
     public static function check_all_users_in_groups(int $cmid, int $groupingid) {
         global $COURSE;
-        $students = jqshow::get_students($cmid);
-        $newstudents = array_map(static function($user) {
-            return $user->id;
-        }, $students);
-
-        /*$groupmembers = groups_get_grouping_members($groupingid, 'u.id');
-        $newgrupmembers = array_map(function($user) {
-            return $user->id;
-        }, $groupmembers);*/
-        $newgrupmembers = self::get_grouping_userids($groupingid);
-        $diff = array_diff($newstudents, $newgrupmembers);
+        $students = jqshow::get_enrolled_students_in_course(0, $cmid);
+        $studentsids = array_keys($students);
+        $groupmembers = self::get_grouping_userids($groupingid);
+        $diff = array_diff($studentsids, $groupmembers);
         if (!empty($diff)) {
             $data = new stdClass();
             $data->name = get_string('fakegroup', 'mod_jqshow', random_string(5));
@@ -191,5 +223,23 @@ class groupmode {
             }
             groups_assign_grouping($groupingid, $groupid);
         }
+    }
+
+    /**
+     * @param int $userid
+     * @param int $groupingid
+     * @return mixed|null
+     * @throws dml_exception
+     */
+    public static function get_user_group(int $userid, int $groupingid) {
+        $groups = self::get_grouping_groups($groupingid);
+        $groupselected = null;
+        foreach ($groups as $group) {
+            if (groups_is_member($group->id, $userid)) {
+                $groupselected = $group;
+                break;
+            }
+        }
+        return $groupselected;
     }
 }

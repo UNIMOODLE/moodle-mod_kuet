@@ -9,6 +9,7 @@
                 <div class="d-table-cell"></div>
                 <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
                 <div class="d-table-cell text-center">{{#str}}responses, mod_jqshow{{/str}}</div>
+                <div class="d-table-cell text-center">{{#str}}score, mod_jqshow{{/str}}</div>
                 <div class="d-table-cell text-center">{{#str}}question_type, mod_jqshow{{/str}}</div>
                 <div class="d-table-cell text-center">{{#str}}question_time, mod_jqshow{{/str}}</div>
                 <div class="d-table-cell text-center"></div>
@@ -22,6 +23,7 @@
                             <span>{{responsestr}}</span>
                         </div>
                     </div>
+                    <div class="d-table-cell text-center">{{score}}</div>
                     <div class="d-table-cell text-center">{{type}}</div>
                     <div class="d-table-cell text-center">{{time}}</div>
                     <div class="d-table-cell text-center viewquestion">
@@ -34,7 +36,11 @@
         </div>
     </div>
 </div>
-
+<div class="download-report" data-region="download-report">
+    <div class="row">
+        {{{downloaduserreport}}}
+    </div>
+</div>
 {{#js}}
     require(['mod_jqshow/user_report'], function(userReport) {
         userReport.userReport('[data-region="question-list"]');

@@ -28,16 +28,28 @@ namespace mod_jqshow\external;
 use coding_exception;
 use context_module;
 use dml_exception;
+use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
+use JsonException;
+use mod_jqshow\exporter\question_exporter;
+use mod_jqshow\models\calculated;
+use mod_jqshow\models\ddwtos;
+use mod_jqshow\models\description;
+use mod_jqshow\models\matchquestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
+use ReflectionException;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -57,12 +69,16 @@ class firstquestion_external extends external_api {
         );
     }
 
+
     /**
      * @param int $cmid
      * @param int $sessionid
      * @return array
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws coding_exception
      * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
@@ -76,12 +92,69 @@ class firstquestion_external extends external_api {
         $PAGE->set_context($contextmodule);
         $firstquestion = jqshow_questions::get_first_question_of_session($sessionid);
         switch ($firstquestion->get('qtype')) {
-            case 'multichoice':
-                $question = questions::export_multichoice(
+            case questions::MULTICHOICE:
+                $question = multichoice::export_multichoice(
                     $firstquestion->get('id'),
                     $cmid,
                     $sessionid,
                     $firstquestion->get('jqshowid'));
+                $question->showstatistics = true;
+                break;
+            case questions::MATCH:
+                $question = matchquestion::export_match(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = false;
+                break;
+            case questions::TRUE_FALSE:
+                $question = truefalse::export_truefalse(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = true;
+                break;
+            case questions::SHORTANSWER:
+                $question = shortanswer::export_shortanswer(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = false;
+                break;
+            case questions::NUMERICAL:
+                $question = numerical::export_numerical(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = false;
+                break;
+            case questions::CALCULATED:
+                $question = calculated::export_calculated(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = false;
+                break;
+            case questions::DESCRIPTION:
+                $question = description::export_description(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = false;
+                break;
+            case questions::DDWTOS:
+                $question = ddwtos::export_ddwtos(
+                    $firstquestion->get('id'),
+                    $cmid,
+                    $sessionid,
+                    $firstquestion->get('jqshowid'));
+                $question->showstatistics = false;
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
@@ -92,6 +165,8 @@ class firstquestion_external extends external_api {
             $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
             $session->get('sessionmode') === sessions::RACE_PROGRAMMED) {
             $question->programmedmode = true;
+        } else {
+            $question->programmedmode = false;
         }
         return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
     }

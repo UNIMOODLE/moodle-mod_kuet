@@ -175,4 +175,28 @@ class jqshow {
     private static function get_participants_individual_mode(context_module $context) {
         return get_enrolled_users($context, '', 0, 'u.id', null, 0, 0, true);
     }
+
+    /**
+     * @param int $courseid
+     * @param int $cmid
+     * @return array
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public static function get_enrolled_students_in_course(int $courseid = 0, int $cmid = 0) {
+        if ($cmid) {
+            $module = get_module_from_cmid($cmid);
+            $courseid = $module[0]->course;
+        }
+        $context = \context_course::instance($courseid);
+        $courseparticipants = enrol_get_course_users($courseid, true);
+        $students = [];
+        foreach ($courseparticipants as $courseparticipant) {
+            if (has_capability('moodle/course:managegroups', $context)) {
+                continue;
+            }
+            $students[$courseparticipant->id] = $courseparticipant;
+        }
+        return $students;
+    }
 }

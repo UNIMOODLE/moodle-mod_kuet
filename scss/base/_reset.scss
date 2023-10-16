@@ -1,5 +1,7 @@
 body.path-mod-jqshow {
-    *:focus {
+    *:focus,
+    .btn-primary:focus,
+    .btn-primary.focus {
         outline-style: none !important;
         outline-color: transparent !important;
         outline-offset: unset !important;
@@ -10,5 +12,19 @@ body.path-mod-jqshow {
     }
     .overlay-icon-container {
         z-index: 3000;
+    }
+    #page-content {
+        #region-main {
+            .bg-primary {
+                h1, h2, h3, h4, h5 {
+                    color: #fff !important;
+                }
+            }
+            h1, h2, h3, h4, h5 {
+                &.bg-primary {
+                    color: #fff !important;
+                }
+            }
+        }
     }
 }

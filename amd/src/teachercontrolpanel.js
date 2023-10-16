@@ -11,6 +11,8 @@ let REGION = {
     CONTROLPANEL: '[data-region="teacher_control_panel"]', // This root.
     JUMPTOINPUT: '[data-input="jumpto"]',
     SWITCHS: '.showhide-action',
+    ESPECIALS: '.special-action',
+    IMPROVISE: '.special-action.improvise-question',
 };
 
 let ACTION = {
@@ -56,6 +58,8 @@ const showStatistics = new Event('showStatisticsSelf');
 const hideStatistics = new Event('hideStatisticsSelf');
 const showFeedback = new Event('showFeedbackSelf');
 const hideFeedback = new Event('hideFeedbackSelf');
+const improvise = new Event('improvise');
+const vote = new Event('initVote');
 let finishquestionEvent = null;
 let questionEnd = false;
 
@@ -93,6 +97,12 @@ TeacherControlPanel.prototype.initControlPanel = function() {
             TeacherControlPanel.prototype.hideFeedback();
         }
     });
+    this.root.find(ACTION.IMPROVISE).on('click', function() {
+        TeacherControlPanel.prototype.improvise();
+    });
+    this.root.find(ACTION.VOTE).on('click', function() {
+        TeacherControlPanel.prototype.vote();
+    });
     jQuery(ACTION.COLLAPSE).on('click', function() {
         setTimeout(function() {
             if (jQuery(ACTION.COLLAPSE + '.collapsed').length !== 0) {
@@ -111,9 +121,6 @@ TeacherControlPanel.prototype.initControlPanel = function() {
         }, 100);
     });
 };
-
-// TODO prevent default and stop propagations.
-// TODO disable show/hide until the question is finalised.
 
 TeacherControlPanel.prototype.next = function() {
     dispatchEvent(nextEvent);
@@ -171,6 +178,9 @@ TeacherControlPanel.prototype.finishquestion = function() {
     dispatchEvent(finishquestionEventSelf);
     questionEnd = true;
     jQuery(REGION.SWITCHS).removeClass('disabled');
+    jQuery(REGION.IMPROVISE).removeClass('disabled');
+    jQuery(ACTION.FINISHQUESTION).addClass('d-none');
+    jQuery(ACTION.NEXT).removeClass('d-none');
 };
 
 TeacherControlPanel.prototype.showAnswers = function() {
@@ -195,6 +205,14 @@ TeacherControlPanel.prototype.showFeedback = function() {
 
 TeacherControlPanel.prototype.hideFeedback = function() {
     dispatchEvent(hideFeedback);
+};
+
+TeacherControlPanel.prototype.improvise = function() {
+    dispatchEvent(improvise);
+};
+
+TeacherControlPanel.prototype.vote = function() {
+    dispatchEvent(vote);
 };
 
 TeacherControlPanel.prototype.endsession = function() {

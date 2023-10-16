@@ -25,11 +25,22 @@
 
 namespace mod_jqshow\output\views;
 
+use coding_exception;
 use dml_exception;
+use dml_transaction_exception;
 use JsonException;
+use mod_jqshow\models\calculated;
+use mod_jqshow\models\ddwtos;
+use mod_jqshow\models\description;
+use mod_jqshow\models\matchquestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use moodle_exception;
+use ReflectionException;
 use renderable;
 use stdClass;
 use templatable;
@@ -61,14 +72,38 @@ class question_preview implements renderable, templatable {
     /**
      * @param renderer_base $output
      * @return stdClass
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws coding_exception
+     * @throws dml_transaction_exception
      * @throws dml_exception
      * @throws moodle_exception
-     * @throws JsonException
      */
     public function export_for_template(renderer_base $output): stdClass {
         switch ((new jqshow_questions($this->jqid))->get('qtype')){
-            case 'multichoice':
-                $data = questions::export_multichoice($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+            case questions::MULTICHOICE:
+                $data = multichoice::export_multichoice($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                break;
+            case questions::MATCH:
+                $data = matchquestion::export_match($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                break;
+            case questions::TRUE_FALSE:
+                $data = truefalse::export_truefalse($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                break;
+            case questions::SHORTANSWER:
+                $data = shortanswer::export_shortanswer($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                break;
+            case questions::NUMERICAL:
+                $data = numerical::export_numerical($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                break;
+            case questions::CALCULATED:
+                $data = calculated::export_calculated($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                break;
+            case questions::DESCRIPTION:
+                $data = description::export_description($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
+                break;
+            case questions::DDWTOS:
+                $data = ddwtos::export_ddwtos($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

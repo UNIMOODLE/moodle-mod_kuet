@@ -11,12 +11,14 @@
                     <div class="question-data-body">
                         {{{questiontext}}}
                         <br>
-                        <h6 class="correct-answers-title">{{#str}}scored_answers, mod_jqshow{{/str}}</h6>
-                        <ul class="correct-answers">
-                            {{#correctanswers}}
-                                <li>{{{response}}}: <b>{{score}}pt</b></li>
-                            {{/correctanswers}}
-                        </ul>
+                        {{^hasnoanswers}}
+                            <h6 class="correct-answers-title">{{#str}}scored_answers, mod_jqshow{{/str}}</h6>
+                            <ul class="correct-answers">
+                                {{#correctanswers}}
+                                    <li>{{{response}}}{{#score}}: <b>{{.}}pt</b>{{/score}}</li>
+                                {{/correctanswers}}
+                            </ul>
+                        {{/hasnoanswers}}
                         <div class="question-preview bg-primary" data-action="question-preview" data-sessionid="{{sessionid}}" data-questionnid="{{jqid}}" data-cmid="{{cmid}}">
                             <span>{{#str}}preview, mod_jqshow{{/str}}</span>
                         </div>
@@ -49,7 +51,8 @@
         </div>
     </div>
     <!-- Second data -->
-    <div class="row">
+    {{^ nostatistics }} {{^hasnoanswers}}
+        <div class="row">
         <div class="col-12 col-lg-12 container">
             <div class="answers">
                 <h5 class="titlecontainer bg-primary">
@@ -91,6 +94,7 @@
             </div>
         </div>
     </div>
+    {{/hasnoanswers}} {{/nostatistics}}
     <!-- Ranking question data -->
     {{#hasranking}}
         <div class="col-12 col-lg-12 container">
@@ -110,7 +114,7 @@
                             <div class="d-table-cell text-center"></div>
                         </div>
                         {{#questionranking}}
-                            <div class="INDIVIDUAL QUESTION d-table-row ranking-users-data user-item" data-userid="{{userid}}">
+                            <div class="d-table-row ranking-users-data user-item" data-userid="{{userid}}">
                                 <div class="d-table-cell">
                                     <div class="participant" data-userid="{{userid}}">
                                         <a href="{{userprofileurl}}" target="_blank">
@@ -142,7 +146,7 @@
                             </div>
                         {{/questionranking}}
                         {{#questiongroupranking}}
-                            <div class="ELENA2 d-table-row ranking-users-data user-item" data-groupid="{{id}}">
+                            <div class="d-table-row ranking-users-data user-item" data-groupid="{{id}}">
                                 <div class="d-table-cell">
                                     <div class="participant" data-groupid="{{id}}">
                                         <a href="{{groupurl}}" target="_blank">
@@ -179,6 +183,12 @@
         </div>
     {{/hasranking}}
 </div>
+<div class="download-report" data-region="download-report">
+    <div class="row">
+        {{{downloadquestionreport}}}
+    </div>
+</div>
+
 {{#js}}
     require(['mod_jqshow/question_report'], function(questionReport) {
         questionReport.questionReport('[data-region="question-report"]');

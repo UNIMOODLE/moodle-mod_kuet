@@ -2,7 +2,7 @@
     <div class="row">
         <div class="col-12 question-container">
             {{^endsession}}
-                <div class="question-heading bg-primary">
+                <div class="question-heading bg-primary {{#improvied}}d-none{{/improvied}}">
                     <span class="session-index">
                         <span class="question-text">{{#str}}question, mod_jqshow{{/str}}</span> {{ question_index_string }}
                     </span>
@@ -23,6 +23,38 @@
                         {{> mod_jqshow/questions/multichoice }}
                     {{/multichoice}}
 
+                    {{#truefalse}}
+                        {{> mod_jqshow/questions/truefalse }}
+                    {{/truefalse}}
+
+                    {{#match}}
+                        {{> mod_jqshow/questions/match }}
+                    {{/match}}
+
+                    {{#shortanswer}}
+                        {{> mod_jqshow/questions/shortanswer }}
+                    {{/shortanswer}}
+
+                    {{#numerical}}
+                        {{> mod_jqshow/questions/numerical }}
+                    {{/numerical}}
+
+                    {{#calculated}}
+                        {{> mod_jqshow/questions/calculated }}
+                    {{/calculated}}
+
+                    {{#description}}
+                        {{> mod_jqshow/questions/description }}
+                    {{/description}}
+
+                    {{#ddwtos}}
+                        {{> mod_jqshow/questions/ddwtos }}
+                    {{/ddwtos}}
+
+                    {{#cloudtags}}
+                        {{> mod_jqshow/questions/cloudtags }}
+                    {{/cloudtags}}
+
                     <!-- only for teachers -->
                     {{#raceresults}}
                         {{> mod_jqshow/session/raceresults }}
@@ -32,11 +64,22 @@
                         {{> mod_jqshow/session/manual/teachercontrolpanel }}
                     {{/isteacher}}
                 </div>
+                {{#description}}
+                    {{#programmedmode}}
+                        {{^preview}}
+                            <div class="btn btn-primary m-3 float-right" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
+                                {{#str}}next{{/str}}
+                            </div>
+                        {{/preview}}
+                    {{/programmedmode}}
+                    {{/description}}
                 {{#programmedmode}}
                     {{^preview}}
-                        <div class="btn btn-primary m-3 float-right d-none" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
-                            {{#str}}next{{/str}}
-                        </div>
+                        {{^description}}
+                            <div class="btn btn-primary m-3 float-right d-none" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
+                                {{#str}}next{{/str}}
+                            </div>
+                        {{/description}}
                     {{/preview}}
                 {{/programmedmode}}
             {{/endsession}}

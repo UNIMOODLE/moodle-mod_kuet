@@ -66,7 +66,6 @@ class getlistresults_external extends external_api {
         );
         $session = new jqshow_sessions($sid);
         if ($session->is_group_mode()) {
-            $groupmode = true;
             $groupresults = sessions::get_group_session_results($sid, $cmid);
             return ['groupmode' => true, 'groupresults' => $groupresults];
         }
@@ -100,7 +99,6 @@ class getlistresults_external extends external_api {
                     [
                         'groupname' => new external_value(PARAM_RAW, 'Name of group'),
                         'groupimageurl' => new external_value(PARAM_URL, 'Group Image'),
-                        'groupprofileurl' => new external_value(PARAM_URL, 'Group Profile'),
                         'correctanswers' => new external_value(PARAM_INT, 'Num of correct answers'),
                         'incorrectanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
                         'notanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),

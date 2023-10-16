@@ -24,9 +24,12 @@
  */
 
 use mod_jqshow\external\activesession_external;
+use mod_jqshow\external\calculated_external;
 use mod_jqshow\external\copysession_external;
+use mod_jqshow\external\ddwtos_external;
 use mod_jqshow\external\deleteresponses_external;
 use mod_jqshow\external\deletesession_external;
+use mod_jqshow\external\description_external;
 use mod_jqshow\external\finishsession_external;
 use mod_jqshow\external\firstquestion_external;
 use mod_jqshow\external\getactivesession_external;
@@ -41,8 +44,10 @@ use mod_jqshow\external\getsession_external;
 use mod_jqshow\external\getsessionresume_external;
 use mod_jqshow\external\getuserquestionresponse_external;
 use mod_jqshow\external\jumptoquestion_external;
+use mod_jqshow\external\match_external;
 use mod_jqshow\external\multichoice_external;
 use mod_jqshow\external\nextquestion_external;
+use mod_jqshow\external\numerical_external;
 use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
 use mod_jqshow\external\session_getallquestions_external;
@@ -53,7 +58,9 @@ use mod_jqshow\external\addquestions_external;
 use mod_jqshow\external\deletequestion_external;
 use mod_jqshow\external\copyquestion_external;
 use mod_jqshow\external\editsessionsettings_external;
+use mod_jqshow\external\shortanswer_external;
 use mod_jqshow\external\startsession_external;
+use mod_jqshow\external\truefalse_external;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -151,6 +158,62 @@ $functions = [
         'classname' => multichoice_external::class,
         'methodname' => 'multichoice',
         'description' => 'Multichoice reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_match' => [
+        'classname' => match_external::class,
+        'methodname' => 'match',
+        'description' => 'Match reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_truefalse' => [
+        'classname' => truefalse_external::class,
+        'methodname' => 'truefalse',
+        'description' => 'Truefalse reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_shortanswer' => [
+        'classname' => shortanswer_external::class,
+        'methodname' => 'shortanswer',
+        'description' => 'Shortanswer reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_numerical' => [
+        'classname' => numerical_external::class,
+        'methodname' => 'numerical',
+        'description' => 'Numerical reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_calculated' => [
+        'classname' => calculated_external::class,
+        'methodname' => 'calculated',
+        'description' => 'Calculated reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_description' => [
+        'classname' => description_external::class,
+        'methodname' => 'description',
+        'description' => 'Description reply.',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
+    ],
+    'mod_jqshow_ddwtos' => [
+        'classname' => ddwtos_external::class,
+        'methodname' => 'ddwtos',
+        'description' => 'Ddwtos reply.',
         'type' => 'write',
         'ajax' => true,
         'loginrequired' => true
@@ -347,6 +410,13 @@ $services = [
             'mod_jqshow_copyquestion',
             'mod_jqshow_editsessionsettings',
             'mod_jqshow_multichoice',
+            'mod_jqshow_match',
+            'mod_jqshow_truefalse',
+            'mod_jqshow_shortanswer',
+            'mod_jqshow_numerical',
+            'mod_jqshow_calculated',
+            'mod_jqshow_description',
+            'mod_jqshow_ddwtos',
             'mod_jqshow_nextquestion',
             'mod_jqshow_firstquestion',
             'mod_jqshow_getlistresults',

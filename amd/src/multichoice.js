@@ -4,6 +4,7 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
+import mEvent from 'core/event';
 
 let ACTION = {
     REPLY: '[data-action="multichoice-answer"]',
@@ -62,8 +63,9 @@ function MultiChoice(selector, showquestionfeedback = false, manualmode = false,
     manualMode = manualmode;
     questionEnd = false;
     if (jsonresponse !== '') {
-        this.answered(JSON.parse(jsonresponse));
+        this.answered(JSON.parse(atob(jsonresponse)));
         if (manualMode === false || jQuery('.modal-body').length) {
+            questionEnd = true;
             this.showAnswers();
             if (showQuestionFeedback === true) {
                 this.showFeedback();
@@ -82,54 +84,101 @@ MultiChoice.prototype.initMultichoice = function() {
     this.node.find(ACTION.REPLY).on('click', this.reply.bind(this));
     this.node.find(ACTION.MULTIANSWER).on('click', this.markAnswer.bind(this));
     this.node.find(ACTION.SENDMULTIANSWER).on('click', this.reply.bind(this));
-    let that = this;
-    addEventListener('timeFinish', () => {
-        this.reply();
-    }, {once: true});
-    addEventListener('teacherQuestionEnd_' + jqid, (e) => {
-        if (questionEnd !== true) {
-            this.reply();
-        }
-        e.detail.statistics.forEach((statistic) => {
-            jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
-        });
-    }, {once: true});
-    addEventListener('pauseQuestion_' + jqid, () => {
-        this.pauseQuestion();
-    }, false);
-    addEventListener('playQuestion_' + jqid, () => {
-        this.playQuestion();
-    }, false);
-    addEventListener('showAnswers_' + jqid, () => {
-        this.showAnswers();
-    }, false);
-    addEventListener('hideAnswers_' + jqid, () => {
-        this.hideAnswers();
-    }, false);
-    addEventListener('showStatistics_' + jqid, () => {
-        this.showStatistics();
-    }, false);
-    addEventListener('hideStatistics_' + jqid, () => {
-        this.hideStatistics();
-    }, false);
-    addEventListener('showFeedback_' + jqid, () => {
-        this.showFeedback();
-    }, false);
-    addEventListener('hideFeedback_' + jqid, () => {
-        this.hideFeedback();
-    }, false);
+    MultiChoice.prototype.initEvents();
+};
+
+MultiChoice.prototype.initEvents = function() {
+    addEventListener('timeFinish', MultiChoice.prototype.reply, {once: true});
+    if (manualMode !== false) {
+        addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                MultiChoice.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        addEventListener('pauseQuestion_' + jqid, () => {
+            MultiChoice.prototype.pauseQuestion();
+        }, false);
+        addEventListener('playQuestion_' + jqid, () => {
+            MultiChoice.prototype.playQuestion();
+        }, false);
+        addEventListener('showAnswers_' + jqid, () => {
+            MultiChoice.prototype.showAnswers();
+        }, false);
+        addEventListener('hideAnswers_' + jqid, () => {
+            MultiChoice.prototype.hideAnswers();
+        }, false);
+        addEventListener('showStatistics_' + jqid, () => {
+            MultiChoice.prototype.showStatistics();
+        }, false);
+        addEventListener('hideStatistics_' + jqid, () => {
+            MultiChoice.prototype.hideStatistics();
+        }, false);
+        addEventListener('showFeedback_' + jqid, () => {
+            MultiChoice.prototype.showFeedback();
+        }, false);
+        addEventListener('hideFeedback_' + jqid, () => {
+            MultiChoice.prototype.hideFeedback();
+        }, false);
+        addEventListener('removeEvents', () => {
+            MultiChoice.prototype.removeEvents();
+        }, {once: true});
+    }
+
     window.onbeforeunload = function() {
         if (jQuery(REGION.SECONDS).length > 0 && questionEnd === false) {
-            that.reply();
+            MultiChoice.prototype.reply();
             return 'Because the question is overdue and an attempt has been made to reload the page,' +
                 ' the question has remained unanswered.';
         }
     };
 };
 
+MultiChoice.prototype.removeEvents = function() {
+    removeEventListener('timeFinish', () => MultiChoice.prototype.reply, {once: true});
+    if (manualMode !== false) {
+        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+            if (questionEnd !== true) {
+                MultiChoice.prototype.reply();
+            }
+            e.detail.statistics.forEach((statistic) => {
+                jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
+            });
+        }, {once: true});
+        removeEventListener('pauseQuestion_' + jqid, () => {
+            MultiChoice.prototype.pauseQuestion();
+        }, false);
+        removeEventListener('playQuestion_' + jqid, () => {
+            MultiChoice.prototype.playQuestion();
+        }, false);
+        removeEventListener('showAnswers_' + jqid, () => {
+            MultiChoice.prototype.showAnswers();
+        }, false);
+        removeEventListener('hideAnswers_' + jqid, () => {
+            MultiChoice.prototype.hideAnswers();
+        }, false);
+        removeEventListener('showStatistics_' + jqid, () => {
+            MultiChoice.prototype.showStatistics();
+        }, false);
+        removeEventListener('hideStatistics_' + jqid, () => {
+            MultiChoice.prototype.hideStatistics();
+        }, false);
+        removeEventListener('showFeedback_' + jqid, () => {
+            MultiChoice.prototype.showFeedback();
+        }, false);
+        removeEventListener('hideFeedback_' + jqid, () => {
+            MultiChoice.prototype.hideFeedback();
+        }, false);
+        removeEventListener('removeEvents', () => {
+            MultiChoice.prototype.removeEvents();
+        }, {once: true});
+    }
+};
+
 MultiChoice.prototype.reply = function(e) {
     let answerIds = '0';
-    let that = this;
     let multiAnswer = e === undefined || jQuery(e.currentTarget).attr('data-action') === 'send-multianswer';
     if (!multiAnswer) {
         e.preventDefault();
@@ -143,13 +192,14 @@ MultiChoice.prototype.reply = function(e) {
         answerIds = responses.toString();
     }
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
-        that.node.append(html);
-        dispatchEvent(that.endTimer);
+        jQuery(REGION.ROOT).append(html);
+        dispatchEvent(MultiChoice.prototype.endTimer);
+        MultiChoice.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
             methodname: SERVICES.REPLY,
             args: {
-                answerids: answerIds,
+                answerids: answerIds === undefined ? '0' : answerIds,
                 sessionid: sId,
                 jqshowid: jqshowId,
                 cmid: cmId,
@@ -172,19 +222,19 @@ MultiChoice.prototype.reply = function(e) {
                     });
                     jQuery(ACTION.SENDMULTIANSWER).addClass('d-none');
                 }
-                that.answered(response);
+                MultiChoice.prototype.answered(response);
                 questionEnd = true;
-                dispatchEvent(that.studentQuestionEnd);
+                dispatchEvent(MultiChoice.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
-                    that.showAnswers();
+                    MultiChoice.prototype.showAnswers();
                     if (showQuestionFeedback === true) {
-                        that.showFeedback();
+                        MultiChoice.prototype.showFeedback();
                     }
                 } else {
                     if (manualMode === false) {
-                        that.showAnswers();
+                        MultiChoice.prototype.showAnswers();
                         if (showQuestionFeedback === true) {
-                            that.showFeedback();
+                            MultiChoice.prototype.showFeedback();
                         }
                     }
                 }
@@ -230,6 +280,7 @@ MultiChoice.prototype.answered = function(response) {
             jQuery('[data-answerid="' + statistic.answerids + '"] .numberofreplies').html(statistic.numberofreplies);
         });
     }
+    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
 };
 
 MultiChoice.prototype.pauseQuestion = function() {
@@ -240,10 +291,12 @@ MultiChoice.prototype.pauseQuestion = function() {
 };
 
 MultiChoice.prototype.playQuestion = function() {
-    dispatchEvent(new Event('playQuestion'));
-    jQuery(REGION.TIMER).css('z-index', 1);
-    jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
-    jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    if (questionEnd !== true) {
+        dispatchEvent(new Event('playQuestion'));
+        jQuery(REGION.TIMER).css('z-index', 1);
+        jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
+        jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    }
 };
 
 MultiChoice.prototype.showAnswers = function() {

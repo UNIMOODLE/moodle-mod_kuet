@@ -18,14 +18,22 @@ namespace mod_jqshow\api;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
+use mod_jqshow\models\calculated;
+use mod_jqshow\models\description;
+use mod_jqshow\models\matchquestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_grades;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_sessions_grades;
+use moodle_exception;
 
 /**
  *
@@ -73,7 +81,7 @@ class grade {
         }
         $defaultmarkrounded = round($defaultmark, 2);
         $markrounded = round($mark, 2);
-        if ($mark == 0) {
+        if ((int)$mark === 0) {
             $status = questions::FAILURE;
         } else if ($markrounded === $defaultmarkrounded) {
             $status = questions::SUCCESS;
@@ -88,35 +96,27 @@ class grade {
      * Get the answer mark without considering session mode.
      * @param jqshow_questions_responses $response
      * @return float
+     * @throws moodle_exception
      * @throws coding_exception
-     * @throws dml_exception
      */
     public static function get_simple_mark(jqshow_questions_responses $response) {
-        global $DB;
         $mark = 0;
-
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
-        if ($jquestion->get('ignorecorrectanswer')) {
+        if ($jquestion !== false && $jquestion->get('ignorecorrectanswer')) {
             return $mark;
         }
 
         // Get answer mark.
         $useranswer = $response->get('response');
         if (!empty($useranswer)) {
-            $useranswer = json_decode($useranswer);
-            $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $useranswer->{'questionid'}]);
-            $answerids = $useranswer->{'answerids'};
-            if (empty($answerids)) {
-                return $mark;
-            }
-            $answerids = explode(',', $answerids);
-            foreach ($answerids as $answerid) {
-                $fraction = $DB->get_field('question_answers', 'fraction', ['id' => $answerid]);
-                $mark += $defaultmark * $fraction;
+            $useranswer = json_decode(base64_decode($useranswer), false);
+            if (isset($useranswer->type)) {
+                /** @var questions $type */
+                $type = questions::get_question_class_by_string_type($useranswer->type);
+                $mark = $type::get_simple_mark($useranswer, $response);
             }
         }
-
         return $mark;
     }
 
@@ -167,12 +167,15 @@ class grade {
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
             $qtime = $jqquestion->get('timelimit'); // All the time that participants have had to answer the question.
-            $useranswer = $response->get('response');
+            $useranswer = base64_decode($response->get('response'));
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
                 $useranswer = json_decode($useranswer);
                 $timeleft = $useranswer->timeleft; // Time answering question.
-                $percent = ($qtime - $timeleft) * 100 / $qtime;
+                $percent = 0; // UNIMOOD-150.
+                if ($qtime > $timeleft) {
+                    $percent = ($qtime - $timeleft) * 100 / $qtime;
+                }
             }
             $mark += $usermark * $percent;
         }
@@ -204,7 +207,7 @@ class grade {
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
             $qtime = !$qtime ? $jqquestion->get('timelimit') : 40;
-            $useranswer = $response->get('response');
+            $useranswer = base64_decode($response->get('response'));
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
                 $useranswer = json_decode($useranswer);

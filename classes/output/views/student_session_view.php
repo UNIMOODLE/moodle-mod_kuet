@@ -28,16 +28,27 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
+use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\api\groupmode;
 use mod_jqshow\helpers\progress;
+use mod_jqshow\models\calculated;
+use mod_jqshow\models\ddwtos;
+use mod_jqshow\models\description;
+use mod_jqshow\models\matchquestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\models\sessions as sessionsmodel;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
+use ReflectionException;
 use renderable;
 use stdClass;
 use templatable;
@@ -50,14 +61,15 @@ class student_session_view implements renderable, templatable {
      * @param renderer_base $output
      * @return stdClass
      * @throws JsonException
-     * @throws dml_transaction_exception
+     * @throws ReflectionException
+     * @throws invalid_parameter_exception
      * @throws coding_exception
      * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        // TODO refactor duplicate code for teacher and student.
         global $USER, $PAGE;
         $cmid = required_param('cmid', PARAM_INT);
         $sid = required_param('sid', PARAM_INT);
@@ -76,10 +88,10 @@ class student_session_view implements renderable, templatable {
                     $USER->id, $session->get('id'), $session->get('jqshowid')
                 );
                 if ($progress !== false) {
-                    $progressdata = json_decode($progress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $progressdata = json_decode($progress->get('other'), false);
                     if (isset($progressdata->endSession)) {
                         // END SESSION, no more question.
-                        $data = questions::export_endsession(
+                        $data = sessions::export_endsession(
                             $cmid,
                             $sid);
                         $data->programmedmode = true;
@@ -93,12 +105,13 @@ class student_session_view implements renderable, templatable {
                     $newprogress = jqshow_user_progress::get_session_progress_for_user(
                         $USER->id, $session->get('id'), $session->get('jqshowid')
                     );
-                    $newprogressdata = json_decode($newprogress->get('other'), false, 512, JSON_THROW_ON_ERROR);
+                    $newprogressdata = json_decode($newprogress->get('other'), false);
                     $question = jqshow_questions::get_question_by_jqid($newprogressdata->currentquestion);
                 }
+
                 switch ($question->get('qtype')) {
-                    case 'multichoice':
-                        $data = questions::export_multichoice(
+                    case questions::MULTICHOICE:
+                        $data = multichoice::export_multichoice(
                             $question->get('id'),
                             $cmid,
                             $sid,
@@ -108,7 +121,105 @@ class student_session_view implements renderable, templatable {
                         );
                         if ($response !== false) {
                             $data->jqid = $question->get('id');
-                            $data = questions::export_multichoice_response($data, $response->get('response'));
+                            $data = multichoice::export_multichoice_response($data, base64_decode($response->get('response')));
+                        }
+                        break;
+                    case questions::MATCH:
+                        $data = matchquestion::export_match($question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data =
+                                matchquestion::export_match_response($data, base64_decode($response->get('response')), $response->get('result'));
+                        }
+                        break;
+                    case questions::TRUE_FALSE:
+                        $data = truefalse::export_truefalse(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = truefalse::export_truefalse_response($data, base64_decode($response->get('response')));
+                        }
+                        break;
+                    case questions::SHORTANSWER:
+                        $data = shortanswer::export_shortanswer(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = shortanswer::export_shortanswer_response($data, base64_decode($response->get('response')));
+                        }
+                        break;
+                    case questions::NUMERICAL:
+                        $data = numerical::export_numerical(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = numerical::export_numerical_response($data, base64_decode($response->get('response')));
+                        }
+                        break;
+                    case questions::CALCULATED:
+                        $data = calculated::export_calculated(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = calculated::export_calculated_response($data, base64_decode($response->get('response')));
+                        }
+                        break;
+                    case questions::DESCRIPTION:
+                        $data = description::export_description(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = description::export_description_response($data, base64_decode($response->get('response')));
+                        }
+                        break;
+                    case questions::DDWTOS:
+                        $data = ddwtos::export_ddwtos(
+                            $question->get('id'),
+                            $cmid,
+                            $sid,
+                            $question->get('jqshowid'));
+                        $response = jqshow_questions_responses::get_record(
+                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                        );
+                        if ($response !== false) {
+                            $data->jqid = $question->get('id');
+                            $data = ddwtos::export_ddwtos_response($data, base64_decode($response->get('response')));
                         }
                         break;
                     default:
@@ -120,6 +231,7 @@ class student_session_view implements renderable, templatable {
             case sessions::INACTIVE_MANUAL:
             case sessions::PODIUM_MANUAL:
             case sessions::RACE_MANUAL:
+                global $CFG;
                 // SOCKETS!
                 // Always start with waitingroom, and the socket will place you in the appropriate question if it has started.
                 $data = new stdClass();
@@ -128,14 +240,31 @@ class student_session_view implements renderable, templatable {
                 $data->jqshowid = $session->get('jqshowid');
                 $data->userid = $USER->id;
                 $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
-                $userpicture = new user_picture($USER);
-                $userpicture->size = 1;
-                $data->userimage = $userpicture->get_url($PAGE)->out(false);
+
                 $data->manualmode = true;
                 $data->waitingroom = true;
                 $data->config = sessions::get_session_config($data->sid, $data->cmid);
                 $data->sessionname = $data->config[0]['configvalue'];
-                $data->port = get_config('jqshow', 'port') !== false ? get_config('jqshow', 'port') : '8080';
+                $typesocket = get_config('jqshow', 'sockettype');
+                if ($typesocket === 'local') {
+                    $data->socketurl = $CFG->wwwroot;
+                    $data->port = get_config('jqshow', 'localport') !== false ? get_config('jqshow', 'localport') : '8080';
+                }
+                if ($typesocket === 'external') {
+                    $data->socketurl = get_config('jqshow', 'externalurl');
+                    $data->port = get_config('jqshow', 'externalport') !== false ? get_config('jqshow', 'externalport') : '8080';
+                }
+                if ($session->is_group_mode()) {
+                    $data->isgroupmode = true;
+                    $group = groupmode::get_user_group($data->userid, $session->get('groupings'));
+                    $data->groupimage = groupmode::get_group_image($group, $sid, 1);
+                    $data->groupname = $group->name;
+                    $data->groupid = $group->id;
+                } else {
+                    $userpicture = new user_picture($USER);
+                    $userpicture->size = 1;
+                    $data->userimage = $userpicture->get_url($PAGE)->out(false);
+                }
                 break;
             default:
                 throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',

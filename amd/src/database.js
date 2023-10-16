@@ -18,16 +18,12 @@ Db.prototype.openDb = function() {
     let req = indexedDB.open(dbName, dbVersion);
     req.onsuccess = function(evt) {
         indexedDb = evt.target.result;
-        // eslint-disable-next-line no-console
-        console.log("db open");
     };
     req.onerror = function(event) {
         // eslint-disable-next-line no-console
         console.error(`Database error: ${event.target.errorCode}`);
     };
     req.onupgradeneeded = function(evt) {
-        // eslint-disable-next-line no-console
-        console.log("openDb.onupgradeneeded");
         // We create the database with the necessary objects and indexes.
         let questions = evt.currentTarget.result.createObjectStore(
             'questions', {keyPath: 'jqid'});

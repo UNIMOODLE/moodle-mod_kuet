@@ -36,7 +36,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\helpers\responses;
+use mod_jqshow\models\multichoice;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -103,37 +103,43 @@ class multichoice_external extends external_api {
                 'preview' => $preview
             ]
         );
+
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
 
         $question = question_bank::load_question($questionid);
         $statmentfeedback = questions::get_text(
-            $cmid, $question->generalfeedback, 1, $question->id, $question, 'generalfeedback'
+            $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
         );
         $correctanswers = '';
         $answerfeedback = '';
+        $answertexts = [];
         foreach ($question->answers as $key => $answer) {
+            $answertexts[$answer->id] = $answer->answer;
             if ($answer->fraction !== '0.0000000' && strpos($answer->fraction, '-') !== 0) {
                 $correctanswers .= $answer->id . ',';
-                // TODO obtain the value of the answer to score the question.
             }
             if (isset($answerids) && $answerids !== '' && $answerids !== '0') {
                 $arrayanswers = explode(',', $answerids);
                 foreach ($arrayanswers as $arrayanswer) {
                     if ((int)$key === (int)$arrayanswer && $answerfeedback === '') {
+                        $answertexts[$answer->id] = strip_tags($answer->answer);
                         $answerfeedback .= questions::get_text(
                             $cmid, $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
                         ) . '<br>';
+                    } else if ((int)$key === (int)$arrayanswer) {
+                        $answertexts[$answer->id] = strip_tags($answer->answer); // TODO pass to base64 to avoid json errors.
                     }
                 }
             }
         }
+        $answertexts = json_encode($answertexts, JSON_THROW_ON_ERROR);
         $correctanswers = trim($correctanswers, ',');
-
         if ($preview === false) {
-            responses::multichoice_response(
+            multichoice::multichoice_response(
                 $jqid,
                 $answerids,
+                $answertexts,
                 $correctanswers,
                 $questionid,
                 $sessionid,

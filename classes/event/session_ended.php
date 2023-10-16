@@ -27,6 +27,7 @@
 namespace mod_jqshow\event;
 
 use coding_exception;
+use context_module;
 use moodle_exception;
 use moodle_url;
 
@@ -70,17 +71,17 @@ class session_ended extends \core\event\base {
      * @throws moodle_exception
      */
     public function get_url() {
-        $cmcontext = \context_module::instance($this->contextinstanceid);
+        $cmcontext = context_module::instance($this->contextinstanceid);
         return new moodle_url('mod/jqshow/sessions.php', ['sid' => $this->objectid,
             'cmid' => $cmcontext->instanceid]);
     }
 
-    // TODO: Revisar cuando hagamos backup/restore.
+    // TODO: Check when doing backup/restore.
     /**
      * Used for maping events on restore
      * @return array
      */
     public static function get_objectid_mapping() {
-        return array('db' => 'jqshow_sessions', 'restore' => 'jqshow_sessions');
+        return ['db' => 'jqshow_sessions', 'restore' => 'jqshow_sessions'];
     }
 }

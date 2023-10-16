@@ -6,6 +6,10 @@
     data-sid="{{sid}}"
     data-userimage="{{userimage}}"
     data-jqshowid="{{jqshowid}}"
+    data-groupmode="{{isgroupmode}}"
+    data-groupid="{{groupid}}"
+    data-groupimage="{{groupimage}}"
+    data-groupname="{{groupname}}"
 >
     <div class="row content-header">
         <div class="more-info-session col-12">
@@ -29,14 +33,22 @@
         {{> mod_jqshow/session/manual/waitingroom/student }}
     {{/waitingroom}}
 
-
     <div id="message-box"></div>
     <div id="student_messages"></div>
+</div>
+<div class="d-none student-improvising" data-region="student-improvise">
+    <div class="improvising-image">
+        {{#pix}}f/not_session, mod_jqshow{{/pix}}
+    </div>
+    <div class="improvising-text">
+        <h2>{{#str}}waitteacher, mod_jqshow{{/str}}</h2>
+        <p>{{#str}}teacherimprovising, mod_jqshow{{/str}}</p>
+    </div>
 </div>
 
 {{#js}}
     require(['mod_jqshow/studentsockets'], function(Sockets) {
-        Sockets.studentInitSockets('[data-region="student-canvas"]', {{port}});
+        Sockets.studentInitSockets('[data-region="student-canvas"]', '{{socketurl}}', {{port}});
         /*window.onbeforeunload = function(e) {
             // TODO review.
             e.returnValue = confirm(

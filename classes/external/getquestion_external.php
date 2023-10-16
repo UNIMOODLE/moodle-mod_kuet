@@ -27,6 +27,7 @@ namespace mod_jqshow\external;
 
 use coding_exception;
 use context_module;
+use dml_exception;
 use dml_transaction_exception;
 use external_api;
 use external_function_parameters;
@@ -34,11 +35,21 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
+use mod_jqshow\exporter\question_exporter;
+use mod_jqshow\models\calculated;
+use mod_jqshow\models\ddwtos;
+use mod_jqshow\models\description;
+use mod_jqshow\models\matchquestion;
+use mod_jqshow\models\multichoice;
+use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
+use mod_jqshow\models\shortanswer;
+use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
+use ReflectionException;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -65,8 +76,10 @@ class getquestion_external extends external_api {
      * @param int $jqid
      * @return array
      * @throws JsonException
-     * @throws dml_transaction_exception
+     * @throws ReflectionException
+     * @throws dml_exception
      * @throws coding_exception
+     * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
@@ -79,9 +92,30 @@ class getquestion_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $session = new jqshow_sessions($sessionid);
-        switch ((new jqshow_questions($jqid))->get('qtype')){
-            case 'multichoice':
-                $question = questions::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+        switch ((new jqshow_questions($jqid))->get('qtype')) {
+            case questions::MULTICHOICE:
+                $question = multichoice::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                break;
+            case questions::MATCH:
+                $question = matchquestion::export_match($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                break;
+            case questions::TRUE_FALSE:
+                $question = truefalse::export_truefalse($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                break;
+            case questions::SHORTANSWER:
+                $question = shortanswer::export_shortanswer($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                break;
+            case questions::NUMERICAL:
+                $question = numerical::export_numerical($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                break;
+            case questions::CALCULATED:
+                $question = calculated::export_calculated($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                break;
+            case questions::DESCRIPTION:
+                $question = description::export_description($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+                break;
+            case questions::DDWTOS:
+                $question = ddwtos::export_ddwtos($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
                 break;
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
