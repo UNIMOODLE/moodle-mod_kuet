@@ -96,6 +96,7 @@ class calculated extends questions {
         $data->name = $question->name;
         $data->unitsleft = isset($question->unitdisplay) && $question->unitdisplay === 1;
         $data->questiontext = $question->questiontext;
+        $data->variant = $question->variant;
         if (isset($question->ap) && assert($question->ap instanceof qtype_numerical_answer_processor)) {
             $data->units = [];
             $reflection = new ReflectionClass($question->ap);
@@ -159,9 +160,9 @@ class calculated extends questions {
             }
         }
         $data->answered = true;
-        // TODO review jmtz
         $dataanswer = calculated_external::calculated(
             $responsedata->response,
+            $responsedata->variant,
             $responsedata->unit,
             $responsedata->multiplier,
             $data->sessionid,
@@ -172,6 +173,10 @@ class calculated extends questions {
             $responsedata->timeleft,
             true
         );
+        $jqshowquestion = jqshow_questions::get_record(['id' => $data->jqid]);
+        $question = question_bank::load_question($jqshowquestion->get('questionid'));
+        self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $responsedata->variant);
+        $data->questiontext = $question->questiontext;
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $data->calculatedresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
@@ -331,6 +336,7 @@ class calculated extends questions {
     /**
      * @param int $jqid
      * @param string $responsetext
+     * @param int $variant
      * @param string $unit
      * @param string $multiplier
      * @param int $result
@@ -343,13 +349,14 @@ class calculated extends questions {
      * @param int $timeleft
      * @return void
      * @throws JsonException
-     * @throws moodle_exception
      * @throws coding_exception
      * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public static function calculated_response(
         int $jqid,
         string $responsetext,
+        int $variant,
         string $unit,
         string $multiplier,
         int $result,
@@ -373,6 +380,7 @@ class calculated extends questions {
             $response->response = $responsetext; // TODO validate html and special characters.
             $response->unit = $unit;
             $response->multiplier = $multiplier;
+            $response->variant = $variant;
             if ($session->is_group_mode()) {
                 parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
@@ -412,10 +420,12 @@ class calculated extends questions {
         }
         return $mark;
     }
+
     /**
      * @param question_definition $question
      * @param jqshow_questions_responses[] $responses
      * @return array
+     * @throws coding_exception
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];
@@ -437,7 +447,6 @@ class calculated extends questions {
         }
         $statistics[0]['correct'] = $correct * 100 / $total;
         $statistics[0]['failure'] = $incorrect  * 100 / $total;
-//        $statistics[0]['invalid'] = $invalid  * 100 / $total;
         $statistics[0]['partially'] = $partially  * 100 / $total;
         $statistics[0]['noresponse'] = $noresponse  * 100 / $total;
         return $statistics;
