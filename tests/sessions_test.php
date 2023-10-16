@@ -31,9 +31,12 @@ class sessions_test extends advanced_testcase {
 
     public array $sessionmock = [
         'name' => 'Session Test',
+        'jqshowid' => 0,
         'anonymousanswer' => 0,
         'sessionmode' => sessions::PODIUM_MANUAL,
+        'sgrade' => 0,
         'countdown' => 0,
+        'showgraderanking' => 0,
         'randomquestions' => 0,
         'randomanswers' => 0,
         'showfeedback' => 0,
@@ -41,8 +44,10 @@ class sessions_test extends advanced_testcase {
         'startdate' => 1680534000,
         'enddate' => 1683133200,
         'automaticstart' => 0,
-        'timelimit' => 0,
-        'groupmode' => 0,
+        'timemode' => 0,
+        'sessiontime' => 0,
+        'questiontime' => 10,
+        'groupings' => 0,
         'status' => 1,
         'sessionid' => 0,
         'submitbutton' => 0,
@@ -55,14 +60,16 @@ class sessions_test extends advanced_testcase {
      * @throws invalid_persistent_exception
      * @throws coding_exception
      */
-    public function test_save_session(): bool {
+    public function test_save_session(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
+
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
         $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
-        return true;
+        $this->assertIsInt($createdsid);
+        $this->assertNotFalse($createdsid);
     }
 
     /**
@@ -77,7 +84,7 @@ class sessions_test extends advanced_testcase {
         $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
-        $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
+        $generator->create_session($jqshow, (object) $this->sessionmock);
         $this->sessions = new sessions($jqshow, $jqshow->cmid);
         $list = $this->sessions->get_list();
         $list[0]::delete_session($list[0]->get('id'));
@@ -133,5 +140,45 @@ class sessions_test extends advanced_testcase {
         $this->assertSame((int)$jqshow->id, (int)$list[0]->get('jqshowid'));
         $session = new jqshow_sessions($list[0]->get('id'));
         $this->assertObjectEquals($session, $list[0]);
+    }
+    public function test_breakdown_responses_for_race() {
+        //TODO.
+    }
+    public function test_breakdown_responses_for_race_groups() {
+        //TODO.
+    }
+    public function test_get_provisional_ranking() {
+        $this->resetAfterTest(true);
+        // Create session.
+        $course = self::getDataGenerator()->create_course();
+        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $student1 = self::getDataGenerator()->create_and_enrol($course);
+        $student2 = self::getDataGenerator()->create_and_enrol($course);
+        $student3 = self::getDataGenerator()->create_and_enrol($course);
+        $student4 = self::getDataGenerator()->create_and_enrol($course);
+    }
+    public function test_get_provisional_ranking_individual() {
+        //TODO.
+    }
+    public function test_get_provisional_ranking_group() {
+        //TODO.
+    }
+    public function test_get_final_ranking() {
+        //TODO.
+    }
+    public function test_export_endsession() {
+        $this->resetAfterTest(true);
+        // Create session.
+        $course = self::getDataGenerator()->create_course();
+        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
+
+        $data = sessions::export_endsession($jqshow->cmid, $createdsid);
+        $this->assertIsObject($data);
+        $this->assertObjectHasAttribute('endsession', $data);
+        $this->assertSame($data->endsession, true);
     }
 }
