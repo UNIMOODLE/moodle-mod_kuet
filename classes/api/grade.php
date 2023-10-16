@@ -103,7 +103,7 @@ class grade {
         $mark = 0;
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
-        if ($jquestion->get('ignorecorrectanswer')) {
+        if ($jquestion !== false && $jquestion->get('ignorecorrectanswer')) {
             return $mark;
         }
 

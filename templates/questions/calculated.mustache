@@ -15,7 +15,7 @@
             {{/hastime}}
         </div>
         <div class="col-12 contain-statement" data-region="statement-text">
-            <div class="statement-text" data-correctanswer="">
+            <div class="statement-text" data-correctanswer="" data-variant="{{variant}}">
                 {{{ questiontext }}}
             </div>
         </div>
@@ -52,6 +52,7 @@
                         data-initial-value="{{calculatedresponse}}"
                         value="{{calculatedresponse}}"
                         pattern="[0-9]"
+                        data-variant="{{variant}}"
                 >
                 {{#unitdisplay}}
                     {{^unitsleft}}
