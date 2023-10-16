@@ -159,6 +159,9 @@ class calculated extends questions {
                 }
             }
         }
+        if (!isset($responsedata->variant)) {
+            $responsedata->variant = 0;
+        }
         $data->answered = true;
         $dataanswer = calculated_external::calculated(
             $responsedata->response,
