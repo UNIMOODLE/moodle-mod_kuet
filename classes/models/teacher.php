@@ -98,7 +98,7 @@ class teacher extends user {
      * @return array
      */
     private function get_sessions_conflicts(array $sessions): array {
-        $timestamps = [];// Avoid a notice.
+        $timestamps = [];
         foreach ($sessions as $key => $session) {
             $timestamps[$key] = $session->startdate ?? 0;
         }
