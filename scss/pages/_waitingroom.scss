@@ -17,6 +17,7 @@ body#page-mod-jqshow-view {
                 align-items: center;
                 width: 50%;
                 padding: 18px;
+                margin-right: 1em;
                 box-shadow: 0 0 10px rgba(0, 0, 0, .06);
                 .sessionname-text {
                     display: flex;
@@ -39,7 +40,6 @@ body#page-mod-jqshow-view {
                 justify-content: flex-start;
                 align-items: center;
                 width: 50%;
-                border-left: 1px solid #edebf4;
                 padding: 18px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, .06);
                 .countusers {

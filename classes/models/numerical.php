@@ -428,11 +428,10 @@ class numerical extends questions {
                 case questions::NORESPONSE: $noresponse++; break;
             }
         }
-        $statistics[0]['correct'] = $correct * 100 / $total;
-        $statistics[0]['failure'] = $incorrect  * 100 / $total;
-//        $statistics[0]['invalid'] = $invalid  * 100 / $total;
-        $statistics[0]['partially'] = $partially  * 100 / $total;
-        $statistics[0]['noresponse'] = $noresponse  * 100 / $total;
+        $statistics[0]['correct'] = $correct !== 0 ? $correct * 100 / $total : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? $incorrect  * 100 / $total : 0;
+        $statistics[0]['partially'] = $partially !== 0 ? $partially  * 100 / $total : 0;
+        $statistics[0]['noresponse'] = $noresponse !== 0 ? $noresponse  * 100 / $total : 0;
         return $statistics;
     }
 }

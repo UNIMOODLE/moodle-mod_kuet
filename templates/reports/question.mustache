@@ -3,10 +3,10 @@
     <div class="row">
         <div class="col-8 col-lg-8 container">
             <div class="question">
-                <h5 class="titlecontainer bg-primary">
+                <h6 class="titlecontainer bg-primary">
                     {{#pix}} i/questions_list, mod_jqshow {{/pix}}
                     {{#str}}question, mod_jqshow{{/str}}: {{position}} ({{type}})
-                </h5>
+                </h6>
                 <div class="question-data" data-region="question-data">
                     <div class="question-data-body">
                         {{{questiontext}}}
@@ -28,9 +28,9 @@
         </div>
         <div class="col-4 col-lg-4 container">
             <div class="question-info">
-                <h5 class="titlecontainer bg-primary">
+                <h6 class="titlecontainer bg-primary">
                     {{#str}}student_number, mod_jqshow{{/str}}: {{numusers}}
-                </h5>
+                </h6>
                 <div class="question-info-data" data-region="question-info-data">
                     <div class="question-data-body">
                         <div class="alert alert-success mb-1" role="alert">
@@ -55,10 +55,10 @@
         <div class="row">
         <div class="col-12 col-lg-12 container">
             <div class="answers">
-                <h5 class="titlecontainer bg-primary">
+                <h6 class="titlecontainer bg-primary">
                     {{#pix}} i/questions_list, mod_jqshow {{/pix}}
                     {{#str}}responses, mod_jqshow{{/str}}: {{position}} ({{type}})
-                </h5>
+                </h6>
                 <div class="answers-data" data-region="answers-data">
                     <div class="answers-data-body">
                         {{#answers}}
@@ -99,10 +99,10 @@
     {{#hasranking}}
         <div class="col-12 col-lg-12 container">
             <div class="ranking-list">
-                <h5 class="titlecontainer bg-primary">
+                <h6 class="titlecontainer bg-primary">
                     {{#pix}} i/vote, mod_jqshow {{/pix}}
                     {{#str}}ranking, mod_jqshow{{/str}}
-                </h5>
+                </h6>
                 <div class="ranking-users" data-region="ranking-users">
                     <div class="ranking-users-body d-table list-group" data-region="ranking_users">
                         <div class="d-table-row ranking-users-thead">

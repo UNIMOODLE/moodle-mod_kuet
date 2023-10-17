@@ -144,7 +144,7 @@ class sessions {
             ];
         }
         $timemode = [
-//            self::NO_TIME => get_string('no_time', 'mod_jqshow'), // TODO enable for inactive.
+            self::NO_TIME => get_string('no_time', 'mod_jqshow'), // TODO enable for inactive.
             self::SESSION_TIME => get_string('session_time', 'mod_jqshow'),
             self::QUESTION_TIME => get_string('question_time', 'mod_jqshow'),
         ];

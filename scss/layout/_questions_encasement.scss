@@ -9,11 +9,11 @@
             flex-flow: row nowrap;
             justify-content: space-between;
             align-items: center;
-            padding: 30px;
+            padding: 20px;
             border-radius: 25px 25px 0 0;
             .session-index {
                 color: white;
-                font-size: 24px;
+                font-size: 20px;
                 font-weight: bold;
                 white-space: nowrap;
             }
@@ -22,7 +22,7 @@
                 margin: 0 1.5em;
                 .session-progress {
                     .progress-bar {
-                        background-color: #FFC657;
+                        background-color: #ffc657;
                     }
                 }
             }

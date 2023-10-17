@@ -44,7 +44,7 @@ body#page-mod-jqshow-reports.jqshow-reports {
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
         background-color: white;
         .sessions-list-header {
-            padding: 20px;
+            padding: 10px 20px;
             display: flex;
             flex-flow: row nowrap;
             justify-content: space-between;
@@ -57,7 +57,7 @@ body#page-mod-jqshow-reports.jqshow-reports {
                 justify-content: flex-start;
                 align-items: center;
                 color: white;
-                h5 {
+                h6 {
                     margin-bottom: 0;
                 }
             }

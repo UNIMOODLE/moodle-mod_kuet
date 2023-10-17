@@ -37,9 +37,13 @@ body.path-mod-jqshow.fullscreen { // TODO there are some bugs outside the previe
     #page {
         margin-top: 0;
         padding: 0;
+        height: 100vh;
         #topofscroll {
             margin: 0 !important;
             padding: 0 !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     }
     #page-footer {

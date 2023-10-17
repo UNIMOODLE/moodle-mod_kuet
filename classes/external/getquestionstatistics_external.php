@@ -80,6 +80,7 @@ class getquestionstatistics_external extends external_api {
         $statistics = [];
         $session = new jqshow_sessions($sid);
         $responses = jqshow_questions_responses::get_question_responses($sid, $jqshowquestion->get('jqshowid'), $jqid);
+
         if ($session->is_group_mode()) {
             $members = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
             $groupresponses = [];
@@ -90,15 +91,14 @@ class getquestionstatistics_external extends external_api {
             }
             $responses = $groupresponses;
         }
+
         try {
             /** @var questions $type */
             $type = questions::get_question_class_by_string_type($jqshowquestion->get('qtype'));
             $statistics = $type::get_question_statistics($question, $responses);
         } catch(moodle_exception $exception) {
-            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                [], get_string('question_nosuitable', 'mod_jqshow'));
+            return ['statistics' => $statistics];
         }
-
         return ['statistics' => $statistics];
     }
 
