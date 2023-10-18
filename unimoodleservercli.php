@@ -144,7 +144,7 @@ class unimoodleservercli extends websockets {
                     'usersocketid' => $user->usersocketid,
                     'groupid' => $groupid,
                     'message' =>
-                        '<span style="color: red">' . get_string('groupdisconnected', 'mod_jqshow', $groupname) . '</span>',
+                        '<span style="color: red">' . $groupname . ' disconnected </span>',
                     'count' => $numgroups
                 ], JSON_THROW_ON_ERROR)));
             if (isset($this->sidusers[$user->sid])) {
@@ -159,7 +159,7 @@ class unimoodleservercli extends websockets {
                     'usersocketid' => $user->usersocketid,
                     'groupid' => $groupid,
                     'message' =>
-                        '<span style="color: red">' . get_string('groupmemberdisconnected', 'mod_jqshow', $user->dataname) . '</span>',
+                        '<span style="color: red"> Group member ' . $user->dataname . ' has been disconnected. </span>',
                     'count' => $numusers
                 ], JSON_THROW_ON_ERROR)));
             if (isset($this->sidusers[$user->sid])) {
