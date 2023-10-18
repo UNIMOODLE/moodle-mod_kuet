@@ -17,6 +17,7 @@ class unimoodleservercli extends websockets {
     protected $teacher = [];
     protected $sidusers = [];
     protected $sidgroups = [];
+    protected $sidgroupusers = [];
     protected $password = 'elktkktagqes';
 
     /**
@@ -109,7 +110,65 @@ class unimoodleservercli extends websockets {
         fwrite($user->socket, $response, strlen($response));
         $this->connecting($user);
     }
-
+    /**
+     * @param $user
+     * @return void
+     * @throws JsonException
+     * @throws coding_exception
+     */
+    protected function close_groupmember($user) {
+        $groupmemberdisconected = false;
+        $groupdisconected = false;
+        $groupid = 0;
+        $groupname = '';
+        $numgroups = 0;
+        if (array_key_exists($user->usersocketid, $this->sidgroupusers)) {
+            $groupmemberdisconected = true;
+            $groupid = $this->sidgroupusers[$user->usersocketid];
+            $groupname = $this->sidgroups[$user->sid][$groupid]->groupname;
+            $numusers = count($this->sidgroups[$user->sid][$groupid]->users);
+            $numgroups = count($this->sidgroups[$user->sid]);
+            unset($this->sidgroups[$user->sid][$groupid]->users[$user->usersocketid]);
+            unset($this->sidgroupusers[$user->usersocketid]);
+            $numusers = $numusers - 1 ;
+            if ($numusers == 0) {
+                unset($this->sidgroups[$user->sid][$groupid]);
+                $numgroups = $numgroups - 1;
+                $groupdisconected = true;
+            }
+        }
+        if ($groupdisconected) {
+            $groupresponse = $this->mask(
+                encrypt($this->password, json_encode([
+                    'action' => 'groupdisconnected',
+                    'usersocketid' => $user->usersocketid,
+                    'groupid' => $groupid,
+                    'message' =>
+                        '<span style="color: red">' . get_string('groupdisconnected', 'mod_jqshow', $groupname) . '</span>',
+                    'count' => $numgroups
+                ], JSON_THROW_ON_ERROR)));
+            if (isset($this->sidusers[$user->sid])) {
+                foreach ($this->sidusers[$user->sid] as $usersaved) {
+                    fwrite($usersaved->socket, $groupresponse, strlen($groupresponse));
+                }
+            }
+        } else if ($groupmemberdisconected) {
+            $groupresponse = $this->mask(
+                encrypt($this->password, json_encode([
+                    'action' => 'groupmemberdisconnected',
+                    'usersocketid' => $user->usersocketid,
+                    'groupid' => $groupid,
+                    'message' =>
+                        '<span style="color: red">' . get_string('groupmemberdisconnected', 'mod_jqshow', $user->dataname) . '</span>',
+                    'count' => $numusers
+                ], JSON_THROW_ON_ERROR)));
+            if (isset($this->sidusers[$user->sid])) {
+                foreach ($this->sidusers[$user->sid] as $usersaved) {
+                    fwrite($usersaved->socket, $groupresponse, strlen($groupresponse));
+                }
+            }
+        }
+    }
     /**
      * @param $user
      * @return void
@@ -119,6 +178,8 @@ class unimoodleservercli extends websockets {
     protected function closed($user) {
         unset($this->sidusers[$user->sid][$user->usersocketid],
             $this->students[$user->sid][$user->usersocketid]);
+        // Group mode.
+        $this->close_groupmember($user);
         $response = $this->mask(
             encrypt($this->password, json_encode([
                 'action' => 'userdisconnected',
@@ -193,6 +254,9 @@ class unimoodleservercli extends websockets {
      */
     protected function get_groupid_from_a_member(int $sid, int $userid) : int {
         $groupid = 0;
+        if (!array_key_exists($sid, $this->sidgroups)) {
+            return $groupid;
+        }
         foreach ($this->sidgroups[$sid] as $sidgroup) {
             foreach ($sidgroup->users as $member) {
                 if ($member->userid == $userid) {
@@ -434,6 +498,7 @@ class unimoodleservercli extends websockets {
             $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid] = new stdClass();
             $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
             $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->userid = $data['userid'];
+            $this->sidgroupusers[$data['usersocketid']] = $data['groupid'];
         }
     }
 

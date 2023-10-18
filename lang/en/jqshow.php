@@ -397,3 +397,5 @@ $string['reportlink'] = 'Report Link';
 $string['questionid'] = 'Id';
 $string['isevaluable'] = 'Is evaluable?';
 $string['alreadyanswered'] = 'A member of your group has already answered!';
+$string['groupdisconnected'] = 'Group {$a} has been disconnected';
+$string['groupmemberdisconnected'] = 'This group member {$a} has been disconnected';
