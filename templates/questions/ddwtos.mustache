@@ -19,6 +19,11 @@
                 {{{ questiontext }}}
             </div>
         </div>
+        <div class="col-12 hidden contain-group-message" data-region="group-message">
+            <div class="text">
+                {{#str}} alreadyanswered, mod_jqshow {{/str}}
+            </div>
+        </div>
         {{^answered}}
             <div class="btn btn-primary ml-auto mt-3" data-action="send-response">
                 {{#str}}send_response, mod_jqshow{{/str}}

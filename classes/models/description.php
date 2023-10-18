@@ -170,7 +170,11 @@ class description extends questions {
         jqshow_questions $question): stdClass {
         $participant->response = 'noevaluable';
         $participant->responsestr = get_string('noevaluable', 'mod_jqshow');
-        $participant->userpoints = 0;
+        if ($session->is_group_mode()) {
+            $participant->grouppoints = 0;
+        } else {
+            $participant->userpoints = 0;
+        }
         $participant->score_moment = 0;
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;

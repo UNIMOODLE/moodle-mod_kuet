@@ -750,7 +750,9 @@ class reports {
         $data->groupreport = true;
         $data->sessionname = $session->get('name');
         $gmembers = groupmode::get_group_members($groupid);
-        $gmember = reset($gmembers);
+        if (!empty($gmembers)) {
+            $gmember = reset($gmembers);
+        }
         $groupdata = groups_get_group($groupid);
         $data = self::add_groupdata($groupdata, $data);
         $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);

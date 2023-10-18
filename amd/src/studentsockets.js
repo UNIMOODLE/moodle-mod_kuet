@@ -85,7 +85,7 @@ let sid = null;
 let jqshowid = null;
 let currentCuestionJqid = null;
 let groupid = 0;
-let groupmode = 0;
+let groupmode = '';
 let groupimage = null;
 let groupname = null;
 // Flags for improvised flow.
@@ -104,7 +104,7 @@ Sockets.prototype.initSockets = function() {
     messageBox = this.root.find(REGION.MESSAGEBOX);
     countusers = this.root.find(REGION.COUNTUSERS);
     groupmode = this.root[0].dataset.groupmode;
-    if (groupmode != '0') {
+    if (groupmode == '1') {
         groupimage = this.root[0].dataset.groupimage;
         groupid = parseInt(this.root[0].dataset.groupid);
         groupname = this.root[0].dataset.groupname;
@@ -122,6 +122,11 @@ Sockets.prototype.initSockets = function() {
         let response = JSON.parse(msgDecrypt); // PHP sends Json data.
         let resAction = response.action; // Message type.
         switch (resAction) {
+            case 'alreadyAnswered':
+                if (groupmode == '1') {
+                    dispatchEvent(new CustomEvent('alreadyAnswered_' + response.jqid, {detail: { userid : response.userid }}));
+                }
+                break;
             case 'connect':
                 // The server has returned the connected status, it is time to identify yourself.
                 if (response.usersocketid !== undefined) {
@@ -135,7 +140,7 @@ Sockets.prototype.initSockets = function() {
                         'usersocketid': usersocketid,
                         'action': 'newuser',
                     };
-                    if (groupmode) {
+                    if (groupmode == '1') {
                         msg.action = 'newgroup';
                         msg.name = groupname;
                         msg.pic = groupimage;
@@ -165,7 +170,7 @@ Sockets.prototype.initSockets = function() {
                 let participantshtml = jQuery(REGION.USERLIST);
                 let grouplist = response.groups;
                 participantshtml.html('');
-                jQuery.each(grouplist, function (i, group) {
+                jQuery.each(grouplist, function(i, group) {
                     let templateContext = {
                         'usersocketid': group.usersocketid,
                         'groupimage': group.picture,
@@ -336,8 +341,20 @@ Sockets.prototype.initSockets = function() {
                 }));
                 break;
             case 'userdisconnected':
-                jQuery('[data-userid="' + response.usersocketid + '"]').remove();
+                if (groupmode != '1') {
+                    jQuery('[data-userid="' + response.usersocketid + '"]').remove();
+                    countusers.html(response.count);
+                }
+                break;
+            case 'groupdisconnected':
+                jQuery('[data-groupid="' + response.groupid + '"]').remove();
                 countusers.html(response.count);
+                messageBox.append('<div>' + response.message + '</div>');
+                break;
+            case 'groupmemberdisconnected':
+                jQuery('.participants').find('[data-groupid="' + response.groupid + '"]')
+                    .find('.numgroupusers').html('(' + response.count + ')');
+                messageBox.append('<div>' + response.message + '</div>');
                 break;
             default:
                 break;
@@ -394,6 +411,19 @@ Sockets.prototype.initListeners = function() {
             'action': 'studentQuestionEnd',
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        if (groupmode == '1') {
+            let msg2 = {
+                'userid': userid,
+                'sid': sid,
+                'usersocketid': usersocketid,
+                'jqid': currentCuestionJqid,
+                'ofg': true,
+                'action': 'alreadyAnswered',
+            };
+            setTimeout(function() {
+                Sockets.prototype.sendMessageSocket(JSON.stringify(msg2));
+            }, 300);
+        }
     }, false);
 };
 

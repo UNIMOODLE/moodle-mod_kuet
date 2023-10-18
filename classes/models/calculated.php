@@ -406,16 +406,15 @@ class calculated extends questions {
      * @throws moodle_exception
      */
     public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
-        global $DB;
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
         $jqshow = new jqshow($response->get('jqshow'));
         [$course, $cm] = get_course_and_cm_from_instance($response->get('jqshow'), 'jqshow', $jqshow->get('course'));
         if (assert($question instanceof qtype_calculated_question)) {
-            questions::get_text(
-                $cm->id, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
-            );
             $jsonresponse = json_decode(base64_decode($response->get('response')), false);
+            questions::get_text(
+                $cm->id, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback', $jsonresponse->variant
+            );
             $moodleresult = $question->grade_response(['answer' => $jsonresponse->response, 'unit' => $jsonresponse->unit]);
             if (isset($moodleresult[0])) {
                 $mark = $moodleresult[0];

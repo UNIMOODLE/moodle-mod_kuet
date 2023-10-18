@@ -70,7 +70,7 @@ class jumptoquestion_external extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
                 'position' => new external_value(PARAM_INT, 'Order of question'),
-                'manual' => new external_value(PARAM_BOOL, 'Mode of session', VALUE_OPTIONAL)
+                'manual' => new external_value(PARAM_BOOL, 'Mode of session')
             ]
         );
     }
@@ -94,7 +94,7 @@ class jumptoquestion_external extends external_api {
         global $PAGE, $USER;
         self::validate_parameters(
             self::jumptoquestion_parameters(),
-            ['cmid' => $cmid, 'sessionid' => $sessionid, 'position' => $position]
+            ['cmid' => $cmid, 'sessionid' => $sessionid, 'position' => $position, 'manual' => $manual]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
