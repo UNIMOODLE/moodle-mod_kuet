@@ -92,6 +92,16 @@ Numerical.prototype.initNumerical = function() {
 Numerical.prototype.initEvents = function() {
     addEventListener('timeFinish', Numerical.prototype.reply, {once: true});
     if (manualMode !== false) {
+        addEventListener('alreadyAnswered_' + jqid, (ev) => {
+            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            if (userid != ev.detail.userid) {
+                jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
+                jQuery('[data-region="group-message"]').show();
+            }
+            if (questionEnd !== true) {
+                Numerical.prototype.reply();
+            }
+        }, {once: true});
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
                 Numerical.prototype.reply();
@@ -159,6 +169,16 @@ Numerical.prototype.hideStatistics = function() {
 Numerical.prototype.removeEvents = function() {
     removeEventListener('timeFinish', Numerical.prototype.reply, {once: true});
     if (manualMode !== false) {
+        removeEventListener('alreadyAnswered_' + jqid, (ev) => {
+            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            if (userid != ev.detail.userid) {
+                jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
+                jQuery('[data-region="group-message"]').show();
+            }
+            if (questionEnd !== true) {
+                Numerical.prototype.reply();
+            }
+        }, {once: true});
         removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
                 Numerical.prototype.reply();

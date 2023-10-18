@@ -315,7 +315,11 @@ class numerical extends questions {
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
-        $participant->userpoints = grade::get_rounded_mark($spoints);
+        if ($session->is_group_mode()) {
+            $participant->grouppoints = grade::get_rounded_mark($spoints);
+        } else {
+            $participant->userpoints = grade::get_rounded_mark($spoints);
+        }
         $participant->score_moment = grade::get_rounded_mark($points);
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;

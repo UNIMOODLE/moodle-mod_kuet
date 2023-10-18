@@ -85,6 +85,16 @@ ShortAnswer.prototype.initShortAnswer = function() {
 ShortAnswer.prototype.initEvents = function() {
     addEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
     if (manualMode !== false) {
+        addEventListener('alreadyAnswered_' + jqid, (ev) => {
+            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            if (userid != ev.detail.userid) {
+                jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
+                jQuery('[data-region="group-message"]').show();
+            }
+            if (questionEnd !== true) {
+                ShortAnswer.prototype.reply();
+            }
+        }, {once: true});
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
                 ShortAnswer.prototype.reply();
@@ -154,6 +164,16 @@ ShortAnswer.prototype.hideStatistics = function() {
 ShortAnswer.prototype.removeEvents = function() {
     removeEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
     if (manualMode !== false) {
+        removeEventListener('alreadyAnswered_' + jqid, (ev) => {
+            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            if (userid != ev.detail.userid) {
+                jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
+                jQuery('[data-region="group-message"]').show();
+            }
+            if (questionEnd !== true) {
+                ShortAnswer.prototype.reply();
+            }
+        }, {once: true});
         removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
                 ShortAnswer.prototype.reply();

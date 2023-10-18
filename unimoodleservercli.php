@@ -54,6 +54,21 @@ class unimoodleservercli extends websockets {
                     }
                 }
             }
+        } else if (isset($data['ofg']) && $data['ofg'] === true) {
+            // Only for groups.
+            $responsetext = $this->get_response_from_action_for_group($data);
+            $groupid = $this->get_groupid_from_a_member((int) $data['sid'], (int) $data['userid']);
+            if ($responsetext !== '' && $groupid) {
+                $socketgroups = $this->sidgroups[$data['sid']];
+                foreach ($socketgroups[$groupid]->users as $user) {
+                    foreach ($this->sockets as $key => $socket) {
+                        if ($key === $user->usersocketid) {
+                            fwrite($socket, $responsetext, strlen($responsetext));
+                            break;
+                        }
+                    }
+                }
+            }
         } else { // All users in this sid.
             $responsetext = $this->get_response_from_action($user, $data['action'], $data);
             if ($responsetext !== '' && isset($this->sidusers[$data['sid']])) {
@@ -171,7 +186,42 @@ class unimoodleservercli extends websockets {
                 return '';
         }
     }
-
+    /**
+     * @param int $sid
+     * @param int $userid
+     * @return int
+     */
+    protected function get_groupid_from_a_member(int $sid, int $userid) : int {
+        $groupid = 0;
+        foreach ($this->sidgroups[$sid] as $sidgroup) {
+            foreach ($sidgroup->users as $member) {
+                if ($member->userid == $userid) {
+                    $groupid = $sidgroup->groupid;
+                    return $groupid;
+                }
+            }
+        }
+        return $groupid;
+    }
+    /**
+     * @param array $data
+     * @return string
+     * @throws JsonException
+     */
+    protected function get_response_from_action_for_group(array $data) : string {
+        switch ($data['action']) {
+            case 'alreadyAnswered':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'alreadyAnswered',
+                            'userid' => $data['userid'],
+                            'jqid' => $data['jqid'],
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            default:
+                return '';
+        }
+    }
     /**
      * @param websocketuser $user
      * @param string $useraction
@@ -368,13 +418,23 @@ class unimoodleservercli extends websockets {
      * @return void
      */
     private function newgroup(websocketuser $user, array $data) {
+        if (!array_key_exists($data['sid'], $this->sidgroups)) {
+            $this->sidgroups[$data['sid']] = [];
+        }
+        if (!array_key_exists($data['groupid'], $this->sidgroups[$data['sid']])) {
+            $this->sidgroups[$data['sid']][$data['groupid']] = new stdClass();
+            $this->sidgroups[$data['sid']][$data['groupid']]->users = [];
+        }
         $this->sidgroups[$data['sid']][$data['groupid']]->groupid = $data['groupid'];
         $this->sidgroups[$data['sid']][$data['groupid']]->groupname = $data['name'];
         $this->sidgroups[$data['sid']][$data['groupid']]->grouppicture = $data['pic'];
         $this->sidgroups[$data['sid']][$data['groupid']]->sid = $data['sid'];
         $this->sidgroups[$data['sid']][$data['groupid']]->cmid = $data['cmid'];
-        $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
-        $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->userid = $data['userid'];
+        if (!array_key_exists($data['usersocketid'], $this->sidgroups[$data['sid']][$data['groupid']]->users)) {
+            $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid] = new stdClass();
+            $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
+            $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->userid = $data['userid'];
+        }
     }
 
     /**

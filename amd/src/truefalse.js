@@ -86,6 +86,16 @@ TrueFalse.prototype.initTrueFalse = function() {
 TrueFalse.prototype.initEvents = function() {
     addEventListener('timeFinish', TrueFalse.prototype.reply, {once: true});
     if (manualMode !== false) {
+        addEventListener('alreadyAnswered_' + jqid, (ev) => {
+            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            if (userid != ev.detail.userid) {
+                jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
+                jQuery('[data-region="group-message"]').show();
+            }
+            if (questionEnd !== true) {
+                TrueFalse.prototype.reply();
+            }
+        }, {once: true});
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
                 TrueFalse.prototype.reply();
@@ -135,6 +145,16 @@ TrueFalse.prototype.initEvents = function() {
 TrueFalse.prototype.removeEvents = function() {
     removeEventListener('timeFinish', TrueFalse.prototype.reply, {once: true});
     if (manualMode !== false) {
+        removeEventListener('alreadyAnswered_' + jqid, (ev) => {
+            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            if (userid != ev.detail.userid) {
+                jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
+                jQuery('[data-region="group-message"]').show();
+            }
+            if (questionEnd !== true) {
+                TrueFalse.prototype.reply();
+            }
+        }, {once: true});
         removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
                 TrueFalse.prototype.reply();
@@ -178,7 +198,10 @@ TrueFalse.prototype.reply = function(e) {
     if (e !== undefined && e !== null) {
         e.preventDefault();
         e.stopPropagation();
-        answerIds = parseInt(jQuery(e.currentTarget).attr('data-answerid'));
+        // Avoid 'timefinished' event.
+        if (e.type === 'click') {
+            answerIds = parseInt(jQuery(e.currentTarget).attr('data-answerid'));
+        }
         if (answerIds === null) {
             answerIds = 0;
         }

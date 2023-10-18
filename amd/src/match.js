@@ -140,6 +140,16 @@ Match.prototype.initMatch = function() {
 Match.prototype.initEvents = function() {
     addEventListener('timeFinish', Match.prototype.sendResponse, {once: true});
     if (manualMode !== false) {
+        addEventListener('alreadyAnswered_' + jqid, (ev) => {
+            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            if (userid != ev.detail.userid) {
+                jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
+                jQuery('[data-region="group-message"]').show();
+            }
+            if (questionEnd !== true) {
+                Match.prototype.sendResponse();
+            }
+        }, {once: true});
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
                 Match.prototype.sendResponse();
@@ -198,6 +208,16 @@ Match.prototype.initEvents = function() {
 Match.prototype.removeEvents = function() {
     removeEventListener('timeFinish', () => Match.prototype.sendResponse, {once: true});
     if (manualMode !== false) {
+        removeEventListener('alreadyAnswered_' + jqid, (ev) => {
+            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            if (userid != ev.detail.userid) {
+                jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
+                jQuery('[data-region="group-message"]').show();
+            }
+            if (questionEnd !== true) {
+                Match.prototype.sendResponse();
+            }
+        }, {once: true});
         removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
                 Match.prototype.sendResponse();

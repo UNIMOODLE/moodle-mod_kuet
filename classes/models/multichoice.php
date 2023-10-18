@@ -285,7 +285,11 @@ class multichoice extends questions {
                 $points = grade::get_simple_mark($response);
                 $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
                     $session->get('jqshowid'));
-                $participant->userpoints = grade::get_rounded_mark($spoints);
+                if ($session->is_group_mode()) {
+                    $participant->grouppoints = grade::get_rounded_mark($spoints);
+                } else {
+                    $participant->userpoints = grade::get_rounded_mark($spoints);
+                }
                 $participant->score_moment = grade::get_rounded_mark($points);
                 $participant->time = reports::get_user_time_in_question($session, $question, $response);
             }
@@ -298,13 +302,17 @@ class multichoice extends questions {
                     }
                 }
             }
-            $status = grade::get_status_response_for_multiple_answers($other->questionid, $other->answerids);
+            $status = grade::get_status_response_for_multiple_answers($question->get('questionid'), $other->answerids);
             $participant->response = get_string('qstatus_' . $status, 'mod_jqshow');
             $participant->responsestr = get_string($participant->response, 'mod_jqshow');
             $participant->answertext = trim($answertext, '<br>');
             $points = grade::get_simple_mark($response);
             $spoints = grade::get_session_grade($participant->id, $session->get('id'), $session->get('jqshowid'));
-            $participant->userpoints = grade::get_rounded_mark($spoints);
+            if ($session->is_group_mode()) {
+                $participant->grouppoints = grade::get_rounded_mark($spoints);
+            } else {
+                $participant->userpoints = grade::get_rounded_mark($spoints);
+            }
             $participant->score_moment = grade::get_rounded_mark($points);
             $participant->time = reports::get_user_time_in_question($session, $question, $response);
         }

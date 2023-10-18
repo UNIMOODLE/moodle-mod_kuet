@@ -122,6 +122,11 @@ Sockets.prototype.initSockets = function() {
         let response = JSON.parse(msgDecrypt); // PHP sends Json data.
         let resAction = response.action; // Message type.
         switch (resAction) {
+            case 'alreadyAnswered':
+                if (groupmode != '0') {
+                    dispatchEvent(new CustomEvent('alreadyAnswered_' + response.jqid, {detail: { userid : response.userid }}));
+                }
+                break;
             case 'connect':
                 // The server has returned the connected status, it is time to identify yourself.
                 if (response.usersocketid !== undefined) {
@@ -394,6 +399,19 @@ Sockets.prototype.initListeners = function() {
             'action': 'studentQuestionEnd',
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        if (groupmode != '0') {
+            let msg2 = {
+                'userid': userid,
+                'sid': sid,
+                'usersocketid': usersocketid,
+                'jqid': currentCuestionJqid,
+                'ofg': true,
+                'action': 'alreadyAnswered',
+            };
+            setTimeout(function() {
+                Sockets.prototype.sendMessageSocket(JSON.stringify(msg2));
+            }, 300);
+        }
     }, false);
 };
 

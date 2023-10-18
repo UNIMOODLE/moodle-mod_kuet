@@ -546,8 +546,6 @@ class sessions {
     public static function get_session_results(int $sid, int $cmid): array {
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
-        $contextmodule = context_module::instance($cmid);
-        $PAGE->set_context($contextmodule);
         $users = enrol_get_course_users($course->id, true);
         $session = jqshow_sessions::get_record(['id' => $sid]);
         $questions = (new questions($session->get('jqshowid'), $cmid, $sid))->get_list();
