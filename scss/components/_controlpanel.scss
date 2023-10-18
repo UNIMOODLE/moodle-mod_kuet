@@ -137,3 +137,21 @@
         }
     }
 }
+
+@media (max-width: 991px) {
+
+}
+@media (max-width: 768px) {
+
+}
+@media (max-width: 576px) {
+
+}
+@media (max-width: 510px) {
+    .content-control-panel {
+        position: absolute;
+        top: 0;
+        right: 0;
+        z-index: 40;
+    }
+}

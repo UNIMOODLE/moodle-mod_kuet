@@ -63,13 +63,12 @@ Question.prototype.initQuestion = function() {
     this.node.find(ACTION.COMPRESS).on('click', this.exitFullScreen);
     jQuery(ACTION.NEXTQUESTION).on('click', this.nextQuestion);
     jQuery(document).keyup(function(e) {
-        if (e.key === 'Escape' || e.key === 27) {
-            Question.prototype.exitFullScreen();
-        }
-    });
-    jQuery(document).keydown(function(e) {
-        if (e.key === 'F11' || e.keyCode === 122) {
-            Question.prototype.fullScreen();
+        if (e.key === 'Escape' || e.key === 27 || e.key === 'F11' || e.keyCode === 122) {
+            if (toggleFullScreen === false) {
+                Question.prototype.fullScreen();
+            } else {
+                Question.prototype.exitFullScreen();
+            }
         }
     });
     addEventListener('questionEnd', () => {
@@ -79,14 +78,15 @@ Question.prototype.initQuestion = function() {
 
 Question.prototype.fullScreen = function() {
     if (toggleFullScreen === false) {
-        let element = document.documentElement;
+        // TODO some fixes in switchs, inputs, and other elements. Delete or repare.
+        /*let element = document.documentElement;
         if (element.requestFullscreen) {
             element.requestFullscreen();
-        } else if (element.webkitRequestFullscreen) { /* Safari */
+        } else if (element.webkitRequestFullscreen) { /!* Safari *!/
             element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) { /* IE11 */
+        } else if (element.msRequestFullscreen) { /!* IE11 *!/
             element.msRequestFullscreen();
-        }
+        }*/
         jQuery(ACTION.EXPAND).css('display', 'none');
         jQuery(ACTION.COMPRESS).css('display', 'block');
         jQuery(REGION.BODY).addClass('fullscreen');
@@ -98,9 +98,10 @@ Question.prototype.fullScreen = function() {
 
 Question.prototype.exitFullScreen = function() {
     if (toggleFullScreen === true) {
-        if (document.fullscreenElement){
+        // TODO some fixes in switchs, inputs, and other elements. Delete or repare.
+        /*if (document.fullscreenElement){
             document.exitFullscreen();
-        }
+        }*/
         jQuery(ACTION.EXPAND).css('display', 'block');
         jQuery(ACTION.COMPRESS).css('display', 'none');
         jQuery(REGION.BODY).removeClass('fullscreen');

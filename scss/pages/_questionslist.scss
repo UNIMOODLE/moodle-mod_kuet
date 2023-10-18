@@ -22,6 +22,7 @@ body#page-mod-jqshow-sessions {
                     overflow-y: auto;
                     &::-webkit-scrollbar {
                         width: 8px;
+                        height: 8px;
                     }
                     &::-webkit-scrollbar-track {
                         background: #e0e0e0;

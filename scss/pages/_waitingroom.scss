@@ -97,6 +97,7 @@ body#page-mod-jqshow-view {
                 overflow-y: auto;
                 &::-webkit-scrollbar {
                     width: 8px;
+                    height: 8px;
                 }
                 &::-webkit-scrollbar-track {
                     background: #e0e0e0;
@@ -238,6 +239,7 @@ body#page-mod-jqshow-view {
                 font-size: 16px;
                 color: white;
                 margin-right: 8px;
+                white-space: nowrap;
             }
             .numgroupusers {
                 font-size: 12px;
@@ -245,8 +247,42 @@ body#page-mod-jqshow-view {
             }
         }
     }
+    [data-region="teacher-canvas"] {
+        position: relative;
+    }
     .resume-config,
     .questions-list {
         margin-top: 0 !important;
     }
+}
+
+@media (max-width: 991px) {
+    [data-region="teacher-canvas-content"] {
+        .content-header {
+            .more-info-session,
+            .session-controller {
+                margin-top: 1em;
+            }
+        }
+        .teacher-waiting-room {
+            min-width: 100%;
+            width: unset !important;
+            .resume-config {
+                display: none;
+            }
+        }
+    }
+}
+@media (max-width: 768px) {
+    [data-region="teacher-canvas-content"] {
+        .content-header {
+            .session-controller {
+                justify-content: flex-start !important;
+            }
+        }
+    }
+}
+
+@media (max-width: 576px) {
+
 }

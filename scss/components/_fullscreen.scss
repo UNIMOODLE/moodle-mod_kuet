@@ -44,6 +44,26 @@ body.path-mod-jqshow.fullscreen { // TODO there are some bugs outside the previe
             display: flex;
             justify-content: center;
             align-items: center;
+            #page-content {
+                height: auto !important;
+                #region-main {
+                    display: flex;
+                    .activity-header {
+                        display: none;
+                    }
+                    div[role="main"] {
+                        display: flex;
+                        flex-flow: row nowrap;
+                        justify-content: center;
+                        align-items: center;
+                        width: 100%;
+                        [data-region="teacher-canvas-content"],
+                        [data-region="student-canvas"] {
+                            width: 100%;
+                        }
+                    }
+                }
+            }
         }
     }
     #page-footer {
@@ -52,4 +72,14 @@ body.path-mod-jqshow.fullscreen { // TODO there are some bugs outside the previe
     * {
         transition: all .5s ease !important;
     }
+}
+
+@media (max-width: 991px) {
+
+}
+@media (max-width: 768px) {
+
+}
+@media (max-width: 576px) {
+
 }

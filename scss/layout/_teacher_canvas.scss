@@ -19,6 +19,7 @@ body#page-mod-jqshow-view {
                 overflow-y: auto;
                 &::-webkit-scrollbar {
                     width: 8px;
+                    height: 8px;
                 }
                 &::-webkit-scrollbar-track {
                     background: #e0e0e0;
@@ -93,4 +94,18 @@ body#page-mod-jqshow-view {
             }
         }
     }
+}
+
+@media (max-width: 991px) {
+    [data-region="teacher-panel"] {
+        .resume-config {
+            display: none;
+        }
+    }
+}
+@media (max-width: 768px) {
+
+}
+@media (max-width: 576px) {
+
 }

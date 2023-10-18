@@ -63,6 +63,10 @@ body#page-mod-jqshow-view {
                         border-radius: 8px;
                         box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
                         background-color: white;
+                        .content_table {
+                            width: 100%;
+                            overflow: auto;
+                        }
                         .sessions-list-header {
                             padding: 15px 20px;
                             display: flex;

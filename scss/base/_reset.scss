@@ -7,6 +7,9 @@ body.path-mod-jqshow {
         outline-offset: unset !important;
         box-shadow: none !important;
     }
+    [data-region="mainpage"] {
+        overflow-x: hidden !important;
+    }
     .session-content {
         position: relative;
     }
