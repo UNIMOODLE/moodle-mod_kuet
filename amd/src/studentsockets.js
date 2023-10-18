@@ -85,7 +85,7 @@ let sid = null;
 let jqshowid = null;
 let currentCuestionJqid = null;
 let groupid = 0;
-let groupmode = 0;
+let groupmode = '';
 let groupimage = null;
 let groupname = null;
 // Flags for improvised flow.
@@ -140,7 +140,7 @@ Sockets.prototype.initSockets = function() {
                         'usersocketid': usersocketid,
                         'action': 'newuser',
                     };
-                    if (groupmode) {
+                    if (groupmode != '0') {
                         msg.action = 'newgroup';
                         msg.name = groupname;
                         msg.pic = groupimage;
@@ -170,7 +170,7 @@ Sockets.prototype.initSockets = function() {
                 let participantshtml = jQuery(REGION.USERLIST);
                 let grouplist = response.groups;
                 participantshtml.html('');
-                jQuery.each(grouplist, function (i, group) {
+                jQuery.each(grouplist, function(i, group) {
                     let templateContext = {
                         'usersocketid': group.usersocketid,
                         'groupimage': group.picture,
