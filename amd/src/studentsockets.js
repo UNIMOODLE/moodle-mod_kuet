@@ -104,7 +104,7 @@ Sockets.prototype.initSockets = function() {
     messageBox = this.root.find(REGION.MESSAGEBOX);
     countusers = this.root.find(REGION.COUNTUSERS);
     groupmode = this.root[0].dataset.groupmode;
-    if (groupmode != '0') {
+    if (groupmode == '1') {
         groupimage = this.root[0].dataset.groupimage;
         groupid = parseInt(this.root[0].dataset.groupid);
         groupname = this.root[0].dataset.groupname;
@@ -123,7 +123,7 @@ Sockets.prototype.initSockets = function() {
         let resAction = response.action; // Message type.
         switch (resAction) {
             case 'alreadyAnswered':
-                if (groupmode != '0') {
+                if (groupmode == '1') {
                     dispatchEvent(new CustomEvent('alreadyAnswered_' + response.jqid, {detail: { userid : response.userid }}));
                 }
                 break;
@@ -140,7 +140,7 @@ Sockets.prototype.initSockets = function() {
                         'usersocketid': usersocketid,
                         'action': 'newuser',
                     };
-                    if (groupmode != '0') {
+                    if (groupmode == '1') {
                         msg.action = 'newgroup';
                         msg.name = groupname;
                         msg.pic = groupimage;
@@ -411,7 +411,7 @@ Sockets.prototype.initListeners = function() {
             'action': 'studentQuestionEnd',
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
-        if (groupmode != '0') {
+        if (groupmode == '1') {
             let msg2 = {
                 'userid': userid,
                 'sid': sid,
