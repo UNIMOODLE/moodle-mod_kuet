@@ -131,7 +131,7 @@ function jqshow_delete_instance(int $id): bool {
     $DB->delete_records('jqshow', ['id' => $id]);
     $DB->delete_records('jqshow_grades', ['jqshow' => $id]);
     $DB->delete_records('jqshow_questions', ['jqshowid' => $id]);
-    $DB->delete_records('jqshow_questions_responses', ['jqid' => $id]);
+    $DB->delete_records('jqshow_questions_responses', ['jqshow' => $id]);
     $DB->delete_records('jqshow_sessions', ['jqshowid' => $id]);
     $DB->delete_records('jqshow_sessions_grades', ['jqshow' => $id]);
     $DB->delete_records('jqshow_user_progress', ['jqshow' => $id]);
