@@ -546,8 +546,6 @@ class sessions {
     public static function get_session_results(int $sid, int $cmid): array {
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
-        $contextmodule = context_module::instance($cmid);
-        $PAGE->set_context($contextmodule);
         $users = enrol_get_course_users($course->id, true);
         $session = jqshow_sessions::get_record(['id' => $sid]);
         $questions = (new questions($session->get('jqshowid'), $cmid, $sid))->get_list();
@@ -1013,15 +1011,23 @@ class sessions {
     public static function export_endsession(int $cmid, int $sessionid): object {
         global $USER;
         $session = new jqshow_sessions($sessionid);
+        $contextmodule = context_module::instance($cmid);
         $jqshow = new jqshow($session->get('jqshowid'));
         $data = new stdClass();
         $data->cmid = $cmid;
         $data->sessionid = $sessionid;
         $data->jqshowid = $session->get('jqshowid');
         $data->courselink = (new moodle_url('/course/view.php', ['id' => $jqshow->get('course')]))->out(false);
-        $data->reportlink = (new moodle_url('/mod/jqshow/reports.php',
-            ['cmid' => $cmid, 'sid' => $sessionid, 'userid' => $USER->id]))->out(false);
-        $contextmodule = context_module::instance($cmid);
+        $params = ['cmid' => $cmid, 'sid' => $sessionid];
+        if (!$session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
+            $params['userid'] = $USER->id;
+        } else if ($session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
+            $group = groupmode::get_user_group($USER->id, $session->get('groupings'));
+            if (!is_null($group)) {
+                $params['groupid'] = $group->id;
+            }
+        }
+        $data->reportlink = (new moodle_url('/mod/jqshow/reports.php', $params))->out(false);
         switch ($session->get('sessionmode')) {
             case self::INACTIVE_PROGRAMMED:
             case self::INACTIVE_MANUAL:

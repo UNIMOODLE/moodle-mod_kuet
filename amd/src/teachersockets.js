@@ -352,8 +352,20 @@ Sockets.prototype.initSockets = function() {
                 }
                 break;
             case 'userdisconnected':
-                jQuery('[data-userid="' + response.usersocketid + '"]').remove();
+                if (groupMode != '1') {
+                    jQuery('[data-userid="' + response.usersocketid + '"]').remove();
+                    countusers.html(response.count);
+                }
+                messageBox.append('<div>' + response.message + '</div>');
+                break;
+            case 'groupdisconnected':
+                jQuery('.participants').find('[data-groupid="' + response.groupid + '"]').remove();
                 countusers.html(response.count);
+                messageBox.append('<div>' + response.message + '</div>');
+                break;
+            case 'groupmemberdisconnected':
+                jQuery('.participants').find('[data-groupid="' + response.groupid + '"]')
+                    .find('.numgroupusers').html('(' + response.count + ')');
                 messageBox.append('<div>' + response.message + '</div>');
                 break;
             case 'alreadyteacher':

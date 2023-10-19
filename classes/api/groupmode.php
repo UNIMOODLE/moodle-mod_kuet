@@ -142,7 +142,7 @@ class groupmode {
      * @throws dml_exception
      */
     public static function get_grouping_groups_name(int $groupingid) : array {
-        $groups = groups_get_grouping_members($groupingid, 'gg.groupid');
+        $groups = groups_get_grouping_members($groupingid, 'u.id,gg.groupid');
         $names = [];
         foreach ($groups as $group) {
             $g = groups_get_group($group->groupid, 'name');
@@ -157,11 +157,15 @@ class groupmode {
      * @throws dml_exception
      */
     public static function get_grouping_groups(int $groupingid) : array {
-        $groups = groups_get_grouping_members($groupingid, 'gg.groupid');
+        $groups = groups_get_grouping_members($groupingid, 'u.id,gg.groupid');
         $data = [];
+        $groupids = [];
         foreach ($groups as $group) {
-            $g = groups_get_group($group->groupid, 'id, name, courseid, picture');
-            $data[] = $g;
+            if (!in_array($group->groupid, $groupids)) {
+                $g = groups_get_group($group->groupid, 'id, name, courseid, picture');
+                $data[] = $g;
+                $groupids[] = $group->groupid;
+            }
         }
         return $data;
     }

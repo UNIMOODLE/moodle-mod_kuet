@@ -447,7 +447,9 @@ class truefalse extends questions {
         $statistics[$question->falseanswerid] = ['answerid' => $question->falseanswerid, 'numberofreplies' => 0];
         foreach ($responses as $response) {
             $other = json_decode(base64_decode($response->get('response')), false);
-            $statistics[(int)$other->answerids]['numberofreplies']++;
+            if (!empty($other->answerids) && array_key_exists((int)$other->answerids, $statistics)) {
+                $statistics[(int)$other->answerids]['numberofreplies']++;
+            }
         }
         return $statistics;
     }

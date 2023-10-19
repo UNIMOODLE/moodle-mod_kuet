@@ -60,10 +60,13 @@ class getlistresults_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function getlistresults(int $sid, int $cmid): array {
+        global $PAGE;
         self::validate_parameters(
             self::getlistresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
+        $context = \context_module::instance($cmid);
+        $PAGE->set_context($context);
         $session = new jqshow_sessions($sid);
         if ($session->is_group_mode()) {
             $groupresults = sessions::get_group_session_results($sid, $cmid);

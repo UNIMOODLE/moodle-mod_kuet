@@ -129,7 +129,7 @@ SessionsPanel.prototype.deleteSession = function(e) {
         {key: 'deletesession', component: 'mod_jqshow'},
         {key: 'deletesession_desc', component: 'mod_jqshow'},
         {key: 'confirm', component: 'mod_jqshow'},
-        {key: 'deletesessionrror', component: 'mod_jqshow'},
+        {key: 'deletesessionerror', component: 'mod_jqshow'},
     ];
     getStrings(stringkeys).then((langStrings) => {
         const title = langStrings[0];

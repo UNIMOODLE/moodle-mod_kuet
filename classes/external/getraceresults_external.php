@@ -64,16 +64,20 @@ class getraceresults_external extends external_api {
             self::getraceresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
+        global $PAGE;
+        $contextmodule = \context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
         $session = new jqshow_sessions($sid);
         if ($session->is_group_mode()) {
             $groupresults = sessions::get_group_session_results($sid, $cmid);
             $questions = sessions::breakdown_responses_for_race_groups($groupresults, $sid, $cmid, $session->get('jqshowid'));
             return ['groupmode' => true, 'groupresults' => $groupresults, 'questions' => $questions];
+        } else {
+            $userresults = sessions::get_session_results($sid, $cmid);
+            usort($userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
+            $questions = sessions::breakdown_responses_for_race($userresults, $sid, $cmid, $session->get('jqshowid'));
+            return ['groupmode' => false, 'userresults' => $userresults, 'questions' => $questions];
         }
-        $userresults = sessions::get_session_results($sid, $cmid);
-        usort($userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
-        $questions = sessions::breakdown_responses_for_race($userresults, $sid, $cmid, $session->get('jqshowid'));
-        return ['groupmode' => false, 'userresults' => $userresults, 'questions' => $questions];
     }
 
     /**

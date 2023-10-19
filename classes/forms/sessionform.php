@@ -267,23 +267,17 @@ class sessionform extends moodleform {
         if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && empty($data['groupings'])) {
             $errors['groupings'] = get_string('session_groupings_error', 'mod_jqshow');
         } else if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && !empty($data['groupings'])) {
-            $groups = groups_get_grouping_members($data['groupings'], 'gg.groupid');
-            if (empty($groups)) {
+            $members = groups_get_grouping_members($data['groupings'], 'u.id,u.username,gg.groupid');
+            if (empty($members)) {
                 $errors['groupings'] = get_string('session_groupings_no_members', 'mod_jqshow');
             } else {
                 $allmembers = [];
-                foreach ($groups as $group) {
-                    $members = groups_get_members($group->groupid, 'u.id, u.username');
-                    if (empty($members)) {
-                        continue;
-                    }
-                    $errorusers = [];
-                    foreach ($members as $member) {
-                        if (in_array($member->id, $allmembers)) {
-                            $errorusers[] = $member->username;
-                        } else {
-                            $allmembers[] = $member->id;
-                        }
+                $errorusers = [];
+                foreach ($members as $member) {
+                    if (in_array($member->id, $allmembers)) {
+                        $errorusers[] = $member->username . ':' . $member->groupid;
+                    } else {
+                        $allmembers[] = $member->id;
                     }
                 }
                 if (!empty($errorusers)) {
