@@ -48,7 +48,11 @@ class observer {
      */
     public static function session_ended(session_ended $event) {
 
+        global $PAGE;
+
         $data = $event->get_data();
+        $context = \context_module::instance((int) $data['contextinstanceid']);
+        $PAGE->set_context($context);
         $jqshow = \mod_jqshow\persistents\jqshow::get_jqshow_from_cmid((int) $data['contextinstanceid']);
         if (!$jqshow || (int) $jqshow->get('grademethod') == grade::MOD_OPTION_NO_GRADE) {
             return;
