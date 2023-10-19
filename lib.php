@@ -71,7 +71,7 @@ function jqshow_add_instance(stdClass $data): int {
     $data->timecreated = time();
     $data->timemodified = time();
     $id = $DB->insert_record('jqshow', $data);
-
+    $data->id  = $id;
     // Update course module record - from now on this instance properly exists and all function may be used.
     $DB->set_field('course_modules', 'instance', $id, array('id' => $cmid));
 
@@ -82,7 +82,7 @@ function jqshow_add_instance(stdClass $data): int {
         api::update_completion_date_event($cmid, 'jqshow', $record, $data->completionexpected);
     }
 
-//    mod_jqshow_grade_item_update($data, null);
+    mod_jqshow_grade_item_update($data, null);
     return $record->id;
 }
 
@@ -111,7 +111,8 @@ function jqshow_update_instance(stdClass $data): bool {
     $DB->update_record('jqshow', $oldjqshow);
 
     grade::recalculate_mod_mark($data->{'update'}, $data->instance);
-//    mod_jqshow_grade_item_update($data, null);
+    $data->id = $data->instance;
+    mod_jqshow_grade_item_update($data, null);
     return true;
 }
 /**
@@ -390,17 +391,20 @@ function mod_jqshow_get_grading_options() {
 
 /**
  * Update/create grade item for given data
- *
- * @category grade
  * @param stdClass $data A jqshow instance
- * @param mixed $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
- * @return object grade_item
+ * @param $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @return int|null
+ * @throws dml_exception
  */
 function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
-    $params = ['itemname' => $data->name];
+
+    if (!isset($data->id)) {
+        return null;
+    }
+    $params = ['itemname' => $data->name, 'iteminstance' => $data->id];
     if (property_exists($data, 'cmidnumber')) { // May not be always present.
         $params['idnumber'] = $data->cmidnumber;
     }

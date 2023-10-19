@@ -61,7 +61,7 @@ class custom_completion extends activity_custom_completion {
             return COMPLETION_INCOMPLETE;
         }
         $hasparticipate = false;
-        if (jqshow_questions_responses::count_records(['jqshow' => $jqshowid]) > 0) {
+        if (jqshow_questions_responses::count_records(['jqshow' => $jqshowid, 'userid' => $userid]) > 0) {
             $hasparticipate = true;
         }
         return $hasparticipate ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
@@ -100,6 +100,7 @@ class custom_completion extends activity_custom_completion {
         return [
             'completionanswerall',
             'completionusegrade',
+            'completionpassgrade',
         ];
     }
 }
