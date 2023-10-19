@@ -343,7 +343,7 @@ class sessions {
         foreach ($questions as $key => $question) {
             $icon = new pix_icon('icon', '', 'qtype_' . $question->qtype, [
                 'class' => 'icon',
-                'title' => ''
+                'title' => $question->qtype
             ]);
             $question->icon = $icon->export_for_pix();
             $question->issuitable = in_array($question->qtype, questions::TYPES, true);

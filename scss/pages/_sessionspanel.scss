@@ -66,6 +66,17 @@ body#page-mod-jqshow-view {
                         .content_table {
                             width: 100%;
                             overflow: auto;
+                            &::-webkit-scrollbar {
+                                width: 8px;
+                                height: 8px;
+                            }
+                            &::-webkit-scrollbar-track {
+                                background: #e0e0e0;
+                            }
+                            &::-webkit-scrollbar-thumb {
+                                background-color: #6a737b;
+                                border-radius: 4px;
+                            }
                         }
                         .sessions-list-header {
                             padding: 15px 20px;
@@ -129,7 +140,7 @@ body#page-mod-jqshow-view {
                                         justify-content: flex-start;
                                         align-items: center;
                                         .session-action {
-                                            background-color: black;
+                                            background-color: transparent;
                                             height: 32px;
                                             width: 32px;
                                             border-radius: 8px;
@@ -137,11 +148,17 @@ body#page-mod-jqshow-view {
                                             justify-content: center;
                                             align-items: center;
                                             margin: 0 7px;
+                                            transition: background-color .2s ease-in-out;
                                             .icon {
                                                 margin: 0 !important;
                                             }
                                             &:hover {
                                                 cursor: pointer;
+                                                background-color: #e6e6e6;
+                                                transition: background-color .2s ease-in-out;
+                                            }
+                                            &:focus {
+                                                background-color: transparent !important;
                                             }
                                         }
                                     }
@@ -154,16 +171,23 @@ body#page-mod-jqshow-view {
                                     div, a {
                                         width: 125px;
                                         height: 32px;
-                                        color: white;
-                                        background-color: black;
+                                        color: #344054;
+                                        background-color: transparent;
                                         border-radius: 8px;
                                         display: flex;
                                         justify-content: center;
                                         align-items: center;
                                         margin: 0 auto;
+                                        transition: background-color .2s ease-in-out, color .2s ease-in-out;
                                         &:hover {
                                             cursor: pointer;
                                             text-decoration: none;
+                                            background-color: #e6e6e6;
+                                            transition: background-color .2s ease-in-out, color .2s ease-in-out;
+                                            color: #475467;
+                                        }
+                                        &:focus {
+                                            background-color: transparent !important;
                                         }
                                     }
                                     .icon-warning {

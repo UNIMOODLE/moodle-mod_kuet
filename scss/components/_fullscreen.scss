@@ -46,6 +46,7 @@ body.path-mod-jqshow.fullscreen { // TODO there are some bugs outside the previe
             align-items: center;
             #page-content {
                 height: auto !important;
+                width: 100%;
                 #region-main {
                     display: flex;
                     .activity-header {
@@ -74,8 +75,12 @@ body.path-mod-jqshow.fullscreen { // TODO there are some bugs outside the previe
     }
 }
 
-@media (max-width: 991px) {
-
+@media (max-width: 1150px) {
+    [data-region="teacher-panel"] {
+        .resume-config {
+            display: none;
+        }
+    }
 }
 @media (max-width: 768px) {
 

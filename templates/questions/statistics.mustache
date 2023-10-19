@@ -1,24 +1,36 @@
 <div id="statistics">
     <div class="onestatistic">
-        <span>{{#str}}percent_correct, mod_jqshow{{/str}}</span>
+        <span>
+            {{#pix}}q/correct, mod_jqshow{{/pix}}
+            {{#str}}correct, mod_jqshow{{/str}}
+        </span>
         <div class="progress">
             <div class="progress-bar correct" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100">{{ correct }}</div>
         </div>
     </div>
     <div class="onestatistic">
-        <span>{{#str}}percent_partially, mod_jqshow{{/str}}</span>
+        <span>
+            {{#pix}}q/partially, mod_jqshow{{/pix}}
+            {{#str}}partially, mod_jqshow{{/str}}
+        </span>
         <div class="progress">
             <div class="progress-bar partially" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100">{{ partially }}</div>
         </div>
     </div>
     <div class="onestatistic">
-        <span>{{#str}}percent_incorrect, mod_jqshow{{/str}}</span>
+        <span>
+            {{#pix}}q/incorrect, mod_jqshow{{/pix}}
+            {{#str}}incorrect, mod_jqshow{{/str}}
+        </span>
         <div class="progress">
             <div class="progress-bar failure" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100">{{ failure }}</div>
         </div>
     </div>
     <div class="onestatistic">
-        <span>{{#str}}percent_noresponse, mod_jqshow{{/str}}</span>
+        <span>
+            {{#pix}}q/noresponse, mod_jqshow{{/pix}}
+            {{#str}}noresponse, mod_jqshow{{/str}}
+        </span>
         <div class="progress">
             <div class="progress-bar noresponse" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="100">{{ noresponse }}</div>
         </div>

@@ -30,6 +30,7 @@ use context_module;
 use dml_exception;
 use dml_transaction_exception;
 use JsonException;
+use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
@@ -721,6 +722,7 @@ class reports {
         }
         $params = ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userid, 'name' => self::USER_REPORT];
         $data->downloaduserreport = self::get_downloadhtml($params);
+        $data->usersessiongrade = grade::get_session_grade($userid, $sid, $session->get('jqshowid'));
         return $data;
     }
 
@@ -843,6 +845,7 @@ class reports {
         }
         $params = ['cmid' => $cmid, 'sid' => $sid, 'userid' => $USER->id, 'name' => self::USER_REPORT];
         $data->downloaduserreport = self::get_downloadhtml($params);
+        $data->usersessiongrade = grade::get_session_grade($USER->id, $sid, $session->get('jqshowid'));
         return $data;
     }
 

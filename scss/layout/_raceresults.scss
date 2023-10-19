@@ -17,6 +17,7 @@
 			overflow-y: auto;
 			&::-webkit-scrollbar {
 				width: 8px;
+				height: 8px;
 			}
 			&::-webkit-scrollbar-track {
 				background: #e0e0e0;
@@ -127,6 +128,7 @@
 		width: 100%;
 		position: relative;
 		padding: 0;
+		overflow: hidden;
 	}
 }
 @media (max-width: 991px) {

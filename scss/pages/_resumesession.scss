@@ -58,7 +58,7 @@ body#page-mod-jqshow-sessions {
                                     justify-content: flex-start;
                                     align-items: center;
                                     .question-action {
-                                        background-color: black;
+                                        background-color: transparent;
                                         height: 32px;
                                         width: 32px;
                                         border-radius: 8px;
@@ -66,11 +66,17 @@ body#page-mod-jqshow-sessions {
                                         justify-content: center;
                                         align-items: center;
                                         margin: 0 7px;
+                                        transition: background-color .2s ease-in-out;
                                         .icon {
                                             margin: 0 !important;
                                         }
                                         &:hover {
                                             cursor: pointer;
+                                            background-color: #e6e6e6;
+                                            transition: background-color .2s ease-in-out;
+                                        }
+                                        &:focus {
+                                            background-color: transparent !important;
                                         }
                                     }
                                 }

@@ -1,20 +1,28 @@
 .question {
 	#statistics {
 		display: none;
-		width: 100%;
+		width: 65%;
 		background-color: #FFFFFF;
 		padding: 1.5em;
 		border-radius: 1em;
-		margin-bottom: 1em;
-		margin-top: 1em;
+		margin: 1em auto;
 		.onestatistic {
 			margin-bottom: 1em;
 			display: flex;
+			flex-flow: row wrap;
+			justify-content: flex-start;
+			align-items: center;
 			span {
-				width: 30%;
+				width: 25%;
+				display: flex;
+				flex-flow: row nowrap;
+				align-items: center;
+				.icon {
+
+				}
 			}
 			.progress {
-				width: 70%;
+				width: 75%;
 				.progress-bar {
 					&.correct {
 						color: #1c3f1a;
@@ -36,4 +44,25 @@
 			}
 		}
 	}
+}
+@media (max-width: 991px) {
+
+}
+@media (max-width: 768px) {
+	.question {
+		#statistics {
+			.onestatistic {
+				span {
+					width: 50%;
+				}
+				.progress {
+					width: 100%;
+				}
+			}
+		}
+	}
+}
+
+@media (max-width: 576px) {
+
 }
