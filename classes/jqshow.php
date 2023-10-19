@@ -28,6 +28,7 @@ use cm_info;
 use coding_exception;
 use context_module;
 use dml_exception;
+use mod_jqshow\api\groupmode;
 use mod_jqshow\helpers\sessions as sessions_helper;
 use mod_jqshow\models\sessions;
 use mod_jqshow\models\sessions as sessionsmodel;
@@ -117,14 +118,15 @@ class jqshow {
     }
 
     /**
-     * @param $courseid
-     * @param $userid
+     * @param $cmid
+     * @param int $groupingid
      * @return array
      * @throws coding_exception
+     * @throws moodle_exception
      */
-    public static function get_students($cmid) : array {
+    public static function get_students($cmid, int $groupingid = 0) : array {
         $context = context_module::instance($cmid);
-        $participants = self::get_participants($cmid, $context);
+        $participants = self::get_participants($cmid, $context, $groupingid);
         $students = [];
         foreach ($participants as $participant) {
             if (is_null($participant->{'id'})) {
@@ -144,27 +146,23 @@ class jqshow {
      * @return array
      * @throws moodle_exception
      */
-    private static function get_participants($cmid, $context) {
+    private static function get_participants($cmid, $context, int $groupingid = 0) {
         $data = get_course_and_cm_from_cmid($cmid, 'jqshow');
         /** @var cm_info $cm */
         $cm = $data[1];
-        if ($cm->groupmode == '0') {
+        if ($cm->groupmode == '0' && $groupingid === 0) {
             return self::get_participants_individual_mode($context);
         } else {
-            return self::get_participants_group_mode($cm);
+            return self::get_participants_group_mode($groupingid);
         }
     }
 
     /**
-     * @param $context
-     * @param cm_info $cm
+     * @param int groupingid
      * @return array
      */
-    private static function get_participants_group_mode(cm_info $cm) : array {
-        $members = groups_get_grouping_members($cm->groupingid, 'u.id');
-        if (!$members) {
-            return [];
-        }
+    private static function get_participants_group_mode(int $groupingid) : array {
+        $members = groupmode::get_grouping_users($groupingid);
         return $members;
     }
 

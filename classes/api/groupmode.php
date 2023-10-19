@@ -33,7 +33,7 @@ use mod_jqshow\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use stdClass;
-
+require_once("$CFG->dirroot/group/lib.php");
 class groupmode {
 
     public const TEAM_GRADE_FIRST = 'first';
@@ -144,9 +144,13 @@ class groupmode {
     public static function get_grouping_groups_name(int $groupingid) : array {
         $groups = groups_get_grouping_members($groupingid, 'u.id,gg.groupid');
         $names = [];
+        $groupids = [];
         foreach ($groups as $group) {
-            $g = groups_get_group($group->groupid, 'name');
-            $names[] = $g->name;
+            if (!in_array($group->groupid, $groupids)) {
+                $g = groups_get_group($group->groupid, 'name');
+                $names[] = $g->name;
+                $groupids[] = $group->groupid;
+            }
         }
         return $names;
     }
@@ -179,6 +183,13 @@ class groupmode {
         return array_map(static function($user) {
             return $user->id;
         }, $groupmembers);
+    }
+    /**
+     * @param int $groupingid
+     * @return array
+     */
+    public static function get_grouping_users(int $groupingid) : array {
+        return groups_get_grouping_members($groupingid, 'u.id');
     }
 
     /**

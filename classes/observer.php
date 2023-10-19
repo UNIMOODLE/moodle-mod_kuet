@@ -61,7 +61,8 @@ class observer {
         if (!$session || $session->get('sgrade') == sessions::GM_DISABLED) {
             return;
         }
-        $participants = self::get_course_students($data);
+        $grouping = is_null($session->get('groupings')) ? 0 : (int) $session->get('groupings');
+        $participants = self::get_course_students($data, $grouping);
         foreach ($participants as $participant) {
             if (is_null($participant->{'id'})) {
                 continue;
@@ -87,16 +88,17 @@ class observer {
         }
     }
     /**
-     * @param $data
+     * @param array $data
+     * @param int $data
      * @return array
      */
-    private static function get_course_students($data) {
+    private static function get_course_students(array $data, int $grouping = 0) {
         // Check if userid is teacher or student.
         $students = [(object) ['id' => $data['userid']]];
         $context = \context_module::instance($data['contextinstanceid']);
         $isteacher = has_capability('mod/jqshow:startsession', $context, $data['userid']);
         if ($isteacher) {
-            $students = jqshow::get_students($data['contextinstanceid']);
+            $students = jqshow::get_students($data['contextinstanceid'], $grouping);
         }
 
         return $students;
