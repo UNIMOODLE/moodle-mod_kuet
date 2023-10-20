@@ -165,6 +165,7 @@ class numerical_external extends external_api {
             }
             if ($preview === false) {
                 numerical::numerical_response(
+                    $cmid,
                     $jqid,
                     $responsenum,
                     $unit,

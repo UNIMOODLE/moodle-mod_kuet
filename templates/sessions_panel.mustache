@@ -59,11 +59,9 @@
                             <div class="d-table-cell actions">
                                 {{#managesessions}}
                                     <div class="content-actions">
-                                        <div class="session-action {{#issessionstarted}}disabled{{/issessionstarted}}">
-                                            <a href="{{editsessionurl}}">
-                                                {{#pix}} i/edit_session, mod_jqshow {{/pix}}
-                                            </a>
-                                        </div>
+                                        <a class="session-action {{#issessionstarted}}disabled{{/issessionstarted}}" href="{{editsessionurl}}">
+                                            {{#pix}} i/edit_session, mod_jqshow {{/pix}}
+                                        </a>
                                         <div class="session-action" data-action="copy_session" data-sessionid="{{sessionid}}">
                                             {{#pix}} i/copy_session, mod_jqshow {{/pix}}
                                         </div>

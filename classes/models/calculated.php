@@ -26,7 +26,7 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
@@ -337,6 +337,7 @@ class calculated extends questions {
     }
 
     /**
+     * @param int $cmid
      * @param int $jqid
      * @param string $responsetext
      * @param int $variant
@@ -357,6 +358,7 @@ class calculated extends questions {
      * @throws moodle_exception
      */
     public static function calculated_response(
+        int $cmid,
         int $jqid,
         string $responsetext,
         int $variant,
@@ -371,9 +373,8 @@ class calculated extends questions {
         int $userid,
         int $timeleft
     ): void {
-        global $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
-        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        $cmcontext = context_module::instance($cmid);
+        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();

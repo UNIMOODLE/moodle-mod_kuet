@@ -840,6 +840,7 @@ class sessions {
      * @param jqshow_sessions $session
      * @param int $cmid
      * @param int $jqid
+     * @param context_module $context
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -850,7 +851,7 @@ class sessions {
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $users = enrol_get_course_users($course->id, true);
-        $students = [];;
+        $students = [];
         $sid = $session->get('id');
         foreach ($users as $user) {
             if (!has_capability('mod/jqshow:startsession', $context, $user) &&

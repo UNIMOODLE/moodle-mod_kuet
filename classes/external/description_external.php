@@ -116,6 +116,7 @@ class description_external extends external_api {
             );
             if ($preview === false) {
                 description::description_response(
+                    $cmid,
                     $jqid,
                     $result,
                     $questionid,

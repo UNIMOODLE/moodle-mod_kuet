@@ -26,6 +26,7 @@
 namespace mod_jqshow;
 use cm_info;
 use coding_exception;
+use context_course;
 use context_module;
 use dml_exception;
 use mod_jqshow\helpers\sessions as sessions_helper;
@@ -188,7 +189,7 @@ class jqshow {
             $module = get_module_from_cmid($cmid);
             $courseid = $module[0]->course;
         }
-        $context = \context_course::instance($courseid);
+        $context = context_course::instance($courseid);
         $courseparticipants = enrol_get_course_users($courseid, true);
         $students = [];
         foreach ($courseparticipants as $courseparticipant) {

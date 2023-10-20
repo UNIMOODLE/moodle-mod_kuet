@@ -26,7 +26,7 @@
 namespace mod_jqshow\external;
 
 use coding_exception;
-use context_course;
+use context_module;
 use dml_exception;
 use external_api;
 use external_function_parameters;
@@ -52,6 +52,7 @@ class deletesession_external extends external_api {
         return new external_function_parameters(
             [
                 'courseid' => new external_value(PARAM_INT, 'course id'),
+                'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session to copy')
             ]
         );
@@ -59,21 +60,22 @@ class deletesession_external extends external_api {
 
     /**
      * @param int $courseid
+     * @param int $cmid
      * @param int $sessionid
      * @return array
-     * @throws dml_exception
      * @throws coding_exception
+     * @throws dml_exception
      * @throws invalid_parameter_exception
      */
-    public static function deletesession(int $courseid, int $sessionid): array {
+    public static function deletesession(int $courseid, int $cmid, int $sessionid): array {
         global $USER;
         self::validate_parameters(
             self::deletesession_parameters(),
-            ['courseid' => $courseid, 'sessionid' => $sessionid]
+            ['courseid' => $courseid, 'cmid' => $cmid, 'sessionid' => $sessionid]
         );
-        $coursecontext = context_course::instance($courseid);
+        $cmcontext = context_module::instance($cmid);
         $deleted = false;
-        if ($coursecontext !== null && has_capability('mod/jqshow:managesessions', $coursecontext, $USER)) {
+        if ($cmcontext !== null && has_capability('mod/jqshow:managesessions', $cmcontext, $USER)) {
             $ds = jqshow_sessions::delete_session($sessionid);
             $dq = jqshow_questions::delete_session_questions($sessionid);
             $dresponses = jqshow_questions_responses::delete_questions_responses($sessionid);

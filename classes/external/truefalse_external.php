@@ -124,6 +124,7 @@ class truefalse_external extends external_api {
         }
         if ($preview === false) {
             truefalse::truefalse_response(
+                $cmid,
                 $jqid,
                 $answerid,
                 $answertext,

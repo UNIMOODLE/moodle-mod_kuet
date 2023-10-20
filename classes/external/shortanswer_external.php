@@ -140,6 +140,7 @@ class shortanswer_external extends external_api {
             }
             if ($preview === false) {
                 shortanswer::shortanswer_response(
+                    $cmid,
                     $jqid,
                     $responsetext,
                     $result,

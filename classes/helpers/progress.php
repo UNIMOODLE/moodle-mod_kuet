@@ -26,7 +26,7 @@
 namespace mod_jqshow\helpers;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use JsonException;
 use mod_jqshow\models\questions;
@@ -58,8 +58,8 @@ class progress {
         int $currentquestionjqid
     ): void {
         global $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
-        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        $cmcontext = context_module::instance($cmid);
+        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if (!$isteacher) {
             $session = jqshow_sessions::get_record(['id' => $sessionid] );
             switch ($session->get('sessionmode')) {

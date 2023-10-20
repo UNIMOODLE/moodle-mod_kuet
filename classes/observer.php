@@ -25,6 +25,7 @@
 namespace mod_jqshow;
 
 use coding_exception;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use mod_jqshow\api\grade;
@@ -34,6 +35,7 @@ use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_sessions_grades;
 
 class observer {
+
     /**
      * Jqshow session ended
      * Before calculate and save session grade, check:
@@ -46,15 +48,14 @@ class observer {
      * @throws dml_exception
      * @throws invalid_persistent_exception
      */
-    public static function session_ended(session_ended $event) {
-
+    public static function session_ended(session_ended $event): void {
         $data = $event->get_data();
         $jqshow = \mod_jqshow\persistents\jqshow::get_jqshow_from_cmid((int) $data['contextinstanceid']);
-        if (!$jqshow || (int) $jqshow->get('grademethod') == grade::MOD_OPTION_NO_GRADE) {
+        if (!$jqshow || (int)$jqshow->get('grademethod') === grade::MOD_OPTION_NO_GRADE) {
             return;
         };
         $session = jqshow_sessions::get_record(['id' => $data['objectid']]);
-        if (!$session || $session->get('sgrade') == sessions::GM_DISABLED) {
+        if (!$session || (int)$session->get('sgrade') === sessions::GM_DISABLED) {
             return;
         }
         $participants = self::get_course_students($data);
@@ -82,19 +83,20 @@ class observer {
             grade::recalculate_mod_mark_by_userid($participant->{'id'}, $jqshow->get('id'));
         }
     }
+
     /**
-     * @param $data
+     * @param array $data
      * @return array
+     * @throws coding_exception
      */
-    private static function get_course_students($data) {
+    private static function get_course_students(array $data): array {
         // Check if userid is teacher or student.
         $students = [(object) ['id' => $data['userid']]];
-        $context = \context_module::instance($data['contextinstanceid']);
+        $context = context_module::instance($data['contextinstanceid']);
         $isteacher = has_capability('mod/jqshow:startsession', $context, $data['userid']);
         if ($isteacher) {
             $students = jqshow::get_students($data['contextinstanceid']);
         }
-
         return $students;
     }
 }

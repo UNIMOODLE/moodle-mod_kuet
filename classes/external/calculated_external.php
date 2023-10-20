@@ -169,6 +169,7 @@ class calculated_external extends external_api {
             }
             if ($preview === false) {
                 calculated::calculated_response(
+                    $cmid,
                     $jqid,
                     $responsenum,
                     $variant,

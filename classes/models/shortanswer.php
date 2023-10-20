@@ -26,7 +26,7 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
@@ -237,6 +237,7 @@ class shortanswer extends questions {
      * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,
@@ -278,6 +279,7 @@ class shortanswer extends questions {
     }
 
     /**
+     * @param int $cmid
      * @param int $jqid
      * @param string $responsetext
      * @param int $result
@@ -290,11 +292,12 @@ class shortanswer extends questions {
      * @param int $timeleft
      * @return void
      * @throws JsonException
-     * @throws moodle_exception
      * @throws coding_exception
      * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public static function shortanswer_response(
+        int $cmid,
         int $jqid,
         string $responsetext,
         int $result,
@@ -306,9 +309,8 @@ class shortanswer extends questions {
         int $userid,
         int $timeleft
     ): void {
-        global $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
-        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        $cmcontext = context_module::instance($cmid);
+        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
@@ -351,10 +353,12 @@ class shortanswer extends questions {
         }
         return $mark;
     }
+
     /**
      * @param question_definition $question
      * @param jqshow_questions_responses[] $responses
      * @return array
+     * @throws coding_exception
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];

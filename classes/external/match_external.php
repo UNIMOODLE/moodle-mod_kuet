@@ -155,6 +155,7 @@ class match_external extends external_api {
 
             if ($preview === false) {
                 matchquestion::match_response(
+                    $cmid,
                     $jqid,
                     $jsonresponse,
                     $result,

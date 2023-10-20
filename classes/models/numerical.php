@@ -26,7 +26,7 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
@@ -326,6 +326,7 @@ class numerical extends questions {
     }
 
     /**
+     * @param int $cmid
      * @param int $jqid
      * @param string $responsetext
      * @param string $unit
@@ -340,11 +341,12 @@ class numerical extends questions {
      * @param int $timeleft
      * @return void
      * @throws JsonException
-     * @throws moodle_exception
      * @throws coding_exception
      * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public static function numerical_response(
+        int $cmid,
         int $jqid,
         string $responsetext,
         string $unit,
@@ -358,9 +360,8 @@ class numerical extends questions {
         int $userid,
         int $timeleft
     ): void {
-        global $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
-        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        $cmcontext = context_module::instance($cmid);
+        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
@@ -392,7 +393,6 @@ class numerical extends questions {
      * @throws moodle_exception
      */
     public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
-        global $DB, $COURSE;
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
         $jqshow = new jqshow($response->get('jqshow'));
@@ -409,10 +409,12 @@ class numerical extends questions {
         }
         return $mark;
     }
+
     /**
      * @param question_definition $question
      * @param jqshow_questions_responses[] $responses
      * @return array
+     * @throws coding_exception
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];

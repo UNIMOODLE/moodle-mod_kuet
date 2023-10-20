@@ -722,7 +722,7 @@ class reports {
         }
         $params = ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userid, 'name' => self::USER_REPORT];
         $data->downloaduserreport = self::get_downloadhtml($params);
-        $data->usersessiongrade = grade::get_session_grade($userid, $sid, $session->get('jqshowid'));
+        $data->usersessiongrade = round(grade::get_session_grade($userid, $sid, $session->get('jqshowid')), 1);
         return $data;
     }
 
@@ -845,7 +845,7 @@ class reports {
         }
         $params = ['cmid' => $cmid, 'sid' => $sid, 'userid' => $USER->id, 'name' => self::USER_REPORT];
         $data->downloaduserreport = self::get_downloadhtml($params);
-        $data->usersessiongrade = grade::get_session_grade($USER->id, $sid, $session->get('jqshowid'));
+        $data->usersessiongrade = round(grade::get_session_grade($USER->id, $sid, $session->get('jqshowid')), 1);
         return $data;
     }
 
@@ -937,6 +937,19 @@ class reports {
         }
         return $results;
     }
+
+    /**
+     * @param array $groups
+     * @param array $answers
+     * @param jqshow_sessions $session
+     * @param jqshow_questions $question
+     * @param int $cmid
+     * @param int $sid
+     * @param int $jqid
+     * @return array
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
     public static function get_group_ranking_for_question(
         array $groups, array $answers, jqshow_sessions $session, jqshow_questions $question, int $cmid, int $sid, int $jqid
     ): array {
