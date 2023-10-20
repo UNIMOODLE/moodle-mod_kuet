@@ -25,6 +25,7 @@
 namespace mod_jqshow;
 
 use coding_exception;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use mod_jqshow\api\grade;
@@ -32,8 +33,10 @@ use mod_jqshow\event\session_ended;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_sessions_grades;
+use moodle_exception;
 
 class observer {
+
     /**
      * Jqshow session ended
      * Before calculate and save session grade, check:
@@ -45,20 +48,21 @@ class observer {
      * @throws coding_exception
      * @throws dml_exception
      * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
-    public static function session_ended(session_ended $event) {
+    public static function session_ended(session_ended $event): void {
 
         global $PAGE;
 
         $data = $event->get_data();
-        $context = \context_module::instance((int) $data['contextinstanceid']);
+        $context = context_module::instance((int) $data['contextinstanceid']);
         $PAGE->set_context($context);
         $jqshow = \mod_jqshow\persistents\jqshow::get_jqshow_from_cmid((int) $data['contextinstanceid']);
-        if (!$jqshow || (int) $jqshow->get('grademethod') == grade::MOD_OPTION_NO_GRADE) {
+        if (!$jqshow || (int)$jqshow->get('grademethod') === grade::MOD_OPTION_NO_GRADE) {
             return;
         };
         $session = jqshow_sessions::get_record(['id' => $data['objectid']]);
-        if (!$session || $session->get('sgrade') == sessions::GM_DISABLED) {
+        if (!$session || (int)$session->get('sgrade') === sessions::GM_DISABLED) {
             return;
         }
         $grouping = is_null($session->get('groupings')) ? 0 : (int) $session->get('groupings');
@@ -87,20 +91,22 @@ class observer {
             grade::recalculate_mod_mark_by_userid($participant->{'id'}, $jqshow->get('id'));
         }
     }
+
     /**
      * @param array $data
-     * @param int $data
+     * @param int $grouping
      * @return array
+     * @throws moodle_exception
+     * @throws coding_exception
      */
-    private static function get_course_students(array $data, int $grouping = 0) {
+    private static function get_course_students(array $data, int $grouping = 0): array {
         // Check if userid is teacher or student.
         $students = [(object) ['id' => $data['userid']]];
-        $context = \context_module::instance($data['contextinstanceid']);
+        $context = context_module::instance($data['contextinstanceid']);
         $isteacher = has_capability('mod/jqshow:startsession', $context, $data['userid']);
         if ($isteacher) {
             $students = jqshow::get_students($data['contextinstanceid'], $grouping);
         }
-
         return $students;
     }
 }

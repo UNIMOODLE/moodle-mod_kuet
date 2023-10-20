@@ -26,7 +26,7 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use invalid_parameter_exception;
@@ -233,6 +233,7 @@ class matchquestion extends questions {
     }
 
     /**
+     * @param int $cmid
      * @param int $jqid
      * @param string $jsonresponse
      * @param int $result
@@ -250,6 +251,7 @@ class matchquestion extends questions {
      * @throws moodle_exception
      */
     public static function match_response(
+        int $cmid,
         int $jqid,
         string $jsonresponse,
         int $result,
@@ -262,8 +264,8 @@ class matchquestion extends questions {
         int $timeleft
     ):void {
         global $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
-        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        $cmcontext = context_module::instance($cmid);
+        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
@@ -321,11 +323,10 @@ class matchquestion extends questions {
                 case questions::NORESPONSE: $noresponse++; break;
             }
         }
-        $statistics[0]['correct'] = $correct * 100 / $total;
-        $statistics[0]['failure'] = $incorrect  * 100 / $total;
-//        $statistics[0]['invalid'] = $invalid  * 100 / $total;
-        $statistics[0]['partially'] = $partially  * 100 / $total;
-        $statistics[0]['noresponse'] = $noresponse  * 100 / $total;
+        $statistics[0]['correct'] = $correct !== 0 ? $correct * 100 / $total : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? $incorrect  * 100 / $total : 0;
+        $statistics[0]['partially'] = $partially !== 0 ? $partially  * 100 / $total : 0;
+        $statistics[0]['noresponse'] = $noresponse !== 0 ? $noresponse  * 100 / $total : 0;
         return $statistics;
     }
 }

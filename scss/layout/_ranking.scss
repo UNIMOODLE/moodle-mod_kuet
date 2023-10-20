@@ -63,6 +63,7 @@
         overflow-y: auto;
         &::-webkit-scrollbar {
             width: 8px;
+            height: 8px;
         }
         &::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.20);
@@ -156,6 +157,7 @@
                     overflow-y: auto;
                     &::-webkit-scrollbar {
                         width: 8px;
+                        height: 8px;
                     }
                     &::-webkit-scrollbar-track {
                         background: rgba(255, 255, 255, 0.20);
@@ -326,6 +328,13 @@
         }
     }
 }
+@media (max-width: 1200px) {
+    .ranking-users-body {
+        .content-users {
+            width: 90% !important;
+        }
+    }
+}
 @media (max-width: 1200px) and (min-width: 1070px) {
     .ranking-first-three {
         .content-users {
@@ -335,9 +344,10 @@
 }
 @media (max-width: 1070px) and (min-width: 880px) {
     .ranking-first-three {
-        transform: scale(0.8);
-        transform-origin: top left;
+        transform: scale(.8);
+        transform-origin: bottom left;
         width: 125%;
+        margin-top: -82px !important;
         .content-users {
             width: 100% !important;
         }
@@ -345,9 +355,10 @@
 }
 @media (max-width: 880px) and (min-width: 790px) {
     .ranking-first-three {
-        transform: scale(0.7);
-        transform-origin: top left;
+        transform: scale(.7);
+        transform-origin: bottom left;
         width: 142.5%;
+        margin-top: -125px !important;;
         .content-users {
             width: 100% !important;
         }
@@ -355,49 +366,54 @@
 }
 @media (max-width: 790px) and (min-width: 767px) {
     .ranking-first-three {
-        transform: scale(0.65);
-        transform-origin: top left;
+        transform: scale(.65);
+        transform-origin: bottom left;
         width: 153.6%;
+        margin-top: -145px !important;;
         .content-users {
             width: 100% !important;
         }
     }
 }
-@media (max-width: 767px) and (min-width: 665px) {
+@media (max-width: 767px) and (min-width: 667px) {
     .ranking-first-three {
-        transform: scale(0.7);
-        transform-origin: top left;
+        transform: scale(.7);
+        transform-origin: bottom left;
         width: 142.6%;
+        margin-top: -125px !important;;
         .content-users {
             width: 100% !important;
         }
     }
 }
-@media (max-width: 665px) and (min-width: 620px) {
+@media (max-width: 667px) and (min-width: 620px) {
     .ranking-first-three {
-        transform: scale(0.65);
-        transform-origin: top left;
+        transform: scale(.65);
+        transform-origin: bottom left;
         width: 153.6%;
+        margin-top: -145px !important;;
         .content-users {
             width: 100% !important;
         }
     }
 }
-@media (max-width: 620px) and (min-width: 570px) {
+@media (max-width: 620px) and (min-width: 580px) {
     .ranking-first-three {
-        transform: scale(0.6);
-        transform-origin: top left;
+        transform: scale(.6);
+        transform-origin: bottom left;
         width: 166%;
+        margin-top: -165px !important;;
         .content-users {
             width: 100% !important;
         }
     }
 }
-@media (max-width: 570px) and (min-width: 490px) {
+@media (max-width: 580px) and (min-width: 491px) {
     .ranking-first-three {
-        transform: scale(0.5);
-        transform-origin: top left;
+        transform: scale(.5);
+        transform-origin: bottom left;
         width: 200%;
+        margin-top: -205px !important;;
         .content-users {
             width: 100% !important;
         }
@@ -405,11 +421,29 @@
 }
 @media (max-width: 490px) {
     .ranking-first-three {
-        transform: scale(0.45);
-        transform-origin: top left;
+        transform: scale(.45);
+        transform-origin: bottom left;
         width: 222%;
+        margin-top: -225px !important;;
         .content-users {
             width: 100% !important;
         }
+    }
+}
+
+@media (max-width: 490px) and (max-width: 450px) {
+    .ranking-first-three {
+        transform: scale(.45);
+        transform-origin: bottom left;
+        width: 222%;
+        margin-top: -225px !important;;
+        .content-users {
+            width: 100% !important;
+        }
+    }
+}
+@media (max-width: 450px) {
+    .ranking-first-three {
+        overflow-y: auto;
     }
 }

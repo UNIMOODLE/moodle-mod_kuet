@@ -40,6 +40,7 @@ use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
+use pix_icon;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -97,6 +98,11 @@ class sessionquestions_external extends external_api {
         $data->position = $question->get('qorder');
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
+        $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
+            'class' => 'icon',
+            'title' => $question->get('qtype')
+        ]);
+        $data->icon = $icon->export_for_pix();
         $data->sid = $question->get('sessionid');
         $data->cmid = $cmid;
         $data->jqshowid = $question->get('jqshowid');
@@ -149,6 +155,11 @@ class sessionquestions_external extends external_api {
                         'questionnid' => new external_value(PARAM_INT, 'Question id'),
                         'position' => new external_value(PARAM_INT, 'Question order'),
                         'name' => new external_value(PARAM_RAW, 'Name of question'),
+                        'icon' => new external_single_structure([
+                            'key' => new external_value(PARAM_RAW, 'Key of icon'),
+                            'component' => new external_value(PARAM_RAW, 'Component of icon'),
+                            'title' => new external_value(PARAM_RAW, 'Title of icon'),
+                        ], ''),
                         'type' => new external_value(PARAM_RAW, 'Question type'),
                         'isvalid' => new external_value(PARAM_RAW, 'Is question valid or missing config'),
                         'time' => new external_value(PARAM_RAW, 'Time of question'),

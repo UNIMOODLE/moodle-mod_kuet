@@ -22,10 +22,10 @@
 <div class="row questions-configuration">
     <div class="col-12 col-lg-8 container">
         <div class="questions-list">
-            <h5 class="titlecontainer bg-primary">
+            <h6 class="titlecontainer bg-primary">
                 {{#pix}} i/questions_list, mod_jqshow {{/pix}}
                 {{#str}}questions_list, mod_jqshow{{/str}}
-            </h5>
+            </h6>
             <div class="session-questions" data-region="session-questions">
                 {{> mod_jqshow/createsession/sessionquestions }}
             </div>
@@ -33,10 +33,10 @@
     </div>
     <div class="col-12 col-lg-4 container">
         <div class="questions-bank">
-            <h5 class="titlecontainer bg-primary">
+            <h6 class="titlecontainer bg-primary">
                 {{#pix}} i/questions_list, mod_jqshow {{/pix}}
                 {{#str}}questions_bank, mod_jqshow{{/str}}
-            </h5>
+            </h6>
             <div class="form-group">
                 <label for="exampleFormControlSelect1">{{#str}}select_category, mod_jqshow{{/str}}</label>
                 {{{questionbank_categories}}}

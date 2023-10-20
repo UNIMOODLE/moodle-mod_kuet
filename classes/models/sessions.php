@@ -144,7 +144,7 @@ class sessions {
             ];
         }
         $timemode = [
-//            self::NO_TIME => get_string('no_time', 'mod_jqshow'), // TODO enable for inactive.
+            self::NO_TIME => get_string('no_time', 'mod_jqshow'), // TODO enable for inactive.
             self::SESSION_TIME => get_string('session_time', 'mod_jqshow'),
             self::QUESTION_TIME => get_string('question_time', 'mod_jqshow'),
         ];
@@ -343,7 +343,7 @@ class sessions {
         foreach ($questions as $key => $question) {
             $icon = new pix_icon('icon', '', 'qtype_' . $question->qtype, [
                 'class' => 'icon',
-                'title' => ''
+                'title' => $question->qtype
             ]);
             $question->icon = $icon->export_for_pix();
             $question->issuitable = in_array($question->qtype, questions::TYPES, true);
@@ -840,6 +840,7 @@ class sessions {
      * @param jqshow_sessions $session
      * @param int $cmid
      * @param int $jqid
+     * @param context_module $context
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -850,7 +851,7 @@ class sessions {
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $users = enrol_get_course_users($course->id, true);
-        $students = [];;
+        $students = [];
         $sid = $session->get('id');
         foreach ($users as $user) {
             if (!has_capability('mod/jqshow:startsession', $context, $user) &&

@@ -149,3 +149,14 @@
 		background-color: rgba(0, 0, 0, .6);
 	}
 }
+
+@media (max-width: 991px) {
+	.container-fluid.question {
+		padding: 15px;
+	}
+	.modal-body {
+		.container-fluid.question {
+			padding: 30px;
+		}
+	}
+}

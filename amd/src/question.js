@@ -38,6 +38,7 @@ let cmId;
 let sId;
 let jqId;
 let isRanking = false;
+let toggleFullScreen = false;
 
 /**
  * @constructor
@@ -61,10 +62,13 @@ Question.prototype.initQuestion = function() {
     this.node.find(ACTION.EXPAND).on('click', this.fullScreen);
     this.node.find(ACTION.COMPRESS).on('click', this.exitFullScreen);
     jQuery(ACTION.NEXTQUESTION).on('click', this.nextQuestion);
-    let that = this;
     jQuery(document).keyup(function(e) {
-        if (e.key === 'Escape') {
-            that.exitFullScreen();
+        if (e.key === 'Escape' || e.key === 27 || e.key === 'F11' || e.keyCode === 122) {
+            if (toggleFullScreen === false) {
+                Question.prototype.fullScreen();
+            } else {
+                Question.prototype.exitFullScreen();
+            }
         }
     });
     addEventListener('questionEnd', () => {
@@ -72,33 +76,36 @@ Question.prototype.initQuestion = function() {
     }, false);
 };
 
-Question.prototype.fullScreen = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    jQuery(ACTION.EXPAND).css('display', 'none');
-    jQuery(ACTION.COMPRESS).css('display', 'block');
-    jQuery(REGION.BODY).addClass('fullscreen');
-    jQuery(window).scrollTop(0);
-    jQuery('html, body').animate({scrollTop: 0}, 500);
-    let element = document.getElementById("page-mod-jqshow-view");
-    if (element === undefined || element === null) {
-        element = document.getElementById("page-mod-jqshow-preview");
-    }
-    if (element.requestFullscreen) {
-        element.requestFullscreen();
-    } else if (element.webkitRequestFullscreen) { /* Safari */
-        element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) { /* IE11 */
-        element.msRequestFullscreen();
+Question.prototype.fullScreen = function() {
+    if (toggleFullScreen === false) {
+        // TODO some fixes in switchs, inputs, and other elements. Delete or repare.
+        /*let element = document.documentElement;
+        if (element.requestFullscreen) {
+            element.requestFullscreen();
+        } else if (element.webkitRequestFullscreen) { /!* Safari *!/
+            element.webkitRequestFullscreen();
+        } else if (element.msRequestFullscreen) { /!* IE11 *!/
+            element.msRequestFullscreen();
+        }*/
+        jQuery(ACTION.EXPAND).css('display', 'none');
+        jQuery(ACTION.COMPRESS).css('display', 'block');
+        jQuery(REGION.BODY).addClass('fullscreen');
+        jQuery(window).scrollTop(0);
+        jQuery('html, body').animate({scrollTop: 0}, 500);
+        toggleFullScreen = true;
     }
 };
 
 Question.prototype.exitFullScreen = function() {
-    jQuery(ACTION.EXPAND).css('display', 'block');
-    jQuery(ACTION.COMPRESS).css('display', 'none');
-    jQuery(REGION.BODY).removeClass('fullscreen');
-    if (document.fullscreen) {
-        document.exitFullscreen();
+    if (toggleFullScreen === true) {
+        // TODO some fixes in switchs, inputs, and other elements. Delete or repare.
+        /*if (document.fullscreenElement){
+            document.exitFullscreen();
+        }*/
+        jQuery(ACTION.EXPAND).css('display', 'block');
+        jQuery(ACTION.COMPRESS).css('display', 'none');
+        jQuery(REGION.BODY).removeClass('fullscreen');
+        toggleFullScreen = false;
     }
 };
 

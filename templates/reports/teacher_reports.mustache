@@ -26,10 +26,10 @@
         {{#sessionreport}}
             <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 container">
                 <div class="resume-config">
-                    <h5 class="titlecontainer bg-primary">
+                    <h6 class="titlecontainer bg-primary">
                         {{#pix}} i/settings, mod_jqshow {{/pix}}
                         {{#str}}session_info, mod_jqshow{{/str}}
-                    </h5>
+                    </h6>
                     {{> mod_jqshow/session/sessionresume }}
                 </div>
             </div>
@@ -69,7 +69,7 @@
                     </a>
                 </div>
             </div>
-            <div class="d-flex flex-row justify-content-center w-100 mt-4">
+            <div class="d-flex flex-row justify-content-center w-100 mt-4 count_info">
                 <div class="alert alert-info rounded-left mb-0" role="alert">
                     <b>{{#str}}questions_number, mod_jqshow{{/str}}:</b> {{ numquestions }}
                 </div>
@@ -89,15 +89,18 @@
                     <b>{{#str}}noevaluable, mod_jqshow{{/str}}:</b> {{ noevaluable }}
                 </div>
             </div>
+            <div class="user_session_grade container mt-3">
+                {{usersessiongrade}}
+            </div>
             <div class="col-12 col-lg-12 container">
                 {{> mod_jqshow/reports/student_questions }}
             </div>
             <div class="col-12 col-lg-12 container">
                 <div class="resume-config">
-                    <h5 class="titlecontainer bg-primary">
+                    <h6 class="titlecontainer bg-primary">
                         {{#pix}} i/settings, mod_jqshow {{/pix}}
                         {{#str}}session_info, mod_jqshow{{/str}}
-                    </h5>
+                    </h6>
                     {{> mod_jqshow/session/sessionresume }}
                 </div>
             </div>
@@ -119,7 +122,7 @@
                     </a>
                 </div>
             </div>
-            <div class="d-flex flex-row justify-content-center w-100 mt-4">
+            <div class="d-flex flex-row justify-content-center w-100 mt-4 count_info">
                 <div class="alert alert-info rounded-left mb-0" role="alert">
                     <b>{{#str}}questions_number, mod_jqshow{{/str}}:</b> {{ numquestions }}
                 </div>
@@ -144,10 +147,10 @@
             </div>
             <div class="col-12 col-lg-12 container">
                 <div class="resume-config">
-                    <h5 class="titlecontainer bg-primary">
+                    <h6 class="titlecontainer bg-primary">
                         {{#pix}} i/settings, mod_jqshow {{/pix}}
                         {{#str}}session_info, mod_jqshow{{/str}}
-                    </h5>
+                    </h6>
                     {{> mod_jqshow/session/sessionresume }}
                 </div>
             </div>

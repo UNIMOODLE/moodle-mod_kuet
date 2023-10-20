@@ -121,6 +121,7 @@ class getuserquestionresponse_external extends external_api {
             $other->response = [];
             $json = json_encode($other, JSON_THROW_ON_ERROR);
             $data->jqshowid = $question->get('jqshowid');
+            $data->questionid = $question->get('questionid');
             $result = questions::NORESPONSE;
         } else {
             $question = new jqshow_questions($jqid);
@@ -134,6 +135,7 @@ class getuserquestionresponse_external extends external_api {
                 'programmedmode' => $session->is_programmed_mode(),
             ];
         }
+
         switch ($other->type) {
             case questions::MULTICHOICE:
                 return (array)multichoice::export_multichoice_response($data, $json);

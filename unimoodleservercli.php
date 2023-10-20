@@ -272,7 +272,7 @@ class unimoodleservercli extends websockets {
      * @return string
      * @throws JsonException
      */
-    protected function get_response_from_action_for_group(array $data) : string {
+    protected function get_response_from_action_for_group(array $data): string {
         switch ($data['action']) {
             case 'alreadyAnswered':
                 return $this->mask(
@@ -466,7 +466,7 @@ class unimoodleservercli extends websockets {
      * @param array $data
      * @return void
      */
-    private function newuser(websocketuser $user, array $data) {
+    private function newuser(websocketuser $user, array $data): void {
         $this->users[$user->usersocketid]->dataname = $data['name'];
         $this->users[$user->usersocketid]->picture = $data['pic'];
         $this->users[$user->usersocketid]->userid = $data['userid'];
@@ -481,7 +481,7 @@ class unimoodleservercli extends websockets {
      * @param array $data
      * @return void
      */
-    private function newgroup(websocketuser $user, array $data) {
+    private function newgroup(websocketuser $user, array $data): void {
         if (!array_key_exists($data['sid'], $this->sidgroups)) {
             $this->sidgroups[$data['sid']] = [];
         }

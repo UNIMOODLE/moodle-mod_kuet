@@ -85,6 +85,7 @@ SessionsPanel.prototype.copySession = function(e) {
                         methodname: SERVICES.COPYSESSION,
                         args: {
                             courseid: courseId,
+                            cmid: cmId,
                             sessionid: sessionId
                         }
                     };
@@ -150,6 +151,7 @@ SessionsPanel.prototype.deleteSession = function(e) {
                         methodname: SERVICES.DELETESESSION,
                         args: {
                             courseid: courseId,
+                            cmid: cmId,
                             sessionid: sessionId
                         }
                     };

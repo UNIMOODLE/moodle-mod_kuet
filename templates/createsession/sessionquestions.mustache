@@ -7,7 +7,7 @@
         {{/ispage3}}
         <div class="d-table-cell">{{#str}}question_position, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
-        <div class="d-table-cell">{{#str}}question_type, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}question_type, mod_jqshow{{/str}}</div>
         {{^ispage1}}
             <div class="d-table-cell text-center">{{#str}}question_time, mod_jqshow{{/str}}</div>
         {{/ispage1}}
@@ -27,7 +27,11 @@
             {{/ispage3}}
             <div class="d-table-cell">{{position}}</div>
             <div class="d-table-cell">{{name}}</div>
-            <div class="d-table-cell">{{type}}</div>
+            <div class="d-table-cell text-center">
+                {{#icon}}
+                    {{#pix}} {{key}}, {{component}}, {{title}} {{/pix}}
+                {{/icon}}
+            </div>
             {{^ispage1}}
                 <div class="d-table-cell text-center">{{time}}</div>
             {{/ispage1}}
@@ -36,17 +40,14 @@
                 <div class="content-actions">
                     {{^ispage3}}
                         {{#managesessions}}
-                            <div class="question-action">
-                                <a href="{{editquestionurl}}">
-                                    {{#pix}} i/edit_session, mod_jqshow {{/pix}}
-                                </a>
-                            </div>
+                            <a href="{{editquestionurl}}" class="question-action">
+                                {{#pix}} i/edit_session, mod_jqshow {{/pix}}
+                            </a>
                             <div class="question-action" data-action="preview_question" data-questionnid="{{questionnid}}">
                                 <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
                                     {{#pix}} i/preview, mod_jqshow {{/pix}}
                                 </div>
                             </div>
-
                             <div class="question-action" data-action="delete_question" data-questionnid="{{questionnid}}">
                                 {{#pix}} i/delete_session, mod_jqshow {{/pix}}
                             </div>

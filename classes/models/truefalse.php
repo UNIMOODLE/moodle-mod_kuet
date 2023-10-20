@@ -26,7 +26,7 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
@@ -375,6 +375,7 @@ class truefalse extends questions {
     }
 
     /**
+     * @param int $cmid
      * @param int $jqid
      * @param string $answerids
      * @param string $answertexts
@@ -389,10 +390,12 @@ class truefalse extends questions {
      * @return void
      * @throws JsonException
      * @throws coding_exception
+     * @throws dml_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
     public static function truefalse_response(
+        int $cmid,
         int $jqid,
         string $answerids,
         string $answertexts,
@@ -405,9 +408,8 @@ class truefalse extends questions {
         int $userid,
         int $timeleft
     ): void {
-        global $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
-        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        $cmcontext = context_module::instance($cmid);
+        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {
             multichoice::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::TRUE_FALSE);

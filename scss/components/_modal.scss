@@ -27,7 +27,18 @@
                 }
             }
             .modal-body {
-                padding: 0;
+                padding: 5px;
+                &::-webkit-scrollbar {
+                    width: 8px;
+                    height: 8px;
+                }
+                &::-webkit-scrollbar-track {
+                    background: #e0e0e0;
+                }
+                &::-webkit-scrollbar-thumb {
+                    background-color: #6a737b;
+                    border-radius: 4px;
+                }
                 .question-fullscreen {
                     display: none;
                 }
