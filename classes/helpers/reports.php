@@ -40,6 +40,7 @@ use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
+use pix_icon;
 use question_bank;
 use stdClass;
 use user_picture;
@@ -153,7 +154,6 @@ class reports {
         jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session
     ) {
         global $DB;
-
         $jqshow = new jqshow($jqshowid);
         $users = enrol_get_course_users($jqshow->get('course'), true);
         $cmcontext = context_module::instance($cmid);
@@ -168,6 +168,11 @@ class reports {
         $data->position = $question->get('qorder');
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
+        $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
+            'class' => 'icon',
+            'title' => $question->get('qtype')
+        ]);
+        $data->icon = $icon->export_for_pix();
         $data->success = jqshow_questions_responses::count_records([
             'jqshow' => $jqshowid,
             'session' => $session->get('id'),

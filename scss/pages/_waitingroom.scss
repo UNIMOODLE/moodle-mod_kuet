@@ -40,8 +40,18 @@ body#page-mod-jqshow-view {
                 justify-content: flex-start;
                 align-items: center;
                 width: 50%;
-                padding: 18px;
+                padding: 10px 18px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+                .imageQr {
+                    margin-left: auto;
+                    .item {
+                        a {
+                            img, svg, g {
+                                position: relative !important;
+                            }
+                        }
+                    }
+                }
                 .countusers {
                     display: flex;
                     flex-flow: column nowrap;
@@ -50,6 +60,7 @@ body#page-mod-jqshow-view {
                     color: #2b2b2b;
                     text-align: left;
                     margin-left: 15px;
+                    margin-right: 15px;
                     .participants {
                         font-size: 13px;
                         font-weight: normal;

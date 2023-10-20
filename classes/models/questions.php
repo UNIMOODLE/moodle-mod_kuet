@@ -93,12 +93,12 @@ class questions {
         self::DDWTOS
     ];
 
-    public const FAILURE = 0; // String: qstatus_0.
-    public const SUCCESS = 1; // String: qstatus_1.
-    public const PARTIALLY = 2; // String: qstatus_2.
-    public const NORESPONSE = 3; // String: qstatus_3.
-    public const NOTEVALUABLE = 4; // String: qstatus_4.
-    public const INVALID = 5; // String: qstatus_5.
+    public const FAILURE = 0;
+    public const SUCCESS = 1;
+    public const PARTIALLY = 2;
+    public const NORESPONSE = 3;
+    public const NOTEVALUABLE = 4;
+    public const INVALID = 5;
     public const CHARACTERS_TO_BE_STRIPPED = " \t\n\r\0\x0B\xC2\xA0";
     protected int $jqshowid;
     protected int $cmid;

@@ -60,7 +60,7 @@ class observer {
         $jqshow = \mod_jqshow\persistents\jqshow::get_jqshow_from_cmid((int) $data['contextinstanceid']);
         if (!$jqshow || (int)$jqshow->get('grademethod') === grade::MOD_OPTION_NO_GRADE) {
             return;
-        };
+        }
         $session = jqshow_sessions::get_record(['id' => $data['objectid']]);
         if (!$session || (int)$session->get('sgrade') === sessions::GM_DISABLED) {
             return;

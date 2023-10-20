@@ -6,7 +6,7 @@ body#page-mod-jqshow-view {
                     .imageQr {
                         .item {
                             a {
-                                img, svg {
+                                img, svg, g {
                                     width: 60px !important;
                                     height: 60px !important;
                                     position: absolute;
@@ -31,12 +31,12 @@ body#page-mod-jqshow-view {
                         right: 0;
                         top: 0;
                     }
-                    .lightbox img {
+                    .lightbox img,
+                    .lightbox svg {
                         border-radius: 1em;
                         display: block;
                         margin: auto;
-                        max-height: 80vh;
-                        max-width: 90vh;
+                        max-width: 100%;
                     }
                     .lightbox .close {
                         color: #fff;
@@ -48,6 +48,10 @@ body#page-mod-jqshow-view {
                         top: 1.5em;
                         width: 1em;
                         z-index: 1001;
+                    }
+                    .lightbox .content {
+                        padding: 20px;
+                        background-color: white
                     }
                     .lightbox p {
                         font-size: 2em;

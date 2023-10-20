@@ -20,7 +20,11 @@
                 <div class="d-table-row questions-list-data question-item" data-questionnid="{{questionnid}}">
                     <div class="d-table-cell">{{position}}</div>
                     <div class="d-table-cell">{{name}}</div>
-                    <div class="d-table-cell text-center">{{type}}</div>
+                    <div class="d-table-cell text-center">
+                        {{#icon}}
+                            {{#pix}} {{key}}, {{component}}, {{title}} {{/pix}}
+                        {{/icon}}
+                    </div>
                     <div class="d-table-cell text-center">{{success}}</div>
                     <div class="d-table-cell text-center">{{failures}}</div>
                     <div class="d-table-cell text-center">{{partyally}}</div>
