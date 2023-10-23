@@ -27,7 +27,7 @@
                          data-questionid="{{questionid}}"
                          data-action="mark-left-option"
                     >
-                        <div class="content-option bg-primary">
+                        <div class="content-option bg-primary" id="{{optionkey}}-clickable">
                             <div class="feedback-icons">
                                 <span class="feedback-icon correct">{{#pix}}q/correct, mod_jqshow{{/pix}}</span>
                                 <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_jqshow{{/pix}}</span>
@@ -57,7 +57,7 @@
                         <div class="option-pointer drag-element drop-element" id="{{optionkey}}-dropzone" data-forstems="{{optionkey}}" data-key="{{key}}">
                             <i class="fa fa-circle-o"></i>
                         </div>
-                        <div class="content-option bg-primary">
+                        <div class="content-option bg-primary" id="{{optionkey}}-clickable">
                             <div class="content-option-text">
                                 {{{ optiontext }}}
                             </div>
@@ -65,6 +65,29 @@
                     </div>
                 {{/rightoptions}}
             </div>
+        </div>
+        <div class="col-12 containt-answers-mobile" id="selectQuestion">
+            {{#leftoptions}}
+                <div class="option option-left-mobile">
+                    <div class="content-option-text-mobile">
+                        {{{ optiontext }}}
+                    </div>
+                    <select class="custom-select content-options-right-mobile"
+                            data-stems="{{optionkey}}"
+                            data-questionid="{{questionid}}"
+                            data-action="mark-left-option-mobile">
+                        <option data-stems="default">{{#str}}choose, moodle{{/str}}</option>
+                        {{#rightoptions}}
+                            <option class="option-right-mobile"
+                                    data-stems="{{optionkey}}"
+                                    data-questionid="{{questionid}}"
+                                    data-action="mark-right-option">
+                                {{{ optiontext }}}
+                            </option>
+                        {{/rightoptions}}
+                    </select>
+                </div>
+            {{/leftoptions}}
         </div>
         <div class="col-12 hidden contain-group-message" data-region="group-message">
             <div class="text">
