@@ -138,6 +138,7 @@ Match.prototype.initMatch = function() {
             Match.prototype.showAnswers();
         } else {
             Match.prototype.drawLinks();
+            Match.prototype.drawSelects();
         }
     });
     Match.prototype.initEvents();
@@ -292,7 +293,7 @@ Match.prototype.createLinkCorrection = function() {
 };
 
 Match.prototype.getRandomColor = function(position) {
-    let colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FF9999', '#00B3E6',
+    let colorArray = ['#FF6633', '#E64D66', '#FF33FF', '#FF9999', '#00B3E6',
                       '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
                       '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
                       '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
@@ -301,7 +302,7 @@ Match.prototype.getRandomColor = function(position) {
                       '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
                       '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
                       '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
-                      '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
+                      '#FFB399', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
     return colorArray[position];
 };
 
@@ -495,13 +496,14 @@ Match.prototype.Drop = function(dragId, dropId){
         return obj.dropId !== dropId;
     });
 
-    let steamsLeft = jQuery('#' + dragId).data('forstems');
-    let steamsRight = jQuery('#' + dropId).data('forstems');
-    let stemDragId = Match.prototype.baseConvert(steamsLeft, 2, 16);
-    let stemDropId = Match.prototype.baseConvert(steamsRight, 26, 10);
+    let stemsLeft = jQuery('#' + dragId).data('forstems');
+    let stemsRight = jQuery('#' + dropId).data('forstems');
+    let stemDragId = Match.prototype.baseConvert(stemsLeft, 2, 16);
+    let stemDropId = Match.prototype.baseConvert(stemsRight, 26, 10);
 
-    linkList.push({dragId, dropId, color, stemDragId, stemDropId, steamsLeft, steamsRight});
+    linkList.push({dragId, dropId, color, stemDragId, stemDropId, stemsLeft, stemsRight});
     Match.prototype.drawLinks();
+    Match.prototype.drawSelects();
     Match.prototype.clearPathTemp();
 };
 
@@ -608,7 +610,13 @@ Match.prototype.drawLink = function(obj1, obj2, pColor) {
 
 Match.prototype.clearPath = function(event) {
     let ident = event.currentTarget.id;
+    let oldStemsLeft = '';
+    let oldStemsRight = '';
     linkList = linkList.filter(obj => {
+        if (obj.dropId === ident) {
+            oldStemsLeft = obj.stemsLeft;
+            oldStemsRight = obj.stemsRight;
+        }
         return obj.dropId !== ident;
     });
     let dragQuestionObject = jQuery(REGION.CONTAINER_ANSWERS);
@@ -616,6 +624,10 @@ Match.prototype.clearPath = function(event) {
     dragQuestionObject.find("i").css('font-weight', '400');
     dragQuestionObject.find("i").css('color', '#5a57ff');
     Match.prototype.drawLinks();
+    if (oldStemsLeft !== '' && oldStemsRight !== '') {
+        Match.prototype.optionDeselected(oldStemsLeft, oldStemsRight);
+    }
+    Match.prototype.drawSelects();
 };
 
 /* Draw path mouse line */
@@ -720,53 +732,75 @@ Match.prototype.OptionSelected = function(e) {
     let optionLeft = jQuery(e.target);
     let optionRight = jQuery(e.target).find('option:selected');
     let stemsLeft = optionLeft.attr('data-stems');
-    let stemsRigth = optionRight.attr('data-stems');
-    if (stemsRigth !== 'default') {
+    let stemsRight = optionRight.attr('data-stems');
+    if (stemsRight !== 'default') {
         jQuery('#' + stemsLeft + '-left-clickable').trigger('click');
         setTimeout(function() {
-            jQuery('#' + stemsRigth + '-right-clickable').trigger('click');
+            jQuery('#' + stemsRight + '-right-clickable').trigger('click');
             optionLeft.css({'border': '1px solid ' + color});
         }, 200);
-        // Deselect.
-        jQuery(ACTION.SELECTOPTION).each(function() {
-            if (jQuery(this).attr('data-stems') !== stemsLeft) {
-                if (jQuery(this).find('option[data-stems="' + stemsRigth + '"]:selected').length) {
-                    jQuery(this).find('option[data-stems="default"]').prop('selected', true);
-                }
-            }
-            jQuery(this).find('option[data-stems="' + stemsRigth + '"]')
-                .each(function() {
-                    jQuery(this).css('background-color', color);
-                });
-        });
+        Match.prototype.optionDeselected(stemsLeft, stemsRight);
+        Match.prototype.optionSelected(stemsLeft, stemsRight, color);
     } else {
         let dragId = stemsLeft + '-draggable';
         let oldDropId = '';
-        let oldStemsRigth = '';
+        let oldStemsRight = '';
         linkList = linkList.filter(obj => {
             if (obj.dragId === dragId) {
                 oldDropId = obj.dropId;
-                oldStemsRigth = obj.steamsRight;
+                oldStemsRight = obj.stemsRight;
             }
             return obj.dragId !== dragId;
         });
-        optionLeft.css({'border': '1px solid #8f959e'});
-        jQuery(ACTION.SELECTOPTION).each(function() {
-            jQuery(this).find('option[data-stems="' + oldStemsRigth + '"]').each(function() {
-                jQuery(this).css('background-color', 'white');
-            });
-        });
+        Match.prototype.optionDeselected(stemsLeft, oldStemsRight);
         jQuery('#' + oldDropId).trigger('click');
     }
 };
 
+Match.prototype.optionSelected = function(stemsLeft, stemsRight, color) {
+    jQuery(ACTION.SELECTOPTION).each(function() {
+        jQuery(this).find('option[data-stems="' + stemsRight + '"]')
+            .each(function() {
+                jQuery(this).css('background-color', color);
+        });
+    });
+};
+
+Match.prototype.optionDeselected = function(stemsLeft, stemsRight) {
+    jQuery(ACTION.SELECTOPTION).each(function() {
+        if (parseInt(jQuery(this).attr('data-stems')) === parseInt(stemsLeft)) {
+            jQuery(this).css({'border': '1px solid #8f959e'});
+        }
+        if (jQuery(this).find('option[data-stems="' + stemsRight + '"]:selected').length) {
+            jQuery(this).find('option[data-stems="default"]').prop('selected', true);
+        }
+        jQuery(this).find('option[data-stems="' + stemsRight + '"]').each(function() {
+            jQuery(this).css('background-color', 'white');
+        });
+    });
+};
+
+Match.prototype.drawSelects = function() {
+    linkList.forEach(
+        select => Match.prototype.drawSelect(select.stemsLeft, select.stemsRight, select.color)
+    );
+};
+
+Match.prototype.drawSelect = function(stemsLeft, stemsRight, color) {
+    jQuery('.content-options-right-mobile[data-stems="' + stemsLeft + '"]').css({'border': '1px solid ' + color});
+    jQuery(
+        '.content-options-right-mobile[data-stems="' + stemsLeft + '"]' +
+        ' .option-right-mobile[data-stems="' + stemsRight + '"]').prop('selected', true);
+    Match.prototype.optionSelected(stemsLeft, stemsRight, color);
+};
+
 Match.prototype.drawMobileResponse = function(fromTeacher = false) {
     linkList.forEach(userR => {
-        let feedbacks = jQuery('.feedback-icons[data-stems="' + userR.steamsLeft + '"]');
-        let optionLeft = jQuery('.content-options-right-mobile[data-stems="' + userR.steamsLeft + '"]');
+        let feedbacks = jQuery('.feedback-icons[data-stems="' + userR.stemsLeft + '"]');
+        let optionLeft = jQuery('.content-options-right-mobile[data-stems="' + userR.stemsLeft + '"]');
         let optionRight = jQuery(
-            '.content-options-right-mobile[data-stems="' + userR.steamsLeft + '"]' +
-            ' .option-right-mobile[data-stems="' + userR.steamsRight + '"]');
+            '.content-options-right-mobile[data-stems="' + userR.stemsLeft + '"]' +
+            ' .option-right-mobile[data-stems="' + userR.stemsRight + '"]');
         if (manualMode === false || jQuery('.modal-body').length || fromTeacher === true) {
             if (userR.stemDragId === userR.stemDropId) {
                 userR.color = '#0fd08c';
@@ -785,11 +819,11 @@ Match.prototype.drawMobileResponse = function(fromTeacher = false) {
 
 Match.prototype.hideMobileResponse = function() {
     linkList.forEach(userR => {
-        let feedbacks = jQuery('.feedback-icons[data-stems="' + userR.steamsLeft + '"]');
-        let optionLeft = jQuery('.content-options-right-mobile[data-stems="' + userR.steamsLeft + '"]');
+        let feedbacks = jQuery('.feedback-icons[data-stems="' + userR.stemsLeft + '"]');
+        let optionLeft = jQuery('.content-options-right-mobile[data-stems="' + userR.stemsLeft + '"]');
         let optionRight = jQuery(
-            '.content-options-right-mobile[data-stems="' + userR.steamsLeft + '"]' +
-            ' .option-right-mobile[data-stems="' + userR.steamsRight + '"]');
+            '.content-options-right-mobile[data-stems="' + userR.stemsLeft + '"]' +
+            ' .option-right-mobile[data-stems="' + userR.stemsRight + '"]');
         feedbacks.find('.feedback-icon').css({'display': 'none'});
         optionLeft.css({'border': '1px solid' + userR.color});
         optionRight.css({'background-color': userR.color});
