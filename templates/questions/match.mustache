@@ -72,20 +72,26 @@
                     <div class="content-option-text-mobile">
                         {{{ optiontext }}}
                     </div>
-                    <select class="custom-select content-options-right-mobile"
-                            data-stems="{{optionkey}}"
-                            data-questionid="{{questionid}}"
-                            data-action="mark-left-option-mobile">
-                        <option data-stems="default">{{#str}}choose, moodle{{/str}}</option>
-                        {{#rightoptions}}
-                            <option class="option-right-mobile"
-                                    data-stems="{{optionkey}}"
-                                    data-questionid="{{questionid}}"
-                                    data-action="mark-right-option">
-                                {{{ optiontext }}}
-                            </option>
-                        {{/rightoptions}}
-                    </select>
+                    <div class="d-flex align-items-center justify-content-start flex-nowrap">
+                        <div class="feedback-icons" data-stems="{{optionkey}}">
+                            <span class="feedback-icon correct">{{#pix}}q/correct, mod_jqshow{{/pix}}</span>
+                            <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_jqshow{{/pix}}</span>
+                        </div>
+                        <select class="custom-select content-options-right-mobile"
+                                data-stems="{{optionkey}}"
+                                data-questionid="{{questionid}}"
+                                data-action="mark-left-option-mobile">
+                            <option data-stems="default">{{#str}}choose, moodle{{/str}}</option>
+                            {{#rightoptions}}
+                                <option class="option-right-mobile"
+                                        data-stems="{{optionkey}}"
+                                        data-questionid="{{questionid}}"
+                                        data-action="mark-right-option">
+                                    {{{ optiontext }}}
+                                </option>
+                            {{/rightoptions}}
+                        </select>
+                    </div>
                 </div>
             {{/leftoptions}}
         </div>
