@@ -20,6 +20,7 @@
                     <div class="sessions-list-body d-table">
                         <div class="d-table-row sessions-list-thead">
                             <div class="d-table-cell">{{#str}}session_name, mod_jqshow{{/str}}</div>
+                            <div class="d-table-cell">{{#str}}score, mod_jqshow{{/str}}</div>
                             <div class="d-table-cell">{{#str}}sessionmode, mod_jqshow{{/str}}</div>
                             <div class="d-table-cell">{{#str}}timemode, mod_jqshow{{/str}}</div>
                             <div class="d-table-cell text-center">{{#str}}sessiontime, mod_jqshow{{/str}}</div>
@@ -30,6 +31,7 @@
                         {{#endedsessions}}
                             <div class="d-table-row sessions-list-data">
                                 <div class="d-table-cell">{{name}}</div>
+                                <div class="d-table-cell">{{score}}</div>
                                 <div class="d-table-cell">{{sessionmode}}</div>
                                 <div class="d-table-cell">{{timemode}}</div>
                                 <div class="d-table-cell text-center">{{sessiontime}}</div>

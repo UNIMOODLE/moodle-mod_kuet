@@ -282,22 +282,6 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
-    'mod_jqshow_savequestiontime' => [
-        'classname' => activesession_external::class,
-        'methodname' => 'savequestiontime',
-        'description' => 'Save question time',
-        'type' => 'write',
-        'ajax' => true,
-        'loginrequired' => true
-    ],
-    'mod_jqshow_isquestionanswered' => [
-        'classname' => activesession_external::class,
-        'methodname' => 'isquestionanswered',
-        'description' => 'To know if a question has been already answered by a member of the group.',
-        'type' => 'write',
-        'ajax' => true,
-        'loginrequired' => true
-    ],
     'mod_jqshow_getactivesession' => [
         'classname' => getactivesession_external::class,
         'methodname' => 'getactivesession',
@@ -436,8 +420,6 @@ $services = [
             'mod_jqshow_getsession',
             'mod_jqshow_getprovisionalranking',
             'mod_jqshow_getfinalranking',
-            'mod_jqshow_savequestiontime',
-            'mod_jqshow_isquestionanswered',
             'mod_jqshow_getraceresults'
         ],
         'restrictedusers' => 0,

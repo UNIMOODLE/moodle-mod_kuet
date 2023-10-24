@@ -76,9 +76,6 @@ class teacher extends user {
                 $inactives[] = $ds;
             }
         }
-        if (!file_exists($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg')) {
-            generate_jqshow_qrcode((new moodle_url('/mod/jqshow/view.php', ['id' => $cmid]))->out(false), $cmid);
-        }
         $actives = $this->get_sessions_conflicts($actives);
         $data = new stdClass();
         $data->activesessions = $actives;
@@ -87,8 +84,9 @@ class teacher extends user {
         $data->jqshowid = $jqshow->cm->instance;
         $data->cmid = $cmid;
         $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
-        $data->hasqrcodeimage = file_exists($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg');
-        $data->urlqrcode = $data->hasqrcodeimage === true ? file_get_contents( $CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg') : '';
+        $qrcode = generate_jqshow_qrcode((new moodle_url('/mod/jqshow/view.php', ['id' => $cmid]))->out(false));
+        $data->hasqrcodeimage = $qrcode !== '';
+        $data->urlqrcode = $data->hasqrcodeimage === true ? $qrcode : '';
         $data->hasactivesession = jqshow_sessions::get_active_session_id(($jqshow->get_jqshow())->id) !== 0;
         return $data;
     }

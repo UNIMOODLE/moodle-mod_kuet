@@ -285,6 +285,9 @@ class sessionform extends moodleform {
             if ((int)$data['startdate'] >= (int)$data['enddate']) {
                 $errors['enddate'] = get_string('startminorend', 'mod_jqshow');
             }
+        } else {
+            $data['startdate'] = 0;
+            $data['enddate'] = 0;
         }
         // Groups mode.
         if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && empty($data['groupings'])) {

@@ -28,6 +28,7 @@ namespace mod_jqshow\output\views;
 use coding_exception;
 use dml_exception;
 use JsonException;
+use mod_jqshow\api\grade;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\jqshow;
 use moodle_exception;
@@ -69,6 +70,7 @@ class student_reports implements renderable, templatable {
             foreach ($data->endedsessions as $endedsession) {
                 $endedsession->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $this->cmid, 'sid' => $endedsession->sessionid, 'userid' => $USER->id]))->out(false);
+                $data->score = round(grade::get_session_grade($USER->id, $endedsession->sessionid, $this->jqshowid), 2);
             }
         } else {
             $data = reports::get_student_report($this->cmid, $this->sid);

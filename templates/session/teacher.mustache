@@ -5,7 +5,26 @@
     <div class="teacher-session-content" data-region="teacher-session-content">
         <div class="row summary-session">
             <div class="col-12">
-                <button class="btn btn-primary float-right" data-action="end_session" data-sessionid="{{sid}}">{{#str}}end_session, mod_jqshow{{/str}}</button>
+                <div class="d-flex align-items-center float-right mb-2">
+                    {{#hasqrcodeimage}}
+                        <div class="imageQr mr-3">
+                            <div class="item">
+                                <a href="#imageQr">
+                                    <img src="{{{urlqrcode}}}" />
+                                </a>
+                            </div>
+                        </div>
+                        <div class="lightboxes">
+                            <div class="lightbox" id="imageQr">
+                                <a href="#" class="close">&times;</a>
+                                <div class="content">
+                                    <img src="{{{urlqrcode}}}" />
+                                </div>
+                            </div>
+                        </div>
+                    {{/hasqrcodeimage}}
+                    <button class="btn btn-primary mb-0" data-action="end_session" data-sessionid="{{sid}}">{{#str}}end_session, mod_jqshow{{/str}}</button>
+                </div>
             </div>
             {{#racemode}}
                 <div class="col-12 container mb-4">

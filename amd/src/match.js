@@ -8,6 +8,7 @@ import mEvent from 'core/event';
 
 let ACTION = {
     SEND_RESPONSE: '[data-action="send-match"]',
+    SELECTOPTION: '[data-action="mark-left-option-mobile"]'
 };
 
 let REGION = {
@@ -17,6 +18,7 @@ let REGION = {
     LEFT_OPTION: '#dragOption',
     RIGHT_OPTION: '#dropOption',
     CONTAINER_ANSWERS: '#dragQuestion',
+    CONTAINER_ANSWERS_MOBILE: '#selectQuestion',
     CANVAS: '#canvas',
     CANVASTEMP: '#canvasTemp',
     LEFT_OPTION_SELECTOR: '#dragOption .option',
@@ -134,6 +136,12 @@ Match.prototype.initMatch = function() {
     jQuery(REGION.LEFT_OPTION_CLICKABLE).on('click', Match.prototype.leftOptionSelected.bind(this));
     jQuery(ACTION.SEND_RESPONSE).off('click');
     jQuery(ACTION.SEND_RESPONSE).on('click', Match.prototype.sendResponse);
+
+    // Mobile.
+    jQuery(ACTION.SELECTOPTION).on('change', Match.prototype.SelectOptionSelected.bind(this));
+    jQuery(window).on('resize', function() {
+        Match.prototype.drawLinks();
+    });
     Match.prototype.initEvents();
 };
 
@@ -440,9 +448,7 @@ Match.prototype.removeTargetEvents = function(target) {
 
 /* DRAG AND DROP */
 Match.prototype.onDragStart = function(event) {
-    event
-        .dataTransfer
-        .setData('text/plain', event.target.id);
+    event.dataTransfer.setData('text/plain', event.target.id);
     startPoint = event.target.id;
     let options = document.querySelectorAll(REGION.LEFT_OPTION_SELECTOR);
     color = Match.prototype.getRandomColor(Array.from(options).indexOf(event.currentTarget));
@@ -459,10 +465,7 @@ Match.prototype.onDragEnd = function(event) {
 };
 
 Match.prototype.onDrop = function(event) {
-    const dragId = event
-        .dataTransfer
-        .getData('text');
-
+    const dragId = event.dataTransfer.getData('text');
     const dropId = jQuery(event.currentTarget).find(REGION.POINTER).attr('id');
     Match.prototype.Drop(dragId, dropId);
 };
@@ -702,6 +705,47 @@ Match.prototype.allDisabled = function() {
     jQuery(REGION.CLEARPATH).off('click');
     jQuery(REGION.LEFT_OPTION_CLICKABLE).off('click');
     jQuery(ACTION.SEND_RESPONSE).off('click');
+};
+
+/* MOBILE */
+Match.prototype.SelectOptionSelected = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let optionLeft = jQuery(e.target);
+    let optionRight = jQuery(e.target).find('option:selected');
+    let stemsLeft = optionLeft.attr('data-stems');
+    let stemsRigth = optionRight.attr('data-stems');
+    let dragId = stemsLeft + '-draggable';
+    let dropId = stemsRigth + '-dropzone';
+    if (stemsRigth !== 'default') {
+        jQuery('#' + stemsLeft + '-left-clickable').trigger('click');
+        setTimeout(function() {
+            jQuery('#' + stemsRigth + '-right-clickable').trigger('click');
+            optionLeft.css({'border': '1px solid ' + color});
+        }, 200);
+        // Deselect.
+        jQuery(ACTION.SELECTOPTION).each(function() {
+            if (jQuery(this).attr('data-stems') !== stemsLeft) {
+                if (jQuery(this).find('option[data-stems="' + stemsRigth + '"]:selected').length) {
+                    jQuery(this).find('option[data-stems="default"]').prop('selected', true);
+                }
+            }
+            jQuery(this).find('option[data-stems="' + stemsRigth + '"]')
+                .each(function() {
+                    jQuery(this).css('background-color', color);
+                });
+        });
+    } else {
+        let oldDropId = '';
+        linkList = linkList.filter(obj => {
+            if (obj.dragId === dragId) {
+                oldDropId = obj.dropId;
+            }
+            return obj.dragId !== dragId;
+        });
+        optionLeft.css({'border': '1px solid #8f959e'});
+        jQuery('#' + oldDropId).trigger('click');
+    }
 };
 
 /* EVENTS */

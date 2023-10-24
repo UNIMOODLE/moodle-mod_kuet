@@ -5,14 +5,14 @@
                 <div class="d-table-cell"></div>
             {{/waitingroom}}
         {{/ispage3}}
-        <div class="d-table-cell">{{#str}}question_position, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}question_position, mod_jqshow{{/str}}</div>
         <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
         <div class="d-table-cell text-center">{{#str}}question_type, mod_jqshow{{/str}}</div>
         {{^ispage1}}
             <div class="d-table-cell text-center">{{#str}}question_time, mod_jqshow{{/str}}</div>
         {{/ispage1}}
         <div class="d-table-cell text-center">{{#str}}question_version, mod_jqshow{{/str}}</div>
-        <div class="d-table-cell">{{#str}}question_actions, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}question_actions, mod_jqshow{{/str}}</div>
     </div>
     {{#sessionquestions}}
         <div class="d-table-row questions-list-data question-item" data-questionnid="{{questionnid}}">
@@ -25,7 +25,7 @@
                     </div>
                 {{/waitingroom}}
             {{/ispage3}}
-            <div class="d-table-cell">{{position}}</div>
+            <div class="d-table-cell text-center">{{position}}</div>
             <div class="d-table-cell">{{name}}</div>
             <div class="d-table-cell text-center">
                 {{#icon}}

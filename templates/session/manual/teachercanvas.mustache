@@ -9,12 +9,12 @@
      class="position-relative"
 >
     <div class="row content-header">
-        <div class="content-title col-12 col-lg-5">
+        <div class="content-title col-12 col-md-3 col-lg-6">
             <h2>{{#str}}waitingroom, mod_jqshow{{/str}}</h2>
             <small>{{#str}}waitingroom_info, mod_jqshow{{/str}}</small>
             <div id="message-box"></div>
         </div>
-        <div class="more-info-session col-12 col-md-8 col-lg-5">
+        <div class="more-info-session col-12 col-md-9 col-lg-6">
             <div class="sessionname">
                 {{#pix}}s/name, mod_jqshow{{/pix}}
                 <div class="sessionname-text">
@@ -28,9 +28,26 @@
                     <span id="countusers">0</span>
                     <span class="participants">{{#str}}participants, mod_jqshow{{/str}}</span>
                 </div>
+                {{#hasqrcodeimage}}
+                    <div class="imageQr">
+                        <div class="item">
+                            <a href="#imageQr">
+                                <img src="{{{urlqrcode}}}" />
+                            </a>
+                        </div>
+                    </div>
+                    <div class="lightboxes">
+                        <div class="lightbox" id="imageQr">
+                            <a href="#" class="close">&times;</a>
+                            <div class="content">
+                                <img src="{{{urlqrcode}}}" />
+                            </div>
+                        </div>
+                    </div>
+                {{/hasqrcodeimage}}
             </div>
         </div>
-        <div class="session-controller col-12 col-md-4 col-lg-2" data-region="session-controller">
+        <div class="session-controller col-12 col-md-12 col-lg-12 mt-3" data-region="session-controller">
             <button class="btn btn-secondary" data-action="back-session">
                 {{#str}}back{{/str}}
             </button>

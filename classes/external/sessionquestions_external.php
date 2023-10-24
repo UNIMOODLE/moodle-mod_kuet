@@ -26,7 +26,7 @@
 namespace mod_jqshow\external;
 
 use coding_exception;
-use context_course;
+use context_module;
 use dml_exception;
 use external_api;
 use external_function_parameters;
@@ -127,7 +127,7 @@ class sessionquestions_external extends external_api {
         }
         $data->issuitable = in_array($question->get('qtype'), questions::TYPES, true);
         $data->version = $DB->get_field('question_versions', 'version', ['questionid' => $question->get('questionid')]);
-        $cmcontext = \context_module::instance($cmid);
+        $cmcontext = context_module::instance($cmid);
         $data->managesessions = has_capability('mod/jqshow:managesessions', $cmcontext);
         $args = [
             'id' => $cmid,

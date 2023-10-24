@@ -62,6 +62,9 @@ class teacher_session_view implements renderable, templatable {
         $data->userimage = $userpicture->get_url($PAGE)->out(false);
         $session = new jqshow_sessions($data->sid);
         $data->jqshowid = $session->get('jqshowid');
+        $qrcode = generate_jqshow_qrcode((new moodle_url('/mod/jqshow/view.php', ['id' => $data->cmid]))->out(false));
+        $data->hasqrcodeimage = $qrcode !== '';
+        $data->urlqrcode = $data->hasqrcodeimage === true ? $qrcode : '';
         jqshow_sessions::mark_session_started($data->sid);
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:

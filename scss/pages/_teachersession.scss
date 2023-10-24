@@ -1,4 +1,13 @@
 .teacher-session-content {
+    .imageQr {
+        .item {
+            a {
+                img, svg, g {
+                    position: relative !important;
+                }
+            }
+        }
+    }
     .summary-session {
         [data-action="end_session"] {
             margin-bottom: 25px;
