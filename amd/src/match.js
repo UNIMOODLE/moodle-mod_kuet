@@ -139,7 +139,9 @@ Match.prototype.initMatch = function() {
 
     // Mobile.
     jQuery(ACTION.SELECTOPTION).on('change', Match.prototype.SelectOptionSelected.bind(this));
-
+    jQuery(window).on('resize', function() {
+        Match.prototype.drawLinks();
+    });
     Match.prototype.initEvents();
 };
 
@@ -716,11 +718,11 @@ Match.prototype.SelectOptionSelected = function(e) {
     let dragId = stemsLeft + '-draggable';
     let dropId = stemsRigth + '-dropzone';
     if (stemsRigth !== 'default') {
-        jQuery('#' + stemsLeft + '-clickable').trigger('click');
+        jQuery('#' + stemsLeft + '-left-clickable').trigger('click');
         setTimeout(function() {
-            jQuery('#' + stemsRigth + '-clickable').trigger('click');
+            jQuery('#' + stemsRigth + '-right-clickable').trigger('click');
             optionLeft.css({'border': '1px solid ' + color});
-        }, 500);
+        }, 200);
         // Deselect.
         jQuery(ACTION.SELECTOPTION).each(function() {
             if (jQuery(this).attr('data-stems') !== stemsLeft) {
@@ -728,10 +730,12 @@ Match.prototype.SelectOptionSelected = function(e) {
                     jQuery(this).find('option[data-stems="default"]').prop('selected', true);
                 }
             }
+            jQuery(this).find('option[data-stems="' + stemsRigth + '"]')
+                .each(function() {
+                    jQuery(this).css('background-color', color);
+                });
         });
     } else {
-        // eslint-disable-next-line no-console
-        console.log(linkList, dragId, dropId);
         let oldDropId = '';
         linkList = linkList.filter(obj => {
             if (obj.dragId === dragId) {
@@ -739,8 +743,6 @@ Match.prototype.SelectOptionSelected = function(e) {
             }
             return obj.dragId !== dragId;
         });
-        // eslint-disable-next-line no-console
-        console.log(oldDropId, linkList);
         optionLeft.css({'border': '1px solid #8f959e'});
         jQuery('#' + oldDropId).trigger('click');
     }
