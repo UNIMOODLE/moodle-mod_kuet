@@ -34,14 +34,14 @@ use stdClass;
 defined('MOODLE_INTERNAL') || die();
 interface questionType {
     /**
-     * @param \stdClass $useranswer
+     * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
      * @return mixed
      */
     public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response);
 
     /**
-     * @param \stdClass $participant
+     * @param stdClass $participant
      * @param jqshow_questions_responses $response
      * @param array $answers
      * @param jqshow_sessions $session
@@ -64,7 +64,7 @@ interface questionType {
     /**
      * @param jqshow_sessions $session
      * @param question_definition $questiondata
-     * @param \stdClass $data
+     * @param stdClass $data
      * @param int $jqid
      * @return mixed
      */
