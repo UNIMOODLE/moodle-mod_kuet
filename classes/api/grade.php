@@ -408,4 +408,28 @@ class grade {
         }
         return $result;
     }
+
+    /**
+     * @param jqshow_questions_responses[] $responses
+     * @return array
+     * @throws coding_exception
+     */
+    public static function count_result_mark_types(array $responses) : array {
+        $correct = 0;
+        $incorrect = 0;
+        $partially = 0;
+        $noresponse = 0;
+        $invalid = 0;
+        foreach ($responses as $response) {
+            $result = $response->get('result');
+            switch ($result) {
+                case questions::SUCCESS: $correct++; break;
+                case questions::FAILURE: $incorrect++; break;
+                case questions::INVALID: $invalid++; break;
+                case questions::PARTIALLY: $partially++; break;
+                case questions::NORESPONSE: $noresponse++; break;
+            }
+        }
+        return [$correct, $incorrect, $invalid, $partially, $noresponse];
+    }
 }

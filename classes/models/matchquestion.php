@@ -296,22 +296,8 @@ class matchquestion extends questions {
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];
-        $correct = 0;
-        $incorrect = 0;
-        $partially = 0;
-        $noresponse = 0;
-        $invalid = 0;
         $total = count($responses);
-        foreach ($responses as $response) {
-            $result = $response->get('result');
-            switch ($result) {
-                case questions::SUCCESS: $correct++; break;
-                case questions::FAILURE: $incorrect++; break;
-                case questions::INVALID: $invalid++; break;
-                case questions::PARTIALLY: $partially++; break;
-                case questions::NORESPONSE: $noresponse++; break;
-            }
-        }
+        list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
         $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
         $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
         $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
