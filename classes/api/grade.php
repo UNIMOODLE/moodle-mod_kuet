@@ -380,6 +380,12 @@ class grade {
     private static function get_last_grade(array $allgrades) {
         return end($allgrades)->get('grade');
     }
+
+    /**
+     * @param jqshow_questions_responses $response
+     * @return string
+     * @throws coding_exception
+     */
     public static function get_result_mark_type(jqshow_questions_responses $response) {
         $result = '';
         switch ($response->get('result')) {
