@@ -50,7 +50,6 @@ let questionid;
 let jqshowId;
 let jqid;
 let questionEnd = false;
-let correctAnswers = null;
 let showQuestionFeedback = false;
 let manualMode = false;
 let startPoint;
@@ -105,10 +104,12 @@ Match.prototype.answered = function(jsonresponse) {
     Match.prototype.allDisabled();
     linkList = jsonresponse;
     Match.prototype.drawResponse();
+    Match.prototype.drawSelects();
     questionEnd = true;
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(REGION.CONTAINER_ANSWERS).css('z-index', 3);
+    jQuery(REGION.CONTAINER_ANSWERS_MOBILE).css('z-index', 3);
     if (manualMode === false) {
         jQuery(REGION.NEXT).removeClass('d-none');
     }
@@ -116,14 +117,7 @@ Match.prototype.answered = function(jsonresponse) {
 };
 
 Match.prototype.initMatch = function() {
-    let heightLeft = jQuery(REGION.LEFT_OPTION).height();
-    let heightRight = jQuery(REGION.RIGHT_OPTION).height();
-    let canvasHeight = heightLeft > heightRight ? heightLeft : heightRight;
-    jQuery(REGION.CANVAS).attr('height', canvasHeight);
-    jQuery(REGION.CANVAS).attr('width', jQuery(REGION.CANVAS).width());
-
-    jQuery(REGION.CANVASTEMP).attr('width', jQuery(REGION.CANVASTEMP).width());
-    jQuery(REGION.CANVASTEMP).attr('height', canvasHeight);
+    Match.prototype.normalizeCanvas();
     jQuery(REGION.CONTAINER_ANSWERS).bind('dragover', function(){
         let top = window.event.pageY,
             left = window.event.pageX;
@@ -132,17 +126,33 @@ Match.prototype.initMatch = function() {
     jQuery(REGION.LEFT_OPTION).find(REGION.OPTION).toArray().forEach(dragEl => this.addEventsDragAndDrop(dragEl));
     jQuery(REGION.RIGHT_OPTION).find(REGION.OPTION).toArray().forEach(dropEl => this.addTargetEvents(dropEl));
     Match.prototype.drawLinks();
-    jQuery(REGION.CLEARPATH).on('click', Match.prototype.clearPath.bind(this));
-    jQuery(REGION.LEFT_OPTION_CLICKABLE).on('click', Match.prototype.leftOptionSelected.bind(this));
+    jQuery(REGION.CLEARPATH).on('click touchend', Match.prototype.clearPath.bind(this));
+    jQuery(REGION.LEFT_OPTION_CLICKABLE).on('click touchend', Match.prototype.leftOptionSelected.bind(this));
     jQuery(ACTION.SEND_RESPONSE).off('click');
     jQuery(ACTION.SEND_RESPONSE).on('click', Match.prototype.sendResponse);
 
     // Mobile.
-    jQuery(ACTION.SELECTOPTION).on('change', Match.prototype.SelectOptionSelected.bind(this));
+    jQuery(ACTION.SELECTOPTION).on('change', Match.prototype.OptionSelected.bind(this));
     jQuery(window).on('resize', function() {
-        Match.prototype.drawLinks();
+        Match.prototype.normalizeCanvas();
+        if ((manualMode === false || jQuery('.modal-body').length) && questionEnd === true) {
+            Match.prototype.showAnswers();
+        } else {
+            Match.prototype.drawLinks();
+            Match.prototype.drawSelects();
+        }
     });
     Match.prototype.initEvents();
+};
+
+Match.prototype.normalizeCanvas = function() {
+    let heightLeft = jQuery(REGION.LEFT_OPTION).height();
+    let heightRight = jQuery(REGION.RIGHT_OPTION).height();
+    let canvasHeight = heightLeft > heightRight ? heightLeft : heightRight;
+    jQuery(REGION.CANVAS).attr('height', canvasHeight);
+    jQuery(REGION.CANVAS).attr('width', jQuery(REGION.CANVAS).width());
+    jQuery(REGION.CANVASTEMP).attr('width', jQuery(REGION.CANVASTEMP).width());
+    jQuery(REGION.CANVASTEMP).attr('height', canvasHeight);
 };
 
 Match.prototype.initEvents = function() {
@@ -284,7 +294,7 @@ Match.prototype.createLinkCorrection = function() {
 };
 
 Match.prototype.getRandomColor = function(position) {
-    let colorArray = ['#FF6633', '#FFB399', '#FF33FF', '#FF9999', '#00B3E6',
+    let colorArray = ['#FF6633', '#E64D66', '#FF33FF', '#FF9999', '#00B3E6',
                       '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D',
                       '#80B300', '#809900', '#E6B3B3', '#6680B3', '#66991A',
                       '#FF99E6', '#CCFF1A', '#FF1A66', '#E6331A', '#33FFCC',
@@ -293,7 +303,7 @@ Match.prototype.getRandomColor = function(position) {
                       '#E666B3', '#33991A', '#CC9999', '#B3B31A', '#00E680',
                       '#4D8066', '#809980', '#E6FF80', '#1AFF33', '#999933',
                       '#FF3380', '#CCCC00', '#66E64D', '#4D80CC', '#9900B3',
-                      '#E64D66', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
+                      '#FFB399', '#4DB380', '#FF4D4D', '#99E6E6', '#6666FF'];
     return colorArray[position];
 };
 
@@ -321,6 +331,7 @@ Match.prototype.drawResponse = function(fromTeacher = false) {
             fails++;
         }
     });
+    Match.prototype.drawMobileResponse(fromTeacher);
     return [corrects, fails];
 };
 
@@ -335,18 +346,14 @@ Match.prototype.hideResponse = function() {
         optionLeft.find('.content-option').css({'background-color': 'inherit'}).addClass('bg-primary');
         optionRight.find('.content-option').css({'background-color': 'inherit'}).addClass('bg-primary');
     });
+    Match.prototype.hideMobileResponse();
     return [corrects, fails];
 };
 
 Match.prototype.showCorrects = function() {
-    let corrects = 0;
-    let fails = 0;
     linkCorrection.forEach(userR => {
-        let optionLeft = jQuery('#' + userR.dragId).parents('.option-left').first();
-        let optionRight = jQuery('#' + userR.dropId).parents('.option-right').first();
         userR.color = '#0fd08c';
     });
-    return [corrects, fails];
 };
 
 Match.prototype.sendResponse = function() {
@@ -407,10 +414,8 @@ Match.prototype.sendResponse = function() {
                     }
                 }
                 jQuery(REGION.CONTAINER_ANSWERS).css('z-index', 3);
+                jQuery(REGION.CONTAINER_ANSWERS_MOBILE).css('z-index', 3);
                 jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
-                if (manualMode === false) {
-                    linkList = [];
-                }
             } else {
                 alert('error');
             }
@@ -492,11 +497,14 @@ Match.prototype.Drop = function(dragId, dropId){
         return obj.dropId !== dropId;
     });
 
-    let stemDragId = Match.prototype.baseConvert(jQuery('#' + dragId).data('forstems'), 2, 16);
-    let stemDropId = Match.prototype.baseConvert(jQuery('#' + dropId).data('forstems'), 26, 10);
+    let stemsLeft = jQuery('#' + dragId).data('forstems');
+    let stemsRight = jQuery('#' + dropId).data('forstems');
+    let stemDragId = Match.prototype.baseConvert(stemsLeft, 2, 16);
+    let stemDropId = Match.prototype.baseConvert(stemsRight, 26, 10);
 
-    linkList.push({dragId, dropId, color, stemDragId, stemDropId});
+    linkList.push({dragId, dropId, color, stemDragId, stemDropId, stemsLeft, stemsRight});
     Match.prototype.drawLinks();
+    Match.prototype.drawSelects();
     Match.prototype.clearPathTemp();
 };
 
@@ -603,7 +611,13 @@ Match.prototype.drawLink = function(obj1, obj2, pColor) {
 
 Match.prototype.clearPath = function(event) {
     let ident = event.currentTarget.id;
+    let oldStemsLeft = '';
+    let oldStemsRight = '';
     linkList = linkList.filter(obj => {
+        if (obj.dropId === ident) {
+            oldStemsLeft = obj.stemsLeft;
+            oldStemsRight = obj.stemsRight;
+        }
         return obj.dropId !== ident;
     });
     let dragQuestionObject = jQuery(REGION.CONTAINER_ANSWERS);
@@ -611,6 +625,10 @@ Match.prototype.clearPath = function(event) {
     dragQuestionObject.find("i").css('font-weight', '400');
     dragQuestionObject.find("i").css('color', '#5a57ff');
     Match.prototype.drawLinks();
+    if (oldStemsLeft !== '' && oldStemsRight !== '') {
+        Match.prototype.optionDeselected(oldStemsLeft, oldStemsRight);
+    }
+    Match.prototype.drawSelects();
 };
 
 /* Draw path mouse line */
@@ -661,7 +679,7 @@ Match.prototype.leftOptionSelected = function(e) {
     jQuery.each(jQuery(REGION.RIGHT_OPTION_CLICKABLE), function(index, item) {
         jQuery(item).css({'pointer-events': 'inherit'});
     });
-    jQuery(REGION.RIGHT_OPTION_CLICKABLE).on('click', Match.prototype.rightOptionSelected.bind(this));
+    jQuery(REGION.RIGHT_OPTION_CLICKABLE).on('click touchend', Match.prototype.rightOptionSelected.bind(this));
     let options = document.querySelectorAll(REGION.LEFT_OPTION_SELECTOR);
     color = Match.prototype.getRandomColor(Array.from(options).indexOf(jQuery(e.target).parents('.option').first().get(0)));
 };
@@ -679,7 +697,7 @@ Match.prototype.rightOptionSelected = function(e) {
         }
         jQuery('.option-left').removeClass('disabled');
         jQuery('.drag-element').removeClass('disabled');
-        jQuery(REGION.RIGHT_OPTION_CLICKABLE).off('click');
+        jQuery(REGION.RIGHT_OPTION_CLICKABLE).off('click touchend');
         jQuery.each(jQuery(REGION.CLEARPATH), function(index, item) {
             jQuery(item).removeClass('disabled');
         });
@@ -700,52 +718,120 @@ Match.prototype.allDisabled = function() {
         jQuery(item).css({'pointer-events': 'none'});
     });
     jQuery(REGION.CONTAINER_ANSWERS).unbind('dragover');
+    jQuery(ACTION.SELECTOPTION).unbind('change').css({'pointer-events': 'none'});
     jQuery(REGION.LEFT_OPTION).find(REGION.OPTION).toArray().forEach(dragEl => this.removeEventsDragAndDrop(dragEl));
     jQuery(REGION.RIGHT_OPTION).find(REGION.OPTION).toArray().forEach(dropEl => this.removeTargetEvents(dropEl));
-    jQuery(REGION.CLEARPATH).off('click');
-    jQuery(REGION.LEFT_OPTION_CLICKABLE).off('click');
+    jQuery(REGION.CLEARPATH).off('click touchend');
+    jQuery(REGION.LEFT_OPTION_CLICKABLE).off('click touchend');
     jQuery(ACTION.SEND_RESPONSE).off('click');
 };
 
 /* MOBILE */
-Match.prototype.SelectOptionSelected = function(e) {
+Match.prototype.OptionSelected = function(e) {
     e.preventDefault();
     e.stopPropagation();
     let optionLeft = jQuery(e.target);
     let optionRight = jQuery(e.target).find('option:selected');
     let stemsLeft = optionLeft.attr('data-stems');
-    let stemsRigth = optionRight.attr('data-stems');
-    let dragId = stemsLeft + '-draggable';
-    let dropId = stemsRigth + '-dropzone';
-    if (stemsRigth !== 'default') {
+    let stemsRight = optionRight.attr('data-stems');
+    if (stemsRight !== 'default') {
         jQuery('#' + stemsLeft + '-left-clickable').trigger('click');
         setTimeout(function() {
-            jQuery('#' + stemsRigth + '-right-clickable').trigger('click');
+            jQuery('#' + stemsRight + '-right-clickable').trigger('click');
             optionLeft.css({'border': '1px solid ' + color});
         }, 200);
-        // Deselect.
-        jQuery(ACTION.SELECTOPTION).each(function() {
-            if (jQuery(this).attr('data-stems') !== stemsLeft) {
-                if (jQuery(this).find('option[data-stems="' + stemsRigth + '"]:selected').length) {
-                    jQuery(this).find('option[data-stems="default"]').prop('selected', true);
-                }
-            }
-            jQuery(this).find('option[data-stems="' + stemsRigth + '"]')
-                .each(function() {
-                    jQuery(this).css('background-color', color);
-                });
-        });
     } else {
+        let dragId = stemsLeft + '-draggable';
         let oldDropId = '';
+        let oldStemsRight = '';
         linkList = linkList.filter(obj => {
             if (obj.dragId === dragId) {
                 oldDropId = obj.dropId;
+                oldStemsRight = obj.stemsRight;
             }
             return obj.dragId !== dragId;
         });
-        optionLeft.css({'border': '1px solid #8f959e'});
+        Match.prototype.optionDeselected(stemsLeft, oldStemsRight);
         jQuery('#' + oldDropId).trigger('click');
     }
+};
+
+Match.prototype.optionSelected = function(stemsLeft, stemsRight, color) {
+    jQuery(ACTION.SELECTOPTION).each(function() {
+        jQuery(this).find('option[data-stems="' + stemsRight + '"]')
+            .each(function() {
+                jQuery(this).css('background-color', color);
+        });
+    });
+};
+
+Match.prototype.optionDeselected = function(stemsLeft, stemsRight) {
+    jQuery(ACTION.SELECTOPTION).each(function() {
+        if (parseInt(jQuery(this).attr('data-stems')) === parseInt(stemsLeft)) {
+            jQuery(this).css({'border': '1px solid #8f959e'});
+        }
+        if (jQuery(this).find('option[data-stems="' + stemsRight + '"]:selected').length) {
+            jQuery(this).find('option[data-stems="default"]').prop('selected', true);
+        }
+        jQuery(this).find('option[data-stems="' + stemsRight + '"]').each(function() {
+            jQuery(this).css('background-color', 'white');
+        });
+    });
+};
+
+Match.prototype.drawSelects = function() {
+    jQuery(ACTION.SELECTOPTION).each(function() {
+        jQuery(this).find('option').each(function() {
+            jQuery(this).css('background-color', 'white');
+        });
+    });
+    linkList.forEach(
+        select => Match.prototype.drawSelect(select.stemsLeft, select.stemsRight, select.color)
+    );
+};
+
+Match.prototype.drawSelect = function(stemsLeft, stemsRight, color) {
+    jQuery('.content-options-right-mobile[data-stems="' + stemsLeft + '"]').css({'border': '1px solid ' + color});
+    jQuery(
+        '.content-options-right-mobile[data-stems="' + stemsLeft + '"]' +
+        ' .option-right-mobile[data-stems="' + stemsRight + '"]').prop('selected', true);
+    Match.prototype.optionSelected(stemsLeft, stemsRight, color);
+};
+
+Match.prototype.drawMobileResponse = function(fromTeacher = false) {
+    linkList.forEach(userR => {
+        let feedbacks = jQuery('.feedback-icons[data-stems="' + userR.stemsLeft + '"]');
+        let optionLeft = jQuery('.content-options-right-mobile[data-stems="' + userR.stemsLeft + '"]');
+        let optionRight = jQuery(
+            '.content-options-right-mobile[data-stems="' + userR.stemsLeft + '"]' +
+            ' .option-right-mobile[data-stems="' + userR.stemsRight + '"]');
+        if (manualMode === false || jQuery('.modal-body').length || fromTeacher === true) {
+            if (userR.stemDragId === userR.stemDropId) {
+                userR.color = '#0fd08c';
+                feedbacks.find('.feedback-icon.correct').css({'display': 'flex'});
+                optionLeft.css({'border': '1px solid #0fd08c'});
+                optionRight.css({'background-color': '#0fd08c'}).prop('selected', true);
+            } else {
+                userR.color = '#f85455';
+                feedbacks.find('.feedback-icon.incorrect').css({'display': 'flex'});
+                optionLeft.css({'border': '1px solid #f85455'});
+                optionRight.css({'background-color': '#f85455'}).prop('selected', true);
+            }
+        }
+    });
+};
+
+Match.prototype.hideMobileResponse = function() {
+    linkList.forEach(userR => {
+        let feedbacks = jQuery('.feedback-icons[data-stems="' + userR.stemsLeft + '"]');
+        let optionLeft = jQuery('.content-options-right-mobile[data-stems="' + userR.stemsLeft + '"]');
+        let optionRight = jQuery(
+            '.content-options-right-mobile[data-stems="' + userR.stemsLeft + '"]' +
+            ' .option-right-mobile[data-stems="' + userR.stemsRight + '"]');
+        feedbacks.find('.feedback-icon').css({'display': 'none'});
+        optionLeft.css({'border': '1px solid' + userR.color});
+        optionRight.css({'background-color': userR.color});
+    });
 };
 
 /* EVENTS */

@@ -300,10 +300,12 @@ class matchquestion extends questions {
         }
         return $mark;
     }
+
     /**
      * @param question_definition $question
      * @param jqshow_questions_responses[] $responses
      * @return array
+     * @throws coding_exception
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];
@@ -323,10 +325,10 @@ class matchquestion extends questions {
                 case questions::NORESPONSE: $noresponse++; break;
             }
         }
-        $statistics[0]['correct'] = $correct !== 0 ? $correct * 100 / $total : 0;
-        $statistics[0]['failure'] = $incorrect !== 0 ? $incorrect  * 100 / $total : 0;
-        $statistics[0]['partially'] = $partially !== 0 ? $partially  * 100 / $total : 0;
-        $statistics[0]['noresponse'] = $noresponse !== 0 ? $noresponse  * 100 / $total : 0;
+        $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
+        $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
+        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse  * 100 / $total, 2) : 0;
         return $statistics;
     }
 }
