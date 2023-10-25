@@ -115,6 +115,7 @@ class jqshow {
                 $completed[] = sessions_helper::get_data_session($session, $this->cm->id, false, false);
             }
         }
+        usort($completed, static fn($a, $b) => $b->enddate <=> $a->enddate);
         return $completed;
     }
 

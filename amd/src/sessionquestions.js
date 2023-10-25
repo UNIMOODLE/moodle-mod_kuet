@@ -65,6 +65,10 @@ SessionQuestions.prototype.initPanel = function() {
     if (!(sortable instanceof SortableList)) {
         sortable = new SortableList(REGION.QUESTIONLIST);
     }
+    jQuery(REGION.QUESTIONLIST + ' > ' + ACTION.QUESTION).on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    });
     jQuery(REGION.QUESTIONLIST + ' > ' + ACTION.QUESTION).on(SortableList.EVENTS.DROP, this.reorderQuestions.bind(this));
 };
 

@@ -104,6 +104,7 @@ Match.prototype.answered = function(jsonresponse) {
     Match.prototype.allDisabled();
     linkList = jsonresponse;
     Match.prototype.drawResponse();
+    Match.prototype.drawSelects();
     questionEnd = true;
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
@@ -739,8 +740,6 @@ Match.prototype.OptionSelected = function(e) {
             jQuery('#' + stemsRight + '-right-clickable').trigger('click');
             optionLeft.css({'border': '1px solid ' + color});
         }, 200);
-        Match.prototype.optionDeselected(stemsLeft, stemsRight);
-        Match.prototype.optionSelected(stemsLeft, stemsRight, color);
     } else {
         let dragId = stemsLeft + '-draggable';
         let oldDropId = '';
@@ -781,6 +780,11 @@ Match.prototype.optionDeselected = function(stemsLeft, stemsRight) {
 };
 
 Match.prototype.drawSelects = function() {
+    jQuery(ACTION.SELECTOPTION).each(function() {
+        jQuery(this).find('option').each(function() {
+            jQuery(this).css('background-color', 'white');
+        });
+    });
     linkList.forEach(
         select => Match.prototype.drawSelect(select.stemsLeft, select.stemsRight, select.color)
     );

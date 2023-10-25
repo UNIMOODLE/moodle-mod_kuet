@@ -121,6 +121,7 @@ class sessions {
         }
         if ($ds->status === sessionsmodel::SESSION_FINISHED) {
             $ds->finishingdate = userdate($session->get('enddate'), get_string('strftimedatetimeshort', 'core_langconfig'));
+            $ds->enddate = $session->get('enddate');
             if ($session->get('automaticstart') !== 1) {
                 $ds->date = userdate($session->get('startdate'), get_string('strftimedatetimeshort', 'core_langconfig'));
             }
