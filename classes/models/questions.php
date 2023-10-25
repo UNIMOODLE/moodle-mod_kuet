@@ -28,42 +28,21 @@ namespace mod_jqshow\models;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
-use core_availability\info_module;
 use dml_exception;
 use dml_transaction_exception;
-use Exception;
-use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
-use mod_jqshow\external\getfinalranking_external;
-use mod_jqshow\external\match_external;
-use mod_jqshow\external\multichoice_external;
-use mod_jqshow\external\numerical_external;
-use mod_jqshow\external\shortanswer_external;
-use mod_jqshow\external\truefalse_external;
-use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
-use moodle_url;
 use qbank_previewquestion\question_preview_options;
-use qtype_match_question;
-use qtype_multichoice;
-use qtype_multichoice_multi_question;
-use qtype_multichoice_single_question;
-use qtype_numerical_answer_processor;
-use qtype_numerical_question;
-use qtype_shortanswer_question;
-use question_answer;
 use question_attempt;
 use question_bank;
 use question_definition;
 use question_engine;
-use ReflectionClass;
 use stdClass;
-use context_user;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -281,7 +260,7 @@ class questions {
      * @throws dml_transaction_exception
      */
     public static function get_text(
-        int $cmid, string $text, int $textformat, int $id, question_definition $question, string $filearea, int $variant = 0
+        int $cmid, string $text, int $textformat, int $id, question_definition $question, string $filearea, int $variant = 0, bool $noattempt = false
     ): string {
         global $DB;
         $contextmodule = context_module::instance($cmid);
@@ -303,7 +282,9 @@ class questions {
         } else {
             $options->variant = random_int(1, $maxvariant);
         }
-        $question->variant = $options->variant;
+        if ($noattempt === false) {
+            $question->variant = $options->variant;
+        }
         if ($variant === 0) {
             $quba->start_question($slot, $options->variant);
         } else {
