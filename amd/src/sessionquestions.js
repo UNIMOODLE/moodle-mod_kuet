@@ -13,6 +13,7 @@ import ModalJqshow from 'mod_jqshow/modal';
 let ACTION = {
     DELETEQUESTION: '[data-action="delete_question"]',
     QUESTION: '.question-item',
+    QUESTIONDROP: '.question-item [data-drag-type="move"]',
     QUESTIONPREVIEW: '[data-action="question_preview"]',
 };
 
@@ -65,7 +66,7 @@ SessionQuestions.prototype.initPanel = function() {
     if (!(sortable instanceof SortableList)) {
         sortable = new SortableList(REGION.QUESTIONLIST);
     }
-    jQuery(REGION.QUESTIONLIST + ' > ' + ACTION.QUESTION).on('click', function(e) {
+    jQuery(REGION.QUESTIONLIST + ' > ' + ACTION.QUESTIONDROP).on('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
     });

@@ -702,7 +702,7 @@ class reports {
         }
         $params = ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userid, 'name' => self::USER_REPORT];
         $data->downloaduserreport = self::get_downloadhtml($params);
-        $data->usersessiongrade = round(grade::get_session_grade($userid, $sid, $session->get('jqshowid')), 1);
+        $data->usersessiongrade = round(grade::get_session_grade($userid, $sid, $session->get('jqshowid')), 2);
         return $data;
     }
 
@@ -826,7 +826,7 @@ class reports {
         }
         $params = ['cmid' => $cmid, 'sid' => $sid, 'userid' => $USER->id, 'name' => self::USER_REPORT];
         $data->downloaduserreport = self::get_downloadhtml($params);
-        $data->usersessiongrade = round(grade::get_session_grade($USER->id, $sid, $session->get('jqshowid')), 1);
+        $data->usersessiongrade = round(grade::get_session_grade($USER->id, $sid, $session->get('jqshowid')), 2);
         return $data;
     }
 
