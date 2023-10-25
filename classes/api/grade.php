@@ -380,4 +380,26 @@ class grade {
     private static function get_last_grade(array $allgrades) {
         return end($allgrades)->get('grade');
     }
+    public static function get_result_mark_type(jqshow_questions_responses $response) {
+        $result = '';
+        switch ($response->get('result')) {
+            case questions::FAILURE:
+                $result = 'incorrect';
+                break;
+            case questions::SUCCESS:
+                $result = 'correct';
+                break;
+            case questions::PARTIALLY:
+                $result = 'partially';
+                break;
+            case questions::INVALID:
+                $result = 'invalid';
+                break;
+            case questions::NORESPONSE:
+            default:
+                $result = 'noresponse';
+                break;
+        }
+        return $result;
+    }
 }

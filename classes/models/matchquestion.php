@@ -204,21 +204,8 @@ class matchquestion extends questions {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-        switch ($response->get('result')) {
-            case questions::FAILURE:
-                $participant->response = 'incorrect';
-                break;
-            case questions::SUCCESS:
-                $participant->response = 'correct';
-                break;
-            case questions::PARTIALLY:
-                $participant->response = 'partially';
-                break;
-            case questions::NORESPONSE:
-            default:
-                $participant->response = 'noresponse';
-                break;
-        }
+
+        $participant->response = grade::get_result_mark_type($response);
         $participant->responsestr = get_string($participant->response, 'mod_jqshow');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),

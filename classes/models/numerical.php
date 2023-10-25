@@ -292,26 +292,9 @@ class numerical extends questions {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-        $other = json_decode(base64_decode($response->get('response')), false);
-        switch ($response->get('result')) {
-            case questions::FAILURE:
-                $participant->response = 'incorrect';
-                $participant->responsestr = get_string('incorrect', 'mod_jqshow');
-                break;
-            case questions::SUCCESS:
-                $participant->response = 'correct';
-                $participant->responsestr = get_string('correct', 'mod_jqshow');
-                break;
-            case questions::PARTIALLY:
-                $participant->response = 'partially';
-                $participant->responsestr = get_string('partially', 'mod_jqshow');
-                break;
-            case questions::NORESPONSE:
-            default:
-                $participant->response = 'noresponse';
-                $participant->responsestr = get_string('noresponse', 'mod_jqshow');
-                break;
-        }
+
+        $participant->response = grade::get_result_mark_type($response);
+        $participant->responsestr = get_string($participant->response, 'mod_jqshow');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
