@@ -47,13 +47,14 @@ use question_answer;
 use question_bank;
 use question_definition;
 use stdClass;
+use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 
-class multichoice extends questions {
+class multichoice extends questions implements questionType {
 
     /**
      * @param int $jqshowid

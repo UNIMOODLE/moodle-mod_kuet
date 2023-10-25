@@ -43,11 +43,12 @@ use qtype_match_question;
 use question_bank;
 use question_definition;
 use stdClass;
+use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-class matchquestion extends questions {
+class matchquestion extends questions implements questionType {
 
     /**
      * @param int $jqshowid
@@ -299,7 +300,7 @@ class matchquestion extends questions {
         $total = count($responses);
         list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
         $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
-        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
+        $statistics[0]['incorrect'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
         $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
         $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse  * 100 / $total, 2) : 0;
         return $statistics;

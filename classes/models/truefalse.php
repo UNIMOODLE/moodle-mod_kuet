@@ -45,13 +45,14 @@ use pix_icon;
 use question_bank;
 use question_definition;
 use stdClass;
+use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 
-class truefalse extends questions {
+class truefalse extends questions implements questionType {
 
     /**
      * @param int $jqshowid
@@ -59,7 +60,7 @@ class truefalse extends questions {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) : void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -336,7 +337,7 @@ class truefalse extends questions {
     }
 
     /**
-     * @param stdClass $user
+     * @param stdClass $participant
      * @param jqshow_questions_responses $response
      * @param array $answers
      * @param jqshow_sessions $session
@@ -345,8 +346,15 @@ class truefalse extends questions {
      * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
-    public static function get_ranking_for_question($participant, $response, $answers, $session, $question) {
+    public static function get_ranking_for_question(
+        stdClass $participant,
+        jqshow_questions_responses $response,
+        array $answers,
+        jqshow_sessions $session,
+        jqshow_questions $question) : stdClass {
+
         $other = json_decode(base64_decode($response->get('response')), false);
         $arrayresponses = explode(',', $other->answerids);
 

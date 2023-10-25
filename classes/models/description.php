@@ -45,11 +45,12 @@ use qtype_description_question;
 use question_bank;
 use question_definition;
 use stdClass;
+use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-class description extends questions {
+class description extends questions implements questionType {
 
     /**
      * @param int $jqshowid

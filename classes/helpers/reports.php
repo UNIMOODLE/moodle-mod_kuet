@@ -681,7 +681,7 @@ class reports {
         $data->noevaluable = 0;
         foreach ($data->sessionquestions as $question) {
             switch ($question->response) {
-                case 'failure':
+                case 'incorrect':
                     $data->failures++;
                     break;
                 case 'partially':
@@ -749,7 +749,7 @@ class reports {
         $data->noevaluable = 0;
         foreach ($data->sessionquestions as $question) {
             switch ($question->response) {
-                case 'failure':
+                case 'incorrect':
                     $data->failures++;
                     break;
                 case 'partially':
@@ -802,9 +802,10 @@ class reports {
         $data->partially = 0;
         $data->failures = 0;
         $data->noevaluable = 0;
+
         foreach ($data->sessionquestions as $question) {
             switch ($question->response) {
-                case 'failure':
+                case 'incorrect':
                     $data->failures++;
                     break;
                 case 'partially':
