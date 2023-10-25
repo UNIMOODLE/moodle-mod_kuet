@@ -122,13 +122,11 @@ class multichoice_external extends external_api {
             if (isset($answerids) && $answerids !== '' && $answerids !== '0') {
                 $arrayanswers = explode(',', $answerids);
                 foreach ($arrayanswers as $arrayanswer) {
-                    if ((int)$key === (int)$arrayanswer && $answerfeedback === '') {
+                    if ((int)$key === (int)$arrayanswer) {
                         $answertexts[$answer->id] = strip_tags($answer->answer);
                         $answerfeedback .= questions::get_text(
                             $cmid, $answer->feedback, 1, $answer->id, $question, 'answerfeedback'
                         ) . '<br>';
-                    } else if ((int)$key === (int)$arrayanswer) {
-                        $answertexts[$answer->id] = strip_tags($answer->answer); // TODO pass to base64 to avoid json errors.
                     }
                 }
             }
