@@ -29,7 +29,6 @@ use coding_exception;
 use DateTime;
 use dml_exception;
 use mod_jqshow\models\sessions;
-use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodleform;
 
@@ -223,7 +222,7 @@ class sessionform extends moodleform {
         $mform->setType('jqshowid', PARAM_INT);
         $mform->addElement('hidden', 'groupmode', (int)$cm->groupmode);
         $mform->setType('groupmode', PARAM_INT);
-        $mform->addElement('hidden', 'status', sessionsmodel::SESSION_ACTIVE);
+        $mform->addElement('hidden', 'status', sessions::SESSION_CREATING);
         $mform->setType('status', PARAM_INT);
         $mform->addElement('hidden', 'sessionid', 0);
         $mform->setType('sessionid', PARAM_INT);

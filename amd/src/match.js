@@ -113,7 +113,10 @@ Match.prototype.answered = function(jsonresponse) {
     if (manualMode === false) {
         jQuery(REGION.NEXT).removeClass('d-none');
     }
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 Match.prototype.initMatch = function() {
@@ -363,7 +366,7 @@ Match.prototype.sendResponse = function() {
         dispatchEvent(Match.prototype.endTimer);
         Match.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
-        let result = 3; // No response.
+        let result = 0; // Failure
         let [corrects, fails] = Match.prototype.drawResponse();
         if (corrects !== 0) {
             result = 2; // Partially.
@@ -373,6 +376,9 @@ Match.prototype.sendResponse = function() {
         }
         if (jQuery(REGION.LEFT_OPTION_SELECTOR).length === fails) {
             result = 0; // Failure.
+        }
+        if (jQuery(REGION.LEFT_OPTION_SELECTOR).length === 0 && jQuery(REGION.LEFT_OPTION_SELECTOR).length === 0) {
+            result = 3; // No response.
         }
         Match.prototype.drawLinks();
 

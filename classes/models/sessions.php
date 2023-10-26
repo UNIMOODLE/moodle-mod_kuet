@@ -88,6 +88,7 @@ class sessions {
     public const SESSION_FINISHED = 0;
     public const SESSION_ACTIVE = 1;
     public const SESSION_STARTED = 2;
+    public const SESSION_CREATING = 3;
 
     /**
      * sessions constructor.

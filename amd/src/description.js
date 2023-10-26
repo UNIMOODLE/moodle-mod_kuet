@@ -7,7 +7,7 @@ import Notification from 'core/notification';
 import mEvent from 'core/event';
 
 let ACTION = {
-    SEND_RESPONSE: '[data-action="send-response"]',
+    SEND_RESPONSE: '[data-action="next-question"]',
 };
 
 let REGION = {
@@ -242,7 +242,10 @@ Description.prototype.answered = function(response) {
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(REGION.NEXT).removeClass('d-none');
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 Description.prototype.pauseQuestion = function() {

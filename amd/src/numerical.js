@@ -309,7 +309,10 @@ Numerical.prototype.answered = function(response) {
         jQuery(REGION.FEEDBACKICONS + ' .incorrect').remove();
         jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
     }
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 Numerical.prototype.pauseQuestion = function() {

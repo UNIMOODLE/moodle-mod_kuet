@@ -257,7 +257,7 @@ abstract class websockets {
             $this->tick();
             stream_select($read, $write, $except, 10);
             if (in_array($this->master, $read, true)) {
-                $client = stream_socket_accept($this->master, 20);
+                $client = @stream_socket_accept($this->master, 20);
                 if (!$client) {
                     continue;
                 }

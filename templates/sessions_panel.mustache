@@ -48,7 +48,7 @@
                         <div class="d-table-cell"></div>
                     </div>
                     {{#activesessions}}
-                        <div class="d-table-row sessions-list-data {{#hasconflict}}session-conflict{{/hasconflict}} {{#haswarning}}session-warning{{/haswarning}} {{#issessionstarted}}session-started{{/issessionstarted}}">
+                        <div class="d-table-row sessions-list-data {{#hasconflict}}session-conflict{{/hasconflict}} {{#haswarning}}session-warning{{/haswarning}} {{#issessionstarted}}session-started{{/issessionstarted}} {{#sessioncreating}}session-creating{{/sessioncreating}} {{#noquestions}}session-noquestions{{/noquestions}}">
                             <div class="d-table-cell">{{name}}</div>
                             <div class="d-table-cell">{{sessionmode}}</div>
                             <div class="d-table-cell">{{timemode}}</div>
@@ -100,7 +100,7 @@
                                 {{/initsession}}
                                 {{#issessionstarted}}
                                     <div
-                                            {{^hasactivesession}}data-action="init_session"{{/hasactivesession}}
+                                        {{^hasactivesession}}data-action="init_session"{{/hasactivesession}}
                                             data-sessionid="{{sessionid}}"
                                     >
                                         <a href="{{startedssionurl}}">
@@ -108,6 +108,16 @@
                                         </a>
                                     </div>
                                 {{/issessionstarted}}
+                                {{#noquestions}}
+                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionnoquestions, mod_jqshow{{/str}}">
+                                        {{#pix}} i/warning, mod_jqshow {{/pix}}
+                                    </span>
+                                {{/noquestions}}
+                                {{#sessioncreating}}
+                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessioncreating, mod_jqshow{{/str}}">
+                                        {{#pix}} i/warning, mod_jqshow {{/pix}}
+                                    </span>
+                                {{/sessioncreating}}
                                 {{#hasconflict}}
                                     <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionconflict, mod_jqshow{{/str}}">
                                         {{#pix}} i/danger, mod_jqshow {{/pix}}

@@ -404,7 +404,10 @@ Ddwtos.prototype.answered = function(response, fromService = false) {
         jQuery(dragElement).off('mousedown touchstart');
         jQuery(dragElement).css({'pointer-events': 'none'});
     });
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 Ddwtos.prototype.pauseQuestion = function() {

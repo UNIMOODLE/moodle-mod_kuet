@@ -130,6 +130,14 @@ body#page-mod-jqshow-view {
                                     background-color: #f4d6d2;
                                     color: #691911;
                                 }
+                                &.session-creating {
+                                    background-color: #d1ecf1;
+                                    color: #0c5460;
+                                }
+                                &.session-noquestions {
+                                    background-color: #d6d8d9;
+                                    color: #1b1e21;
+                                }
                                 .d-table-cell {
                                     border-top: 1px solid #EDEBF4;
                                     color: #929292 !important;
