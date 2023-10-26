@@ -80,7 +80,7 @@ class numerical extends questions implements questionType {
      * @throws moodle_exception
      * @throws ReflectionException
      */
-    public static function export_numerical(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
@@ -135,6 +135,7 @@ class numerical extends questions implements questionType {
     /**
      * @param stdClass $data
      * @param string $response
+     * @param int $result
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -144,7 +145,7 @@ class numerical extends questions implements questionType {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_numerical_response(stdClass $data, string $response): stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result = 0): stdClass {
         $responsedata = json_decode($response, false);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
@@ -329,7 +330,7 @@ class numerical extends questions implements questionType {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function numerical_response(
+    public static function question_response(
         int $cmid,
         int $jqid,
         string $responsetext,
@@ -369,14 +370,14 @@ class numerical extends questions implements questionType {
     /**
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
-     * @return float|int
+     * @return float
      * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
+    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) : float {
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
         $jqshow = new jqshow($response->get('jqshow'));
@@ -405,7 +406,7 @@ class numerical extends questions implements questionType {
         $total = count($responses);
         list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
         $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
-        $statistics[0]['incorrect'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
         $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
         $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse  * 100 / $total, 2) : 0;
         return $statistics;

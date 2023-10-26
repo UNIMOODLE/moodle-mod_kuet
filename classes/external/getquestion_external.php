@@ -92,35 +92,11 @@ class getquestion_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $session = new jqshow_sessions($sessionid);
-        switch ((new jqshow_questions($jqid))->get('qtype')) {
-            case questions::MULTICHOICE:
-                $question = multichoice::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::MATCH:
-                $question = matchquestion::export_match($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::TRUE_FALSE:
-                $question = truefalse::export_truefalse($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::SHORTANSWER:
-                $question = shortanswer::export_shortanswer($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::NUMERICAL:
-                $question = numerical::export_numerical($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::CALCULATED:
-                $question = calculated::export_calculated($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::DESCRIPTION:
-                $question = description::export_description($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::DDWTOS:
-                $question = ddwtos::export_ddwtos($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                    [], get_string('question_nosuitable', 'mod_jqshow'));
-        }
+
+        $jquestion = new jqshow_questions($jqid);
+        /** @var questions $type */
+        $type = questions::get_question_class_by_string_type($jquestion->get('qtype'));
+        $question = $type::export_question($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
         $session = new jqshow_sessions($sessionid);
         $question->programmedmode = in_array($session->get('sessionmode'),
             [sessions::PODIUM_PROGRAMMED, sessions::INACTIVE_PROGRAMMED, sessions::RACE_PROGRAMMED], true);

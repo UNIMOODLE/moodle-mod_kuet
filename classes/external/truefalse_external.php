@@ -123,7 +123,7 @@ class truefalse_external extends external_api {
                 ) . '<br>';
         }
         if ($preview === false) {
-            truefalse::truefalse_response(
+            truefalse::question_response(
                 $cmid,
                 $jqid,
                 $answerid,

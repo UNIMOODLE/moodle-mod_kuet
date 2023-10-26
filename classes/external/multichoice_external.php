@@ -134,7 +134,7 @@ class multichoice_external extends external_api {
         $answertexts = json_encode($answertexts, JSON_THROW_ON_ERROR);
         $correctanswers = trim($correctanswers, ',');
         if ($preview === false) {
-            multichoice::multichoice_response(
+            multichoice::question_response(
                 $cmid,
                 $jqid,
                 $answerids,

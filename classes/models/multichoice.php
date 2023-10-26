@@ -79,7 +79,7 @@ class multichoice extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
@@ -127,16 +127,17 @@ class multichoice extends questions implements questionType {
     /**
      * @param stdClass $data
      * @param string $response
+     * @param int $result
      * @return stdClass
      * @throws JsonException
-     * @throws invalid_parameter_exception
      * @throws coding_exception
      * @throws dml_exception
      * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_multichoice_response(stdClass $data, string $response): stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result = 0): stdClass {
         $responsedata = json_decode($response, false);
         $data->answered = true;
         $dataanswer = multichoice_external::multichoice(
@@ -338,7 +339,7 @@ class multichoice extends questions implements questionType {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function multichoice_response(
+    public static function question_response(
         int $cmid,
         int $jqid,
         string $answerids,
@@ -439,11 +440,11 @@ class multichoice extends questions implements questionType {
     /**
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
-     * @return float|int
+     * @return float
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) : float {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
@@ -482,5 +483,11 @@ class multichoice extends questions implements questionType {
             }
         }
         return $statistics;
+    }
+    /**
+     * @return bool
+     */
+    public static function show_statistics() : bool {
+        return true;
     }
 }

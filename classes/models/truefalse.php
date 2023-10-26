@@ -77,7 +77,7 @@ class truefalse extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_truefalse(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         global $USER;
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
@@ -207,15 +207,17 @@ class truefalse extends questions implements questionType {
     /**
      * @param stdClass $data
      * @param string $response
+     * @param int $result
      * @return stdClass
      * @throws JsonException
-     * @throws invalid_persistent_exception
-     * @throws invalid_parameter_exception
      * @throws coding_exception
+     * @throws dml_exception
      * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_truefalse_response(stdClass $data, string $response): stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result = 0): stdClass {
         $responsedata = json_decode($response, false);
         $data->answered = true;
         if (!isset($responsedata->answerids)) {
@@ -402,7 +404,7 @@ class truefalse extends questions implements questionType {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function truefalse_response(
+    public static function question_response(
         int $cmid,
         int $jqid,
         string $answerids,
@@ -427,11 +429,11 @@ class truefalse extends questions implements questionType {
     /**
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
-     * @return float|int
+     * @return float
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) :float {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
@@ -464,5 +466,11 @@ class truefalse extends questions implements questionType {
             }
         }
         return $statistics;
+    }
+    /**
+     * @return bool
+     */
+    public static function show_statistics() : bool {
+        return true;
     }
 }

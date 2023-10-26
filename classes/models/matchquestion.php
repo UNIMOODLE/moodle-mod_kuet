@@ -71,7 +71,7 @@ class matchquestion extends questions implements questionType {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function export_match(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
@@ -128,7 +128,7 @@ class matchquestion extends questions implements questionType {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_match_response(stdClass $data, string $response, int $result):stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result):stdClass {
         $responsedata = json_decode($response, false);
         $data->answered = true;
         $jsonresponse = json_encode($responsedata->response, JSON_THROW_ON_ERROR);
@@ -238,7 +238,7 @@ class matchquestion extends questions implements questionType {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function match_response(
+    public static function question_response(
         int $cmid,
         int $jqid,
         string $jsonresponse,
@@ -279,7 +279,7 @@ class matchquestion extends questions implements questionType {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) : float {
         global $DB;
         $mark = 0;
         // TODO prepare the json of the response to pass logic through grade_response.
@@ -300,7 +300,7 @@ class matchquestion extends questions implements questionType {
         $total = count($responses);
         list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
         $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
-        $statistics[0]['incorrect'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
         $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
         $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse  * 100 / $total, 2) : 0;
         return $statistics;

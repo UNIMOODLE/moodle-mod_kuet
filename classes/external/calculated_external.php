@@ -168,7 +168,7 @@ class calculated_external extends external_api {
                 $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
             }
             if ($preview === false) {
-                calculated::calculated_response(
+                calculated::question_response(
                     $cmid,
                     $jqid,
                     $responsenum,

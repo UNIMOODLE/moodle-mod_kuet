@@ -164,7 +164,7 @@ class numerical_external extends external_api {
                 $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
             }
             if ($preview === false) {
-                numerical::numerical_response(
+                numerical::question_response(
                     $cmid,
                     $jqid,
                     $responsenum,

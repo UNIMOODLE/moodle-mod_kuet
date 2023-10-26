@@ -33,12 +33,14 @@ use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 interface questionType {
+
     /**
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
-     * @return mixed
+     * @return float
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response);
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) : float;
+
 
     /**
      * @param stdClass $participant
@@ -46,20 +48,20 @@ interface questionType {
      * @param array $answers
      * @param jqshow_sessions $session
      * @param jqshow_questions $question
-     * @return mixed
+     * @return stdClass
      */
     public static function get_ranking_for_question(stdClass $participant,
                                                     jqshow_questions_responses $response,
                                                     array $answers,
                                                     jqshow_sessions $session,
-                                                    jqshow_questions $question);
+                                                    jqshow_questions $question) : stdClass;
 
     /**
      * @param question_definition $question
      * @param jqshow_questions_responses[] $responses
      * @return mixed
      */
-    public static function get_question_statistics( question_definition $question, array $responses);
+    public static function get_question_statistics( question_definition $question, array $responses) : array ;
 
     /**
      * @param jqshow_sessions $session
@@ -71,8 +73,25 @@ interface questionType {
     public static function get_question_report(jqshow_sessions $session,
                                                question_definition $questiondata,
                                                stdClass $data,
-                                               int $jqid);
+                                               int $jqid) : stdClass;
 
+    /**
+     * @param int $jqid
+     * @param int $cmid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param bool $preview
+     * @return mixed
+     */
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview) : object ;
+
+    /**
+     * @param stdClass $data
+     * @param string $response
+     * @param int $result
+     * @return mixed
+     */
+    public static function export_question_response(stdClass $data, string $response, int $result) : stdClass;
 
 }
 

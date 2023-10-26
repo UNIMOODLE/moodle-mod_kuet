@@ -80,35 +80,13 @@ class question_preview implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        switch ((new jqshow_questions($this->jqid))->get('qtype')){
-            case questions::MULTICHOICE:
-                $data = multichoice::export_multichoice($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::MATCH:
-                $data = matchquestion::export_match($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::TRUE_FALSE:
-                $data = truefalse::export_truefalse($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::SHORTANSWER:
-                $data = shortanswer::export_shortanswer($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::NUMERICAL:
-                $data = numerical::export_numerical($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::CALCULATED:
-                $data = calculated::export_calculated($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::DESCRIPTION:
-                $data = description::export_description($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::DDWTOS:
-                $data = ddwtos::export_ddwtos($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                    [], get_string('question_nosuitable', 'mod_jqshow'));
-        }
-        return $data;
+        $question = new jqshow_questions($this->jqid);
+        /** @var questions $type */
+        $type = questions::get_question_class_by_string_type($question->get('qtype'));
+        return $type::export_question(
+            $question->get('id'),
+            $this->cmid,
+            $this->sessionid,
+            $this->jqshowid);
     }
 }

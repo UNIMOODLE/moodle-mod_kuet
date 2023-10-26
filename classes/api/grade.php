@@ -99,7 +99,7 @@ class grade {
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public static function get_simple_mark(jqshow_questions_responses $response) {
+    public static function get_simple_mark(jqshow_questions_responses $response) : float {
         $mark = 0;
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);

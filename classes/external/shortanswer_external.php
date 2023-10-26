@@ -139,7 +139,7 @@ class shortanswer_external extends external_api {
                 }
             }
             if ($preview === false) {
-                shortanswer::shortanswer_response(
+                shortanswer::question_response(
                     $cmid,
                     $jqid,
                     $responsetext,

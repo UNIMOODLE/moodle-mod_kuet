@@ -161,7 +161,7 @@ class ddwtos_external extends external_api {
                 }
             }
             if ($preview === false) {
-                ddwtos::ddwtos_response(
+                ddwtos::question_response(
                     $cmid,
                     $jqid,
                     $response,

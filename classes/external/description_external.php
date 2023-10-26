@@ -115,7 +115,7 @@ class description_external extends external_api {
                 $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
             );
             if ($preview === false) {
-                description::description_response(
+                description::question_response(
                     $cmid,
                     $jqid,
                     $result,
