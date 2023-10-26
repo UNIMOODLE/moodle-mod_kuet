@@ -323,33 +323,8 @@ class reports {
                 $data->responsestr = get_string('noresponse', 'mod_jqshow');
                 $data->time = $questiontimestr . ' / ' . $questiontimestr; // Or 0?
             } else {
-                switch ($response->get('result')) {
-                    case questions::FAILURE:
-                        $data->response = 'failure';
-                        $data->responsestr = get_string('failure', 'mod_jqshow');
-                        break;
-                    case questions::SUCCESS:
-                        $data->response = 'success';
-                        $data->responsestr = get_string('success', 'mod_jqshow');
-                        break;
-                    case questions::PARTIALLY:
-                        $data->response = 'partially';
-                        $data->responsestr = get_string('partially_correct', 'mod_jqshow');
-                        break;
-                    case questions::NORESPONSE:
-                    default:
-                        $data->response = 'noresponse';
-                        $data->responsestr = get_string('noresponse', 'mod_jqshow');
-                        break;
-                    case questions::NOTEVALUABLE:
-                        $data->response = 'noevaluable';
-                        $data->responsestr = get_string('noevaluable', 'mod_jqshow');
-                        break;
-                    case questions::INVALID:
-                        $data->response = 'invalid';
-                        $data->responsestr = get_string('invalid', 'mod_jqshow');
-                        break;
-                }
+                $data->response = grade::get_result_mark_type($response);
+                $data->responsestr = get_string($data->response, 'mod_jqshow');
                 $data->time = self::get_user_time_in_question($session, $question, $response);
                 /** @var questions $type */
                 $type = questions::get_question_class_by_string_type($question->get('qtype'));
@@ -716,7 +691,7 @@ class reports {
         $data->noevaluable = 0;
         foreach ($data->sessionquestions as $question) {
             switch ($question->response) {
-                case 'failure':
+                case 'incorrect':
                     $data->failures++;
                     break;
                 case 'partially':
@@ -784,7 +759,7 @@ class reports {
         $data->noevaluable = 0;
         foreach ($data->sessionquestions as $question) {
             switch ($question->response) {
-                case 'failure':
+                case 'incorrect':
                     $data->failures++;
                     break;
                 case 'partially':
@@ -837,9 +812,10 @@ class reports {
         $data->partially = 0;
         $data->failures = 0;
         $data->noevaluable = 0;
+
         foreach ($data->sessionquestions as $question) {
             switch ($question->response) {
-                case 'failure':
+                case 'incorrect':
                     $data->failures++;
                     break;
                 case 'partially':

@@ -292,7 +292,9 @@ Match.prototype.createLinkCorrection = function() {
         let dragId = jQuery(item).data('stems') + '-draggable';
         let steam = Match.prototype.baseConvert(jQuery(item).data('stems'), 2, 16);
         let dropId = Match.prototype.baseConvert(steam, 10, 26) + '-dropzone';
-        linkCorrection.push({dragId: dragId, dropId: dropId});
+        let stemsLeft = jQuery('#' + dragId).data('forstems');
+        let stemsRight = jQuery('#' + dropId).data('forstems');
+        linkCorrection.push({dragId: dragId, dropId: dropId, stemsLeft: stemsLeft, stemsRight: stemsRight});
     });
 };
 
@@ -584,6 +586,7 @@ Match.prototype.drawCorrectLinks = function() {
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     linkCorrection.forEach(link => Match.prototype.drawLink(link.dragId, link.dropId, link.color));
+    linkCorrection.forEach(link => Match.prototype.drawSelect(link.stemsLeft, link.stemsRight, link.color));
 };
 
 Match.prototype.drawLink = function(obj1, obj2, pColor) {

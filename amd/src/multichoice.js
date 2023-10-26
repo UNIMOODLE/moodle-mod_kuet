@@ -91,7 +91,7 @@ MultiChoice.prototype.initEvents = function() {
     addEventListener('timeFinish', MultiChoice.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('alreadyAnswered_' + jqid, (ev) => {
-            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            let userid = jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
                 jQuery('[data-region="group-message"]').show();
@@ -150,7 +150,7 @@ MultiChoice.prototype.removeEvents = function() {
     removeEventListener('timeFinish', () => MultiChoice.prototype.reply, {once: true});
     if (manualMode !== false) {
         removeEventListener('alreadyAnswered_' + jqid, (ev) => {
-            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            let userid = jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
                 jQuery('[data-region="group-message"]').show();
@@ -198,6 +198,11 @@ MultiChoice.prototype.removeEvents = function() {
 };
 
 MultiChoice.prototype.reply = function(e) {
+    if (event.type === 'timeFinish' && questionEnd === true) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+    }
     let answerIds = '0';
     let multiAnswer = e === undefined || jQuery(e.currentTarget).attr('data-action') === 'send-multianswer';
     if (!multiAnswer) {
@@ -243,8 +248,8 @@ MultiChoice.prototype.reply = function(e) {
                     });
                     jQuery(ACTION.SENDMULTIANSWER).addClass('d-none');
                 }
-                MultiChoice.prototype.answered(response);
                 questionEnd = true;
+                MultiChoice.prototype.answered(response);
                 dispatchEvent(MultiChoice.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
                     MultiChoice.prototype.showAnswers();

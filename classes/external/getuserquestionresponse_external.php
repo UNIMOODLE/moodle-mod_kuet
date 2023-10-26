@@ -140,40 +140,40 @@ class getuserquestionresponse_external extends external_api {
 
         switch ($other->type) {
             case questions::MULTICHOICE:
-                return (array)multichoice::export_multichoice_response($data, $json);
+                return (array)multichoice::export_question_response($data, $json);
             case questions::MATCH:
-                return (array)matchquestion::export_match_response($data, $json, $result);
+                return (array)matchquestion::export_question_response($data, $json, $result);
             case questions::TRUE_FALSE:
-                return (array)truefalse::export_truefalse_response($data, $json);
+                return (array)truefalse::export_question_response($data, $json);
             case questions::SHORTANSWER:
-                return (array)shortanswer::export_shortanswer_response($data, $json);
+                return (array)shortanswer::export_question_response($data, $json);
             case questions::NUMERICAL:
-                $dataexport = numerical::export_numerical(
+                $dataexport = numerical::export_question(
                     $data->jqid,
                     $cmid,
                     $sid,
                     $data->jqshowid,
                     $preview);
                 $dataexport->uid = $uid;
-                return (array)numerical::export_numerical_response($dataexport, $json);
+                return (array)numerical::export_question_response($dataexport, $json);
             case questions::CALCULATED:
-                $dataexport = calculated::export_calculated(
+                $dataexport = calculated::export_question(
                     $data->jqid,
                     $cmid,
                     $sid,
                     $data->jqshowid,
                     $preview);
-                return (array)calculated::export_calculated_response($dataexport, $json);
+                return (array)calculated::export_question_response($dataexport, $json);
             case questions::DESCRIPTION:
-                return (array)description::export_description_response($data, $json);
+                return (array)description::export_question_response($data, $json);
             case questions::DDWTOS:
-                $dataexport = ddwtos::export_ddwtos(
+                $dataexport = ddwtos::export_question(
                     $data->jqid,
                     $cmid,
                     $sid,
                     $data->jqshowid,
                     $preview);
-                return (array)ddwtos::export_ddwtos_response($dataexport, $json);
+                return (array)ddwtos::export_question_response($dataexport, $json);
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                     [], get_string('question_nosuitable', 'mod_jqshow'));

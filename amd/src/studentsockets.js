@@ -403,8 +403,6 @@ Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
 };
 
 Sockets.prototype.initListeners = function() {
-    // eslint-disable-next-line no-console
-    console.log('me disparo');
     addEventListener('studentQuestionEnd', () => {
         let msg = {
             'userid': userid,

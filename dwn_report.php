@@ -106,7 +106,7 @@ switch ($reportname) {
             get_string('question_name', 'mod_jqshow'),
             get_string('question_type', 'mod_jqshow'),
             get_string('success', 'mod_jqshow'),
-            get_string('failures', 'mod_jqshow'),
+            get_string('incorrect', 'mod_jqshow'),
             get_string('partially', 'mod_jqshow'),
             get_string('noresponse', 'mod_jqshow'),
             get_string('time', 'mod_jqshow'),
@@ -122,7 +122,7 @@ switch ($reportname) {
             get_string('groupname', 'group'),
             get_string('score', 'mod_jqshow'),
             get_string('success', 'mod_jqshow'),
-            get_string('failures', 'mod_jqshow'),
+            get_string('incorrect', 'mod_jqshow'),
             get_string('partially', 'mod_jqshow'),
             get_string('noresponse', 'mod_jqshow'),
             get_string('reportlink', 'mod_jqshow')];
@@ -137,7 +137,7 @@ switch ($reportname) {
             get_string('fullname'),
             get_string('points', 'mod_jqshow'),
             get_string('success', 'mod_jqshow'),
-            get_string('failures', 'mod_jqshow'),
+            get_string('incorrect', 'mod_jqshow'),
             get_string('partially', 'mod_jqshow'),
             get_string('noresponse', 'mod_jqshow'),
             get_string('reportlink', 'mod_jqshow')];
@@ -162,7 +162,6 @@ switch ($reportname) {
         break;
     case \mod_jqshow\helpers\reports::GROUP_REPORT:
         $columnames = [ 'position', 'name', 'type', 'responsestr', 'score', 'time'];
-        $headers = [ 'position', 'name', 'type', 'responsestr', 'time']; // get_string
         $headers = [
             get_string('question_position', 'mod_jqshow'),
             get_string('question_name', 'mod_jqshow'),

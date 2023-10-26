@@ -36,7 +36,6 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\helpers\responses;
 use mod_jqshow\models\calculated;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
@@ -44,9 +43,6 @@ use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use qtype_calculated_question;
 use question_bank;
-use question_state_gradedpartial;
-use question_state_gradedright;
-use question_state_gradedwrong;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -168,21 +164,24 @@ class calculated_external extends external_api {
                 $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
             }
             if ($preview === false) {
-                calculated::calculated_response(
+                $custom = [
+                    'responsetext' => $responsenum,
+                    'variant' => $variant,
+                    'unit' => $unit,
+                    'multiplier' => $multiplier,
+                    'result' => $result,
+                    'answerfeedback' => $answerfeedback
+                ];
+                calculated::question_response(
                     $cmid,
                     $jqid,
-                    $responsenum,
-                    $variant,
-                    $unit,
-                    $multiplier,
-                    $result,
                     $questionid,
                     $sessionid,
                     $jqshowid,
                     $statmentfeedback,
-                    $answerfeedback,
                     $USER->id,
-                    $timeleft
+                    $timeleft,
+                    $custom
                 );
             }
             return [

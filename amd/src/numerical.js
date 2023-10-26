@@ -93,7 +93,7 @@ Numerical.prototype.initEvents = function() {
     addEventListener('timeFinish', Numerical.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('alreadyAnswered_' + jqid, (ev) => {
-            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            let userid = jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
                 jQuery('[data-region="group-message"]').show();
@@ -156,21 +156,12 @@ Numerical.prototype.initEvents = function() {
         }
     };
 };
-Numerical.prototype.showStatistics = function() {
-    if (questionEnd === true) {
-        jQuery('#statistics').css({'display': 'block', 'z-index': 3});
-    }
-};
-Numerical.prototype.hideStatistics = function() {
-    if (questionEnd === true) {
-        jQuery('#statistics').css({'display': 'none', 'z-index': 0});
-    }
-};
+
 Numerical.prototype.removeEvents = function() {
     removeEventListener('timeFinish', Numerical.prototype.reply, {once: true});
     if (manualMode !== false) {
         removeEventListener('alreadyAnswered_' + jqid, (ev) => {
-            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            let userid = jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
                 jQuery('[data-region="group-message"]').show();
@@ -329,6 +320,17 @@ Numerical.prototype.playQuestion = function() {
         jQuery(REGION.TIMER).css('z-index', 1);
         jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
         jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    }
+};
+
+Numerical.prototype.showStatistics = function() {
+    if (questionEnd === true) {
+        jQuery('#statistics').css({'display': 'block', 'z-index': 3});
+    }
+};
+Numerical.prototype.hideStatistics = function() {
+    if (questionEnd === true) {
+        jQuery('#statistics').css({'display': 'none', 'z-index': 0});
     }
 };
 

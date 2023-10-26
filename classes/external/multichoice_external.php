@@ -134,19 +134,22 @@ class multichoice_external extends external_api {
         $answertexts = json_encode($answertexts, JSON_THROW_ON_ERROR);
         $correctanswers = trim($correctanswers, ',');
         if ($preview === false) {
-            multichoice::multichoice_response(
+            $custom = [
+                'answerids' => $answerids,
+                'answertexts' => $answertexts,
+                'correctanswers' => $correctanswers,
+                'answerfeedback' => $answerfeedback,
+            ];
+            multichoice::question_response(
                 $cmid,
                 $jqid,
-                $answerids,
-                $answertexts,
-                $correctanswers,
                 $questionid,
                 $sessionid,
                 $jqshowid,
                 $statmentfeedback,
-                $answerfeedback,
                 $USER->id,
-                $timeleft
+                $timeleft,
+                $custom
             );
         }
         $session = new jqshow_sessions($sessionid);

@@ -99,7 +99,7 @@ class grade {
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public static function get_simple_mark(jqshow_questions_responses $response) {
+    public static function get_simple_mark(jqshow_questions_responses $response) : float {
         $mark = 0;
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
@@ -379,5 +379,60 @@ class grade {
      */
     private static function get_last_grade(array $allgrades) {
         return end($allgrades)->get('grade');
+    }
+
+    /**
+     * @param jqshow_questions_responses $response
+     * @return string
+     * @throws coding_exception
+     */
+    public static function get_result_mark_type(jqshow_questions_responses $response) {
+        $result = '';
+        switch ($response->get('result')) {
+            case questions::FAILURE:
+                $result = 'incorrect';
+                break;
+            case questions::SUCCESS:
+                $result = 'correct';
+                break;
+            case questions::PARTIALLY:
+                $result = 'partially';
+                break;
+            case questions::INVALID:
+                $result = 'invalid';
+                break;
+            case questions::NOTEVALUABLE:
+                $result = 'noevaluable';
+                break;
+            case questions::NORESPONSE:
+            default:
+                $result = 'noresponse';
+                break;
+        }
+        return $result;
+    }
+
+    /**
+     * @param jqshow_questions_responses[] $responses
+     * @return array
+     * @throws coding_exception
+     */
+    public static function count_result_mark_types(array $responses) : array {
+        $correct = 0;
+        $incorrect = 0;
+        $partially = 0;
+        $noresponse = 0;
+        $invalid = 0;
+        foreach ($responses as $response) {
+            $result = $response->get('result');
+            switch ($result) {
+                case questions::SUCCESS: $correct++; break;
+                case questions::FAILURE: $incorrect++; break;
+                case questions::INVALID: $invalid++; break;
+                case questions::PARTIALLY: $partially++; break;
+                case questions::NORESPONSE: $noresponse++; break;
+            }
+        }
+        return [$correct, $incorrect, $invalid, $partially, $noresponse];
     }
 }

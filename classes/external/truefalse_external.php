@@ -123,19 +123,22 @@ class truefalse_external extends external_api {
                 ) . '<br>';
         }
         if ($preview === false) {
-            truefalse::truefalse_response(
+            $custom = [
+                'answerids' => $answerid,
+                'answertexts' => $answertext,
+                'correctanswers' => $correctanswer,
+                'answerfeedback' => $answerfeedback,
+            ];
+            truefalse::question_response(
                 $cmid,
                 $jqid,
-                $answerid,
-                $answertext,
-                $correctanswer,
                 $questionid,
                 $sessionid,
                 $jqshowid,
                 $statmentfeedback,
-                $answerfeedback,
                 $USER->id,
-                $timeleft
+                $timeleft,
+                $custom
             );
         }
         $session = new jqshow_sessions($sessionid);

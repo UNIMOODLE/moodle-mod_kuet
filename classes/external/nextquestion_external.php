@@ -106,75 +106,14 @@ class nextquestion_external extends external_api {
             progress::set_progress(
                 $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
             );
-            switch ($nextquestion->get('qtype')) {
-                case questions::MULTICHOICE:
-                    $data = multichoice::export_multichoice(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = true;
-                    break;
-                case questions::MATCH:
-                    $data = matchquestion::export_match(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                case questions::TRUE_FALSE:
-                    $data = truefalse::export_truefalse(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = true;
-                    break;
-                case questions::SHORTANSWER:
-                    $data = shortanswer::export_shortanswer(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                case questions::NUMERICAL:
-                    $data = numerical::export_numerical(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                case questions::CALCULATED:
-                    $data = calculated::export_calculated(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                case questions::DESCRIPTION:
-                    $data = description::export_description(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                case questions::DDWTOS:
-                    $data = ddwtos::export_ddwtos(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                default:
-                    throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                        [], get_string('question_nosuitable', 'mod_jqshow'));
-            }
+            /** @var questions $type */
+            $type = questions::get_question_class_by_string_type($nextquestion->get('qtype'));
+            $data = $type::export_question(
+                $nextquestion->get('id'),
+                $cmid,
+                $sessionid,
+                $nextquestion->get('jqshowid'));
+            $data->showstatistics = $type::show_statistics();
         } else {
             $finishdata = new stdClass();
             $finishdata->endSession = 1;

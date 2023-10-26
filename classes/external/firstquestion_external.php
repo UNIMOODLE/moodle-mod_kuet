@@ -91,75 +91,14 @@ class firstquestion_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $firstquestion = jqshow_questions::get_first_question_of_session($sessionid);
-        switch ($firstquestion->get('qtype')) {
-            case questions::MULTICHOICE:
-                $question = multichoice::export_multichoice(
-                    $firstquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $firstquestion->get('jqshowid'));
-                $question->showstatistics = true;
-                break;
-            case questions::MATCH:
-                $question = matchquestion::export_match(
-                    $firstquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $firstquestion->get('jqshowid'));
-                $question->showstatistics = false;
-                break;
-            case questions::TRUE_FALSE:
-                $question = truefalse::export_truefalse(
-                    $firstquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $firstquestion->get('jqshowid'));
-                $question->showstatistics = true;
-                break;
-            case questions::SHORTANSWER:
-                $question = shortanswer::export_shortanswer(
-                    $firstquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $firstquestion->get('jqshowid'));
-                $question->showstatistics = false;
-                break;
-            case questions::NUMERICAL:
-                $question = numerical::export_numerical(
-                    $firstquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $firstquestion->get('jqshowid'));
-                $question->showstatistics = false;
-                break;
-            case questions::CALCULATED:
-                $question = calculated::export_calculated(
-                    $firstquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $firstquestion->get('jqshowid'));
-                $question->showstatistics = false;
-                break;
-            case questions::DESCRIPTION:
-                $question = description::export_description(
-                    $firstquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $firstquestion->get('jqshowid'));
-                $question->showstatistics = false;
-                break;
-            case questions::DDWTOS:
-                $question = ddwtos::export_ddwtos(
-                    $firstquestion->get('id'),
-                    $cmid,
-                    $sessionid,
-                    $firstquestion->get('jqshowid'));
-                $question->showstatistics = false;
-                break;
-            default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                    [], get_string('question_nosuitable', 'mod_jqshow'));
-        }
+        /** @var questions $type */
+        $type = questions::get_question_class_by_string_type($firstquestion->get('qtype'));
+        $question = $type::export_question(
+            $firstquestion->get('id'),
+            $cmid,
+            $sessionid,
+            $firstquestion->get('jqshowid'));
+        $question->showstatistics = $type::show_statistics();
         $session = new jqshow_sessions($sessionid);
         if ($session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
             $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||

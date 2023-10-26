@@ -47,13 +47,14 @@ use question_answer;
 use question_bank;
 use question_definition;
 use stdClass;
+use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 
-class multichoice extends questions {
+class multichoice extends questions implements questionType {
 
     /**
      * @param int $jqshowid
@@ -61,7 +62,7 @@ class multichoice extends questions {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) : void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -78,15 +79,15 @@ class multichoice extends questions {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
-        if (!assert($question instanceof qtype_multichoice_single_question) &&
+        /*if (!assert($question instanceof qtype_multichoice_single_question) &&
             !assert($question instanceof qtype_multichoice_multi_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
-        }
+        }*/
         $type = $question->get_type_name();
         $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
@@ -126,16 +127,17 @@ class multichoice extends questions {
     /**
      * @param stdClass $data
      * @param string $response
+     * @param int $result
      * @return stdClass
      * @throws JsonException
-     * @throws invalid_parameter_exception
      * @throws coding_exception
      * @throws dml_exception
      * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_multichoice_response(stdClass $data, string $response): stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result = 0): stdClass {
         $responsedata = json_decode($response, false);
         $data->answered = true;
         $dataanswer = multichoice_external::multichoice(
@@ -321,36 +323,35 @@ class multichoice extends questions {
     /**
      * @param int $cmid
      * @param int $jqid
-     * @param string $answerids
-     * @param string $answertexts
-     * @param string $correctanswers
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
-     * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
      * @throws coding_exception
+     * @throws dml_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function multichoice_response(
+    public static function question_response(
         int $cmid,
         int $jqid,
-        string $answerids,
-        string $answertexts,
-        string $correctanswers,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
-        string $answerfeedback,
         int $userid,
-        int $timeleft
+        int $timeleft,
+        array $custom
     ): void {
+        $answerids = $custom['answerids'];
+        $answertexts = $custom['answertexts'];
+        $correctanswers = $custom['correctanswers'];
+        $answerfeedback = $custom['answerfeedback'];
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {
@@ -438,11 +439,11 @@ class multichoice extends questions {
     /**
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
-     * @return float|int
+     * @return float
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) : float {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
@@ -481,5 +482,11 @@ class multichoice extends questions {
             }
         }
         return $statistics;
+    }
+    /**
+     * @return bool
+     */
+    public static function show_statistics() : bool {
+        return true;
     }
 }

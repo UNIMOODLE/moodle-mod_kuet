@@ -139,18 +139,21 @@ class shortanswer_external extends external_api {
                 }
             }
             if ($preview === false) {
-                shortanswer::shortanswer_response(
+                $custom = [
+                    'responsetext' => $responsetext,
+                    'result' => $result,
+                    'answerfeedback' => $answerfeedback,
+                ];
+                shortanswer::question_response(
                     $cmid,
                     $jqid,
-                    $responsetext,
-                    $result,
                     $questionid,
                     $sessionid,
                     $jqshowid,
                     $statmentfeedback,
-                    $answerfeedback,
                     $USER->id,
-                    $timeleft
+                    $timeleft,
+                    $custom
                 );
             }
             return [

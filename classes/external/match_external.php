@@ -154,18 +154,21 @@ class match_external extends external_api {
             }
 
             if ($preview === false) {
-                matchquestion::match_response(
+                $custom = [
+                    'jsonresponse' => $jsonresponse,
+                    'result' => $result,
+                    'answerfeedback' => $answerfeedback,
+                ];
+                matchquestion::question_response(
                     $cmid,
                     $jqid,
-                    $jsonresponse,
-                    $result,
                     $questionid,
                     $sessionid,
                     $jqshowid,
                     $statmentfeedback,
-                    $answerfeedback,
                     $USER->id,
-                    $timeleft
+                    $timeleft,
+                    $custom
                 );
             }
             return [

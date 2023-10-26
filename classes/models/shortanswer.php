@@ -45,11 +45,12 @@ use qtype_shortanswer_question;
 use question_bank;
 use question_definition;
 use stdClass;
+use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-class shortanswer extends questions {
+class shortanswer extends questions implements questionType {
 
     /**
      * @param int $jqshowid
@@ -57,7 +58,7 @@ class shortanswer extends questions {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) : void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -74,7 +75,7 @@ class shortanswer extends questions {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_shortanswer(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
@@ -97,6 +98,7 @@ class shortanswer extends questions {
     /**
      * @param stdClass $data
      * @param string $response
+     * @param int $result
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -106,7 +108,7 @@ class shortanswer extends questions {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_shortanswer_response(stdClass $data, string $response): stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result = 0): stdClass {
         $responsedata = json_decode($response, false);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
@@ -246,25 +248,8 @@ class shortanswer extends questions {
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
 
-        switch ($response->get('result')) {
-            case questions::FAILURE:
-                $participant->response = 'incorrect';
-                $participant->responsestr = get_string('incorrect', 'mod_jqshow');
-                break;
-            case questions::SUCCESS:
-                $participant->response = 'correct';
-                $participant->responsestr = get_string('correct', 'mod_jqshow');
-                break;
-            case questions::PARTIALLY:
-                $participant->response = 'partially';
-                $participant->responsestr = get_string('partially', 'mod_jqshow');
-                break;
-            case questions::NORESPONSE:
-            default:
-                $participant->response = 'noresponse';
-                $participant->responsestr = get_string('noresponse', 'mod_jqshow');
-                break;
-        }
+        $participant->response = grade::get_result_mark_type($response);
+        $participant->responsestr = get_string($participant->response, 'mod_jqshow');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
@@ -281,34 +266,33 @@ class shortanswer extends questions {
     /**
      * @param int $cmid
      * @param int $jqid
-     * @param string $responsetext
-     * @param int $result
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
-     * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
      * @throws coding_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function shortanswer_response(
+    public static function question_response(
         int $cmid,
         int $jqid,
-        string $responsetext,
-        int $result,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
-        string $answerfeedback,
         int $userid,
-        int $timeleft
+        int $timeleft,
+        array $custom
     ): void {
+        $responsetext = $custom['responsetext'];
+        $result = $custom['result'];
+        $answerfeedback = $custom['answerfeedback'];
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {
@@ -332,11 +316,11 @@ class shortanswer extends questions {
     /**
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
-     * @return float|int
+     * @return float
      * @throws JsonException
      * @throws coding_exception
      */
-    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
+    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) : float {
         global $DB;
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
@@ -362,22 +346,8 @@ class shortanswer extends questions {
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];
-        $correct = 0;
-        $incorrect = 0;
-        $partially = 0;
-        $noresponse = 0;
-        $invalid = 0;
         $total = count($responses);
-        foreach ($responses as $response) {
-            $result = $response->get('result');
-            switch ($result) {
-                case questions::SUCCESS: $correct++; break;
-                case questions::FAILURE: $incorrect++; break;
-                case questions::INVALID: $invalid++; break;
-                case questions::PARTIALLY: $partially++; break;
-                case questions::NORESPONSE: $noresponse++; break;
-            }
-        }
+        list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
         $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
         $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
         $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;

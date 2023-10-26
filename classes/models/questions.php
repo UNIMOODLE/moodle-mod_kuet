@@ -385,4 +385,10 @@ class questions {
         }
         return $qtime;
     }
+    /**
+     * @return bool
+     */
+    public static function show_statistics() : bool {
+        return false;
+    }
 }
