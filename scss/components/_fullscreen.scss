@@ -58,6 +58,9 @@ body.path-mod-jqshow.fullscreen { // TODO there are some bugs outside the previe
                         justify-content: center;
                         align-items: center;
                         width: 100%;
+                        .session-content {
+                            width: 100%;
+                        }
                         [data-region="teacher-canvas-content"],
                         [data-region="student-canvas"] {
                             width: 100%;

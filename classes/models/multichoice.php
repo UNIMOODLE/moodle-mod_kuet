@@ -156,7 +156,7 @@ class multichoice extends questions implements questionType {
         $data->correct_answers = $dataanswer['correct_answers'];
         $data->programmedmode = $dataanswer['programmedmode'];
         if ($data->hasfeedbacks) {
-            // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
+            // TODO breaks images in report feedbacks. Services do not pass feedback through escape_characters, and they work. Consider removing.
             $dataanswer['statment_feedback'] = self::escape_characters($dataanswer['statment_feedback']);
             $dataanswer['answer_feedback'] = self::escape_characters($dataanswer['answer_feedback']);
         }

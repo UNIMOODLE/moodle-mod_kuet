@@ -93,10 +93,10 @@ class calculated extends questions implements questionType {
         $data->$type = true;
         $data->qtype = $type;
         self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
+        $data->questiontext = self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $question->variant, true);
         $data->questiontextformat = $question->questiontextformat;
         $data->name = $question->name;
         $data->unitsleft = isset($question->unitdisplay) && $question->unitdisplay === 1;
-        $data->questiontext = $question->questiontext;
         $data->variant = $question->variant;
         if (isset($question->ap) && assert($question->ap instanceof qtype_numerical_answer_processor)) {
             $data->units = [];

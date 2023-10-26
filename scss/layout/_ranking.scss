@@ -177,6 +177,7 @@
 .ranking-first-three {
     width: 100%;
     background: #5A57FF;
+    overflow-y: auto;
     .content-users {
         display: flex;
         flex-flow: row nowrap;
