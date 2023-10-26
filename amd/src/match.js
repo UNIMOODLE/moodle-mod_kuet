@@ -364,6 +364,7 @@ Match.prototype.sendResponse = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Match.prototype.endTimer);
+        removeEventListener('timeFinish', () => Match.prototype.sendResponse, {once: true});
         Match.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let result = 0; // Failure

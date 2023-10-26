@@ -209,6 +209,7 @@ TrueFalse.prototype.reply = function(e) {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(TrueFalse.prototype.endTimer);
+        removeEventListener('timeFinish', TrueFalse.prototype.reply, {once: true});
         TrueFalse.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {

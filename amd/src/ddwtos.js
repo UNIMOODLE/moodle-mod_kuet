@@ -273,6 +273,7 @@ Ddwtos.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Ddwtos.prototype.endTimer);
+        removeEventListener('timeFinish', Ddwtos.prototype.reply, {once: true});
         Ddwtos.prototype.removeEvents();
         let inputPlaces = document.querySelectorAll(REGION.INPUTPLACE);
         let response = {};

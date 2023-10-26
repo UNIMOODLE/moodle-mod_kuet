@@ -221,6 +221,7 @@ Calculated.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Calculated.prototype.endTimer);
+        removeEventListener('timeFinish', Calculated.prototype.reply, {once: true});
         Calculated.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseNum = jQuery(REGION.INPUTANSWER).val();

@@ -214,6 +214,7 @@ MultiChoice.prototype.reply = function(e) {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(MultiChoice.prototype.endTimer);
+        removeEventListener('timeFinish', () => MultiChoice.prototype.reply, {once: true});
         MultiChoice.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {

@@ -100,6 +100,11 @@ class reports {
         $data->position = $question->get('qorder');
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
+        $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
+            'class' => 'icon',
+            'title' => $question->get('qtype')
+        ]);
+        $data->icon = $icon->export_for_pix();
         $data->success = 0;
         $data->failures = 0;
         $data->partyally = 0;
@@ -307,6 +312,11 @@ class reports {
             $data->position = $question->get('qorder');
             $data->name = $questiondb->name;
             $data->type = $question->get('qtype');
+            $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
+                'class' => 'icon',
+                'title' => $question->get('qtype')
+            ]);
+            $data->icon = $icon->export_for_pix();
             $questiontimestr = self::get_time_string($session, $question);
             if ($response === false) {
                 $data->response = 'noresponse';

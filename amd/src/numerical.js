@@ -230,6 +230,7 @@ Numerical.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Numerical.prototype.endTimer);
+        removeEventListener('timeFinish', Numerical.prototype.reply, {once: true});
         Numerical.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseNum = jQuery(REGION.INPUTANSWER).val();

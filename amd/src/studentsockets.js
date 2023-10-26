@@ -199,7 +199,8 @@ Sockets.prototype.initSockets = function() {
                             jqid: response.context.jqid,
                             cmid: cmid,
                             sid: sid,
-                            uid: 0
+                            uid: 0,
+                            preview: false
                         }
                     };
                     let removeEvents = new CustomEvent('removeEvents');
@@ -222,6 +223,8 @@ Sockets.prototype.initSockets = function() {
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.ROOT);
                     identifier.append(html);
+                    let removeEvents = new CustomEvent('removeEvents');
+                    dispatchEvent(removeEvents);
                     Templates.render(TEMPLATES.PROVISIONALRANKING, response.context).then(function(html, js) {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
@@ -299,7 +302,6 @@ Sockets.prototype.initSockets = function() {
                         // eslint-disable-next-line max-len
                         htmlTags += '<li><span class="tag" data-count="' + tag.count + '" data-vote="' + tag.votenum + '" data-size="' + tag.size + '">' +
                             '<div class="vote-tag d-none" data-name="' + tag.name + '" data-action="vote-tag">' +
-                            // eslint-disable-next-line max-len
                             '<svg id="vote-layer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 115.29">' +
                             '<defs><style>.cls-1{fill:#212121;}.cls-2{fill:#33a867;fill-rule:evenodd;}</style></defs>' +
                             // eslint-disable-next-line max-len
@@ -401,13 +403,15 @@ Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
 };
 
 Sockets.prototype.initListeners = function() {
+    // eslint-disable-next-line no-console
+    console.log('me disparo');
     addEventListener('studentQuestionEnd', () => {
         let msg = {
             'userid': userid,
             'sid': sid,
             'usersocketid': usersocketid,
             'jqid': currentCuestionJqid,
-            'oft': true, // IMPORTANT: Only for teacher.
+            'oft': true,
             'action': 'studentQuestionEnd',
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));

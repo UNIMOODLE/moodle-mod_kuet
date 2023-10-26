@@ -225,6 +225,7 @@ ShortAnswer.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(ShortAnswer.prototype.endTimer);
+        removeEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
         ShortAnswer.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseText = jQuery(REGION.INPUTANSWER).val();
