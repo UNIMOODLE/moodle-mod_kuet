@@ -87,9 +87,12 @@
 						}
 					}
 				}
-				&:nth-child(2n+1) span.tag { color: nth($answercolors, 2); }
-				&:nth-child(3n+1) span.tag { color: nth($answercolors, 3); }
-				&:nth-child(4n+1) span.tag { color: nth($answercolors, 4); }
+				$repeat: 14;
+				@for $i from 1 through $repeat {
+					&:nth-child(#{length($answercolors)}n+#{$i}) span.tag {
+						color: nth($answercolors, $i);
+					}
+				}
 			}
 			&[data-show-value="true"] {
 				li {
