@@ -161,18 +161,21 @@ class ddwtos_external extends external_api {
                 }
             }
             if ($preview === false) {
+                $custom = [
+                    'responsetext' => $response,
+                    'result' => $result,
+                    'answerfeedback' => $answerfeedback,
+                ];
                 ddwtos::question_response(
                     $cmid,
                     $jqid,
-                    $response,
-                    $result,
                     $questionid,
                     $sessionid,
                     $jqshowid,
                     $statmentfeedback,
-                    $answerfeedback,
                     $USER->id,
-                    $timeleft
+                    $timeleft,
+                    $custom
                 );
             }
             $question = question_bank::load_question($questionid);

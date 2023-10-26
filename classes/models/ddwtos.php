@@ -30,7 +30,6 @@ use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
-use enrol_self\self_test;
 use html_writer;
 use invalid_parameter_exception;
 use JsonException;
@@ -61,7 +60,7 @@ class ddwtos extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) :void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -111,7 +110,7 @@ class ddwtos extends questions implements questionType {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_question_response(stdClass $data, string $response, $result = 0): stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result = 0): stdClass {
         $responsedata = json_decode($response, false);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
@@ -157,7 +156,7 @@ class ddwtos extends questions implements questionType {
      * @throws dml_exception
      * @throws dml_transaction_exception
      */
-    public static function get_question_text(int $cmid, qtype_ddwtos_question $question, array $response = []) {
+    public static function get_question_text(int $cmid, qtype_ddwtos_question $question, array $response = []) : string {
         $questiontext = '';
         $embeddedelements = [];
         $placeholders = self::get_fragments_glue_placeholders($question->textfragments);
@@ -291,10 +290,10 @@ class ddwtos extends questions implements questionType {
     /**
      * @param int $fraction
      * @param bool $selected
-     * @return mixed
+     * @return string
      * @throws coding_exception
      */
-    private static function feedback_image(int $fraction, bool $selected = true) {
+    private static function feedback_image(int $fraction, bool $selected = true) : string {
         global $OUTPUT;
         $feedbackclass = question_state::graded_state_for_fraction($fraction)->get_feedback_class();
         return $OUTPUT->pix_icon('i/grade_' . $feedbackclass, get_string($feedbackclass, 'question'));
@@ -448,15 +447,13 @@ class ddwtos extends questions implements questionType {
     /**
      * @param int $cmid
      * @param int $jqid
-     * @param string $responsetext
-     * @param int $result
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
-     * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
      * @throws coding_exception
@@ -466,17 +463,18 @@ class ddwtos extends questions implements questionType {
     public static function question_response(
         int $cmid,
         int $jqid,
-        string $responsetext,
-        int $result,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
-        string $answerfeedback,
         int $userid,
-        int $timeleft
+        int $timeleft,
+        array $custom
     ): void {
-        global $COURSE;
+
+        $responsetext = $custom['responsetext'];
+        $result = $custom['result'];
+        $answerfeedback = $custom['answerfeedback'];
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {

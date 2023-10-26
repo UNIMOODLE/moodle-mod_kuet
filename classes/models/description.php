@@ -32,15 +32,12 @@ use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\api\grade;
-use mod_jqshow\api\groupmode;
 use mod_jqshow\external\description_external;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
-use pix_icon;
 use qtype_description_question;
 use question_bank;
 use question_definition;
@@ -58,7 +55,7 @@ class description extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) : void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -185,13 +182,13 @@ class description extends questions implements questionType {
     /**
      * @param int $cmid
      * @param int $jqid
-     * @param int $result
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
      * @throws coding_exception
@@ -201,16 +198,17 @@ class description extends questions implements questionType {
     public static function question_response(
         int $cmid,
         int $jqid,
-        int $result,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
         int $userid,
-        int $timeleft
+        int $timeleft,
+        array $custom = []
     ): void {
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
+        $result = questions::NOTEVALUABLE;
         if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
@@ -246,7 +244,6 @@ class description extends questions implements questionType {
      * @return array
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
-        $statistics = [];
-        return $statistics;
+        return [];
     }
 }

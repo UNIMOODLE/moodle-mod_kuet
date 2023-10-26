@@ -387,16 +387,13 @@ class truefalse extends questions implements questionType {
     /**
      * @param int $cmid
      * @param int $jqid
-     * @param string $answerids
-     * @param string $answertexts
-     * @param string $correctanswers
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
-     * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
      * @throws coding_exception
@@ -407,17 +404,18 @@ class truefalse extends questions implements questionType {
     public static function question_response(
         int $cmid,
         int $jqid,
-        string $answerids,
-        string $answertexts,
-        string $correctanswers,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
-        string $answerfeedback,
         int $userid,
-        int $timeleft
+        int $timeleft,
+        array $custom
     ): void {
+        $answerids = $custom['answerids'];
+        $answertexts = $custom['answertexts'];
+        $correctanswers = $custom['correctanswers'];
+        $answerfeedback = $custom['answerfeedback'];
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {

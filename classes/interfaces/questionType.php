@@ -93,5 +93,28 @@ interface questionType {
      */
     public static function export_question_response(stdClass $data, string $response, int $result) : stdClass;
 
+    /**
+     * @param int $cmid
+     * @param int $jqid
+     * @param int $questionid
+     * @param int $sessionid
+     * @param int $jqshowid
+     * @param string $statmentfeedback
+     * @param int $userid
+     * @param int $timeleft
+     * @param array $custom
+     * @return void
+     */
+    public static function question_response(
+        int $cmid,
+        int $jqid,
+        int $questionid,
+        int $sessionid,
+        int $jqshowid,
+        string $statmentfeedback,
+        int $userid,
+        int $timeleft,
+        array $custom
+    ): void;
 }
 

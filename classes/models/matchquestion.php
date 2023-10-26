@@ -32,7 +32,6 @@ use dml_exception;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\api\grade;
-use mod_jqshow\api\groupmode;
 use mod_jqshow\external\match_external;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\persistents\jqshow_questions;
@@ -56,7 +55,7 @@ class matchquestion extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) : void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -223,15 +222,13 @@ class matchquestion extends questions implements questionType {
     /**
      * @param int $cmid
      * @param int $jqid
-     * @param string $jsonresponse
-     * @param int $result
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
-     * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
      * @throws coding_exception
@@ -241,17 +238,18 @@ class matchquestion extends questions implements questionType {
     public static function question_response(
         int $cmid,
         int $jqid,
-        string $jsonresponse,
-        int $result,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
-        string $answerfeedback,
         int $userid,
-        int $timeleft
-    ):void {
-        global $COURSE;
+        int $timeleft,
+        array $custom
+    ) : void {
+
+        $jsonresponse = $custom['jsonresponse'];
+        $result = $custom['result'];
+        $answerfeedback = $custom['answerfeedback'];
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {

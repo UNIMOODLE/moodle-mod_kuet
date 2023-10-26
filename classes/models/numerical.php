@@ -62,7 +62,7 @@ class numerical extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) : void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -173,7 +173,7 @@ class numerical extends questions implements questionType {
             $responsedata->timeleft,
             true
         );
-        $data->cmid = $data->cmid;
+//        $data->cmid = $data->cmid;
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $data->numericalresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
@@ -313,17 +313,13 @@ class numerical extends questions implements questionType {
     /**
      * @param int $cmid
      * @param int $jqid
-     * @param string $responsetext
-     * @param string $unit
-     * @param string $multiplier
-     * @param int $result
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
-     * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
      * @throws coding_exception
@@ -333,18 +329,19 @@ class numerical extends questions implements questionType {
     public static function question_response(
         int $cmid,
         int $jqid,
-        string $responsetext,
-        string $unit,
-        string $multiplier,
-        int $result,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
-        string $answerfeedback,
         int $userid,
-        int $timeleft
+        int $timeleft,
+        array $custom
     ): void {
+        $responsetext = $custom['responsetext'];
+        $unit = $custom['unit'];
+        $multiplier = $custom['multiplier'];
+        $result = $custom['result'];
+        $answerfeedback = $custom['answerfeedback'];
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {

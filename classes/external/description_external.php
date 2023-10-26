@@ -118,7 +118,6 @@ class description_external extends external_api {
                 description::question_response(
                     $cmid,
                     $jqid,
-                    $result,
                     $questionid,
                     $sessionid,
                     $jqshowid,
