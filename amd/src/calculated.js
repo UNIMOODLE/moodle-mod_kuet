@@ -221,6 +221,7 @@ Calculated.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Calculated.prototype.endTimer);
+        removeEventListener('timeFinish', Calculated.prototype.reply, {once: true});
         Calculated.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseNum = jQuery(REGION.INPUTANSWER).val();
@@ -302,7 +303,10 @@ Calculated.prototype.answered = function(response) {
         jQuery(REGION.FEEDBACKICONS + ' .incorrect').remove();
         jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
     }
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 Calculated.prototype.pauseQuestion = function() {

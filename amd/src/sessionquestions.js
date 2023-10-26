@@ -15,13 +15,15 @@ let ACTION = {
     QUESTION: '.question-item',
     QUESTIONDROP: '.question-item [data-drag-type="move"]',
     QUESTIONPREVIEW: '[data-action="question_preview"]',
+    ENDCREATESESSION: '[data-action="end_create_session"]',
 };
 
 let SERVICES = {
     DELETEQUESTION: 'mod_jqshow_deletequestion',
     SESSIONQUESTIONS: 'mod_jqshow_sessionquestions',
     REORDER: 'mod_jqshow_reorderquestions',
-    GETQUESTION: 'mod_jqshow_getquestion'
+    GETQUESTION: 'mod_jqshow_getquestion',
+    ACTIVESESSION: 'mod_jqshow_activesession',
 };
 
 let REGION = {
@@ -71,6 +73,22 @@ SessionQuestions.prototype.initPanel = function() {
         e.stopPropagation();
     });
     jQuery(REGION.QUESTIONLIST + ' > ' + ACTION.QUESTION).on(SortableList.EVENTS.DROP, this.reorderQuestions.bind(this));
+    jQuery(ACTION.ENDCREATESESSION).on('click', this.activeSession.bind(this)).removeClass('disabled');
+};
+
+SessionQuestions.prototype.activeSession = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let request = {
+        methodname: SERVICES.ACTIVESESSION,
+        args: {
+            cmid: cmId,
+            sessionid: sId
+        }
+    };
+    Ajax.call([request])[0].done(function() {
+        window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmId);
+    }).fail(Notification.exception);
 };
 
 SessionQuestions.prototype.questionPreview = function(e) {

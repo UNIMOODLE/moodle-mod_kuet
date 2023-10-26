@@ -113,7 +113,10 @@ Match.prototype.answered = function(jsonresponse) {
     if (manualMode === false) {
         jQuery(REGION.NEXT).removeClass('d-none');
     }
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 Match.prototype.initMatch = function() {
@@ -289,7 +292,9 @@ Match.prototype.createLinkCorrection = function() {
         let dragId = jQuery(item).data('stems') + '-draggable';
         let steam = Match.prototype.baseConvert(jQuery(item).data('stems'), 2, 16);
         let dropId = Match.prototype.baseConvert(steam, 10, 26) + '-dropzone';
-        linkCorrection.push({dragId: dragId, dropId: dropId});
+        let stemsLeft = jQuery('#' + dragId).data('forstems');
+        let stemsRight = jQuery('#' + dropId).data('forstems');
+        linkCorrection.push({dragId: dragId, dropId: dropId, stemsLeft: stemsLeft, stemsRight: stemsRight});
     });
 };
 
@@ -361,9 +366,10 @@ Match.prototype.sendResponse = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Match.prototype.endTimer);
+        removeEventListener('timeFinish', () => Match.prototype.sendResponse, {once: true});
         Match.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
-        let result = 3; // No response.
+        let result = 0; // Failure
         let [corrects, fails] = Match.prototype.drawResponse();
         if (corrects !== 0) {
             result = 2; // Partially.
@@ -373,6 +379,9 @@ Match.prototype.sendResponse = function() {
         }
         if (jQuery(REGION.LEFT_OPTION_SELECTOR).length === fails) {
             result = 0; // Failure.
+        }
+        if (jQuery(REGION.LEFT_OPTION_SELECTOR).length === 0 && jQuery(REGION.LEFT_OPTION_SELECTOR).length === 0) {
+            result = 3; // No response.
         }
         Match.prototype.drawLinks();
 
@@ -577,6 +586,7 @@ Match.prototype.drawCorrectLinks = function() {
     let ctx = canvas.getContext('2d');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     linkCorrection.forEach(link => Match.prototype.drawLink(link.dragId, link.dropId, link.color));
+    linkCorrection.forEach(link => Match.prototype.drawSelect(link.stemsLeft, link.stemsRight, link.color));
 };
 
 Match.prototype.drawLink = function(obj1, obj2, pColor) {

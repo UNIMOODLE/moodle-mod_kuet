@@ -209,6 +209,7 @@ TrueFalse.prototype.reply = function(e) {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(TrueFalse.prototype.endTimer);
+        removeEventListener('timeFinish', TrueFalse.prototype.reply, {once: true});
         TrueFalse.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
@@ -278,7 +279,10 @@ TrueFalse.prototype.answered = function(response) {
             jQuery('[data-answerid="' + statistic.answerids + '"] .numberofreplies').html(statistic.numberofreplies);
         });
     }
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 TrueFalse.prototype.pauseQuestion = function() {

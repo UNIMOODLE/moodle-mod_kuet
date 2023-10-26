@@ -107,7 +107,8 @@ QuestionReport.prototype.seeAnswer = function(e) {
                     jqid: question.jqid,
                     cmid: cmId,
                     sid: sessionId,
-                    uid: userId
+                    uid: userId,
+                    preview: true
                 }
             };
             Ajax.call([requestAnswer])[0].done(function(answer) {

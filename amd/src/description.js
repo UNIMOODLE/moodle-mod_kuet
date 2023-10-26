@@ -7,7 +7,7 @@ import Notification from 'core/notification';
 import mEvent from 'core/event';
 
 let ACTION = {
-    SEND_RESPONSE: '[data-action="send-response"]',
+    SEND_RESPONSE: '[data-action="next-question"]',
 };
 
 let REGION = {
@@ -193,6 +193,7 @@ Description.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Description.prototype.endTimer);
+        removeEventListener('timeFinish', Description.prototype.reply, {once: true});
         Description.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
@@ -242,7 +243,10 @@ Description.prototype.answered = function(response) {
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(REGION.NEXT).removeClass('d-none');
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 Description.prototype.pauseQuestion = function() {

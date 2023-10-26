@@ -24,7 +24,6 @@
  */
 namespace mod_jqshow\interfaces;
 
-// This line protects the file from being accessed by a URL directly.
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;

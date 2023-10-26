@@ -93,7 +93,7 @@ Numerical.prototype.initEvents = function() {
     addEventListener('timeFinish', Numerical.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('alreadyAnswered_' + jqid, (ev) => {
-            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            let userid = jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
                 jQuery('[data-region="group-message"]').show();
@@ -156,21 +156,12 @@ Numerical.prototype.initEvents = function() {
         }
     };
 };
-Numerical.prototype.showStatistics = function() {
-    if (questionEnd === true) {
-        jQuery('#statistics').css({'display': 'block', 'z-index': 3});
-    }
-};
-Numerical.prototype.hideStatistics = function() {
-    if (questionEnd === true) {
-        jQuery('#statistics').css({'display': 'none', 'z-index': 0});
-    }
-};
+
 Numerical.prototype.removeEvents = function() {
     removeEventListener('timeFinish', Numerical.prototype.reply, {once: true});
     if (manualMode !== false) {
         removeEventListener('alreadyAnswered_' + jqid, (ev) => {
-            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            let userid = jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
                 jQuery('[data-region="group-message"]').show();
@@ -230,6 +221,7 @@ Numerical.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Numerical.prototype.endTimer);
+        removeEventListener('timeFinish', Numerical.prototype.reply, {once: true});
         Numerical.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseNum = jQuery(REGION.INPUTANSWER).val();
@@ -309,7 +301,10 @@ Numerical.prototype.answered = function(response) {
         jQuery(REGION.FEEDBACKICONS + ' .incorrect').remove();
         jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
     }
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 Numerical.prototype.pauseQuestion = function() {
@@ -325,6 +320,17 @@ Numerical.prototype.playQuestion = function() {
         jQuery(REGION.TIMER).css('z-index', 1);
         jQuery(REGION.FEEDBACKBACGROUND).css('display', 'none');
         jQuery(ACTION.REPLY).css('pointer-events', 'auto');
+    }
+};
+
+Numerical.prototype.showStatistics = function() {
+    if (questionEnd === true) {
+        jQuery('#statistics').css({'display': 'block', 'z-index': 3});
+    }
+};
+Numerical.prototype.hideStatistics = function() {
+    if (questionEnd === true) {
+        jQuery('#statistics').css({'display': 'none', 'z-index': 0});
     }
 };
 

@@ -401,6 +401,9 @@ class grade {
             case questions::INVALID:
                 $result = 'invalid';
                 break;
+            case questions::NOTEVALUABLE:
+                $result = 'noevaluable';
+                break;
             case questions::NORESPONSE:
             default:
                 $result = 'noresponse';

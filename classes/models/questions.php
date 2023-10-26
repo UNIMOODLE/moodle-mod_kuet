@@ -255,12 +255,14 @@ class questions {
      * @param question_definition $question
      * @param string $filearea
      * @param int $variant
+     * @param bool $noattempt
      * @return string
      * @throws dml_exception
      * @throws dml_transaction_exception
      */
     public static function get_text(
-        int $cmid, string $text, int $textformat, int $id, question_definition $question, string $filearea, int $variant = 0, bool $noattempt = false
+        int $cmid, string $text, int $textformat, int $id,
+        question_definition $question, string $filearea, int $variant = 0, bool $noattempt = false
     ): string {
         global $DB;
         $contextmodule = context_module::instance($cmid);
@@ -304,10 +306,9 @@ class questions {
      * @param string $text
      * @return string
      */
-    protected static function escape_characters(string $text) : string {
+    protected static function escape_characters(string $text): string {
         // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
         $text = trim(html_entity_decode($text), self::CHARACTERS_TO_BE_STRIPPED);
-        $text = str_replace('"', '\"', $text);
         $replace = preg_replace('/[\x00-\x1F\x7F]/u', '', $text);
         return $replace ?? $text;
     }

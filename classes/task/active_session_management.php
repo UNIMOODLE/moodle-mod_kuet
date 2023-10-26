@@ -29,7 +29,6 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use core\task\scheduled_task;
 use lang_string;
-use mod_jqshow\models\sessions;
 use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -61,9 +60,9 @@ class active_session_management extends scheduled_task {
                 'status' => sessionsmodel::SESSION_STARTED]);
             if ($activesession !== false) {
                 $activesessionmode = $activesession->get('sessionmode');
-                if ($activesessionmode === sessions::INACTIVE_MANUAL ||
-                    $activesessionmode === sessions::PODIUM_MANUAL ||
-                    $activesessionmode === sessions::RACE_MANUAL) {
+                if ($activesessionmode === sessionsmodel::INACTIVE_MANUAL ||
+                    $activesessionmode === sessionsmodel::PODIUM_MANUAL ||
+                    $activesessionmode === sessionsmodel::RACE_MANUAL) {
                     // A manual session is active, and will prevail over scheduled sessions until it ends in this jqshow.
                     $a->sessionid = $activesession->get('id');
                     $a->jqshowid = $activesession->get('jqshowid');

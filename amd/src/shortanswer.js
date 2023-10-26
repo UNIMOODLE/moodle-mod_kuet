@@ -225,6 +225,7 @@ ShortAnswer.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(ShortAnswer.prototype.endTimer);
+        removeEventListener('timeFinish', ShortAnswer.prototype.reply, {once: true});
         ShortAnswer.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let responseText = jQuery(REGION.INPUTANSWER).val();
@@ -290,7 +291,10 @@ ShortAnswer.prototype.answered = function(response) {
         jQuery(REGION.FEEDBACKICONS + ' .incorrect').remove();
         jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
     }
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 ShortAnswer.prototype.pauseQuestion = function() {

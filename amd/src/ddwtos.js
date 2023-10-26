@@ -273,6 +273,7 @@ Ddwtos.prototype.reply = function() {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(Ddwtos.prototype.endTimer);
+        removeEventListener('timeFinish', Ddwtos.prototype.reply, {once: true});
         Ddwtos.prototype.removeEvents();
         let inputPlaces = document.querySelectorAll(REGION.INPUTPLACE);
         let response = {};
@@ -404,7 +405,10 @@ Ddwtos.prototype.answered = function(response, fromService = false) {
         jQuery(dragElement).off('mousedown touchstart');
         jQuery(dragElement).css({'pointer-events': 'none'});
     });
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 Ddwtos.prototype.pauseQuestion = function() {

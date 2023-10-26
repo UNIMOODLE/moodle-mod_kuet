@@ -506,7 +506,7 @@ Sockets.prototype.initListeners = function() {
                     jQuery(ACTION.VOTE).addClass('disabled');
                     jQuery(ACTION.JUMP).addClass('disabled');
                     mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
-                }, 250);
+                }, 300);
             }).fail(Notification.exception);
         } else {
             that.questionEnd();
