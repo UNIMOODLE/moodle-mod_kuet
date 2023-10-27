@@ -47,13 +47,13 @@ use user_picture;
 
 class reports {
 
-    const QUESTION_REPORT = 'questionreport';
-    const SESSION_QUESTIONS_REPORT = 'sessionquestionsreport';
-    const SESSION_RANKING_REPORT = 'sessionrankingreport';
-    const GROUP_SESSION_RANKING_REPORT = 'groupsessionrankingreport';
-    const USER_REPORT = 'userreport';
-    const GROUP_QUESTION_REPORT = 'groupquestionreport';
-    const GROUP_REPORT = 'groupreport';
+    public const QUESTION_REPORT = 'questionreport';
+    public const SESSION_QUESTIONS_REPORT = 'sessionquestionsreport';
+    public const SESSION_RANKING_REPORT = 'sessionrankingreport';
+    public const GROUP_SESSION_RANKING_REPORT = 'groupsessionrankingreport';
+    public const USER_REPORT = 'userreport';
+    public const GROUP_QUESTION_REPORT = 'groupquestionreport';
+    public const GROUP_REPORT = 'groupreport';
     /**
      * @param int $jqshowid
      * @param int $cmid
@@ -399,7 +399,6 @@ class reports {
      * @param int $jqshowid
      * @param int $cmid
      * @param int $sid
-     * @param context_module $cmcontext
      * @return stdClass
      * @throws coding_exception
      * @throws dml_exception

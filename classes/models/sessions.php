@@ -703,6 +703,7 @@ class sessions {
                 $members = groupmode::get_group_members($groupresult->id);
                 $member = reset($members);
                 $userresponse = jqshow_questions_responses::get_question_response_for_user($member->id, $sid, $question->get('id'));
+                $questionsdata[$key]->studentsresponse[$member->id] = new stdClass();
                 $questionsdata[$key]->studentsresponse[$member->id]->userid = $member->id;
                 if ($userresponse !== false) {
                     $questionsdata[$key]->studentsresponse[$member->id]->response = $userresponse;

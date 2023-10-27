@@ -60,8 +60,8 @@ class jqshow_user_progress extends persistent {
 
     /**
      * @param int $userid
-     * @param int $jqshowid
      * @param int $sessionid
+     * @param int $jqshowid
      * @return false|static
      */
     public static function get_session_progress_for_user(int $userid, int $sessionid, int $jqshowid) {

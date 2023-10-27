@@ -61,7 +61,7 @@ class jqshow {
      * @return void
      * @throws dml_exception
      */
-    protected function set_jqshow() {
+    protected function set_jqshow() : void {
         global $DB;
         $this->jqshow = $DB->get_record('jqshow', ['id' => $this->cm->instance], '*', MUST_EXIST);
     }

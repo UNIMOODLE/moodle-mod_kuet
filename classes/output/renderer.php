@@ -83,6 +83,12 @@ class renderer extends plugin_renderer_base {
         return $this->render_from_template('mod_jqshow/sessions', $data);
     }
 
+    /**
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     public function render_teacher_session_view(teacher_session_view $view): string {
         $data = $view->export_for_template($this);
         return $this->render_from_template('mod_jqshow/session/teacher', $data);

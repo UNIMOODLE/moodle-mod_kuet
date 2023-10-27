@@ -45,7 +45,6 @@ use stdClass;
 use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
 
 class matchquestion extends questions implements questionType {
 
@@ -85,7 +84,6 @@ class matchquestion extends questions implements questionType {
         $data->questiontext =
             self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
-        $feedbacks = [];
         $leftoptions = [];
         foreach ($question->stems as $key => $leftside) {
             $leftoptions[$key] = [
@@ -196,7 +194,7 @@ class matchquestion extends questions implements questionType {
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws dml_exception|moodle_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,

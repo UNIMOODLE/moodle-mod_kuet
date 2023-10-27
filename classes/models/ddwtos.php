@@ -50,7 +50,6 @@ use stdClass;
 use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
 
 class ddwtos extends questions implements questionType {
 
@@ -171,7 +170,7 @@ class ddwtos extends questions implements questionType {
         }
         $questiontext =
             self::get_text($cmid, $questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
-        foreach ($placeholders as $i => $placeholder) {
+        foreach ($placeholders as $placeholder) {
             $questiontext = preg_replace('/'. preg_quote($placeholder, '/') . '/',
                 $embeddedelements[$placeholder], $questiontext);
         }
@@ -421,7 +420,7 @@ class ddwtos extends questions implements questionType {
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws dml_exception|moodle_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,
@@ -523,10 +522,12 @@ class ddwtos extends questions implements questionType {
         }
         return $mark;
     }
+
     /**
      * @param question_definition $question
      * @param jqshow_questions_responses[] $responses
      * @return array
+     * @throws coding_exception
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];

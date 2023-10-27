@@ -25,6 +25,7 @@
 
 namespace mod_jqshow\external;
 
+use context_module;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -59,6 +60,9 @@ class getgrouplistresults_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function getgrouplistresults(int $sid, int $cmid): array {
+        global $PAGE;
+        $context = context_module::instance($cmid);
+        $PAGE->set_context($context);
         self::validate_parameters(
             self::getgrouplistresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]

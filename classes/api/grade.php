@@ -44,7 +44,7 @@ class grade {
     public const MOD_OPTION_GRADE_LAST_SESSION = 4;
 
     /**
-     * @param $mark
+     * @param float $mark
      * @return float
      * @throws dml_exception
      */
@@ -156,7 +156,7 @@ class grade {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
-            if ($usermark === 0) {
+            if ((int) $usermark === 0) {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
@@ -196,7 +196,7 @@ class grade {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
-            if ($usermark === 0) {
+            if ((int) $usermark === 0) {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
@@ -224,7 +224,7 @@ class grade {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
-            if ($usermark === 0) {
+            if ((int) $usermark === 0) {
                 continue;
             }
             $mark += $usermark;
@@ -246,10 +246,11 @@ class grade {
 
         $jqshow = jqshow::get_record(['id' => $jqshowid]);
         $grademethod = $jqshow->get('grademethod');
-        $finalgrade = self::get_final_mod_grade($allgrades, $grademethod);
-        if (is_null($finalgrade)) {
+
+        if (count($allgrades) === 0) {
             return;
         }
+        $finalgrade = self::get_final_mod_grade($allgrades, $grademethod);
         $params['grade'] = $finalgrade;
 
         // Save final grade for jqshow.
@@ -307,10 +308,8 @@ class grade {
      * @return float
      * @throws coding_exception
      */
-    private static function get_final_mod_grade(array $allgrades, string $grademethod) {
-        if (count($allgrades) === 0) {
-            return null;
-        }
+    private static function get_final_mod_grade(array $allgrades, string $grademethod) : float {
+
         // Only one session.
         if (count($allgrades) === 1) {
             return reset($allgrades)->get('grade');

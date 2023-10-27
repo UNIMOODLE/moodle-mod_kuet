@@ -45,7 +45,6 @@ use stdClass;
 use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
 
 class description extends questions implements questionType {
 
@@ -134,7 +133,6 @@ class description extends questions implements questionType {
      * @param stdClass $data
      * @param int $jqid
      * @return void
-     * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
@@ -159,7 +157,6 @@ class description extends questions implements questionType {
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,
