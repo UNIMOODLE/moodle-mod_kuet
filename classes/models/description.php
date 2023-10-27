@@ -212,7 +212,7 @@ class description extends questions implements questionType {
         if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
-            $response->hasfeedbacks = (bool)($statmentfeedback !== '');
+            $response->hasfeedbacks = $statmentfeedback !== '';
             $response->timeleft = $timeleft;
             $response->type = questions::DESCRIPTION;
             $response->response = '';

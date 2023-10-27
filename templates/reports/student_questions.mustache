@@ -24,7 +24,11 @@
                         </div>
                     </div>
                     <div class="d-table-cell text-center">{{score}}</div>
-                    <div class="d-table-cell text-center">{{type}}</div>
+                    <div class="d-table-cell text-center">
+                        {{#icon}}
+                            {{#pix}} {{key}}, {{component}}, {{title}} {{/pix}}
+                        {{/icon}}
+                    </div>
                     <div class="d-table-cell text-center">{{time}}</div>
                     <div class="d-table-cell text-center viewquestion">
                         <div data-action="seeanswer" data-userid="{{userid}}" data-sessionid="{{sessionid}}" data-questionnid="{{questionnid}}" data-cmid="{{cmid}}">

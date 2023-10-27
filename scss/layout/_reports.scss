@@ -376,6 +376,9 @@ body#page-mod-jqshow-reports.jqshow-reports {
                 .question-data-body {
                     text-align: center;
                     font-size: 16px;
+                    img {
+                        max-width: 100% !important;
+                    }
                     p {
                         text-align: center !important;
                     }

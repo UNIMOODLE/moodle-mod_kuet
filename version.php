@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023102500;
+$plugin->version = 2023102600;
 $plugin->requires = 2022112802; // Moodle 4.1.2+
 $plugin->component = 'mod_jqshow';
 $plugin->cron = 0;

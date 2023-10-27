@@ -181,7 +181,7 @@ class calculated extends questions implements questionType {
         $jqshowquestion = jqshow_questions::get_record(['id' => $data->jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $responsedata->variant);
-        $data->questiontext = $question->questiontext;
+        $data->questiontext = self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $responsedata->variant, true);
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $data->calculatedresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;

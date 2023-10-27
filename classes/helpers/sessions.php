@@ -89,6 +89,7 @@ class sessions {
             (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->status = $session->get('status');
         $ds->issessionstarted = $ds->status === sessionsmodel::SESSION_STARTED;
+        $ds->sessioncreating = $ds->status === sessionsmodel::SESSION_CREATING;
         if ($ds->issessionstarted) {
             $ds->startedssionurl =
                 (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
@@ -116,7 +117,8 @@ class sessions {
                 $ds->haswarning = true;
             }
         }
-        if ($ds->date !== '' || $ds->issessionstarted === true || $questions->get_num_questions() === 0) {
+        $ds->noquestions = $ds->questions_number === 0;
+        if ($ds->date !== '' || $ds->issessionstarted === true || $ds->sessioncreating === true || $ds->noquestions === true) {
             $ds->initsession = false;
         }
         if ($ds->status === sessionsmodel::SESSION_FINISHED) {

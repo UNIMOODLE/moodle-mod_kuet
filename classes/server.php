@@ -48,6 +48,8 @@ class server extends websockets {
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
+        $this->stdout($message);
+        $this->stdout('');
         $data = json_decode(
             mb_convert_encoding($message, 'UTF-8', 'UTF-8'),
             true,
@@ -79,9 +81,9 @@ class server extends websockets {
             $groupid = $this->get_groupid_from_a_member((int) $data['sid'], (int) $data['userid']);
             if ($responsetext !== '' && $groupid) {
                 $socketgroups = $this->sidgroups[$data['sid']];
-                foreach ($socketgroups[$groupid]->users as $user) {
+                foreach ($socketgroups[$groupid]->users as $usergroup) {
                     foreach ($this->sockets as $key => $socket) {
-                        if ($key === $user->usersocketid) {
+                        if ($key === $usergroup->usersocketid) {
                             fwrite($socket, $responsetext, strlen($responsetext));
                             break;
                         }

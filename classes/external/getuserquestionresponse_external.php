@@ -69,7 +69,8 @@ class getuserquestionresponse_external extends external_api {
                 'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sid' => new external_value(PARAM_INT, 'session id'),
-                'uid' => new external_value(PARAM_INT, 'user id')
+                'uid' => new external_value(PARAM_INT, 'user id'),
+                'preview' => new external_value(PARAM_BOOL, 'preview')
             ]
         );
     }
@@ -79,20 +80,21 @@ class getuserquestionresponse_external extends external_api {
      * @param int $cmid
      * @param int $sid
      * @param int $uid
+     * @param bool $preview
      * @return array
      * @throws JsonException
      * @throws ReflectionException
-     * @throws dml_exception
      * @throws coding_exception
+     * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function getuserquestionresponse(int $jqid, int $cmid, int $sid, int $uid = 0): array {
+    public static function getuserquestionresponse(int $jqid, int $cmid, int $sid, int $uid = 0, bool $preview = false): array {
         self::validate_parameters(
             self::getuserquestionresponse_parameters(),
-            ['jqid' => $jqid, 'cmid' => $cmid, 'sid' => $sid, 'uid' => $uid]
+            ['jqid' => $jqid, 'cmid' => $cmid, 'sid' => $sid, 'uid' => $uid, 'preview' => $preview]
         );
         global $USER, $PAGE;
         $contextmodule = context_module::instance($cmid);
@@ -150,7 +152,8 @@ class getuserquestionresponse_external extends external_api {
                     $data->jqid,
                     $cmid,
                     $sid,
-                    $data->jqshowid);
+                    $data->jqshowid,
+                    $preview);
                 $dataexport->uid = $uid;
                 return (array)numerical::export_question_response($dataexport, $json);
             case questions::CALCULATED:
@@ -158,7 +161,8 @@ class getuserquestionresponse_external extends external_api {
                     $data->jqid,
                     $cmid,
                     $sid,
-                    $data->jqshowid);
+                    $data->jqshowid,
+                    $preview);
                 return (array)calculated::export_question_response($dataexport, $json);
             case questions::DESCRIPTION:
                 return (array)description::export_question_response($data, $json);
@@ -167,7 +171,8 @@ class getuserquestionresponse_external extends external_api {
                     $data->jqid,
                     $cmid,
                     $sid,
-                    $data->jqshowid);
+                    $data->jqshowid,
+                    $preview);
                 return (array)ddwtos::export_question_response($dataexport, $json);
             default:
                 throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',

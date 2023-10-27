@@ -91,7 +91,7 @@ MultiChoice.prototype.initEvents = function() {
     addEventListener('timeFinish', MultiChoice.prototype.reply, {once: true});
     if (manualMode !== false) {
         addEventListener('alreadyAnswered_' + jqid, (ev) => {
-            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            let userid = jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
                 jQuery('[data-region="group-message"]').show();
@@ -150,7 +150,7 @@ MultiChoice.prototype.removeEvents = function() {
     removeEventListener('timeFinish', () => MultiChoice.prototype.reply, {once: true});
     if (manualMode !== false) {
         removeEventListener('alreadyAnswered_' + jqid, (ev) => {
-            let userid =  jQuery('[data-region="student-canvas"]').data('userid');
+            let userid = jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
                 jQuery('[data-region="group-message"]').show();
@@ -198,6 +198,11 @@ MultiChoice.prototype.removeEvents = function() {
 };
 
 MultiChoice.prototype.reply = function(e) {
+    if (event.type === 'timeFinish' && questionEnd === true) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+    }
     let answerIds = '0';
     let multiAnswer = e === undefined || jQuery(e.currentTarget).attr('data-action') === 'send-multianswer';
     if (!multiAnswer) {
@@ -214,6 +219,7 @@ MultiChoice.prototype.reply = function(e) {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(MultiChoice.prototype.endTimer);
+        removeEventListener('timeFinish', () => MultiChoice.prototype.reply, {once: true});
         MultiChoice.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
@@ -242,8 +248,8 @@ MultiChoice.prototype.reply = function(e) {
                     });
                     jQuery(ACTION.SENDMULTIANSWER).addClass('d-none');
                 }
-                MultiChoice.prototype.answered(response);
                 questionEnd = true;
+                MultiChoice.prototype.answered(response);
                 dispatchEvent(MultiChoice.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
                     MultiChoice.prototype.showAnswers();
@@ -300,7 +306,10 @@ MultiChoice.prototype.answered = function(response) {
             jQuery('[data-answerid="' + statistic.answerids + '"] .numberofreplies').html(statistic.numberofreplies);
         });
     }
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 MultiChoice.prototype.pauseQuestion = function() {

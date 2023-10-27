@@ -220,11 +220,11 @@ class jqshow_sessions extends persistent {
     public static function get_next_session(int $jqshowid): int {
         global $DB;
         $allsessions = $DB->get_records(self::TABLE, ['jqshowid' => $jqshowid, 'status' => sessionsmodel::SESSION_ACTIVE],
-            'startdate DESC', 'startdate');
+            'startdate DESC', 'id, startdate');
         $dates = [];
-        foreach ($allsessions as $key => $date) {
-            if ($key !== 0) {
-                $dates[] = $key;
+        foreach ($allsessions as $date) {
+            if ($date->startdate !== 0) {
+                $dates[] = $date->startdate;
             }
         }
         if (!empty($dates)) {
