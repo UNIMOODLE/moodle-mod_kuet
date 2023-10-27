@@ -27,6 +27,7 @@ use core\output\notification;
 use mod_jqshow\output\views\student_reports;
 use mod_jqshow\output\views\teacher_reports;
 use mod_jqshow\persistents\jqshow;
+use mod_jqshow\persistents\jqshow_sessions;
 
 require_once('../../config.php');
 
@@ -43,7 +44,7 @@ $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $jqshow = jqshow::get_record(['id' => $cm->instance], MUST_EXIST);
 
 if ($sid) {
-    $session = new \mod_jqshow\persistents\jqshow_sessions($sid);
+    $session = new jqshow_sessions($sid);
     $participantid = ($session->is_group_mode() && $groupid) ? $groupid : $userid;
 } else {
     $participantid = $userid;

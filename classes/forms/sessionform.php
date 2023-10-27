@@ -39,7 +39,7 @@ class sessionform extends moodleform {
      * @return void
      * @throws coding_exception
      */
-    protected function definition() {
+    public function definition() : void {
         global $OUTPUT;
         $mform =& $this->_form;
         $customdata = $this->_customdata;

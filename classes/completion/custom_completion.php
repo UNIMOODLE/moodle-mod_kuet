@@ -57,7 +57,7 @@ class custom_completion extends activity_custom_completion {
         }
 
         $numsessions = jqshow_sessions::count_records(['jqshowid' => $jqshowid]);
-        if ($numsessions == 0) {
+        if ($numsessions === 0) {
             return COMPLETION_INCOMPLETE;
         }
         $hasparticipate = false;

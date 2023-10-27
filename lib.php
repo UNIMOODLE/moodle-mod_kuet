@@ -22,11 +22,12 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\invalid_persistent_exception;
 use core_calendar\action_factory;
 use core_calendar\local\event\value_objects\action;
 use core_completion\api;
 use mod_jqshow\api\grade;
-
+global $CFG;
 require_once($CFG->dirroot . '/lib/gradelib.php');
 
 /**
@@ -87,11 +88,12 @@ function jqshow_add_instance(stdClass $data): int {
 }
 
 /**
- *
  * @param stdClass $data An object from the form in mod.html
- * @return boolean Success/Fail
+ * @return bool Success/Fail
+ * @throws invalid_persistent_exception
  * @throws coding_exception
  * @throws dml_exception
+ * @throws moodle_exception
  */
 function jqshow_update_instance(stdClass $data): bool {
     global $DB;
@@ -241,7 +243,7 @@ function mod_jqshow_core_calendar_provide_event_action(
         return null;
     }
 
-    $completion = new \completion_info($cm->get_course());
+    $completion = new completion_info($cm->get_course());
 
     $completiondata = $completion->get_data($cm, false, $userid);
 
@@ -381,7 +383,7 @@ function mod_jqshow_question_pluginfile($course, $context, $component, $filearea
  * @return array
  * @throws coding_exception
  */
-function mod_jqshow_get_grading_options() {
+function mod_jqshow_get_grading_options() : array {
     return [
         grade::MOD_OPTION_NO_GRADE => get_string('nograde', 'mod_jqshow'),
         grade::MOD_OPTION_GRADE_HIGHEST => get_string('gradehighest', 'mod_jqshow'),
@@ -415,7 +417,7 @@ function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
         $params['gradetype'] = GRADE_TYPE_NONE;
     } else {
         $params['gradetype'] = GRADE_TYPE_VALUE;
-        $params['grademax'] = get_config('core', 'gradepointmax');;
+        $params['grademax'] = get_config('core', 'gradepointmax');
         $params['grademin'] = 0;
     }
     if (is_null($grades)) {
@@ -431,7 +433,7 @@ function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
  * @throws coding_exception
  * @throws dml_exception
  */
-function jqshow_questions_in_use($questionids) {
+function jqshow_questions_in_use($questionids) : bool {
     global $DB;
     [$sqlfragment, $params] = $DB->get_in_or_equal($questionids);
     $params['component'] = 'mod_jqshow';

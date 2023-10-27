@@ -87,7 +87,7 @@ class ddwtos extends questions implements questionType {
         }
         $question->shufflechoices = 0;
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
         $data->questiontextformat = $question->questiontextformat;

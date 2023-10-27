@@ -91,7 +91,7 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_questions_data_for_teacher_report_groups(
-        jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session) {
+        jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session) : stdClass {
         global $DB;
         $groupmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
@@ -152,7 +152,7 @@ class reports {
      */
     public static function get_questions_data_for_teacher_report_individual(
         jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session
-    ) {
+    ) : stdClass {
         global $DB;
         $jqshow = new jqshow($jqshowid);
         $users = enrol_get_course_users($jqshow->get('course'), true);
@@ -395,7 +395,7 @@ class reports {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_session_report(int $jqshowid, int $cmid, int $sid, context_module $cmcontext): stdClass {
+    public static function get_session_report(int $jqshowid, int $cmid, int $sid): stdClass {
 
         $data = new stdClass();
         $data->jqshowid = $jqshowid;
@@ -437,13 +437,12 @@ class reports {
         $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::SESSION_QUESTIONS_REPORT];
         $data->downloadsessionquestionreport = self::get_downloadhtml($params);
         if ($session->is_group_mode()) {
-            $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::GROUP_SESSION_RANKING_REPORT];
+            $params['name'] =  self::GROUP_SESSION_RANKING_REPORT;
             $data->downloadsessionrankingreport = self::get_downloadhtml($params);
         } else {
-            $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::SESSION_RANKING_REPORT];
-            $data->downloadsessionrankingreport = self::get_downloadhtml($params);
+            $params['name'] =  self::SESSION_RANKING_REPORT;
         }
-
+        $data->downloadsessionrankingreport = self::get_downloadhtml($params);
         return $data;
     }
 
@@ -852,11 +851,10 @@ class reports {
     /**
      * @param stdClass $groupdata
      * @param stdClass $data
-     * @param int $groupid
      * @param int $imagesize
      * @return stdClass
      * @throws coding_exception
-     * @throws moodle_exception
+     * @throws dml_exception
      */
     private static function add_groupdata(stdClass $groupdata, stdClass $data, int $imagesize = 1): stdClass {
         $data->groupimage = groupmode::get_group_image($groupdata, $data->sid, $imagesize);

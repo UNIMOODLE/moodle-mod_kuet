@@ -26,7 +26,6 @@
 namespace mod_jqshow\persistents;
 
 use core\persistent;
-use dml_exception;
 
 class jqshow_grades extends persistent {
     const TABLE = 'jqshow_grades';
@@ -35,7 +34,7 @@ class jqshow_grades extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() {
+    protected static function define_properties() : array {
         return [
             'jqshow' => [
                 'type' => PARAM_INT,

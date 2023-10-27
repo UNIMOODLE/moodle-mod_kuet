@@ -24,6 +24,8 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_jqshow\api\grade;
+
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
@@ -33,8 +35,9 @@ class mod_jqshow_mod_form extends moodleform_mod {
     /**
      * @return void
      * @throws coding_exception
+     * @throws dml_exception
      */
-    public function definition() {
+    public function definition() : void {
         $mform =& $this->_form;
         $mform->addElement('text', 'name', get_string('name', 'jqshow'), ['size' => '64']);
         $mform->setType('name', PARAM_TEXT);
@@ -54,8 +57,8 @@ class mod_jqshow_mod_form extends moodleform_mod {
 
         $grademethodelement = $mform->createElement('select', 'grademethod', get_string('grademethod', 'jqshow'),
             mod_jqshow_get_grading_options());
-        $mform->disabledIf('gradecat', 'grademethod', 'eq', \mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
-        $mform->disabledIf('gradepass', 'grademethod', 'eq', \mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
+        $mform->disabledIf('gradecat', 'grademethod', 'eq', grade::MOD_OPTION_NO_GRADE);
+        $mform->disabledIf('gradepass', 'grademethod', 'eq', grade::MOD_OPTION_NO_GRADE);
         $mform->insertElementBefore($grademethodelement, 'gradecat');
         $mform->addHelpButton('grademethod', 'grademethod', 'jqshow');
 
@@ -82,7 +85,7 @@ class mod_jqshow_mod_form extends moodleform_mod {
      * @return array Array of string IDs of added items, empty array if none
      * @throws coding_exception
      */
-    public function add_completion_rules() {
+    public function add_completion_rules() : array {
         $mform =& $this->_form;
 
         $mform->addElement(
@@ -103,7 +106,7 @@ class mod_jqshow_mod_form extends moodleform_mod {
      * @param array $data
      * @return bool
      */
-    public function completion_rule_enabled($data) {
+    public function completion_rule_enabled($data) : bool {
         return !empty($data['completionanswerall']);
     }
 }

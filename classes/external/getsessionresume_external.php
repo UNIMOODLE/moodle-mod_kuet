@@ -26,6 +26,7 @@
 namespace mod_jqshow\external;
 
 use coding_exception;
+use dml_exception;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -33,6 +34,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\models\sessions;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -54,7 +56,9 @@ class getsessionresume_external extends external_api {
     /**
      * @param int $sid
      * @param int $cmid
-     * @return true[]
+     * @return array
+     * @throws dml_exception
+     * @throws moodle_exception
      * @throws coding_exception
      * @throws invalid_parameter_exception
      */

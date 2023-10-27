@@ -39,7 +39,7 @@ class jqshow_questions_responses extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() {
+    protected static function define_properties() : array {
         return [
             'jqshow' => [
                 'type' => PARAM_INT,
@@ -148,7 +148,7 @@ class jqshow_questions_responses extends persistent {
     }
 
     /**
-     * @param int $cmid
+     * @param int $jqshow
      * @param int $sid
      * @param int $jqid
      * @return bool

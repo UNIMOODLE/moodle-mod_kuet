@@ -30,6 +30,7 @@ use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
+use Exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\persistents\jqshow_questions;
@@ -39,7 +40,6 @@ use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
 use qbank_previewquestion\question_preview_options;
 use question_attempt;
-use question_bank;
 use question_definition;
 use question_engine;
 use stdClass;
@@ -99,7 +99,7 @@ class questions {
     /**
      * @return void
      */
-    public function set_list() {
+    public function set_list() : void {
         $this->list = jqshow_questions::get_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid], 'qorder', 'ASC');
     }
 
@@ -140,7 +140,6 @@ class questions {
 
     /**
      * @param jqshow_sessions $session
-     * @param int $jqid
      * @param int $cmid
      * @param int $sessionid
      * @param int $jqshowid
@@ -154,7 +153,6 @@ class questions {
      */
     protected static function get_question_common_data(
         jqshow_sessions $session,
-        int $jqid,
         int $cmid,
         int $sessionid,
         int $jqshowid,
@@ -255,9 +253,11 @@ class questions {
      * @param question_definition $question
      * @param string $filearea
      * @param int $variant
+     * @param bool $noattempt
      * @return string
      * @throws dml_exception
      * @throws dml_transaction_exception
+     * @throws Exception
      */
     public static function get_text(
         int $cmid, string $text, int $textformat, int $id, question_definition $question, string $filearea, int $variant = 0, bool $noattempt = false
@@ -313,7 +313,7 @@ class questions {
     }
 
     /**
-     * @param $jqshowid
+     * @param int $jqshowid
      * @param jqshow_sessions $session
      * @param int $jqid
      * @param int $questionid
@@ -327,7 +327,7 @@ class questions {
      * @throws moodle_exception
      */
     protected static function add_group_response(
-        $jqshowid, jqshow_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response
+        int $jqshowid, jqshow_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response
     ) : void {
         // All groupmembers has the same response saved on db.
         $num = jqshow_questions_responses::count_records(
@@ -367,24 +367,24 @@ class questions {
         }
         return $type;
     }
-    /**
-     * @param jqshow_questions $jqquestion
-     * @param jqshow_sessions $session
-     * @return int
-     * @throws coding_exception
-     */
-    public static function get_question_time(jqshow_questions $jqquestion, jqshow_sessions $session) : int {
-        $qtime = $jqquestion->get('timelimit');
-        if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
-            $sessiontime = $session->get('sessiontime');
-            $numq = jqshow_questions::count_records(['sessionid' => $session->get('id'),
-                'jqshowid' => $session->get('jqshowid')]);
-            $qtime = round($sessiontime / $numq);
-        } else if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
-            $qtime = ($qtime > 0) ? $qtime : $session->get('questiontime');
-        }
-        return $qtime;
-    }
+//    /**
+//     * @param jqshow_questions $jqquestion
+//     * @param jqshow_sessions $session
+//     * @return int
+//     * @throws coding_exception
+//     */
+//    public static function get_question_time(jqshow_questions $jqquestion, jqshow_sessions $session) : int {
+//        $qtime = $jqquestion->get('timelimit');
+//        if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
+//            $sessiontime = $session->get('sessiontime');
+//            $numq = jqshow_questions::count_records(['sessionid' => $session->get('id'),
+//                'jqshowid' => $session->get('jqshowid')]);
+//            $qtime = round($sessiontime / $numq);
+//        } else if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
+//            $qtime = ($qtime > 0) ? $qtime : $session->get('questiontime');
+//        }
+//        return $qtime;
+//    }
     /**
      * @return bool
      */

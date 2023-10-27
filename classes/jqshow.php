@@ -70,7 +70,7 @@ class jqshow {
      * @return stdClass
      * @throws dml_exception
      */
-    public function get_jqshow() {
+    public function get_jqshow() : stdClass {
         if (is_null($this->jqshow)) {
             $this->set_jqshow();
         }
@@ -81,7 +81,7 @@ class jqshow {
      * @return void
      * @throws dml_exception
      */
-    protected function set_sessions() {
+    protected function set_sessions() : void {
         if (is_null($this->jqshow)) {
             $this->set_jqshow();
         }
@@ -120,13 +120,13 @@ class jqshow {
     }
 
     /**
-     * @param $cmid
+     * @param int $cmid
      * @param int $groupingid
      * @return array
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function get_students($cmid, int $groupingid = 0) : array {
+    public static function get_students(int $cmid, int $groupingid = 0) : array {
         $context = context_module::instance($cmid);
         $participants = self::get_participants($cmid, $context, $groupingid);
         $students = [];
@@ -143,12 +143,13 @@ class jqshow {
     }
 
     /**
-     * @param $cmid
-     * @param $context
+     * @param int $cmid
+     * @param context_module $context
+     * @param int $groupingid
      * @return array
      * @throws moodle_exception
      */
-    private static function get_participants($cmid, $context, int $groupingid = 0) {
+    private static function get_participants(int $cmid, context_module $context, int $groupingid = 0) : array {
         $data = get_course_and_cm_from_cmid($cmid, 'jqshow');
         /** @var cm_info $cm */
         $cm = $data[1];
@@ -160,19 +161,18 @@ class jqshow {
     }
 
     /**
-     * @param int groupingid
+     * @param int $groupingid
      * @return array
      */
     private static function get_participants_group_mode(int $groupingid) : array {
-        $members = groupmode::get_grouping_users($groupingid);
-        return $members;
+        return groupmode::get_grouping_users($groupingid);
     }
 
     /**
      * @param context_module $context
      * @return array
      */
-    private static function get_participants_individual_mode(context_module $context) {
+    private static function get_participants_individual_mode(context_module $context) : array {
         return get_enrolled_users($context, '', 0, 'u.id', null, 0, 0, true);
     }
 
@@ -183,7 +183,7 @@ class jqshow {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function get_enrolled_students_in_course(int $courseid = 0, int $cmid = 0) {
+    public static function get_enrolled_students_in_course(int $courseid = 0, int $cmid = 0) : array {
         if ($cmid) {
             $module = get_module_from_cmid($cmid);
             $courseid = $module[0]->course;

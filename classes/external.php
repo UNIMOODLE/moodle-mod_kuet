@@ -54,7 +54,7 @@ class mod_jqshow_external extends external_api {
      * @throws invalid_parameter_exception
      * @since Moodle 3.3
      */
-    public static function get_jqshows_by_courses($courseids = []) {
+    public static function get_jqshows_by_courses(array $courseids = []) : array {
         $warnings = [];
         $returnedjqshows = [];
         $params = [
@@ -90,7 +90,7 @@ class mod_jqshow_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function get_jqshows_by_courses_returns() {
+    public static function get_jqshows_by_courses_returns() : external_single_structure {
         return new external_single_structure(
             array(
                 'jqshows' => new external_multiple_structure(

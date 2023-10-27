@@ -25,6 +25,7 @@
 
 namespace mod_jqshow\external;
 
+use context_module;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -65,7 +66,7 @@ class getlistresults_external extends external_api {
             self::getlistresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
-        $context = \context_module::instance($cmid);
+        $context = context_module::instance($cmid);
         $PAGE->set_context($context);
         $session = new jqshow_sessions($sid);
         if ($session->is_group_mode()) {

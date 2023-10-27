@@ -39,7 +39,7 @@ class questionform extends moodleform {
      * @return void
      * @throws coding_exception
      */
-    public function definition() {
+    public function definition() : void {
         $mform =& $this->_form;
         $customdata = $this->_customdata;
 

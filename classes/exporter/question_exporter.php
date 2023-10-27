@@ -51,7 +51,7 @@ class question_exporter extends exporter {
     /**
      * @return string[]
      */
-    protected static function define_related() {
+    protected static function define_related() : array {
         return array('context' => context::class);
     }
 }
