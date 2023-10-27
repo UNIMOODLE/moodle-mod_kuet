@@ -346,7 +346,7 @@ Sockets.prototype.initSockets = function() {
                 countusers.html(response.count);
                 break;
             case 'studentQuestionEnd':
-                messageBox.append('<div>' + response.message + '</div>');
+                /*messageBox.append('<div>' + response.message + '</div>');*/
                 if (sessionMode === 'race_manual') {
                     Sockets.prototype.raceResults();
                 }
