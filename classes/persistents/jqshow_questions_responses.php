@@ -120,11 +120,14 @@ class jqshow_questions_responses extends persistent {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function add_response(int $jqshow, int $session, int $jqid, int $questionid, int $userid, int $result, string $response): bool {
+    public static function add_response(
+        int $jqshow, int $session, int $jqid, int $questionid, int $userid, int $result, string $response
+    ): bool {
         $sessiondata = jqshow_sessions::get_record(['id' => $session], MUST_EXIST);
         $record = self::get_record(['jqshow' => $jqshow, 'session' => $session, 'jqid' => $jqid, 'userid' => $userid]);
-        try {
-            if ($record === false) {
+        // Only the first response for user is saved to prevent further responses by relaunching the services.
+        if ($record === false) {
+            try {
                 $data = new stdClass();
                 $data->jqshow = $jqshow;
                 $data->session = $session;
@@ -136,13 +139,9 @@ class jqshow_questions_responses extends persistent {
                 $data->response = base64_encode($response);
                 $a = new self(0, $data);
                 $a->create();
-            } else {
-                $record->set('result', $result);
-                $record->set('response', base64_encode($response));
-                $record->update();
+            } catch (moodle_exception $e) {
+                throw $e;
             }
-        } catch (moodle_exception $e) {
-            throw $e;
         }
         return true;
     }

@@ -367,24 +367,7 @@ class questions {
         }
         return $type;
     }
-//    /**
-//     * @param jqshow_questions $jqquestion
-//     * @param jqshow_sessions $session
-//     * @return int
-//     * @throws coding_exception
-//     */
-//    public static function get_question_time(jqshow_questions $jqquestion, jqshow_sessions $session) : int {
-//        $qtime = $jqquestion->get('timelimit');
-//        if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
-//            $sessiontime = $session->get('sessiontime');
-//            $numq = jqshow_questions::count_records(['sessionid' => $session->get('id'),
-//                'jqshowid' => $session->get('jqshowid')]);
-//            $qtime = round($sessiontime / $numq);
-//        } else if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
-//            $qtime = ($qtime > 0) ? $qtime : $session->get('questiontime');
-//        }
-//        return $qtime;
-//    }
+    
     /**
      * @return bool
      */
