@@ -29,6 +29,7 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
+use mod_jqshow\models\sessions;
 use moodle_exception;
 use stdClass;
 
@@ -126,7 +127,7 @@ class jqshow_questions_responses extends persistent {
         $sessiondata = jqshow_sessions::get_record(['id' => $session], MUST_EXIST);
         $record = self::get_record(['jqshow' => $jqshow, 'session' => $session, 'jqid' => $jqid, 'userid' => $userid]);
         // Only the first response for user is saved to prevent further responses by relaunching the services.
-        if ($record === false) {
+        if ($record === false && $sessiondata->get('status') === sessions::SESSION_STARTED) {
             try {
                 $data = new stdClass();
                 $data->jqshow = $jqshow;

@@ -98,6 +98,7 @@ class sessions {
             $ds->status === sessionsmodel::SESSION_STARTED ?
                 get_string('sessionstarted', 'mod_jqshow') : get_string('init_session', 'mod_jqshow');
         $ds->date = '';
+        $ds->enddate = '';
         $ds->automaticstart = false;
         if ($session->get('automaticstart') === 1) {
             $ds->automaticstart = true;
@@ -111,7 +112,7 @@ class sessions {
             if ($enddate !== 0) {
                 $ds->enddate = $enddate;
                 $enddate = userdate($enddate, get_string('strftimedatetimeshort', 'core_langconfig'));
-                $ds->date .= ' - ' . $enddate;
+                $ds->date .= $ds->status === sessionsmodel::SESSION_FINISHED ? '' : ' - ' . $enddate;
             }
             if ($ds->issessionstarted !== true && $ds->startdate < time() && $ds->enddate > time()) {
                 $ds->haswarning = true;
@@ -124,9 +125,7 @@ class sessions {
         if ($ds->status === sessionsmodel::SESSION_FINISHED) {
             $ds->finishingdate = userdate($session->get('enddate'), get_string('strftimedatetimeshort', 'core_langconfig'));
             $ds->enddate = $session->get('enddate');
-            if ($session->get('automaticstart') !== 1) {
-                $ds->date = userdate($session->get('startdate'), get_string('strftimedatetimeshort', 'core_langconfig'));
-            }
+            $ds->date = userdate($session->get('startdate'), get_string('strftimedatetimeshort', 'core_langconfig'));
         }
         return $ds;
     }

@@ -29,7 +29,7 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use core\task\scheduled_task;
 use lang_string;
-use mod_jqshow\models\sessions as sessionsmodel;
+use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
 use stdClass;
@@ -49,44 +49,50 @@ class active_session_management extends scheduled_task {
      * @throws invalid_persistent_exception
      * @throws coding_exception
      */
-    public function execute() : void {
+    public function execute(): void {
         // TODO provide for time zones for each user, and activate them if they are met, for each user. Great implementation.
         $jqshows = jqshow::get_records();
         $date = time();
         $a = new stdClass();
         foreach ($jqshows as $jqshow) {
             $sessions = jqshow_sessions::get_records(['jqshowid' => $jqshow->get('id')], 'startdate');
-            $activesession = jqshow_sessions::get_record(['jqshowid' => $jqshow->get('id'),
-                'status' => sessionsmodel::SESSION_STARTED]);
-            if ($activesession !== false) {
-                $activesessionmode = $activesession->get('sessionmode');
-                if ($activesessionmode === sessionsmodel::INACTIVE_MANUAL ||
-                    $activesessionmode === sessionsmodel::PODIUM_MANUAL ||
-                    $activesessionmode === sessionsmodel::RACE_MANUAL) {
+            $sessionstarted = jqshow_sessions::get_record(['jqshowid' => $jqshow->get('id'),
+                'status' => sessions::SESSION_STARTED]);
+            if ($sessionstarted !== false) {
+                $sessionstartedmode = $sessionstarted->get('sessionmode');
+                if ($sessionstartedmode === sessions::INACTIVE_MANUAL ||
+                    $sessionstartedmode === sessions::PODIUM_MANUAL ||
+                    $sessionstartedmode === sessions::RACE_MANUAL) {
                     // A manual session is active, and will prevail over scheduled sessions until it ends in this jqshow.
-                    $a->sessionid = $activesession->get('id');
-                    $a->jqshowid = $activesession->get('jqshowid');
+                    $a->sessionid = $sessionstarted->get('id');
+                    $a->jqshowid = $sessionstarted->get('jqshowid');
                     mtrace(get_string('sessionmanualactivated', 'mod_jqshow', $a));
                     continue;
                 }
             }
             $activated = false;
             foreach ($sessions as $session) {
-                if ($session->get('status') !== sessionsmodel::SESSION_FINISHED && $session->get('automaticstart') !== 0) {
-                    if ($activesession === false &&
+                if ($session->get('status') === sessions::SESSION_CREATING) {
+                    continue;
+                }
+                if ($session->get('status') !== sessions::SESSION_FINISHED && $session->get('automaticstart') !== 0) {
+                    if ($sessionstarted === false &&
                         $session->get('startdate') <= $date &&
                         $session->get('enddate') > $date &&
-                        $session->get('status') === sessionsmodel::SESSION_ACTIVE) {
+                        $session->get('status') === sessions::SESSION_ACTIVE) {
                         // We start the session if it is in session.
-                        (new jqshow_sessions($session->get('id')))->set('status', sessionsmodel::SESSION_STARTED)->update();
+                        (new jqshow_sessions($session->get('id')))->set('status', sessions::SESSION_STARTED)->update();
                         $activated = true;
                         $a->sessionid = $session->get('id');
                         $a->jqshowid = $session->get('jqshowid');
                         mtrace(get_string('sessionactivated', 'mod_jqshow', $a));
                     }
-                    if ($session->get('enddate') <= $date) {
+                    if ($session->get('enddate') <= $date &&
+                        ($session->get('status') === sessions::SESSION_STARTED ||
+                            $session->get('status') === sessions::SESSION_ACTIVE)) {
                         // We end the session if you have complied.
-                        (new jqshow_sessions($session->get('id')))->set('status', sessionsmodel::SESSION_FINISHED)->update();
+                        (new jqshow_sessions($session->get('id')))->set('status', sessions::SESSION_FINISHED)->update();
+                        (new jqshow_sessions($session->get('id')))->set('enddate', time())->update();
                         $a->sessionid = $session->get('id');
                         $a->jqshowid = $session->get('jqshowid');
                         mtrace(get_string('sessionfinished', 'mod_jqshow', $a));
@@ -97,14 +103,14 @@ class active_session_management extends scheduled_task {
                     break;
                 }
             }
-            $activesessions = jqshow_sessions::get_records(['jqshowid' => $jqshow->get('id'),
-                'status' => sessionsmodel::SESSION_STARTED], 'timemodified');
-            if (count($activesessions) > 1) {
-                array_shift($activesessions);
-                foreach ($activesessions as $activesession) {
-                    (new jqshow_sessions($activesession->get('id')))->set('status', sessionsmodel::SESSION_FINISHED)->update();
-                    $a->sessionid = $activesession->get('id');
-                    $a->jqshowid = $activesession->get('jqshowid');
+            $sessionsstarted = jqshow_sessions::get_records(['jqshowid' => $jqshow->get('id'),
+                'status' => sessions::SESSION_STARTED], 'timemodified');
+            if (count($sessionsstarted) > 1) {
+                array_shift($sessionsstarted);
+                foreach ($sessionsstarted as $sessionstarted) {
+                    (new jqshow_sessions($sessionstarted->get('id')))->set('status', sessions::SESSION_FINISHED)->update();
+                    $a->sessionid = $sessionstarted->get('id');
+                    $a->jqshowid = $sessionstarted->get('jqshowid');
                     mtrace(get_string('sessionfinishedformoreone', 'mod_jqshow', $a));
                 }
             }

@@ -27,6 +27,8 @@ namespace mod_jqshow\models;
 
 use coding_exception;
 use context_module;
+use DateInterval;
+use DateTimeImmutable;
 use dml_exception;
 use mod_jqshow\helpers\sessions as sessionshelper;
 use mod_jqshow\jqshow;
@@ -56,7 +58,6 @@ class teacher extends user {
      * @throws moodle_exception
      */
     public function export_sessions(int $cmid) : Object {
-
         $jqshow = new jqshow($cmid);
         $actives = [];
         $inactives = [];
@@ -92,21 +93,17 @@ class teacher extends user {
      * @return array
      */
     private function get_sessions_conflicts(array $sessions): array {
-        $timestamps = [];// Avoid a notice.
-        foreach ($sessions as $key => $session) {
-            $timestamps[$key] = $session->startdate ?? 0;
-        }
-        array_multisort($timestamps, SORT_ASC, $sessions);
+        usort($sessions, static fn($a, $b) => $a->startdate <=> $b->startdate);
         foreach ($sessions as $session1) {
             foreach ($sessions as $session2) {
                 $session1->automaticstart = $session1->automaticstart ?? 0;
                 $session2->automaticstart = $session2->automaticstart ?? 0;
                 if (($session1->automaticstart && $session2->automaticstart) && ($session1->sessionid !== $session2->sessionid)) {
-                    if ($session1->startdate < $session2->startdate && $session1->enddate > $session2->startdate) {
+                    if ($session1->startdate <= $session2->startdate && $session1->enddate >= $session2->startdate) {
                         $session2->hasconflict = true;
                         $session2->initsession = false;
                     }
-                    if ($session2->startdate < $session1->startdate && $session2->enddate > $session1->startdate) {
+                    if ($session2->startdate <= $session1->startdate && $session2->enddate >= $session1->startdate) {
                         $session1->hasconflict = true;
                         $session1->initsession = false;
                     }

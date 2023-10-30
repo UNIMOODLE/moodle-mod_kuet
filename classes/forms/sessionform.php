@@ -164,9 +164,6 @@ class sessionform extends moodleform {
             get_string('timemode', 'mod_jqshow'), $customdata['timemode']);
         $mform->setType('timemode', PARAM_INT);
         $mform->addHelpButton('timemode', 'timemode', 'mod_jqshow');
-//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::RACE_MANUAL);
 
         $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_jqshow'),
             ['units' => [MINSECS, 1], 'optional' => false]);
@@ -212,8 +209,8 @@ class sessionform extends moodleform {
                 '</h6>');
             $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
 
-
-            $mform->addElement('html', '<div class="alert alert-warning">' . get_string('nogroupingscreated', 'mod_jqshow') . '</div>');
+            $mform->addElement('html', '<div class="alert alert-warning">' .
+                get_string('nogroupingscreated', 'mod_jqshow') . '</div>');
             $mform->addElement('html', '</div>');
             $mform->addElement('html', '</div>');
         }
@@ -249,7 +246,7 @@ class sessionform extends moodleform {
                   noTime.removeAttribute('disabled');
                   noTime.classList.remove('d-none');
               }
-            } 
+            }
         </script>");
 
         $this->add_action_buttons(true, get_string('next', 'mod_jqshow'));
@@ -327,7 +324,6 @@ class sessionform extends moodleform {
                 $errors['sessiontime'] = get_string('timecannotbezero', 'mod_jqshow');
             }
         }
-
         return $errors;
     }
 }
