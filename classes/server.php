@@ -48,8 +48,6 @@ class server extends websockets {
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
-        $this->stdout($message);
-        $this->stdout('');
         $data = json_decode(
             mb_convert_encoding($message, 'UTF-8', 'UTF-8'),
             true,

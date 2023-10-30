@@ -18,15 +18,8 @@ namespace mod_jqshow\api;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
-use mod_jqshow\models\calculated;
-use mod_jqshow\models\description;
-use mod_jqshow\models\matchquestion;
-use mod_jqshow\models\multichoice;
-use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_grades;
 use mod_jqshow\persistents\jqshow_questions;
@@ -51,11 +44,11 @@ class grade {
     public const MOD_OPTION_GRADE_LAST_SESSION = 4;
 
     /**
-     * @param $mark
+     * @param float $mark
      * @return float
      * @throws dml_exception
      */
-    public static function get_rounded_mark($mark) {
+    public static function get_rounded_mark(float $mark) : float {
         $num = (int) get_config('core', 'grade_export_decimalpoints');
         return round($mark, $num);
     }
@@ -66,7 +59,7 @@ class grade {
      * @return int
      * @throws dml_exception
      */
-    public static function get_status_response_for_multiple_answers(int $questionid, string $answerids) {
+    public static function get_status_response_for_multiple_answers(int $questionid, string $answerids) : int {
         global $DB;
 
         if (empty($answerids)) {
@@ -127,8 +120,9 @@ class grade {
      * @return float
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
-    public static function get_session_grade(int $userid, int $sessionid, int $jqshowid) {
+    public static function get_session_grade(int $userid, int $sessionid, int $jqshowid) : float {
         $responses = jqshow_questions_responses::get_session_responses_for_user($userid, $sessionid, $jqshowid);
         if (count($responses) === 0) {
             return 0;
@@ -154,15 +148,15 @@ class grade {
 
     /**
      * @param jqshow_questions_responses[] $responses
-     * @return float|int
+     * @return float
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws moodle_exception
      */
-    private static function get_session_podium_manual_grade(array $responses) {
+    private static function get_session_podium_manual_grade(array $responses) : float {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
-            if ($usermark === 0) {
+            if ((int) $usermark === 0) {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
@@ -183,13 +177,13 @@ class grade {
     }
 
     /**
-     * @param array $responses
+     * @param jqshow_questions_responses[] $responses
      * @param jqshow_sessions $session
-     * @return float|int
+     * @return float
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws moodle_exception
      */
-    private static function get_session_podium_programmed_grade(array $responses, jqshow_sessions $session) {
+    private static function get_session_podium_programmed_grade(array $responses, jqshow_sessions $session) : float {
         $qtime = 0;
         if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
             $total = $session->get('sessiontime');
@@ -202,7 +196,7 @@ class grade {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
-            if ($usermark === 0) {
+            if ((int) $usermark === 0) {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
@@ -221,15 +215,16 @@ class grade {
 
     /**
      * @param jqshow_questions_responses[] $responses
-     * @return float|int
+     * @return float
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
-    private static function get_session_default_grade(array $responses) {
+    private static function get_session_default_grade(array $responses) : float {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
-            if ($usermark === 0) {
+            if ((int) $usermark === 0) {
                 continue;
             }
             $mark += $usermark;
@@ -238,23 +233,24 @@ class grade {
     }
 
     /**
-     * @param $userid
-     * @param $jqshowid
+     * @param int $userid
+     * @param int $jqshowid
      * @return void
      * @throws invalid_persistent_exception
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function recalculate_mod_mark_by_userid($userid, $jqshowid) {
+    public static function recalculate_mod_mark_by_userid(int $userid, int $jqshowid) :void {
         $params = ['userid' => $userid, 'jqshow' => $jqshowid];
         $allgrades = jqshow_sessions_grades::get_records($params);
 
         $jqshow = jqshow::get_record(['id' => $jqshowid]);
         $grademethod = $jqshow->get('grademethod');
-        $finalgrade = self::get_final_mod_grade($allgrades, $grademethod);
-        if (is_null($finalgrade)) {
+
+        if (count($allgrades) === 0) {
             return;
         }
+        $finalgrade = self::get_final_mod_grade($allgrades, $grademethod);
         $params['grade'] = $finalgrade;
 
         // Save final grade for jqshow.
@@ -276,13 +272,14 @@ class grade {
 
     /**
      * For all the course students.
-     * @param $cmid
-     * @param $jqshowid
+     * @param int $cmid
+     * @param int $jqshowid
      * @throws coding_exception
      * @throws dml_exception
      * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
-    public static function recalculate_mod_mark($cmid, $jqshowid) {
+    public static function recalculate_mod_mark(int $cmid, int $jqshowid) : void {
         $students = \mod_jqshow\jqshow::get_students($cmid);
         if (empty($students)) {
             return;
@@ -311,10 +308,8 @@ class grade {
      * @return float
      * @throws coding_exception
      */
-    private static function get_final_mod_grade(array $allgrades, string $grademethod) {
-        if (count($allgrades) === 0) {
-            return null;
-        }
+    private static function get_final_mod_grade(array $allgrades, string $grademethod) : float {
+
         // Only one session.
         if (count($allgrades) === 1) {
             return reset($allgrades)->get('grade');
@@ -339,7 +334,7 @@ class grade {
      * @return float
      * @throws coding_exception
      */
-    private static function get_highest_grade(array $allgrades) {
+    private static function get_highest_grade(array $allgrades) : float {
         $finalmark = 0;
         foreach ($allgrades as $grade) {
             if ($grade->get('grade') > $finalmark) {
@@ -354,7 +349,7 @@ class grade {
      * @return float
      * @throws coding_exception
      */
-    private static function get_average_grade(array $allgrades) {
+    private static function get_average_grade(array $allgrades) : float {
         $finalmark = 0;
         $total = count($allgrades);
         foreach ($allgrades as $grade) {
@@ -368,16 +363,16 @@ class grade {
      * @return float
      * @throws coding_exception
      */
-    private static function get_first_grade(array $allgrades) {
+    private static function get_first_grade(array $allgrades) : float {
         return reset($allgrades)->get('grade');
     }
 
     /**
      * @param jqshow_sessions_grades[] $allgrades
-     * @return int
+     * @return float
      * @throws coding_exception
      */
-    private static function get_last_grade(array $allgrades) {
+    private static function get_last_grade(array $allgrades) : float {
         return end($allgrades)->get('grade');
     }
 
@@ -386,8 +381,7 @@ class grade {
      * @return string
      * @throws coding_exception
      */
-    public static function get_result_mark_type(jqshow_questions_responses $response) {
-        $result = '';
+    public static function get_result_mark_type(jqshow_questions_responses $response) : string {
         switch ($response->get('result')) {
             case questions::FAILURE:
                 $result = 'incorrect';

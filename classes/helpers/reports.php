@@ -47,13 +47,13 @@ use user_picture;
 
 class reports {
 
-    const QUESTION_REPORT = 'questionreport';
-    const SESSION_QUESTIONS_REPORT = 'sessionquestionsreport';
-    const SESSION_RANKING_REPORT = 'sessionrankingreport';
-    const GROUP_SESSION_RANKING_REPORT = 'groupsessionrankingreport';
-    const USER_REPORT = 'userreport';
-    const GROUP_QUESTION_REPORT = 'groupquestionreport';
-    const GROUP_REPORT = 'groupreport';
+    public const QUESTION_REPORT = 'questionreport';
+    public const SESSION_QUESTIONS_REPORT = 'sessionquestionsreport';
+    public const SESSION_RANKING_REPORT = 'sessionrankingreport';
+    public const GROUP_SESSION_RANKING_REPORT = 'groupsessionrankingreport';
+    public const USER_REPORT = 'userreport';
+    public const GROUP_QUESTION_REPORT = 'groupquestionreport';
+    public const GROUP_REPORT = 'groupreport';
     /**
      * @param int $jqshowid
      * @param int $cmid
@@ -91,7 +91,7 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_questions_data_for_teacher_report_groups(
-        jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session) {
+        jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session) : stdClass {
         global $DB;
         $groupmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
@@ -157,7 +157,7 @@ class reports {
      */
     public static function get_questions_data_for_teacher_report_individual(
         jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session
-    ) {
+    ) : stdClass {
         global $DB;
         $jqshow = new jqshow($jqshowid);
         $users = enrol_get_course_users($jqshow->get('course'), true);
@@ -399,13 +399,12 @@ class reports {
      * @param int $jqshowid
      * @param int $cmid
      * @param int $sid
-     * @param context_module $cmcontext
      * @return stdClass
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_session_report(int $jqshowid, int $cmid, int $sid, context_module $cmcontext): stdClass {
+    public static function get_session_report(int $jqshowid, int $cmid, int $sid): stdClass {
 
         $data = new stdClass();
         $data->jqshowid = $jqshowid;
@@ -447,13 +446,12 @@ class reports {
         $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::SESSION_QUESTIONS_REPORT];
         $data->downloadsessionquestionreport = self::get_downloadhtml($params);
         if ($session->is_group_mode()) {
-            $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::GROUP_SESSION_RANKING_REPORT];
+            $params['name'] =  self::GROUP_SESSION_RANKING_REPORT;
             $data->downloadsessionrankingreport = self::get_downloadhtml($params);
         } else {
-            $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::SESSION_RANKING_REPORT];
-            $data->downloadsessionrankingreport = self::get_downloadhtml($params);
+            $params['name'] =  self::SESSION_RANKING_REPORT;
         }
-
+        $data->downloadsessionrankingreport = self::get_downloadhtml($params);
         return $data;
     }
 
@@ -862,11 +860,10 @@ class reports {
     /**
      * @param stdClass $groupdata
      * @param stdClass $data
-     * @param int $groupid
      * @param int $imagesize
      * @return stdClass
      * @throws coding_exception
-     * @throws moodle_exception
+     * @throws dml_exception
      */
     private static function add_groupdata(stdClass $groupdata, stdClass $data, int $imagesize = 1): stdClass {
         $data->groupimage = groupmode::get_group_image($groupdata, $data->sid, $imagesize);

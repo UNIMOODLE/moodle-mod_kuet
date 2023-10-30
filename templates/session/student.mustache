@@ -1,3 +1,12 @@
+{{#isgroupmode}}
+    <div class="studentgroupinfo bg-primary" data-groupid="{{groupid}}">
+        <img src="{{groupimage}}" alt="{{groupname}}">
+        <span class="groupname">
+            {{groupname}}
+        </span>
+    </div>
+{{/isgroupmode}}
+
 {{#manualmode}}
     {{> mod_jqshow/session/manual/studentcanvas }}
 {{/manualmode}}

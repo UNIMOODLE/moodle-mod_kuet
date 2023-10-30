@@ -103,7 +103,7 @@ class sessions {
     /**
      * @return void
      */
-    public function set_list() {
+    public function set_list() : void {
         $this->list = jqshow_sessions::get_records(['jqshowid' => $this->jqshow->id]);
     }
 
@@ -703,6 +703,7 @@ class sessions {
                 $members = groupmode::get_group_members($groupresult->id);
                 $member = reset($members);
                 $userresponse = jqshow_questions_responses::get_question_response_for_user($member->id, $sid, $question->get('id'));
+                $questionsdata[$key]->studentsresponse[$member->id] = new stdClass();
                 $questionsdata[$key]->studentsresponse[$member->id]->userid = $member->id;
                 if ($userresponse !== false) {
                     $questionsdata[$key]->studentsresponse[$member->id]->response = $userresponse;
@@ -882,7 +883,6 @@ class sessions {
 
     /**
      * @param jqshow_sessions $session
-     * @param int $cmid
      * @param int $jqid
      * @return array
      * @throws coding_exception
@@ -940,7 +940,7 @@ class sessions {
     }
 
     /**
-     * @param int $sid
+     * @param jqshow_sessions $session
      * @param cm_info $cm
      * @param int $courseid
      * @param context_module $context
@@ -980,6 +980,7 @@ class sessions {
      * @return array
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
     private static function get_final_group_ranking(jqshow_sessions $session): array {
         $groups = groupmode::get_grouping_groups($session->get('groupings'));
@@ -1025,7 +1026,7 @@ class sessions {
             $params['userid'] = $USER->id;
         } else if ($session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
             $group = groupmode::get_user_group($USER->id, $session->get('groupings'));
-            if (!is_null($group)) {
+            if (isset($group->id)) {
                 $params['groupid'] = $group->id;
             }
         }

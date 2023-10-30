@@ -26,41 +26,37 @@
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
 use context_module;
 use dml_exception;
-use Endroid\QrCode\Exception\InvalidWriterException;
 use mod_jqshow\helpers\sessions as sessionshelper;
 use mod_jqshow\jqshow;
 use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
-use RuntimeException;
 use stdClass;
 
 class teacher extends user {
 
     /**
-     * @param $cmid
+     * @param int $cmid
      * @return Object
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function export($cmid) : Object {
+    public function export(int $cmid) : Object {
         return $this->export_sessions($cmid);
     }
 
     /**
-     * @param $cmid
-     * @return Object
-     * @throws InvalidWriterException
+     * @param int $cmid
+     * @return Object|stdClass
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function export_sessions($cmid) : Object {
-        global $CFG;
+    public function export_sessions(int $cmid) : Object {
+
         $jqshow = new jqshow($cmid);
         $actives = [];
         $inactives = [];

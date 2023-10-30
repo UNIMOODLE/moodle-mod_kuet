@@ -25,6 +25,11 @@
 
 namespace mod_jqshow\output;
 use coding_exception;
+use core\invalid_persistent_exception;
+use dml_exception;
+use dml_transaction_exception;
+use invalid_parameter_exception;
+use JsonException;
 use mod_jqshow\output\views\question_preview;
 use mod_jqshow\output\views\sessions_view;
 use mod_jqshow\output\views\student_reports;
@@ -35,6 +40,7 @@ use moodle_exception;
 use plugin_renderer_base;
 use mod_jqshow\output\views\student_view;
 use mod_jqshow\output\views\teacher_view;
+use ReflectionException;
 
 class renderer extends plugin_renderer_base {
 
@@ -52,6 +58,13 @@ class renderer extends plugin_renderer_base {
     /**
      * @param student_session_view $view
      * @return string
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws invalid_persistent_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
+     * @throws coding_exception
      * @throws moodle_exception
      */
     public function render_student_session_view(student_session_view $view): string {
@@ -70,6 +83,12 @@ class renderer extends plugin_renderer_base {
         return $this->render_from_template('mod_jqshow/sessions', $data);
     }
 
+    /**
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     public function render_teacher_session_view(teacher_session_view $view): string {
         $data = $view->export_for_template($this);
         return $this->render_from_template('mod_jqshow/session/teacher', $data);
@@ -88,7 +107,11 @@ class renderer extends plugin_renderer_base {
     /**
      * @param question_preview $view
      * @return string
+     * @throws JsonException
+     * @throws ReflectionException
      * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
      * @throws moodle_exception
      */
     public function render_question_preview(question_preview $view): string {
@@ -99,6 +122,9 @@ class renderer extends plugin_renderer_base {
     /**
      * @param teacher_reports $view
      * @return string
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
      * @throws moodle_exception
      */
     public function render_teacher_reports(teacher_reports $view): string {
@@ -109,6 +135,9 @@ class renderer extends plugin_renderer_base {
     /**
      * @param student_reports $view
      * @return string
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
      * @throws moodle_exception
      */
     public function render_student_reports(student_reports $view): string {

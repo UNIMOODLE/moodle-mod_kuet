@@ -57,7 +57,7 @@ class progress {
         int $cmid,
         int $currentquestionjqid
     ): void {
-        global $COURSE;
+
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if (!$isteacher) {

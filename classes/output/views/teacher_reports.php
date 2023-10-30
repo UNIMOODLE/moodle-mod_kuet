@@ -86,7 +86,7 @@ class teacher_reports implements renderable, templatable {
             $data->allreports = true;
             $data->endedsessions = $jqshow->get_completed_sessions();
         } else if ($this->userid === 0 & $this->groupid === 0 && $this->jqid === 0) {
-            $data = reports::get_session_report($this->jqshowid, $data->cmid, $this->sid, $cmcontext);
+            $data = reports::get_session_report($this->jqshowid, $data->cmid, $this->sid);
         } else if ($this->userid === 0 && $this->jqid !== 0) {
             $data = reports::get_question_report($this->cmid, $this->sid, $this->jqid);
         } else if ($this->groupid === 0) {

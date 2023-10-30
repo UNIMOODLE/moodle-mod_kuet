@@ -38,7 +38,6 @@ let cmId;
 let sId;
 let jqId;
 let isRanking = false;
-let toggleFullScreen = false;
 
 /**
  * @constructor
@@ -61,13 +60,20 @@ Question.prototype.initQuestion = function() {
     jqId = this.node.attr('data-jqid');
     this.node.find(ACTION.EXPAND).on('click', this.fullScreen);
     this.node.find(ACTION.COMPRESS).on('click', this.exitFullScreen);
+    if (jQuery(REGION.BODY).hasClass('fullscreen')) {
+        jQuery(ACTION.EXPAND).css('display', 'none');
+        jQuery(ACTION.COMPRESS).css('display', 'block');
+    } else {
+        jQuery(ACTION.EXPAND).css('display', 'block');
+        jQuery(ACTION.COMPRESS).css('display', 'none');
+    }
     jQuery(ACTION.NEXTQUESTION).on('click', this.nextQuestion);
     jQuery(document).keyup(function(e) {
         if (e.key === 'Escape' || e.key === 27 || e.key === 'F11' || e.keyCode === 122) {
-            if (toggleFullScreen === false) {
-                Question.prototype.fullScreen();
-            } else {
+            if (jQuery(REGION.BODY).hasClass('fullscreen')) {
                 Question.prototype.exitFullScreen();
+            } else {
+                Question.prototype.fullScreen();
             }
         }
     });
@@ -77,36 +83,17 @@ Question.prototype.initQuestion = function() {
 };
 
 Question.prototype.fullScreen = function() {
-    if (toggleFullScreen === false) {
-        // TODO some fixes in switchs, inputs, and other elements. Delete or repare.
-        /*let element = document.documentElement;
-        if (element.requestFullscreen) {
-            element.requestFullscreen();
-        } else if (element.webkitRequestFullscreen) { /!* Safari *!/
-            element.webkitRequestFullscreen();
-        } else if (element.msRequestFullscreen) { /!* IE11 *!/
-            element.msRequestFullscreen();
-        }*/
-        jQuery(ACTION.EXPAND).css('display', 'none');
-        jQuery(ACTION.COMPRESS).css('display', 'block');
-        jQuery(REGION.BODY).addClass('fullscreen');
-        jQuery(window).scrollTop(0);
-        jQuery('html, body').animate({scrollTop: 0}, 500);
-        toggleFullScreen = true;
-    }
+    jQuery(ACTION.EXPAND).css('display', 'none');
+    jQuery(ACTION.COMPRESS).css('display', 'block');
+    jQuery(REGION.BODY).addClass('fullscreen');
+    jQuery(window).scrollTop(0);
+    jQuery('html, body').animate({scrollTop: 0}, 500);
 };
 
 Question.prototype.exitFullScreen = function() {
-    if (toggleFullScreen === true) {
-        // TODO some fixes in switchs, inputs, and other elements. Delete or repare.
-        /*if (document.fullscreenElement){
-            document.exitFullscreen();
-        }*/
-        jQuery(ACTION.EXPAND).css('display', 'block');
-        jQuery(ACTION.COMPRESS).css('display', 'none');
-        jQuery(REGION.BODY).removeClass('fullscreen');
-        toggleFullScreen = false;
-    }
+    jQuery(ACTION.EXPAND).css('display', 'block');
+    jQuery(ACTION.COMPRESS).css('display', 'none');
+    jQuery(REGION.BODY).removeClass('fullscreen');
 };
 
 Question.prototype.nextQuestion = function(e) { // Only for programed modes, not used by sockets.

@@ -28,11 +28,9 @@ namespace mod_jqshow\external;
 use coding_exception;
 use external_api;
 use external_function_parameters;
-use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 
 defined('MOODLE_INTERNAL') || die();

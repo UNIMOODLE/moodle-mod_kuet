@@ -148,17 +148,18 @@ class calculated_external extends external_api {
                         break;
                 }
             }
-            if ($multiplier === '') {
-                $matchanswer = $question->get_matching_answer($responsenum, null);
-            } else {
-                $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
+            if (is_numeric($responsenum)) {
+                if ($multiplier === '') {
+                    $matchanswer = $question->get_matching_answer($responsenum, null);
+                } else {
+                    $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
+                }
+                if ($matchanswer !== null) {
+                    $answerfeedback = questions::get_text(
+                        $cmid, $matchanswer->feedback, $matchanswer->feedbackformat, $question->id, $question, 'feedback'
+                    );
+                }
             }
-            if ($matchanswer !== null) {
-                $answerfeedback = questions::get_text(
-                    $cmid, $matchanswer->feedback, $matchanswer->feedbackformat, $question->id, $question, 'feedback'
-                );
-            }
-
             $possibleanswers = '';
             foreach ($question->answers as $answer) {
                 $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';

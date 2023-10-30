@@ -48,7 +48,6 @@ use stdClass;
 use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
 
 class shortanswer extends questions implements questionType {
 
@@ -84,7 +83,7 @@ class shortanswer extends questions implements questionType {
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
         $data->questiontext =
@@ -156,8 +155,6 @@ class shortanswer extends questions implements questionType {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
-        $answers = [];
-        $correctanswers = [];
         foreach ($questiondata->answers as $key => $answer) {
             $answers[$key]['answertext'] = $answer->answer;
             $answers[$key]['answerid'] = $answer->id;
@@ -321,7 +318,6 @@ class shortanswer extends questions implements questionType {
      * @throws coding_exception
      */
     public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) : float {
-        global $DB;
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
         if (assert($question instanceof qtype_shortanswer_question)) {

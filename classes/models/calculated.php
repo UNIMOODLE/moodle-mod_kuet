@@ -52,7 +52,6 @@ use stdClass;
 use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
 
 class calculated extends questions implements questionType {
 
@@ -89,7 +88,7 @@ class calculated extends questions implements questionType {
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
         self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
@@ -206,8 +205,6 @@ class calculated extends questions implements questionType {
                                                question_definition $questiondata,
                                                stdClass            $data,
                                                int                 $jqid): stdClass {
-        $answers = [];
-        $correctanswers = [];
         if (!assert($questiondata instanceof qtype_calculated_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
@@ -298,7 +295,7 @@ class calculated extends questions implements questionType {
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws dml_exception|moodle_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,

@@ -35,7 +35,7 @@ class jqshow_sessions_grades extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() {
+    protected static function define_properties() :array {
         return [
             'jqshow' => [
                 'type' => PARAM_INT,

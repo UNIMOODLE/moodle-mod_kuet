@@ -26,7 +26,6 @@
 namespace mod_jqshow\models;
 use core_user;
 use dml_exception;
-use lang_string;
 use stdClass;
 
 abstract class user {
@@ -40,12 +39,5 @@ abstract class user {
      */
     public function __construct(int $userid) {
         $this->user = core_user::get_user($userid);
-    }
-
-    /**
-     * @return lang_string|string
-     */
-    public function get_fullname() {
-        return fullname($this->user);
     }
 }

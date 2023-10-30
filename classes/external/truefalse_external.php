@@ -69,7 +69,7 @@ class truefalse_external extends external_api {
     }
 
     /**
-     * @param string $answerid
+     * @param int $answerid
      * @param int $sessionid
      * @param int $jqshowid
      * @param int $cmid

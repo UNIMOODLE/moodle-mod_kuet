@@ -91,7 +91,7 @@ class sessionquestions_external extends external_api {
      * @throws moodle_exception
      */
     public static function export_question(jqshow_questions $question, int $cmid): stdClass {
-        global $DB, $COURSE;
+        global $DB;
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
         $data = new stdClass();
         $data->questionnid = $question->get('id');

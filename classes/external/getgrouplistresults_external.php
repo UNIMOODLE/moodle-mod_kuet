@@ -25,6 +25,7 @@
 
 namespace mod_jqshow\external;
 
+use context_module;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -32,7 +33,6 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -60,6 +60,9 @@ class getgrouplistresults_external extends external_api {
      * @throws invalid_parameter_exception
      */
     public static function getgrouplistresults(int $sid, int $cmid): array {
+        global $PAGE;
+        $context = context_module::instance($cmid);
+        $PAGE->set_context($context);
         self::validate_parameters(
             self::getgrouplistresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]

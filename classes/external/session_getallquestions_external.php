@@ -35,16 +35,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\models\calculated;
-use mod_jqshow\models\ddwtos;
-use mod_jqshow\models\description;
-use mod_jqshow\models\matchquestion;
-use mod_jqshow\models\multichoice;
-use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\models\truefalse;
-use mod_jqshow\persistents\jqshow_questions;
 use moodle_exception;
 use ReflectionException;
 

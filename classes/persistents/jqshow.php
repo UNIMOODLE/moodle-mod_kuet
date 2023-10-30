@@ -25,6 +25,7 @@
 
 namespace mod_jqshow\persistents;
 use core\persistent;
+use moodle_exception;
 
 class jqshow extends persistent {
     public const TABLE = 'jqshow';
@@ -32,7 +33,7 @@ class jqshow extends persistent {
     /**
      * @return array[]
      */
-    protected static function define_properties() {
+    protected static function define_properties() : array {
         return [
             'course' => [
                 'type' => PARAM_INT,
@@ -65,6 +66,7 @@ class jqshow extends persistent {
      * Get persisten from course module id.
      * @param int $cmid
      * @return false|jqshow
+     * @throws moodle_exception
      */
     public static function get_jqshow_from_cmid(int $cmid) {
         list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'jqshow');

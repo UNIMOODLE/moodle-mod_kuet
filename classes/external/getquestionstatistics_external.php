@@ -26,6 +26,7 @@
 namespace mod_jqshow\external;
 
 use coding_exception;
+use dml_exception;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -61,14 +62,12 @@ class getquestionstatistics_external extends external_api {
     }
 
     /**
-     * @param int $jqshowid
      * @param int $sid
      * @param int $jqid
-     * @return array
-     * @throws JsonException
+     * @return array|array[]
+     * @throws dml_exception
      * @throws coding_exception
      * @throws invalid_parameter_exception
-     * @throws moodle_exception
      */
     public static function getquestionstatistics(int $sid, int $jqid): array {
         self::validate_parameters(
@@ -80,9 +79,9 @@ class getquestionstatistics_external extends external_api {
         $statistics = [];
         $session = new jqshow_sessions($sid);
         $responses = jqshow_questions_responses::get_question_responses($sid, $jqshowquestion->get('jqshowid'), $jqid);
-
         if ($session->is_group_mode()) {
             $members = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
+
             $groupresponses = [];
             foreach ($responses as $response) {
                 if (in_array($response->get('userid'), $members)) {

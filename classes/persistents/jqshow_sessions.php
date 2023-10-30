@@ -25,6 +25,7 @@
 
 namespace mod_jqshow\persistents;
 use coding_exception;
+use context_module;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
@@ -41,7 +42,7 @@ class jqshow_sessions extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() {
+    protected static function define_properties() :array {
         return [
             'name' => [
                 'type' => PARAM_RAW,
@@ -301,7 +302,7 @@ class jqshow_sessions extends persistent {
         $params = array(
             'objectid' => $sid,
             'courseid' => $jqshow->get('course'),
-            'context' => \context_module::instance($cm->id)
+            'context' => context_module::instance($cm->id)
         );
         $event = session_ended::create($params);
         $event->add_record_snapshot('jqshow_sessions', $session->to_record());
@@ -364,6 +365,10 @@ class jqshow_sessions extends persistent {
         return $DB->get_records_select('jqshow_sessions', $select, $params, 'timecreated ASC');
     }
 
+    /**
+     * @return bool
+     * @throws coding_exception
+     */
     public function is_programmed_mode() : bool {
         return ($this->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
             $this->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||

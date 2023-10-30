@@ -32,17 +32,9 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\helpers\progress;
-use mod_jqshow\models\calculated;
-use mod_jqshow\models\ddwtos;
-use mod_jqshow\models\description;
-use mod_jqshow\models\matchquestion;
-use mod_jqshow\models\multichoice;
-use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\models\sessions as sessionsmodel;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -123,6 +115,13 @@ class student_session_view implements renderable, templatable {
                         $type::export_question_response($data, base64_decode($response->get('response')), $response->get('result'));
                 }
                 $data->programmedmode = true;
+                if ($session->is_group_mode()) {
+                    $data->isgroupmode = true;
+                    $group = groupmode::get_user_group($USER->id, $session->get('groupings'));
+                    $data->groupimage = groupmode::get_group_image($group, $sid, 1);
+                    $data->groupname = $group->name;
+                    $data->groupid = $group->id;
+                }
                 break;
             case sessions::INACTIVE_MANUAL:
             case sessions::PODIUM_MANUAL:

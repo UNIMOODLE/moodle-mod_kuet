@@ -49,7 +49,7 @@ class active_session_management extends scheduled_task {
      * @throws invalid_persistent_exception
      * @throws coding_exception
      */
-    public function execute() {
+    public function execute() : void {
         // TODO provide for time zones for each user, and activate them if they are met, for each user. Great implementation.
         $jqshows = jqshow::get_records();
         $date = time();
