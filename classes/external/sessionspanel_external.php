@@ -108,6 +108,7 @@ class sessionspanel_external extends external_api {
                     'viewreporturl' => new external_value(PARAM_URL, 'Url for view report of session'),
                     'editsessionurl' => new external_value(PARAM_URL, 'Url for edit session'),
                     'date' => new external_value(PARAM_RAW, 'Init and en date of session, or empty'),
+                    'finishingdate' => new external_value(PARAM_RAW, 'End date for completed session', VALUE_OPTIONAL),
                     'status' => new external_value(PARAM_INT, 'Session status: active 1, initi 2 or finished 0'),
                     'issessionstarted' => new external_value(PARAM_BOOL, 'Session status: active 1, initi 2 or finished 0'),
                     'startedssionurl' => new external_value(PARAM_RAW, 'Session url', VALUE_OPTIONAL),

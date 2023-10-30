@@ -281,7 +281,6 @@ class jqshow_sessions extends persistent {
     public static function mark_session_active(int $sid): void {
         $session = new jqshow_sessions($sid);
         $session->set('status', sessionsmodel::SESSION_ACTIVE);
-        $session->set('startdate', 0);
         $session->update();
     }
 
