@@ -93,7 +93,11 @@ class teacher extends user {
      * @return array
      */
     private function get_sessions_conflicts(array $sessions): array {
-        usort($sessions, static fn($a, $b) => $a->startdate <=> $b->startdate);
+        usort($sessions, static function($a, $b) {
+            if (isset($a->startdate, $b->startdate)) {
+                return $a->startdate <=> $b->startdate;
+            }
+        });
         foreach ($sessions as $session1) {
             foreach ($sessions as $session2) {
                 $session1->automaticstart = $session1->automaticstart ?? 0;
