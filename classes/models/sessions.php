@@ -514,12 +514,15 @@ class sessions {
                 $numquestion = jqshow_questions::count_records(
                     ['sessionid' => $sessiondata->get('id'), 'jqshowid' => $sessiondata->get('jqshowid')]
                 );
-                $timeperquestion = round((int)$sessiondata->get('sessiontime') / $numquestion);
-                $timemodestring = get_string(
-                    'session_time_resume', 'mod_jqshow', userdate($sessiondata->get('sessiontime'), '%Mm %Ss')
-                    ) . '<br>' .
-                    get_string('question_time', 'mod_jqshow') . ': ' .
-                    $timeperquestion . 's';
+                $timemodestring = get_string('no_time', 'mod_jqshow');
+                if ($numquestion !== 0) {
+                    $timeperquestion = round((int)$sessiondata->get('sessiontime') / $numquestion);
+                    $timemodestring = get_string(
+                            'session_time_resume', 'mod_jqshow', userdate($sessiondata->get('sessiontime'), '%Mm %Ss')
+                        ) . '<br>' .
+                        get_string('question_time', 'mod_jqshow') . ': ' .
+                        $timeperquestion . 's';
+                }
                 break;
             case self::QUESTION_TIME:
                 $totaltime =
