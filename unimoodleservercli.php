@@ -1,5 +1,4 @@
 <?php
-
 /**
  *
  * @package     mod_jqshow
@@ -29,7 +28,6 @@ class unimoodleservercli extends websockets {
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
-        // TODO utf8_encode;
         $data = json_decode(
             mb_convert_encoding($message, 'UTF-8', 'UTF-8'),
             true,
@@ -128,12 +126,11 @@ class unimoodleservercli extends websockets {
             $groupname = $this->sidgroups[$user->sid][$groupid]->groupname;
             $numusers = count($this->sidgroups[$user->sid][$groupid]->users);
             $numgroups = count($this->sidgroups[$user->sid]);
-            unset($this->sidgroups[$user->sid][$groupid]->users[$user->usersocketid]);
-            unset($this->sidgroupusers[$user->usersocketid]);
-            $numusers = $numusers - 1 ;
-            if ($numusers == 0) {
+            unset($this->sidgroups[$user->sid][$groupid]->users[$user->usersocketid], $this->sidgroupusers[$user->usersocketid]);
+            --$numusers;
+            if ($numusers === 0) {
                 unset($this->sidgroups[$user->sid][$groupid]);
-                $numgroups = $numgroups - 1;
+                --$numgroups;
                 $groupdisconected = true;
             }
         }
@@ -169,6 +166,7 @@ class unimoodleservercli extends websockets {
             }
         }
     }
+
     /**
      * @param $user
      * @return void
@@ -230,7 +228,7 @@ class unimoodleservercli extends websockets {
                             'onlyforteacher' => true,
                             'improvisereply' => $data['improvisereply'],
                             'userid' => $data['userid'],
-                            'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta improvisada con la palabra: ' . $data['improvisereply'] // TODO delete.
+                            'message' => ''
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'StudentVotedTag':
@@ -240,7 +238,7 @@ class unimoodleservercli extends websockets {
                             'onlyforteacher' => true,
                             'votedtag' => $data['votedtag'],
                             'userid' => $data['userid'],
-                            'message' => 'El alumno ' . $data['userid'] . ' ha votado una pregunta improvisada con la palabra: ' . $data['votedtag'] // TODO delete.
+                            'message' => ''
                         ], JSON_THROW_ON_ERROR)
                     ));
             default:
@@ -259,7 +257,7 @@ class unimoodleservercli extends websockets {
         }
         foreach ($this->sidgroups[$sid] as $sidgroup) {
             foreach ($sidgroup->users as $member) {
-                if ($member->userid == $userid) {
+                if ((int)$member->userid === $userid) {
                     $groupid = $sidgroup->groupid;
                     return $groupid;
                 }
@@ -286,6 +284,7 @@ class unimoodleservercli extends websockets {
                 return '';
         }
     }
+
     /**
      * @param websocketuser $user
      * @param string $useraction
@@ -313,7 +312,6 @@ class unimoodleservercli extends websockets {
      * @param array $data // Body of the message.
      * @return string // Json enconde.
      * @throws JsonException
-     * @throws coding_exception
      */
     protected function get_response_from_action(websocketuser $user, string $useraction, array $data): string {
         // Prepare data to be sent to client.
@@ -424,6 +422,7 @@ class unimoodleservercli extends websockets {
                 return $this->mask(
                     encrypt($this->password, json_encode([
                             'action' => 'improvising',
+                            'jqid' => $data['jqid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'closeImprovise':
@@ -533,7 +532,7 @@ class unimoodleservercli extends websockets {
                 'action' => 'newteacher',
                 'name' => $data['name'] ?? '',
                 'userid' => $user->id ?? '',
-                'message' => '<span style="color: green">El profesor ' . $user->dataname . ' se ha conectado</span>',
+                'message' => '<span style="color: green">The teacher ' . $user->dataname . ' has connected</span>',
                 'count' => isset($this->sidusers[$data['sid']]) ? count($this->sidusers[$data['sid']]) : 0,
             ], JSON_THROW_ON_ERROR))
         );
@@ -546,6 +545,26 @@ class unimoodleservercli extends websockets {
      * @throws JsonException
      */
     private function manage_newstudent_for_sid(websocketuser $user, array $data): string {
+        $duplicateresolve = false;
+        if (isset($this->students[$data['sid']])) {
+            foreach ($this->students[$data['sid']] as $usersocketid => $studentsid) {
+                if ($studentsid->userid === $data['userid']) {
+                    // There can only be one same user in each session to avoid conflicts of functionality.
+                    foreach ($this->sockets as $key => $socket) {
+                        if ($key === $usersocketid) {
+                            $this->disconnect($socket);
+                            fclose($socket);
+                            unset($this->users[$usersocketid]);
+                            $duplicateresolve = true;
+                            break;
+                        }
+                    }
+                }
+                if ($duplicateresolve === true) {
+                    break;
+                }
+            }
+        }
         $this->users[$user->usersocketid]->isteacher = false;
         $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
         $this->students[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
@@ -617,9 +636,6 @@ abstract class websockets {
             throw new Exception('This application must be run on the command line.');
         }
 
-        $port = '';
-        $certificate = '';
-        $privatekey = '';
         if (isset($_SERVER['argv'][1]) && isset($_SERVER['argv'][2]) && isset($_SERVER['argv'][3])) {
             [$script, $port, $certificate, $privatekey] = $_SERVER['argv'];
         } else {
@@ -659,6 +675,9 @@ abstract class websockets {
 
     }
 
+    /**
+     * @return void
+     */
     private function executeform() {
         echo "\033[34m". "Enter the port number for external connections." . PHP_EOL .
             "This port must be open, and must be provided to the Moodle platforms to be connected: " . "\033[0m" . PHP_EOL;

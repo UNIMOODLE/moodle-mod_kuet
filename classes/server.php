@@ -149,12 +149,11 @@ class server extends websockets {
             $groupname = $this->sidgroups[$user->sid][$groupid]->groupname;
             $numusers = count($this->sidgroups[$user->sid][$groupid]->users);
             $numgroups = count($this->sidgroups[$user->sid]);
-            unset($this->sidgroups[$user->sid][$groupid]->users[$user->usersocketid]);
-            unset($this->sidgroupusers[$user->usersocketid]);
-            $numusers = $numusers - 1 ;
-            if ($numusers == 0) {
+            unset($this->sidgroups[$user->sid][$groupid]->users[$user->usersocketid], $this->sidgroupusers[$user->usersocketid]);
+            --$numusers;
+            if ($numusers === 0) {
                 unset($this->sidgroups[$user->sid][$groupid]);
-                $numgroups = $numgroups - 1;
+                --$numgroups;
                 $groupdisconected = true;
             }
         }
@@ -190,6 +189,7 @@ class server extends websockets {
             }
         }
     }
+
     /**
      * @param $user
      * @return void
@@ -254,7 +254,7 @@ class server extends websockets {
                             'onlyforteacher' => true,
                             'improvisereply' => $data['improvisereply'],
                             'userid' => $data['userid'],
-                            'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta improvisada con la palabra: ' . $data['improvisereply'] // TODO delete.
+                            'message' => ''
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'StudentVotedTag':
@@ -264,7 +264,7 @@ class server extends websockets {
                             'onlyforteacher' => true,
                             'votedtag' => $data['votedtag'],
                             'userid' => $data['userid'],
-                            'message' => 'El alumno ' . $data['userid'] . ' ha votado una pregunta improvisada con la palabra: ' . $data['votedtag'] // TODO delete.
+                            'message' => ''
                         ], JSON_THROW_ON_ERROR)
                     ));
             default:
@@ -284,7 +284,7 @@ class server extends websockets {
         }
         foreach ($this->sidgroups[$sid] as $sidgroup) {
             foreach ($sidgroup->users as $member) {
-                if ($member->userid == $userid) {
+                if ((int)$member->userid === $userid) {
                     $groupid = $sidgroup->groupid;
                     return $groupid;
                 }
@@ -312,6 +312,7 @@ class server extends websockets {
                 return '';
         }
     }
+
     /**
      * @param websocketuser $user
      * @param string $useraction
@@ -338,8 +339,7 @@ class server extends websockets {
      * @param string $useraction // The action it requires.
      * @param array $data // Body of the message.
      * @return string // Json enconde.
-     * @throws JsonException
-     * @throws coding_exception
+     * @throws JsonException|coding_exception
      */
     protected function get_response_from_action(websocketuser $user, string $useraction, array $data): string {
         // Prepare data to be sent to client.
@@ -493,7 +493,7 @@ class server extends websockets {
      * @param array $data
      * @return void
      */
-    private function newuser(websocketuser $user, array $data) {
+    private function newuser(websocketuser $user, array $data): void {
         $this->users[$user->usersocketid]->dataname = $data['name'];
         $this->users[$user->usersocketid]->picture = $data['pic'];
         $this->users[$user->usersocketid]->userid = $data['userid'];
@@ -504,10 +504,11 @@ class server extends websockets {
     }
 
     /**
+     * @param websocketuser $user
      * @param array $data
      * @return void
      */
-    private function newgroup(websocketuser $user, array $data) {
+    private function newgroup(websocketuser $user, array $data): void {
         if (!array_key_exists($data['sid'], $this->sidgroups)) {
             $this->sidgroups[$data['sid']] = [];
         }
@@ -559,7 +560,7 @@ class server extends websockets {
                 'action' => 'newteacher',
                 'name' => $data['name'] ?? '',
                 'userid' => $user->id ?? '',
-                'message' => '<span style="color: green">El profesor ' . $user->dataname . ' se ha conectado</span>',
+                'message' => '<span style="color: green">The teacher ' . $user->dataname . ' has connected</span>',
                 'count' => isset($this->sidusers[$data['sid']]) ? count($this->sidusers[$data['sid']]) : 0,
             ], JSON_THROW_ON_ERROR))
         );
@@ -572,6 +573,26 @@ class server extends websockets {
      * @throws JsonException
      */
     private function manage_newstudent_for_sid(websocketuser $user, array $data): string {
+        $duplicateresolve = false;
+        if (isset($this->students[$data['sid']])) {
+            foreach ($this->students[$data['sid']] as $usersocketid => $studentsid) {
+                if ($studentsid->userid === $data['userid']) {
+                    // There can only be one same user in each session to avoid conflicts of functionality.
+                    foreach ($this->sockets as $key => $socket) {
+                        if ($key === $usersocketid) {
+                            $this->disconnect($socket);
+                            fclose($socket);
+                            unset($this->users[$usersocketid]);
+                            $duplicateresolve = true;
+                            break;
+                        }
+                    }
+                }
+                if ($duplicateresolve === true) {
+                    break;
+                }
+            }
+        }
         $this->users[$user->usersocketid]->isteacher = false;
         $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
         $this->students[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
