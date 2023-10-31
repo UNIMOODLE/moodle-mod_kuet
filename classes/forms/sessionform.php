@@ -32,6 +32,8 @@ use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodleform;
 
+global $CFG;
+require_once($CFG->libdir.'/formslib.php');
 class sessionform extends moodleform {
 
     /**

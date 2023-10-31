@@ -49,13 +49,15 @@ if ($activesession !== 0 && $activesession === $sid) {
     throw new moodle_exception('erroreditsessionactive', 'mod_jqshow', (new moodle_url('/mod/jqshow/view.php', ['id' => $id])),
         [], get_string('erroreditsessionactive', 'mod_jqshow'));
 }
-
+$view = new sessions_view($jqshow, $cm->id);
+$output = $PAGE->get_renderer('mod_jqshow');
+$viehtml = $output->render($view);
 $PAGE->set_title(get_string('modulename', 'jqshow'));
 $PAGE->set_heading(get_string('sessionconfiguration', 'jqshow'));
 $PAGE->set_cacheable(false);
-$view = new sessions_view($jqshow, $cm->id);
-$output = $PAGE->get_renderer('mod_jqshow');
+
+
 echo $output->header();
 echo $output->heading(get_string('sessionconfiguration', 'jqshow'));
-echo $output->render($view);
+echo $viehtml;
 echo $output->footer();
