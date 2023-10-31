@@ -27,6 +27,8 @@ use core_calendar\action_factory;
 use core_calendar\local\event\value_objects\action;
 use core_completion\api;
 use mod_jqshow\api\grade;
+use mod_jqshow\persistents\jqshow;
+
 global $CFG;
 require_once($CFG->dirroot . '/lib/gradelib.php');
 
@@ -68,23 +70,30 @@ function jqshow_add_instance(stdClass $data): int {
     global $DB, $USER;
 
     $cmid = $data->coursemodule;
-    $data->usermodified = $USER->id;
-    $data->timecreated = time();
-    $data->timemodified = time();
-    $id = $DB->insert_record('jqshow', $data);
-    $data->id  = $id;
-    // Update course module record - from now on this instance properly exists and all function may be used.
-    $DB->set_field('course_modules', 'instance', $id, array('id' => $cmid));
 
-    // Reload scorm instance.
-    $record = $DB->get_record('jqshow', array('id' => $id));
+    // Create jqshow on db.
+    $record = new stdClass();
+    $record->course = $data->course;
+    $record->name = $data->name;
+    $record->intro = $data->intro;
+    $record->introformat = $data->introformat;
+    $record->teamgrade = isset($data->teamgrade) ?? $data->teamgrade;
+    $record->grademethod = $data->grademethod;
+    $record->completionanswerall = $data->completionanswerall;
+    $record->usermodified = $USER->id;
+    $jqshow = new jqshow(0, $record);
+    $jqshow->create();
+    $data->id  = $jqshow->get('id');
+
+    // Update course module record - from now on this instance properly exists and all function may be used.
+    $DB->set_field('course_modules', 'instance', $data->id, array('id' => $cmid));
 
     if (!empty($data->completionexpected)) {
-        api::update_completion_date_event($cmid, 'jqshow', $record, $data->completionexpected);
+        api::update_completion_date_event($cmid, 'jqshow', $jqshow->to_record(), $data->completionexpected);
     }
 
     mod_jqshow_grade_item_update($data, null);
-    return $record->id;
+    return $data->id;
 }
 
 /**
@@ -96,21 +105,19 @@ function jqshow_add_instance(stdClass $data): int {
  * @throws moodle_exception
  */
 function jqshow_update_instance(stdClass $data): bool {
-    global $DB;
+    global $USER;
 
-    // Get the current value, so we can see save changes.
-    $oldjqshow = $DB->get_record('jqshow', array('id' => $data->instance));
-
-    // Update the database.
-    $oldjqshow->name = $data->name;
-    $oldjqshow->teamgrade = isset($data->teamgrade) ? $data->teamgrade : null;
-    $oldjqshow->grademethod = $data->grademethod;
-    if (!isset($data->completionanswerall) || $data->completionanswerall === null) {
-        $oldjqshow->completionanswerall = 0;
-    } else {
-        $oldjqshow->completionanswerall = $data->completionanswerall;
-    }
-    $DB->update_record('jqshow', $oldjqshow);
+    $teamgrade = isset($data->teamgrade) ?? $data->teamgrade;
+    // Update jqshow record.
+    $jqshow = new jqshow($data->instance);
+    $jqshow->set('name', $data->name);
+    $jqshow->set('intro', $data->intro);
+    $jqshow->set('introformat', $data->introformat);
+    $jqshow->set('teamgrade', $teamgrade);
+    $jqshow->set('grademethod', $data->grademethod);
+    $jqshow->set('completionanswerall', $data->completionanswerall);
+    $jqshow->set('usermodified', $USER->id);
+    $jqshow->update();
 
     grade::recalculate_mod_mark($data->{'update'}, $data->instance);
     $data->id = $data->instance;
