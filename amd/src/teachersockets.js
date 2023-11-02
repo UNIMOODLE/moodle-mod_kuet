@@ -77,7 +77,6 @@ let ACTION = {
 
 let SERVICES = {
     ACTIVESESSION: 'mod_jqshow_activesession',
-    GETALLQUESTIONS: 'mod_jqshow_session_getallquestions',
     NEXTQUESTION: 'mod_jqshow_nextquestion',
     FIRSTQUESTION: 'mod_jqshow_firstquestion',
     FINISHSESSION: 'mod_jqshow_finishsession',
