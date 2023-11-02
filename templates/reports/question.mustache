@@ -1,12 +1,35 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
 <div class="col-12 question-report" data-region="question-report">
     <!-- First data -->
     <div class="row">
         <div class="col-8 col-lg-8 container">
             <div class="question">
-                <h5 class="titlecontainer bg-primary">
+                <h6 class="titlecontainer bg-primary">
                     {{#pix}} i/questions_list, mod_jqshow {{/pix}}
                     {{#str}}question, mod_jqshow{{/str}}: {{position}} ({{type}})
-                </h5>
+                </h6>
                 <div class="question-data" data-region="question-data">
                     <div class="question-data-body">
                         {{{questiontext}}}
@@ -28,9 +51,9 @@
         </div>
         <div class="col-4 col-lg-4 container">
             <div class="question-info">
-                <h5 class="titlecontainer bg-primary">
+                <h6 class="titlecontainer bg-primary">
                     {{#str}}student_number, mod_jqshow{{/str}}: {{numusers}}
-                </h5>
+                </h6>
                 <div class="question-info-data" data-region="question-info-data">
                     <div class="question-data-body">
                         <div class="alert alert-success mb-1" role="alert">
@@ -55,10 +78,10 @@
         <div class="row">
         <div class="col-12 col-lg-12 container">
             <div class="answers">
-                <h5 class="titlecontainer bg-primary">
+                <h6 class="titlecontainer bg-primary">
                     {{#pix}} i/questions_list, mod_jqshow {{/pix}}
                     {{#str}}responses, mod_jqshow{{/str}}: {{position}} ({{type}})
-                </h5>
+                </h6>
                 <div class="answers-data" data-region="answers-data">
                     <div class="answers-data-body">
                         {{#answers}}
@@ -99,10 +122,10 @@
     {{#hasranking}}
         <div class="col-12 col-lg-12 container">
             <div class="ranking-list">
-                <h5 class="titlecontainer bg-primary">
+                <h6 class="titlecontainer bg-primary">
                     {{#pix}} i/vote, mod_jqshow {{/pix}}
                     {{#str}}ranking, mod_jqshow{{/str}}
-                </h5>
+                </h6>
                 <div class="ranking-users" data-region="ranking-users">
                     <div class="ranking-users-body d-table list-group" data-region="ranking_users">
                         <div class="d-table-row ranking-users-thead">
@@ -139,7 +162,7 @@
                                             {{#pix}}i/preview, mod_jqshow{{/pix}}
                                         </div>
                                         <a href="{{viewreporturl}}" title="{{#str}}viewreport_user, mod_jqshow{{/str}}">
-                                            {{#pix}}i/vote, mod_jqshow{{/pix}}
+                                            {{#pix}}i/vote_gray, mod_jqshow{{/pix}}
                                         </a>
                                     </span>
                                 </div>
@@ -171,7 +194,7 @@
                                             {{#pix}}i/preview, mod_jqshow{{/pix}}
                                         </div>
                                         <a href="{{viewreporturl}}" title="{{#str}}viewreport_user, mod_jqshow{{/str}}">
-                                            {{#pix}}i/vote, mod_jqshow{{/pix}}
+                                            {{#pix}}i/vote_gray, mod_jqshow{{/pix}}
                                         </a>
                                     </span>
                                 </div>

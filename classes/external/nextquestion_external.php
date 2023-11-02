@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\external;
@@ -38,16 +46,8 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\exporter\question_exporter;
 use mod_jqshow\helpers\progress;
-use mod_jqshow\models\calculated;
-use mod_jqshow\models\ddwtos;
-use mod_jqshow\models\description;
-use mod_jqshow\models\matchquestion;
-use mod_jqshow\models\multichoice;
-use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
@@ -70,7 +70,7 @@ class nextquestion_external extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
                 'jqid' => new external_value(PARAM_INT, 'question id of jqshow_questions'),
-                'manual' => new external_value(PARAM_BOOL, 'Mode of session', VALUE_OPTIONAL)
+                'manual' => new external_value(PARAM_BOOL, 'Mode of session')
             ]
         );
     }
@@ -106,75 +106,14 @@ class nextquestion_external extends external_api {
             progress::set_progress(
                 $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
             );
-            switch ($nextquestion->get('qtype')) {
-                case questions::MULTICHOICE:
-                    $data = multichoice::export_multichoice(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = true;
-                    break;
-                case questions::MATCH:
-                    $data = matchquestion::export_match(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                case questions::TRUE_FALSE:
-                    $data = truefalse::export_truefalse(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = true;
-                    break;
-                case questions::SHORTANSWER:
-                    $data = shortanswer::export_shortanswer(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                case questions::NUMERICAL:
-                    $data = numerical::export_numerical(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                case questions::CALCULATED:
-                    $data = calculated::export_calculated(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                case questions::DESCRIPTION:
-                    $data = description::export_description(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                case questions::DDWTOS:
-                    $data = ddwtos::export_ddwtos(
-                        $nextquestion->get('id'),
-                        $cmid,
-                        $sessionid,
-                        $nextquestion->get('jqshowid'));
-                    $data->showstatistics = false;
-                    break;
-                default:
-                    throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                        [], get_string('question_nosuitable', 'mod_jqshow'));
-            }
+            /** @var questions $type */
+            $type = questions::get_question_class_by_string_type($nextquestion->get('qtype'));
+            $data = $type::export_question(
+                $nextquestion->get('id'),
+                $cmid,
+                $sessionid,
+                $nextquestion->get('jqshowid'));
+            $data->showstatistics = $type::show_statistics();
         } else {
             $finishdata = new stdClass();
             $finishdata->endSession = 1;

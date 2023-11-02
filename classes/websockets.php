@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 declare(strict_types=1);
@@ -79,8 +87,6 @@ abstract class websockets {
         // Local_cert and local_pk must be in PEM format.
         stream_context_set_option($context, 'ssl', 'local_cert', $certificateurl);
         stream_context_set_option($context, 'ssl', 'local_pk', $privatekeyurl);
-        /* TODO add possibility of passphrase in certificates per setting.
-        stream_context_set_option($context, 'ssl', 'passphrase', $passphrase) */
         stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
         stream_context_set_option($context, 'ssl', 'verify_peer', false);
         stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
@@ -95,7 +101,6 @@ abstract class websockets {
         if ($this->master === false || $errno > 0) {
             throw new UnexpectedValueException("Main socket error ($errno): $errstr");
         }
-
         $this->sockets['m'] = $this->master;
         $this->stdout("Server started\nListening on: $addr:$port\nMaster socket: $this->master\n");
     }
@@ -234,9 +239,10 @@ abstract class websockets {
             $masks = substr($text, 2, 4);
             $data = substr($text, 6);
         }
-        $text = "";
+        $text = '';
         if ($data !== false) {
-            for ($i = 0, $imax = strlen($data); $i < $imax; ++$i) {
+            $imax = strlen($data);
+            for ($i = 0; $i < $imax; ++$i) {
                 $text .= $data[$i] ^ $masks[$i % 4];
             }
         }
@@ -257,7 +263,7 @@ abstract class websockets {
             $this->tick();
             stream_select($read, $write, $except, 10);
             if (in_array($this->master, $read, true)) {
-                $client = stream_socket_accept($this->master, 20);
+                $client = @stream_socket_accept($this->master, 20);
                 if (!$client) {
                     continue;
                 }

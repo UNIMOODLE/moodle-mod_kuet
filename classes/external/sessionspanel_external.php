@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\external;
@@ -101,11 +109,14 @@ class sessionspanel_external extends external_api {
                     'managesessions' => new external_value(PARAM_BOOL, 'Capability'),
                     'hasconflict' => new external_value(PARAM_BOOL, 'Conflict of dates with other sessions.', VALUE_OPTIONAL),
                     'haswarning' => new external_value(PARAM_BOOL, 'The session should have already started.', VALUE_OPTIONAL),
+                    'noquestions' => new external_value(PARAM_BOOL, 'The session no has questions.', VALUE_OPTIONAL),
+                    'sessioncreating' => new external_value(PARAM_BOOL, 'The session is being created.', VALUE_OPTIONAL),
                     'initsession' => new external_value(PARAM_BOOL, 'Capability'),
                     'initsessionurl' => new external_value(PARAM_URL, 'Url for init session'),
                     'viewreporturl' => new external_value(PARAM_URL, 'Url for view report of session'),
                     'editsessionurl' => new external_value(PARAM_URL, 'Url for edit session'),
                     'date' => new external_value(PARAM_RAW, 'Init and en date of session, or empty'),
+                    'finishingdate' => new external_value(PARAM_RAW, 'End date for completed session', VALUE_OPTIONAL),
                     'status' => new external_value(PARAM_INT, 'Session status: active 1, initi 2 or finished 0'),
                     'issessionstarted' => new external_value(PARAM_BOOL, 'Session status: active 1, initi 2 or finished 0'),
                     'startedssionurl' => new external_value(PARAM_RAW, 'Session url', VALUE_OPTIONAL),

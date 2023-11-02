@@ -1,3 +1,35 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
+/**
+ *
+ * @module    mod_jqshow/studentsockets
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 "use strict";
 import jQuery from 'jquery';
 import Templates from 'core/templates';
@@ -85,7 +117,7 @@ let sid = null;
 let jqshowid = null;
 let currentCuestionJqid = null;
 let groupid = 0;
-let groupmode = 0;
+let groupmode = '';
 let groupimage = null;
 let groupname = null;
 // Flags for improvised flow.
@@ -104,7 +136,7 @@ Sockets.prototype.initSockets = function() {
     messageBox = this.root.find(REGION.MESSAGEBOX);
     countusers = this.root.find(REGION.COUNTUSERS);
     groupmode = this.root[0].dataset.groupmode;
-    if (groupmode != '0') {
+    if (groupmode == '1') {
         groupimage = this.root[0].dataset.groupimage;
         groupid = parseInt(this.root[0].dataset.groupid);
         groupname = this.root[0].dataset.groupname;
@@ -122,6 +154,11 @@ Sockets.prototype.initSockets = function() {
         let response = JSON.parse(msgDecrypt); // PHP sends Json data.
         let resAction = response.action; // Message type.
         switch (resAction) {
+            case 'alreadyAnswered':
+                if (groupmode == '1') {
+                    dispatchEvent(new CustomEvent('alreadyAnswered_' + response.jqid, {detail: { userid : response.userid }}));
+                }
+                break;
             case 'connect':
                 // The server has returned the connected status, it is time to identify yourself.
                 if (response.usersocketid !== undefined) {
@@ -135,7 +172,7 @@ Sockets.prototype.initSockets = function() {
                         'usersocketid': usersocketid,
                         'action': 'newuser',
                     };
-                    if (groupmode) {
+                    if (groupmode == '1') {
                         msg.action = 'newgroup';
                         msg.name = groupname;
                         msg.pic = groupimage;
@@ -165,7 +202,7 @@ Sockets.prototype.initSockets = function() {
                 let participantshtml = jQuery(REGION.USERLIST);
                 let grouplist = response.groups;
                 participantshtml.html('');
-                jQuery.each(grouplist, function (i, group) {
+                jQuery.each(grouplist, function(i, group) {
                     let templateContext = {
                         'usersocketid': group.usersocketid,
                         'groupimage': group.picture,
@@ -194,7 +231,8 @@ Sockets.prototype.initSockets = function() {
                             jqid: response.context.jqid,
                             cmid: cmid,
                             sid: sid,
-                            uid: 0
+                            uid: 0,
+                            preview: false
                         }
                     };
                     let removeEvents = new CustomEvent('removeEvents');
@@ -217,6 +255,8 @@ Sockets.prototype.initSockets = function() {
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.ROOT);
                     identifier.append(html);
+                    let removeEvents = new CustomEvent('removeEvents');
+                    dispatchEvent(removeEvents);
                     Templates.render(TEMPLATES.PROVISIONALRANKING, response.context).then(function(html, js) {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
@@ -294,7 +334,6 @@ Sockets.prototype.initSockets = function() {
                         // eslint-disable-next-line max-len
                         htmlTags += '<li><span class="tag" data-count="' + tag.count + '" data-vote="' + tag.votenum + '" data-size="' + tag.size + '">' +
                             '<div class="vote-tag d-none" data-name="' + tag.name + '" data-action="vote-tag">' +
-                            // eslint-disable-next-line max-len
                             '<svg id="vote-layer" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 115.29">' +
                             '<defs><style>.cls-1{fill:#212121;}.cls-2{fill:#33a867;fill-rule:evenodd;}</style></defs>' +
                             // eslint-disable-next-line max-len
@@ -336,8 +375,20 @@ Sockets.prototype.initSockets = function() {
                 }));
                 break;
             case 'userdisconnected':
-                jQuery('[data-userid="' + response.usersocketid + '"]').remove();
+                if (groupmode != '1') {
+                    jQuery('[data-userid="' + response.usersocketid + '"]').remove();
+                    countusers.html(response.count);
+                }
+                break;
+            case 'groupdisconnected':
+                jQuery('[data-groupid="' + response.groupid + '"]').remove();
                 countusers.html(response.count);
+                messageBox.append('<div>' + response.message + '</div>');
+                break;
+            case 'groupmemberdisconnected':
+                jQuery('.participants').find('[data-groupid="' + response.groupid + '"]')
+                    .find('.numgroupusers').html('(' + response.count + ')');
+                messageBox.append('<div>' + response.message + '</div>');
                 break;
             default:
                 break;
@@ -390,10 +441,23 @@ Sockets.prototype.initListeners = function() {
             'sid': sid,
             'usersocketid': usersocketid,
             'jqid': currentCuestionJqid,
-            'oft': true, // IMPORTANT: Only for teacher.
+            'oft': true,
             'action': 'studentQuestionEnd',
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
+        if (groupmode == '1') {
+            let msg2 = {
+                'userid': userid,
+                'sid': sid,
+                'usersocketid': usersocketid,
+                'jqid': currentCuestionJqid,
+                'ofg': true,
+                'action': 'alreadyAnswered',
+            };
+            setTimeout(function() {
+                Sockets.prototype.sendMessageSocket(JSON.stringify(msg2));
+            }, 300);
+        }
     }, false);
 };
 

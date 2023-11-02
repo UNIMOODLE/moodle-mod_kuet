@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\output\views;
@@ -29,15 +37,7 @@ use coding_exception;
 use dml_exception;
 use dml_transaction_exception;
 use JsonException;
-use mod_jqshow\models\calculated;
-use mod_jqshow\models\ddwtos;
-use mod_jqshow\models\description;
-use mod_jqshow\models\matchquestion;
-use mod_jqshow\models\multichoice;
-use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use moodle_exception;
 use ReflectionException;
@@ -80,35 +80,13 @@ class question_preview implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        switch ((new jqshow_questions($this->jqid))->get('qtype')){
-            case questions::MULTICHOICE:
-                $data = multichoice::export_multichoice($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::MATCH:
-                $data = matchquestion::export_match($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::TRUE_FALSE:
-                $data = truefalse::export_truefalse($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::SHORTANSWER:
-                $data = shortanswer::export_shortanswer($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::NUMERICAL:
-                $data = numerical::export_numerical($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::CALCULATED:
-                $data = calculated::export_calculated($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::DESCRIPTION:
-                $data = description::export_description($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            case questions::DDWTOS:
-                $data = ddwtos::export_ddwtos($this->jqid, $this->cmid, $this->sessionid, $this->jqshowid, true);
-                break;
-            default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                    [], get_string('question_nosuitable', 'mod_jqshow'));
-        }
-        return $data;
+        $question = new jqshow_questions($this->jqid);
+        /** @var questions $type */
+        $type = questions::get_question_class_by_string_type($question->get('qtype'));
+        return $type::export_question(
+            $question->get('id'),
+            $this->cmid,
+            $this->sessionid,
+            $this->jqshowid);
     }
 }

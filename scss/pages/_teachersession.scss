@@ -1,4 +1,13 @@
 .teacher-session-content {
+    .imageQr {
+        .item {
+            a {
+                img, svg, g {
+                    position: relative !important;
+                }
+            }
+        }
+    }
     .summary-session {
         [data-action="end_session"] {
             margin-bottom: 25px;
@@ -22,6 +31,7 @@
                 overflow-y: auto;
                 &::-webkit-scrollbar {
                     width: 8px;
+                    height: 8px;
                 }
                 &::-webkit-scrollbar-track {
                     background: #e0e0e0;

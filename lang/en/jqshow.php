@@ -14,14 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
- * Capability definitions for the quiz module.
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 $string['pluginname'] = 'Jam Quiz Show';
@@ -43,9 +50,9 @@ $string['teamsgradeheader'] = 'Teams grade';
 $string['teamgrade'] = 'Teams grade';
 $string['teamgrade_help'] = 'This is the way each team member is graded.';
 $string['chooseoption'] = 'Choose an option';
-$string['completiondetail:answerall'] = 'Answer all the questions.';
-$string['completionansweralllabel'] = 'Answer all the questions.';
-$string['completionansweralldesc'] = 'Answer all the questions in all the sessions.';
+$string['completiondetail:answerall'] = 'Participate on a session answering questions';
+$string['completionansweralllabel'] = 'Participate on a session.';
+$string['completionansweralldesc'] = 'Participate on a session answering questions.';
 $string['configtitle'] = 'JQ Show';
 $string['generalsettings'] = 'General settings';
 $string['sslcertificates'] = 'SSL Certificates';
@@ -275,6 +282,8 @@ $string['exitquestion'] = 'Exit the question';
 $string['exitquestion_desc'] = 'If you leave the question, it will be marked as unanswered. Are you sure you want to leave?';
 $string['erroreditsessionactive'] = 'It is not possible to edit an active session.';
 $string['activesessionmanagement'] = 'Active session management';
+$string['sessionnoquestions'] = 'No questions added to the session.';
+$string['sessioncreating'] = 'You have not finished editing this session. You must reach step 3 of editing and click on finish.';
 $string['sessionconflict'] = 'This session has a date conflict with other sessions closer to it and will not start automatically until the conflict is resolved.';
 $string['sessionwarning'] = 'This session should have started, but there is currently an active session preventing it from doing so. It will start automatically as soon as the active session ends.';
 $string['startminorend'] = 'The end date of the session cannot be equal to or less than the start date.';
@@ -286,8 +295,6 @@ $string['sessionfinishedformoreone'] = 'Session {$a->sessionid} finished for jqs
 $string['error_initsession'] = 'Error init session';
 $string['error_initsession_desc'] = 'The session could not be started, either because a session has already been started or because of a specific error. Please refresh the page and try again.';
 $string['success'] = 'Success';
-$string['failures'] = 'Failures';
-$string['failure'] = 'Failure';
 $string['noresponse'] = 'No response';
 $string['noevaluable'] = 'Not evaluable';
 $string['invalid'] = 'Invalid';
@@ -307,7 +314,7 @@ $string['questionreport_info'] = 'The report of a question in a session is displ
 $string['statement'] = 'Statement';
 $string['preview'] = 'Preview';
 $string['correct_answers'] = 'Correct answers';
-$string['percent_correct'] = '% Corrects';
+$string['percent_correct'] = '% Success';
 $string['percent_incorrect'] = '% Incorrects';
 $string['percent_partially'] = '% Partially corrects';
 $string['percent_noresponse'] = '% No response';
@@ -396,3 +403,6 @@ $string['sessionquestionsreport'] = 'Session Questions Report';
 $string['reportlink'] = 'Report Link';
 $string['questionid'] = 'Id';
 $string['isevaluable'] = 'Is evaluable?';
+$string['alreadyanswered'] = 'A member of your group has already answered!';
+$string['groupdisconnected'] = 'Group {$a} has been disconnected';
+$string['groupmemberdisconnected'] = 'This group member {$a} has been disconnected';

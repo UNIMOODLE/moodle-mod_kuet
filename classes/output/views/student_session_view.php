@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\output\views;
@@ -32,17 +40,9 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\helpers\progress;
-use mod_jqshow\models\calculated;
-use mod_jqshow\models\ddwtos;
-use mod_jqshow\models\description;
-use mod_jqshow\models\matchquestion;
-use mod_jqshow\models\multichoice;
-use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
 use mod_jqshow\models\sessions as sessionsmodel;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -108,125 +108,28 @@ class student_session_view implements renderable, templatable {
                     $newprogressdata = json_decode($newprogress->get('other'), false);
                     $question = jqshow_questions::get_question_by_jqid($newprogressdata->currentquestion);
                 }
-
-                switch ($question->get('qtype')) {
-                    case questions::MULTICHOICE:
-                        $data = multichoice::export_multichoice(
-                            $question->get('id'),
-                            $cmid,
-                            $sid,
-                            $question->get('jqshowid'));
-                        $response = jqshow_questions_responses::get_record(
-                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
-                        );
-                        if ($response !== false) {
-                            $data->jqid = $question->get('id');
-                            $data = multichoice::export_multichoice_response($data, base64_decode($response->get('response')));
-                        }
-                        break;
-                    case questions::MATCH:
-                        $data = matchquestion::export_match($question->get('id'),
-                            $cmid,
-                            $sid,
-                            $question->get('jqshowid'));
-                        $response = jqshow_questions_responses::get_record(
-                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
-                        );
-                        if ($response !== false) {
-                            $data->jqid = $question->get('id');
-                            $data =
-                                matchquestion::export_match_response($data, base64_decode($response->get('response')), $response->get('result'));
-                        }
-                        break;
-                    case questions::TRUE_FALSE:
-                        $data = truefalse::export_truefalse(
-                            $question->get('id'),
-                            $cmid,
-                            $sid,
-                            $question->get('jqshowid'));
-                        $response = jqshow_questions_responses::get_record(
-                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
-                        );
-                        if ($response !== false) {
-                            $data->jqid = $question->get('id');
-                            $data = truefalse::export_truefalse_response($data, base64_decode($response->get('response')));
-                        }
-                        break;
-                    case questions::SHORTANSWER:
-                        $data = shortanswer::export_shortanswer(
-                            $question->get('id'),
-                            $cmid,
-                            $sid,
-                            $question->get('jqshowid'));
-                        $response = jqshow_questions_responses::get_record(
-                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
-                        );
-                        if ($response !== false) {
-                            $data->jqid = $question->get('id');
-                            $data = shortanswer::export_shortanswer_response($data, base64_decode($response->get('response')));
-                        }
-                        break;
-                    case questions::NUMERICAL:
-                        $data = numerical::export_numerical(
-                            $question->get('id'),
-                            $cmid,
-                            $sid,
-                            $question->get('jqshowid'));
-                        $response = jqshow_questions_responses::get_record(
-                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
-                        );
-                        if ($response !== false) {
-                            $data->jqid = $question->get('id');
-                            $data = numerical::export_numerical_response($data, base64_decode($response->get('response')));
-                        }
-                        break;
-                    case questions::CALCULATED:
-                        $data = calculated::export_calculated(
-                            $question->get('id'),
-                            $cmid,
-                            $sid,
-                            $question->get('jqshowid'));
-                        $response = jqshow_questions_responses::get_record(
-                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
-                        );
-                        if ($response !== false) {
-                            $data->jqid = $question->get('id');
-                            $data = calculated::export_calculated_response($data, base64_decode($response->get('response')));
-                        }
-                        break;
-                    case questions::DESCRIPTION:
-                        $data = description::export_description(
-                            $question->get('id'),
-                            $cmid,
-                            $sid,
-                            $question->get('jqshowid'));
-                        $response = jqshow_questions_responses::get_record(
-                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
-                        );
-                        if ($response !== false) {
-                            $data->jqid = $question->get('id');
-                            $data = description::export_description_response($data, base64_decode($response->get('response')));
-                        }
-                        break;
-                    case questions::DDWTOS:
-                        $data = ddwtos::export_ddwtos(
-                            $question->get('id'),
-                            $cmid,
-                            $sid,
-                            $question->get('jqshowid'));
-                        $response = jqshow_questions_responses::get_record(
-                            ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
-                        );
-                        if ($response !== false) {
-                            $data->jqid = $question->get('id');
-                            $data = ddwtos::export_ddwtos_response($data, base64_decode($response->get('response')));
-                        }
-                        break;
-                    default:
-                        throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                            [], get_string('question_nosuitable', 'mod_jqshow'));
+                /** @var questions $type */
+                $type = questions::get_question_class_by_string_type($question->get('qtype'));
+                $data = $type::export_question($question->get('id'),
+                    $cmid,
+                    $sid,
+                    $question->get('jqshowid'));
+                $response = jqshow_questions_responses::get_record(
+                    ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                );
+                if ($response !== false) {
+                    $data->jqid = $question->get('id');
+                    $data =
+                        $type::export_question_response($data, base64_decode($response->get('response')), $response->get('result'));
                 }
                 $data->programmedmode = true;
+                if ($session->is_group_mode()) {
+                    $data->isgroupmode = true;
+                    $group = groupmode::get_user_group($USER->id, $session->get('groupings'));
+                    $data->groupimage = groupmode::get_group_image($group, $sid, 1);
+                    $data->groupname = $group->name;
+                    $data->groupid = $group->id;
+                }
                 break;
             case sessions::INACTIVE_MANUAL:
             case sessions::PODIUM_MANUAL:

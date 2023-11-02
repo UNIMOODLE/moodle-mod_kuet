@@ -1,3 +1,35 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
+/**
+ *
+ * @module    mod_jqshow/question
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 "use strict";
 
 import jQuery from 'jquery';
@@ -60,11 +92,21 @@ Question.prototype.initQuestion = function() {
     jqId = this.node.attr('data-jqid');
     this.node.find(ACTION.EXPAND).on('click', this.fullScreen);
     this.node.find(ACTION.COMPRESS).on('click', this.exitFullScreen);
+    if (jQuery(REGION.BODY).hasClass('fullscreen')) {
+        jQuery(ACTION.EXPAND).css('display', 'none');
+        jQuery(ACTION.COMPRESS).css('display', 'block');
+    } else {
+        jQuery(ACTION.EXPAND).css('display', 'block');
+        jQuery(ACTION.COMPRESS).css('display', 'none');
+    }
     jQuery(ACTION.NEXTQUESTION).on('click', this.nextQuestion);
-    let that = this;
     jQuery(document).keyup(function(e) {
-        if (e.key === 'Escape') {
-            that.exitFullScreen();
+        if (e.key === 'Escape' || e.key === 27 || e.key === 'F11' || e.keyCode === 122) {
+            if (jQuery(REGION.BODY).hasClass('fullscreen')) {
+                Question.prototype.exitFullScreen();
+            } else {
+                Question.prototype.fullScreen();
+            }
         }
     });
     addEventListener('questionEnd', () => {
@@ -72,34 +114,18 @@ Question.prototype.initQuestion = function() {
     }, false);
 };
 
-Question.prototype.fullScreen = function(e) {
-    e.preventDefault();
-    e.stopPropagation();
+Question.prototype.fullScreen = function() {
     jQuery(ACTION.EXPAND).css('display', 'none');
     jQuery(ACTION.COMPRESS).css('display', 'block');
     jQuery(REGION.BODY).addClass('fullscreen');
     jQuery(window).scrollTop(0);
     jQuery('html, body').animate({scrollTop: 0}, 500);
-    let element = document.getElementById("page-mod-jqshow-view");
-    if (element === undefined || element === null) {
-        element = document.getElementById("page-mod-jqshow-preview");
-    }
-    if (element.requestFullscreen) {
-        element.requestFullscreen();
-    } else if (element.webkitRequestFullscreen) { /* Safari */
-        element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) { /* IE11 */
-        element.msRequestFullscreen();
-    }
 };
 
 Question.prototype.exitFullScreen = function() {
     jQuery(ACTION.EXPAND).css('display', 'block');
     jQuery(ACTION.COMPRESS).css('display', 'none');
     jQuery(REGION.BODY).removeClass('fullscreen');
-    if (document.fullscreen) {
-        document.exitFullscreen();
-    }
 };
 
 Question.prototype.nextQuestion = function(e) { // Only for programed modes, not used by sockets.

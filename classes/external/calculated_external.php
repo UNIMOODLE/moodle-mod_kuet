@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\external;
@@ -36,7 +44,6 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\helpers\responses;
 use mod_jqshow\models\calculated;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
@@ -44,9 +51,6 @@ use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use qtype_calculated_question;
 use question_bank;
-use question_state_gradedpartial;
-use question_state_gradedright;
-use question_state_gradedwrong;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -152,36 +156,41 @@ class calculated_external extends external_api {
                         break;
                 }
             }
-            if ($multiplier === '') {
-                $matchanswer = $question->get_matching_answer($responsenum, null);
-            } else {
-                $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
+            if (is_numeric($responsenum)) {
+                if ($multiplier === '') {
+                    $matchanswer = $question->get_matching_answer($responsenum, null);
+                } else {
+                    $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
+                }
+                if ($matchanswer !== null) {
+                    $answerfeedback = questions::get_text(
+                        $cmid, $matchanswer->feedback, $matchanswer->feedbackformat, $question->id, $question, 'feedback'
+                    );
+                }
             }
-            if ($matchanswer !== null) {
-                $answerfeedback = questions::get_text(
-                    $cmid, $matchanswer->feedback, $matchanswer->feedbackformat, $question->id, $question, 'feedback'
-                );
-            }
-
             $possibleanswers = '';
             foreach ($question->answers as $answer) {
                 $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
             }
             if ($preview === false) {
-                calculated::calculated_response(
+                $custom = [
+                    'responsetext' => $responsenum,
+                    'variant' => $variant,
+                    'unit' => $unit,
+                    'multiplier' => $multiplier,
+                    'result' => $result,
+                    'answerfeedback' => $answerfeedback
+                ];
+                calculated::question_response(
+                    $cmid,
                     $jqid,
-                    $responsenum,
-                    $variant,
-                    $unit,
-                    $multiplier,
-                    $result,
                     $questionid,
                     $sessionid,
                     $jqshowid,
                     $statmentfeedback,
-                    $answerfeedback,
                     $USER->id,
-                    $timeleft
+                    $timeleft,
+                    $custom
                 );
             }
             return [

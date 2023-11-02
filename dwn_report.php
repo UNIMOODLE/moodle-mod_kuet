@@ -1,4 +1,3 @@
-
 <?php
 // This file is part of Moodle - http://moodle.org/
 //
@@ -15,14 +14,33 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
+/**
+ *
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 require_once('../../config.php');
 require_once('lib.php');
+global $CFG;
 require_once($CFG->libdir.'/tablelib.php');
 
+use mod_jqshow\helpers\reports;
 use mod_jqshow\output\views\student_reports;
 use mod_jqshow\output\views\teacher_reports;
 use mod_jqshow\persistents\jqshow;
+use mod_jqshow\persistents\jqshow_sessions;
 
 global $CFG, $DB, $COURSE, $USER, $PAGE, $OUTPUT;
 $cmid = required_param('cmid', PARAM_INT);
@@ -42,7 +60,7 @@ $cmcontext = context_module::instance($cm->id);
 $isteacher = has_capability('mod/jqshow:startsession', $cmcontext);
 $isgroupmode = false;
 if ($sid) {
-    $session = new \mod_jqshow\persistents\jqshow_sessions($sid);
+    $session = new jqshow_sessions($sid);
     $isgroupmode = $session->is_group_mode();
     $participantid = ($isgroupmode && $groupid) ? $groupid : $userid;
 } else {
@@ -69,7 +87,7 @@ $reportvalues = [];
 $filename = 'report_mod_jqshow_courseid_' . $course->id . '_sid_' . $sid ;
 $tabletitle = $reportname;
 switch ($reportname) {
-    case \mod_jqshow\helpers\reports::GROUP_QUESTION_REPORT:
+    case reports::GROUP_QUESTION_REPORT:
         $columnames = [ 'groupname', 'responsestr', 'grouppoints', 'score_moment', 'time', 'viewreporturl'];
         $headers = [get_string('groupname', 'group'),
             get_string('response', 'mod_jqshow'),
@@ -83,7 +101,7 @@ switch ($reportname) {
         $params =  array_merge($params, ['jqid' => $jqid]);
         $url->params($params);
         break;
-    case \mod_jqshow\helpers\reports::QUESTION_REPORT:
+    case reports::QUESTION_REPORT:
         $columnames = [ 'firstname', 'lastname', 'responsestr', 'userpoints', 'score_moment', 'time', 'viewreporturl'];
         $headers = [get_string('firstname'),
             get_string('lastname'),
@@ -98,7 +116,7 @@ switch ($reportname) {
         $params =  array_merge($params, ['jqid' => $jqid]);
         $url->params($params);
         break;
-    case \mod_jqshow\helpers\reports::SESSION_QUESTIONS_REPORT:
+    case reports::SESSION_QUESTIONS_REPORT:
         $columnames = [ 'questionnid', 'position', 'name', 'type', 'success', 'failures', 'partyally', 'noresponse', 'time', 'isevaluable', 'questionreporturl'];
         $headers = [
             get_string('questionid', 'mod_jqshow'),
@@ -106,7 +124,7 @@ switch ($reportname) {
             get_string('question_name', 'mod_jqshow'),
             get_string('question_type', 'mod_jqshow'),
             get_string('success', 'mod_jqshow'),
-            get_string('failures', 'mod_jqshow'),
+            get_string('incorrect', 'mod_jqshow'),
             get_string('partially', 'mod_jqshow'),
             get_string('noresponse', 'mod_jqshow'),
             get_string('time', 'mod_jqshow'),
@@ -115,14 +133,14 @@ switch ($reportname) {
         $reportvalues = $data->sessionquestions;
         $tabletitle = get_string('sessionquestionsreport', 'mod_jqshow');
         break;
-    case \mod_jqshow\helpers\reports::GROUP_SESSION_RANKING_REPORT:
+    case reports::GROUP_SESSION_RANKING_REPORT:
         $columnames = [ 'groupposition', 'groupname', 'grouppoints', 'correctanswers', 'incorrectanswers', 'partially', 'notanswers', 'viewreporturl'];
         $headers = [
             get_string('question_position', 'mod_jqshow'),
             get_string('groupname', 'group'),
             get_string('score', 'mod_jqshow'),
             get_string('success', 'mod_jqshow'),
-            get_string('failures', 'mod_jqshow'),
+            get_string('incorrect', 'mod_jqshow'),
             get_string('partially', 'mod_jqshow'),
             get_string('noresponse', 'mod_jqshow'),
             get_string('reportlink', 'mod_jqshow')];
@@ -130,14 +148,14 @@ switch ($reportname) {
         $reportvalues = $data->rankinggroups;
         $tabletitle = get_string('groupsessionrankingreport', 'mod_jqshow');
         break;
-    case \mod_jqshow\helpers\reports::SESSION_RANKING_REPORT:
+    case reports::SESSION_RANKING_REPORT:
         $columnames = [ 'userposition', 'userfullname', 'userpoints', 'correctanswers', 'incorrectanswers', 'partially', 'notanswers', 'viewreporturl'];
         $headers = [
             get_string('question_position', 'mod_jqshow'),
             get_string('fullname'),
             get_string('points', 'mod_jqshow'),
             get_string('success', 'mod_jqshow'),
-            get_string('failures', 'mod_jqshow'),
+            get_string('incorrect', 'mod_jqshow'),
             get_string('partially', 'mod_jqshow'),
             get_string('noresponse', 'mod_jqshow'),
             get_string('reportlink', 'mod_jqshow')];
@@ -145,7 +163,7 @@ switch ($reportname) {
         $reportvalues = $data->rankingusers;
         $tabletitle = get_string('sessionrankingreport', 'mod_jqshow');
         break;
-    case \mod_jqshow\helpers\reports::USER_REPORT:
+    case reports::USER_REPORT:
         $columnames = [ 'position', 'name', 'type', 'responsestr', 'score', 'time'];
         $headers = [
             get_string('question_position', 'mod_jqshow'),
@@ -160,9 +178,8 @@ switch ($reportname) {
         $params =  array_merge($params, ['userid' => $userid]);
         $url->params($params);
         break;
-    case \mod_jqshow\helpers\reports::GROUP_REPORT:
+    case reports::GROUP_REPORT:
         $columnames = [ 'position', 'name', 'type', 'responsestr', 'score', 'time'];
-        $headers = [ 'position', 'name', 'type', 'responsestr', 'time']; // get_string
         $headers = [
             get_string('question_position', 'mod_jqshow'),
             get_string('question_name', 'mod_jqshow'),

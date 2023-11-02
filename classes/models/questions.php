@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\models;
@@ -28,42 +36,21 @@ namespace mod_jqshow\models;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
-use core_availability\info_module;
 use dml_exception;
 use dml_transaction_exception;
 use Exception;
-use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\api\groupmode;
-use mod_jqshow\external\getfinalranking_external;
-use mod_jqshow\external\match_external;
-use mod_jqshow\external\multichoice_external;
-use mod_jqshow\external\numerical_external;
-use mod_jqshow\external\shortanswer_external;
-use mod_jqshow\external\truefalse_external;
-use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
-use moodle_url;
 use qbank_previewquestion\question_preview_options;
-use qtype_match_question;
-use qtype_multichoice;
-use qtype_multichoice_multi_question;
-use qtype_multichoice_single_question;
-use qtype_numerical_answer_processor;
-use qtype_numerical_question;
-use qtype_shortanswer_question;
-use question_answer;
 use question_attempt;
-use question_bank;
 use question_definition;
 use question_engine;
-use ReflectionClass;
 use stdClass;
-use context_user;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -93,12 +80,12 @@ class questions {
         self::DDWTOS
     ];
 
-    public const FAILURE = 0; // String: qstatus_0.
-    public const SUCCESS = 1; // String: qstatus_1.
-    public const PARTIALLY = 2; // String: qstatus_2.
-    public const NORESPONSE = 3; // String: qstatus_3.
-    public const NOTEVALUABLE = 4; // String: qstatus_4.
-    public const INVALID = 5; // String: qstatus_5.
+    public const FAILURE = 0;
+    public const SUCCESS = 1;
+    public const PARTIALLY = 2;
+    public const NORESPONSE = 3;
+    public const NOTEVALUABLE = 4;
+    public const INVALID = 5;
     public const CHARACTERS_TO_BE_STRIPPED = " \t\n\r\0\x0B\xC2\xA0";
     protected int $jqshowid;
     protected int $cmid;
@@ -120,7 +107,7 @@ class questions {
     /**
      * @return void
      */
-    public function set_list() {
+    public function set_list() : void {
         $this->list = jqshow_questions::get_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid], 'qorder', 'ASC');
     }
 
@@ -161,7 +148,6 @@ class questions {
 
     /**
      * @param jqshow_sessions $session
-     * @param int $jqid
      * @param int $cmid
      * @param int $sessionid
      * @param int $jqshowid
@@ -175,7 +161,6 @@ class questions {
      */
     protected static function get_question_common_data(
         jqshow_sessions $session,
-        int $jqid,
         int $cmid,
         int $sessionid,
         int $jqshowid,
@@ -276,12 +261,15 @@ class questions {
      * @param question_definition $question
      * @param string $filearea
      * @param int $variant
+     * @param bool $noattempt
      * @return string
      * @throws dml_exception
      * @throws dml_transaction_exception
+     * @throws Exception
      */
     public static function get_text(
-        int $cmid, string $text, int $textformat, int $id, question_definition $question, string $filearea, int $variant = 0
+        int $cmid, string $text, int $textformat, int $id,
+        question_definition $question, string $filearea, int $variant = 0, bool $noattempt = false
     ): string {
         global $DB;
         $contextmodule = context_module::instance($cmid);
@@ -303,7 +291,9 @@ class questions {
         } else {
             $options->variant = random_int(1, $maxvariant);
         }
-        $question->variant = $options->variant;
+        if ($noattempt === false) {
+            $question->variant = $options->variant;
+        }
         if ($variant === 0) {
             $quba->start_question($slot, $options->variant);
         } else {
@@ -323,16 +313,15 @@ class questions {
      * @param string $text
      * @return string
      */
-    protected static function escape_characters(string $text) : string {
+    protected static function escape_characters(string $text): string {
         // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
         $text = trim(html_entity_decode($text), self::CHARACTERS_TO_BE_STRIPPED);
-        $text = str_replace('"', '\"', $text);
         $replace = preg_replace('/[\x00-\x1F\x7F]/u', '', $text);
         return $replace ?? $text;
     }
 
     /**
-     * @param $jqshowid
+     * @param int $jqshowid
      * @param jqshow_sessions $session
      * @param int $jqid
      * @param int $questionid
@@ -346,7 +335,7 @@ class questions {
      * @throws moodle_exception
      */
     protected static function add_group_response(
-        $jqshowid, jqshow_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response
+        int $jqshowid, jqshow_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response
     ) : void {
         // All groupmembers has the same response saved on db.
         $num = jqshow_questions_responses::count_records(
@@ -386,22 +375,11 @@ class questions {
         }
         return $type;
     }
+
     /**
-     * @param jqshow_questions $jqquestion
-     * @param jqshow_sessions $session
-     * @return int
-     * @throws coding_exception
+     * @return bool
      */
-    public static function get_question_time(jqshow_questions $jqquestion, jqshow_sessions $session) : int {
-        $qtime = $jqquestion->get('timelimit');
-        if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
-            $sessiontime = $session->get('sessiontime');
-            $numq = jqshow_questions::count_records(['sessionid' => $session->get('id'),
-                'jqshowid' => $session->get('jqshowid')]);
-            $qtime = round($sessiontime / $numq);
-        } else if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
-            $qtime = ($qtime > 0) ? $qtime : $session->get('questiontime');
-        }
-        return $qtime;
+    public static function show_statistics() : bool {
+        return false;
     }
 }

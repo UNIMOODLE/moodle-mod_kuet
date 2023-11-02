@@ -14,19 +14,28 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use core\output\notification;
 use mod_jqshow\output\views\student_reports;
 use mod_jqshow\output\views\teacher_reports;
 use mod_jqshow\persistents\jqshow;
+use mod_jqshow\persistents\jqshow_sessions;
 
 require_once('../../config.php');
 
@@ -43,7 +52,7 @@ $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $jqshow = jqshow::get_record(['id' => $cm->instance], MUST_EXIST);
 
 if ($sid) {
-    $session = new \mod_jqshow\persistents\jqshow_sessions($sid);
+    $session = new jqshow_sessions($sid);
     $participantid = ($session->is_group_mode() && $groupid) ? $groupid : $userid;
 } else {
     $participantid = $userid;
@@ -52,8 +61,7 @@ $PAGE->set_url('/mod/jqshow/reports.php', ['cmid' => $cmid]);
 require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
 require_capability('mod/jqshow:view', $cmcontext);
-$coursecontext = context_course::instance($COURSE->id);
-$isteacher = has_capability('mod/jqshow:startsession', $coursecontext);
+$isteacher = has_capability('mod/jqshow:startsession', $cmcontext);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_title(get_string('reports', 'jqshow'));
 $PAGE->set_cacheable(false);

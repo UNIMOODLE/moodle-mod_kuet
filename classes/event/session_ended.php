@@ -14,31 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
- * Session ended event.
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_jqshow\event;
-
 use coding_exception;
 use context_module;
 use moodle_exception;
 use moodle_url;
+use core\event\base;
 
-class session_ended extends \core\event\base {
+class session_ended extends base {
 
     /**
      * Init method.
      *
      * @return void
      */
-    protected function init() {
+    protected function init() : void {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'jqshow_sessions';
@@ -50,7 +56,7 @@ class session_ended extends \core\event\base {
      * @return string
      * @throws coding_exception
      */
-    public static function get_name() {
+    public static function get_name() : string {
         return get_string('sessionended', 'mod_jqshow');
     }
 
@@ -60,7 +66,7 @@ class session_ended extends \core\event\base {
      * @return string
      * @throws coding_exception
      */
-    public function get_description() {
+    public function get_description() : string {
         return get_string('sessionended_desc', 'mod_jqshow');
     }
 
@@ -70,7 +76,7 @@ class session_ended extends \core\event\base {
      * @return moodle_url
      * @throws moodle_exception
      */
-    public function get_url() {
+    public function get_url() : moodle_url {
         $cmcontext = context_module::instance($this->contextinstanceid);
         return new moodle_url('mod/jqshow/sessions.php', ['sid' => $this->objectid,
             'cmid' => $cmcontext->instanceid]);
@@ -81,7 +87,7 @@ class session_ended extends \core\event\base {
      * Used for maping events on restore
      * @return array
      */
-    public static function get_objectid_mapping() {
+    public static function get_objectid_mapping() : array {
         return ['db' => 'jqshow_sessions', 'restore' => 'jqshow_sessions'];
     }
 }

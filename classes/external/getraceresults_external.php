@@ -14,17 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\external;
 
+use context_module;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -64,16 +73,20 @@ class getraceresults_external extends external_api {
             self::getraceresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
+        global $PAGE;
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
         $session = new jqshow_sessions($sid);
         if ($session->is_group_mode()) {
             $groupresults = sessions::get_group_session_results($sid, $cmid);
             $questions = sessions::breakdown_responses_for_race_groups($groupresults, $sid, $cmid, $session->get('jqshowid'));
             return ['groupmode' => true, 'groupresults' => $groupresults, 'questions' => $questions];
+        } else {
+            $userresults = sessions::get_session_results($sid, $cmid);
+            usort($userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
+            $questions = sessions::breakdown_responses_for_race($userresults, $sid, $cmid, $session->get('jqshowid'));
+            return ['groupmode' => false, 'userresults' => $userresults, 'questions' => $questions];
         }
-        $userresults = sessions::get_session_results($sid, $cmid);
-        usort($userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
-        $questions = sessions::breakdown_responses_for_race($userresults, $sid, $cmid, $session->get('jqshowid'));
-        return ['groupmode' => false, 'userresults' => $userresults, 'questions' => $questions];
     }
 
     /**
