@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -302,11 +302,11 @@ class matchquestion extends questions implements questionType {
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];
         $total = count($responses);
-        list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
+        [$correct, $incorrect, $invalid, $partially, $noresponse] = grade::count_result_mark_types($responses);
         $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
-        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
-        $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
-        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse  * 100 / $total, 2) : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect * 100 / $total, 2) : 0;
+        $statistics[0]['partially'] = $partially !== 0 ? round($partially * 100 / $total, 2) : 0;
+        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse * 100 / $total, 2) : 0;
         return $statistics;
     }
 }

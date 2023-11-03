@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -43,6 +43,8 @@ class mod_jqshow_generator extends testing_module_generator {
     public function create_instance($record = null, array $options = null) {
         $record = (array)$record;
         $record['showdescription'] = 1;
+        $record['grademethod'] = 0;
+        $record['completionanswerall'] = 0;
         return parent::create_instance($record, $options);
     }
 
@@ -55,5 +57,17 @@ class mod_jqshow_generator extends testing_module_generator {
     public function create_session(stdClass $jqshow, stdClass $sessionmock) {
         $sessions = new \mod_jqshow\models\sessions($jqshow, $jqshow->cmid);
         return $sessions::save_session($sessionmock);
+    }
+
+    /**
+     * @param array $questions
+     * @return bool[]
+     * @throws \core\invalid_persistent_exception
+     * @throws coding_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
+    public function add_questions_to_session(array $questions) {
+        return \mod_jqshow\external\addquestions_external::add_questions($questions);
     }
 }
