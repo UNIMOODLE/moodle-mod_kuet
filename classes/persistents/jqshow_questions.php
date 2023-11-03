@@ -264,4 +264,28 @@ class jqshow_questions extends persistent {
         }
         return true;
     }
+
+    /**
+     * @param int $jqid
+     * @param int $sid
+     * @return float
+     * @throws coding_exception
+     */
+    public static function get_question_time(int $jqid, int $sid) : float {
+        $jqquestion = new jqshow_questions($jqid);
+        $qtime = $jqquestion->get('timelimit');
+        if ($qtime === 0) {
+            $session = new jqshow_sessions($sid);
+            if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
+                $qtime =  $session->get('questiontime');
+            } else if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
+                $numquestions = self::count_records(['sessionid' => $sid]);
+                if ($numquestions > 0) {
+                    $qtime =  $session->get('sessiontime') / $numquestions;
+                }
+            }
+        }
+
+        return $qtime;
+    }
 }
