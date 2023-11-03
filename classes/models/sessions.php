@@ -96,6 +96,7 @@ class sessions {
     public const SESSION_ACTIVE = 1;
     public const SESSION_STARTED = 2;
     public const SESSION_CREATING = 3;
+    public const SESSION_ERROR = 4;
 
     /**
      * sessions constructor.
@@ -1029,7 +1030,7 @@ class sessions {
         if (!$session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
             $params['userid'] = $USER->id;
         } else if ($session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
-            $group = groupmode::get_user_group($USER->id, $session->get('groupings'));
+            $group = groupmode::get_user_group($USER->id, $session);
             if (isset($group->id)) {
                 $params['groupid'] = $group->id;
             }

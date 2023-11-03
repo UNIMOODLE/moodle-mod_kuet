@@ -214,8 +214,9 @@ SelectQuestions.prototype.addQuestions = function(e) {
                                 }).fail(Notification.exception);
                             });
                         } else {
-                            // TODO modal error.
-                            alert('error');
+                            // TODO modal error. ELENA
+                            // let error = ErrorEvent("ha habido un error");
+                            // new Notification.exception(error);
                             jQuery(REGION.LOADING).remove();
                         }
                     });

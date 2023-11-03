@@ -39,6 +39,7 @@ use dml_exception;
 use mod_jqshow\jqshow;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
+use moodle_url;
 use stdClass;
 global $CFG;
 require_once("$CFG->dirroot/group/lib.php");
@@ -167,6 +168,9 @@ class groupmode {
     public static function get_grouping_groups(int $groupingid) : array {
         $groups = groups_get_grouping_members($groupingid, 'u.id,gg.groupid');
         $data = [];
+        if (!$groups) {
+            return $data;
+        }
         $groupids = [];
         foreach ($groups as $group) {
             if (!in_array($group->groupid, $groupids)) {
@@ -227,6 +231,7 @@ class groupmode {
      * @throws moodle_exception
      */
     public static function check_all_users_in_groups(int $cmid, int $groupingid) : void {
+
         global $COURSE;
         $students = jqshow::get_enrolled_students_in_course(0, $cmid);
         $studentsids = array_keys($students);
@@ -237,6 +242,7 @@ class groupmode {
             $data->name = get_string('fakegroup', 'mod_jqshow', random_string(5));
             $data->description = get_string('fakegroupdescription', 'mod_jqshow');
             $data->courseid = $COURSE->id;
+            error_log("creando grupo: ".var_export($data, true));
             $groupid = groups_create_group($data);
             foreach ($diff as $userid) {
                 groups_add_member($groupid, (int) $userid);
@@ -247,18 +253,33 @@ class groupmode {
 
     /**
      * @param int $userid
-     * @param int $groupingid
-     * @return mixed|null
+     * @param jqshow_sessions $sessions
+     * @return mixed|stdClass
+     * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
-    public static function get_user_group(int $userid, int $groupingid) : stdClass {
-        $groups = self::get_grouping_groups($groupingid);
-        $groupselected = null;
+    public static function get_user_group(int $userid, jqshow_sessions $sessions)
+    {
+        $groups = self::get_grouping_groups($sessions->get('groupings'));
+        if (empty($groups)) {
+            $jqshowinfo = get_course_and_cm_from_instance($sessions->get('jqshowid'), 'jqshow');
+            $course = $jqshowinfo[0];
+            $url = new moodle_url('/course/view.php', ['id' => $course->id]);
+            throw new moodle_exception('groupingremoved', 'mod_jqshow', $url->out(false));
+        }
+        $groupselected = new stdClass();
         foreach ($groups as $group) {
             if (groups_is_member($group->id, $userid)) {
                 $groupselected = $group;
                 break;
             }
+        }
+        if (!isset($groupselected->id)) {
+            $jqshowinfo = get_course_and_cm_from_instance($sessions->get('jqshowid'), 'jqshow');
+            $course = $jqshowinfo[0];
+            $url = new moodle_url('/course/view.php', ['id' => $course->id]);
+            throw new moodle_exception('groupremoved', 'mod_jqshow', $url->out(false));
         }
         return $groupselected;
     }
