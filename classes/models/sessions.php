@@ -40,15 +40,18 @@ use core_availability\info_module;
 use core_php_time_limit;
 use dml_exception;
 use Exception;
+use invalid_parameter_exception;
 use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\sessionquestions_external;
+use mod_jqshow\external\sessionstatus_external;
 use mod_jqshow\forms\sessionform;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
 use moodle_url;
 use pix_icon;
@@ -1078,5 +1081,29 @@ class sessions {
         $data->qtype = 'endsession';
         $data->endsession = true;
         return $data;
+    }
+
+    /**
+     * @param jqshow_sessions $sessions
+     * @param string $errorcode
+     * @return mixed
+     * @throws invalid_parameter_exception
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    public static function set_session_status_error(jqshow_sessions  $sessions, string $errorcode) {
+        // Change status.
+        sessionstatus_external::sessionstatus($sessions->get('id'), self::SESSION_ERROR);
+        // Remove all the answers of this session.
+        $jquestions = jqshow_questions::get_records(['sessionid' => $sessions->get('id')]);
+        foreach ($jquestions as $jquestion) {
+            jqshow_questions_responses::delete_question_responses($sessions->get('jqshowid'), $sessions->get('id'), $jquestion->get('id'));
+        }
+        jqshow_user_progress::delete_session_user_progress($sessions->get('id'));
+        $jqshowinfo = get_course_and_cm_from_instance($sessions->get('jqshowid'), 'jqshow');
+        $course = $jqshowinfo[0];
+        $url = new moodle_url('/course/view.php', ['id' => $course->id]);
+        throw new moodle_exception($errorcode, 'mod_jqshow', $url->out(false));
     }
 }

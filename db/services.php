@@ -65,6 +65,7 @@ use mod_jqshow\external\addquestions_external;
 use mod_jqshow\external\deletequestion_external;
 use mod_jqshow\external\copyquestion_external;
 use mod_jqshow\external\editsessionsettings_external;
+use mod_jqshow\external\sessionstatus_external;
 use mod_jqshow\external\shortanswer_external;
 use mod_jqshow\external\startsession_external;
 use mod_jqshow\external\truefalse_external;
@@ -376,6 +377,14 @@ $functions = [
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_sessionstatus' => [
+        'classname' => sessionstatus_external::class,
+        'methodname' => 'sessionstatus',
+        'description' => 'Change session status',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -418,7 +427,8 @@ $services = [
             'mod_jqshow_getsession',
             'mod_jqshow_getprovisionalranking',
             'mod_jqshow_getfinalranking',
-            'mod_jqshow_getraceresults'
+            'mod_jqshow_getraceresults',
+            'mod_jqshow_sessionstatus'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

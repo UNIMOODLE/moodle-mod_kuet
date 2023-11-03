@@ -151,6 +151,11 @@
                                         {{#pix}} i/warning, mod_jqshow {{/pix}}
                                     </span>
                                 {{/haswarning}}
+                                {{#hassessionerror}}
+                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionerror, mod_jqshow{{/str}}">
+                                        {{#pix}} i/warning, mod_jqshow {{/pix}}
+                                    </span>
+                                {{/hassessionerror}}
                             </div>
                         </div>
                     {{/activesessions}}
