@@ -82,7 +82,6 @@ class session_ended extends base {
             'cmid' => $cmcontext->instanceid]);
     }
 
-    // TODO: Check when doing backup/restore.
     /**
      * Used for maping events on restore
      * @return array

@@ -96,6 +96,7 @@ class sessions {
     public const SESSION_ACTIVE = 1;
     public const SESSION_STARTED = 2;
     public const SESSION_CREATING = 3;
+    public const SESSION_ERROR = 4;
 
     /**
      * sessions constructor.
@@ -152,14 +153,9 @@ class sessions {
             ];
         }
         $timemode = [
-            self::NO_TIME => get_string('no_time', 'mod_jqshow'), // TODO enable for inactive.
+            self::NO_TIME => get_string('no_time', 'mod_jqshow'),
             self::SESSION_TIME => get_string('session_time', 'mod_jqshow'),
             self::QUESTION_TIME => get_string('question_time', 'mod_jqshow'),
-        ];
-        $countdownchoices = [
-            0 => 'Opcion1',
-            1 => 'Opcion2',
-            3 => 'Opcion3'
         ];
         $groupingsselect = [];
         $data = get_course_and_cm_from_cmid($this->cmid);
@@ -180,7 +176,6 @@ class sessions {
             'course' => $course,
             'cm' => $cm,
             'jqshowid' => $this->jqshow->id,
-            'countdown' => $countdownchoices,
             'sessionmodechoices' => $sessionmodechoices,
             'timemode' => $timemode,
             'anonymousanswerchoices' => $anonymousanswerchoices,
@@ -1035,7 +1030,7 @@ class sessions {
         if (!$session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
             $params['userid'] = $USER->id;
         } else if ($session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
-            $group = groupmode::get_user_group($USER->id, $session->get('groupings'));
+            $group = groupmode::get_user_group($USER->id, $session);
             if (isset($group->id)) {
                 $params['groupid'] = $group->id;
             }

@@ -406,3 +406,6 @@ $string['isevaluable'] = 'Is evaluable?';
 $string['alreadyanswered'] = 'A member of your group has already answered!';
 $string['groupdisconnected'] = 'Group {$a} has been disconnected';
 $string['groupmemberdisconnected'] = 'This group member {$a} has been disconnected';
+$string['groupingremoved'] = 'This activity grouping has been removed or it has no members. You can not continue with this session.';
+$string['groupremoved'] = 'Your group has been removed or it is not a member of this activity grouping. You can not continue with this session.';
+$string['gocourse'] = 'Go back to your course';

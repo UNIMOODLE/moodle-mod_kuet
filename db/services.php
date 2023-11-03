@@ -58,7 +58,6 @@ use mod_jqshow\external\nextquestion_external;
 use mod_jqshow\external\numerical_external;
 use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
-use mod_jqshow\external\session_getallquestions_external;
 use mod_jqshow\external\sessionfinished_external;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\external\sessionspanel_external;
@@ -298,14 +297,6 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
-    'mod_jqshow_session_getallquestions' => [
-        'classname' => session_getallquestions_external::class,
-        'methodname' => 'session_getallquestions',
-        'description' => 'Gets all questions and answers from a session to send to users in manual modes.',
-        'type' => 'read',
-        'ajax' => true,
-        'loginrequired' => true
-    ],
     'mod_jqshow_getuserquestionresponse' => [
         'classname' => getuserquestionresponse_external::class,
         'methodname' => 'getuserquestionresponse',
@@ -418,7 +409,6 @@ $services = [
             'mod_jqshow_sessionfinished',
             'mod_jqshow_activesession',
             'mod_jqshow_getactivesession',
-            'mod_jqshow_session_getallquestions',
             'mod_jqshow_getuserquestionresponse',
             'mod_jqshow_getquestion',
             'mod_jqshow_deleteresponses',

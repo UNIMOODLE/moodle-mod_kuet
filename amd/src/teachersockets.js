@@ -77,7 +77,6 @@ let ACTION = {
 
 let SERVICES = {
     ACTIVESESSION: 'mod_jqshow_activesession',
-    GETALLQUESTIONS: 'mod_jqshow_session_getallquestions',
     NEXTQUESTION: 'mod_jqshow_nextquestion',
     FIRSTQUESTION: 'mod_jqshow_firstquestion',
     FINISHSESSION: 'mod_jqshow_finishsession',
@@ -178,10 +177,10 @@ function Sockets(region, socketurl, port, sessionmode, groupmode) {
             break;
         }
     }
-    this.measuringSpeed(); // TODO extend to the whole mod.
-    this.disableDevTools(); // TODO extend to the whole mod.
+    this.measuringSpeed();
+    this.disableDevTools();
     this.initSockets();
-    this.cleanMessages(); // TODO only for develop.
+    this.cleanMessages();
     this.initListeners();
 }
 
@@ -527,7 +526,6 @@ Sockets.prototype.initListeners = function() {
                 identifier.html(html);
                 Templates.runTemplateJS(js);
                 jQuery(REGION.SWITCHS).removeClass('disabled');
-                // TODO only improvise.
                 jQuery(REGION.ESPECIALS).removeClass('disabled');
                 setTimeout(() => {
                     that.questionEnd();

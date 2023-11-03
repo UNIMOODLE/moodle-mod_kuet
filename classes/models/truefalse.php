@@ -338,7 +338,6 @@ class truefalse extends questions implements questionType {
                     $answers[$arrayanswerid]['numticked']++;
                 }
             }
-            // TODO obtain the average time to respond to each option ticked. ???
         }
         $data->correctanswers = array_values($correctanswers);
         $data->answers = array_values($answers);
