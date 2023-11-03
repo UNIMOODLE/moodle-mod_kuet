@@ -71,7 +71,7 @@
                         <div class="d-table-cell"></div>
                     </div>
                     {{#activesessions}}
-                        <div class="d-table-row sessions-list-data {{#hasconflict}}session-conflict{{/hasconflict}} {{#haswarning}}session-warning{{/haswarning}} {{#issessionstarted}}session-started{{/issessionstarted}} {{#sessioncreating}}session-creating{{/sessioncreating}} {{#noquestions}}session-noquestions{{/noquestions}}">
+                        <div class="d-table-row sessions-list-data {{#hasconflict}}session-conflict{{/hasconflict}} {{#haswarning}}session-warning{{/haswarning}} {{#issessionstarted}}session-started{{/issessionstarted}} {{#sessioncreating}}session-creating{{/sessioncreating}} {{#noquestions}}session-noquestions{{/noquestions}} {{#haserror}}session-error{{/haserror}}">
                             <div class="d-table-cell">{{name}}</div>
                             <div class="d-table-cell">{{sessionmode}}</div>
                             <div class="d-table-cell">{{timemode}}</div>
@@ -82,9 +82,11 @@
                             <div class="d-table-cell actions">
                                 {{#managesessions}}
                                     <div class="content-actions">
-                                        <a class="session-action {{#issessionstarted}}disabled{{/issessionstarted}}" href="{{editsessionurl}}">
-                                            {{#pix}} i/edit_session, mod_jqshow {{/pix}}
-                                        </a>
+                                        {{^haserror}}
+                                            <a class="session-action {{#issessionstarted}}disabled{{/issessionstarted}}" href="{{editsessionurl}}">
+                                                {{#pix}} i/edit_session, mod_jqshow {{/pix}}
+                                            </a>
+                                        {{/haserror}}
                                         <div class="session-action" data-action="copy_session" data-sessionid="{{sessionid}}">
                                             {{#pix}} i/copy_session, mod_jqshow {{/pix}}
                                         </div>
@@ -99,9 +101,11 @@
                                             {{#pix}}i/three_dots, mod_jqshow {{/pix}}
                                         </a>
                                         <div class="dropdown-menu" aria-labelledby="actions-{{sessionid}}">
-                                            <a class="dropdown-item {{#issessionstarted}}disabled{{/issessionstarted}}" href="{{editsessionurl}}">
-                                                {{#str}}edit_session, mod_jqshow{{/str}}
-                                            </a>
+                                            {{^haserror}}
+                                                <a class="dropdown-item {{#issessionstarted}}disabled{{/issessionstarted}}" href="{{editsessionurl}}">
+                                                    {{#str}}edit_session, mod_jqshow{{/str}}
+                                                </a>
+                                            {{/haserror}}
                                             <a class="dropdown-item" href="#" data-action="copy_session" data-sessionid="{{sessionid}}">
                                                 {{#str}}copy_session, mod_jqshow{{/str}}
                                             </a>
@@ -151,11 +155,11 @@
                                         {{#pix}} i/warning, mod_jqshow {{/pix}}
                                     </span>
                                 {{/haswarning}}
-                                {{#hassessionerror}}
+                                {{#haserror}}
                                     <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionerror, mod_jqshow{{/str}}">
                                         {{#pix}} i/warning, mod_jqshow {{/pix}}
                                     </span>
-                                {{/hassessionerror}}
+                                {{/haserror}}
                             </div>
                         </div>
                     {{/activesessions}}

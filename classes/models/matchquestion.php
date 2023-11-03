@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -42,6 +42,7 @@ use JsonException;
 use mod_jqshow\api\grade;
 use mod_jqshow\external\match_external;
 use mod_jqshow\helpers\reports;
+use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
@@ -49,6 +50,7 @@ use moodle_exception;
 use qtype_match_question;
 use question_bank;
 use question_definition;
+use question_state;
 use stdClass;
 use mod_jqshow\interfaces\questionType;
 
@@ -99,17 +101,17 @@ class matchquestion extends questions implements questionType {
                 'key' => $key,
                 'optionkey' => base_convert($key, 16, 2),
                 'optiontext' =>
-                    self::get_text($cmid, $leftside, $question->stemformat[$key], $question->id, $question, 'questiontext')
+                    self::get_text($cmid, $leftside, $question->stemformat[$key] ?? 1, $question->id, $question, 'questiontext')
             ];
         }
         $rightoptions = [];
-        foreach ($question->choices as $key => $leftside) {
+        foreach ($question->choices as $key => $rightside) {
             $rightoptions[$key] = [
                 'questionid' => $jqshowquestion->get('questionid'),
                 'key' => $key,
                 'optionkey' => base_convert($key, 10, 26),
                 'optiontext' =>
-                    self::get_text($cmid, $leftside, $question->stemformat[$key], $question->id, $question, 'questiontext')
+                    self::get_text($cmid, $rightside, $question->stemformat[$key] ?? 1, $question->id, $question, 'questiontext')
             ];
         }
         $data->name = $question->name;
@@ -210,7 +212,6 @@ class matchquestion extends questions implements questionType {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-
         $participant->response = grade::get_result_mark_type($response);
         $participant->responsestr = get_string($participant->response, 'mod_jqshow');
         $points = grade::get_simple_mark($response);
@@ -280,17 +281,62 @@ class matchquestion extends questions implements questionType {
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
      * @return float|int
+     * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response): float {
         global $DB;
         $mark = 0;
-        // TODO prepare the json of the response to pass logic through grade_response.
-        if ((int) $response->get('result') === 1) {
-            $mark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
+        $question = question_bank::load_question($response->get('questionid'));
+        if (assert($question instanceof qtype_match_question)) {
+            $jsonresponse = json_decode(base64_decode($response->get('response')), false, 512, JSON_THROW_ON_ERROR);
+            usort($jsonresponse->response, static fn($a, $b) => strcmp($a->stemDragId, $b->stemDragId));
+            $moodleresponse = [];
+            $positionstems = 0;
+            $stemorder = [];
+            foreach ($question->choices as $keychoice => $rightside) {
+                $stemorder[] = $keychoice;
+            }
+            foreach ($question->stems as $keystem => $leftside) {
+                $moodleresponse[$positionstems] = 0;
+                foreach ($jsonresponse->response as $useroptionresponse) {
+                    if ((int)$useroptionresponse->stemDragId === $keystem) {
+                        foreach ($question->choices as $keychoice => $rightside) {
+                            if ((int)$useroptionresponse->stemDropId === $keychoice) {
+                                $moodleresponse[$positionstems] = $keychoice;
+                            }
+                        }
+                    }
+                }
+                $positionstems++;
+            }
+            [$right, $total] = self::get_num_parts_right($moodleresponse, $stemorder);
+            $fraction = $right / $total;
+            $moodleresult = [$fraction, question_state::graded_state_for_fraction($fraction)];
+            if (isset($moodleresult[0])) {
+                $mark = $moodleresult[0];
+            }
         }
-        return $mark;
+        return (float)$mark;
+    }
+
+    /**
+     * @param array $moodleresponse
+     * @param array $stemorder
+     * @return array
+     */
+    private static function get_num_parts_right(array $moodleresponse, array $stemorder) {
+        $numright = 0;
+        foreach ($stemorder as $key => $stemid) {
+            if (!array_key_exists($key, $moodleresponse)) {
+                continue;
+            }
+            $choice = $moodleresponse[$key];
+            if ($stemid === $moodleresponse[$key]) {
+                ++$numright;
+            }
+        }
+        return [$numright, count($stemorder)];
     }
 
     /**
@@ -302,11 +348,11 @@ class matchquestion extends questions implements questionType {
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];
         $total = count($responses);
-        list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
+        [$correct, $incorrect, $invalid, $partially, $noresponse] = grade::count_result_mark_types($responses);
         $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
-        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
-        $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
-        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse  * 100 / $total, 2) : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect * 100 / $total, 2) : 0;
+        $statistics[0]['partially'] = $partially !== 0 ? round($partially * 100 / $total, 2) : 0;
+        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse * 100 / $total, 2) : 0;
         return $statistics;
     }
 }

@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -33,7 +33,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023110300;
+$plugin->version = 2023110301;
 $plugin->requires = 2022112802; // Moodle 4.1.2+
 $plugin->component = 'mod_jqshow';
 $plugin->cron = 0;
