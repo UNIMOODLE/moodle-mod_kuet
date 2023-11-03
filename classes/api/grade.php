@@ -99,12 +99,12 @@ class grade {
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public static function get_simple_mark(jqshow_questions_responses $response) : float {
+    public static function get_simple_mark(jqshow_questions_responses $response): float {
         $mark = 0;
         // Check ignore grading setting.
         $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
         if ($jquestion !== false && $jquestion->get('ignorecorrectanswer')) {
-            return $mark;
+            return (float)$mark;
         }
 
         // Get answer mark.
@@ -117,7 +117,7 @@ class grade {
                 $mark = $type::get_simple_mark($useranswer, $response);
             }
         }
-        return $mark;
+        return (float)$mark;
     }
 
     /**
@@ -150,7 +150,7 @@ class grade {
             default:
                 $mark = self::get_session_default_grade($responses);
         }
-        return $mark;
+        return (float)$mark;
     }
 
     /**
@@ -163,7 +163,7 @@ class grade {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
-            if ((int) $usermark === 0) {
+            if ($usermark === 0.0) {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
@@ -180,7 +180,7 @@ class grade {
             }
             $mark += $usermark * $percent;
         }
-        return $mark;
+        return (float)$mark;
     }
 
     /**
@@ -203,7 +203,7 @@ class grade {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
-            if ((int) $usermark === 0) {
+            if ($usermark === 0.0) {
                 continue;
             }
             $jqquestion = new jqshow_questions($response->get('jqid'));
@@ -217,7 +217,7 @@ class grade {
             }
             $mark += $usermark * $percent;
         }
-        return $mark;
+        return (float)$mark;
     }
 
     /**
@@ -231,12 +231,12 @@ class grade {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
-            if ((int) $usermark === 0) {
+            if ($usermark === 0.0) {
                 continue;
             }
             $mark += $usermark;
         }
-        return $mark;
+        return (float)$mark;
     }
 
     /**

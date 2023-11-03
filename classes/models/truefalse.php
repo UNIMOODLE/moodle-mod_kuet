@@ -445,14 +445,14 @@ class truefalse extends questions implements questionType {
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
         $answerids = $useranswer->{'answerids'} ?? '';
         if (empty($answerids)) {
-            return $mark;
+            return (float)$mark;
         }
         $answerids = explode(',', $answerids);
         foreach ($answerids as $answerid) {
             $fraction = $DB->get_field('question_answers', 'fraction', ['id' => $answerid]);
             $mark += $defaultmark * $fraction;
         }
-        return $mark;
+        return (float)$mark;
     }
 
     /**

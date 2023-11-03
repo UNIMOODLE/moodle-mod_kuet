@@ -339,7 +339,7 @@ class shortanswer extends questions implements questionType {
                 }
             }
         }
-        return $mark;
+        return (float)$mark;
     }
 
     /**
