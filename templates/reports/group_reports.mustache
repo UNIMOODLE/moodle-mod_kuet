@@ -1,3 +1,26 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
 <div data-region="reports" data-jqshowid="{{jqshowid}}" data-cmid="{{cmid}}">
     {{#allreports}}
         <h2>{{#str}}reports, mod_jqshow{{/str}}</h2>
@@ -58,7 +81,7 @@
                             {{#str}}back{{/str}}
                         </a>
                     </div>
-                    <div class="d-flex flex-row justify-content-center w-100 mt-4">
+                    <div class="d-flex flex-row justify-content-center w-100 mt-4 count_info">
                         <div class="alert alert-info rounded-left mb-0" role="alert">
                             <b>{{#str}}questions_number, mod_jqshow{{/str}}:</b> {{ numquestions }}
                         </div>
@@ -69,7 +92,7 @@
                             <b>{{#str}}partially_correct, mod_jqshow{{/str}}:</b> {{ partially }}
                         </div>
                         <div class="alert alert-danger rounded-0 mb-0" role="alert">
-                            <b>{{#str}}failures, mod_jqshow{{/str}}:</b> {{ failures }}
+                            <b>{{#str}}incorrect, mod_jqshow{{/str}}:</b> {{ failures }}
                         </div>
                         <div class="alert alert-warning rounded-0 mb-0" role="alert">
                             <b>{{#str}}noresponse, mod_jqshow{{/str}}:</b> {{ noresponse }}

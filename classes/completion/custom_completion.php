@@ -14,23 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-declare(strict_types=1);
-
-namespace mod_jqshow\completion;
-
-use coding_exception;
-use core_completion\activity_custom_completion;
-use dml_exception;
-use moodle_exception;
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+declare(strict_types=1);
+namespace mod_jqshow\completion;
+use coding_exception;
+use core_completion\activity_custom_completion;
+use dml_exception;
+use mod_jqshow\persistents\jqshow_questions_responses;
+use mod_jqshow\persistents\jqshow_sessions;
+use moodle_exception;
+
 class custom_completion extends activity_custom_completion {
 
     /**
@@ -47,13 +55,22 @@ class custom_completion extends activity_custom_completion {
 
         $this->validate_rule($rule);
         $jqshowid = $this->cm->instance;
+        $userid = $this->userid;
 
         if (!$DB->get_record('jqshow', ['id' => $jqshowid])) {
             throw new moodle_exception('jqshownotexist', 'mod_jqshow', '',
                 [], get_string('jqshownotexist', 'mod_jqshow', $jqshowid));
         }
-        // TODO: get status.
-        return COMPLETION_INCOMPLETE;
+
+        $numsessions = jqshow_sessions::count_records(['jqshowid' => $jqshowid]);
+        if ($numsessions === 0) {
+            return COMPLETION_INCOMPLETE;
+        }
+        $hasparticipate = false;
+        if (jqshow_questions_responses::count_records(['jqshow' => $jqshowid, 'userid' => $userid]) > 0) {
+            $hasparticipate = true;
+        }
+        return $hasparticipate ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
     }
 
     /**
@@ -89,6 +106,7 @@ class custom_completion extends activity_custom_completion {
         return [
             'completionanswerall',
             'completionusegrade',
+            'completionpassgrade',
         ];
     }
 }

@@ -14,18 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\external;
 
 use coding_exception;
+use dml_exception;
 use external_api;
 use external_function_parameters;
 use external_multiple_structure;
@@ -33,6 +42,7 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use mod_jqshow\models\sessions;
+use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -54,7 +64,9 @@ class getsessionresume_external extends external_api {
     /**
      * @param int $sid
      * @param int $cmid
-     * @return true[]
+     * @return array
+     * @throws dml_exception
+     * @throws moodle_exception
      * @throws coding_exception
      * @throws invalid_parameter_exception
      */

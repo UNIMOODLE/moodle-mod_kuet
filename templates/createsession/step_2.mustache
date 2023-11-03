@@ -1,3 +1,26 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
 <div class="content-header">
     <div class="content-title">
         <h2>{{#str}}questionsconfiguration, mod_jqshow{{/str}}</h2>
@@ -22,10 +45,10 @@
 <div class="row questions-configuration">
     <div class="col-12 col-lg-8 container">
         <div class="questions-list">
-            <h5 class="titlecontainer bg-primary">
+            <h6 class="titlecontainer bg-primary">
                 {{#pix}} i/questions_list, mod_jqshow {{/pix}}
                 {{#str}}questions_list, mod_jqshow{{/str}}
-            </h5>
+            </h6>
             <div class="session-questions" data-region="session-questions">
                 {{> mod_jqshow/createsession/sessionquestions }}
             </div>
@@ -33,10 +56,10 @@
     </div>
     <div class="col-12 col-lg-4 container">
         <div class="questions-bank">
-            <h5 class="titlecontainer bg-primary">
+            <h6 class="titlecontainer bg-primary">
                 {{#pix}} i/questions_list, mod_jqshow {{/pix}}
                 {{#str}}questions_bank, mod_jqshow{{/str}}
-            </h5>
+            </h6>
             <div class="form-group">
                 <label for="exampleFormControlSelect1">{{#str}}select_category, mod_jqshow{{/str}}</label>
                 {{{questionbank_categories}}}

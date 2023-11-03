@@ -14,19 +14,31 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\invalid_persistent_exception;
 use core_calendar\action_factory;
 use core_calendar\local\event\value_objects\action;
 use core_completion\api;
 use mod_jqshow\api\grade;
+use mod_jqshow\persistents\jqshow;
 
+global $CFG;
 require_once($CFG->dirroot . '/lib/gradelib.php');
 
 /**
@@ -67,58 +79,67 @@ function jqshow_add_instance(stdClass $data): int {
     global $DB, $USER;
 
     $cmid = $data->coursemodule;
-    $data->usermodified = $USER->id;
-    $data->timecreated = time();
-    $data->timemodified = time();
-    $id = $DB->insert_record('jqshow', $data);
+
+    // Create jqshow on db.
+    $record = new stdClass();
+    $record->course = $data->course;
+    $record->name = $data->name;
+    $record->intro = $data->intro;
+    $record->introformat = $data->introformat;
+    $record->teamgrade = isset($data->teamgrade) ?? $data->teamgrade;
+    $record->grademethod = $data->grademethod;
+    $record->completionanswerall = $data->completionanswerall;
+    $record->usermodified = $USER->id;
+    $jqshow = new jqshow(0, $record);
+    $jqshow->create();
+    $data->id  = $jqshow->get('id');
 
     // Update course module record - from now on this instance properly exists and all function may be used.
-    $DB->set_field('course_modules', 'instance', $id, array('id' => $cmid));
-
-    // Reload scorm instance.
-    $record = $DB->get_record('jqshow', array('id' => $id));
+    $DB->set_field('course_modules', 'instance', $data->id, array('id' => $cmid));
 
     if (!empty($data->completionexpected)) {
-        api::update_completion_date_event($cmid, 'jqshow', $record, $data->completionexpected);
+        api::update_completion_date_event($cmid, 'jqshow', $jqshow->to_record(), $data->completionexpected);
     }
 
-//    mod_jqshow_grade_item_update($data, null);
-    return $record->id;
+    mod_jqshow_grade_item_update($data, null);
+    return $data->id;
 }
 
 /**
- *
  * @param stdClass $data An object from the form in mod.html
- * @return boolean Success/Fail
+ * @return bool Success/Fail
+ * @throws invalid_persistent_exception
  * @throws coding_exception
  * @throws dml_exception
+ * @throws moodle_exception
  */
 function jqshow_update_instance(stdClass $data): bool {
-    global $DB;
+    global $USER;
 
-    // Get the current value, so we can see save changes.
-    $oldjqshow = $DB->get_record('jqshow', array('id' => $data->instance));
-
-    // Update the database.
-    $oldjqshow->name = $data->name;
-    $oldjqshow->teamgrade = isset($data->teamgrade) ? $data->teamgrade : null;
-    $oldjqshow->grademethod = $data->grademethod;
-    if (!isset($data->completionanswerall) || $data->completionanswerall === null) {
-        $oldjqshow->completionanswerall = 0;
-    } else {
-        $oldjqshow->completionanswerall = $data->completionanswerall;
-    }
-    $DB->update_record('jqshow', $oldjqshow);
+    $teamgrade = isset($data->teamgrade) ?? $data->teamgrade;
+    // Update jqshow record.
+    $jqshow = new jqshow($data->instance);
+    $jqshow->set('name', $data->name);
+    $jqshow->set('intro', $data->intro);
+    $jqshow->set('introformat', $data->introformat);
+    $jqshow->set('teamgrade', $teamgrade);
+    $jqshow->set('grademethod', $data->grademethod);
+    $jqshow->set('completionanswerall', $data->completionanswerall);
+    $jqshow->set('usermodified', $USER->id);
+    $jqshow->update();
 
     grade::recalculate_mod_mark($data->{'update'}, $data->instance);
-//    mod_jqshow_grade_item_update($data, null);
+    $data->id = $data->instance;
+    mod_jqshow_grade_item_update($data, null);
     return true;
 }
+
 /**
  *
  * @param int $id Id of the module instance
  * @return boolean Success/Failure
- **/
+ * @throws dml_exception
+ */
 function jqshow_delete_instance(int $id): bool {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/lib/gradelib.php');
@@ -130,7 +151,7 @@ function jqshow_delete_instance(int $id): bool {
     $DB->delete_records('jqshow', ['id' => $id]);
     $DB->delete_records('jqshow_grades', ['jqshow' => $id]);
     $DB->delete_records('jqshow_questions', ['jqshowid' => $id]);
-    $DB->delete_records('jqshow_questions_responses', ['jqid' => $id]);
+    $DB->delete_records('jqshow_questions_responses', ['jqshow' => $id]);
     $DB->delete_records('jqshow_sessions', ['jqshowid' => $id]);
     $DB->delete_records('jqshow_sessions_grades', ['jqshow' => $id]);
     $DB->delete_records('jqshow_user_progress', ['jqshow' => $id]);
@@ -238,7 +259,7 @@ function mod_jqshow_core_calendar_provide_event_action(
         return null;
     }
 
-    $completion = new \completion_info($cm->get_course());
+    $completion = new completion_info($cm->get_course());
 
     $completiondata = $completion->get_data($cm, false, $userid);
 
@@ -378,7 +399,7 @@ function mod_jqshow_question_pluginfile($course, $context, $component, $filearea
  * @return array
  * @throws coding_exception
  */
-function mod_jqshow_get_grading_options() {
+function mod_jqshow_get_grading_options() : array {
     return [
         grade::MOD_OPTION_NO_GRADE => get_string('nograde', 'mod_jqshow'),
         grade::MOD_OPTION_GRADE_HIGHEST => get_string('gradehighest', 'mod_jqshow'),
@@ -390,17 +411,20 @@ function mod_jqshow_get_grading_options() {
 
 /**
  * Update/create grade item for given data
- *
- * @category grade
  * @param stdClass $data A jqshow instance
- * @param mixed $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
- * @return object grade_item
+ * @param $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @return int|null
+ * @throws dml_exception
  */
 function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
-    $params = ['itemname' => $data->name];
+
+    if (!isset($data->id)) {
+        return null;
+    }
+    $params = ['itemname' => $data->name, 'iteminstance' => $data->id];
     if (property_exists($data, 'cmidnumber')) { // May not be always present.
         $params['idnumber'] = $data->cmidnumber;
     }
@@ -409,7 +433,7 @@ function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
         $params['gradetype'] = GRADE_TYPE_NONE;
     } else {
         $params['gradetype'] = GRADE_TYPE_VALUE;
-        $params['grademax'] = get_config('core', 'gradepointmax');;
+        $params['grademax'] = get_config('core', 'gradepointmax');
         $params['grademin'] = 0;
     }
     if (is_null($grades)) {
@@ -425,7 +449,7 @@ function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
  * @throws coding_exception
  * @throws dml_exception
  */
-function jqshow_questions_in_use($questionids) {
+function jqshow_questions_in_use($questionids) : bool {
     global $DB;
     [$sqlfragment, $params] = $DB->get_in_or_equal($questionids);
     $params['component'] = 'mod_jqshow';
@@ -438,28 +462,12 @@ function jqshow_questions_in_use($questionids) {
 
 /**
  * @param string $url
- * @param int $cmid
- * @return void
- * @throws \Endroid\QrCode\Exception\InvalidWriterException
+ * @return string
  */
-function generate_jqshow_qrcode(string $url, int $cmid) {
-    if (class_exists('\block_qrcode\output_image')) {
-        global $CFG;
-        require_once($CFG->dirroot . '/blocks/qrcode/thirdparty/vendor/autoload.php');
-        // Creates new directory.
-        if (!is_dir($CFG->localcachedir . '/mod_jqshow') &&
-            !mkdir($concurrentdirectory =
-                dirname($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg'), $CFG->directorypermissions, true) &&
-            !is_dir($concurrentdirectory)) {
-            throw new RuntimeException(sprintf('Directory "%s" was not created', $concurrentdirectory));
-        }
-        $qrcode = new \Endroid\QrCode\QrCode($url);
-        $qrcode->setMargin(10);
-        $qrcode->setEncoding('UTF-8');
-        $qrcode->setErrorCorrectionLevel('high');
-        $qrcode->setForegroundColor(['r' => 0, 'g' => 0, 'b' => 0]);
-        $qrcode->setBackgroundColor(['r' => 255, 'g' => 255, 'b' => 255]);
-        $qrcode->setWriterByName('svg');
-        $qrcode->writeFile($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg');
+function generate_jqshow_qrcode(string $url): string {
+    if (class_exists(core_qrcode::class)) {
+        $qrcode = new core_qrcode($url);
+        return 'data:image/png;base64,' . base64_encode($qrcode->getBarcodePngData(15, 15));
     }
+    return '';
 }

@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\forms;
@@ -29,17 +37,18 @@ use coding_exception;
 use DateTime;
 use dml_exception;
 use mod_jqshow\models\sessions;
-use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodleform;
 
+global $CFG;
+require_once($CFG->libdir.'/formslib.php');
 class sessionform extends moodleform {
 
     /**
      * @return void
      * @throws coding_exception
      */
-    protected function definition() {
+    public function definition() : void {
         global $OUTPUT;
         $mform =& $this->_form;
         $customdata = $this->_customdata;
@@ -47,10 +56,10 @@ class sessionform extends moodleform {
         // Header.
         $mform->addElement('html', '<div class="row">');
         $mform->addElement('html', '<div class="col-12 formcontainer">');
-        $mform->addElement('html', '<h5 class="titlecontainer bg-primary">' .
+        $mform->addElement('html', '<h6 class="titlecontainer bg-primary">' .
             $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
             get_string('generalsettings', 'mod_jqshow') .
-            '</h5>');
+            '</h6>');
         $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
         // Name.
         $nameparams = [
@@ -125,10 +134,10 @@ class sessionform extends moodleform {
         // Header.
         $mform->addElement('html', '<div class="row">');
         $mform->addElement('html', '<div class="col-12 formcontainer">');
-        $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
+        $mform->addElement('html', '<h6  class="titlecontainer bg-primary">' .
             $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
             get_string('timesettings', 'mod_jqshow') .
-            '</h5>');
+            '</h6>');
         $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
 
         // Automaticstart.
@@ -165,9 +174,6 @@ class sessionform extends moodleform {
             get_string('timemode', 'mod_jqshow'), $customdata['timemode']);
         $mform->setType('timemode', PARAM_INT);
         $mform->addHelpButton('timemode', 'timemode', 'mod_jqshow');
-//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
-//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
-//        $mform->disabledIf('timemode', 'sessionmode', 'eq', sessions::RACE_MANUAL);
 
         $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_jqshow'),
             ['units' => [MINSECS, 1], 'optional' => false]);
@@ -191,10 +197,10 @@ class sessionform extends moodleform {
         if (!empty($customdata['groupingsselect'])) {
             // Header.
             $mform->addElement('html', '<div class="col-12 formcontainer">');
-            $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
+            $mform->addElement('html', '<h6  class="titlecontainer bg-primary">' .
                 $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
                 get_string('accessrestrictions', 'mod_jqshow') .
-                '</h5>');
+                '</h6>');
             $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
             $select = $mform->addElement('select', 'groupings',
                 get_string('groupings', 'mod_jqshow'), $customdata['groupingsselect'], ['cols' => 100]);
@@ -207,14 +213,14 @@ class sessionform extends moodleform {
         $cm = $customdata['cm'];
         if ((int) $cm->groupmode !== 0 && empty($customdata['groupingsselect'])) {
             $mform->addElement('html', '<div class="col-12 formcontainer">');
-            $mform->addElement('html', '<h5  class="titlecontainer bg-primary">' .
+            $mform->addElement('html', '<h6  class="titlecontainer bg-primary">' .
                 $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
                 get_string('accessrestrictions', 'mod_jqshow') .
-                '</h5>');
+                '</h6>');
             $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
 
-
-            $mform->addElement('html', '<div class="alert alert-warning">' . get_string('nogroupingscreated', 'mod_jqshow') . '</div>');
+            $mform->addElement('html', '<div class="alert alert-warning">' .
+                get_string('nogroupingscreated', 'mod_jqshow') . '</div>');
             $mform->addElement('html', '</div>');
             $mform->addElement('html', '</div>');
         }
@@ -223,12 +229,35 @@ class sessionform extends moodleform {
         $mform->setType('jqshowid', PARAM_INT);
         $mform->addElement('hidden', 'groupmode', (int)$cm->groupmode);
         $mform->setType('groupmode', PARAM_INT);
-        $mform->addElement('hidden', 'status', sessionsmodel::SESSION_ACTIVE);
+        $mform->addElement('hidden', 'status', sessions::SESSION_CREATING);
         $mform->setType('status', PARAM_INT);
         $mform->addElement('hidden', 'sessionid', 0);
         $mform->setType('sessionid', PARAM_INT);
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
+
+        $mform->addElement('html', "<script>
+            let noTime = document.querySelector('#id_timemode option[value=\"0\"]');
+            let timeModeSelector = document.getElementById('id_timemode');
+            let sessionModeSelector = document.getElementById('id_sessionmode');
+            normalizeTimeMode(sessionModeSelector.value);
+            sessionModeSelector.addEventListener('change', function() {
+              normalizeTimeMode(this.value);
+            });
+            function normalizeTimeMode(sessionModeValue) {
+                if (sessionModeValue !== 'inactive_manual' && sessionModeValue !== 'inactive_programmed') {
+                  noTime.setAttribute('disabled', 'disabled');
+                  noTime.classList.add('d-none');
+                  if (timeModeSelector.value === '0') {
+                      timeModeSelector.value = 1;
+                      timeModeSelector.dispatchEvent(new Event('change'));
+                  }
+              } else {
+                  noTime.removeAttribute('disabled');
+                  noTime.classList.remove('d-none');
+              }
+            }
+        </script>");
 
         $this->add_action_buttons(true, get_string('next', 'mod_jqshow'));
     }
@@ -262,28 +291,25 @@ class sessionform extends moodleform {
             if ((int)$data['startdate'] >= (int)$data['enddate']) {
                 $errors['enddate'] = get_string('startminorend', 'mod_jqshow');
             }
+        } else {
+            $data['startdate'] = 0;
+            $data['enddate'] = 0;
         }
         // Groups mode.
         if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && empty($data['groupings'])) {
             $errors['groupings'] = get_string('session_groupings_error', 'mod_jqshow');
         } else if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && !empty($data['groupings'])) {
-            $groups = groups_get_grouping_members($data['groupings'], 'gg.groupid');
-            if (empty($groups)) {
+            $members = groups_get_grouping_members($data['groupings'], 'u.id,u.username,gg.groupid');
+            if (empty($members)) {
                 $errors['groupings'] = get_string('session_groupings_no_members', 'mod_jqshow');
             } else {
                 $allmembers = [];
-                foreach ($groups as $group) {
-                    $members = groups_get_members($group->groupid, 'u.id, u.username');
-                    if (empty($members)) {
-                        continue;
-                    }
-                    $errorusers = [];
-                    foreach ($members as $member) {
-                        if (in_array($member->id, $allmembers)) {
-                            $errorusers[] = $member->username;
-                        } else {
-                            $allmembers[] = $member->id;
-                        }
+                $errorusers = [];
+                foreach ($members as $member) {
+                    if (in_array($member->id, $allmembers)) {
+                        $errorusers[] = $member->username . ':' . $member->groupid;
+                    } else {
+                        $allmembers[] = $member->id;
                     }
                 }
                 if (!empty($errorusers)) {
@@ -294,20 +320,20 @@ class sessionform extends moodleform {
         }
 
         // Timemode.
-//        $programmedmodes = [sessions::PODIUM_PROGRAMMED, sessions::RACE_PROGRAMMED];
-//        if ($data['sessionmode'] != sessions::INACTIVE_MANUAL) {
-//            if (!array_key_exists('timemode', $data)) {
-//                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
-//            } else if (array_key_exists('timemode', $data) && (int)$data['timemode'] == sessions::NO_TIME) {
-//                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
-//            }
-//        }
-//
-        if ((int)$data['questiontime'] === 0 && (int)$data['sessiontime'] === 0) {
-            $errors['questiontime'] = get_string('timecannotbezero', 'mod_jqshow');
-            $errors['sessiontime'] = get_string('timecannotbezero', 'mod_jqshow');
+        if ($data['sessionmode'] !== sessions::INACTIVE_MANUAL && $data['sessionmode'] !== sessions::INACTIVE_PROGRAMMED) {
+            if (!array_key_exists('timemode', $data)) {
+                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
+            } else if ((int)$data['timemode'] === sessions::NO_TIME) {
+                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
+            }
         }
 
+        if ($data['timemode'] !== "0") {
+            if ((int)$data['questiontime'] === 0 && (int)$data['sessiontime'] === 0) {
+                $errors['questiontime'] = get_string('timecannotbezero', 'mod_jqshow');
+                $errors['sessiontime'] = get_string('timecannotbezero', 'mod_jqshow');
+            }
+        }
         return $errors;
     }
 }

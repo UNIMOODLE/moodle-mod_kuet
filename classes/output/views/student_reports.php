@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\output\views;
@@ -28,6 +36,7 @@ namespace mod_jqshow\output\views;
 use coding_exception;
 use dml_exception;
 use JsonException;
+use mod_jqshow\api\grade;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\jqshow;
 use moodle_exception;
@@ -69,6 +78,7 @@ class student_reports implements renderable, templatable {
             foreach ($data->endedsessions as $endedsession) {
                 $endedsession->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
                     ['cmid' => $this->cmid, 'sid' => $endedsession->sessionid, 'userid' => $USER->id]))->out(false);
+                $data->score = round(grade::get_session_grade($USER->id, $endedsession->sessionid, $this->jqshowid), 2);
             }
         } else {
             $data = reports::get_student_report($this->cmid, $this->sid);

@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 use mod_jqshow\external\activesession_external;
@@ -50,7 +58,6 @@ use mod_jqshow\external\nextquestion_external;
 use mod_jqshow\external\numerical_external;
 use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
-use mod_jqshow\external\session_getallquestions_external;
 use mod_jqshow\external\sessionfinished_external;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\external\sessionspanel_external;
@@ -282,34 +289,10 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
-    'mod_jqshow_savequestiontime' => [
-        'classname' => activesession_external::class,
-        'methodname' => 'savequestiontime',
-        'description' => 'Save question time',
-        'type' => 'write',
-        'ajax' => true,
-        'loginrequired' => true
-    ],
-    'mod_jqshow_isquestionanswered' => [
-        'classname' => activesession_external::class,
-        'methodname' => 'isquestionanswered',
-        'description' => 'To know if a question has been already answered by a member of the group.',
-        'type' => 'write',
-        'ajax' => true,
-        'loginrequired' => true
-    ],
     'mod_jqshow_getactivesession' => [
         'classname' => getactivesession_external::class,
         'methodname' => 'getactivesession',
         'description' => 'Get Active session of Jqshow id',
-        'type' => 'read',
-        'ajax' => true,
-        'loginrequired' => true
-    ],
-    'mod_jqshow_session_getallquestions' => [
-        'classname' => session_getallquestions_external::class,
-        'methodname' => 'session_getallquestions',
-        'description' => 'Gets all questions and answers from a session to send to users in manual modes.',
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
@@ -426,7 +409,6 @@ $services = [
             'mod_jqshow_sessionfinished',
             'mod_jqshow_activesession',
             'mod_jqshow_getactivesession',
-            'mod_jqshow_session_getallquestions',
             'mod_jqshow_getuserquestionresponse',
             'mod_jqshow_getquestion',
             'mod_jqshow_deleteresponses',
@@ -436,8 +418,6 @@ $services = [
             'mod_jqshow_getsession',
             'mod_jqshow_getprovisionalranking',
             'mod_jqshow_getfinalranking',
-            'mod_jqshow_savequestiontime',
-            'mod_jqshow_isquestionanswered',
             'mod_jqshow_getraceresults'
         ],
         'restrictedusers' => 0,

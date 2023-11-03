@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 require_once('../../config.php');
@@ -49,13 +57,15 @@ if ($activesession !== 0 && $activesession === $sid) {
     throw new moodle_exception('erroreditsessionactive', 'mod_jqshow', (new moodle_url('/mod/jqshow/view.php', ['id' => $id])),
         [], get_string('erroreditsessionactive', 'mod_jqshow'));
 }
-
+$view = new sessions_view($jqshow, $cm->id);
+$output = $PAGE->get_renderer('mod_jqshow');
+$viehtml = $output->render($view);
 $PAGE->set_title(get_string('modulename', 'jqshow'));
 $PAGE->set_heading(get_string('sessionconfiguration', 'jqshow'));
 $PAGE->set_cacheable(false);
-$view = new sessions_view($jqshow, $cm->id);
-$output = $PAGE->get_renderer('mod_jqshow');
+
+
 echo $output->header();
 echo $output->heading(get_string('sessionconfiguration', 'jqshow'));
-echo $output->render($view);
+echo $viehtml;
 echo $output->footer();

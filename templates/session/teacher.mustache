@@ -1,3 +1,26 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
 {{#manualmode}}
     {{> mod_jqshow/session/manual/teachercanvas }}
 {{/manualmode}}
@@ -5,7 +28,26 @@
     <div class="teacher-session-content" data-region="teacher-session-content">
         <div class="row summary-session">
             <div class="col-12">
-                <button class="btn btn-primary float-right" data-action="end_session" data-sessionid="{{sid}}">{{#str}}end_session, mod_jqshow{{/str}}</button>
+                <div class="d-flex align-items-center float-right mb-2">
+                    {{#hasqrcodeimage}}
+                        <div class="imageQr mr-3">
+                            <div class="item">
+                                <a href="#imageQr">
+                                    <img src="{{{urlqrcode}}}" />
+                                </a>
+                            </div>
+                        </div>
+                        <div class="lightboxes">
+                            <div class="lightbox" id="imageQr">
+                                <a href="#" class="close">&times;</a>
+                                <div class="content">
+                                    <img src="{{{urlqrcode}}}" />
+                                </div>
+                            </div>
+                        </div>
+                    {{/hasqrcodeimage}}
+                    <button class="btn btn-primary mb-0" data-action="end_session" data-sessionid="{{sid}}">{{#str}}end_session, mod_jqshow{{/str}}</button>
+                </div>
             </div>
             {{#racemode}}
                 <div class="col-12 container mb-4">
@@ -16,19 +58,19 @@
             {{/racemode}}
             <div class="col-12 col-lg-4 container">
                 <div class="resume-config">
-                    <h5 class="titlecontainer bg-primary">
+                    <h6 class="titlecontainer bg-primary">
                         {{#pix}} i/settings, mod_jqshow {{/pix}}
                         {{#str}}session_info, mod_jqshow{{/str}}
-                    </h5>
+                    </h6>
                     {{> mod_jqshow/session/sessionresume }}
                 </div>
             </div>
             <div class="col-12 col-lg-8 container">
                 <div class="users-results">
-                    <h5 class="titlecontainer bg-primary">
+                    <h6 class="titlecontainer bg-primary">
                         {{#pix}} i/questions_list, mod_jqshow {{/pix}}
                         {{#str}}results, mod_jqshow{{/str}}
-                    </h5>
+                    </h6>
                     <div class="list-results" data-region="list-results" data-sid="{{sid}}" data-cmid="{{cmid}}" data-courseid="{{courseid}}" {{#groupmode}}data-groupmode="1"{{/groupmode}}>
                         {{> mod_jqshow/session/listresults }}
                     </div>

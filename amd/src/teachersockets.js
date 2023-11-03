@@ -1,3 +1,35 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
+/**
+ *
+ * @module    mod_jqshow/teachersockets
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 "use strict";
 import jQuery from 'jquery';
 import Templates from 'core/templates';
@@ -45,7 +77,6 @@ let ACTION = {
 
 let SERVICES = {
     ACTIVESESSION: 'mod_jqshow_activesession',
-    GETALLQUESTIONS: 'mod_jqshow_session_getallquestions',
     NEXTQUESTION: 'mod_jqshow_nextquestion',
     FIRSTQUESTION: 'mod_jqshow_firstquestion',
     FINISHSESSION: 'mod_jqshow_finishsession',
@@ -146,10 +177,10 @@ function Sockets(region, socketurl, port, sessionmode, groupmode) {
             break;
         }
     }
-    this.measuringSpeed(); // TODO extend to the whole mod.
-    this.disableDevTools(); // TODO extend to the whole mod.
+    this.measuringSpeed();
+    this.disableDevTools();
     this.initSockets();
-    this.cleanMessages(); // TODO only for develop.
+    this.cleanMessages();
     this.initListeners();
 }
 
@@ -346,14 +377,26 @@ Sockets.prototype.initSockets = function() {
                 countusers.html(response.count);
                 break;
             case 'studentQuestionEnd':
-                messageBox.append('<div>' + response.message + '</div>');
+                /*messageBox.append('<div>' + response.message + '</div>');*/
                 if (sessionMode === 'race_manual') {
                     Sockets.prototype.raceResults();
                 }
                 break;
             case 'userdisconnected':
-                jQuery('[data-userid="' + response.usersocketid + '"]').remove();
+                if (groupMode != '1') {
+                    jQuery('[data-userid="' + response.usersocketid + '"]').remove();
+                    countusers.html(response.count);
+                }
+                messageBox.append('<div>' + response.message + '</div>');
+                break;
+            case 'groupdisconnected':
+                jQuery('.participants').find('[data-groupid="' + response.groupid + '"]').remove();
                 countusers.html(response.count);
+                messageBox.append('<div>' + response.message + '</div>');
+                break;
+            case 'groupmemberdisconnected':
+                jQuery('.participants').find('[data-groupid="' + response.groupid + '"]')
+                    .find('.numgroupusers').html('(' + response.count + ')');
                 messageBox.append('<div>' + response.message + '</div>');
                 break;
             case 'alreadyteacher':
@@ -483,7 +526,6 @@ Sockets.prototype.initListeners = function() {
                 identifier.html(html);
                 Templates.runTemplateJS(js);
                 jQuery(REGION.SWITCHS).removeClass('disabled');
-                // TODO only improvise.
                 jQuery(REGION.ESPECIALS).removeClass('disabled');
                 setTimeout(() => {
                     that.questionEnd();
@@ -494,7 +536,7 @@ Sockets.prototype.initListeners = function() {
                     jQuery(ACTION.VOTE).addClass('disabled');
                     jQuery(ACTION.JUMP).addClass('disabled');
                     mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
-                }, 250);
+                }, 300);
             }).fail(Notification.exception);
         } else {
             that.questionEnd();

@@ -14,23 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
-use enrol_self\self_test;
 use html_writer;
 use invalid_parameter_exception;
 use JsonException;
@@ -48,11 +55,11 @@ use question_definition;
 use question_display_options;
 use question_state;
 use stdClass;
+use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
 
-class ddwtos extends questions {
+class ddwtos extends questions implements questionType {
 
     /**
      * @param int $jqshowid
@@ -60,7 +67,7 @@ class ddwtos extends questions {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) :void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -77,7 +84,7 @@ class ddwtos extends questions {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_ddwtos(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
@@ -87,7 +94,7 @@ class ddwtos extends questions {
         }
         $question->shufflechoices = 0;
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
         $data->questiontextformat = $question->questiontextformat;
@@ -100,6 +107,7 @@ class ddwtos extends questions {
     /**
      * @param stdClass $data
      * @param string $response
+     * @param int $result
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -109,7 +117,7 @@ class ddwtos extends questions {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_ddwtos_response(stdClass $data, string $response): stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result = 0): stdClass {
         $responsedata = json_decode($response, false);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
@@ -155,7 +163,7 @@ class ddwtos extends questions {
      * @throws dml_exception
      * @throws dml_transaction_exception
      */
-    public static function get_question_text(int $cmid, qtype_ddwtos_question $question, array $response = []) {
+    public static function get_question_text(int $cmid, qtype_ddwtos_question $question, array $response = []) : string {
         $questiontext = '';
         $embeddedelements = [];
         $placeholders = self::get_fragments_glue_placeholders($question->textfragments);
@@ -170,7 +178,7 @@ class ddwtos extends questions {
         }
         $questiontext =
             self::get_text($cmid, $questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
-        foreach ($placeholders as $i => $placeholder) {
+        foreach ($placeholders as $placeholder) {
             $questiontext = preg_replace('/'. preg_quote($placeholder, '/') . '/',
                 $embeddedelements[$placeholder], $questiontext);
         }
@@ -289,10 +297,10 @@ class ddwtos extends questions {
     /**
      * @param int $fraction
      * @param bool $selected
-     * @return mixed
+     * @return string
      * @throws coding_exception
      */
-    private static function feedback_image(int $fraction, bool $selected = true) {
+    private static function feedback_image(int $fraction, bool $selected = true) : string {
         global $OUTPUT;
         $feedbackclass = question_state::graded_state_for_fraction($fraction)->get_feedback_class();
         return $OUTPUT->pix_icon('i/grade_' . $feedbackclass, get_string($feedbackclass, 'question'));
@@ -420,7 +428,7 @@ class ddwtos extends questions {
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws dml_exception|moodle_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,
@@ -428,21 +436,8 @@ class ddwtos extends questions {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-        switch ($response->get('result')) {
-            case questions::FAILURE:
-                $participant->response = 'incorrect';
-                break;
-            case questions::SUCCESS:
-                $participant->response = 'correct';
-                break;
-            case questions::PARTIALLY:
-                $participant->response = 'partially';
-                break;
-            case questions::NORESPONSE:
-            default:
-                $participant->response = 'noresponse';
-                break;
-        }
+
+        $participant->response = grade::get_result_mark_type($response);
         $participant->responsestr = get_string($participant->response, 'mod_jqshow');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
@@ -457,38 +452,38 @@ class ddwtos extends questions {
     }
 
     /**
+     * @param int $cmid
      * @param int $jqid
-     * @param string $responsetext
-     * @param int $result
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
-     * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
      * @throws coding_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function ddwtos_response(
+    public static function question_response(
+        int $cmid,
         int $jqid,
-        string $responsetext,
-        int $result,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
-        string $answerfeedback,
         int $userid,
-        int $timeleft
+        int $timeleft,
+        array $custom
     ): void {
-        global $COURSE;
-        // TODO use course_module context.
-        $coursecontext = context_course::instance($COURSE->id);
-        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+
+        $responsetext = $custom['responsetext'];
+        $result = $custom['result'];
+        $answerfeedback = $custom['answerfeedback'];
+        $cmcontext = context_module::instance($cmid);
+        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
@@ -509,15 +504,14 @@ class ddwtos extends questions {
     /**
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
-     * @return float|int
+     * @return float
      * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) {
-        global $DB;
+    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) : float {
         $mark = 0;
         $jqshow = new jqshow($response->get('jqshow'));
         [$course, $cm] = get_course_and_cm_from_instance($response->get('jqshow'), 'jqshow', $jqshow->get('course'));
@@ -536,34 +530,21 @@ class ddwtos extends questions {
         }
         return $mark;
     }
+
     /**
      * @param question_definition $question
      * @param jqshow_questions_responses[] $responses
      * @return array
+     * @throws coding_exception
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];
-        $correct = 0;
-        $incorrect = 0;
-        $partially = 0;
-        $noresponse = 0;
-        $invalid = 0;
         $total = count($responses);
-        foreach ($responses as $response) {
-            $result = $response->get('result');
-            switch ($result) {
-                case questions::SUCCESS: $correct++; break;
-                case questions::FAILURE: $incorrect++; break;
-                case questions::INVALID: $invalid++; break;
-                case questions::PARTIALLY: $partially++; break;
-                case questions::NORESPONSE: $noresponse++; break;
-            }
-        }
-        $statistics[0]['correct'] = $correct * 100 / $total;
-        $statistics[0]['failure'] = $incorrect  * 100 / $total;
-//        $statistics[0]['invalid'] = $invalid  * 100 / $total;
-        $statistics[0]['partially'] = $partially  * 100 / $total;
-        $statistics[0]['noresponse'] = $noresponse  * 100 / $total;
+        list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
+        $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
+        $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
+        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse  * 100 / $total, 2) : 0;
         return $statistics;
     }
 }

@@ -14,25 +14,32 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\api\grade;
-use mod_jqshow\api\groupmode;
 use mod_jqshow\external\match_external;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\persistents\jqshow_questions;
@@ -43,11 +50,11 @@ use qtype_match_question;
 use question_bank;
 use question_definition;
 use stdClass;
+use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
 
-class matchquestion extends questions {
+class matchquestion extends questions implements questionType {
 
     /**
      * @param int $jqshowid
@@ -55,7 +62,7 @@ class matchquestion extends questions {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) : void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -70,7 +77,7 @@ class matchquestion extends questions {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function export_match(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
@@ -80,13 +87,12 @@ class matchquestion extends questions {
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
         $data->questiontext =
             self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontextformat = $question->questiontextformat;
-        $feedbacks = [];
         $leftoptions = [];
         foreach ($question->stems as $key => $leftside) {
             $leftoptions[$key] = [
@@ -128,7 +134,7 @@ class matchquestion extends questions {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_match_response(stdClass $data, string $response, int $result):stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result):stdClass {
         $responsedata = json_decode($response, false);
         $data->answered = true;
         $jsonresponse = json_encode($responsedata->response, JSON_THROW_ON_ERROR);
@@ -197,7 +203,7 @@ class matchquestion extends questions {
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws dml_exception|moodle_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,
@@ -205,21 +211,8 @@ class matchquestion extends questions {
         array $answers,
         jqshow_sessions $session,
         jqshow_questions $question): stdClass {
-        switch ($response->get('result')) {
-            case questions::FAILURE:
-                $participant->response = 'incorrect';
-                break;
-            case questions::SUCCESS:
-                $participant->response = 'correct';
-                break;
-            case questions::PARTIALLY:
-                $participant->response = 'partially';
-                break;
-            case questions::NORESPONSE:
-            default:
-                $participant->response = 'noresponse';
-                break;
-        }
+
+        $participant->response = grade::get_result_mark_type($response);
         $participant->responsestr = get_string($participant->response, 'mod_jqshow');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
@@ -234,37 +227,38 @@ class matchquestion extends questions {
     }
 
     /**
+     * @param int $cmid
      * @param int $jqid
-     * @param string $jsonresponse
-     * @param int $result
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
-     * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
      * @throws coding_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function match_response(
+    public static function question_response(
+        int $cmid,
         int $jqid,
-        string $jsonresponse,
-        int $result,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
-        string $answerfeedback,
         int $userid,
-        int $timeleft
-    ):void {
-        global $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
-        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        int $timeleft,
+        array $custom
+    ) : void {
+
+        $jsonresponse = $custom['jsonresponse'];
+        $result = $custom['result'];
+        $answerfeedback = $custom['answerfeedback'];
+        $cmcontext = context_module::instance($cmid);
+        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
@@ -290,7 +284,7 @@ class matchquestion extends questions {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) : float {
         global $DB;
         $mark = 0;
         // TODO prepare the json of the response to pass logic through grade_response.
@@ -299,34 +293,21 @@ class matchquestion extends questions {
         }
         return $mark;
     }
+
     /**
      * @param question_definition $question
      * @param jqshow_questions_responses[] $responses
      * @return array
+     * @throws coding_exception
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];
-        $correct = 0;
-        $incorrect = 0;
-        $partially = 0;
-        $noresponse = 0;
-        $invalid = 0;
         $total = count($responses);
-        foreach ($responses as $response) {
-            $result = $response->get('result');
-            switch ($result) {
-                case questions::SUCCESS: $correct++; break;
-                case questions::FAILURE: $incorrect++; break;
-                case questions::INVALID: $invalid++; break;
-                case questions::PARTIALLY: $partially++; break;
-                case questions::NORESPONSE: $noresponse++; break;
-            }
-        }
-        $statistics[0]['correct'] = $correct * 100 / $total;
-        $statistics[0]['failure'] = $incorrect  * 100 / $total;
-//        $statistics[0]['invalid'] = $invalid  * 100 / $total;
-        $statistics[0]['partially'] = $partially  * 100 / $total;
-        $statistics[0]['noresponse'] = $noresponse  * 100 / $total;
+        list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
+        $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
+        $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
+        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse  * 100 / $total, 2) : 0;
         return $statistics;
     }
 }

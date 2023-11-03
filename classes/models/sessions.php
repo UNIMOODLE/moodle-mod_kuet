@@ -14,15 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 namespace mod_jqshow\models;
 
 use cm_info;
@@ -88,6 +95,8 @@ class sessions {
     public const SESSION_FINISHED = 0;
     public const SESSION_ACTIVE = 1;
     public const SESSION_STARTED = 2;
+    public const SESSION_CREATING = 3;
+    public const SESSION_ERROR = 4;
 
     /**
      * sessions constructor.
@@ -102,7 +111,7 @@ class sessions {
     /**
      * @return void
      */
-    public function set_list() {
+    public function set_list() : void {
         $this->list = jqshow_sessions::get_records(['jqshowid' => $this->jqshow->id]);
     }
 
@@ -144,14 +153,9 @@ class sessions {
             ];
         }
         $timemode = [
-//            self::NO_TIME => get_string('no_time', 'mod_jqshow'), // TODO enable for inactive.
+            self::NO_TIME => get_string('no_time', 'mod_jqshow'),
             self::SESSION_TIME => get_string('session_time', 'mod_jqshow'),
             self::QUESTION_TIME => get_string('question_time', 'mod_jqshow'),
-        ];
-        $countdownchoices = [
-            0 => 'Opcion1',
-            1 => 'Opcion2',
-            3 => 'Opcion3'
         ];
         $groupingsselect = [];
         $data = get_course_and_cm_from_cmid($this->cmid);
@@ -172,7 +176,6 @@ class sessions {
             'course' => $course,
             'cm' => $cm,
             'jqshowid' => $this->jqshow->id,
-            'countdown' => $countdownchoices,
             'sessionmodechoices' => $sessionmodechoices,
             'timemode' => $timemode,
             'anonymousanswerchoices' => $anonymousanswerchoices,
@@ -343,7 +346,7 @@ class sessions {
         foreach ($questions as $key => $question) {
             $icon = new pix_icon('icon', '', 'qtype_' . $question->qtype, [
                 'class' => 'icon',
-                'title' => ''
+                'title' => $question->qtype
             ]);
             $question->icon = $icon->export_for_pix();
             $question->issuitable = in_array($question->qtype, questions::TYPES, true);
@@ -513,12 +516,15 @@ class sessions {
                 $numquestion = jqshow_questions::count_records(
                     ['sessionid' => $sessiondata->get('id'), 'jqshowid' => $sessiondata->get('jqshowid')]
                 );
-                $timeperquestion = round((int)$sessiondata->get('sessiontime') / $numquestion);
-                $timemodestring = get_string(
-                    'session_time_resume', 'mod_jqshow', userdate($sessiondata->get('sessiontime'), '%Mm %Ss')
-                    ) . '<br>' .
-                    get_string('question_time', 'mod_jqshow') . ': ' .
-                    $timeperquestion . 's';
+                $timemodestring = get_string('no_time', 'mod_jqshow');
+                if ($numquestion !== 0) {
+                    $timeperquestion = round((int)$sessiondata->get('sessiontime') / $numquestion);
+                    $timemodestring = get_string(
+                            'session_time_resume', 'mod_jqshow', userdate($sessiondata->get('sessiontime'), '%Mm %Ss')
+                        ) . '<br>' .
+                        get_string('question_time', 'mod_jqshow') . ': ' .
+                        $timeperquestion . 's';
+                }
                 break;
             case self::QUESTION_TIME:
                 $totaltime =
@@ -546,8 +552,6 @@ class sessions {
     public static function get_session_results(int $sid, int $cmid): array {
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
-        $contextmodule = context_module::instance($cmid);
-        $PAGE->set_context($contextmodule);
         $users = enrol_get_course_users($course->id, true);
         $session = jqshow_sessions::get_record(['id' => $sid]);
         $questions = (new questions($session->get('jqshowid'), $cmid, $sid))->get_list();
@@ -704,6 +708,7 @@ class sessions {
                 $members = groupmode::get_group_members($groupresult->id);
                 $member = reset($members);
                 $userresponse = jqshow_questions_responses::get_question_response_for_user($member->id, $sid, $question->get('id'));
+                $questionsdata[$key]->studentsresponse[$member->id] = new stdClass();
                 $questionsdata[$key]->studentsresponse[$member->id]->userid = $member->id;
                 if ($userresponse !== false) {
                     $questionsdata[$key]->studentsresponse[$member->id]->response = $userresponse;
@@ -842,6 +847,7 @@ class sessions {
      * @param jqshow_sessions $session
      * @param int $cmid
      * @param int $jqid
+     * @param context_module $context
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -852,7 +858,7 @@ class sessions {
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $users = enrol_get_course_users($course->id, true);
-        $students = [];;
+        $students = [];
         $sid = $session->get('id');
         foreach ($users as $user) {
             if (!has_capability('mod/jqshow:startsession', $context, $user) &&
@@ -882,7 +888,6 @@ class sessions {
 
     /**
      * @param jqshow_sessions $session
-     * @param int $cmid
      * @param int $jqid
      * @return array
      * @throws coding_exception
@@ -940,7 +945,7 @@ class sessions {
     }
 
     /**
-     * @param int $sid
+     * @param jqshow_sessions $session
      * @param cm_info $cm
      * @param int $courseid
      * @param context_module $context
@@ -980,6 +985,7 @@ class sessions {
      * @return array
      * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
     private static function get_final_group_ranking(jqshow_sessions $session): array {
         $groups = groupmode::get_grouping_groups($session->get('groupings'));
@@ -1013,15 +1019,23 @@ class sessions {
     public static function export_endsession(int $cmid, int $sessionid): object {
         global $USER;
         $session = new jqshow_sessions($sessionid);
+        $contextmodule = context_module::instance($cmid);
         $jqshow = new jqshow($session->get('jqshowid'));
         $data = new stdClass();
         $data->cmid = $cmid;
         $data->sessionid = $sessionid;
         $data->jqshowid = $session->get('jqshowid');
         $data->courselink = (new moodle_url('/course/view.php', ['id' => $jqshow->get('course')]))->out(false);
-        $data->reportlink = (new moodle_url('/mod/jqshow/reports.php',
-            ['cmid' => $cmid, 'sid' => $sessionid, 'userid' => $USER->id]))->out(false);
-        $contextmodule = context_module::instance($cmid);
+        $params = ['cmid' => $cmid, 'sid' => $sessionid];
+        if (!$session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
+            $params['userid'] = $USER->id;
+        } else if ($session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
+            $group = groupmode::get_user_group($USER->id, $session);
+            if (isset($group->id)) {
+                $params['groupid'] = $group->id;
+            }
+        }
+        $data->reportlink = (new moodle_url('/mod/jqshow/reports.php', $params))->out(false);
         switch ($session->get('sessionmode')) {
             case self::INACTIVE_PROGRAMMED:
             case self::INACTIVE_MANUAL:

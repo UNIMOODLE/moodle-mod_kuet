@@ -37,9 +37,37 @@ body.path-mod-jqshow.fullscreen { // TODO there are some bugs outside the previe
     #page {
         margin-top: 0;
         padding: 0;
+        height: 100vh;
         #topofscroll {
             margin: 0 !important;
             padding: 0 !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            #page-content {
+                height: auto !important;
+                width: 100%;
+                #region-main {
+                    display: flex;
+                    .activity-header {
+                        display: none;
+                    }
+                    div[role="main"] {
+                        display: flex;
+                        flex-flow: row nowrap;
+                        justify-content: center;
+                        align-items: center;
+                        width: 100%;
+                        .session-content {
+                            width: 100%;
+                        }
+                        [data-region="teacher-canvas-content"],
+                        [data-region="student-canvas"] {
+                            width: 100%;
+                        }
+                    }
+                }
+            }
         }
     }
     #page-footer {
@@ -48,4 +76,18 @@ body.path-mod-jqshow.fullscreen { // TODO there are some bugs outside the previe
     * {
         transition: all .5s ease !important;
     }
+}
+
+@media (max-width: 1150px) {
+    [data-region="teacher-panel"] {
+        .resume-config {
+            display: none;
+        }
+    }
+}
+@media (max-width: 768px) {
+
+}
+@media (max-width: 576px) {
+
 }

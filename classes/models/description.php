@@ -14,42 +14,47 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\api\grade;
-use mod_jqshow\api\groupmode;
 use mod_jqshow\external\description_external;
 use mod_jqshow\helpers\reports;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
-use pix_icon;
 use qtype_description_question;
 use question_bank;
 use question_definition;
 use stdClass;
+use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
 
-class description extends questions {
+class description extends questions implements questionType {
 
     /**
      * @param int $jqshowid
@@ -57,7 +62,7 @@ class description extends questions {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) : void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -74,7 +79,7 @@ class description extends questions {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_description(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
@@ -83,7 +88,7 @@ class description extends questions {
                 [], get_string('question_nosuitable', 'mod_jqshow'));
         }
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
         $data->questiontext =
@@ -97,6 +102,7 @@ class description extends questions {
     /**
      * @param stdClass $data
      * @param string $response
+     * @param int $result
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -106,7 +112,7 @@ class description extends questions {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_description_response(stdClass $data, string $response): stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result = 0): stdClass {
         $responsedata = json_decode($response, false);
         if (!isset($responsedata->response) || (is_array($responsedata->response) && count($responsedata->response) === 0)) {
             $responsedata->response = '';
@@ -135,7 +141,6 @@ class description extends questions {
      * @param stdClass $data
      * @param int $jqid
      * @return void
-     * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
@@ -160,7 +165,6 @@ class description extends questions {
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,
@@ -170,44 +174,50 @@ class description extends questions {
         jqshow_questions $question): stdClass {
         $participant->response = 'noevaluable';
         $participant->responsestr = get_string('noevaluable', 'mod_jqshow');
-        $participant->userpoints = 0;
+        if ($session->is_group_mode()) {
+            $participant->grouppoints = 0;
+        } else {
+            $participant->userpoints = 0;
+        }
         $participant->score_moment = 0;
         $participant->time = reports::get_user_time_in_question($session, $question, $response);
         return $participant;
     }
 
     /**
+     * @param int $cmid
      * @param int $jqid
-     * @param int $result
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
-     * @throws moodle_exception
      * @throws coding_exception
      * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
-    public static function description_response(
+    public static function question_response(
+        int $cmid,
         int $jqid,
-        int $result,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
         int $userid,
-        int $timeleft
+        int $timeleft,
+        array $custom = []
     ): void {
-        global $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
-        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        $cmcontext = context_module::instance($cmid);
+        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
+        $result = questions::NOTEVALUABLE;
         if ($isteacher !== true) {
             $session = new jqshow_sessions($sessionid);
             $response = new stdClass();
-            $response->hasfeedbacks = (bool)($statmentfeedback !== '');
+            $response->hasfeedbacks = $statmentfeedback !== '';
             $response->timeleft = $timeleft;
             $response->type = questions::DESCRIPTION;
             $response->response = '';
@@ -225,9 +235,9 @@ class description extends questions {
     /**
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
-     * @return float|int
+     * @return float
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) : float {
         return 0;
     }
     public static function is_evaluable() : bool {
@@ -239,7 +249,6 @@ class description extends questions {
      * @return array
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
-        $statistics = [];
-        return $statistics;
+        return [];
     }
 }

@@ -49,6 +49,12 @@
 			width: 100%;
 		}
 	}
+	.contain-group-message {
+		padding: 15px;
+		background-color: #fff;
+		margin-top: 1em;
+		border-radius: 25px;
+	}
 	.containt-answers {
 		display: flex;
 		flex-flow: row wrap;
@@ -141,5 +147,16 @@
 		z-index: 1;
 		border-radius: 0 0 25px 25px;
 		background-color: rgba(0, 0, 0, .6);
+	}
+}
+
+@media (max-width: 991px) {
+	.container-fluid.question {
+		padding: 15px;
+	}
+	.modal-body {
+		.container-fluid.question {
+			padding: 30px;
+		}
 	}
 }

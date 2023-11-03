@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\persistents;
@@ -40,7 +48,7 @@ class jqshow_questions extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() {
+    protected static function define_properties() :array {
         return [
             'questionid' => [
                 'type' => PARAM_INT,
@@ -96,7 +104,7 @@ class jqshow_questions extends persistent {
     public static function add_question(int $questionid, int $sessionid, int $jqshowid, string $qtype) : bool {
         global $USER;
         $order = parent::count_records(['sessionid' => $sessionid]) + 1;
-        $isvalid = 0; // TODO. Teacher must configured the question for this session.
+        $isvalid = 0; // Teacher must configure the question for this session.
         $data = new stdClass();
         $data->questionid = $questionid;
         $data->sessionid = $sessionid;

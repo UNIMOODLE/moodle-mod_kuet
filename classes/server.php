@@ -14,12 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 declare(strict_types=1);
@@ -37,6 +46,7 @@ class server extends websockets {
     protected $teacher = [];
     protected $sidusers = [];
     protected $sidgroups = [];
+    protected $sidgroupusers = [];
     protected $password = 'elktkktagqes';
 
     /**
@@ -69,6 +79,21 @@ class server extends websockets {
                     if ($key === $data['usersocketid']) {
                         fwrite($socket, $responsetext, strlen($responsetext));
                         break;
+                    }
+                }
+            }
+        } else if (isset($data['ofg']) && $data['ofg'] === true) {
+            // Only for groups.
+            $responsetext = $this->get_response_from_action_for_group($data);
+            $groupid = $this->get_groupid_from_a_member((int) $data['sid'], (int) $data['userid']);
+            if ($responsetext !== '' && $groupid) {
+                $socketgroups = $this->sidgroups[$data['sid']];
+                foreach ($socketgroups[$groupid]->users as $usergroup) {
+                    foreach ($this->sockets as $key => $socket) {
+                        if ($key === $usergroup->usersocketid) {
+                            fwrite($socket, $responsetext, strlen($responsetext));
+                            break;
+                        }
                     }
                 }
             }
@@ -121,9 +146,70 @@ class server extends websockets {
      * @throws JsonException
      * @throws coding_exception
      */
+    protected function close_groupmember($user) {
+        $groupmemberdisconected = false;
+        $groupdisconected = false;
+        $groupid = 0;
+        $groupname = '';
+        $numgroups = 0;
+        if (array_key_exists($user->usersocketid, $this->sidgroupusers)) {
+            $groupmemberdisconected = true;
+            $groupid = $this->sidgroupusers[$user->usersocketid];
+            $groupname = $this->sidgroups[$user->sid][$groupid]->groupname;
+            $numusers = count($this->sidgroups[$user->sid][$groupid]->users);
+            $numgroups = count($this->sidgroups[$user->sid]);
+            unset($this->sidgroups[$user->sid][$groupid]->users[$user->usersocketid], $this->sidgroupusers[$user->usersocketid]);
+            --$numusers;
+            if ($numusers === 0) {
+                unset($this->sidgroups[$user->sid][$groupid]);
+                --$numgroups;
+                $groupdisconected = true;
+            }
+        }
+        if ($groupdisconected) {
+            $groupresponse = $this->mask(
+                encrypt($this->password, json_encode([
+                    'action' => 'groupdisconnected',
+                    'usersocketid' => $user->usersocketid,
+                    'groupid' => $groupid,
+                    'message' =>
+                        '<span style="color: red">' . $groupname . ' disconnected </span>',
+                    'count' => $numgroups
+                ], JSON_THROW_ON_ERROR)));
+            if (isset($this->sidusers[$user->sid])) {
+                foreach ($this->sidusers[$user->sid] as $usersaved) {
+                    fwrite($usersaved->socket, $groupresponse, strlen($groupresponse));
+                }
+            }
+        } else if ($groupmemberdisconected) {
+            $groupresponse = $this->mask(
+                encrypt($this->password, json_encode([
+                    'action' => 'groupmemberdisconnected',
+                    'usersocketid' => $user->usersocketid,
+                    'groupid' => $groupid,
+                    'message' =>
+                        '<span style="color: red"> Group member ' . $user->dataname . ' has been disconnected. </span>',
+                    'count' => $numusers
+                ], JSON_THROW_ON_ERROR)));
+            if (isset($this->sidusers[$user->sid])) {
+                foreach ($this->sidusers[$user->sid] as $usersaved) {
+                    fwrite($usersaved->socket, $groupresponse, strlen($groupresponse));
+                }
+            }
+        }
+    }
+
+    /**
+     * @param $user
+     * @return void
+     * @throws JsonException
+     * @throws coding_exception
+     */
     protected function closed($user) {
         unset($this->sidusers[$user->sid][$user->usersocketid],
             $this->students[$user->sid][$user->usersocketid]);
+        // Group mode.
+        $this->close_groupmember($user);
         $response = $this->mask(
             encrypt($this->password, json_encode([
                 'action' => 'userdisconnected',
@@ -144,7 +230,6 @@ class server extends websockets {
                     $this->disconnect($socket->socket);
                     fclose($socket->socket);
                     unset($this->students[$user->sid], $this->sidusers[$user->sid]);
-                    // jqshow_sessions::mark_session_finished((int)$user->sid);
                 }
             }
         }
@@ -178,7 +263,7 @@ class server extends websockets {
                             'onlyforteacher' => true,
                             'improvisereply' => $data['improvisereply'],
                             'userid' => $data['userid'],
-                            'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta improvisada con la palabra: ' . $data['improvisereply'] // TODO delete.
+                            'message' => ''
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'StudentVotedTag':
@@ -188,7 +273,48 @@ class server extends websockets {
                             'onlyforteacher' => true,
                             'votedtag' => $data['votedtag'],
                             'userid' => $data['userid'],
-                            'message' => 'El alumno ' . $data['userid'] . ' ha votado una pregunta improvisada con la palabra: ' . $data['votedtag'] // TODO delete.
+                            'message' => ''
+                        ], JSON_THROW_ON_ERROR)
+                    ));
+            default:
+                return '';
+        }
+    }
+
+    /**
+     * @param int $sid
+     * @param int $userid
+     * @return int
+     */
+    protected function get_groupid_from_a_member(int $sid, int $userid) : int {
+        $groupid = 0;
+        if (!array_key_exists($sid, $this->sidgroups)) {
+            return $groupid;
+        }
+        foreach ($this->sidgroups[$sid] as $sidgroup) {
+            foreach ($sidgroup->users as $member) {
+                if ((int)$member->userid === $userid) {
+                    $groupid = $sidgroup->groupid;
+                    return $groupid;
+                }
+            }
+        }
+        return $groupid;
+    }
+
+    /**
+     * @param array $data
+     * @return string
+     * @throws JsonException
+     */
+    protected function get_response_from_action_for_group(array $data) : string {
+        switch ($data['action']) {
+            case 'alreadyAnswered':
+                return $this->mask(
+                    encrypt($this->password, json_encode([
+                            'action' => 'alreadyAnswered',
+                            'userid' => $data['userid'],
+                            'jqid' => $data['jqid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             default:
@@ -222,8 +348,7 @@ class server extends websockets {
      * @param string $useraction // The action it requires.
      * @param array $data // Body of the message.
      * @return string // Json enconde.
-     * @throws JsonException
-     * @throws coding_exception
+     * @throws JsonException|coding_exception
      */
     protected function get_response_from_action(websocketuser $user, string $useraction, array $data): string {
         // Prepare data to be sent to client.
@@ -377,7 +502,7 @@ class server extends websockets {
      * @param array $data
      * @return void
      */
-    private function newuser(websocketuser $user, array $data) {
+    private function newuser(websocketuser $user, array $data): void {
         $this->users[$user->usersocketid]->dataname = $data['name'];
         $this->users[$user->usersocketid]->picture = $data['pic'];
         $this->users[$user->usersocketid]->userid = $data['userid'];
@@ -388,17 +513,29 @@ class server extends websockets {
     }
 
     /**
+     * @param websocketuser $user
      * @param array $data
      * @return void
      */
-    private function newgroup(websocketuser $user, array $data) {
+    private function newgroup(websocketuser $user, array $data): void {
+        if (!array_key_exists($data['sid'], $this->sidgroups)) {
+            $this->sidgroups[$data['sid']] = [];
+        }
+        if (!array_key_exists($data['groupid'], $this->sidgroups[$data['sid']])) {
+            $this->sidgroups[$data['sid']][$data['groupid']] = new stdClass();
+            $this->sidgroups[$data['sid']][$data['groupid']]->users = [];
+        }
         $this->sidgroups[$data['sid']][$data['groupid']]->groupid = $data['groupid'];
         $this->sidgroups[$data['sid']][$data['groupid']]->groupname = $data['name'];
         $this->sidgroups[$data['sid']][$data['groupid']]->grouppicture = $data['pic'];
         $this->sidgroups[$data['sid']][$data['groupid']]->sid = $data['sid'];
         $this->sidgroups[$data['sid']][$data['groupid']]->cmid = $data['cmid'];
-        $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
-        $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->userid = $data['userid'];
+        if (!array_key_exists($data['usersocketid'], $this->sidgroups[$data['sid']][$data['groupid']]->users)) {
+            $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid] = new stdClass();
+            $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->usersocketid = $data['usersocketid'];
+            $this->sidgroups[$data['sid']][$data['groupid']]->users[$user->usersocketid]->userid = $data['userid'];
+            $this->sidgroupusers[$data['usersocketid']] = $data['groupid'];
+        }
     }
     /**
      * @param websocketuser $user
@@ -432,7 +569,7 @@ class server extends websockets {
                 'action' => 'newteacher',
                 'name' => $data['name'] ?? '',
                 'userid' => $user->id ?? '',
-                'message' => '<span style="color: green">El profesor ' . $user->dataname . ' se ha conectado</span>',
+                'message' => '<span style="color: green">The teacher ' . $user->dataname . ' has connected</span>',
                 'count' => isset($this->sidusers[$data['sid']]) ? count($this->sidusers[$data['sid']]) : 0,
             ], JSON_THROW_ON_ERROR))
         );
@@ -445,6 +582,26 @@ class server extends websockets {
      * @throws JsonException
      */
     private function manage_newstudent_for_sid(websocketuser $user, array $data): string {
+        $duplicateresolve = false;
+        if (isset($this->students[$data['sid']])) {
+            foreach ($this->students[$data['sid']] as $usersocketid => $studentsid) {
+                if ($studentsid->userid === $data['userid']) {
+                    // There can only be one same user in each session to avoid conflicts of functionality.
+                    foreach ($this->sockets as $key => $socket) {
+                        if ($key === $usersocketid) {
+                            $this->disconnect($socket);
+                            fclose($socket);
+                            unset($this->users[$usersocketid]);
+                            $duplicateresolve = true;
+                            break;
+                        }
+                    }
+                }
+                if ($duplicateresolve === true) {
+                    break;
+                }
+            }
+        }
         $this->users[$user->usersocketid]->isteacher = false;
         $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
         $this->students[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];

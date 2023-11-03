@@ -14,19 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\external;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use external_api;
@@ -47,6 +55,7 @@ class copysession_external extends external_api {
         return new external_function_parameters(
             [
                 'courseid' => new external_value(PARAM_INT, 'course id'),
+                'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session to copy')
             ]
         );
@@ -54,22 +63,23 @@ class copysession_external extends external_api {
 
     /**
      * @param int $courseid
+     * @param int $cmid
      * @param int $sessionid
      * @return array
-     * @throws invalid_persistent_exception
      * @throws coding_exception
      * @throws dml_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      */
-    public static function copysession(int $courseid, int $sessionid): array {
+    public static function copysession(int $courseid, int $cmid, int $sessionid): array {
         global $USER;
         self::validate_parameters(
             self::copysession_parameters(),
-            ['courseid' => $courseid, 'sessionid' => $sessionid]
+            ['courseid' => $courseid, 'cmid' => $cmid, 'sessionid' => $sessionid]
         );
-        $coursecontext = context_course::instance($courseid);
+        $cmcontext = context_module::instance($cmid);
         $copied = false;
-        if ($coursecontext !== null && has_capability('mod/jqshow:managesessions', $coursecontext, $USER)) {
+        if ($cmcontext !== null && has_capability('mod/jqshow:managesessions', $cmcontext, $USER)) {
             $newsessionid = jqshow_sessions::duplicate_session($sessionid);
             $copied = jqshow_questions::copy_session_questions($sessionid, $newsessionid);
         }

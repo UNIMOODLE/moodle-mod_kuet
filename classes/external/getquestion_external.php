@@ -14,13 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\external;
@@ -36,16 +44,8 @@ use external_value;
 use invalid_parameter_exception;
 use JsonException;
 use mod_jqshow\exporter\question_exporter;
-use mod_jqshow\models\calculated;
-use mod_jqshow\models\ddwtos;
-use mod_jqshow\models\description;
-use mod_jqshow\models\matchquestion;
-use mod_jqshow\models\multichoice;
-use mod_jqshow\models\numerical;
 use mod_jqshow\models\questions;
 use mod_jqshow\models\sessions;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\models\truefalse;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
@@ -92,35 +92,11 @@ class getquestion_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $session = new jqshow_sessions($sessionid);
-        switch ((new jqshow_questions($jqid))->get('qtype')) {
-            case questions::MULTICHOICE:
-                $question = multichoice::export_multichoice($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::MATCH:
-                $question = matchquestion::export_match($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::TRUE_FALSE:
-                $question = truefalse::export_truefalse($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::SHORTANSWER:
-                $question = shortanswer::export_shortanswer($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::NUMERICAL:
-                $question = numerical::export_numerical($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::CALCULATED:
-                $question = calculated::export_calculated($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::DESCRIPTION:
-                $question = description::export_description($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            case questions::DDWTOS:
-                $question = ddwtos::export_ddwtos($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-                break;
-            default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                    [], get_string('question_nosuitable', 'mod_jqshow'));
-        }
+
+        $jquestion = new jqshow_questions($jqid);
+        /** @var questions $type */
+        $type = questions::get_question_class_by_string_type($jquestion->get('qtype'));
+        $question = $type::export_question($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
         $session = new jqshow_sessions($sessionid);
         $question->programmedmode = in_array($session->get('sessionmode'),
             [sessions::PODIUM_PROGRAMMED, sessions::INACTIVE_PROGRAMMED, sessions::RACE_PROGRAMMED], true);

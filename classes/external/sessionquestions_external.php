@@ -14,19 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\external;
 
 use coding_exception;
-use context_course;
+use context_module;
 use dml_exception;
 use external_api;
 use external_function_parameters;
@@ -40,6 +48,7 @@ use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
+use pix_icon;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
@@ -97,6 +106,11 @@ class sessionquestions_external extends external_api {
         $data->position = $question->get('qorder');
         $data->name = $questiondb->name;
         $data->type = $question->get('qtype');
+        $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
+            'class' => 'icon',
+            'title' => $question->get('qtype')
+        ]);
+        $data->icon = $icon->export_for_pix();
         $data->sid = $question->get('sessionid');
         $data->cmid = $cmid;
         $data->jqshowid = $question->get('jqshowid');
@@ -121,7 +135,7 @@ class sessionquestions_external extends external_api {
         }
         $data->issuitable = in_array($question->get('qtype'), questions::TYPES, true);
         $data->version = $DB->get_field('question_versions', 'version', ['questionid' => $question->get('questionid')]);
-        $cmcontext = \context_module::instance($cmid);
+        $cmcontext = context_module::instance($cmid);
         $data->managesessions = has_capability('mod/jqshow:managesessions', $cmcontext);
         $args = [
             'id' => $cmid,
@@ -149,6 +163,11 @@ class sessionquestions_external extends external_api {
                         'questionnid' => new external_value(PARAM_INT, 'Question id'),
                         'position' => new external_value(PARAM_INT, 'Question order'),
                         'name' => new external_value(PARAM_RAW, 'Name of question'),
+                        'icon' => new external_single_structure([
+                            'key' => new external_value(PARAM_RAW, 'Key of icon'),
+                            'component' => new external_value(PARAM_RAW, 'Component of icon'),
+                            'title' => new external_value(PARAM_RAW, 'Title of icon'),
+                        ], ''),
                         'type' => new external_value(PARAM_RAW, 'Question type'),
                         'isvalid' => new external_value(PARAM_RAW, 'Is question valid or missing config'),
                         'time' => new external_value(PARAM_RAW, 'Time of question'),

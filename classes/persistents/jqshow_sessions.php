@@ -14,17 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\persistents;
 use coding_exception;
+use context_module;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
@@ -41,7 +50,7 @@ class jqshow_sessions extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() {
+    protected static function define_properties() :array {
         return [
             'name' => [
                 'type' => PARAM_RAW,
@@ -219,11 +228,11 @@ class jqshow_sessions extends persistent {
     public static function get_next_session(int $jqshowid): int {
         global $DB;
         $allsessions = $DB->get_records(self::TABLE, ['jqshowid' => $jqshowid, 'status' => sessionsmodel::SESSION_ACTIVE],
-            'startdate DESC', 'id,startdate');
+            'startdate DESC', 'id, startdate');
         $dates = [];
         foreach ($allsessions as $date) {
-            if ($date->{'startdate'} !== 0) {
-                $dates[] = $date->{'startdate'};
+            if ($date->startdate !== 0) {
+                $dates[] = $date->startdate;
             }
         }
         if (!empty($dates)) {
@@ -280,7 +289,6 @@ class jqshow_sessions extends persistent {
     public static function mark_session_active(int $sid): void {
         $session = new jqshow_sessions($sid);
         $session->set('status', sessionsmodel::SESSION_ACTIVE);
-        $session->set('startdate', 0);
         $session->update();
     }
 
@@ -301,7 +309,7 @@ class jqshow_sessions extends persistent {
         $params = array(
             'objectid' => $sid,
             'courseid' => $jqshow->get('course'),
-            'context' => \context_module::instance($cm->id)
+            'context' => context_module::instance($cm->id)
         );
         $event = session_ended::create($params);
         $event->add_record_snapshot('jqshow_sessions', $session->to_record());
@@ -364,6 +372,10 @@ class jqshow_sessions extends persistent {
         return $DB->get_records_select('jqshow_sessions', $select, $params, 'timecreated ASC');
     }
 
+    /**
+     * @return bool
+     * @throws coding_exception
+     */
     public function is_programmed_mode() : bool {
         return ($this->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
             $this->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||

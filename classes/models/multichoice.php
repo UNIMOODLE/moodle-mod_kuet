@@ -14,19 +14,27 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
+use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
@@ -41,20 +49,18 @@ use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use pix_icon;
-use qtype_multichoice_multi_question;
-use qtype_multichoice_single_question;
 use question_answer;
 use question_bank;
 use question_definition;
 use stdClass;
-use function PHPUnit\Framework\isInstanceOf;
+use mod_jqshow\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 
-class multichoice extends questions {
+class multichoice extends questions implements questionType {
 
     /**
      * @param int $jqshowid
@@ -62,7 +68,7 @@ class multichoice extends questions {
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) {
+    public function construct(int $jqshowid, int $cmid, int $sid) : void {
         parent::__construct($jqshowid, $cmid, $sid);
     }
 
@@ -79,19 +85,17 @@ class multichoice extends questions {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_multichoice(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
-        global $USER;
+    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
-
-        if (get_class($question) != 'qtype_multichoice_single_question'
-        && get_class($question) != 'qtype_multichoice_multi_question') {
+        /*if (!assert($question instanceof qtype_multichoice_single_question) &&
+            !assert($question instanceof qtype_multichoice_multi_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
                 [], get_string('question_nosuitable', 'mod_jqshow'));
-        }
+        }*/
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $jqid, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;
         $data->questiontext =
             self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
@@ -129,16 +133,17 @@ class multichoice extends questions {
     /**
      * @param stdClass $data
      * @param string $response
+     * @param int $result
      * @return stdClass
      * @throws JsonException
-     * @throws invalid_parameter_exception
      * @throws coding_exception
      * @throws dml_exception
      * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_multichoice_response(stdClass $data, string $response): stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result = 0): stdClass {
         $responsedata = json_decode($response, false);
         $data->answered = true;
         $dataanswer = multichoice_external::multichoice(
@@ -157,7 +162,7 @@ class multichoice extends questions {
         $data->correct_answers = $dataanswer['correct_answers'];
         $data->programmedmode = $dataanswer['programmedmode'];
         if ($data->hasfeedbacks) {
-            // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
+            // TODO breaks images in report feedbacks. Services do not pass feedback through escape_characters, and they work. Consider removing.
             $dataanswer['statment_feedback'] = self::escape_characters($dataanswer['statment_feedback']);
             $dataanswer['answer_feedback'] = self::escape_characters($dataanswer['answer_feedback']);
         }
@@ -263,7 +268,7 @@ class multichoice extends questions {
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws dml_exception|moodle_exception
      */
     public static function get_ranking_for_question(
         stdClass $participant,
@@ -287,7 +292,11 @@ class multichoice extends questions {
                 $points = grade::get_simple_mark($response);
                 $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
                     $session->get('jqshowid'));
-                $participant->userpoints = grade::get_rounded_mark($spoints);
+                if ($session->is_group_mode()) {
+                    $participant->grouppoints = grade::get_rounded_mark($spoints);
+                } else {
+                    $participant->userpoints = grade::get_rounded_mark($spoints);
+                }
                 $participant->score_moment = grade::get_rounded_mark($points);
                 $participant->time = reports::get_user_time_in_question($session, $question, $response);
             }
@@ -300,13 +309,17 @@ class multichoice extends questions {
                     }
                 }
             }
-            $status = grade::get_status_response_for_multiple_answers($other->questionid, $other->answerids);
+            $status = grade::get_status_response_for_multiple_answers($question->get('questionid'), $other->answerids);
             $participant->response = get_string('qstatus_' . $status, 'mod_jqshow');
             $participant->responsestr = get_string($participant->response, 'mod_jqshow');
             $participant->answertext = trim($answertext, '<br>');
             $points = grade::get_simple_mark($response);
             $spoints = grade::get_session_grade($participant->id, $session->get('id'), $session->get('jqshowid'));
-            $participant->userpoints = grade::get_rounded_mark($spoints);
+            if ($session->is_group_mode()) {
+                $participant->grouppoints = grade::get_rounded_mark($spoints);
+            } else {
+                $participant->userpoints = grade::get_rounded_mark($spoints);
+            }
             $participant->score_moment = grade::get_rounded_mark($points);
             $participant->time = reports::get_user_time_in_question($session, $question, $response);
         }
@@ -314,38 +327,39 @@ class multichoice extends questions {
     }
 
     /**
+     * @param int $cmid
      * @param int $jqid
-     * @param string $answerids
-     * @param string $correctanswers
      * @param int $questionid
      * @param int $sessionid
      * @param int $jqshowid
      * @param string $statmentfeedback
-     * @param string $answerfeedback
      * @param int $userid
      * @param int $timeleft
+     * @param array $custom
      * @return void
      * @throws JsonException
      * @throws coding_exception
+     * @throws dml_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function multichoice_response(
+    public static function question_response(
+        int $cmid,
         int $jqid,
-        string $answerids,
-        string $answertexts,
-        string $correctanswers,
         int $questionid,
         int $sessionid,
         int $jqshowid,
         string $statmentfeedback,
-        string $answerfeedback,
         int $userid,
-        int $timeleft
+        int $timeleft,
+        array $custom
     ): void {
-        global $COURSE;
-        $coursecontext = context_course::instance($COURSE->id);
-        $isteacher = has_capability('mod/jqshow:managesessions', $coursecontext);
+        $answerids = $custom['answerids'];
+        $answertexts = $custom['answertexts'];
+        $correctanswers = $custom['correctanswers'];
+        $answerfeedback = $custom['answerfeedback'];
+        $cmcontext = context_module::instance($cmid);
+        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
         if ($isteacher !== true) {
             self::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::MULTICHOICE);
@@ -355,6 +369,7 @@ class multichoice extends questions {
     /**
      * @param int $jqid
      * @param string $answerids
+     * @param string $answertexts
      * @param string $correctanswers
      * @param int $questionid
      * @param int $sessionid
@@ -365,9 +380,10 @@ class multichoice extends questions {
      * @param int $timeleft
      * @param string $qtype
      * @throws JsonException
-     * @throws moodle_exception
      * @throws coding_exception
+     * @throws dml_exception
      * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public static function manage_response(
         int $jqid,
@@ -429,11 +445,11 @@ class multichoice extends questions {
     /**
      * @param stdClass $useranswer
      * @param jqshow_questions_responses $response
-     * @return float|int
+     * @return float
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) {
+    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) : float {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
@@ -453,6 +469,7 @@ class multichoice extends questions {
      * @param question_definition $question
      * @param jqshow_questions_responses[] $responses
      * @return array
+     * @throws coding_exception
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array {
         $statistics = [];
@@ -471,5 +488,11 @@ class multichoice extends questions {
             }
         }
         return $statistics;
+    }
+    /**
+     * @return bool
+     */
+    public static function show_statistics() : bool {
+        return true;
     }
 }

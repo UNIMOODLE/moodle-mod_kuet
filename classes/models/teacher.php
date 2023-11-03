@@ -14,53 +14,58 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_jqshow\models;
 
 use coding_exception;
-use context_course;
 use context_module;
+use DateInterval;
+use DateTimeImmutable;
 use dml_exception;
-use Endroid\QrCode\Exception\InvalidWriterException;
 use mod_jqshow\helpers\sessions as sessionshelper;
 use mod_jqshow\jqshow;
 use mod_jqshow\models\sessions as sessionsmodel;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use moodle_url;
-use RuntimeException;
 use stdClass;
 
 class teacher extends user {
 
     /**
-     * @param $cmid
+     * @param int $cmid
      * @return Object
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function export($cmid) : Object {
+    public function export(int $cmid) : Object {
         return $this->export_sessions($cmid);
     }
 
     /**
-     * @param $cmid
-     * @return Object
-     * @throws InvalidWriterException
+     * @param int $cmid
+     * @return Object|stdClass
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function export_sessions($cmid) : Object {
-        global $CFG;
+    public function export_sessions(int $cmid) : Object {
         $jqshow = new jqshow($cmid);
         $actives = [];
         $inactives = [];
@@ -76,9 +81,6 @@ class teacher extends user {
                 $inactives[] = $ds;
             }
         }
-        if (!file_exists($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg')) {
-            generate_jqshow_qrcode((new moodle_url('/mod/jqshow/view.php', ['id' => $cmid]))->out(false), $cmid);
-        }
         $actives = $this->get_sessions_conflicts($actives);
         $data = new stdClass();
         $data->activesessions = $actives;
@@ -87,8 +89,9 @@ class teacher extends user {
         $data->jqshowid = $jqshow->cm->instance;
         $data->cmid = $cmid;
         $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
-        $data->hasqrcodeimage = file_exists($CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg');
-        $data->urlqrcode = $data->hasqrcodeimage === true ? file_get_contents( $CFG->localcachedir . '/mod_jqshow/qrfile_' . $cmid . '.svg') : '';
+        $qrcode = generate_jqshow_qrcode((new moodle_url('/mod/jqshow/view.php', ['id' => $cmid]))->out(false));
+        $data->hasqrcodeimage = $qrcode !== '';
+        $data->urlqrcode = $data->hasqrcodeimage === true ? $qrcode : '';
         $data->hasactivesession = jqshow_sessions::get_active_session_id(($jqshow->get_jqshow())->id) !== 0;
         return $data;
     }
@@ -98,21 +101,21 @@ class teacher extends user {
      * @return array
      */
     private function get_sessions_conflicts(array $sessions): array {
-        $timestamps = [];// Avoid a notice.
-        foreach ($sessions as $key => $session) {
-            $timestamps[$key] = $session->startdate ?? 0;
-        }
-        array_multisort($timestamps, SORT_ASC, $sessions);
+        usort($sessions, static function($a, $b) {
+            if (isset($a->startdate, $b->startdate)) {
+                return $a->startdate <=> $b->startdate;
+            }
+        });
         foreach ($sessions as $session1) {
             foreach ($sessions as $session2) {
                 $session1->automaticstart = $session1->automaticstart ?? 0;
                 $session2->automaticstart = $session2->automaticstart ?? 0;
                 if (($session1->automaticstart && $session2->automaticstart) && ($session1->sessionid !== $session2->sessionid)) {
-                    if ($session1->startdate < $session2->startdate && $session1->enddate > $session2->startdate) {
+                    if ($session1->startdate <= $session2->startdate && $session1->enddate >= $session2->startdate) {
                         $session2->hasconflict = true;
                         $session2->initsession = false;
                     }
-                    if ($session2->startdate < $session1->startdate && $session2->enddate > $session1->startdate) {
+                    if ($session2->startdate <= $session1->startdate && $session2->enddate >= $session1->startdate) {
                         $session1->hasconflict = true;
                         $session1->initsession = false;
                     }

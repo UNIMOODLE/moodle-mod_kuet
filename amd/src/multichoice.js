@@ -1,3 +1,35 @@
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
+/**
+ *
+ * @module    mod_jqshow/multichoice
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 "use strict";
 
 import jQuery from 'jquery';
@@ -90,6 +122,16 @@ MultiChoice.prototype.initMultichoice = function() {
 MultiChoice.prototype.initEvents = function() {
     addEventListener('timeFinish', MultiChoice.prototype.reply, {once: true});
     if (manualMode !== false) {
+        addEventListener('alreadyAnswered_' + jqid, (ev) => {
+            let userid = jQuery('[data-region="student-canvas"]').data('userid');
+            if (userid != ev.detail.userid) {
+                jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
+                jQuery('[data-region="group-message"]').show();
+            }
+            if (questionEnd !== true) {
+                MultiChoice.prototype.reply();
+            }
+        }, {once: true});
         addEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
                 MultiChoice.prototype.reply();
@@ -139,6 +181,16 @@ MultiChoice.prototype.initEvents = function() {
 MultiChoice.prototype.removeEvents = function() {
     removeEventListener('timeFinish', () => MultiChoice.prototype.reply, {once: true});
     if (manualMode !== false) {
+        removeEventListener('alreadyAnswered_' + jqid, (ev) => {
+            let userid = jQuery('[data-region="student-canvas"]').data('userid');
+            if (userid != ev.detail.userid) {
+                jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
+                jQuery('[data-region="group-message"]').show();
+            }
+            if (questionEnd !== true) {
+                MultiChoice.prototype.reply();
+            }
+        }, {once: true});
         removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
             if (questionEnd !== true) {
                 MultiChoice.prototype.reply();
@@ -178,6 +230,11 @@ MultiChoice.prototype.removeEvents = function() {
 };
 
 MultiChoice.prototype.reply = function(e) {
+    if (event.type === 'timeFinish' && questionEnd === true) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+    }
     let answerIds = '0';
     let multiAnswer = e === undefined || jQuery(e.currentTarget).attr('data-action') === 'send-multianswer';
     if (!multiAnswer) {
@@ -194,6 +251,7 @@ MultiChoice.prototype.reply = function(e) {
     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
         jQuery(REGION.ROOT).append(html);
         dispatchEvent(MultiChoice.prototype.endTimer);
+        removeEventListener('timeFinish', () => MultiChoice.prototype.reply, {once: true});
         MultiChoice.prototype.removeEvents();
         let timeLeft = parseInt(jQuery(REGION.SECONDS).text());
         let request = {
@@ -222,8 +280,8 @@ MultiChoice.prototype.reply = function(e) {
                     });
                     jQuery(ACTION.SENDMULTIANSWER).addClass('d-none');
                 }
-                MultiChoice.prototype.answered(response);
                 questionEnd = true;
+                MultiChoice.prototype.answered(response);
                 dispatchEvent(MultiChoice.prototype.studentQuestionEnd);
                 if (jQuery('.modal-body').length) { // Preview.
                     MultiChoice.prototype.showAnswers();
@@ -280,7 +338,10 @@ MultiChoice.prototype.answered = function(response) {
             jQuery('[data-answerid="' + statistic.answerids + '"] .numberofreplies').html(statistic.numberofreplies);
         });
     }
-    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
+    if (contentFeedbacks !== null) {
+        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+    }
 };
 
 MultiChoice.prototype.pauseQuestion = function() {

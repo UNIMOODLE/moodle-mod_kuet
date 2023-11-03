@@ -14,15 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+// Project implemented by the "Recovery, Transformation and Resilience Plan.
+// Funded by the European Union - Next GenerationEU".
+//
+// Produced by the UNIMOODLE University Group: Universities of
+// Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+// Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+
 /**
- * Capability definitions for the quiz module.
  *
- * @package     mod_jqshow
- * @author      3&Punt <tresipunt.com>
- * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
- * @copyright   3iPunt <https://www.tresipunt.com/>
- * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    mod_jqshow
+ * @copyright  2023 Proyecto UNIMOODLE
+ * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     3IPUNT <contacte@tresipunt.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_jqshow\api\grade;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -33,8 +42,9 @@ class mod_jqshow_mod_form extends moodleform_mod {
     /**
      * @return void
      * @throws coding_exception
+     * @throws dml_exception
      */
-    public function definition() {
+    public function definition() : void {
         $mform =& $this->_form;
         $mform->addElement('text', 'name', get_string('name', 'jqshow'), ['size' => '64']);
         $mform->setType('name', PARAM_TEXT);
@@ -54,8 +64,8 @@ class mod_jqshow_mod_form extends moodleform_mod {
 
         $grademethodelement = $mform->createElement('select', 'grademethod', get_string('grademethod', 'jqshow'),
             mod_jqshow_get_grading_options());
-        $mform->disabledIf('gradecat', 'grademethod', 'eq', \mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
-        $mform->disabledIf('gradepass', 'grademethod', 'eq', \mod_jqshow\api\grade::MOD_OPTION_NO_GRADE);
+        $mform->disabledIf('gradecat', 'grademethod', 'eq', grade::MOD_OPTION_NO_GRADE);
+        $mform->disabledIf('gradepass', 'grademethod', 'eq', grade::MOD_OPTION_NO_GRADE);
         $mform->insertElementBefore($grademethodelement, 'gradecat');
         $mform->addHelpButton('grademethod', 'grademethod', 'jqshow');
 
@@ -82,7 +92,7 @@ class mod_jqshow_mod_form extends moodleform_mod {
      * @return array Array of string IDs of added items, empty array if none
      * @throws coding_exception
      */
-    public function add_completion_rules() {
+    public function add_completion_rules() : array {
         $mform =& $this->_form;
 
         $mform->addElement(
@@ -103,7 +113,7 @@ class mod_jqshow_mod_form extends moodleform_mod {
      * @param array $data
      * @return bool
      */
-    public function completion_rule_enabled($data) {
+    public function completion_rule_enabled($data) : bool {
         return !empty($data['completionanswerall']);
     }
 }
