@@ -286,6 +286,7 @@ $string['sessionnoquestions'] = 'No questions added to the session.';
 $string['sessioncreating'] = 'You have not finished editing this session. You must reach step 3 of editing and click on finish.';
 $string['sessionconflict'] = 'This session has a date conflict with other sessions closer to it and will not start automatically until the conflict is resolved.';
 $string['sessionwarning'] = 'This session should have started, but there is currently an active session preventing it from doing so. It will start automatically as soon as the active session ends.';
+$string['sessionerror'] = 'An error has occurred in this session and cannot be continued (deletion of active groups or groupings, deletion of questions, modification of mod settings, etc.). Duplicate it and/or delete it, but check all the configuration involved.';
 $string['startminorend'] = 'The end date of the session cannot be equal to or less than the start date.';
 $string['previousstarterror'] = 'The start date cannot be less than the current date.';
 $string['sessionmanualactivated'] = 'The session {$a->sessionid} is active in jqshowid -> {$a->jqshowid}. The remainder of the session is omitted until the end of this session.';
