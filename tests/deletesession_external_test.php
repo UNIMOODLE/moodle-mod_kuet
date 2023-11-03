@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -87,7 +87,7 @@ class deletesession_external_test extends advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
         $sessionid = $generator->create_session($jqshow, (object) $this->sessionmock);
         $list = $sessiontest->get_list();
-        $result = deletesession_external::deletesession($course->id, $list[0]->get('id'));
+        $result = deletesession_external::deletesession($course->id, $jqshow->cmid, $list[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertTrue($result['deleted']);
         $sessiontest->set_list();
@@ -101,7 +101,7 @@ class deletesession_external_test extends advanced_testcase {
         $sessionid = $generator->create_session($jqshow, (object) $this->sessionmock);
 
         $newlist = $sessiontest->get_list();
-        $result = deletesession_external::deletesession($course->id, $newlist[0]->get('id'));
+        $result = deletesession_external::deletesession($course->id, $jqshow->cmid, $newlist[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertFalse($result['deleted']);
         $this->assertCount(1, $newlist);

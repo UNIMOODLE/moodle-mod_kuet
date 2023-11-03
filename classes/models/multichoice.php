@@ -89,11 +89,6 @@ class multichoice extends questions implements questionType {
         $session = jqshow_sessions::get_record(['id' => $sessionid]);
         $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
-        /*if (!assert($question instanceof qtype_multichoice_single_question) &&
-            !assert($question instanceof qtype_multichoice_multi_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                [], get_string('question_nosuitable', 'mod_jqshow'));
-        }*/
         $type = $question->get_type_name();
         $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
         $data->$type = true;

@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -132,8 +132,8 @@ class sessionspanel_external_test extends advanced_testcase {
         $this->assertCount(1, $result['endedsessions']);
         $this->assertSame($course->id, $result['courseid']);
         $this->assertSame($jqshow->cmid, $result['cmid']);
-        $this->assertFalse($result['hasqrcodeimage']);
-        $this->assertEquals('', $result['urlqrcode']);
+        $this->assertTrue($result['hasqrcodeimage']);
+        $this->assertIsString($result['urlqrcode']);
         $sessionurl = (new \moodle_url('/mod/jqshow/sessions.php', ['cmid' => $jqshow->cmid, 'page' => 1]))->out(false);
         $this->assertEquals($sessionurl, $result['createsessionurl']);
         $this->assertFalse($result['hasactivesession']);
