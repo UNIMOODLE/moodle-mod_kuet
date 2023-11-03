@@ -528,7 +528,7 @@ class ddwtos extends questions implements questionType {
                 $mark = $moodleresult[0];
             }
         }
-        return $mark;
+        return (float)$mark;
     }
 
     /**

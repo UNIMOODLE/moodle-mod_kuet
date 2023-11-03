@@ -87,8 +87,11 @@
 		}
 		.left-side {
 			align-items: flex-end;
-			.content-option {
-				margin-right: 10px;
+			.option {
+				justify-content: flex-end;
+				.content-option {
+					margin-right: 10px;
+				}
 			}
 		}
 		.right-side {
