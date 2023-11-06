@@ -36,6 +36,7 @@ namespace mod_jqshow\forms;
 use coding_exception;
 use DateTime;
 use dml_exception;
+use mod_jqshow\api\groupmode;
 use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodleform;
@@ -299,7 +300,7 @@ class sessionform extends moodleform {
         if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && empty($data['groupings'])) {
             $errors['groupings'] = get_string('session_groupings_error', 'mod_jqshow');
         } else if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && !empty($data['groupings'])) {
-            $members = groups_get_grouping_members($data['groupings'], 'u.id,u.username,gg.groupid');
+            $members = groupmode::get_grouping_group_members($data['groupings']);
             if (empty($members)) {
                 $errors['groupings'] = get_string('session_groupings_no_members', 'mod_jqshow');
             } else {

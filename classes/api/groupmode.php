@@ -279,4 +279,22 @@ class groupmode {
         }
         return $groupselected;
     }
+
+    /**
+     * this function shows if a user is in more than one grouping group.
+     * @param int $groupingid
+     * @return array
+     * @throws dml_exception
+     */
+    public static function get_grouping_group_members(int $groupingid) : array {
+        $members = [];
+        $groups = self::get_grouping_groups($groupingid);
+        foreach ($groups as $group) {
+            $groupmembers = groups_get_members($group->id, 'u.id,u.username');
+            foreach ($groupmembers as $groupmember) {
+                $members[] = $groupmember;
+            }
+        }
+        return $members;
+    }
 }
