@@ -587,6 +587,8 @@ class sessions {
                 $students[] = $student;
             }
         }
+
+        error_log("num students: ".var_export(count($students), true));
         usort($students, static fn($a, $b) => $b->userpoints <=> $a->userpoints);
         $position = 0;
         foreach ($students as $student) {
@@ -658,37 +660,38 @@ class sessions {
             $questionsdata[$key]->studentsresponse = [];
             foreach ($userresults as $user) {
                 $userresponse = jqshow_questions_responses::get_question_response_for_user($user->id, $sid, $question->get('id'));
-                $questionsdata[$key]->studentsresponse[$user->id] = new stdClass();
-                $questionsdata[$key]->studentsresponse[$user->id]->userid = $user->id;
+                $studentresponse = new stdClass();
+                $studentresponse->userid = $user->id;
                 if ($userresponse !== false) {
-                    $questionsdata[$key]->studentsresponse[$user->id]->response = $userresponse;
+                    $studentresponse->response = $userresponse;
                     switch ($userresponse->get('result')) {
                         case questions::FAILURE:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'fail';
+                            $studentresponse->responseclass = 'fail';
                             break;
                         case questions::SUCCESS:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'success';
+                            $studentresponse->responseclass = 'success';
                             break;
                         case questions::PARTIALLY:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'partially';
+                            $studentresponse->responseclass = 'partially';
                             break;
                         case questions::NORESPONSE:
                         default:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'noresponse';
+                        $studentresponse->responseclass = 'noresponse';
                             break;
                         case questions::NOTEVALUABLE:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'noevaluable';
+                            $studentresponse->responseclass = 'noevaluable';
                             break;
                         case questions::INVALID:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'invalid';
+                            $studentresponse->responseclass = 'invalid';
                             break;
                     }
                 } else {
-                    $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'noresponse';
+                    $studentresponse->responseclass = 'noresponse';
                 }
-                $questionsdata[$key]->studentsresponse = array_values($questionsdata[$key]->studentsresponse);
+                $questionsdata[$key]->studentsresponse[] = $studentresponse;
             }
         }
+
         return array_values($questionsdata);
     }
 
