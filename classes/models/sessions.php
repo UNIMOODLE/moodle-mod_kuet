@@ -588,7 +588,6 @@ class sessions {
             }
         }
 
-        error_log("num students: ".var_export(count($students), true));
         usort($students, static fn($a, $b) => $b->userpoints <=> $a->userpoints);
         $position = 0;
         foreach ($students as $student) {
