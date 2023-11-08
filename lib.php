@@ -131,6 +131,7 @@ function jqshow_update_instance(stdClass $data): bool {
     grade::recalculate_mod_mark($data->{'update'}, $data->instance);
     $data->id = $data->instance;
     mod_jqshow_grade_item_update($data, null);
+
     return true;
 }
 

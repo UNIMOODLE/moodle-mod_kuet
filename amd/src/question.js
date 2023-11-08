@@ -110,6 +110,10 @@ Question.prototype.initQuestion = function() {
             }
         }
     });
+    if (jQuery('.modal-body').length) {
+        jQuery(ACTION.EXPAND).css('display', 'none');
+        jQuery(ACTION.COMPRESS).css('display', 'none');
+    }
     addEventListener('questionEnd', () => {
         jQuery(ACTION.NEXTQUESTION).removeClass('d-none');
     }, false);
