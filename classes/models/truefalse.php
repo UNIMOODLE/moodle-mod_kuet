@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -338,7 +338,6 @@ class truefalse extends questions implements questionType {
                     $answers[$arrayanswerid]['numticked']++;
                 }
             }
-            // TODO obtain the average time to respond to each option ticked. ???
         }
         $data->correctanswers = array_values($correctanswers);
         $data->answers = array_values($answers);
@@ -445,14 +444,14 @@ class truefalse extends questions implements questionType {
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
         $answerids = $useranswer->{'answerids'} ?? '';
         if (empty($answerids)) {
-            return $mark;
+            return (float)$mark;
         }
         $answerids = explode(',', $answerids);
         foreach ($answerids as $answerid) {
             $fraction = $DB->get_field('question_answers', 'fraction', ['id' => $answerid]);
             $mark += $defaultmark * $fraction;
         }
-        return $mark;
+        return (float)$mark;
     }
 
     /**

@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -35,8 +35,11 @@ namespace mod_jqshow\api;
 use cache;
 use cache_application;
 use coding_exception;
+use core\invalid_persistent_exception;
 use dml_exception;
+use invalid_parameter_exception;
 use mod_jqshow\jqshow;
+use mod_jqshow\models\sessions;
 use mod_jqshow\persistents\jqshow_sessions;
 use moodle_exception;
 use stdClass;
@@ -167,6 +170,9 @@ class groupmode {
     public static function get_grouping_groups(int $groupingid) : array {
         $groups = groups_get_grouping_members($groupingid, 'u.id,gg.groupid');
         $data = [];
+        if (!$groups) {
+            return $data;
+        }
         $groupids = [];
         foreach ($groups as $group) {
             if (!in_array($group->groupid, $groupids)) {
@@ -227,7 +233,7 @@ class groupmode {
      * @throws moodle_exception
      */
     public static function check_all_users_in_groups(int $cmid, int $groupingid) : void {
-        global $COURSE;
+
         $students = jqshow::get_enrolled_students_in_course(0, $cmid);
         $studentsids = array_keys($students);
         $groupmembers = self::get_grouping_userids($groupingid);
@@ -236,7 +242,8 @@ class groupmode {
             $data = new stdClass();
             $data->name = get_string('fakegroup', 'mod_jqshow', random_string(5));
             $data->description = get_string('fakegroupdescription', 'mod_jqshow');
-            $data->courseid = $COURSE->id;
+            $jqshow = \mod_jqshow\persistents\jqshow::get_jqshow_from_cmid($cmid);
+            $data->courseid = $jqshow->get('course');
             $groupid = groups_create_group($data);
             foreach ($diff as $userid) {
                 groups_add_member($groupid, (int) $userid);
@@ -247,19 +254,47 @@ class groupmode {
 
     /**
      * @param int $userid
-     * @param int $groupingid
-     * @return mixed|null
+     * @param jqshow_sessions $sessions
+     * @return stdClass
+     * @throws invalid_persistent_exception
+     * @throws invalid_parameter_exception
+     * @throws coding_exception
      * @throws dml_exception
+     * @throws moodle_exception
      */
-    public static function get_user_group(int $userid, int $groupingid) : stdClass {
-        $groups = self::get_grouping_groups($groupingid);
-        $groupselected = null;
+    public static function get_user_group(int $userid, jqshow_sessions $sessions) : stdClass {
+        $groups = self::get_grouping_groups($sessions->get('groupings'));
+        if (empty($groups)) {
+            sessions::set_session_status_error($sessions, 'groupingremoved');
+        }
+        $groupselected = new stdClass();
         foreach ($groups as $group) {
             if (groups_is_member($group->id, $userid)) {
                 $groupselected = $group;
                 break;
             }
         }
+        if (!isset($groupselected->id)) {
+            sessions::set_session_status_error($sessions, 'groupremoved');
+        }
         return $groupselected;
+    }
+
+    /**
+     * this function shows if a user is in more than one grouping group.
+     * @param int $groupingid
+     * @return array
+     * @throws dml_exception
+     */
+    public static function get_grouping_group_members(int $groupingid) : array {
+        $members = [];
+        $groups = self::get_grouping_groups($groupingid);
+        foreach ($groups as $group) {
+            $groupmembers = groups_get_members($group->id, 'u.id,u.username');
+            foreach ($groupmembers as $groupmember) {
+                $members[] = $groupmember;
+            }
+        }
+        return $members;
     }
 }

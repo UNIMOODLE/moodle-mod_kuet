@@ -19,7 +19,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -37,6 +37,7 @@ import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import mEvent from 'core/event';
+import ModalFactory from 'core/modal_factory';
 
 let ACTION = {
     EXPAND: '[data-action="question-fullscreen"]',
@@ -109,6 +110,10 @@ Question.prototype.initQuestion = function() {
             }
         }
     });
+    if (jQuery('.modal-body').length) {
+        jQuery(ACTION.EXPAND).css('display', 'none');
+        jQuery(ACTION.COMPRESS).css('display', 'none');
+    }
     addEventListener('questionEnd', () => {
         jQuery(ACTION.NEXTQUESTION).removeClass('d-none');
     }, false);
@@ -196,7 +201,16 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
                             jQuery(REGION.LOADING).remove();
                         }).fail(Notification.exception);
                     }
-                }).fail(Notification.exception);
+                }).fail(async (e) =>  {
+                    if (e.message && e.link) {
+                        const modal = await ModalFactory.create({
+                            title: 'JQSHOW',
+                            body: Templates.render('mod_jqshow/error_modal', {message: e.message, link: e.link})
+                        });
+                        modal.getRoot().css('z-index', '3000');
+                        modal.show();
+                    }
+                });
             }
         }).fail(Notification.exception);
     });

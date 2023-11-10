@@ -19,7 +19,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -213,11 +213,15 @@ SelectQuestions.prototype.addQuestions = function(e) {
                                     jQuery(REGION.LOADING).remove();
                                 }).fail(Notification.exception);
                             });
-                        } else {
-                            // TODO modal error.
-                            alert('error');
-                            jQuery(REGION.LOADING).remove();
                         }
+                    })
+                    .fail( async (e) => {
+                        const modal = await ModalFactory.create({
+                            title: 'JQSHOW',
+                            body: Templates.render('mod_jqshow/error_modal', {message: e.message, link: e.link})
+                        });
+                        modal.getRoot().css('z-index', '3000');
+                        modal.show();
                     });
                 });
                 modal.getRoot().on(ModalEvents.hidden, () => {

@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -235,8 +235,8 @@ $string['participants'] = 'Participants';
 $string['waitingroom_message'] = 'Hold on, we\'re leaving in no time...';
 $string['ready_users'] = 'Ready participants';
 $string['ready_groups'] = 'Ready groups';
-$string['session_closed'] = 'Session ended by the teacher';
-$string['session_closed_info'] = 'The teacher has ended the session. If there are more sessions for this activity, you can view them by logging back into the activity.';
+$string['session_closed'] = 'The connection has been closed:';
+$string['session_closed_info'] = 'This could be because the session has ended, because the teacher has ended the session, or because of a technical problem with the connection. Please log back into the session to reconnect, or contact your teacher.';
 $string['system_error'] = 'An error has occurred and the connection has been closed.<br>It is not possible to continue with the session.';
 $string['connection_closed'] = 'Connection Closed {$a->reason} - {$a->code}';
 $string['backtopanelfromsession'] = 'Back to the sessions panel?';
@@ -286,6 +286,7 @@ $string['sessionnoquestions'] = 'No questions added to the session.';
 $string['sessioncreating'] = 'You have not finished editing this session. You must reach step 3 of editing and click on finish.';
 $string['sessionconflict'] = 'This session has a date conflict with other sessions closer to it and will not start automatically until the conflict is resolved.';
 $string['sessionwarning'] = 'This session should have started, but there is currently an active session preventing it from doing so. It will start automatically as soon as the active session ends.';
+$string['sessionerror'] = 'An error has occurred in this session and cannot be continued (deletion of active groups or groupings, deletion of questions, modification of mod settings, etc.). Duplicate it and/or delete it, but check all the configuration involved.';
 $string['startminorend'] = 'The end date of the session cannot be equal to or less than the start date.';
 $string['previousstarterror'] = 'The start date cannot be less than the current date.';
 $string['sessionmanualactivated'] = 'The session {$a->sessionid} is active in jqshowid -> {$a->jqshowid}. The remainder of the session is omitted until the end of this session.';
@@ -406,3 +407,7 @@ $string['isevaluable'] = 'Is evaluable?';
 $string['alreadyanswered'] = 'A member of your group has already answered!';
 $string['groupdisconnected'] = 'Group {$a} has been disconnected';
 $string['groupmemberdisconnected'] = 'This group member {$a} has been disconnected';
+$string['groupingremoved'] = 'This activity grouping has been removed or it has no members. You can not continue with this session.';
+$string['groupremoved'] = 'Your group has been removed or it is not a member of this activity grouping. You can not continue with this session.';
+$string['gocourse'] = 'Go back to your course';
+$string['sessionerror'] = 'This session is not correctly configured';

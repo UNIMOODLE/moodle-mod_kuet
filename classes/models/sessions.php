@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -40,15 +40,18 @@ use core_availability\info_module;
 use core_php_time_limit;
 use dml_exception;
 use Exception;
+use invalid_parameter_exception;
 use mod_jqshow\api\grade;
 use mod_jqshow\api\groupmode;
 use mod_jqshow\external\getfinalranking_external;
 use mod_jqshow\external\sessionquestions_external;
+use mod_jqshow\external\sessionstatus_external;
 use mod_jqshow\forms\sessionform;
 use mod_jqshow\persistents\jqshow;
 use mod_jqshow\persistents\jqshow_questions;
 use mod_jqshow\persistents\jqshow_questions_responses;
 use mod_jqshow\persistents\jqshow_sessions;
+use mod_jqshow\persistents\jqshow_user_progress;
 use moodle_exception;
 use moodle_url;
 use pix_icon;
@@ -96,6 +99,7 @@ class sessions {
     public const SESSION_ACTIVE = 1;
     public const SESSION_STARTED = 2;
     public const SESSION_CREATING = 3;
+    public const SESSION_ERROR = 4;
 
     /**
      * sessions constructor.
@@ -152,14 +156,9 @@ class sessions {
             ];
         }
         $timemode = [
-            self::NO_TIME => get_string('no_time', 'mod_jqshow'), // TODO enable for inactive.
+            self::NO_TIME => get_string('no_time', 'mod_jqshow'),
             self::SESSION_TIME => get_string('session_time', 'mod_jqshow'),
             self::QUESTION_TIME => get_string('question_time', 'mod_jqshow'),
-        ];
-        $countdownchoices = [
-            0 => 'Opcion1',
-            1 => 'Opcion2',
-            3 => 'Opcion3'
         ];
         $groupingsselect = [];
         $data = get_course_and_cm_from_cmid($this->cmid);
@@ -180,7 +179,6 @@ class sessions {
             'course' => $course,
             'cm' => $cm,
             'jqshowid' => $this->jqshow->id,
-            'countdown' => $countdownchoices,
             'sessionmodechoices' => $sessionmodechoices,
             'timemode' => $timemode,
             'anonymousanswerchoices' => $anonymousanswerchoices,
@@ -589,6 +587,7 @@ class sessions {
                 $students[] = $student;
             }
         }
+
         usort($students, static fn($a, $b) => $b->userpoints <=> $a->userpoints);
         $position = 0;
         foreach ($students as $student) {
@@ -660,37 +659,38 @@ class sessions {
             $questionsdata[$key]->studentsresponse = [];
             foreach ($userresults as $user) {
                 $userresponse = jqshow_questions_responses::get_question_response_for_user($user->id, $sid, $question->get('id'));
-                $questionsdata[$key]->studentsresponse[$user->id] = new stdClass();
-                $questionsdata[$key]->studentsresponse[$user->id]->userid = $user->id;
+                $studentresponse = new stdClass();
+                $studentresponse->userid = $user->id;
                 if ($userresponse !== false) {
-                    $questionsdata[$key]->studentsresponse[$user->id]->response = $userresponse;
+                    $studentresponse->response = $userresponse;
                     switch ($userresponse->get('result')) {
                         case questions::FAILURE:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'fail';
+                            $studentresponse->responseclass = 'fail';
                             break;
                         case questions::SUCCESS:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'success';
+                            $studentresponse->responseclass = 'success';
                             break;
                         case questions::PARTIALLY:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'partially';
+                            $studentresponse->responseclass = 'partially';
                             break;
                         case questions::NORESPONSE:
                         default:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'noresponse';
+                        $studentresponse->responseclass = 'noresponse';
                             break;
                         case questions::NOTEVALUABLE:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'noevaluable';
+                            $studentresponse->responseclass = 'noevaluable';
                             break;
                         case questions::INVALID:
-                            $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'invalid';
+                            $studentresponse->responseclass = 'invalid';
                             break;
                     }
                 } else {
-                    $questionsdata[$key]->studentsresponse[$user->id]->responseclass = 'noresponse';
+                    $studentresponse->responseclass = 'noresponse';
                 }
-                $questionsdata[$key]->studentsresponse = array_values($questionsdata[$key]->studentsresponse);
+                $questionsdata[$key]->studentsresponse[] = $studentresponse;
             }
         }
+
         return array_values($questionsdata);
     }
 
@@ -1035,7 +1035,7 @@ class sessions {
         if (!$session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
             $params['userid'] = $USER->id;
         } else if ($session->is_group_mode() && !has_capability('mod/jqshow:startsession', $contextmodule, $USER->id)) {
-            $group = groupmode::get_user_group($USER->id, $session->get('groupings'));
+            $group = groupmode::get_user_group($USER->id, $session);
             if (isset($group->id)) {
                 $params['groupid'] = $group->id;
             }
@@ -1083,5 +1083,29 @@ class sessions {
         $data->qtype = 'endsession';
         $data->endsession = true;
         return $data;
+    }
+
+    /**
+     * @param jqshow_sessions $sessions
+     * @param string $errorcode
+     * @return mixed
+     * @throws invalid_parameter_exception
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     */
+    public static function set_session_status_error(jqshow_sessions  $sessions, string $errorcode) {
+        // Change status.
+        sessionstatus_external::sessionstatus($sessions->get('id'), self::SESSION_ERROR);
+        // Remove all the answers of this session.
+        $jquestions = jqshow_questions::get_records(['sessionid' => $sessions->get('id')]);
+        foreach ($jquestions as $jquestion) {
+            jqshow_questions_responses::delete_question_responses($sessions->get('jqshowid'), $sessions->get('id'), $jquestion->get('id'));
+        }
+        jqshow_user_progress::delete_session_user_progress($sessions->get('id'));
+        $jqshowinfo = get_course_and_cm_from_instance($sessions->get('jqshowid'), 'jqshow');
+        $course = $jqshowinfo[0];
+        $url = new moodle_url('/course/view.php', ['id' => $course->id]);
+        throw new moodle_exception($errorcode, 'mod_jqshow', $url->out(false));
     }
 }

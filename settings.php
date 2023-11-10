@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -35,7 +35,7 @@ global $PAGE, $CFG, $ADMIN;
 
 if ($ADMIN->fulltree) {
     $settings = new theme_boost_admin_settingspage_tabs('modsettingjqshow', get_string('configtitle', 'mod_jqshow'));
-    $page = new admin_settingpage('mod_jqshow_general', get_string('generalsettings', 'mod_jqshow'));
+    /*$page = new admin_settingpage('mod_jqshow_general', get_string('generalsettings', 'mod_jqshow'));
 
     // Modedit defaults.
     $setting = new admin_setting_heading('jqshow_header',
@@ -43,7 +43,7 @@ if ($ADMIN->fulltree) {
     $page->add($setting);
 
 
-    $settings->add($page);
+    $settings->add($page);*/
 
     $page = new admin_settingpage('mod_jqshow_socket', get_string('socket', 'mod_jqshow'));
     $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes);

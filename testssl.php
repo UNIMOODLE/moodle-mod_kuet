@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -43,8 +43,10 @@ $PAGE->set_title(get_string('testssl', 'mod_jqshow'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('testssl', 'mod_jqshow'));
 
-/*$server = $CFG->dirroot . '/mod/jqshow/classes/testserver.php';
-run_server_background($server);*/
+if (get_config('jqshow', 'sockettype') === 'local') {
+    $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
+    run_server_background($server);
+}
 
 echo html_writer::div('', '', ['id' => 'testresult']);
 $typesocket = get_config('jqshow', 'sockettype');

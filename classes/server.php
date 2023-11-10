@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -127,7 +127,9 @@ class server extends websockets {
         // Add the user to the list of all users on the socket.
         $this->users[$user->usersocketid] = $user;
         $this->sockets[$user->usersocketid] = $socket;
-
+        /* inactivity time for SSL client https://bugs.php.net/bug.php?id=70939
+        $sock = socket_import_stream ($socket);
+        socket_set_option($sock, SOL_SOCKET, SO_KEEPALIVE, 1);*/
         $response = $this->mask(
             encrypt($this->password, json_encode([
                 'action' => 'connect',

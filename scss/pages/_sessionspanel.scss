@@ -126,7 +126,8 @@ body#page-mod-jqshow-view {
                                     background-color: #fcefdc;
                                     color: #7d5a29;
                                 }
-                                &.session-conflict {
+                                &.session-conflict,
+                                &.session-error{
                                     background-color: #f4d6d2;
                                     color: #691911;
                                 }

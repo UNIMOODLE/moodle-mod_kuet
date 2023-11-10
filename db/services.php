@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -58,7 +58,6 @@ use mod_jqshow\external\nextquestion_external;
 use mod_jqshow\external\numerical_external;
 use mod_jqshow\external\reorderquestions_external;
 use mod_jqshow\external\selectquestionscategory_external;
-use mod_jqshow\external\session_getallquestions_external;
 use mod_jqshow\external\sessionfinished_external;
 use mod_jqshow\external\sessionquestions_external;
 use mod_jqshow\external\sessionspanel_external;
@@ -66,6 +65,7 @@ use mod_jqshow\external\addquestions_external;
 use mod_jqshow\external\deletequestion_external;
 use mod_jqshow\external\copyquestion_external;
 use mod_jqshow\external\editsessionsettings_external;
+use mod_jqshow\external\sessionstatus_external;
 use mod_jqshow\external\shortanswer_external;
 use mod_jqshow\external\startsession_external;
 use mod_jqshow\external\truefalse_external;
@@ -298,14 +298,6 @@ $functions = [
         'ajax' => true,
         'loginrequired' => true
     ],
-    'mod_jqshow_session_getallquestions' => [
-        'classname' => session_getallquestions_external::class,
-        'methodname' => 'session_getallquestions',
-        'description' => 'Gets all questions and answers from a session to send to users in manual modes.',
-        'type' => 'read',
-        'ajax' => true,
-        'loginrequired' => true
-    ],
     'mod_jqshow_getuserquestionresponse' => [
         'classname' => getuserquestionresponse_external::class,
         'methodname' => 'getuserquestionresponse',
@@ -385,6 +377,14 @@ $functions = [
         'type' => 'read',
         'ajax' => true,
         'loginrequired' => true
+    ],
+    'mod_jqshow_sessionstatus' => [
+        'classname' => sessionstatus_external::class,
+        'methodname' => 'sessionstatus',
+        'description' => 'Change session status',
+        'type' => 'write',
+        'ajax' => true,
+        'loginrequired' => true
     ]
 ];
 $services = [
@@ -418,7 +418,6 @@ $services = [
             'mod_jqshow_sessionfinished',
             'mod_jqshow_activesession',
             'mod_jqshow_getactivesession',
-            'mod_jqshow_session_getallquestions',
             'mod_jqshow_getuserquestionresponse',
             'mod_jqshow_getquestion',
             'mod_jqshow_deleteresponses',
@@ -428,7 +427,8 @@ $services = [
             'mod_jqshow_getsession',
             'mod_jqshow_getprovisionalranking',
             'mod_jqshow_getfinalranking',
-            'mod_jqshow_getraceresults'
+            'mod_jqshow_getraceresults',
+            'mod_jqshow_sessionstatus'
         ],
         'restrictedusers' => 0,
         'enabled' => 1,

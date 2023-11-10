@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -98,6 +98,7 @@ class sessions {
         $ds->status = $session->get('status');
         $ds->issessionstarted = $ds->status === sessionsmodel::SESSION_STARTED;
         $ds->sessioncreating = $ds->status === sessionsmodel::SESSION_CREATING;
+        $ds->haserror = $ds->status === sessionsmodel::SESSION_ERROR;
         if ($ds->issessionstarted) {
             $ds->startedssionurl =
                 (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
@@ -127,7 +128,7 @@ class sessions {
             }
         }
         $ds->noquestions = $ds->questions_number === 0;
-        if ($ds->date !== '' || $ds->issessionstarted === true || $ds->sessioncreating === true || $ds->noquestions === true) {
+        if ($ds->date !== '' || $ds->issessionstarted === true || $ds->sessioncreating === true || $ds->noquestions === true || $ds->haserror === true) {
             $ds->initsession = false;
         }
         if ($ds->status === sessionsmodel::SESSION_FINISHED) {
