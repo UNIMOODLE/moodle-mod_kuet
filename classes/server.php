@@ -127,7 +127,9 @@ class server extends websockets {
         // Add the user to the list of all users on the socket.
         $this->users[$user->usersocketid] = $user;
         $this->sockets[$user->usersocketid] = $socket;
-        // socket_set_option($socket, SOL_SOCKET, SO_KEEPALIVE, 1);
+        /* inactivity time for SSL client https://bugs.php.net/bug.php?id=70939
+        $sock = socket_import_stream ($socket);
+        socket_set_option($sock, SOL_SOCKET, SO_KEEPALIVE, 1);*/
         $response = $this->mask(
             encrypt($this->password, json_encode([
                 'action' => 'connect',
