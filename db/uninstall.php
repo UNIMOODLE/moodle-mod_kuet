@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -35,39 +35,39 @@
 /**
  * @return bool
  */
-function xmldb_jqshow_uninstall(): bool {
+function xmldb_kuet_uninstall(): bool {
     global $DB;
     try {
         $syscontext = context_system::instance();
         $fs = get_file_storage();
         if ($fs !== null && $syscontext !== null) {
             $certificatefiles = $fs->get_area_files(
-                $syscontext->id, 'jqshow', 'certificate_ssl', 0, 'filename', false
+                $syscontext->id, 'kuet', 'certificate_ssl', 0, 'filename', false
             );
             foreach ($certificatefiles as $file) {
                 $file->delete();
             }
             $privatekeyfiles = $fs->get_area_files(
-                $syscontext->id, 'jqshow', 'privatekey_ssl', 0, 'filename', false
+                $syscontext->id, 'kuet', 'privatekey_ssl', 0, 'filename', false
             );
             foreach ($privatekeyfiles as $file) {
                 $file->delete();
             }
         }
         $dbman = $DB->get_manager();
-        $jqshow = new xmldb_table('jqshow');
+        $jqshow = new xmldb_table('kuet');
         $dbman->drop_table($jqshow);
-        $jqshowgrades = new xmldb_table('jqshow_grades');
+        $jqshowgrades = new xmldb_table('kuet_grades');
         $dbman->drop_table($jqshowgrades);
-        $jqshowquestions = new xmldb_table('jqshow_questions');
+        $jqshowquestions = new xmldb_table('kuet_questions');
         $dbman->drop_table($jqshowquestions);
         $questionsresponses = new xmldb_table('questions_responses');
         $dbman->drop_table($questionsresponses);
-        $jqshowsessions = new xmldb_table('jqshow_sessions');
+        $jqshowsessions = new xmldb_table('kuet_sessions');
         $dbman->drop_table($jqshowsessions);
-        $jqshowsessionsgrades = new xmldb_table('jqshow_sessions_grades');
+        $jqshowsessionsgrades = new xmldb_table('kuet_sessions_grades');
         $dbman->drop_table($jqshowsessionsgrades);
-        $jqshowuserprogress = new xmldb_table('jqshow_user_progress');
+        $jqshowuserprogress = new xmldb_table('kuet_user_progress');
         $dbman->drop_table($jqshowuserprogress);
         return true;
     } catch (Exception $e) {

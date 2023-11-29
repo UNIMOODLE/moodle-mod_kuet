@@ -24,60 +24,36 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\persistents;
+namespace mod_kuet\persistents;
+
 use core\persistent;
-use moodle_exception;
 
-class jqshow extends persistent {
-    public const TABLE = 'jqshow';
-
+class kuet_grades extends persistent {
+    const TABLE = 'kuet_grades';
     /**
-     * @return array[]
+     * Return the definition of the properties of this model.
+     *
+     * @return array
      */
     protected static function define_properties() : array {
         return [
-            'course' => [
+            'kuet' => [
                 'type' => PARAM_INT,
             ],
-            'name' => [
-                'type' => PARAM_RAW,
-            ],
-            'intro' => [
-                'type' => PARAM_RAW,
-            ],
-            'introformat' => [
+            'userid' => [
                 'type' => PARAM_INT,
             ],
-            'teamgrade' => [
-                'type' => PARAM_RAW,
-            ],
-            'grademethod' => [
-                'type' => PARAM_INT,
-            ],
-            'completionanswerall' => [
-                'type' => PARAM_INT,
-            ],
-            'usermodified' => [
-                'type' => PARAM_INT,
+            'grade' => [
+                'type' => PARAM_FLOAT,
             ]
         ];
     }
 
-    /**
-     * Get persisten from course module id.
-     * @param int $cmid
-     * @return false|jqshow
-     * @throws moodle_exception
-     */
-    public static function get_jqshow_from_cmid(int $cmid) {
-        list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'jqshow');
-        return self::get_record(['id' => (int) $cm->instance, 'course' => $course->id]);
-    }
 }

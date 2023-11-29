@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use context_module;
 use external_api;
@@ -39,8 +39,8 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\jqshow;
-use mod_jqshow\persistents\jqshow_questions_responses;
+use mod_kuet\kuet;
+use mod_kuet\persistents\kuet_questions_responses;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -54,7 +54,7 @@ class deleteresponses_external extends external_api {
             [
                 'cmid' => new external_value(PARAM_INT, 'id of course module'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
-                'jqid' => new external_value(PARAM_INT, 'id of jqshow_question'),
+                'jqid' => new external_value(PARAM_INT, 'id of kuet_question'),
             ]
         );
     }
@@ -73,10 +73,10 @@ class deleteresponses_external extends external_api {
             ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid]
         );
         $cmcontext = context_module::instance($cmid);
-        if (has_capability('mod/jqshow:startsession', $cmcontext)) {
-            $jqshow = new jqshow($cmid);
+        if (has_capability('mod/kuet:startsession', $cmcontext)) {
+            $jqshow = new kuet($cmid);
             return [
-                'deleted' => jqshow_questions_responses::delete_question_responses($jqshow->get_jqshow()->id, $sessionid, $jqid)
+                'deleted' => kuet_questions_responses::delete_question_responses($jqshow->get_jqshow()->id, $sessionid, $jqid)
             ];
         }
         return [

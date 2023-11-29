@@ -24,26 +24,26 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\persistents;
+namespace mod_kuet\persistents;
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
-use mod_jqshow\event\session_ended;
-use mod_jqshow\models\sessions;
-use mod_jqshow\models\sessions as sessionsmodel;
+use mod_kuet\event\session_ended;
+use mod_kuet\models\sessions;
+use mod_kuet\models\sessions as sessionsmodel;
 
-class jqshow_sessions extends persistent {
+class kuet_sessions extends persistent {
 
-    public const TABLE = 'jqshow_sessions';
+    public const TABLE = 'kuet_sessions';
 
     /**
      * Return the definition of the properties of this model.
@@ -167,7 +167,7 @@ class jqshow_sessions extends persistent {
         global $DB;
         $record = $DB->get_record(self::TABLE, ['id' => $sessionid]);
         unset($record->id);
-        $record->name .= ' - ' . get_string('copy', 'mod_jqshow');
+        $record->name .= ' - ' . get_string('copy', 'mod_kuet');
         $record->status = sessionsmodel::SESSION_ACTIVE;
         $record->automaticstart = 0;
         $record->startdate = 0;
@@ -268,13 +268,13 @@ class jqshow_sessions extends persistent {
         $activesession = $DB->get_records(self::TABLE, ['status' => sessionsmodel::SESSION_STARTED]);
         foreach ($activesession as $active) {
             if ($sid !== $active->id) {
-                $session = new jqshow_sessions($active->id);
+                $session = new kuet_sessions($active->id);
                 $session->set('status', sessionsmodel::SESSION_FINISHED);
                 $session->set('enddate', time());
                 $session->update();
             }
         }
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $session->set('status', sessionsmodel::SESSION_STARTED);
         $session->set('startdate', time());
         $session->update();
@@ -287,7 +287,7 @@ class jqshow_sessions extends persistent {
      * @throws invalid_persistent_exception
      */
     public static function mark_session_active(int $sid): void {
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $session->set('status', sessionsmodel::SESSION_ACTIVE);
         $session->update();
     }
@@ -299,26 +299,26 @@ class jqshow_sessions extends persistent {
      * @throws invalid_persistent_exception
      */
     public static function mark_session_finished(int $sid): void {
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $session->set('status', sessionsmodel::SESSION_FINISHED);
         $session->set('enddate', time());
         $session->update();
 
-        $cm = get_coursemodule_from_instance('jqshow', $session->get('jqshowid'));
-        $jqshow = new jqshow($session->get('jqshowid'));
+        $cm = get_coursemodule_from_instance('kuet', $session->get('jqshowid'));
+        $jqshow = new kuet($session->get('jqshowid'));
         $params = array(
             'objectid' => $sid,
             'courseid' => $jqshow->get('course'),
             'context' => context_module::instance($cm->id)
         );
         $event = session_ended::create($params);
-        $event->add_record_snapshot('jqshow_sessions', $session->to_record());
+        $event->add_record_snapshot('kuet_sessions', $session->to_record());
         $event->trigger();
     }
 
     /**
      * For PHPUnit
-     * @param jqshow_sessions $other
+     * @param kuet_sessions $other
      * @return bool
      * @throws coding_exception
      */
@@ -338,7 +338,7 @@ class jqshow_sessions extends persistent {
         $comparescaleclause = $DB->sql_compare_text('name')  . ' =  ' . $DB->sql_compare_text(':name');
         $comparescaleclause .= ' AND jqshowid = :jqshowid';
 
-        return $DB->get_records_sql("SELECT * FROM {jqshow_sessions} WHERE $comparescaleclause",
+        return $DB->get_records_sql("SELECT * FROM {kuet_sessions} WHERE $comparescaleclause",
             ['name' => $name, 'jqshowid' => $jsqhowid]);
     }
 
@@ -353,7 +353,7 @@ class jqshow_sessions extends persistent {
         $params = [
             'jqshowid' => $jqshowid
         ];
-        return $DB->get_records_select('jqshow_sessions', $select, $params);
+        return $DB->get_records_select('kuet_sessions', $select, $params);
     }
 
     /**
@@ -369,7 +369,7 @@ class jqshow_sessions extends persistent {
             'sessionmode' => sessions::PODIUM_PROGRAMMED,
             'automaticstart' => 1
         ];
-        return $DB->get_records_select('jqshow_sessions', $select, $params, 'timecreated ASC');
+        return $DB->get_records_select('kuet_sessions', $select, $params, 'timecreated ASC');
     }
 
     /**

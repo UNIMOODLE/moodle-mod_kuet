@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/multichoice
+ * @module    mod_kuet/multichoice
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -60,7 +60,7 @@ let REGION = {
 };
 
 let SERVICES = {
-    REPLY: 'mod_jqshow_multichoice'
+    REPLY: 'mod_kuet_multichoice'
 };
 
 let TEMPLATES = {

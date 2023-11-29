@@ -25,16 +25,16 @@
     <div class="row">
         <div class="col-12 ranking-container">
             <div class="ranking-heading">
-                <h2>{{#str}}final_ranking, mod_jqshow{{/str}}</h2>
+                <h2>{{#str}}final_ranking, mod_kuet{{/str}}</h2>
                 <div class="question-fullscreen" data-action="question-fullscreen">
-                    {{#pix}}q/zoomin, mod_jqshow{{/pix}}
+                    {{#pix}}q/zoomin, mod_kuet{{/pix}}
                 </div>
                 <div class="question-fullscreen" data-action="question-exit-fullscreen">
-                    {{#pix}}q/zoomout, mod_jqshow{{/pix}}
+                    {{#pix}}q/zoomout, mod_kuet{{/pix}}
                 </div>
             </div>
             <div class="ranking-users finalranking container-fluid px-0" data-region="ranking-users">
-                {{> mod_jqshow/ranking/rankingfirstthree }}
+                {{> mod_kuet/ranking/rankingfirstthree }}
                 <div class="ranking-users-body" data-region="ranking_users">
                     <div class="content-users">
                         <div class="d-table list-group">
@@ -48,7 +48,7 @@
                                     </div>
                                     <div class="d-table-cell userpoints text-center">
                                         <span>{{userpoints}}</span>
-                                        {{#pix}}q/points, mod_jqshow{{/pix}}
+                                        {{#pix}}q/points, mod_kuet{{/pix}}
                                     </div>
                                 </div>
                             {{/finalranking}}
@@ -61,11 +61,11 @@
 </div>
 {{#programmedmode}}
     <a class="btn btn-primary m-3 float-right" href="{{reporturl}}">
-        {{#str}}report, mod_jqshow{{/str}}
+        {{#str}}report, mod_kuet{{/str}}
     </a>
 {{/programmedmode}}
 {{#js}}
-    require(['mod_jqshow/question'], function(Question) {
+    require(['mod_kuet/question'], function(Question) {
         Question.initQuestion('[data-region="ranking-content"]');
     });
 {{/js}}

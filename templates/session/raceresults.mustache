@@ -23,15 +23,15 @@
 }}
 {{#programmedmode}}
     <h6 class="titlecontainer bg-primary">
-        {{#pix}} i/questions_list, mod_jqshow {{/pix}}
-        {{#str}}results, mod_jqshow{{/str}}
+        {{#pix}} i/questions_list, mod_kuet {{/pix}}
+        {{#str}}results, mod_kuet{{/str}}
     </h6>
 {{/programmedmode}}
 
 <div class="content-raceresults">
     <div class="users-list">
         <div class="race-student-title">
-            {{#str}}students, mod_jqshow{{/str}}
+            {{#str}}students, mod_kuet{{/str}}
         </div>
         <div class="content-users" id="content-users">
             {{#userresults}}
@@ -46,7 +46,7 @@
                         <span class="user-fullname">{{userfullname}}</span>
                     {{/userprofileurl}}
                     <span class="user-poinsts">
-                    {{userpoints}} pt {{#pix}}q/points, mod_jqshow{{/pix}}
+                    {{userpoints}} pt {{#pix}}q/points, mod_kuet{{/pix}}
                 </span>
                 </div>
             {{/userresults}}
@@ -55,7 +55,7 @@
                     <img class="student-profile" src="{{groupimageurl}}" alt="{{groupname}}">
                     <span class="user-fullname">{{groupname}}</span>
                     <span class="user-poinsts">
-                    {{grouppoints}} pt {{#pix}}q/points, mod_jqshow{{/pix}}
+                    {{grouppoints}} pt {{#pix}}q/points, mod_kuet{{/pix}}
                 </span>
                 </div>
             {{/groupresults}}
@@ -65,7 +65,7 @@
         {{#questions}}
             <div class="content-question" data-questionnum="{{questionnum}}">
                 <div class="questionnumber">
-                    {{#str}}abbreviationquestion, mod_jqshow{{/str}}{{questionnum}}
+                    {{#str}}abbreviationquestion, mod_kuet{{/str}}{{questionnum}}
                 </div>
                 <div class="content-responses">
                     {{#studentsresponse}}

@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\models;
+namespace mod_kuet\models;
 
 use coding_exception;
 use context_module;
@@ -41,13 +41,13 @@ use dml_transaction_exception;
 use html_writer;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\api\grade;
-use mod_jqshow\external\ddwtos_external;
-use mod_jqshow\helpers\reports;
-use mod_jqshow\persistents\jqshow;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\api\grade;
+use mod_kuet\external\ddwtos_external;
+use mod_kuet\helpers\reports;
+use mod_kuet\persistents\kuet;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use qtype_ddwtos_question;
 use question_bank;
@@ -55,7 +55,7 @@ use question_definition;
 use question_display_options;
 use question_state;
 use stdClass;
-use mod_jqshow\interfaces\questionType;
+use mod_kuet\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -85,12 +85,12 @@ class ddwtos extends questions implements questionType {
      * @throws moodle_exception
      */
     public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
-        $session = jqshow_sessions::get_record(['id' => $sessionid]);
-        $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
+        $session = kuet_sessions::get_record(['id' => $sessionid]);
+        $jqshowquestion = kuet_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         if (!assert($question instanceof qtype_ddwtos_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                [], get_string('question_nosuitable', 'mod_jqshow'));
+            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
+                [], get_string('question_nosuitable', 'mod_kuet'));
         }
         $question->shufflechoices = 0;
         $type = $question->get_type_name();
@@ -135,8 +135,8 @@ class ddwtos extends questions implements questionType {
         );
         $question = question_bank::load_question($data->questionid);
         if (!assert($question instanceof qtype_ddwtos_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                [], get_string('question_nosuitable', 'mod_jqshow'));
+            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
+                [], get_string('question_nosuitable', 'mod_kuet'));
         }
         $question->shufflechoices = 0;
         $data->questiontext = self::get_question_text(
@@ -396,7 +396,7 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
-     * @param jqshow_sessions $session
+     * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
      * @param int $jqid
@@ -406,13 +406,13 @@ class ddwtos extends questions implements questionType {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_question_report(jqshow_sessions     $session,
+    public static function get_question_report(kuet_sessions     $session,
                                                question_definition $questiondata,
                                                stdClass            $data,
                                                int                 $jqid): stdClass {
         if (!assert($questiondata instanceof qtype_ddwtos_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                [], get_string('question_nosuitable', 'mod_jqshow'));
+            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
+                [], get_string('question_nosuitable', 'mod_kuet'));
         }
         $data->questiontext = self::correct_response($questiondata, $data->cmid);
         $data->hasnoanswers = true;
@@ -421,10 +421,10 @@ class ddwtos extends questions implements questionType {
 
     /**
      * @param stdClass $participant
-     * @param jqshow_questions_responses $response
+     * @param kuet_questions_responses $response
      * @param array $answers
-     * @param jqshow_sessions $session
-     * @param jqshow_questions $question
+     * @param kuet_sessions $session
+     * @param kuet_questions $question
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -432,13 +432,13 @@ class ddwtos extends questions implements questionType {
      */
     public static function get_ranking_for_question(
         stdClass $participant,
-        jqshow_questions_responses $response,
+        kuet_questions_responses $response,
         array $answers,
-        jqshow_sessions $session,
-        jqshow_questions $question): stdClass {
+        kuet_sessions $session,
+        kuet_questions $question): stdClass {
 
         $participant->response = grade::get_result_mark_type($response);
-        $participant->responsestr = get_string($participant->response, 'mod_jqshow');
+        $participant->responsestr = get_string($participant->response, 'mod_kuet');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
@@ -483,9 +483,9 @@ class ddwtos extends questions implements questionType {
         $result = $custom['result'];
         $answerfeedback = $custom['answerfeedback'];
         $cmcontext = context_module::instance($cmid);
-        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
+        $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
         if ($isteacher !== true) {
-            $session = new jqshow_sessions($sessionid);
+            $session = new kuet_sessions($sessionid);
             $response = new stdClass();
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
             $response->timeleft = $timeleft;
@@ -494,7 +494,7 @@ class ddwtos extends questions implements questionType {
             if ($session->is_group_mode()) {
                 parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
-                jqshow_questions_responses::add_response(
+                kuet_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
@@ -503,7 +503,7 @@ class ddwtos extends questions implements questionType {
 
     /**
      * @param stdClass $useranswer
-     * @param jqshow_questions_responses $response
+     * @param kuet_questions_responses $response
      * @return float
      * @throws JsonException
      * @throws coding_exception
@@ -511,10 +511,10 @@ class ddwtos extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response) : float {
         $mark = 0;
-        $jqshow = new jqshow($response->get('jqshow'));
-        [$course, $cm] = get_course_and_cm_from_instance($response->get('jqshow'), 'jqshow', $jqshow->get('course'));
+        $jqshow = new kuet($response->get('kuet'));
+        [$course, $cm] = get_course_and_cm_from_instance($response->get('kuet'), 'kuet', $jqshow->get('course'));
         $question = question_bank::load_question($response->get('questionid'));
         if (assert($question instanceof qtype_ddwtos_question)) {
             $question->shufflechoices = 0;
@@ -533,7 +533,7 @@ class ddwtos extends questions implements questionType {
 
     /**
      * @param question_definition $question
-     * @param jqshow_questions_responses[] $responses
+     * @param kuet_questions_responses[] $responses
      * @return array
      * @throws coding_exception
      */

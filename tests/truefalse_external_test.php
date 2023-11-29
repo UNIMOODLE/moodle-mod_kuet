@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use mod_jqshow\models\sessions;
-use mod_jqshow\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\models\questions;
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @copyright   3iPunt <https://www.tresipunt.com/>
@@ -29,9 +29,9 @@ class truefalse_external_test extends advanced_testcase {
     public function test_truefalse() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -43,7 +43,7 @@ class truefalse_external_test extends advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -58,7 +58,7 @@ class truefalse_external_test extends advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
@@ -75,17 +75,17 @@ class truefalse_external_test extends advanced_testcase {
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]
         ];
         $generator->add_questions_to_session($questions);
-        \mod_jqshow\external\startsession_external::startsession($jqshow->cmid, $createdsid);
+        \mod_kuet\external\startsession_external::startsession($jqshow->cmid, $createdsid);
 
         $qbtf = question_bank::load_question($tfq->id);
-        $jtfq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]
         );
 
         // User 1 answers a correct answer.
         self::setUser($student);
         $user1answerid = $qbtf->trueanswerid;
-        $data = \mod_jqshow\external\truefalse_external::truefalse($user1answerid, $createdsid, $jqshow->id,
+        $data = \mod_kuet\external\truefalse_external::truefalse($user1answerid, $createdsid, $jqshow->id,
             $jqshow->cmid, $tfq->id, $jtfq->get('id'), 10, false);
 
         $this->assertIsArray($data);
@@ -116,7 +116,7 @@ class truefalse_external_test extends advanced_testcase {
         // User 2 answers an incorrect answer.
         self::setUser($student2);
         $user2answerid = $qbtf->falseanswerid;
-        $data = \mod_jqshow\external\truefalse_external::truefalse($user2answerid, $createdsid, $jqshow->id,
+        $data = \mod_kuet\external\truefalse_external::truefalse($user2answerid, $createdsid, $jqshow->id,
             $jqshow->cmid, $tfq->id, $jtfq->get('id'), 10, false);
 
         $this->assertIsArray($data);

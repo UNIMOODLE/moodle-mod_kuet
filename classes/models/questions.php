@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\models;
+namespace mod_kuet\models;
 
 use coding_exception;
 use context_module;
@@ -40,11 +40,11 @@ use dml_exception;
 use dml_transaction_exception;
 use Exception;
 use JsonException;
-use mod_jqshow\api\groupmode;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\persistents\jqshow_user_progress;
+use mod_kuet\api\groupmode;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
+use mod_kuet\persistents\kuet_user_progress;
 use moodle_exception;
 use qbank_previewquestion\question_preview_options;
 use question_attempt;
@@ -90,7 +90,7 @@ class questions {
     protected int $jqshowid;
     protected int $cmid;
     protected int $sid;
-    /** @var jqshow_questions[] list */
+    /** @var kuet_questions[] list */
     protected array $list;
 
     /**
@@ -108,11 +108,11 @@ class questions {
      * @return void
      */
     public function set_list() : void {
-        $this->list = jqshow_questions::get_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid], 'qorder', 'ASC');
+        $this->list = kuet_questions::get_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid], 'qorder', 'ASC');
     }
 
     /**
-     * @return jqshow_questions[]
+     * @return kuet_questions[]
      */
     public function get_list(): array {
         if (empty($this->list)) {
@@ -125,7 +125,7 @@ class questions {
      * @return int
      */
     public function get_num_questions(): int {
-        return jqshow_questions::count_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid]);
+        return kuet_questions::count_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid]);
     }
 
     /**
@@ -134,7 +134,7 @@ class questions {
      */
     public function get_sum_questions_times(): int {
         $questions = $this->get_list();
-        $sessiontimedefault = (new jqshow_sessions($this->sid))->get('questiontime');
+        $sessiontimedefault = (new kuet_sessions($this->sid))->get('questiontime');
         $time = 0;
         foreach ($questions as $question) {
             if ($question->get('timelimit') !== 0) {
@@ -147,12 +147,12 @@ class questions {
     }
 
     /**
-     * @param jqshow_sessions $session
+     * @param kuet_sessions $session
      * @param int $cmid
      * @param int $sessionid
      * @param int $jqshowid
      * @param bool $preview
-     * @param jqshow_questions $jqshowquestion
+     * @param kuet_questions $jqshowquestion
      * @param string $type
      * @return stdClass
      * @throws JsonException
@@ -160,16 +160,16 @@ class questions {
      * @throws moodle_exception
      */
     protected static function get_question_common_data(
-        jqshow_sessions $session,
+        kuet_sessions $session,
         int $cmid,
         int $sessionid,
         int $jqshowid,
         bool $preview,
-        jqshow_questions $jqshowquestion,
+        kuet_questions $jqshowquestion,
         string $type
     ): stdClass {
         global $USER;
-        $numsessionquestions = jqshow_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
+        $numsessionquestions = kuet_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
         $data = new stdClass();
         $data->cmid = $cmid;
         $data->sessionid = $sessionid;
@@ -185,7 +185,7 @@ class questions {
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
                 $data->programmedmode = true;
-                $progress = jqshow_user_progress::get_session_progress_for_user(
+                $progress = kuet_user_progress::get_session_progress_for_user(
                     $USER->id, $session->get('id'), $session->get('jqshowid')
                 );
                 if ($progress !== false) {
@@ -196,7 +196,7 @@ class questions {
                         $a = new stdClass();
                         $a->num = $order + 1;
                         $a->total = $numsessionquestions;
-                        $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+                        $data->question_index_string = get_string('question_index_string', 'mod_kuet', $a);
                         $data->sessionprogress = round(($order + 1) * 100 / $numsessionquestions);
                     }
                 }
@@ -205,7 +205,7 @@ class questions {
                     $a = new stdClass();
                     $a->num = $order;
                     $a->total = $numsessionquestions;
-                    $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+                    $data->question_index_string = get_string('question_index_string', 'mod_kuet', $a);
                     $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 }
                 $data->numquestions = $numsessionquestions;
@@ -218,13 +218,13 @@ class questions {
                 $a->num = $order;
                 $a->total = $numsessionquestions;
                 $data->programmedmode = false;
-                $data->question_index_string = get_string('question_index_string', 'mod_jqshow', $a);
+                $data->question_index_string = get_string('question_index_string', 'mod_kuet', $a);
                 $data->numquestions = $numsessionquestions;
                 $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
-                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
+                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
+                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
         }
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
@@ -239,7 +239,7 @@ class questions {
                 break;
             case sessions::SESSION_TIME:
                 $data->hastime = true;
-                $numquestion = jqshow_questions::count_records(
+                $numquestion = kuet_questions::count_records(
                     ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
                 );
                 $data->seconds = round((int)$session->get('sessiontime') / $numquestion);
@@ -273,7 +273,7 @@ class questions {
     ): string {
         global $DB;
         $contextmodule = context_module::instance($cmid);
-        $usage = $DB->get_record('question_usages', ['component' => 'mod_jqshow', 'contextid' => $contextmodule->id]);
+        $usage = $DB->get_record('question_usages', ['component' => 'mod_kuet', 'contextid' => $contextmodule->id]);
         $options = new question_preview_options($question);
         $options->load_user_defaults();
         $options->set_from_request();
@@ -282,7 +282,7 @@ class questions {
             $quba = question_engine::load_questions_usage_by_activity($usage->id);
         } else {
             $quba = question_engine::make_questions_usage_by_activity(
-                'mod_jqshow', context_module::instance($cmid));
+                'mod_kuet', context_module::instance($cmid));
         }
         $quba->set_preferred_behaviour('immediatefeedback');
         $slot = $quba->add_question($question, $options->maxmark);
@@ -322,7 +322,7 @@ class questions {
 
     /**
      * @param int $jqshowid
-     * @param jqshow_sessions $session
+     * @param kuet_sessions $session
      * @param int $jqid
      * @param int $questionid
      * @param int $userid
@@ -335,18 +335,18 @@ class questions {
      * @throws moodle_exception
      */
     protected static function add_group_response(
-        int $jqshowid, jqshow_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response
+        int $jqshowid, kuet_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response
     ) : void {
         // All groupmembers has the same response saved on db.
-        $num = jqshow_questions_responses::count_records(
-            ['jqshow' => $jqshowid, 'session' => $session->get('id'), 'jqid' => $jqid, 'userid' => $userid]);
+        $num = kuet_questions_responses::count_records(
+            ['kuet' => $jqshowid, 'session' => $session->get('id'), 'jqid' => $jqid, 'userid' => $userid]);
         if ($num > 0) {
             return;
         }
         // Groups.
         $gmemberids = groupmode::get_grouping_group_members_by_userid($session->get('groupings'), $userid);
         foreach ($gmemberids as $gmemberid) {
-            jqshow_questions_responses::add_response(
+            kuet_questions_responses::add_response(
                 $jqshowid, $session->get('id'), $jqid, $questionid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
@@ -368,10 +368,10 @@ class questions {
         if ($type === 'match') {
             $type = 'matchquestion';
         }
-        $type = "mod_jqshow\models\\$type";
+        $type = "mod_kuet\models\\$type";
         if (!class_exists($type)) {
-            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                [], get_string('question_nosuitable', 'mod_jqshow'));
+            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
+                [], get_string('question_nosuitable', 'mod_kuet'));
         }
         return $type;
     }

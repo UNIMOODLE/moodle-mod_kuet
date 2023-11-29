@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -33,7 +33,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023110900;
+$plugin->version = 2023112800;
 $plugin->requires = 2022112802; // Moodle 4.1.2+
-$plugin->component = 'mod_jqshow';
+$plugin->component = 'mod_kuet';
 $plugin->cron = 0;

@@ -24,22 +24,22 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow\helpers;
+namespace mod_kuet\helpers;
 
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
 use JsonException;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\persistents\jqshow_user_progress;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_sessions;
+use mod_kuet\persistents\kuet_user_progress;
 use moodle_exception;
 use stdClass;
 
@@ -66,14 +66,14 @@ class progress {
     ): void {
 
         $cmcontext = context_module::instance($cmid);
-        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
+        $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
         if (!$isteacher) {
-            $session = jqshow_sessions::get_record(['id' => $sessionid] );
+            $session = kuet_sessions::get_record(['id' => $sessionid] );
             switch ($session->get('sessionmode')) {
                 case sessions::INACTIVE_PROGRAMMED:
                 case sessions::PODIUM_PROGRAMMED:
                 case sessions::RACE_PROGRAMMED:
-                    $record = jqshow_user_progress::get_session_progress_for_user(
+                    $record = kuet_user_progress::get_session_progress_for_user(
                         $userid, $sessionid, $jqshowid
                     );
                     switch ([$record !== false, $session->get('randomquestions')]) {
@@ -112,7 +112,7 @@ class progress {
                             $data->currentquestion = $currentquestionjqid;
                             break;
                     }
-                    jqshow_user_progress::add_progress($jqshowid, $sessionid, $userid, json_encode($data, JSON_THROW_ON_ERROR));
+                    kuet_user_progress::add_progress($jqshowid, $sessionid, $userid, json_encode($data, JSON_THROW_ON_ERROR));
                     break;
                 case sessions::INACTIVE_MANUAL:
                 case sessions::PODIUM_MANUAL:

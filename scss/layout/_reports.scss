@@ -1,4 +1,4 @@
-body#page-mod-jqshow-reports.jqshow-reports {
+body#page-mod-kuet-reports.kuet-reports {
     .content-info {
         display: flex;
         flex-flow: row nowrap;
@@ -520,7 +520,7 @@ body#page-mod-jqshow-reports.jqshow-reports {
     }
 }
 @media (max-width: 1150px) {
-    body#page-mod-jqshow-reports.jqshow-reports {
+    body#page-mod-kuet-reports.kuet-reports {
         .count_info {
             flex-flow: row wrap;
         }
@@ -536,7 +536,7 @@ body#page-mod-jqshow-reports.jqshow-reports {
     }
 }
 @media (max-width: 640px) {
-    body#page-mod-jqshow-reports.jqshow-reports {
+    body#page-mod-kuet-reports.kuet-reports {
         [data-region="reports"] {
             .resume-config {
                 .list-group {
@@ -549,7 +549,7 @@ body#page-mod-jqshow-reports.jqshow-reports {
     }
 }
 @media (max-width: 480px) {
-    body#page-mod-jqshow-reports.jqshow-reports {
+    body#page-mod-kuet-reports.kuet-reports {
         [data-region="reports"] {
             .resume-config {
                 display: none;

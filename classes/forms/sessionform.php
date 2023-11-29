@@ -24,21 +24,21 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\forms;
+namespace mod_kuet\forms;
 
 use coding_exception;
 use DateTime;
 use dml_exception;
-use mod_jqshow\api\groupmode;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\api\groupmode;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_sessions;
 use moodleform;
 
 global $CFG;
@@ -58,76 +58,76 @@ class sessionform extends moodleform {
         $mform->addElement('html', '<div class="row">');
         $mform->addElement('html', '<div class="col-12 formcontainer">');
         $mform->addElement('html', '<h6 class="titlecontainer bg-primary">' .
-            $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
-            get_string('generalsettings', 'mod_jqshow') .
+            $OUTPUT->pix_icon('i/config_session', '', 'mod_kuet') .
+            get_string('generalsettings', 'mod_kuet') .
             '</h6>');
         $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
         // Name.
         $nameparams = [
-            'placeholder' => get_string('session_name_placeholder', 'mod_jqshow')];
+            'placeholder' => get_string('session_name_placeholder', 'mod_kuet')];
         $mform->addElement('text', 'name',
-            get_string('session_name', 'mod_jqshow'), $nameparams);
+            get_string('session_name', 'mod_kuet'), $nameparams);
         $mform->setType('name', PARAM_RAW);
-        $mform->addHelpButton('name', 'session_name', 'mod_jqshow');
+        $mform->addHelpButton('name', 'session_name', 'mod_kuet');
         $mform->addRule('name', get_string('required'), 'required');
 
         // Anonymousanswer.
         $mform->addElement('select', 'anonymousanswer',
-            get_string('anonymousanswer', 'mod_jqshow'), $customdata['anonymousanswerchoices']);
+            get_string('anonymousanswer', 'mod_kuet'), $customdata['anonymousanswerchoices']);
         $mform->setType('anonymousanswer', PARAM_RAW);
-        $mform->addHelpButton('anonymousanswer', 'anonymousanswer', 'jqshow');
+        $mform->addHelpButton('anonymousanswer', 'anonymousanswer', 'kuet');
 
         // Sessionmode.
         $mform->addElement('select', 'sessionmode',
-            get_string('sessionmode', 'mod_jqshow'), $customdata['sessionmodechoices']);
+            get_string('sessionmode', 'mod_kuet'), $customdata['sessionmodechoices']);
         $mform->setType('sessionmode', PARAM_RAW);
-        $mform->addHelpButton('sessionmode', 'sessionmode', 'jqshow');
+        $mform->addHelpButton('sessionmode', 'sessionmode', 'kuet');
 
         // Grade method.
         if ($customdata['showsgrade']) {
-            $mform->addElement('checkbox', 'sgrade', get_string('sgrade', 'mod_jqshow'));
+            $mform->addElement('checkbox', 'sgrade', get_string('sgrade', 'mod_kuet'));
             $mform->setType('sgrade', PARAM_INT);
-            $mform->addHelpButton('sgrade', 'sgrade', 'jqshow');
+            $mform->addHelpButton('sgrade', 'sgrade', 'kuet');
         }
 
         // Countdown.
-        $mform->addElement('checkbox', 'countdown', get_string('countdown', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'countdown', get_string('countdown', 'mod_kuet'));
         $mform->setType('countdown', PARAM_INT);
         $mform->setDefault('countdown', 1);
-        $mform->addHelpButton('countdown', 'countdown', 'jqshow');
+        $mform->addHelpButton('countdown', 'countdown', 'kuet');
 
         // Hide grade and ranking between questions.
-        $mform->addElement('checkbox', 'showgraderanking', get_string('showgraderanking', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'showgraderanking', get_string('showgraderanking', 'mod_kuet'));
         $mform->setType('showgraderanking', PARAM_INT);
         $mform->hideIf('showgraderanking', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->hideIf('showgraderanking', 'sessionmode', 'eq', sessions::INACTIVE_PROGRAMMED);
         $mform->setDefault('showgraderanking', 1);
-        $mform->addHelpButton('showgraderanking', 'showgraderanking', 'jqshow');
+        $mform->addHelpButton('showgraderanking', 'showgraderanking', 'kuet');
 
         // Randomquestions.
-        $mform->addElement('checkbox', 'randomquestions', get_string('randomquestions', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'randomquestions', get_string('randomquestions', 'mod_kuet'));
         $mform->setType('randomquestions', PARAM_INT);
-        $mform->addHelpButton('randomquestions', 'randomquestions', 'jqshow');
+        $mform->addHelpButton('randomquestions', 'randomquestions', 'kuet');
         $mform->hideIf('randomquestions', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->hideIf('randomquestions', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
         $mform->hideIf('randomquestions', 'sessionmode', 'eq', sessions::RACE_MANUAL);
 
         // Randomanswers.
-        $mform->addElement('checkbox', 'randomanswers', get_string('randomanswers', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'randomanswers', get_string('randomanswers', 'mod_kuet'));
         $mform->setType('randomanswers', PARAM_INT);
-        $mform->addHelpButton('randomanswers', 'randomanswers', 'jqshow');
+        $mform->addHelpButton('randomanswers', 'randomanswers', 'kuet');
 
         // Showfeedback.
-        $mform->addElement('checkbox', 'showfeedback', get_string('showfeedback', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'showfeedback', get_string('showfeedback', 'mod_kuet'));
         $mform->setType('showfeedback', PARAM_INT);
         $mform->setDefault('showfeedback', 1);
-        $mform->addHelpButton('showfeedback', 'showfeedback', 'jqshow');
+        $mform->addHelpButton('showfeedback', 'showfeedback', 'kuet');
 
         // Showfinalgrade.
-        $mform->addElement('checkbox', 'showfinalgrade', get_string('showfinalgrade', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'showfinalgrade', get_string('showfinalgrade', 'mod_kuet'));
         $mform->setType('showfinalgrade', PARAM_INT);
         $mform->setDefault('showfinalgrade', 1);
-        $mform->addHelpButton('showfinalgrade', 'showfinalgrade', 'jqshow');
+        $mform->addHelpButton('showfinalgrade', 'showfinalgrade', 'kuet');
 
         $mform->addElement('html', '</div>');
         $mform->addElement('html', '</div>');
@@ -136,57 +136,57 @@ class sessionform extends moodleform {
         $mform->addElement('html', '<div class="row">');
         $mform->addElement('html', '<div class="col-12 formcontainer">');
         $mform->addElement('html', '<h6  class="titlecontainer bg-primary">' .
-            $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
-            get_string('timesettings', 'mod_jqshow') .
+            $OUTPUT->pix_icon('i/config_session', '', 'mod_kuet') .
+            get_string('timesettings', 'mod_kuet') .
             '</h6>');
         $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
 
         // Automaticstart.
-        $mform->addElement('checkbox', 'automaticstart', get_string('automaticstart', 'mod_jqshow'));
+        $mform->addElement('checkbox', 'automaticstart', get_string('automaticstart', 'mod_kuet'));
         $mform->setType('automaticstart', PARAM_INT);
         $mform->hideIf('automaticstart', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->hideIf('automaticstart', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
         $mform->hideIf('automaticstart', 'sessionmode', 'eq', sessions::RACE_MANUAL);
-        $mform->addHelpButton('automaticstart', 'automaticstart', 'jqshow');
+        $mform->addHelpButton('automaticstart', 'automaticstart', 'kuet');
 
         // Openquiz - Startdate.
         $date = new DateTime();
         $date->setTime($date->format('H'), ceil($date->format('i') / 10) * 10, 0);
         $mform->addElement('date_time_selector', 'startdate',
-            get_string('startdate', 'mod_jqshow'), ['optional' => false, 'defaulttime' => $date->getTimestamp()]);
+            get_string('startdate', 'mod_kuet'), ['optional' => false, 'defaulttime' => $date->getTimestamp()]);
         $mform->hideIf('startdate', 'automaticstart', 'notchecked');
         $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
         $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::RACE_MANUAL);
-        $mform->addHelpButton('startdate', 'startdate', 'jqshow');
+        $mform->addHelpButton('startdate', 'startdate', 'kuet');
 
         // Closequiz - enddate.
         $mform->addElement('date_time_selector', 'enddate',
-            get_string('enddate', 'mod_jqshow'), ['optional' => false, 'defaulttime' => $date->getTimestamp() + 3600]);
+            get_string('enddate', 'mod_kuet'), ['optional' => false, 'defaulttime' => $date->getTimestamp() + 3600]);
         $mform->hideIf('enddate', 'automaticstart', 'notchecked');
         $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
         $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::RACE_MANUAL);
         $mform->hideIf('enddate', 'startdate[enabled]', 'notchecked');
-        $mform->addHelpButton('enddate', 'enddate', 'jqshow');
+        $mform->addHelpButton('enddate', 'enddate', 'kuet');
 
         // Time mode.
         $mform->addElement('select', 'timemode',
-            get_string('timemode', 'mod_jqshow'), $customdata['timemode']);
+            get_string('timemode', 'mod_kuet'), $customdata['timemode']);
         $mform->setType('timemode', PARAM_INT);
-        $mform->addHelpButton('timemode', 'timemode', 'mod_jqshow');
+        $mform->addHelpButton('timemode', 'timemode', 'mod_kuet');
 
-        $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_jqshow'),
+        $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_kuet'),
             ['units' => [MINSECS, 1], 'optional' => false]);
         $mform->setType('sessiontime', PARAM_INT);
-        $mform->addHelpButton('sessiontime', 'sessiontime', 'mod_jqshow');
+        $mform->addHelpButton('sessiontime', 'sessiontime', 'mod_kuet');
         $mform->hideIf('sessiontime', 'timemode', 'eq', sessions::NO_TIME);
         $mform->hideIf('sessiontime', 'timemode', 'eq', sessions::QUESTION_TIME);
 
-        $mform->addElement('duration', 'questiontime', get_string('question_time', 'mod_jqshow'),
+        $mform->addElement('duration', 'questiontime', get_string('question_time', 'mod_kuet'),
             ['units' => [MINSECS, 1], 'defaultunit' => 1, 'optional' => false]);
         $mform->setType('questiontime', PARAM_INT);
-        $mform->addHelpButton('questiontime', 'questiontime', 'mod_jqshow');
+        $mform->addHelpButton('questiontime', 'questiontime', 'mod_kuet');
         $mform->hideIf('questiontime', 'timemode', 'eq', sessions::NO_TIME);
         $mform->hideIf('questiontime', 'timemode', 'eq', sessions::SESSION_TIME);
 
@@ -199,12 +199,12 @@ class sessionform extends moodleform {
             // Header.
             $mform->addElement('html', '<div class="col-12 formcontainer">');
             $mform->addElement('html', '<h6  class="titlecontainer bg-primary">' .
-                $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
-                get_string('accessrestrictions', 'mod_jqshow') .
+                $OUTPUT->pix_icon('i/config_session', '', 'mod_kuet') .
+                get_string('accessrestrictions', 'mod_kuet') .
                 '</h6>');
             $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
             $select = $mform->addElement('select', 'groupings',
-                get_string('groupings', 'mod_jqshow'), $customdata['groupingsselect'], ['cols' => 100]);
+                get_string('groupings', 'mod_kuet'), $customdata['groupingsselect'], ['cols' => 100]);
             $select->setMultiple(false);
             $mform->setType('groupings', PARAM_INT);
             $mform->addElement('html', '</div>');
@@ -215,13 +215,13 @@ class sessionform extends moodleform {
         if ((int) $cm->groupmode !== 0 && empty($customdata['groupingsselect'])) {
             $mform->addElement('html', '<div class="col-12 formcontainer">');
             $mform->addElement('html', '<h6  class="titlecontainer bg-primary">' .
-                $OUTPUT->pix_icon('i/config_session', '', 'mod_jqshow') .
-                get_string('accessrestrictions', 'mod_jqshow') .
+                $OUTPUT->pix_icon('i/config_session', '', 'mod_kuet') .
+                get_string('accessrestrictions', 'mod_kuet') .
                 '</h6>');
             $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
 
             $mform->addElement('html', '<div class="alert alert-warning">' .
-                get_string('nogroupingscreated', 'mod_jqshow') . '</div>');
+                get_string('nogroupingscreated', 'mod_kuet') . '</div>');
             $mform->addElement('html', '</div>');
             $mform->addElement('html', '</div>');
         }
@@ -260,7 +260,7 @@ class sessionform extends moodleform {
             }
         </script>");
 
-        $this->add_action_buttons(true, get_string('next', 'mod_jqshow'));
+        $this->add_action_buttons(true, get_string('next', 'mod_kuet'));
     }
 
     /**
@@ -274,7 +274,7 @@ class sessionform extends moodleform {
         $errors = parent::validation($data, $files);
         // Session name must be unique.
         $haserrorname = false;
-        $sessions = jqshow_sessions::get_sessions_by_name($data['name'], $data['jqshowid']);
+        $sessions = kuet_sessions::get_sessions_by_name($data['name'], $data['jqshowid']);
         if (count($sessions) === 1) {
             $sesion = reset($sessions);
             $haserrorname = (int)$sesion->id !== (int)$data['sessionid'];
@@ -282,15 +282,15 @@ class sessionform extends moodleform {
             $haserrorname = true;
         }
         if ($haserrorname) {
-            $errors['name'] = get_string('sessionalreadyexists', 'mod_jqshow');
+            $errors['name'] = get_string('sessionalreadyexists', 'mod_kuet');
         }
         // Automatic start.
         if (array_key_exists('automaticstart', $data) && (int)$data['automaticstart'] === 1) {
             if ((int)$data['startdate'] <= time()) {
-                $errors['startdate'] = get_string('previousstarterror', 'mod_jqshow');
+                $errors['startdate'] = get_string('previousstarterror', 'mod_kuet');
             }
             if ((int)$data['startdate'] >= (int)$data['enddate']) {
-                $errors['enddate'] = get_string('startminorend', 'mod_jqshow');
+                $errors['enddate'] = get_string('startminorend', 'mod_kuet');
             }
         } else {
             $data['startdate'] = 0;
@@ -298,11 +298,11 @@ class sessionform extends moodleform {
         }
         // Groups mode.
         if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && empty($data['groupings'])) {
-            $errors['groupings'] = get_string('session_groupings_error', 'mod_jqshow');
+            $errors['groupings'] = get_string('session_groupings_error', 'mod_kuet');
         } else if (array_key_exists('groupmode', $data) && (int)$data['groupmode'] != 0 && !empty($data['groupings'])) {
             $members = groupmode::get_grouping_group_members($data['groupings']);
             if (empty($members)) {
-                $errors['groupings'] = get_string('session_groupings_no_members', 'mod_jqshow');
+                $errors['groupings'] = get_string('session_groupings_no_members', 'mod_kuet');
             } else {
                 $allmembers = [];
                 $errorusers = [];
@@ -315,7 +315,7 @@ class sessionform extends moodleform {
                 }
                 if (!empty($errorusers)) {
                     $users = implode(',', $errorusers);
-                    $errors['groupings'] = get_string('session_groupings_same_user_in_groups', 'mod_jqshow', $users);
+                    $errors['groupings'] = get_string('session_groupings_same_user_in_groups', 'mod_kuet', $users);
                 }
             }
         }
@@ -323,16 +323,16 @@ class sessionform extends moodleform {
         // Timemode.
         if ($data['sessionmode'] !== sessions::INACTIVE_MANUAL && $data['sessionmode'] !== sessions::INACTIVE_PROGRAMMED) {
             if (!array_key_exists('timemode', $data)) {
-                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
+                $errors['timemode'] = get_string('timemodemustbeset', 'mod_kuet');
             } else if ((int)$data['timemode'] === sessions::NO_TIME) {
-                $errors['timemode'] = get_string('timemodemustbeset', 'mod_jqshow');
+                $errors['timemode'] = get_string('timemodemustbeset', 'mod_kuet');
             }
         }
 
         if ($data['timemode'] !== "0") {
             if ((int)$data['questiontime'] === 0 && (int)$data['sessiontime'] === 0) {
-                $errors['questiontime'] = get_string('timecannotbezero', 'mod_jqshow');
-                $errors['sessiontime'] = get_string('timecannotbezero', 'mod_jqshow');
+                $errors['questiontime'] = get_string('timecannotbezero', 'mod_kuet');
+                $errors['sessiontime'] = get_string('timecannotbezero', 'mod_kuet');
             }
         }
         return $errors;

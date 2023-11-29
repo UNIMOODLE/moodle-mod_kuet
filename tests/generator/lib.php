@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -32,7 +32,7 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-class mod_jqshow_generator extends testing_module_generator {
+class mod_kuet_generator extends testing_module_generator {
 
     /**
      * @param $record
@@ -55,7 +55,7 @@ class mod_jqshow_generator extends testing_module_generator {
      * @throws coding_exception
      */
     public function create_session(stdClass $jqshow, stdClass $sessionmock) {
-        $sessions = new \mod_jqshow\models\sessions($jqshow, $jqshow->cmid);
+        $sessions = new \mod_kuet\models\sessions($jqshow, $jqshow->cmid);
         return $sessions::save_session($sessionmock);
     }
 
@@ -68,6 +68,6 @@ class mod_jqshow_generator extends testing_module_generator {
      * @throws moodle_exception
      */
     public function add_questions_to_session(array $questions) {
-        return \mod_jqshow\external\addquestions_external::add_questions($questions);
+        return \mod_kuet\external\addquestions_external::add_questions($questions);
     }
 }

@@ -24,22 +24,22 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\output\views;
+namespace mod_kuet\output\views;
 
 use coding_exception;
 use context_module;
 use dml_exception;
 use JsonException;
-use mod_jqshow\helpers\reports;
-use mod_jqshow\jqshow;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\helpers\reports;
+use mod_kuet\kuet;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use renderable;
 use renderer_base;
@@ -67,7 +67,7 @@ class teacher_reports implements renderable, templatable {
         $this->jqshowid = $jqshowid;
         $this->cmid = $cmid;
         $this->sid = $sid;
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         if ($session->is_group_mode()) {
             $this->groupid = $partipantid;
         } else {
@@ -85,7 +85,7 @@ class teacher_reports implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $jqshow = new jqshow($this->cmid);
+        $jqshow = new kuet($this->cmid);
         $data = new stdClass();
         $data->jqshowid = $this->jqshowid;
         $data->cmid = $this->cmid;

@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use external_api;
@@ -39,7 +39,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\persistents\kuet_sessions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -70,7 +70,7 @@ class getsession_external extends external_api {
             self::getsession_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         return ['session' => [
             'id' => $session->get('id'),
             'name' => $session->get('name'),

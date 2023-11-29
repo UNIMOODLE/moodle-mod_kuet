@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -33,7 +33,7 @@
 
 declare(strict_types=1);
 
-use mod_jqshow\websocketuser;
+use mod_kuet\websocketuser;
 
 define('CLI_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
@@ -105,7 +105,7 @@ class testserver extends websockets {
     }
 }
 
-$port = get_config('jqshow', 'localport') !== false ? get_config('jqshow', 'localport') : '8080';
+$port = get_config('kuet', 'localport') !== false ? get_config('kuet', 'localport') : '8080';
 $server = new testserver("0.0.0.0", $port, 2048);
 
 try {

@@ -24,41 +24,41 @@
 <div class="container no-session-start">
     <div class="containt-desktop">
         <div class="content-image">
-            <img src="{{notsessionimage}}" alt="{{#str}}nosession, mod_jqshow{{/str}}" />
+            <img src="{{notsessionimage}}" alt="{{#str}}nosession, mod_kuet{{/str}}" />
         </div>
         <div class="content-text">
-            <h2>{{#str}}notactivesession, mod_jqshow{{/str}}</h2>
-            <p>{{#str}}notactivesessionawait, mod_jqshow{{/str}}</p>
+            <h2>{{#str}}notactivesession, mod_kuet{{/str}}</h2>
+            <p>{{#str}}notactivesessionawait, mod_kuet{{/str}}</p>
             {{#hasnextsession}}
                 <div class="alert alert-primary" role="alert">
-                    <b>{{#str}}nextsession, mod_jqshow{{/str}}</b> {{nextsessiontime}}
+                    <b>{{#str}}nextsession, mod_kuet{{/str}}</b> {{nextsessiontime}}
                 </div>
             {{/hasnextsession}}
             <a class="btn btn-primary" href="{{urlreports}}">
-                {{#str}}reports, mod_jqshow{{/str}}
+                {{#str}}reports, mod_kuet{{/str}}
             </a>
         </div>
     </div>
     <div class="containt-mobile">
-        <h2>{{#str}}notactivesession, mod_jqshow{{/str}}</h2>
+        <h2>{{#str}}notactivesession, mod_kuet{{/str}}</h2>
         <div class="content-image">
-            <img src="{{notsessionimage}}" alt="{{#str}}nosession, mod_jqshow{{/str}}" />
+            <img src="{{notsessionimage}}" alt="{{#str}}nosession, mod_kuet{{/str}}" />
         </div>
         <div class="content-text" href="{{urlreports}}">
-            <p>{{#str}}notactivesessionawait, mod_jqshow{{/str}}</p>
+            <p>{{#str}}notactivesessionawait, mod_kuet{{/str}}</p>
             {{#hasnextsession}}
                 <div class="alert alert-primary" role="alert">
-                    <b>{{#str}}nextsession, mod_jqshow{{/str}}</b> {{nextsessiontime}}
+                    <b>{{#str}}nextsession, mod_kuet{{/str}}</b> {{nextsessiontime}}
                 </div>
             {{/hasnextsession}}
             <a href="{{urlreports}}" class="btn btn-primary">
-                {{#str}}reports, mod_jqshow{{/str}}
+                {{#str}}reports, mod_kuet{{/str}}
             </a>
         </div>
     </div>
 </div>
 {{#js}}
-    require(['mod_jqshow/check_activesession'], function(CheckActiveSession) {
+    require(['mod_kuet/check_activesession'], function(CheckActiveSession) {
         CheckActiveSession.checkActiveSession({{cmid}}, {{jqshowid}});
     });
 {{/js}}

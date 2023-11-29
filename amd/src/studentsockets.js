@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/studentsockets
+ * @module    mod_kuet/studentsockets
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -35,7 +35,7 @@ import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import Ajax from 'core/ajax';
-import Encryptor from 'mod_jqshow/encryptor';
+import Encryptor from 'mod_kuet/encryptor';
 import mEvent from 'core/event';
 
 let REGION = {
@@ -54,20 +54,20 @@ let ACTIONS = {
 };
 
 let SERVICES = {
-    SESSIONFIINISHED: 'mod_jqshow_sessionfinished',
-    USERQUESTIONRESPONSE: 'mod_jqshow_getuserquestionresponse'
+    SESSIONFIINISHED: 'mod_kuet_sessionfinished',
+    USERQUESTIONRESPONSE: 'mod_kuet_getuserquestionresponse'
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
-    GROUPPARTICIPANT: 'mod_jqshow/session/manual/waitingroom/groupparticipant',
-    SESSIONFIINISHED: 'mod_jqshow/session/manual/closeconnection',
-    QUESTION: 'mod_jqshow/questions/encasement',
-    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional',
-    IMPROVISESTUDENTRESPONSE: 'mod_jqshow/session/manual/improvise/studentresponse',
+    PARTICIPANT: 'mod_kuet/session/manual/waitingroom/participant',
+    GROUPPARTICIPANT: 'mod_kuet/session/manual/waitingroom/groupparticipant',
+    SESSIONFIINISHED: 'mod_kuet/session/manual/closeconnection',
+    QUESTION: 'mod_kuet/questions/encasement',
+    PROVISIONALRANKING: 'mod_kuet/ranking/provisional',
+    IMPROVISESTUDENTRESPONSE: 'mod_kuet/session/manual/improvise/studentresponse',
 };
 
 let portUrl = '8080';
@@ -425,9 +425,9 @@ Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
         jsUrl.port = port;
         jsUrl.protocol = 'wss:';
         if (jsUrl.pathname === '/') {
-            jsUrl.pathname = jsUrl.pathname + 'jqshow';
+            jsUrl.pathname = jsUrl.pathname + 'kuet';
         } else {
-            jsUrl.pathname = jsUrl.pathname + '/jqshow';
+            jsUrl.pathname = jsUrl.pathname + '/kuet';
         }
         return jsUrl.toString();
     }

@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_module;
@@ -43,11 +43,11 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\exporter\question_exporter;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\exporter\question_exporter;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use ReflectionException;
 
@@ -65,7 +65,7 @@ class getquestion_external extends external_api {
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sid' => new external_value(PARAM_INT, 'session id'),
-                'jqid' => new external_value(PARAM_INT, 'jqshow id')
+                'jqid' => new external_value(PARAM_INT, 'kuet id')
             ]
         );
     }
@@ -91,16 +91,16 @@ class getquestion_external extends external_api {
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
-        $session = new jqshow_sessions($sessionid);
+        $session = new kuet_sessions($sessionid);
 
-        $jquestion = new jqshow_questions($jqid);
+        $jquestion = new kuet_questions($jqid);
         /** @var questions $type */
         $type = questions::get_question_class_by_string_type($jquestion->get('qtype'));
         $question = $type::export_question($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
-        $session = new jqshow_sessions($sessionid);
+        $session = new kuet_sessions($sessionid);
         $question->programmedmode = in_array($session->get('sessionmode'),
             [sessions::PODIUM_PROGRAMMED, sessions::INACTIVE_PROGRAMMED, sessions::RACE_PROGRAMMED], true);
-        return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
+        return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_kuet'));
     }
 
     /**

@@ -24,15 +24,15 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use core\invalid_persistent_exception;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_sessions;
 
 class sessions_test extends advanced_testcase {
 
@@ -70,10 +70,10 @@ class sessions_test extends advanced_testcase {
     public function test_save_session(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
 
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
         $this->assertIsInt($createdsid);
         $this->assertNotFalse($createdsid);
@@ -88,9 +88,9 @@ class sessions_test extends advanced_testcase {
     public function test_delete_session(): bool {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $generator->create_session($jqshow, (object) $this->sessionmock);
         $this->sessions = new sessions($jqshow, $jqshow->cmid);
         $list = $this->sessions->get_list();
@@ -110,9 +110,9 @@ class sessions_test extends advanced_testcase {
     public function test_duplicate_session(): bool {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $generator->create_session($jqshow, (object) $this->sessionmock);
         $this->sessions = new sessions($jqshow, $jqshow->cmid);
         $list = $this->sessions->get_list();
@@ -132,12 +132,12 @@ class sessions_test extends advanced_testcase {
     public function test_session() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessions = new sessions($jqshow, $jqshow->cmid);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
-        $expecteds = jqshow_sessions::get_record(['jqshowid' => $jqshow->id]);
+        $expecteds = kuet_sessions::get_record(['jqshowid' => $jqshow->id]);
         $this->assertSame($expecteds->get('id'), $createdsid);
         $list = $this->sessions->get_list();
         $this->assertIsArray($list);
@@ -145,7 +145,7 @@ class sessions_test extends advanced_testcase {
         $this->assertIsObject($list[0]);
         $this->assertSame('Session Test', $list[0]->get('name'));
         $this->assertSame((int)$jqshow->id, (int)$list[0]->get('jqshowid'));
-        $session = new jqshow_sessions($list[0]->get('id'));
+        $session = new kuet_sessions($list[0]->get('id'));
         $this->assertObjectEquals($session, $list[0]);
     }
     public function test_breakdown_responses_for_race() {
@@ -158,7 +158,7 @@ class sessions_test extends advanced_testcase {
         $this->resetAfterTest(true);
         // Create session.
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
         $student1 = self::getDataGenerator()->create_and_enrol($course);
         $student2 = self::getDataGenerator()->create_and_enrol($course);
@@ -178,9 +178,9 @@ class sessions_test extends advanced_testcase {
         $this->resetAfterTest(true);
         // Create session.
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
 
         $data = sessions::export_endsession($jqshow->cmid, $createdsid);

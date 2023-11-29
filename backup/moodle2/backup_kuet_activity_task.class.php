@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -33,13 +33,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/jqshow/backup/moodle2/restore_jqshow_stepslib.php');
+require_once($CFG->dirroot . '/mod/kuet/backup/moodle2/backup_kuet_stepslib.php');
 
 /**
- * Jqshow restore task that provides all the settings and steps to perform one
- * complete restore of the activity
+ * Backup task that provides all the settings and steps to perform one complete backup.
  */
-class restore_jqshow_activity_task extends restore_activity_task {
+class backup_kuet_activity_task extends backup_activity_task {
 
     /**
      * This should define settings. Not used at the moment.
@@ -49,43 +48,29 @@ class restore_jqshow_activity_task extends restore_activity_task {
     }
 
     /**
-     * Define the structure steps.
+     * Define (add) particular steps this activity can have.
      */
     protected function define_my_steps() {
-        $this->add_step(new restore_jqshow_activity_structure_step('jqshow_structure', 'jqshow.xml'));
+        $this->add_step(new backup_kuet_activity_structure_step('kuet_structure', 'kuet.xml'));
+        $this->add_step(new backup_calculate_question_categories('activity_question_categories'));
+        $this->add_step(new backup_delete_temp_questions('clean_temp_questions'));
     }
 
     /**
-     * @return restore_decode_content[]
+     * Code the transformations to perform in the activity in order to get transportable (encoded) links.
+     * @param string $content
+     * @return string of content with the URLs encoded
      */
-    public static function define_decode_contents() {
-        return [
-            new restore_decode_content('jqshow', ['intro'])
-        ];
-    }
-
-    /**
-     * @return restore_decode_rule[]
-     */
-    public static function define_decode_rules() {
-        return [
-            new restore_decode_rule('JQSHOVIEWBYID', '/mod/jqshow/view.php?id=$1', 'course_module'),
-            new restore_decode_rule('JQSHOWINDEX', '/mod/jqshow/index.php?id=$1', 'course')
-        ];
-    }
-
-    /**
-     * @return restore_log_rule[]
-     */
-    public static function define_restore_log_rules() {
-        return [];
-    }
-
-    /**
-     * @return restore_log_rule[]
-     */
-    public static function define_restore_log_rules_for_course() {
-        return [];
+    public static function encode_content_links($content) {
+        global $CFG;
+        $base = preg_quote($CFG->wwwroot, '/');
+        // Link to the list of JazzQuizes.
+        $search = "/(" . $base . "\/mod\/kuet\/index.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@KUETINDEX*$2@$', $content);
+        // Link to JazzQuiz view by moduleid.
+        $search = "/(" . $base . "\/mod\/kuet\/view.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@KUETVIEWBYID*$2@$', $content);
+        return $content;
     }
 
 }

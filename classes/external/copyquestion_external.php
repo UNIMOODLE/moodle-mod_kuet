@@ -24,21 +24,21 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use external_api;
 use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\persistents\jqshow_questions;
+use mod_kuet\persistents\kuet_questions;
 use moodle_exception;
 use stdClass;
 
@@ -71,7 +71,7 @@ class copyquestion_external extends external_api {
         );
         $copied = true;
         try {
-            $sqp = new jqshow_questions($qid);
+            $sqp = new kuet_questions($qid);
             $numquestionsinsession = $sqp::count_records(['sessionid' => $sqp->get('sessionid')]);
             $newquestion = new stdClass();
             $newquestion->questionid = $sqp->get('questionid');
@@ -83,7 +83,7 @@ class copyquestion_external extends external_api {
             $newquestion->ignorecorrectanswer = $sqp->get('ignorecorrectanswer');
             $newquestion->isvalid = $sqp->get('isvalid');
             $newquestion->config = $sqp->get('config');
-            $newq = new jqshow_questions(0, $newquestion);
+            $newq = new kuet_questions(0, $newquestion);
             $newq->save();
         } catch (moodle_exception $e) {
             $copied = false;

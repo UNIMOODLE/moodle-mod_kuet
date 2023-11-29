@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_module;
@@ -42,10 +42,10 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use moodle_url;
 use pix_icon;
@@ -62,7 +62,7 @@ class sessionquestions_external extends external_api {
             [
                 'jqshowid' => new external_value(PARAM_INT, 'jqshowid'),
                 'cmid' => new external_value(PARAM_INT, 'cmid for course module'),
-                'sid' => new external_value(PARAM_INT, 'sid for session jqshow')
+                'sid' => new external_value(PARAM_INT, 'sid for session kuet')
             ]
         );
     }
@@ -91,14 +91,14 @@ class sessionquestions_external extends external_api {
     }
 
     /**
-     * @param jqshow_questions $question
+     * @param kuet_questions $question
      * @param int $cmid
      * @return stdClass
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function export_question(jqshow_questions $question, int $cmid): stdClass {
+    public static function export_question(kuet_questions $question, int $cmid): stdClass {
         global $DB;
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
         $data = new stdClass();
@@ -115,14 +115,14 @@ class sessionquestions_external extends external_api {
         $data->cmid = $cmid;
         $data->jqshowid = $question->get('jqshowid');
         $data->isvalid = $question->get('isvalid');
-        $session = new jqshow_sessions($question->get('sessionid'));
+        $session = new kuet_sessions($question->get('sessionid'));
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
             default:
                 $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
                 break;
             case sessions::SESSION_TIME:
-                $numquestion = jqshow_questions::count_records(
+                $numquestion = kuet_questions::count_records(
                     ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
                 );
                 $timeperquestion = round((int)$session->get('sessiontime') / $numquestion);
@@ -136,16 +136,16 @@ class sessionquestions_external extends external_api {
         $data->issuitable = in_array($question->get('qtype'), questions::TYPES, true);
         $data->version = $DB->get_field('question_versions', 'version', ['questionid' => $question->get('questionid')]);
         $cmcontext = context_module::instance($cmid);
-        $data->managesessions = has_capability('mod/jqshow:managesessions', $cmcontext);
+        $data->managesessions = has_capability('mod/kuet:managesessions', $cmcontext);
         $args = [
             'id' => $cmid,
             'jqid' => $question->get('id'),
             'sid' => $question->get('sessionid'),
             'jqsid' => $question->get('jqshowid'),
-            'cid' => ($DB->get_record('jqshow', ['id' => $question->get('jqshowid')], 'course'))->course,
+            'cid' => ($DB->get_record('kuet', ['id' => $question->get('jqshowid')], 'course'))->course,
          ];
-        $data->question_preview_url = (new moodle_url('/mod/jqshow/preview.php', $args))->out(false);
-        $data->editquestionurl = (new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false);
+        $data->question_preview_url = (new moodle_url('/mod/kuet/preview.php', $args))->out(false);
+        $data->editquestionurl = (new moodle_url('/mod/kuet/editquestion.php', $args))->out(false);
         return $data;
     }
 

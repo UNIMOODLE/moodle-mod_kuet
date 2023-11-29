@@ -24,25 +24,25 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\persistents;
+namespace mod_kuet\persistents;
 use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
 use JsonException;
-use mod_jqshow\models\sessions;
+use mod_kuet\models\sessions;
 use moodle_exception;
 use stdClass;
 
-class jqshow_questions extends persistent {
-    public const TABLE = 'jqshow_questions';
+class kuet_questions extends persistent {
+    public const TABLE = 'kuet_questions';
     /**
      * Return the definition of the properties of this model.
      *
@@ -127,29 +127,29 @@ class jqshow_questions extends persistent {
 
     /**
      * @param int $sessionid
-     * @return jqshow_questions
+     * @return kuet_questions
      */
-    public static function get_first_question_of_session(int $sessionid): jqshow_questions {
+    public static function get_first_question_of_session(int $sessionid): kuet_questions {
         return self::get_record(['sessionid' => $sessionid, 'qorder' => 1], MUST_EXIST);
     }
 
     /**
      * @param int $sessionid
      * @param int $questionid
-     * @return false|jqshow_questions
+     * @return false|kuet_questions
      * @throws JsonException
      * @throws coding_exception
      * @throws moodle_exception
      */
     public static function get_next_question_of_session(int $sessionid, int $questionid) {
         global $USER;
-        $session = jqshow_sessions::get_record(['id' => $sessionid], MUST_EXIST);
+        $session = kuet_sessions::get_record(['id' => $sessionid], MUST_EXIST);
         $nextquestion = false;
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
-                $progress = jqshow_user_progress::get_session_progress_for_user(
+                $progress = kuet_user_progress::get_session_progress_for_user(
                     $USER->id, $session->get('id'), $session->get('jqshowid')
                 );
                 if ($progress !== false) {
@@ -173,8 +173,8 @@ class jqshow_questions extends persistent {
                 }
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
-                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
+                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
+                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
         }
         return $nextquestion;
     }
@@ -182,7 +182,7 @@ class jqshow_questions extends persistent {
     /**
      * @param int $sid
      * @param int $order
-     * @return false|jqshow_questions
+     * @return false|kuet_questions
      */
     public static function get_question_by_position(int $sid, int $order) {
         return self::get_record(['sessionid' => $sid, 'qorder' => $order]);
@@ -190,9 +190,9 @@ class jqshow_questions extends persistent {
 
     /**
      * @param int $jqid
-     * @return false|jqshow_questions
+     * @return false|kuet_questions
      */
-    public static function get_question_by_jqid(int $jqid): ?jqshow_questions {
+    public static function get_question_by_jqid(int $jqid): ?kuet_questions {
         return self::get_record(['id' => $jqid], MUST_EXIST);
     }
 
@@ -272,10 +272,10 @@ class jqshow_questions extends persistent {
      * @throws coding_exception
      */
     public static function get_question_time(int $jqid, int $sid) : float {
-        $jqquestion = new jqshow_questions($jqid);
+        $jqquestion = new kuet_questions($jqid);
         $qtime = $jqquestion->get('timelimit');
         if ($qtime === 0) {
-            $session = new jqshow_sessions($sid);
+            $session = new kuet_sessions($sid);
             if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
                 $qtime =  $session->get('questiontime');
             } else if ((int)$session->get('timemode') === sessions::SESSION_TIME) {

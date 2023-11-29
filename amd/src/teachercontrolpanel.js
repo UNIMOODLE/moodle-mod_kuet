@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/teachercontrolpanel
+ * @module    mod_kuet/teachercontrolpanel
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -179,9 +179,9 @@ TeacherControlPanel.prototype.jump = function() {
     let value = jQuery(REGION.JUMPTOINPUT).val();
     if (value > numquestion || value < 1) {
         const stringkeys = [
-            {key: 'jump', component: 'mod_jqshow'},
-            {key: 'jumpto_error', component: 'mod_jqshow', param: numquestion},
-            {key: 'confirm', component: 'mod_jqshow'}
+            {key: 'jump', component: 'mod_kuet'},
+            {key: 'jumpto_error', component: 'mod_kuet', param: numquestion},
+            {key: 'confirm', component: 'mod_kuet'}
         ];
         getStrings(stringkeys).then((langStrings) => {
             return ModalFactory.create({

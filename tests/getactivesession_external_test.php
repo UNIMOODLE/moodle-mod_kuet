@@ -16,7 +16,7 @@
 
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @category   test
@@ -28,9 +28,9 @@ class getactivesession_external_test extends advanced_testcase {
     public function test_getactivesession() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -40,7 +40,7 @@ class getactivesession_external_test extends advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -55,7 +55,7 @@ class getactivesession_external_test extends advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
@@ -66,7 +66,7 @@ class getactivesession_external_test extends advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -81,15 +81,15 @@ class getactivesession_external_test extends advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_STARTED,
+            'status' => \mod_kuet\models\sessions::SESSION_STARTED,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
         ];
         $startedsessionid = $generator->create_session($jqshow, (object) $startedsession);
 
-        $total = \mod_jqshow\persistents\jqshow_sessions::count_records(['jqshowid' => $jqshow->id]);
-        $data = \mod_jqshow\external\getactivesession_external::getactivesession($jqshow->cmid, $jqshow->id);
+        $total = \mod_kuet\persistents\kuet_sessions::count_records(['jqshowid' => $jqshow->id]);
+        $data = \mod_kuet\external\getactivesession_external::getactivesession($jqshow->cmid, $jqshow->id);
 
         $this->assertIsArray($data);
         $this->assertArrayHasKey('active', $data);

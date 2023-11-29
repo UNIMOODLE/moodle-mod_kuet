@@ -24,21 +24,21 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\output\views;
+namespace mod_kuet\output\views;
 
 use coding_exception;
 use dml_exception;
 use dml_transaction_exception;
 use JsonException;
-use mod_jqshow\models\questions;
-use mod_jqshow\persistents\jqshow_questions;
+use mod_kuet\models\questions;
+use mod_kuet\persistents\kuet_questions;
 use moodle_exception;
 use ReflectionException;
 use renderable;
@@ -80,7 +80,7 @@ class question_preview implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $question = new jqshow_questions($this->jqid);
+        $question = new kuet_questions($this->jqid);
         /** @var questions $type */
         $type = questions::get_question_class_by_string_type($question->get('qtype'));
         return $type::export_question(

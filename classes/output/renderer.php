@@ -24,29 +24,29 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow\output;
+namespace mod_kuet\output;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\output\views\question_preview;
-use mod_jqshow\output\views\sessions_view;
-use mod_jqshow\output\views\student_reports;
-use mod_jqshow\output\views\student_session_view;
-use mod_jqshow\output\views\teacher_reports;
-use mod_jqshow\output\views\teacher_session_view;
+use mod_kuet\output\views\question_preview;
+use mod_kuet\output\views\sessions_view;
+use mod_kuet\output\views\student_reports;
+use mod_kuet\output\views\student_session_view;
+use mod_kuet\output\views\teacher_reports;
+use mod_kuet\output\views\teacher_session_view;
 use moodle_exception;
 use plugin_renderer_base;
-use mod_jqshow\output\views\student_view;
-use mod_jqshow\output\views\teacher_view;
+use mod_kuet\output\views\student_view;
+use mod_kuet\output\views\teacher_view;
 use ReflectionException;
 
 class renderer extends plugin_renderer_base {
@@ -59,7 +59,7 @@ class renderer extends plugin_renderer_base {
     public function render_student_view(student_view $view): string {
         // Rendered to the user when no session started.
         $data = $view->export_for_template($this);
-        return $this->render_from_template('mod_jqshow/student', $data);
+        return $this->render_from_template('mod_kuet/student', $data);
     }
 
     /**
@@ -77,7 +77,7 @@ class renderer extends plugin_renderer_base {
     public function render_student_session_view(student_session_view $view): string {
         // Rendered to the user when session started.
         $data = $view->export_for_template($this);
-        return $this->render_from_template('mod_jqshow/session/student', $data);
+        return $this->render_from_template('mod_kuet/session/student', $data);
     }
 
     /**
@@ -87,7 +87,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_teacher_view(teacher_view $view): string {
         $data = $view->export_for_template($this);
-        return $this->render_from_template('mod_jqshow/sessions', $data);
+        return $this->render_from_template('mod_kuet/sessions', $data);
     }
 
     /**
@@ -98,7 +98,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_teacher_session_view(teacher_session_view $view): string {
         $data = $view->export_for_template($this);
-        return $this->render_from_template('mod_jqshow/session/teacher', $data);
+        return $this->render_from_template('mod_kuet/session/teacher', $data);
     }
 
     /**
@@ -108,7 +108,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_sessions_view(sessions_view $view): string {
         $data = $view->export_for_template($this);
-        return $this->render_from_template('mod_jqshow/createsession/createsession', $data);
+        return $this->render_from_template('mod_kuet/createsession/createsession', $data);
     }
 
     /**
@@ -136,7 +136,7 @@ class renderer extends plugin_renderer_base {
      */
     public function render_teacher_reports(teacher_reports $view): string {
         $data = $view->export_for_template($this);
-        return $this->render_from_template('mod_jqshow/reports/teacher_reports', $data);
+        return $this->render_from_template('mod_kuet/reports/teacher_reports', $data);
     }
 
     /**
@@ -149,9 +149,9 @@ class renderer extends plugin_renderer_base {
      */
     public function render_student_reports(student_reports $view): string {
         $data = $view->export_for_template($this);
-        $template = 'mod_jqshow/reports/student_reports';
+        $template = 'mod_kuet/reports/student_reports';
         if ($data->groupmode) {
-            $template = 'mod_jqshow/reports/group_reports';
+            $template = 'mod_kuet/reports/group_reports';
         }
         return $this->render_from_template($template, $data);
     }

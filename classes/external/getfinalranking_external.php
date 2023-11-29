@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_module;
@@ -41,9 +41,9 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use moodle_url;
 
@@ -77,7 +77,7 @@ class getfinalranking_external extends external_api {
             self::getfinalranking_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
-        $session = jqshow_sessions::get_record(['id' => $sid]);
+        $session = kuet_sessions::get_record(['id' => $sid]);
         $questions = new questions($session->get('jqshowid'), $cmid, $sid);
         $contextmodule = context_module::instance($cmid);
         $ranking = sessions::get_final_ranking($sid, $cmid);
@@ -101,8 +101,8 @@ class getfinalranking_external extends external_api {
             'numquestions' => $questions->get_num_questions(),
             'ranking' => true,
             'endsession' => true,
-            'reporturl' => (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false),
-            'isteacher' => has_capability('mod/jqshow:startsession', $contextmodule)
+            'reporturl' => (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false),
+            'isteacher' => has_capability('mod/kuet:startsession', $contextmodule)
         ];
     }
 
@@ -121,9 +121,9 @@ class getfinalranking_external extends external_api {
                     ], ''
                 ), ''
             ),
-            'sessionid' => new external_value(PARAM_INT, 'jqshow_session id'),
+            'sessionid' => new external_value(PARAM_INT, 'kuet_session id'),
             'cmid' => new external_value(PARAM_INT, 'course module id'),
-            'jqshowid' => new external_value(PARAM_INT, 'jqshow id'),
+            'jqshowid' => new external_value(PARAM_INT, 'kuet id'),
             'numquestions' => new external_value(PARAM_INT, 'Number of questions for teacher panel'),
             'ranking' => new external_value(PARAM_BOOL, 'Is a ranking, for control panel context'),
             'endsession' => new external_value(PARAM_BOOL, 'Mark end session'),

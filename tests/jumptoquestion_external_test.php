@@ -13,11 +13,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use mod_jqshow\models\questions;
+use mod_kuet\models\questions;
 
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @category   test
@@ -29,9 +29,9 @@ class jumptoquestion_external_test extends  advanced_testcase {
     public function test_jumptoquestion() : void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -41,7 +41,7 @@ class jumptoquestion_external_test extends  advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -56,7 +56,7 @@ class jumptoquestion_external_test extends  advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
@@ -75,7 +75,7 @@ class jumptoquestion_external_test extends  advanced_testcase {
         $dq = $questiongenerator->create_question(questions::DESCRIPTION, null, array('category' => $cat->id));
 
         // Add question.
-        \mod_jqshow\external\addquestions_external::add_questions([
+        \mod_kuet\external\addquestions_external::add_questions([
             ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER],
             ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL],
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE],
@@ -85,9 +85,9 @@ class jumptoquestion_external_test extends  advanced_testcase {
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION],
         ]);
 
-        $question2 = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $question2 = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL]);
-        $pos2 = \mod_jqshow\external\jumptoquestion_external::jumptoquestion($jqshow->cmid, $createdsid, 2, true);
+        $pos2 = \mod_kuet\external\jumptoquestion_external::jumptoquestion($jqshow->cmid, $createdsid, 2, true);
         $this->assertIsArray($pos2);
         $this->assertArrayHasKey('cmid', $pos2);
         $this->assertEquals($jqshow->cmid, $pos2['cmid']);
@@ -98,9 +98,9 @@ class jumptoquestion_external_test extends  advanced_testcase {
         $this->assertArrayHasKey('qtype', $pos2);
         $this->assertEquals(questions::NUMERICAL, $pos2['qtype']);
 
-        $question4 = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $question4 = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]);
-        $pos4 = \mod_jqshow\external\jumptoquestion_external::jumptoquestion($jqshow->cmid, $createdsid, 4, true);
+        $pos4 = \mod_kuet\external\jumptoquestion_external::jumptoquestion($jqshow->cmid, $createdsid, 4, true);
         $this->assertIsArray($pos4);
         $this->assertArrayHasKey('cmid', $pos4);
         $this->assertEquals($jqshow->cmid, $pos4['cmid']);

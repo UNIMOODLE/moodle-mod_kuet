@@ -13,12 +13,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
 
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @category   test
@@ -31,9 +31,9 @@ class sessionquestions_external_test extends advanced_testcase {
         global $DB;
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -43,7 +43,7 @@ class sessionquestions_external_test extends advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -58,7 +58,7 @@ class sessionquestions_external_test extends advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
@@ -85,7 +85,7 @@ class sessionquestions_external_test extends advanced_testcase {
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION],
         ];
         $generator->add_questions_to_session($questions);
-        $data = \mod_jqshow\external\sessionquestions_external::sessionquestions($jqshow->id, $jqshow->cmid, $createdsid);
+        $data = \mod_kuet\external\sessionquestions_external::sessionquestions($jqshow->id, $jqshow->cmid, $createdsid);
 
         $this->assertIsArray($data);
         $this->assertArrayHasKey('jqshowid', $data);
@@ -115,7 +115,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $data['sessionquestions'][0]->{'cmid'});
         $this->assertEquals($jqshow->id, $data['sessionquestions'][0]->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $saq->id], '*', MUST_EXIST);
-        $jsaq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jsaq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER]);
         $this->assertEquals($jsaq->get('id'), $data['sessionquestions'][0]->{'questionnid'});
         $this->assertEquals(1, $data['sessionquestions'][0]->{'position'});
@@ -131,9 +131,9 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $data['sessionquestions'][0]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $data['sessionquestions'][0]->{'editquestionurl'});
 
         // Question 2.
@@ -155,7 +155,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $data['sessionquestions'][1]->{'cmid'});
         $this->assertEquals($jqshow->id, $data['sessionquestions'][1]->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $nq->id], '*', MUST_EXIST);
-        $jnq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jnq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL]);
         $this->assertEquals($jnq->get('id'), $data['sessionquestions'][1]->{'questionnid'});
         $this->assertEquals(2, $data['sessionquestions'][1]->{'position'});
@@ -171,9 +171,9 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $data['sessionquestions'][1]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $data['sessionquestions'][1]->{'editquestionurl'});
 
         // Question 3.
@@ -195,7 +195,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $data['sessionquestions'][2]->{'cmid'});
         $this->assertEquals($jqshow->id, $data['sessionquestions'][2]->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $tfq->id], '*', MUST_EXIST);
-        $jtfq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]);
         $this->assertEquals($jtfq->get('id'), $data['sessionquestions'][2]->{'questionnid'});
         $this->assertEquals(3, $data['sessionquestions'][2]->{'position'});
@@ -211,9 +211,9 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $data['sessionquestions'][2]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $data['sessionquestions'][2]->{'editquestionurl'});
 
         // Question 4.
@@ -235,7 +235,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $data['sessionquestions'][3]->{'cmid'});
         $this->assertEquals($jqshow->id, $data['sessionquestions'][3]->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $mcq->id], '*', MUST_EXIST);
-        $jmcq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]);
         $this->assertEquals($jmcq->get('id'), $data['sessionquestions'][3]->{'questionnid'});
         $this->assertEquals(4, $data['sessionquestions'][3]->{'position'});
@@ -251,9 +251,9 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $data['sessionquestions'][3]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $data['sessionquestions'][3]->{'editquestionurl'});
 
         // Question 5.
@@ -275,7 +275,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $data['sessionquestions'][4]->{'cmid'});
         $this->assertEquals($jqshow->id, $data['sessionquestions'][4]->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $ddwtosq->id], '*', MUST_EXIST);
-        $jsddwtosq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jsddwtosq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS]);
         $this->assertEquals($jsddwtosq->get('id'), $data['sessionquestions'][4]->{'questionnid'});
         $this->assertEquals(5, $data['sessionquestions'][4]->{'position'});
@@ -291,9 +291,9 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $data['sessionquestions'][4]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $data['sessionquestions'][4]->{'editquestionurl'});
 
         // Question 6.
@@ -315,7 +315,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $data['sessionquestions'][5]->{'cmid'});
         $this->assertEquals($jqshow->id, $data['sessionquestions'][5]->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $dq->id], '*', MUST_EXIST);
-        $jdq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jdq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION]);
         $this->assertEquals($jdq->get('id'), $data['sessionquestions'][5]->{'questionnid'});
         $this->assertEquals(6, $data['sessionquestions'][5]->{'position'});
@@ -331,18 +331,18 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $data['sessionquestions'][5]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $data['sessionquestions'][5]->{'editquestionurl'});
     }
     public function test_export_question() {
         global $DB;
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -352,7 +352,7 @@ class sessionquestions_external_test extends advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -367,7 +367,7 @@ class sessionquestions_external_test extends advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
@@ -396,9 +396,9 @@ class sessionquestions_external_test extends advanced_testcase {
         $generator->add_questions_to_session($questions);
 
         // Question 1.
-        $jsaq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jsaq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER]);
-        $datasaq = \mod_jqshow\external\sessionquestions_external::export_question($jsaq, $jqshow->cmid);
+        $datasaq = \mod_kuet\external\sessionquestions_external::export_question($jsaq, $jqshow->cmid);
         $this->assertIsObject($datasaq);
         $this->assertObjectHasAttribute('sid', $datasaq);
         $this->assertObjectHasAttribute('cmid', $datasaq);
@@ -417,7 +417,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $datasaq->{'cmid'});
         $this->assertEquals($jqshow->id, $datasaq->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $saq->id], '*', MUST_EXIST);
-        $jsaq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jsaq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER]);
         $this->assertEquals($jsaq->get('id'), $datasaq->{'questionnid'});
         $this->assertEquals(1, $datasaq->{'position'});
@@ -433,15 +433,15 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $datasaq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $datasaq->{'editquestionurl'});
 
         // Question 2.
-        $jnq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jnq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL]);
-        $datanq = \mod_jqshow\external\sessionquestions_external::export_question($jnq, $jqshow->cmid);
+        $datanq = \mod_kuet\external\sessionquestions_external::export_question($jnq, $jqshow->cmid);
         $this->assertIsObject($datanq);
         $this->assertObjectHasAttribute('sid', $datanq);
         $this->assertObjectHasAttribute('cmid', $datanq);
@@ -460,7 +460,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $datanq->{'cmid'});
         $this->assertEquals($jqshow->id, $datanq->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $nq->id], '*', MUST_EXIST);
-        $jnq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jnq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL]);
         $this->assertEquals($jnq->get('id'), $datanq->{'questionnid'});
         $this->assertEquals(2, $datanq->{'position'});
@@ -476,15 +476,15 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $datanq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $datanq->{'editquestionurl'});
 
         // Question 3.
-        $jtfq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]);
-        $datatfq = \mod_jqshow\external\sessionquestions_external::export_question($jtfq, $jqshow->cmid);
+        $datatfq = \mod_kuet\external\sessionquestions_external::export_question($jtfq, $jqshow->cmid);
         $this->assertIsObject($datatfq);
         $this->assertObjectHasAttribute('sid', $datatfq);
         $this->assertObjectHasAttribute('cmid', $datatfq);
@@ -503,7 +503,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $datatfq->{'cmid'});
         $this->assertEquals($jqshow->id, $datatfq->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $tfq->id], '*', MUST_EXIST);
-        $jtfq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]);
         $this->assertEquals($jtfq->get('id'), $datatfq->{'questionnid'});
         $this->assertEquals(3, $datatfq->{'position'});
@@ -519,15 +519,15 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $datatfq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $datatfq->{'editquestionurl'});
 
         // Question 4.
-        $jmcq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]);
-        $datamcq = \mod_jqshow\external\sessionquestions_external::export_question($jmcq, $jqshow->cmid);
+        $datamcq = \mod_kuet\external\sessionquestions_external::export_question($jmcq, $jqshow->cmid);
         $this->assertIsObject($datamcq);
         $this->assertObjectHasAttribute('sid', $datamcq);
         $this->assertObjectHasAttribute('cmid', $datamcq);
@@ -546,7 +546,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $datamcq->{'cmid'});
         $this->assertEquals($jqshow->id, $datamcq->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $mcq->id], '*', MUST_EXIST);
-        $jmcq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]);
         $this->assertEquals($jmcq->get('id'), $datamcq->{'questionnid'});
         $this->assertEquals(4, $datamcq->{'position'});
@@ -562,15 +562,15 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $datamcq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $datamcq->{'editquestionurl'});
 
         // Question 5.
-        $jddwtosq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jddwtosq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS]);
-        $dataddwtosq = \mod_jqshow\external\sessionquestions_external::export_question($jddwtosq, $jqshow->cmid);
+        $dataddwtosq = \mod_kuet\external\sessionquestions_external::export_question($jddwtosq, $jqshow->cmid);
         $this->assertIsObject($dataddwtosq);
         $this->assertObjectHasAttribute('sid', $dataddwtosq);
         $this->assertObjectHasAttribute('cmid', $dataddwtosq);
@@ -589,7 +589,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $dataddwtosq->{'cmid'});
         $this->assertEquals($jqshow->id, $dataddwtosq->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $ddwtosq->id], '*', MUST_EXIST);
-        $jsddwtosq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jsddwtosq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS]);
         $this->assertEquals($jsddwtosq->get('id'), $dataddwtosq->{'questionnid'});
         $this->assertEquals(5, $dataddwtosq->{'position'});
@@ -605,15 +605,15 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $dataddwtosq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $dataddwtosq->{'editquestionurl'});
 
         // Question 6.
-        $jdq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jdq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION]);
-        $datadq = \mod_jqshow\external\sessionquestions_external::export_question($jdq, $jqshow->cmid);
+        $datadq = \mod_kuet\external\sessionquestions_external::export_question($jdq, $jqshow->cmid);
         $this->assertIsObject($datadq);
         $this->assertObjectHasAttribute('sid', $datadq);
         $this->assertObjectHasAttribute('cmid', $datadq);
@@ -632,7 +632,7 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals($jqshow->cmid, $datadq->{'cmid'});
         $this->assertEquals($jqshow->id, $datadq->{'jqshowid'});
         $qbs = $DB->get_record('question', ['id' => $dq->id], '*', MUST_EXIST);
-        $jdq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jdq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION]);
         $this->assertEquals($jdq->get('id'), $datadq->{'questionnid'});
         $this->assertEquals(6, $datadq->{'position'});
@@ -648,9 +648,9 @@ class sessionquestions_external_test extends advanced_testcase {
             'jqsid' => $jqshow->id,
             'cid' => $jqshow->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/jqshow/preview.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
             $datadq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/jqshow/editquestion.php', $args))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $datadq->{'editquestionurl'});
     }
 }

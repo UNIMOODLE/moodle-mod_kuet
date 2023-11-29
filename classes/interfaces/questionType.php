@@ -24,17 +24,17 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow\interfaces;
+namespace mod_kuet\interfaces;
 
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
 use question_definition;
 use stdClass;
 
@@ -43,41 +43,41 @@ interface questionType {
 
     /**
      * @param stdClass $useranswer
-     * @param jqshow_questions_responses $response
+     * @param kuet_questions_responses $response
      * @return float
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) : float;
+    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response) : float;
 
 
     /**
      * @param stdClass $participant
-     * @param jqshow_questions_responses $response
+     * @param kuet_questions_responses $response
      * @param array $answers
-     * @param jqshow_sessions $session
-     * @param jqshow_questions $question
+     * @param kuet_sessions $session
+     * @param kuet_questions $question
      * @return stdClass
      */
     public static function get_ranking_for_question(stdClass $participant,
-                                                    jqshow_questions_responses $response,
+                                                    kuet_questions_responses $response,
                                                     array $answers,
-                                                    jqshow_sessions $session,
-                                                    jqshow_questions $question) : stdClass;
+                                                    kuet_sessions $session,
+                                                    kuet_questions $question) : stdClass;
 
     /**
      * @param question_definition $question
-     * @param jqshow_questions_responses[] $responses
+     * @param kuet_questions_responses[] $responses
      * @return mixed
      */
     public static function get_question_statistics( question_definition $question, array $responses) : array ;
 
     /**
-     * @param jqshow_sessions $session
+     * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
      * @param int $jqid
      * @return mixed
      */
-    public static function get_question_report(jqshow_sessions $session,
+    public static function get_question_report(kuet_sessions $session,
                                                question_definition $questiondata,
                                                stdClass $data,
                                                int $jqid) : stdClass;

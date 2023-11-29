@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/testssl
+ * @module    mod_kuet/testssl
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -63,7 +63,7 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
 
         TestSockets.prototype.webSocket.onopen = function() {
             str.get_strings([
-                {key: 'validcertificates', component: 'mod_jqshow'}
+                {key: 'validcertificates', component: 'mod_kuet'}
             ]).done(function(strings) {
                 messageBox.append('<div class="alert alert-success" role="alert">' + strings[0] + '</div>');
             }).fail(notification.exception);
@@ -73,7 +73,7 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
             // eslint-disable-next-line no-console
             console.error(event);
             str.get_strings([
-                {key: 'invalidcertificates', component: 'mod_jqshow'}
+                {key: 'invalidcertificates', component: 'mod_kuet'}
             ]).done(function(strings) {
                 messageBox.append('<div class="alert alert-danger" role="alert">' + strings[0] + '</div>');
             }).fail(notification.exception);
@@ -81,7 +81,7 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
 
         TestSockets.prototype.webSocket.onclose = function() {
             str.get_strings([
-                {key: 'connectionclosed', component: 'mod_jqshow'}
+                {key: 'connectionclosed', component: 'mod_kuet'}
             ]).done(function(strings) {
                 messageBox.append('<div class="alert alert-warning" role="alert">' + strings[0] + '</div>');
             }).fail(notification.exception);

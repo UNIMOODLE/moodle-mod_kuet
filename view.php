@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -34,37 +34,37 @@
 require_once('../../config.php');
 require_once('lib.php');
 
-use mod_jqshow\output\views\student_view;
-use mod_jqshow\output\views\teacher_view;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\output\views\student_view;
+use mod_kuet\output\views\teacher_view;
+use mod_kuet\persistents\kuet_sessions;
 
 global $CFG, $PAGE, $DB, $COURSE, $USER;
 
 $id = required_param('id', PARAM_INT);    // Course Module ID.
 
-$cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
+$cm = get_coursemodule_from_id('kuet', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-$jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
+$jqshow = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
 
-$PAGE->set_url('/mod/jqshow/view.php', ['id' => $id]);
+$PAGE->set_url('/mod/kuet/view.php', ['id' => $id]);
 require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
-require_capability('mod/jqshow:view', $cmcontext);
-$isteacher = has_capability('mod/jqshow:startsession', $cmcontext);
+require_capability('mod/kuet:view', $cmcontext);
+$isteacher = has_capability('mod/kuet:startsession', $cmcontext);
 $PAGE->set_heading($course->fullname);
-$PAGE->set_title(get_string('modulename', 'jqshow'));
+$PAGE->set_title(get_string('modulename', 'kuet'));
 
 if ($isteacher) {
     $view = new teacher_view();
 } else {
-    $activessesion = jqshow_sessions::get_active_session_id($jqshow->id);
+    $activessesion = kuet_sessions::get_active_session_id($jqshow->id);
     if ($activessesion !== 0) {
-        redirect((new moodle_url('/mod/jqshow/session.php', ['cmid' => $cm->id, 'sid' => $activessesion]))->out(false));
+        redirect((new moodle_url('/mod/kuet/session.php', ['cmid' => $cm->id, 'sid' => $activessesion]))->out(false));
     }
     $view = new student_view($jqshow->id, $cm->id);
 }
 
-$output = $PAGE->get_renderer('mod_jqshow');
+$output = $PAGE->get_renderer('mod_kuet');
 echo $output->header();
 echo $output->heading(format_string($jqshow->name));
 echo $output->render($view);

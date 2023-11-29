@@ -24,13 +24,13 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_module;
@@ -44,19 +44,19 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\exporter\question_exporter;
-use mod_jqshow\models\calculated;
-use mod_jqshow\models\ddwtos;
-use mod_jqshow\models\description;
-use mod_jqshow\models\matchquestion;
-use mod_jqshow\models\multichoice;
-use mod_jqshow\models\numerical;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\models\truefalse;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\exporter\question_exporter;
+use mod_kuet\models\calculated;
+use mod_kuet\models\ddwtos;
+use mod_kuet\models\description;
+use mod_kuet\models\matchquestion;
+use mod_kuet\models\multichoice;
+use mod_kuet\models\numerical;
+use mod_kuet\models\questions;
+use mod_kuet\models\shortanswer;
+use mod_kuet\models\truefalse;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use ReflectionException;
 use stdClass;
@@ -73,7 +73,7 @@ class getuserquestionresponse_external extends external_api {
     public static function getuserquestionresponse_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
+                'jqid' => new external_value(PARAM_INT, 'id of kuet_questions'),
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sid' => new external_value(PARAM_INT, 'session id'),
                 'uid' => new external_value(PARAM_INT, 'user id'),
@@ -107,7 +107,7 @@ class getuserquestionresponse_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $userid = $uid === 0 ? $USER->id : $uid;
-        $response = jqshow_questions_responses::get_question_response_for_user($userid, $sid, $jqid);
+        $response = kuet_questions_responses::get_question_response_for_user($userid, $sid, $jqid);
         $data = new stdClass();
         $data->sessionid = $sid;
         $data->cmid = $cmid;
@@ -115,11 +115,11 @@ class getuserquestionresponse_external extends external_api {
         if ($response !== false) {
             $json = base64_decode($response->get('response'));
             $other = json_decode($json, false);
-            $data->jqshowid = $response->get('jqshow');
+            $data->jqshowid = $response->get('kuet');
             $data->questionid = $response->get('questionid');
             $result = $response->get('result');
         } else if ($uid !== 0) { // It is a response review, where there is no response for the user. Mock required.
-            $question = new jqshow_questions($jqid);
+            $question = new kuet_questions($jqid);
             $other = new stdClass();
             $other->questionid = $question->get('questionid');
             $other->hasfeedbacks = false;
@@ -133,8 +133,8 @@ class getuserquestionresponse_external extends external_api {
             $data->questionid = $question->get('questionid');
             $result = questions::NORESPONSE;
         } else {
-            $question = new jqshow_questions($jqid);
-            $session = new jqshow_sessions($sid);
+            $question = new kuet_questions($jqid);
+            $session = new kuet_sessions($sid);
             return [
                 'cmid' => $cmid,
                 'sessionid' => $sid,
@@ -182,8 +182,8 @@ class getuserquestionresponse_external extends external_api {
                     $preview);
                 return (array)ddwtos::export_question_response($dataexport, $json);
             default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                    [], get_string('question_nosuitable', 'mod_jqshow'));
+                throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
+                    [], get_string('question_nosuitable', 'mod_kuet'));
         }
     }
 

@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/questiontimer
+ * @module    mod_kuet/questiontimer
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>

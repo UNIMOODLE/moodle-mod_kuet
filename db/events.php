@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
 $observers = array(
 
     array(
-        'eventname' => '\mod_jqshow\event\session_ended',
-        'callback' => '\mod_jqshow\observer::session_ended',
+        'eventname' => '\mod_kuet\event\session_ended',
+        'callback' => '\mod_kuet\observer::session_ended',
     ),
 );

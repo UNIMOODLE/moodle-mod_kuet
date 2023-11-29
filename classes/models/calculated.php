@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\models;
+namespace mod_kuet\models;
 
 use coding_exception;
 use context_module;
@@ -40,14 +40,14 @@ use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\api\grade;
-use mod_jqshow\api\groupmode;
-use mod_jqshow\external\calculated_external;
-use mod_jqshow\helpers\reports;
-use mod_jqshow\persistents\jqshow;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\api\grade;
+use mod_kuet\api\groupmode;
+use mod_kuet\external\calculated_external;
+use mod_kuet\helpers\reports;
+use mod_kuet\persistents\kuet;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use pix_icon;
 use qtype_calculated_question;
@@ -57,7 +57,7 @@ use question_definition;
 use ReflectionClass;
 use ReflectionException;
 use stdClass;
-use mod_jqshow\interfaces\questionType;
+use mod_kuet\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -88,12 +88,12 @@ class calculated extends questions implements questionType {
      * @throws ReflectionException
      */
     public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
-        $session = jqshow_sessions::get_record(['id' => $sessionid]);
-        $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
+        $session = kuet_sessions::get_record(['id' => $sessionid]);
+        $jqshowquestion = kuet_questions::get_record(['id' => $jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         if (!assert($question instanceof qtype_calculated_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                [], get_string('question_nosuitable', 'mod_jqshow'));
+            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
+                [], get_string('question_nosuitable', 'mod_kuet'));
         }
         $type = $question->get_type_name();
         $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
@@ -185,7 +185,7 @@ class calculated extends questions implements questionType {
             $responsedata->timeleft,
             true
         );
-        $jqshowquestion = jqshow_questions::get_record(['id' => $data->jqid]);
+        $jqshowquestion = kuet_questions::get_record(['id' => $data->jqid]);
         $question = question_bank::load_question($jqshowquestion->get('questionid'));
         self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $responsedata->variant);
         $data->questiontext = self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $responsedata->variant, true);
@@ -199,7 +199,7 @@ class calculated extends questions implements questionType {
     }
 
     /**
-     * @param jqshow_sessions $session
+     * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
      * @param int $jqid
@@ -209,13 +209,13 @@ class calculated extends questions implements questionType {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_question_report(jqshow_sessions     $session,
+    public static function get_question_report(kuet_sessions     $session,
                                                question_definition $questiondata,
                                                stdClass            $data,
                                                int                 $jqid): stdClass {
         if (!assert($questiondata instanceof qtype_calculated_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                [], get_string('question_nosuitable', 'mod_jqshow'));
+            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
+                [], get_string('question_nosuitable', 'mod_kuet'));
         }
         $answers = [];
         $correctanswers = [];
@@ -224,37 +224,37 @@ class calculated extends questions implements questionType {
             $answers[$key]['answerid'] = $answer->id;
             if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
                 $answers[$key]['result'] = 'incorrect';
-                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_jqshow');
+                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_kuet');
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_jqshow'), 'mod_jqshow', [
+                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('incorrect', 'mod_jqshow')
+                    'title' => get_string('incorrect', 'mod_kuet')
                 ]);
-                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_jqshow', [
+                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
                     'class' => 'icon',
                     'title' => ''
                 ]);
             } else if ($answer->fraction === '1.0000000') {
                 $answers[$key]['result'] = 'correct';
-                $answers[$key]['resultstr'] = get_string('correct', 'mod_jqshow');
+                $answers[$key]['resultstr'] = get_string('correct', 'mod_kuet');
                 $answers[$key]['fraction'] = '1';
-                $icon = new pix_icon('i/correct', get_string('correct', 'mod_jqshow'), 'mod_jqshow', [
+                $icon = new pix_icon('i/correct', get_string('correct', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('correct', 'mod_jqshow')
+                    'title' => get_string('correct', 'mod_kuet')
                 ]);
-                $usersicon = new pix_icon('i/correct_users', '', 'mod_jqshow', [
+                $usersicon = new pix_icon('i/correct_users', '', 'mod_kuet', [
                     'class' => 'icon',
                     'title' => ''
                 ]);
             } else {
                 $answers[$key]['result'] = 'partially';
-                $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_jqshow');
+                $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_kuet');
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_jqshow'), 'mod_jqshow', [
+                $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('partially_correct', 'mod_jqshow')
+                    'title' => get_string('partially_correct', 'mod_kuet')
                 ]);
-                $usersicon = new pix_icon('i/partially_users', '', 'mod_jqshow', [
+                $usersicon = new pix_icon('i/partially_users', '', 'mod_kuet', [
                     'class' => 'icon',
                     'title' => ''
                 ]);
@@ -271,7 +271,7 @@ class calculated extends questions implements questionType {
         if ($session->is_group_mode()) {
             $gmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         }
-        $responses = jqshow_questions_responses::get_question_responses($session->get('id'), $data->jqshowid, $jqid);
+        $responses = kuet_questions_responses::get_question_responses($session->get('id'), $data->jqshowid, $jqid);
         foreach ($responses as $response) {
             if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
                 continue;
@@ -296,10 +296,10 @@ class calculated extends questions implements questionType {
 
     /**
      * @param stdClass $participant
-     * @param jqshow_questions_responses $response
+     * @param kuet_questions_responses $response
      * @param array $answers
-     * @param jqshow_sessions $session
-     * @param jqshow_questions $question
+     * @param kuet_sessions $session
+     * @param kuet_questions $question
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -307,13 +307,13 @@ class calculated extends questions implements questionType {
      */
     public static function get_ranking_for_question(
         stdClass $participant,
-        jqshow_questions_responses $response,
+        kuet_questions_responses $response,
         array $answers,
-        jqshow_sessions $session,
-        jqshow_questions $question): stdClass {
+        kuet_sessions $session,
+        kuet_questions $question): stdClass {
 
         $participant->response = grade::get_result_mark_type($response);
-        $participant->responsestr = get_string($participant->response, 'mod_jqshow');
+        $participant->responsestr = get_string($participant->response, 'mod_kuet');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
             $session->get('jqshowid'));
@@ -361,9 +361,9 @@ class calculated extends questions implements questionType {
         $result = $custom['result'];
         $answerfeedback = $custom['answerfeedback'];
         $cmcontext = context_module::instance($cmid);
-        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
+        $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
         if ($isteacher !== true) {
-            $session = new jqshow_sessions($sessionid);
+            $session = new kuet_sessions($sessionid);
             $response = new stdClass();
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
             $response->timeleft = $timeleft;
@@ -376,7 +376,7 @@ class calculated extends questions implements questionType {
                 parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
-                jqshow_questions_responses::add_response(
+                kuet_questions_responses::add_response(
                     $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
@@ -385,7 +385,7 @@ class calculated extends questions implements questionType {
 
     /**
      * @param stdClass $useranswer
-     * @param jqshow_questions_responses $response
+     * @param kuet_questions_responses $response
      * @return float
      * @throws JsonException
      * @throws coding_exception
@@ -393,11 +393,11 @@ class calculated extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function get_simple_mark(stdClass $useranswer, jqshow_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response) : float {
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
-        $jqshow = new jqshow($response->get('jqshow'));
-        [$course, $cm] = get_course_and_cm_from_instance($response->get('jqshow'), 'jqshow', $jqshow->get('course'));
+        $jqshow = new kuet($response->get('kuet'));
+        [$course, $cm] = get_course_and_cm_from_instance($response->get('kuet'), 'kuet', $jqshow->get('course'));
         if (assert($question instanceof qtype_calculated_question)) {
             $jsonresponse = json_decode(base64_decode($response->get('response')), false);
             questions::get_text(
@@ -418,7 +418,7 @@ class calculated extends questions implements questionType {
 
     /**
      * @param question_definition $question
-     * @param jqshow_questions_responses[] $responses
+     * @param kuet_questions_responses[] $responses
      * @return array
      * @throws coding_exception
      */

@@ -24,24 +24,24 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\models;
+namespace mod_kuet\models;
 
 use coding_exception;
 use context_module;
 use DateInterval;
 use DateTimeImmutable;
 use dml_exception;
-use mod_jqshow\helpers\sessions as sessionshelper;
-use mod_jqshow\jqshow;
-use mod_jqshow\models\sessions as sessionsmodel;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\helpers\sessions as sessionshelper;
+use mod_kuet\kuet;
+use mod_kuet\models\sessions as sessionsmodel;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -66,13 +66,13 @@ class teacher extends user {
      * @throws moodle_exception
      */
     public function export_sessions(int $cmid) : Object {
-        $jqshow = new jqshow($cmid);
+        $jqshow = new kuet($cmid);
         $actives = [];
         $inactives = [];
         $sessions = $jqshow->get_sessions();
         $coursemodulecontext = context_module::instance($cmid);
-        $managesessions = has_capability('mod/jqshow:managesessions', $coursemodulecontext);
-        $initsession = has_capability('mod/jqshow:startsession', $coursemodulecontext);
+        $managesessions = has_capability('mod/kuet:managesessions', $coursemodulecontext);
+        $initsession = has_capability('mod/kuet:startsession', $coursemodulecontext);
         foreach ($sessions as $session) {
             $ds = sessionshelper::get_data_session($session, $cmid, $managesessions, $initsession);
             if ((int)$session->get('status') !== sessionsmodel::SESSION_FINISHED) {
@@ -88,11 +88,11 @@ class teacher extends user {
         $data->courseid = $jqshow->course->id;
         $data->jqshowid = $jqshow->cm->instance;
         $data->cmid = $cmid;
-        $data->createsessionurl = (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
-        $qrcode = generate_jqshow_qrcode((new moodle_url('/mod/jqshow/view.php', ['id' => $cmid]))->out(false));
+        $data->createsessionurl = (new moodle_url('/mod/kuet/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
+        $qrcode = generate_kuet_qrcode((new moodle_url('/mod/kuet/view.php', ['id' => $cmid]))->out(false));
         $data->hasqrcodeimage = $qrcode !== '';
         $data->urlqrcode = $data->hasqrcodeimage === true ? $qrcode : '';
-        $data->hasactivesession = jqshow_sessions::get_active_session_id(($jqshow->get_jqshow())->id) !== 0;
+        $data->hasactivesession = kuet_sessions::get_active_session_id(($jqshow->get_jqshow())->id) !== 0;
         return $data;
     }
 

@@ -24,21 +24,21 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\output\views;
+namespace mod_kuet\output\views;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
-use mod_jqshow\external\sessionquestions_external;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\external\sessionquestions_external;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use moodle_url;
 use renderable;
@@ -68,12 +68,12 @@ class teacher_session_view implements renderable, templatable {
         $userpicture = new user_picture($USER);
         $userpicture->size = 1;
         $data->userimage = $userpicture->get_url($PAGE)->out(false);
-        $session = new jqshow_sessions($data->sid);
+        $session = new kuet_sessions($data->sid);
         $data->jqshowid = $session->get('jqshowid');
-        $qrcode = generate_jqshow_qrcode((new moodle_url('/mod/jqshow/view.php', ['id' => $data->cmid]))->out(false));
+        $qrcode = generate_kuet_qrcode((new moodle_url('/mod/kuet/view.php', ['id' => $data->cmid]))->out(false));
         $data->hasqrcodeimage = $qrcode !== '';
         $data->urlqrcode = $data->hasqrcodeimage === true ? $qrcode : '';
-        jqshow_sessions::mark_session_started($data->sid);
+        kuet_sessions::mark_session_started($data->sid);
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
@@ -105,8 +105,8 @@ class teacher_session_view implements renderable, templatable {
             case sessions::RACE_MANUAL:
                 global $CFG;
                 // SOCKETS! Always start with waitingroom.
-                [$course, $cm] = get_course_and_cm_from_cmid($data->cmid, 'jqshow', $COURSE);
-                $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
+                [$course, $cm] = get_course_and_cm_from_cmid($data->cmid, 'kuet', $COURSE);
+                $jqshow = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
                 $data->manualmode = true;
                 $data->groupmode = $session->is_group_mode();
                 $data->waitingroom = true;
@@ -124,22 +124,22 @@ class teacher_session_view implements renderable, templatable {
                 $data->sessionquestions = $questiondata;
                 $data->numquestions = count($questiondata);
                 $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
-                $typesocket = get_config('jqshow', 'sockettype');
+                $typesocket = get_config('kuet', 'sockettype');
                 if ($typesocket === 'local') {
                     $data->socketurl = $CFG->wwwroot;
-                    $data->port = get_config('jqshow', 'localport') !== false ? get_config('jqshow', 'localport') : '8080';
+                    $data->port = get_config('kuet', 'localport') !== false ? get_config('kuet', 'localport') : '8080';
                 }
                 if ($typesocket === 'external') {
-                    $data->socketurl = get_config('jqshow', 'externalurl');
-                    $data->port = get_config('jqshow', 'externalport') !== false ? get_config('jqshow', 'externalport') : '8080';
+                    $data->socketurl = get_config('kuet', 'externalurl');
+                    $data->port = get_config('kuet', 'externalport') !== false ? get_config('kuet', 'externalport') : '8080';
                 }
                 $data->sessionmode = $session->get('sessionmode');
                 $data->groupmode = $session->is_group_mode();
                 $data->courseid = $course->id;
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
-                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
+                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
+                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
         }
         return $data;
     }

@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\persistents;
+namespace mod_kuet\persistents;
 
 use coding_exception;
 use core\invalid_persistent_exception;
@@ -40,15 +40,15 @@ use dml_exception;
 use moodle_exception;
 use stdClass;
 
-class jqshow_user_progress extends persistent {
-    public const TABLE = 'jqshow_user_progress';
+class kuet_user_progress extends persistent {
+    public const TABLE = 'kuet_user_progress';
 
     /**
      * @return array[]
      */
     protected static function define_properties(): array {
         return [
-            'jqshow' => [
+            'kuet' => [
                 'type' => PARAM_INT,
             ],
             'session' => [
@@ -73,7 +73,7 @@ class jqshow_user_progress extends persistent {
      * @return false|static
      */
     public static function get_session_progress_for_user(int $userid, int $sessionid, int $jqshowid) {
-        return self::get_record(['userid' => $userid, 'session' => $sessionid, 'jqshow' => $jqshowid]);
+        return self::get_record(['userid' => $userid, 'session' => $sessionid, 'kuet' => $jqshowid]);
     }
 
     /**
@@ -87,12 +87,12 @@ class jqshow_user_progress extends persistent {
      * @throws moodle_exception
      */
     public static function add_progress(int $jqshowid, int $session, int $userid, string $other): bool {
-        $sessiondata = jqshow_sessions::get_record(['id' => $session], MUST_EXIST);
-        $record = self::get_record(['jqshow' => $jqshowid, 'session' => $session, 'userid' => $userid]);
+        $sessiondata = kuet_sessions::get_record(['id' => $session], MUST_EXIST);
+        $record = self::get_record(['kuet' => $jqshowid, 'session' => $session, 'userid' => $userid]);
         try {
             if ($record === false) {
                 $data = new stdClass();
-                $data->jqshow = $jqshowid;
+                $data->kuet = $jqshowid;
                 $data->session = $session;
                 $data->userid = $userid;
                 $data->randomquestion = $sessiondata->get('randomquestions');

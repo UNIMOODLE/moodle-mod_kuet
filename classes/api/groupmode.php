@@ -24,23 +24,23 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\api;
+namespace mod_kuet\api;
 use cache;
 use cache_application;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
 use invalid_parameter_exception;
-use mod_jqshow\jqshow;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\kuet;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use stdClass;
 global $CFG;
@@ -63,7 +63,7 @@ class groupmode {
             $image = $grouppicture->out(false);
         } else {
             // Get from cache.
-            $cache = cache::make('mod_jqshow', 'groupimages');
+            $cache = cache::make('mod_kuet', 'groupimages');
             $cachekey = 'groupid_' . $groupdata->id . '_sid_' . $sid;
             $cachedata = $cache->get($cachekey);
             if (!$cachedata) {
@@ -87,7 +87,7 @@ class groupmode {
      */
     public static function set_group_image_for_session(int $sid, cache_application $cache) : string {
 
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $groupingid = $session->get('groupings');
         $groups = self::get_grouping_groups($groupingid);
         $images = [];
@@ -105,7 +105,7 @@ class groupmode {
             $name = '';
         } else {
             for($i = 1; $i<8; $i++) {
-                $name   = '/mod/jqshow/pix/pattern_0' . $i . '.png';
+                $name   = '/mod/kuet/pix/pattern_0' . $i . '.png';
                 if (!in_array($name, $images)) {
                     break;
                 }
@@ -234,15 +234,15 @@ class groupmode {
      */
     public static function check_all_users_in_groups(int $cmid, int $groupingid) : void {
 
-        $students = jqshow::get_enrolled_students_in_course(0, $cmid);
+        $students = kuet::get_enrolled_students_in_course(0, $cmid);
         $studentsids = array_keys($students);
         $groupmembers = self::get_grouping_userids($groupingid);
         $diff = array_diff($studentsids, $groupmembers);
         if (!empty($diff)) {
             $data = new stdClass();
-            $data->name = get_string('fakegroup', 'mod_jqshow', random_string(5));
-            $data->description = get_string('fakegroupdescription', 'mod_jqshow');
-            $jqshow = \mod_jqshow\persistents\jqshow::get_jqshow_from_cmid($cmid);
+            $data->name = get_string('fakegroup', 'mod_kuet', random_string(5));
+            $data->description = get_string('fakegroupdescription', 'mod_kuet');
+            $jqshow = \mod_kuet\persistents\kuet::get_kuet_from_cmid($cmid);
             $data->courseid = $jqshow->get('course');
             $groupid = groups_create_group($data);
             foreach ($diff as $userid) {
@@ -254,7 +254,7 @@ class groupmode {
 
     /**
      * @param int $userid
-     * @param jqshow_sessions $sessions
+     * @param kuet_sessions $sessions
      * @return stdClass
      * @throws invalid_persistent_exception
      * @throws invalid_parameter_exception
@@ -262,7 +262,7 @@ class groupmode {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_user_group(int $userid, jqshow_sessions $sessions) : stdClass {
+    public static function get_user_group(int $userid, kuet_sessions $sessions) : stdClass {
         $groups = self::get_grouping_groups($sessions->get('groupings'));
         if (empty($groups)) {
             sessions::set_session_status_error($sessions, 'groupingremoved');

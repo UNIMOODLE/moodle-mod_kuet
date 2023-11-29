@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/calculated
+ * @module    mod_kuet/calculated
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -59,7 +59,7 @@ let REGION = {
 };
 
 let SERVICES = {
-    REPLY: 'mod_jqshow_calculated'
+    REPLY: 'mod_kuet_calculated'
 };
 
 let TEMPLATES = {

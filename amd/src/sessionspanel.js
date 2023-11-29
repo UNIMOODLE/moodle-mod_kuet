@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/sessionspanel
+ * @module    mod_kuet/sessionspanel
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -47,10 +47,10 @@ let ACTION = {
 };
 
 let SERVICES = {
-    SESSIONSPANEL: 'mod_jqshow_sessionspanel',
-    COPYSESSION: 'mod_jqshow_copysession',
-    DELETESESSION: 'mod_jqshow_deletesession',
-    STARTSESSION: 'mod_jqshow_startsession'
+    SESSIONSPANEL: 'mod_kuet_sessionspanel',
+    COPYSESSION: 'mod_kuet_copysession',
+    DELETESESSION: 'mod_kuet_deletesession',
+    STARTSESSION: 'mod_kuet_startsession'
 };
 
 let REGION = {
@@ -62,7 +62,7 @@ let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    PANEL: 'mod_jqshow/sessions_panel'
+    PANEL: 'mod_kuet/sessions_panel'
 };
 
 let cmId;
@@ -93,10 +93,10 @@ SessionsPanel.prototype.copySession = function(e) {
     e.stopPropagation();
     let sessionId = jQuery(e.currentTarget).attr('data-sessionid');
     const stringkeys = [
-        {key: 'copysession', component: 'mod_jqshow'},
-        {key: 'copysession_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'},
-        {key: 'copysessionerror', component: 'mod_jqshow'},
+        {key: 'copysession', component: 'mod_kuet'},
+        {key: 'copysession_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'},
+        {key: 'copysessionerror', component: 'mod_kuet'},
     ];
     getStrings(stringkeys).then((langStrings) => {
         const title = langStrings[0];
@@ -159,10 +159,10 @@ SessionsPanel.prototype.deleteSession = function(e) {
     e.stopPropagation();
     let sessionId = jQuery(e.currentTarget).attr('data-sessionid');
     const stringkeys = [
-        {key: 'deletesession', component: 'mod_jqshow'},
-        {key: 'deletesession_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'},
-        {key: 'deletesessionerror', component: 'mod_jqshow'},
+        {key: 'deletesession', component: 'mod_kuet'},
+        {key: 'deletesession_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'},
+        {key: 'deletesessionerror', component: 'mod_kuet'},
     ];
     getStrings(stringkeys).then((langStrings) => {
         const title = langStrings[0];
@@ -227,9 +227,9 @@ SessionsPanel.prototype.initSession = function(e) {
     e.stopPropagation();
     let sessionId = jQuery(e.currentTarget).attr('data-sessionid');
     const stringkeys = [
-        {key: 'init_session', component: 'mod_jqshow'},
-        {key: 'init_session_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'}
+        {key: 'init_session', component: 'mod_kuet'},
+        {key: 'init_session_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
         return ModalFactory.create({
@@ -248,12 +248,12 @@ SessionsPanel.prototype.initSession = function(e) {
                 };
                 Ajax.call([request])[0].done(function(response) {
                     if (response.started === true) {
-                        window.location.replace(M.cfg.wwwroot + '/mod/jqshow/session.php?cmid=' + cmId + '&sid=' + sessionId);
+                        window.location.replace(M.cfg.wwwroot + '/mod/kuet/session.php?cmid=' + cmId + '&sid=' + sessionId);
                     } else {
                         const stringkeyserror = [
-                            {key: 'error_initsession', component: 'mod_jqshow'},
-                            {key: 'error_initsession_desc', component: 'mod_jqshow'},
-                            {key: 'confirm', component: 'mod_jqshow'}
+                            {key: 'error_initsession', component: 'mod_kuet'},
+                            {key: 'error_initsession_desc', component: 'mod_kuet'},
+                            {key: 'confirm', component: 'mod_kuet'}
                         ];
                         getStrings(stringkeyserror).then((langStringsError) => {
                             return ModalFactory.create({

@@ -27,15 +27,15 @@
         <div class="col-8 col-lg-8 container">
             <div class="question">
                 <h6 class="titlecontainer bg-primary">
-                    {{#pix}} i/questions_list, mod_jqshow {{/pix}}
-                    {{#str}}question, mod_jqshow{{/str}}: {{position}} ({{type}})
+                    {{#pix}} i/questions_list, mod_kuet {{/pix}}
+                    {{#str}}question, mod_kuet{{/str}}: {{position}} ({{type}})
                 </h6>
                 <div class="question-data" data-region="question-data">
                     <div class="question-data-body">
                         {{{questiontext}}}
                         <br>
                         {{^hasnoanswers}}
-                            <h6 class="correct-answers-title">{{#str}}scored_answers, mod_jqshow{{/str}}</h6>
+                            <h6 class="correct-answers-title">{{#str}}scored_answers, mod_kuet{{/str}}</h6>
                             <ul class="correct-answers">
                                 {{#correctanswers}}
                                     <li>{{{response}}}{{#score}}: <b>{{.}}pt</b>{{/score}}</li>
@@ -43,7 +43,7 @@
                             </ul>
                         {{/hasnoanswers}}
                         <div class="question-preview bg-primary" data-action="question-preview" data-sessionid="{{sessionid}}" data-questionnid="{{jqid}}" data-cmid="{{cmid}}">
-                            <span>{{#str}}preview, mod_jqshow{{/str}}</span>
+                            <span>{{#str}}preview, mod_kuet{{/str}}</span>
                         </div>
                     </div>
                 </div>
@@ -52,21 +52,21 @@
         <div class="col-4 col-lg-4 container">
             <div class="question-info">
                 <h6 class="titlecontainer bg-primary">
-                    {{#str}}student_number, mod_jqshow{{/str}}: {{numusers}}
+                    {{#str}}student_number, mod_kuet{{/str}}: {{numusers}}
                 </h6>
                 <div class="question-info-data" data-region="question-info-data">
                     <div class="question-data-body">
                         <div class="alert alert-success mb-1" role="alert">
-                            <b>{{ percent_correct }}{{#str}}percent_correct, mod_jqshow{{/str}} ({{numcorrect}})</b>
+                            <b>{{ percent_correct }}{{#str}}percent_correct, mod_kuet{{/str}} ({{numcorrect}})</b>
                         </div>
                         <div class="alert alert-danger mb-1" role="alert">
-                            <b>{{ percent_incorrect }}{{#str}}percent_incorrect, mod_jqshow{{/str}} ({{numincorrect}})</b>
+                            <b>{{ percent_incorrect }}{{#str}}percent_incorrect, mod_kuet{{/str}} ({{numincorrect}})</b>
                         </div>
                         <div class="alert alert-light mb-1" role="alert">
-                            <b>{{ percent_partially }}{{#str}}percent_partially, mod_jqshow{{/str}} ({{numpartial}})</b>
+                            <b>{{ percent_partially }}{{#str}}percent_partially, mod_kuet{{/str}} ({{numpartial}})</b>
                         </div>
                         <div class="alert alert-warning mb-0" role="alert">
-                            <b>{{ percent_noresponse }}{{#str}}percent_noresponse, mod_jqshow{{/str}} ({{numnoresponse}})</b>
+                            <b>{{ percent_noresponse }}{{#str}}percent_noresponse, mod_kuet{{/str}} ({{numnoresponse}})</b>
                         </div>
                     </div>
                 </div>
@@ -79,8 +79,8 @@
         <div class="col-12 col-lg-12 container">
             <div class="answers">
                 <h6 class="titlecontainer bg-primary">
-                    {{#pix}} i/questions_list, mod_jqshow {{/pix}}
-                    {{#str}}responses, mod_jqshow{{/str}}: {{position}} ({{type}})
+                    {{#pix}} i/questions_list, mod_kuet {{/pix}}
+                    {{#str}}responses, mod_kuet{{/str}}: {{position}} ({{type}})
                 </h6>
                 <div class="answers-data" data-region="answers-data">
                     <div class="answers-data-body">
@@ -105,7 +105,7 @@
                                             <span>{{numticked}}</span>
                                         </div>
                                         <div class="averagetime">
-                                            {{#pix}}i/time, mod_jqshow{{/pix}}
+                                            {{#pix}}i/time, mod_kuet{{/pix}}
                                             <span>{{averagetime}}</span>
                                         </div>
                                     </div>
@@ -123,17 +123,17 @@
         <div class="col-12 col-lg-12 container">
             <div class="ranking-list">
                 <h6 class="titlecontainer bg-primary">
-                    {{#pix}} i/vote, mod_jqshow {{/pix}}
-                    {{#str}}ranking, mod_jqshow{{/str}}
+                    {{#pix}} i/vote, mod_kuet {{/pix}}
+                    {{#str}}ranking, mod_kuet{{/str}}
                 </h6>
                 <div class="ranking-users" data-region="ranking-users">
                     <div class="ranking-users-body d-table list-group" data-region="ranking_users">
                         <div class="d-table-row ranking-users-thead">
-                            <div class="d-table-cell">{{#str}}participant, mod_jqshow{{/str}}</div>
-                            <div class="d-table-cell text-center">{{#str}}status, mod_jqshow{{/str}}</div>
-                            <div class="d-table-cell text-center">{{#str}}score, mod_jqshow{{/str}}</div>
-                            <div class="d-table-cell text-center">{{#str}}score_moment, mod_jqshow{{/str}}</div>
-                            <div class="d-table-cell text-center">{{#str}}time, mod_jqshow{{/str}}</div>
+                            <div class="d-table-cell">{{#str}}participant, mod_kuet{{/str}}</div>
+                            <div class="d-table-cell text-center">{{#str}}status, mod_kuet{{/str}}</div>
+                            <div class="d-table-cell text-center">{{#str}}score, mod_kuet{{/str}}</div>
+                            <div class="d-table-cell text-center">{{#str}}score_moment, mod_kuet{{/str}}</div>
+                            <div class="d-table-cell text-center">{{#str}}time, mod_kuet{{/str}}</div>
                             <div class="d-table-cell text-center"></div>
                         </div>
                         {{#questionranking}}
@@ -158,11 +158,11 @@
                                 <div class="d-table-cell text-center">{{time}}</div>
                                 <div class="d-table-cell text-center actions">
                                     <span class="d-flex align-items-cente justify-content-center">
-                                        <div class="mr-2" title="{{#str}}viewquestion_user, mod_jqshow{{/str}}" data-action="seeanswer" data-userid="{{id}}" data-sessionid="{{sessionid}}" data-questionnid="{{questionnid}}" data-cmid="{{cmid}}">
-                                            {{#pix}}i/preview, mod_jqshow{{/pix}}
+                                        <div class="mr-2" title="{{#str}}viewquestion_user, mod_kuet{{/str}}" data-action="seeanswer" data-userid="{{id}}" data-sessionid="{{sessionid}}" data-questionnid="{{questionnid}}" data-cmid="{{cmid}}">
+                                            {{#pix}}i/preview, mod_kuet{{/pix}}
                                         </div>
-                                        <a href="{{viewreporturl}}" title="{{#str}}viewreport_user, mod_jqshow{{/str}}">
-                                            {{#pix}}i/vote_gray, mod_jqshow{{/pix}}
+                                        <a href="{{viewreporturl}}" title="{{#str}}viewreport_user, mod_kuet{{/str}}">
+                                            {{#pix}}i/vote_gray, mod_kuet{{/pix}}
                                         </a>
                                     </span>
                                 </div>
@@ -190,11 +190,11 @@
                                 <div class="d-table-cell text-center">{{time}}</div>
                                 <div class="d-table-cell text-center actions">
                                     <span class="d-flex align-items-cente justify-content-center">
-                                        <div class="mr-2" title="{{#str}}viewquestion_user, mod_jqshow{{/str}}" data-action="seeanswer" data-userid="{{participantid}}" data-sessionid="{{sessionid}}" data-questionnid="{{questionnid}}" data-cmid="{{cmid}}">
-                                            {{#pix}}i/preview, mod_jqshow{{/pix}}
+                                        <div class="mr-2" title="{{#str}}viewquestion_user, mod_kuet{{/str}}" data-action="seeanswer" data-userid="{{participantid}}" data-sessionid="{{sessionid}}" data-questionnid="{{questionnid}}" data-cmid="{{cmid}}">
+                                            {{#pix}}i/preview, mod_kuet{{/pix}}
                                         </div>
-                                        <a href="{{viewreporturl}}" title="{{#str}}viewreport_user, mod_jqshow{{/str}}">
-                                            {{#pix}}i/vote_gray, mod_jqshow{{/pix}}
+                                        <a href="{{viewreporturl}}" title="{{#str}}viewreport_user, mod_kuet{{/str}}">
+                                            {{#pix}}i/vote_gray, mod_kuet{{/pix}}
                                         </a>
                                     </span>
                                 </div>
@@ -213,7 +213,7 @@
 </div>
 
 {{#js}}
-    require(['mod_jqshow/question_report'], function(questionReport) {
+    require(['mod_kuet/question_report'], function(questionReport) {
         questionReport.questionReport('[data-region="question-report"]');
     });
 {{/js}}

@@ -23,8 +23,8 @@
 }}
 <div class="content-header">
     <div class="content-title">
-        <h2>{{#str}}questionsconfiguration, mod_jqshow{{/str}}</h2>
-        <small>{{#str}}questionsconfiguration_info, mod_jqshow{{/str}}</small>
+        <h2>{{#str}}questionsconfiguration, mod_kuet{{/str}}</h2>
+        <small>{{#str}}questionsconfiguration_info, mod_kuet{{/str}}</small>
     </div>
     <div class="session-steps">
         <div class="step step1">
@@ -46,30 +46,30 @@
     <div class="col-12 col-lg-8 container">
         <div class="questions-list">
             <h6 class="titlecontainer bg-primary">
-                {{#pix}} i/questions_list, mod_jqshow {{/pix}}
-                {{#str}}questions_list, mod_jqshow{{/str}}
+                {{#pix}} i/questions_list, mod_kuet {{/pix}}
+                {{#str}}questions_list, mod_kuet{{/str}}
             </h6>
             <div class="session-questions" data-region="session-questions">
-                {{> mod_jqshow/createsession/sessionquestions }}
+                {{> mod_kuet/createsession/sessionquestions }}
             </div>
         </div>
     </div>
     <div class="col-12 col-lg-4 container">
         <div class="questions-bank">
             <h6 class="titlecontainer bg-primary">
-                {{#pix}} i/questions_list, mod_jqshow {{/pix}}
-                {{#str}}questions_bank, mod_jqshow{{/str}}
+                {{#pix}} i/questions_list, mod_kuet {{/pix}}
+                {{#str}}questions_bank, mod_kuet{{/str}}
             </h6>
             <div class="form-group">
-                <label for="exampleFormControlSelect1">{{#str}}select_category, mod_jqshow{{/str}}</label>
+                <label for="exampleFormControlSelect1">{{#str}}select_category, mod_kuet{{/str}}</label>
                 {{{questionbank_categories}}}
                 <a class="btn btn-primary" href="{{questionbank_url}}" target="_blank">
-                    {{#str}}go_questionbank, mod_jqshow{{/str}}
+                    {{#str}}go_questionbank, mod_kuet{{/str}}
                 </a>
             </div>
             <hr>
             <div class="content-question" data-region="content-question">
-                {{> mod_jqshow/createsession/contentquestions }}
+                {{> mod_kuet/createsession/contentquestions }}
             </div>
         </div>
     </div>
@@ -94,7 +94,7 @@
     </div>
 </div>
 {{#js}}
-    require(['mod_jqshow/questionspanel'],
+    require(['mod_kuet/questionspanel'],
         function(QuestionsPanel) {
             QuestionsPanel.initQuestionsPanel('[data-region="questions-panel"]');
         }

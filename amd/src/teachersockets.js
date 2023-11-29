@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/teachersockets
+ * @module    mod_kuet/teachersockets
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -38,8 +38,8 @@ import {get_string as getString, get_strings as getStrings} from 'core/str';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Ajax from 'core/ajax';
-import Encryptor from 'mod_jqshow/encryptor';
-import Database from 'mod_jqshow/database';
+import Encryptor from 'mod_kuet/encryptor';
+import Database from 'mod_kuet/database';
 import mEvent from 'core/event';
 
 let REGION = {
@@ -76,33 +76,33 @@ let ACTION = {
 };
 
 let SERVICES = {
-    ACTIVESESSION: 'mod_jqshow_activesession',
-    NEXTQUESTION: 'mod_jqshow_nextquestion',
-    FIRSTQUESTION: 'mod_jqshow_firstquestion',
-    FINISHSESSION: 'mod_jqshow_finishsession',
-    DELETERESPONSES: 'mod_jqshow_deleteresponses',
-    JUMPTOQUESTION: 'mod_jqshow_jumptoquestion',
-    GETSESSIONRESUME: 'mod_jqshow_getsessionresume',
-    GETLISTRESULTS: 'mod_jqshow_getlistresults',
-    GETGROUPLISTRESULTS: 'mod_jqshow_getgrouplistresults',
-    GETQUESTIONSTATISTICS: 'mod_jqshow_getquestionstatistics',
-    GETSESSIONCONFIG: 'mod_jqshow_getsession',
-    GETPROVISIONALRANKING: 'mod_jqshow_getprovisionalranking',
-    GETFINALRANKING: 'mod_jqshow_getfinalranking',
-    GETRACERESULTS: 'mod_jqshow_getraceresults'
+    ACTIVESESSION: 'mod_kuet_activesession',
+    NEXTQUESTION: 'mod_kuet_nextquestion',
+    FIRSTQUESTION: 'mod_kuet_firstquestion',
+    FINISHSESSION: 'mod_kuet_finishsession',
+    DELETERESPONSES: 'mod_kuet_deleteresponses',
+    JUMPTOQUESTION: 'mod_kuet_jumptoquestion',
+    GETSESSIONRESUME: 'mod_kuet_getsessionresume',
+    GETLISTRESULTS: 'mod_kuet_getlistresults',
+    GETGROUPLISTRESULTS: 'mod_kuet_getgrouplistresults',
+    GETQUESTIONSTATISTICS: 'mod_kuet_getquestionstatistics',
+    GETSESSIONCONFIG: 'mod_kuet_getsession',
+    GETPROVISIONALRANKING: 'mod_kuet_getprovisionalranking',
+    GETFINALRANKING: 'mod_kuet_getfinalranking',
+    GETRACERESULTS: 'mod_kuet_getraceresults'
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
-    GROUPPARTICIPANT: 'mod_jqshow/session/manual/waitingroom/groupparticipant',
-    QUESTION: 'mod_jqshow/questions/encasement',
-    SESSIONRESUME: 'mod_jqshow/session/sessionresume',
-    LISTRESULTS: 'mod_jqshow/session/listresults',
-    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional',
-    RACERESULTS: 'mod_jqshow/session/raceresults'
+    PARTICIPANT: 'mod_kuet/session/manual/waitingroom/participant',
+    GROUPPARTICIPANT: 'mod_kuet/session/manual/waitingroom/groupparticipant',
+    QUESTION: 'mod_kuet/questions/encasement',
+    SESSIONRESUME: 'mod_kuet/session/sessionresume',
+    LISTRESULTS: 'mod_kuet/session/listresults',
+    PROVISIONALRANKING: 'mod_kuet/ranking/provisional',
+    RACERESULTS: 'mod_kuet/session/raceresults'
 };
 
 let socketUrl = '';
@@ -217,7 +217,7 @@ Sockets.prototype.measuringSpeed = function() {
                 effectiveType: connection.effectiveType,
                 downlink: connection.downlink
             };
-            getString('lowspeed', 'mod_jqshow', reason).done((s) => {
+            getString('lowspeed', 'mod_kuet', reason).done((s) => {
                 messageBox.append(
                     '<div class="alert alert-danger" role="alert">' + s + '</div>'
                 );
@@ -231,9 +231,9 @@ Sockets.prototype.measuringSpeed = function() {
 
 Sockets.prototype.backSession = function() {
     const stringkeys = [
-        {key: 'backtopanelfromsession', component: 'mod_jqshow'},
-        {key: 'backtopanelfromsession_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'}
+        {key: 'backtopanelfromsession', component: 'mod_kuet'},
+        {key: 'backtopanelfromsession_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
         return ModalFactory.create({
@@ -251,7 +251,7 @@ Sockets.prototype.backSession = function() {
                     }
                 };
                 Ajax.call([request])[0].done(function() {
-                    window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
+                    window.location.replace(M.cfg.wwwroot + '/mod/kuet/view.php?id=' + cmid);
                 }).fail(Notification.exception);
             });
             modal.getRoot().on(ModalEvents.hidden, () => {
@@ -445,7 +445,7 @@ Sockets.prototype.initSockets = function() {
     };
 
     Sockets.prototype.webSocket.onerror = function() {
-        getString('system_error', 'mod_jqshow').done((s) => {
+        getString('system_error', 'mod_kuet').done((s) => {
             messageBox.append(
                 '<div class="alert alert-danger" role="alert">' + s + '</div>'
             );
@@ -460,7 +460,7 @@ Sockets.prototype.initSockets = function() {
             reason: ev.reason,
             code: ev.code
         };
-        getString('connection_closed', 'mod_jqshow', reason).done((s) => {
+        getString('connection_closed', 'mod_kuet', reason).done((s) => {
             jQuery(REGION.TEACHERCANVASCONTENT).prepend(
                 '<div class="alert alert-danger" role="alert">' + s + '</div>'
             );
@@ -477,9 +477,9 @@ Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
         jsUrl.port = port;
         jsUrl.protocol = 'wss:';
         if (jsUrl.pathname === '/') {
-            jsUrl.pathname = jsUrl.pathname + 'jqshow';
+            jsUrl.pathname = jsUrl.pathname + 'kuet';
         } else {
-            jsUrl.pathname = jsUrl.pathname + '/jqshow';
+            jsUrl.pathname = jsUrl.pathname + '/kuet';
         }
         return jsUrl.toString();
     }
@@ -630,11 +630,11 @@ Sockets.prototype.getNextQuestion = function(jqid) {
 Sockets.prototype.initSession = function() {
     db.delete('statequestions', 'endSession');
     const stringkeys = [
-        {key: 'init_session', component: 'mod_jqshow'},
-        {key: 'init_session_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'},
-        {key: 'sessionstarted', component: 'mod_jqshow'},
-        {key: 'sessionstarted_info', component: 'mod_jqshow'}
+        {key: 'init_session', component: 'mod_kuet'},
+        {key: 'init_session_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'},
+        {key: 'sessionstarted', component: 'mod_kuet'},
+        {key: 'sessionstarted_info', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
         return ModalFactory.create({
@@ -729,10 +729,10 @@ Sockets.prototype.initPanel = function() {
 
 Sockets.prototype.endSession = function() {
     const stringkeys = [
-        {key: 'end_session', component: 'mod_jqshow'},
-        {key: 'end_session_manual_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'},
-        {key: 'end_session_error', component: 'mod_jqshow'}
+        {key: 'end_session', component: 'mod_kuet'},
+        {key: 'end_session_manual_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'},
+        {key: 'end_session_error', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
         return ModalFactory.create({
@@ -757,7 +757,7 @@ Sockets.prototype.endSession = function() {
                             console.error("Error deleting database.", event);
                         };
                         deleteDb.onsuccess = function() {
-                            window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
+                            window.location.replace(M.cfg.wwwroot + '/mod/kuet/view.php?id=' + cmid);
                         };
                     } else {
                         Notification.alert('Error', langStrings[3], langStrings[2]);

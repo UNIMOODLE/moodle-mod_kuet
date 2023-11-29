@@ -28,14 +28,14 @@
                 <div class="d-table-cell"></div>
             {{/waitingroom}}
         {{/ispage3}}
-        <div class="d-table-cell text-center">{{#str}}question_position, mod_jqshow{{/str}}</div>
-        <div class="d-table-cell">{{#str}}question_name, mod_jqshow{{/str}}</div>
-        <div class="d-table-cell text-center">{{#str}}question_type, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}question_position, mod_kuet{{/str}}</div>
+        <div class="d-table-cell">{{#str}}question_name, mod_kuet{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}question_type, mod_kuet{{/str}}</div>
         {{^ispage1}}
-            <div class="d-table-cell text-center">{{#str}}question_time, mod_jqshow{{/str}}</div>
+            <div class="d-table-cell text-center">{{#str}}question_time, mod_kuet{{/str}}</div>
         {{/ispage1}}
-        <div class="d-table-cell text-center">{{#str}}question_version, mod_jqshow{{/str}}</div>
-        <div class="d-table-cell text-center">{{#str}}question_actions, mod_jqshow{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}question_version, mod_kuet{{/str}}</div>
+        <div class="d-table-cell text-center">{{#str}}question_actions, mod_kuet{{/str}}</div>
     </div>
     {{#sessionquestions}}
         <div class="d-table-row questions-list-data question-item" data-questionnid="{{questionnid}}">
@@ -43,7 +43,7 @@
                 {{^waitingroom}}
                     <div class="d-table-cell">
                         <span tabindex="0" role="button" aria-haspopup="false" data-drag-type="move">
-                            {{#pix}}i/dragger, mod_jqshow{{/pix}}
+                            {{#pix}}i/dragger, mod_kuet{{/pix}}
                         </span>
                     </div>
                 {{/waitingroom}}
@@ -64,26 +64,26 @@
                     {{^ispage3}}
                         {{#managesessions}}
                             <a href="{{editquestionurl}}" class="question-action">
-                                {{#pix}} i/edit_session, mod_jqshow {{/pix}}
+                                {{#pix}} i/edit_session, mod_kuet {{/pix}}
                             </a>
                             <div class="question-action" data-action="preview_question" data-questionnid="{{questionnid}}">
                                 <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
-                                    {{#pix}} i/preview, mod_jqshow {{/pix}}
+                                    {{#pix}} i/preview, mod_kuet {{/pix}}
                                 </div>
                             </div>
                             <div class="question-action" data-action="delete_question" data-questionnid="{{questionnid}}">
-                                {{#pix}} i/delete_session, mod_jqshow {{/pix}}
+                                {{#pix}} i/delete_session, mod_kuet {{/pix}}
                             </div>
                         {{/managesessions}}
                     {{/ispage3}}
                     {{#ispage3}}
                         <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
-                            {{#pix}} i/preview, mod_jqshow {{/pix}}
+                            {{#pix}} i/preview, mod_kuet {{/pix}}
                         </div>
                     {{/ispage3}}
                     {{#waitingroom}}
                         <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
-                            {{#pix}} i/preview, mod_jqshow {{/pix}}
+                            {{#pix}} i/preview, mod_kuet {{/pix}}
                         </div>
                     {{/waitingroom}}
                 </div>
@@ -92,7 +92,7 @@
     {{/sessionquestions}}
 </div>
 {{#js}}
-    require(['mod_jqshow/sessionquestions'],
+    require(['mod_kuet/sessionquestions'],
         function(SessionQuestions) {
             SessionQuestions.initSessionQuestions('[data-region="question_list"]');
         }

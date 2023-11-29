@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/modal
+ * @module    mod_kuet/modal
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -41,8 +41,8 @@ let SELECTORS = {
 };
 
 const ModalJqshow = class extends Modal {
-    static TYPE = 'mod_jqshow/modal';
-    static TEMPLATE = 'mod_jqshow/modal';
+    static TYPE = 'mod_kuet/modal';
+    static TEMPLATE = 'mod_kuet/modal';
 
     registerEventListeners() {
         // Call the parent registration.

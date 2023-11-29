@@ -13,12 +13,12 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use mod_jqshow\models\ddwtos;
-use mod_jqshow\models\sessions;
-use mod_jqshow\models\questions;
+use mod_kuet\models\ddwtos;
+use mod_kuet\models\sessions;
+use mod_kuet\models\questions;
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @copyright   3iPunt <https://www.tresipunt.com/>
@@ -29,9 +29,9 @@ class ddwtos_external_test extends advanced_testcase {
     public function test_ddwtos() :void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -44,7 +44,7 @@ class ddwtos_external_test extends advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -59,7 +59,7 @@ class ddwtos_external_test extends advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
@@ -76,10 +76,10 @@ class ddwtos_external_test extends advanced_testcase {
             ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS]
         ];
         $generator->add_questions_to_session($questions);
-        \mod_jqshow\external\startsession_external::startsession($jqshow->cmid, $createdsid);
+        \mod_kuet\external\startsession_external::startsession($jqshow->cmid, $createdsid);
 
         $qbddwtos = question_bank::load_question($ddwtosq->id);
-        $jmcq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $qbddwtos->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS]
         );
         $correctanswers = [];
@@ -131,7 +131,7 @@ class ddwtos_external_test extends advanced_testcase {
 
         // User 1 answers a correct answer.
         self::setUser($student1);
-        $data1 = \mod_jqshow\external\ddwtos_external::ddwtos($createdsid, $jqshow->id,
+        $data1 = \mod_kuet\external\ddwtos_external::ddwtos($createdsid, $jqshow->id,
             $jqshow->cmid, $ddwtosq->id, $jmcq->get('id'), 10, false, json_encode($correctanswers));
         $this->assertIsArray($data1);
         $this->assertArrayHasKey('reply_status', $data1);
@@ -152,7 +152,7 @@ class ddwtos_external_test extends advanced_testcase {
 
         // User 2 answers a partially correct answer.
         self::setUser($student2);
-        $data2 = \mod_jqshow\external\ddwtos_external::ddwtos($createdsid, $jqshow->id,
+        $data2 = \mod_kuet\external\ddwtos_external::ddwtos($createdsid, $jqshow->id,
             $jqshow->cmid, $ddwtosq->id, $jmcq->get('id'), 10, false, json_encode($partiallycorrectanswers));
         $this->assertIsArray($data2);
         $this->assertArrayHasKey('reply_status', $data2);
@@ -173,7 +173,7 @@ class ddwtos_external_test extends advanced_testcase {
 
         // User 3 answers incorrectly.
         self::setUser($student3);
-        $data3 = \mod_jqshow\external\ddwtos_external::ddwtos($createdsid, $jqshow->id,
+        $data3 = \mod_kuet\external\ddwtos_external::ddwtos($createdsid, $jqshow->id,
             $jqshow->cmid, $ddwtosq->id, $jmcq->get('id'), 10, false, json_encode($incorrectanswers));
         $this->assertIsArray($data3);
         $this->assertArrayHasKey('reply_status', $data3);

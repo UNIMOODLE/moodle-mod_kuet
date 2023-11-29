@@ -27,7 +27,7 @@
             {{^endsession}}
                 <div class="question-heading bg-primary {{#improvied}}d-none{{/improvied}}">
                     <span class="session-index">
-                        <span class="question-text">{{#str}}question, mod_jqshow{{/str}}</span> {{ question_index_string }}
+                        <span class="question-text">{{#str}}question, mod_kuet{{/str}}</span> {{ question_index_string }}
                     </span>
                     <div class="content-progress">
                         <div class="progress session-progress">
@@ -35,56 +35,56 @@
                         </div>
                     </div>
                     <div class="question-fullscreen" data-action="question-fullscreen">
-                        {{#pix}}q/zoomin, mod_jqshow{{/pix}}
+                        {{#pix}}q/zoomin, mod_kuet{{/pix}}
                     </div>
                     <div class="question-fullscreen" data-action="question-exit-fullscreen">
-                        {{#pix}}q/zoomout, mod_jqshow{{/pix}}
+                        {{#pix}}q/zoomout, mod_kuet{{/pix}}
                     </div>
                 </div>
                 <div class="question-body container-fluid">
                     {{#multichoice}}
-                        {{> mod_jqshow/questions/multichoice }}
+                        {{> mod_kuet/questions/multichoice }}
                     {{/multichoice}}
 
                     {{#truefalse}}
-                        {{> mod_jqshow/questions/truefalse }}
+                        {{> mod_kuet/questions/truefalse }}
                     {{/truefalse}}
 
                     {{#match}}
-                        {{> mod_jqshow/questions/match }}
+                        {{> mod_kuet/questions/match }}
                     {{/match}}
 
                     {{#shortanswer}}
-                        {{> mod_jqshow/questions/shortanswer }}
+                        {{> mod_kuet/questions/shortanswer }}
                     {{/shortanswer}}
 
                     {{#numerical}}
-                        {{> mod_jqshow/questions/numerical }}
+                        {{> mod_kuet/questions/numerical }}
                     {{/numerical}}
 
                     {{#calculated}}
-                        {{> mod_jqshow/questions/calculated }}
+                        {{> mod_kuet/questions/calculated }}
                     {{/calculated}}
 
                     {{#description}}
-                        {{> mod_jqshow/questions/description }}
+                        {{> mod_kuet/questions/description }}
                     {{/description}}
 
                     {{#ddwtos}}
-                        {{> mod_jqshow/questions/ddwtos }}
+                        {{> mod_kuet/questions/ddwtos }}
                     {{/ddwtos}}
 
                     {{#cloudtags}}
-                        {{> mod_jqshow/questions/cloudtags }}
+                        {{> mod_kuet/questions/cloudtags }}
                     {{/cloudtags}}
 
                     <!-- only for teachers -->
                     {{#raceresults}}
-                        {{> mod_jqshow/session/raceresults }}
+                        {{> mod_kuet/session/raceresults }}
                     {{/raceresults}}
 
                     {{#isteacher}}
-                        {{> mod_jqshow/session/manual/teachercontrolpanel }}
+                        {{> mod_kuet/session/manual/teachercontrolpanel }}
                     {{/isteacher}}
                 </div>
                 {{#description}}
@@ -107,14 +107,14 @@
                 {{/programmedmode}}
             {{/endsession}}
             {{#endsession}}
-                {{> mod_jqshow/session/endsession }}
+                {{> mod_kuet/session/endsession }}
             {{/endsession}}
         </div>
     </div>
 </div>
 {{^endsession}}
     {{#js}}
-        require(['mod_jqshow/question'], function(Question) {
+        require(['mod_kuet/question'], function(Question) {
             Question.initQuestion('[data-region="question-content"]');
         });
     {{/js}}

@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -65,19 +65,19 @@ abstract class websockets {
         $privatekeyurl = '';
         $syscontext = context_system::instance();
         $fs = get_file_storage();
-        $certificatefiles = $fs->get_area_files($syscontext->id, 'jqshow', 'certificate_ssl', 0, 'filename', false);
+        $certificatefiles = $fs->get_area_files($syscontext->id, 'kuet', 'certificate_ssl', 0, 'filename', false);
         foreach ($certificatefiles as $file) {
             if ($file->get_filename() !== '.') {
-                file_safe_save_content($file->get_content(), $CFG->localcachedir . '/jqshow/' . $file->get_filename());
-                $certificateurl = $CFG->localcachedir . '/jqshow/' . $file->get_filename();
+                file_safe_save_content($file->get_content(), $CFG->localcachedir . '/kuet/' . $file->get_filename());
+                $certificateurl = $CFG->localcachedir . '/kuet/' . $file->get_filename();
                 break;
             }
         }
-        $privatekeyfiles = $fs->get_area_files($syscontext->id, 'jqshow', 'privatekey_ssl', 0, 'filename', false);
+        $privatekeyfiles = $fs->get_area_files($syscontext->id, 'kuet', 'privatekey_ssl', 0, 'filename', false);
         foreach ($privatekeyfiles as $file) {
             if ($file->get_filename() !== '.') {
-                file_safe_save_content($file->get_content(), $CFG->localcachedir . '/jqshow/' . $file->get_filename());
-                $privatekeyurl = $CFG->localcachedir . '/jqshow/' . $file->get_filename();
+                file_safe_save_content($file->get_content(), $CFG->localcachedir . '/kuet/' . $file->get_filename());
+                $privatekeyurl = $CFG->localcachedir . '/kuet/' . $file->get_filename();
                 break;
             }
         }

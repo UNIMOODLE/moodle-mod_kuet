@@ -24,17 +24,17 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\forms;
+namespace mod_kuet\forms;
 
 use coding_exception;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\persistents\kuet_sessions;
 use moodleform;
 
 defined('MOODLE_INTERNAL') || die();
@@ -55,25 +55,25 @@ class questionform extends moodleform {
         $mform->addElement('html', '<h4 style="margin:0 auto;">'.$customdata['qname'].'('. $customdata['qtype'] .')'.'</h4>');
         $mform->addElement('html', '</div>');
 
-        $mform->addElement('header', 'timeheader', get_string('questiontime', 'mod_jqshow'));
+        $mform->addElement('header', 'timeheader', get_string('questiontime', 'mod_kuet'));
         if ($customdata['sessionlimittimebyquestionsenabled'] === true || $customdata['notimelimit'] === true) {
-            $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_jqshow'),
+            $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_kuet'),
                 ['units' => [MINSECS, 1], 'optional' => true], 'asd');
             $mform->setType('timelimit', PARAM_INT);
         } else {
-            $mform->addHelpButton('timelimit', 'qtimelimit', 'jqshow');
+            $mform->addHelpButton('timelimit', 'qtimelimit', 'kuet');
             $sid = required_param('sid', PARAM_INT);
-            $session = new jqshow_sessions($sid);
+            $session = new kuet_sessions($sid);
             $timelimit = userdate($session->get('sessiontime'), '%Mm %Ss');
             $mform->addElement('html', '<div class=" alert alert-warning">');
             $mform->addElement('html', '<div>' .
-                get_string('sessionlimittimebyquestionsenabled', 'mod_jqshow', $timelimit) .
+                get_string('sessionlimittimebyquestionsenabled', 'mod_kuet', $timelimit) .
                 '</div>');
             $mform->addElement('html', '</div>');
         }
 
-        $mform->addElement('header', 'gradesheader', get_string('gradesheader', 'mod_jqshow'));
-        $mform->addElement('checkbox', 'nograding', get_string('nograding', 'mod_jqshow'));
+        $mform->addElement('header', 'gradesheader', get_string('gradesheader', 'mod_kuet'));
+        $mform->addElement('checkbox', 'nograding', get_string('nograding', 'mod_kuet'));
         $mform->setType('nograding', PARAM_INT);
 
         $mform->addElement('hidden', 'id', $customdata['id']);

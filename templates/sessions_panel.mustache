@@ -23,10 +23,10 @@
 }}
 <div data-region="sessions-panel" data-courseid="{{courseid}}" data-cmid="{{cmid}}">
     <div class="position-relative">
-        <h2>{{#str}}sessions, mod_jqshow{{/str}}</h2>
-        <small>{{#str}}sessions_info, mod_jqshow{{/str}}</small>
+        <h2>{{#str}}sessions, mod_kuet{{/str}}</h2>
+        <small>{{#str}}sessions_info, mod_kuet{{/str}}</small>
         <a class="mobile-create-session" href="{{createsessionurl}}">
-            + {{#str}}create_session, mod_jqshow{{/str}}
+            + {{#str}}create_session, mod_kuet{{/str}}
         </a>
         {{#hasqrcodeimage}}
             <div class="imageQr">
@@ -50,24 +50,24 @@
         <div class="col-12 active-sessions sessions-list">
             <div class="sessions-list-header bg-primary">
                 <div class="sessions-list-header-title">
-                    {{#pix}} i/sessions_list, mod_jqshow {{/pix}}
-                    <h6>{{#str}}active_sessions, mod_jqshow{{/str}}</h6>
+                    {{#pix}} i/sessions_list, mod_kuet {{/pix}}
+                    <h6>{{#str}}active_sessions, mod_kuet{{/str}}</h6>
                 </div>
                 <a class="btn btn-secondary create-session text-primary border-0" href="{{createsessionurl}}">
-                    {{#str}}create_session, mod_jqshow{{/str}}
+                    {{#str}}create_session, mod_kuet{{/str}}
                 </a>
             </div>
             <div class="content_table">
                 <div class="sessions-list-body d-table">
                     <div class="d-table-row sessions-list-thead">
-                        <div class="d-table-cell">{{#str}}session_name, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell">{{#str}}sessionmode, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell">{{#str}}timemode, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}sessiontime, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}timeperquestion, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}questions_number, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}session_date, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}session_actions, mod_jqshow{{/str}}</div>
+                        <div class="d-table-cell">{{#str}}session_name, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell">{{#str}}sessionmode, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell">{{#str}}timemode, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}sessiontime, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}timeperquestion, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}questions_number, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}session_date, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}session_actions, mod_kuet{{/str}}</div>
                         <div class="d-table-cell"></div>
                     </div>
                     {{#activesessions}}
@@ -84,33 +84,33 @@
                                     <div class="content-actions">
                                         {{^haserror}}
                                             <a class="session-action {{#issessionstarted}}disabled{{/issessionstarted}}" href="{{editsessionurl}}">
-                                                {{#pix}} i/edit_session, mod_jqshow {{/pix}}
+                                                {{#pix}} i/edit_session, mod_kuet {{/pix}}
                                             </a>
                                         {{/haserror}}
                                         <div class="session-action" data-action="copy_session" data-sessionid="{{sessionid}}">
-                                            {{#pix}} i/copy_session, mod_jqshow {{/pix}}
+                                            {{#pix}} i/copy_session, mod_kuet {{/pix}}
                                         </div>
                                         <div class="session-action {{#issessionstarted}}disabled{{/issessionstarted}}"
                                              {{^issessionstarted}}data-action="delete_session"{{/issessionstarted}}
                                              data-sessionid="{{sessionid}}">
-                                            {{#pix}} i/delete_session, mod_jqshow {{/pix}}
+                                            {{#pix}} i/delete_session, mod_kuet {{/pix}}
                                         </div>
                                     </div>
                                     <div class="dropdown show mobile-content-actions">
                                         <a class="dropdown-toggle" href="#" role="button" id="actions-{{sessionid}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            {{#pix}}i/three_dots, mod_jqshow {{/pix}}
+                                            {{#pix}}i/three_dots, mod_kuet {{/pix}}
                                         </a>
                                         <div class="dropdown-menu" aria-labelledby="actions-{{sessionid}}">
                                             {{^haserror}}
                                                 <a class="dropdown-item {{#issessionstarted}}disabled{{/issessionstarted}}" href="{{editsessionurl}}">
-                                                    {{#str}}edit_session, mod_jqshow{{/str}}
+                                                    {{#str}}edit_session, mod_kuet{{/str}}
                                                 </a>
                                             {{/haserror}}
                                             <a class="dropdown-item" href="#" data-action="copy_session" data-sessionid="{{sessionid}}">
-                                                {{#str}}copy_session, mod_jqshow{{/str}}
+                                                {{#str}}copy_session, mod_kuet{{/str}}
                                             </a>
                                             <a class="dropdown-item" {{#issessionstarted}}disabled{{/issessionstarted}} href="#" data-action="delete_session" data-sessionid="{{sessionid}}">
-                                                {{#str}}delete_session, mod_jqshow{{/str}}
+                                                {{#str}}delete_session, mod_kuet{{/str}}
                                             </a>
                                         </div>
                                     </div>
@@ -136,28 +136,28 @@
                                     </div>
                                 {{/issessionstarted}}
                                 {{#noquestions}}
-                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionnoquestions, mod_jqshow{{/str}}">
-                                        {{#pix}} i/warning, mod_jqshow {{/pix}}
+                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionnoquestions, mod_kuet{{/str}}">
+                                        {{#pix}} i/warning, mod_kuet {{/pix}}
                                     </span>
                                 {{/noquestions}}
                                 {{#sessioncreating}}
-                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessioncreating, mod_jqshow{{/str}}">
-                                        {{#pix}} i/warning, mod_jqshow {{/pix}}
+                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessioncreating, mod_kuet{{/str}}">
+                                        {{#pix}} i/warning, mod_kuet {{/pix}}
                                     </span>
                                 {{/sessioncreating}}
                                 {{#hasconflict}}
-                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionconflict, mod_jqshow{{/str}}">
-                                        {{#pix}} i/danger, mod_jqshow {{/pix}}
+                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionconflict, mod_kuet{{/str}}">
+                                        {{#pix}} i/danger, mod_kuet {{/pix}}
                                     </span>
                                 {{/hasconflict}}
                                 {{#haswarning}}
-                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionwarning, mod_jqshow{{/str}}">
-                                        {{#pix}} i/warning, mod_jqshow {{/pix}}
+                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionwarning, mod_kuet{{/str}}">
+                                        {{#pix}} i/warning, mod_kuet {{/pix}}
                                     </span>
                                 {{/haswarning}}
                                 {{#haserror}}
-                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionerror, mod_jqshow{{/str}}">
-                                        {{#pix}} i/warning, mod_jqshow {{/pix}}
+                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionerror, mod_kuet{{/str}}">
+                                        {{#pix}} i/warning, mod_kuet {{/pix}}
                                     </span>
                                 {{/haserror}}
                             </div>
@@ -171,22 +171,22 @@
         <div class="col-12 completed-sessions sessions-list">
             <div class="sessions-list-header bg-primary">
                 <div class="sessions-list-header-title">
-                    {{#pix}} i/sessions_list, mod_jqshow {{/pix}}
-                    <h6>{{#str}}completed_sessions, mod_jqshow{{/str}}</h6>
+                    {{#pix}} i/sessions_list, mod_kuet {{/pix}}
+                    <h6>{{#str}}completed_sessions, mod_kuet{{/str}}</h6>
                 </div>
             </div>
             <div class="content_table">
                 <div class="sessions-list-body d-table">
                     <div class="d-table-row sessions-list-thead">
-                        <div class="d-table-cell">{{#str}}session_name, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell">{{#str}}sessionmode, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell">{{#str}}timemode, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}sessiontime, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}timeperquestion, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}questions_number, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}session_date, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}session_finishingdate, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}session_actions, mod_jqshow{{/str}}</div>
+                        <div class="d-table-cell">{{#str}}session_name, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell">{{#str}}sessionmode, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell">{{#str}}timemode, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}sessiontime, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}timeperquestion, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}questions_number, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}session_date, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}session_finishingdate, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}session_actions, mod_kuet{{/str}}</div>
                         <div class="d-table-cell"></div>
                     </div>
                     {{#endedsessions}}
@@ -203,22 +203,22 @@
                                 {{#managesessions}}
                                     <div class="content-actions">
                                         <div class="session-action" data-action="copy_session" data-sessionid="{{sessionid}}">
-                                            {{#pix}} i/copy_session, mod_jqshow {{/pix}}
+                                            {{#pix}} i/copy_session, mod_kuet {{/pix}}
                                         </div>
                                         <div class="session-action" data-action="delete_session" data-sessionid="{{sessionid}}">
-                                            {{#pix}} i/delete_session, mod_jqshow {{/pix}}
+                                            {{#pix}} i/delete_session, mod_kuet {{/pix}}
                                         </div>
                                     </div>
                                     <div class="dropdown show mobile-content-actions">
                                         <a class="dropdown-toggle" href="#" role="button" id="actions-{{id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            {{#pix}}i/three_dots, mod_jqshow {{/pix}}
+                                            {{#pix}}i/three_dots, mod_kuet {{/pix}}
                                         </a>
                                         <div class="dropdown-menu" aria-labelledby="actions-{{id}}">
                                             <a class="dropdown-item" href="#" data-action="copy_session" data-sessionid="{{sessionid}}">
-                                                {{#str}}copy_session, mod_jqshow{{/str}}
+                                                {{#str}}copy_session, mod_kuet{{/str}}
                                             </a>
                                             <a class="dropdown-item" href="#"  data-action="delete_session" data-sessionid="{{sessionid}}">
-                                                {{#str}}delete_session, mod_jqshow{{/str}}
+                                                {{#str}}delete_session, mod_kuet{{/str}}
                                             </a>
                                         </div>
                                     </div>
@@ -226,7 +226,7 @@
                             </div>
                             <div class="d-table-cell viewreport-session">
                                 <a href="{{viewreporturl}}">
-                                    + <span>{{#str}}viewreport_session, mod_jqshow{{/str}}</span>
+                                    + <span>{{#str}}viewreport_session, mod_kuet{{/str}}</span>
                                 </a>
                             </div>
                         </div>
@@ -237,7 +237,7 @@
     </div>
 </div>
 {{#js}}
-    require(['mod_jqshow/sessionspanel'],
+    require(['mod_kuet/sessionspanel'],
         function(SessionsPanel) {
             SessionsPanel.initSessionsPanel('[data-region="sessions-panel"]');
         }

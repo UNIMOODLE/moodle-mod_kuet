@@ -23,8 +23,8 @@
 }}
 <div class="content-header">
     <div class="content-title">
-        <h2>{{#str}}summarysession, mod_jqshow{{/str}}</h2>
-        <small>{{#str}}summarysession_info, mod_jqshow{{/str}}</small>
+        <h2>{{#str}}summarysession, mod_kuet{{/str}}</h2>
+        <small>{{#str}}summarysession_info, mod_kuet{{/str}}</small>
     </div>
     <div class="session-steps">
         <div class="step step1">
@@ -46,20 +46,20 @@
     <div class="col-12 col-lg-5 container">
         <div class="resume-config">
             <h6 class="titlecontainer bg-primary">
-                {{#pix}} i/settings, mod_jqshow {{/pix}}
-                {{#str}}configuration, mod_jqshow{{/str}}
+                {{#pix}} i/settings, mod_kuet {{/pix}}
+                {{#str}}configuration, mod_kuet{{/str}}
             </h6>
-            {{> mod_jqshow/session/sessionresume }}
+            {{> mod_kuet/session/sessionresume }}
         </div>
     </div>
     <div class="col-12 col-lg-7 container">
         <div class="questions-list">
             <h6 class="titlecontainer bg-primary">
-                {{#pix}} i/questions_list, mod_jqshow {{/pix}}
-                {{#str}}questions_list, mod_jqshow{{/str}}
+                {{#pix}} i/questions_list, mod_kuet {{/pix}}
+                {{#str}}questions_list, mod_kuet{{/str}}
             </h6>
             <div class="session-questions" data-region="session-questions">
-                {{> mod_jqshow/createsession/sessionquestions }}
+                {{> mod_kuet/createsession/sessionquestions }}
             </div>
         </div>
     </div>
@@ -76,7 +76,7 @@
             <div class="form-group fitem">
             <span data-fieldtype="submit">
                 <a href="{{sessionsurl}}" class="btn btn-primary disabled" data-action="end_create_session">
-                    {{#str}}end, mod_jqshow{{/str}}
+                    {{#str}}end, mod_kuet{{/str}}
                 </a>
             </span>
             </div>

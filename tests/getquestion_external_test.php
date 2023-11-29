@@ -13,11 +13,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-namespace mod_jqshow;
-use \mod_jqshow\models\questions;
+namespace mod_kuet;
+use \mod_kuet\models\questions;
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @category   test
@@ -29,9 +29,9 @@ class getquestion_external_test extends \advanced_testcase {
     public function test_getquestion() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -41,7 +41,7 @@ class getquestion_external_test extends \advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -56,7 +56,7 @@ class getquestion_external_test extends \advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
@@ -76,7 +76,7 @@ class getquestion_external_test extends \advanced_testcase {
         $dq = $questiongenerator->create_question(questions::DESCRIPTION, null, array('category' => $cat->id));
 
         // Add question.
-        \mod_jqshow\external\addquestions_external::add_questions([
+        \mod_kuet\external\addquestions_external::add_questions([
             ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER],
             ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL],
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE],
@@ -88,39 +88,39 @@ class getquestion_external_test extends \advanced_testcase {
         ]);
 
         // Shortanswer.
-        $jsaq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jsaq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER]);
-        $shortanswer = \mod_jqshow\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jsaq->get('id'));
+        $shortanswer = \mod_kuet\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jsaq->get('id'));
 
         // Numerical.
-        $jnq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jnq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL]);
-        $numerical = \mod_jqshow\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jnq->get('id'));
+        $numerical = \mod_kuet\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jnq->get('id'));
 
         // Truefalse.
-        $jtfq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]);
-        $truefalse = \mod_jqshow\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jtfq->get('id'));
+        $truefalse = \mod_kuet\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jtfq->get('id'));
 
         // Multichoice.
-        $jmcq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]);
-        $multichoice = \mod_jqshow\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jmcq->get('id'));
+        $multichoice = \mod_kuet\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jmcq->get('id'));
 
 //        // Match.
-//        $jmq = \mod_jqshow\persistents\jqshow_questions::get_record(
+//        $jmq = \mod_kuet\persistents\kuet_questions::get_record(
 //            ['questionid' => $mq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MATCH]);
-//        $match = \mod_jqshow\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jmq->get('id'));
+//        $match = \mod_kuet\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jmq->get('id'));
 
         // Drag and drop text.
-        $jddwtosq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jddwtosq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS]);
-        $ddwto = \mod_jqshow\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jddwtosq->get('id'));
+        $ddwto = \mod_kuet\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jddwtosq->get('id'));
 
         // Description.
-        $jdq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jdq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION]);
-        $description = \mod_jqshow\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jdq->get('id'));
+        $description = \mod_kuet\external\getquestion_external::getquestion($jqshow->cmid, $createdsid, $jdq->get('id'));
 
         $this->assertIsArray($shortanswer);
         $this->assertArrayHasKey('cmid', $shortanswer);

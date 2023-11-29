@@ -24,19 +24,19 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 declare(strict_types=1);
-namespace mod_jqshow\completion;
+namespace mod_kuet\completion;
 use coding_exception;
 use core_completion\activity_custom_completion;
 use dml_exception;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 
 class custom_completion extends activity_custom_completion {
@@ -57,17 +57,17 @@ class custom_completion extends activity_custom_completion {
         $jqshowid = $this->cm->instance;
         $userid = $this->userid;
 
-        if (!$DB->get_record('jqshow', ['id' => $jqshowid])) {
-            throw new moodle_exception('jqshownotexist', 'mod_jqshow', '',
-                [], get_string('jqshownotexist', 'mod_jqshow', $jqshowid));
+        if (!$DB->get_record('kuet', ['id' => $jqshowid])) {
+            throw new moodle_exception('kuetnotexist', 'mod_kuet', '',
+                [], get_string('kuetnotexist', 'mod_kuet', $jqshowid));
         }
 
-        $numsessions = jqshow_sessions::count_records(['jqshowid' => $jqshowid]);
+        $numsessions = kuet_sessions::count_records(['jqshowid' => $jqshowid]);
         if ($numsessions === 0) {
             return COMPLETION_INCOMPLETE;
         }
         $hasparticipate = false;
-        if (jqshow_questions_responses::count_records(['jqshow' => $jqshowid, 'userid' => $userid]) > 0) {
+        if (kuet_questions_responses::count_records(['kuet' => $jqshowid, 'userid' => $userid]) > 0) {
             $hasparticipate = true;
         }
         return $hasparticipate ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
@@ -93,7 +93,7 @@ class custom_completion extends activity_custom_completion {
     public function get_custom_rule_descriptions(): array {
         $completionanswerall = $this->cm->customdata['customcompletionrules']['completionanswerall'] ?? 0;
         return [
-            'completionanswerall' => get_string('completiondetail:answerall', 'jqshow', $completionanswerall),
+            'completionanswerall' => get_string('completiondetail:answerall', 'kuet', $completionanswerall),
         ];
     }
 

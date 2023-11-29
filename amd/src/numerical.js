@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/numerical
+ * @module    mod_kuet/numerical
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -59,7 +59,7 @@ let REGION = {
 };
 
 let SERVICES = {
-    REPLY: 'mod_jqshow_numerical'
+    REPLY: 'mod_kuet_numerical'
 };
 
 let TEMPLATES = {

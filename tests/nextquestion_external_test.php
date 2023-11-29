@@ -13,11 +13,11 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use mod_jqshow\models\questions;
+use mod_kuet\models\questions;
 
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @copyright   3iPunt <https://www.tresipunt.com/>
@@ -28,9 +28,9 @@ class nextquestion_external_test extends advanced_testcase {
     public function test_nextquestion() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -40,7 +40,7 @@ class nextquestion_external_test extends advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -55,7 +55,7 @@ class nextquestion_external_test extends advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
@@ -74,7 +74,7 @@ class nextquestion_external_test extends advanced_testcase {
         $dq = $questiongenerator->create_question(questions::DESCRIPTION, null, array('category' => $cat->id));
 
         // Add question.
-        \mod_jqshow\external\addquestions_external::add_questions([
+        \mod_kuet\external\addquestions_external::add_questions([
             ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER],
             ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL],
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE],
@@ -84,11 +84,11 @@ class nextquestion_external_test extends advanced_testcase {
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION],
         ]);
 
-        $jmcq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $mcq->id , 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]);
-        $jtfq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $tfq->id , 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]);
-        $shouldbetruefalse = \mod_jqshow\external\nextquestion_external::nextquestion($jqshow->cmid, $createdsid, $jmcq->get('id'));
+        $shouldbetruefalse = \mod_kuet\external\nextquestion_external::nextquestion($jqshow->cmid, $createdsid, $jmcq->get('id'));
 
         $this->assertIsArray(  $shouldbetruefalse);
         $this->assertArrayHasKey('cmid',   $shouldbetruefalse);

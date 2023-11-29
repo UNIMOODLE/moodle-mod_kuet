@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -41,14 +41,14 @@
  * @throws moodle_exception
  * @throws upgrade_exception
  */
-function xmldb_jqshow_upgrade($oldversion) {
+function xmldb_kuet_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager();
     if ($oldversion < 2023071800) {
 
-        // Define field grademethod to be added to jqshow.
-        $table = new xmldb_table('jqshow');
+        // Define field grademethod to be added to kuet.
+        $table = new xmldb_table('kuet');
         $field = new xmldb_field('grademethod', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0, 'badgepositions');
 
         // Conditionally launch add field grademethod.
@@ -56,8 +56,8 @@ function xmldb_jqshow_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Define field badgepositions to be dropped from jqshow.
-        $table = new xmldb_table('jqshow');
+        // Define field badgepositions to be dropped from kuet.
+        $table = new xmldb_table('kuet');
         $field = new xmldb_field('badgepositions');
 
         // Conditionally launch drop field badgepositions.
@@ -65,8 +65,8 @@ function xmldb_jqshow_upgrade($oldversion) {
             $dbman->drop_field($table, $field);
         }
 
-        // Define field grademethod to be added to jqshow.
-        $table = new xmldb_table('jqshow_sessions');
+        // Define field grademethod to be added to kuet.
+        $table = new xmldb_table('kuet_sessions');
         $field = new xmldb_field('sgrade', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0, 'sessionmode');
 
         // Conditionally launch add field grademethod.
@@ -75,7 +75,7 @@ function xmldb_jqshow_upgrade($oldversion) {
         }
 
         // Jqshow savepoint reached.
-        upgrade_mod_savepoint(true, 2023071800, 'jqshow');
+        upgrade_mod_savepoint(true, 2023071800, 'kuet');
     }
     return true;
 }

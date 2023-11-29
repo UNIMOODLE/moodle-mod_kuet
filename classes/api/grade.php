@@ -24,24 +24,24 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow\api;
+namespace mod_kuet\api;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow;
-use mod_jqshow\persistents\jqshow_grades;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\persistents\jqshow_sessions_grades;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet;
+use mod_kuet\persistents\kuet_grades;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
+use mod_kuet\persistents\kuet_sessions_grades;
 use moodle_exception;
 class grade {
     public const MOD_OPTION_NO_GRADE = 0;
@@ -94,15 +94,15 @@ class grade {
 
     /**
      * Get the answer mark without considering session mode.
-     * @param jqshow_questions_responses $response
+     * @param kuet_questions_responses $response
      * @return float
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public static function get_simple_mark(jqshow_questions_responses $response): float {
+    public static function get_simple_mark(kuet_questions_responses $response): float {
         $mark = 0;
         // Check ignore grading setting.
-        $jquestion = jqshow_questions::get_record(['id' => $response->get('jqid')]);
+        $jquestion = kuet_questions::get_record(['id' => $response->get('jqid')]);
         if ($jquestion !== false && $jquestion->get('ignorecorrectanswer')) {
             return (float)$mark;
         }
@@ -130,12 +130,12 @@ class grade {
      * @throws moodle_exception
      */
     public static function get_session_grade(int $userid, int $sessionid, int $jqshowid) : float {
-        $responses = jqshow_questions_responses::get_session_responses_for_user($userid, $sessionid, $jqshowid);
+        $responses = kuet_questions_responses::get_session_responses_for_user($userid, $sessionid, $jqshowid);
         if (count($responses) === 0) {
             return 0;
         }
 
-        $session = new jqshow_sessions($sessionid);
+        $session = new kuet_sessions($sessionid);
         switch ($session->get('sessionmode')) {
             case sessions::PODIUM_MANUAL:
                 $mark = self::get_session_podium_manual_grade($responses);
@@ -154,7 +154,7 @@ class grade {
     }
 
     /**
-     * @param jqshow_questions_responses[] $responses
+     * @param kuet_questions_responses[] $responses
      * @return float
      * @throws coding_exception
      * @throws moodle_exception
@@ -166,7 +166,7 @@ class grade {
             if ($usermark === 0.0) {
                 continue;
             }
-            $qtime = jqshow_questions::get_question_time($response->get('jqid'), $response->get('session'));
+            $qtime = kuet_questions::get_question_time($response->get('jqid'), $response->get('session'));
             $useranswer = base64_decode($response->get('response'));
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
@@ -183,20 +183,20 @@ class grade {
     }
 
     /**
-     * @param jqshow_questions_responses[] $responses
-     * @param jqshow_sessions $session
+     * @param kuet_questions_responses[] $responses
+     * @param kuet_sessions $session
      * @return float
      * @throws coding_exception
      * @throws moodle_exception
      */
-    private static function get_session_podium_programmed_grade(array $responses, jqshow_sessions $session) : float {
+    private static function get_session_podium_programmed_grade(array $responses, kuet_sessions $session) : float {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
             if ($usermark === 0.0) {
                 continue;
             }
-            $qtime = jqshow_questions::get_question_time($response->get('jqid'), $response->get('session'));
+            $qtime = kuet_questions::get_question_time($response->get('jqid'), $response->get('session'));
             $useranswer = base64_decode($response->get('response'));
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
@@ -210,7 +210,7 @@ class grade {
     }
 
     /**
-     * @param jqshow_questions_responses[] $responses
+     * @param kuet_questions_responses[] $responses
      * @return float
      * @throws coding_exception
      * @throws dml_exception
@@ -237,10 +237,10 @@ class grade {
      * @throws dml_exception
      */
     public static function recalculate_mod_mark_by_userid(int $userid, int $jqshowid) :void {
-        $params = ['userid' => $userid, 'jqshow' => $jqshowid];
-        $allgrades = jqshow_sessions_grades::get_records($params);
+        $params = ['userid' => $userid, 'kuet' => $jqshowid];
+        $allgrades = kuet_sessions_grades::get_records($params);
 
-        $jqshow = jqshow::get_record(['id' => $jqshowid]);
+        $jqshow = kuet::get_record(['id' => $jqshowid]);
         $grademethod = $jqshow->get('grademethod');
 
         if (count($allgrades) === 0) {
@@ -249,10 +249,10 @@ class grade {
         $finalgrade = self::get_final_mod_grade($allgrades, $grademethod);
         $params['grade'] = $finalgrade;
 
-        // Save final grade for jqshow.
-        $jgrade = jqshow_grades::get_record($params);
+        // Save final grade for kuet.
+        $jgrade = kuet_grades::get_record($params);
         if (!$jgrade) {
-            $jg = new jqshow_grades(0, (object)$params);
+            $jg = new kuet_grades(0, (object)$params);
             $jg->save();
         } else {
             $jgrade->set('grade', $finalgrade);
@@ -263,7 +263,7 @@ class grade {
         $params['rawgrade'] = $finalgrade;
         $params['rawgrademax'] = get_config('core', 'gradepointmax');
         $params['rawgrademin'] = 0;
-        mod_jqshow_grade_item_update($jqshow->to_record(), $params);
+        mod_kuet_grade_item_update($jqshow->to_record(), $params);
     }
 
     /**
@@ -276,11 +276,11 @@ class grade {
      * @throws moodle_exception
      */
     public static function recalculate_mod_mark(int $cmid, int $jqshowid) : void {
-        $students = \mod_jqshow\jqshow::get_students($cmid);
+        $students = \mod_kuet\kuet::get_students($cmid);
         if (empty($students)) {
             return;
         }
-        $sessions = jqshow_sessions::get_records(['jqshowid' => $jqshowid]);
+        $sessions = kuet_sessions::get_records(['jqshowid' => $jqshowid]);
         if (empty($sessions)) {
             return;
         }
@@ -326,7 +326,7 @@ class grade {
     }
 
     /**
-     * @param jqshow_sessions_grades[] $allgrades
+     * @param kuet_sessions_grades[] $allgrades
      * @return float
      * @throws coding_exception
      */
@@ -341,7 +341,7 @@ class grade {
     }
 
     /**
-     * @param jqshow_sessions_grades[] $allgrades
+     * @param kuet_sessions_grades[] $allgrades
      * @return float
      * @throws coding_exception
      */
@@ -355,7 +355,7 @@ class grade {
     }
 
     /**
-     * @param jqshow_sessions_grades[] $allgrades
+     * @param kuet_sessions_grades[] $allgrades
      * @return float
      * @throws coding_exception
      */
@@ -364,7 +364,7 @@ class grade {
     }
 
     /**
-     * @param jqshow_sessions_grades[] $allgrades
+     * @param kuet_sessions_grades[] $allgrades
      * @return float
      * @throws coding_exception
      */
@@ -373,11 +373,11 @@ class grade {
     }
 
     /**
-     * @param jqshow_questions_responses $response
+     * @param kuet_questions_responses $response
      * @return string
      * @throws coding_exception
      */
-    public static function get_result_mark_type(jqshow_questions_responses $response) : string {
+    public static function get_result_mark_type(kuet_questions_responses $response) : string {
         switch ($response->get('result')) {
             case questions::FAILURE:
                 $result = 'incorrect';
@@ -403,7 +403,7 @@ class grade {
     }
 
     /**
-     * @param jqshow_questions_responses[] $responses
+     * @param kuet_questions_responses[] $responses
      * @return array
      * @throws coding_exception
      */

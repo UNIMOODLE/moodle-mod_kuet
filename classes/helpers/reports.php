@@ -24,28 +24,28 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\helpers;
+namespace mod_kuet\helpers;
 
 use coding_exception;
 use context_module;
 use dml_exception;
 use dml_transaction_exception;
 use JsonException;
-use mod_jqshow\api\grade;
-use mod_jqshow\api\groupmode;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\api\grade;
+use mod_kuet\api\groupmode;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use moodle_url;
 use pix_icon;
@@ -72,7 +72,7 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_questions_data_for_teacher_report(int $jqshowid, int $cmid, int $sid): array {
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $questions = (new questions($jqshowid, $cmid, $sid))->get_list();
         $questionsdata = [];
 
@@ -89,17 +89,17 @@ class reports {
     }
 
     /**
-     * @param jqshow_questions $question
+     * @param kuet_questions $question
      * @param int $jqshowid
      * @param int $cmid
-     * @param jqshow_sessions $session
+     * @param kuet_sessions $session
      * @return stdClass
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
     public static function get_questions_data_for_teacher_report_groups(
-        jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session) : stdClass {
+        kuet_questions $question, int $jqshowid, int $cmid, kuet_sessions $session) : stdClass {
         global $DB;
         $groupmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
@@ -117,22 +117,22 @@ class reports {
         $data->failures = 0;
         $data->partyally = 0;
         foreach ($groupmembers as $groupmember) {
-            $data->success += jqshow_questions_responses::count_records([
-                'jqshow' => $jqshowid,
+            $data->success += kuet_questions_responses::count_records([
+                'kuet' => $jqshowid,
                 'session' => $session->get('id'),
                 'jqid' => $question->get('id'),
                 'result' => questions::SUCCESS,
                 'userid' => $groupmember
             ]);
-            $data->failures += jqshow_questions_responses::count_records([
-                'jqshow' => $jqshowid,
+            $data->failures += kuet_questions_responses::count_records([
+                'kuet' => $jqshowid,
                 'session' => $session->get('id'),
                 'jqid' => $question->get('id'),
                 'result' => questions::FAILURE,
                 'userid' => $groupmember
             ]);
-            $data->partyally += jqshow_questions_responses::count_records([
-                'jqshow' => $jqshowid,
+            $data->partyally += kuet_questions_responses::count_records([
+                'kuet' => $jqshowid,
                 'session' => $session->get('id'),
                 'jqid' => $question->get('id'),
                 'result' => questions::PARTIALLY,
@@ -147,31 +147,31 @@ class reports {
         if ($type::is_evaluable()) {
             $data->isevaluable = true;
         }
-        $data->questionreporturl = (new moodle_url('/mod/jqshow/reports.php',
+        $data->questionreporturl = (new moodle_url('/mod/kuet/reports.php',
             ['cmid' => $cmid, 'sid' => $session->get('id'), 'jqid' => $question->get('id')]
         ))->out(false);
         return $data;
     }
 
     /**
-     * @param jqshow_questions $question
+     * @param kuet_questions $question
      * @param int $jqshowid
      * @param int $cmid
-     * @param jqshow_sessions $session
+     * @param kuet_sessions $session
      * @return stdClass
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
     public static function get_questions_data_for_teacher_report_individual(
-        jqshow_questions $question, int $jqshowid, int $cmid, jqshow_sessions $session
+        kuet_questions $question, int $jqshowid, int $cmid, kuet_sessions $session
     ) : stdClass {
         global $DB;
-        $jqshow = new jqshow($jqshowid);
+        $jqshow = new kuet($jqshowid);
         $users = enrol_get_course_users($jqshow->get('course'), true);
         $cmcontext = context_module::instance($cmid);
         foreach ($users as $key => $user) {
-            if (has_capability('mod/jqshow:startsession', $cmcontext, $user)) {
+            if (has_capability('mod/kuet:startsession', $cmcontext, $user)) {
                 unset($users[$key]);
             }
         }
@@ -186,20 +186,20 @@ class reports {
             'title' => $question->get('qtype')
         ]);
         $data->icon = $icon->export_for_pix();
-        $data->success = jqshow_questions_responses::count_records([
-            'jqshow' => $jqshowid,
+        $data->success = kuet_questions_responses::count_records([
+            'kuet' => $jqshowid,
             'session' => $session->get('id'),
             'jqid' => $question->get('id'),
             'result' => questions::SUCCESS
         ]);
-        $data->failures = jqshow_questions_responses::count_records([
-            'jqshow' => $jqshowid,
+        $data->failures = kuet_questions_responses::count_records([
+            'kuet' => $jqshowid,
             'session' => $session->get('id'),
             'jqid' => $question->get('id'),
             'result' => questions::FAILURE
         ]);
-        $data->partyally = jqshow_questions_responses::count_records([
-            'jqshow' => $jqshowid,
+        $data->partyally = kuet_questions_responses::count_records([
+            'kuet' => $jqshowid,
             'session' => $session->get('id'),
             'jqid' => $question->get('id'),
             'result' => questions::PARTIALLY
@@ -211,7 +211,7 @@ class reports {
         if ($type::is_evaluable()) {
             $data->isevaluable = true;
         }
-        $data->questionreporturl = (new moodle_url('/mod/jqshow/reports.php',
+        $data->questionreporturl = (new moodle_url('/mod/kuet/reports.php',
             ['cmid' => $cmid, 'sid' => $session->get('id'), 'jqid' => $question->get('id')]
         ))->out(false);
         return $data;
@@ -225,7 +225,7 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_ranking_for_teacher_report(int $cmid, int $sid): array {
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         if ($session->is_group_mode()) {
             $results = self::get_groups_ranking_for_teacher_report($cmid, $sid);
         } else {
@@ -245,17 +245,17 @@ class reports {
     public static function get_individual_ranking_for_teacher_report(int $cmid, int $sid): array {
         global $DB, $USER;
 
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $cmcontext = context_module::instance($cmid);
         $results = sessions::get_session_results($sid, $cmid);
         foreach ($results as $user) {
             $userdata = $DB->get_record('user', ['id' => $user->userid]);
             if ($userdata !== false) {
                 $user = self::add_userdata($userdata, $user, $user->userid, 200);
-                $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
+                $user->viewreporturl = (new moodle_url('/mod/kuet/reports.php',
                     ['cmid' => $cmid, 'sid' => $sid, 'userid' => $user->userid]))->out(false);
                 if ($session->get('anonymousanswer') === 1
-                    && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                    && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
                     unset($user->viewreporturl);
                 }
             }
@@ -275,16 +275,16 @@ class reports {
 
         global $USER;
         $results = sessions::get_group_session_results($sid, $cmid);
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $cmcontext = context_module::instance($cmid);
         foreach ($results as $group) {
             $group->sid = $sid;
             $groupdata = groups_get_group($group->id);
             $group = self::add_groupdata($groupdata, $group, 200);
-            $group->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
+            $group->viewreporturl = (new moodle_url('/mod/kuet/reports.php',
                     ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $group->id]))->out(false);
             if ($session->get('anonymousanswer') === 1
-                && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+                && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
                 unset($group->viewreporturl);
             }
         }
@@ -304,13 +304,13 @@ class reports {
      */
     public static function get_questions_data_for_user_report(int $jqshowid, int $cmid, int $sid, int $userid): array {
         global $DB;
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $questions = (new questions($jqshowid, $cmid, $sid))->get_list();
         $questionsdata = [];
         foreach ($questions as $question) {
             $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
-            $response = jqshow_questions_responses::get_record([
-                'jqshow' => $jqshowid,
+            $response = kuet_questions_responses::get_record([
+                'kuet' => $jqshowid,
                 'session' => $sid,
                 'jqid' => $question->get('id'),
                 'userid' => $userid,
@@ -328,11 +328,11 @@ class reports {
             $questiontimestr = self::get_time_string($session, $question);
             if ($response === false) {
                 $data->response = 'noresponse';
-                $data->responsestr = get_string('noresponse', 'mod_jqshow');
+                $data->responsestr = get_string('noresponse', 'mod_kuet');
                 $data->time = $questiontimestr . ' / ' . $questiontimestr; // Or 0?
             } else {
                 $data->response = grade::get_result_mark_type($response);
-                $data->responsestr = get_string($data->response, 'mod_jqshow');
+                $data->responsestr = get_string($data->response, 'mod_kuet');
                 $data->time = self::get_user_time_in_question($session, $question, $response);
                 /** @var questions $type */
                 $type = questions::get_question_class_by_string_type($question->get('qtype'));
@@ -347,15 +347,15 @@ class reports {
     }
 
     /**
-     * @param jqshow_sessions $session
-     * @param jqshow_questions $question
-     * @param jqshow_questions_responses $response
+     * @param kuet_sessions $session
+     * @param kuet_questions $question
+     * @param kuet_questions_responses $response
      * @return string
      * @throws JsonException
      * @throws coding_exception
      */
     public static function get_user_time_in_question(
-        jqshow_sessions $session, jqshow_questions $question, jqshow_questions_responses $response
+        kuet_sessions $session, kuet_questions $question, kuet_questions_responses $response
     ): string {
         $responsedata = json_decode(base64_decode($response->get('response')), false);
         $usertimelast = $responsedata->timeleft;
@@ -365,7 +365,7 @@ class reports {
                 $timestring = '-';
                 break;
             case sessions::SESSION_TIME:
-                $numquestion = jqshow_questions::count_records(
+                $numquestion = kuet_questions::count_records(
                     ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
                 );
                 $questiontime = round((int)$session->get('sessiontime') / $numquestion);
@@ -382,18 +382,18 @@ class reports {
     }
 
     /**
-     * @param jqshow_sessions $session
-     * @param jqshow_questions $question
+     * @param kuet_sessions $session
+     * @param kuet_questions $question
      * @return string
      * @throws coding_exception
      */
-    public static function get_time_string(jqshow_sessions $session, jqshow_questions $question): string {
+    public static function get_time_string(kuet_sessions $session, kuet_questions $question): string {
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
             default:
                 return ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
             case sessions::SESSION_TIME:
-                $numquestion = jqshow_questions::count_records(
+                $numquestion = kuet_questions::count_records(
                     ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
                 );
                 $timeperquestion = round((int)$session->get('sessiontime') / $numquestion);
@@ -418,7 +418,7 @@ class reports {
         $data->jqshowid = $jqshowid;
         $data->cmid = $cmid;
         $data->sessionreport = true;
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $mode = $session->get('sessionmode');
         $data->sessionname = $session->get('name');
         $data->config = sessions::get_session_config($sid, $cmid);
@@ -471,7 +471,7 @@ class reports {
     private static function  get_downloadhtml(array $urlparams) : string {
         global $OUTPUT;
 
-        $urlbase = new moodle_url('/mod/jqshow/dwn_report.php');
+        $urlbase = new moodle_url('/mod/kuet/dwn_report.php');
         return $OUTPUT->download_dataformat_selector(get_string('downloadas', 'table'),
             $urlbase, 'download', $urlparams);
     }
@@ -487,7 +487,7 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_question_report(int $cmid, int $sid, int $jqid): stdClass {
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         if ($session->is_group_mode()) {
             $data = self::get_group_question_report($cmid, $sid, $jqid);
             $data->groupmode = 1;
@@ -510,8 +510,8 @@ class reports {
      */
     public static function get_individual_question_report(int $cmid, int $sid, int $jqid): stdClass {
         global $DB, $USER;
-        $session = new jqshow_sessions($sid);
-        $question = new jqshow_questions($jqid);
+        $session = new kuet_sessions($sid);
+        $question = new kuet_questions($jqid);
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
         $data = new stdClass();
         $data->questionreport = true;
@@ -527,7 +527,7 @@ class reports {
             $cmid, $questiondata->questiontext, $questiondata->questiontextformat, $questiondata->id, $questiondata, 'questiontext'
         );
         $data->questiontextformat = $questiondata->questiontextformat;
-        $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
+        $data->backurl = (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
         /** @var questions $type */
         $type = questions::get_question_class_by_string_type($data->type);
         $data = $type::get_question_report($session, $questiondata, $data, $jqid);
@@ -536,19 +536,19 @@ class reports {
         $cmcontext = context_module::instance($cmid);
         $users = enrol_get_course_users($course->id, true);
         foreach ($users as $key => $user) {
-            if (has_capability('mod/jqshow:startsession', $cmcontext, $user)) {
+            if (has_capability('mod/kuet:startsession', $cmcontext, $user)) {
                 unset($users[$key]);
             }
         }
         $data->numusers = count($users);
-        $data->numcorrect = jqshow_questions_responses::count_records(
-            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::SUCCESS]
+        $data->numcorrect = kuet_questions_responses::count_records(
+            ['kuet' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::SUCCESS]
         );
-        $data->numincorrect = jqshow_questions_responses::count_records(
-            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::FAILURE]
+        $data->numincorrect = kuet_questions_responses::count_records(
+            ['kuet' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::FAILURE]
         );
-        $data->numpartial = jqshow_questions_responses::count_records(
-            ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::PARTIALLY]
+        $data->numpartial = kuet_questions_responses::count_records(
+            ['kuet' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::PARTIALLY]
         );
         $data->numnoresponse = $data->numusers - ($data->numcorrect + $data->numincorrect + $data->numpartial);
         $data->percent_correct = round(($data->numcorrect / $data->numusers) * 100, 2);
@@ -556,7 +556,7 @@ class reports {
         $data->percent_partially = round(($data->numpartial / $data->numusers) * 100, 2);
         $data->percent_noresponse = round(($data->numnoresponse / $data->numusers) * 100, 2);
         if ($session->get('anonymousanswer') === 1) {
-            if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+            if (has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
                 $data->hasranking = true;
                 $data->questionranking =
                     self::get_ranking_for_question($users, $data->answers, $session, $question, $cmid, $sid, $jqid);
@@ -587,8 +587,8 @@ class reports {
      */
     public static function get_group_question_report(int $cmid, int $sid, int $jqid): stdClass {
         global $DB, $USER;
-        $session = new jqshow_sessions($sid);
-        $question = new jqshow_questions($jqid);
+        $session = new kuet_sessions($sid);
+        $question = new kuet_questions($jqid);
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
         $data = new stdClass();
         $data->questionreport = true;
@@ -603,7 +603,7 @@ class reports {
         $data->questiontext = questions::get_text(
             $cmid, $questiondata->questiontext, $questiondata->questiontextformat, $questiondata->id, $questiondata, 'questiontext'
         );
-        $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
+        $data->backurl = (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
         /** @var questions $type */
         $type = questions::get_question_class_by_string_type($data->type);
         $data = $type::get_question_report($session, $questiondata, $data, $jqid);
@@ -617,16 +617,16 @@ class reports {
         $numincorrect = 0;
         $numpartial = 0;
         foreach ($gselectedmembers as $gselectedmember) {
-            $numcorrect += jqshow_questions_responses::count_records(
-                ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::SUCCESS,
+            $numcorrect += kuet_questions_responses::count_records(
+                ['kuet' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::SUCCESS,
                     'userid' => $gselectedmember]
             );
-            $numincorrect += jqshow_questions_responses::count_records(
-                ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::FAILURE,
+            $numincorrect += kuet_questions_responses::count_records(
+                ['kuet' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::FAILURE,
                     'userid' => $gselectedmember]
             );
-            $numpartial += jqshow_questions_responses::count_records(
-                ['jqshow' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::PARTIALLY,
+            $numpartial += kuet_questions_responses::count_records(
+                ['kuet' => $data->jqshowid, 'session' => $sid, 'jqid' => $jqid, 'result' => questions::PARTIALLY,
                     'userid' => $gselectedmember]
             );
         }
@@ -644,7 +644,7 @@ class reports {
             return $data;
         }
         if ($session->get('anonymousanswer') === 1) {
-            if (has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
+            if (has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
                 $data->hasranking = true;
                 $data->groupmode = true;
                 $data->questiongroupranking =
@@ -675,17 +675,17 @@ class reports {
         global $USER, $DB;
         $data = new stdClass();
         $data->cmid = $cmid;
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $data->jqshowid = $session->get('jqshowid');
-        if ($session->get('anonymousanswer') === 1 && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
-            throw new moodle_exception('anonymousanswers', 'mod_jqshow', '',
-                [], get_string('anonymousanswers', 'mod_jqshow'));
+        if ($session->get('anonymousanswer') === 1 && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
+            throw new moodle_exception('anonymousanswers', 'mod_kuet', '',
+                [], get_string('anonymousanswers', 'mod_kuet'));
         }
         $data->userreport = true;
         $data->sessionname = $session->get('name');
         $userdata = $DB->get_record('user', ['id' => $userid]);
         $data = self::add_userdata($userdata, $data, $userid);
-        $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
+        $data->backurl = (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
         $data->config = sessions::get_session_config($sid, $cmid);
         $data->sessionquestions =
             self::get_questions_data_for_user_report($data->jqshowid, $cmid, $sid, $userid);
@@ -739,11 +739,11 @@ class reports {
         $data = new stdClass();
         $data->cmid = $cmid;
         $data->sid = $sid;
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $data->jqshowid = $session->get('jqshowid');
-        if ($session->get('anonymousanswer') === 1 && !has_capability('mod/jqshow:viewanonymousanswers', $cmcontext, $USER)) {
-            throw new moodle_exception('anonymousanswers', 'mod_jqshow', '',
-                [], get_string('anonymousanswers', 'mod_jqshow'));
+        if ($session->get('anonymousanswer') === 1 && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
+            throw new moodle_exception('anonymousanswers', 'mod_kuet', '',
+                [], get_string('anonymousanswers', 'mod_kuet'));
         }
         $data->groupreport = true;
         $data->sessionname = $session->get('name');
@@ -753,7 +753,7 @@ class reports {
         }
         $groupdata = groups_get_group($groupid);
         $data = self::add_groupdata($groupdata, $data);
-        $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
+        $data->backurl = (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
         $data->config = sessions::get_session_config($sid, $cmid);
         $data->sessionquestions =
             self::get_questions_data_for_user_report($data->jqshowid, $cmid, $sid, $gmember->id);
@@ -802,14 +802,14 @@ class reports {
         global $USER, $DB;
         $data = new stdClass();
         $data->cmid = $cmid;
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         $data->jqshowid = $session->get('jqshowid');
         $data->userreport = true;
         $data->groupmode = $session->is_group_mode();
         $data->sessionname = $session->get('name');
         $userdata = $DB->get_record('user', ['id' => $USER->id]);
         $data = self::add_userdata($userdata, $data, $USER->id);
-        $data->backurl = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid]))->out(false);
+        $data->backurl = (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid]))->out(false);
         $data->sessionquestions =
             self::get_questions_data_for_user_report($data->jqshowid, $cmid, $sid, $USER->id);
         $data->numquestions = count($data->sessionquestions);
@@ -883,8 +883,8 @@ class reports {
     /**
      * @param array $users
      * @param array $answers
-     * @param jqshow_sessions $session
-     * @param jqshow_questions $question
+     * @param kuet_sessions $session
+     * @param kuet_questions $question
      * @param int $cmid
      * @param int $sid
      * @param int $jqid
@@ -895,7 +895,7 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_ranking_for_question(
-        array $users, array $answers, jqshow_sessions $session, jqshow_questions $question, int $cmid, int $sid, int $jqid
+        array $users, array $answers, kuet_sessions $session, kuet_questions $question, int $cmid, int $sid, int $jqid
     ): array {
         global $DB;
         $context = context_module::instance($cmid);
@@ -903,11 +903,11 @@ class reports {
         foreach ($users as $user) {
             $userdata = $DB->get_record('user', ['id' => $user->id]);
             $user->participantid = $user->id;
-            if ($userdata !== false && !has_capability('mod/jqshow:startsession', $context, $userdata)) {
+            if ($userdata !== false && !has_capability('mod/kuet:startsession', $context, $userdata)) {
                 $user = self::add_userdata($userdata, $user, $user->id);
-                $user->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
+                $user->viewreporturl = (new moodle_url('/mod/kuet/reports.php',
                     ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userdata->id]))->out(false);
-                $response = jqshow_questions_responses::get_record(['userid' => $userdata->id, 'session' => $sid, 'jqid' => $jqid]);
+                $response = kuet_questions_responses::get_record(['userid' => $userdata->id, 'session' => $sid, 'jqid' => $jqid]);
                 if ($response !== false) {
                     $other = json_decode(base64_decode($response->get('response')), false);
                     /** @var questions $type */
@@ -916,7 +916,7 @@ class reports {
                 } else {
                     $questiontimestr = self::get_time_string($session, $question);
                     $user->response = 'noresponse';
-                    $user->responsestr = get_string('noresponse', 'mod_jqshow');
+                    $user->responsestr = get_string('noresponse', 'mod_kuet');
                     $user->userpoints = 0;
                     $user->answertext = '-';
                     $user->score_moment = 0;
@@ -937,8 +937,8 @@ class reports {
     /**
      * @param array $groups
      * @param array $answers
-     * @param jqshow_sessions $session
-     * @param jqshow_questions $question
+     * @param kuet_sessions $session
+     * @param kuet_questions $question
      * @param int $cmid
      * @param int $sid
      * @param int $jqid
@@ -947,19 +947,19 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_group_ranking_for_question(
-        array $groups, array $answers, jqshow_sessions $session, jqshow_questions $question, int $cmid, int $sid, int $jqid
+        array $groups, array $answers, kuet_sessions $session, kuet_questions $question, int $cmid, int $sid, int $jqid
     ): array {
 
         $results = [];
         foreach ($groups as $group) {
             $group->sid = $sid;
             $group = self::add_groupdata($group, $group);
-            $group->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
+            $group->viewreporturl = (new moodle_url('/mod/kuet/reports.php',
                 ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $group->id]))->out(false);
             $gmembers = groupmode::get_group_members($group->id);
             $gmember = reset($gmembers);
             $group->participantid = $gmember->id;
-            $response = jqshow_questions_responses::get_record(['userid' => $gmember->id, 'session' => $sid, 'jqid' => $jqid]);
+            $response = kuet_questions_responses::get_record(['userid' => $gmember->id, 'session' => $sid, 'jqid' => $jqid]);
             if ($response !== false) {
                 $other = json_decode(base64_decode($response->get('response')), false);
                 /** @var questions $type */
@@ -968,7 +968,7 @@ class reports {
             } else {
                 $questiontimestr = self::get_time_string($session, $question);
                 $group->response = 'noresponse';
-                $group->responsestr = get_string('noresponse', 'mod_jqshow');
+                $group->responsestr = get_string('noresponse', 'mod_kuet');
                 $group->grouppoints = 0;
                 $group->answertext = '-';
                 $group->score_moment = 0;

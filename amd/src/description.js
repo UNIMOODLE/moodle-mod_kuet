@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/description
+ * @module    mod_kuet/description
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -55,7 +55,7 @@ let REGION = {
 };
 
 let SERVICES = {
-    REPLY: 'mod_jqshow_description'
+    REPLY: 'mod_kuet_description'
 };
 
 let TEMPLATES = {

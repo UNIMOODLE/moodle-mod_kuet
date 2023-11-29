@@ -14,11 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @copyright   3iPunt <https://www.tresipunt.com/>
@@ -30,9 +30,9 @@ class startsession_external_test extends advanced_testcase {
 
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -42,7 +42,7 @@ class startsession_external_test extends advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -57,7 +57,7 @@ class startsession_external_test extends advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
@@ -84,13 +84,13 @@ class startsession_external_test extends advanced_testcase {
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION],
         ];
         $generator->add_questions_to_session($questions);
-        $data = \mod_jqshow\external\startsession_external::startsession($jqshow->cmid, $createdsid);
+        $data = \mod_kuet\external\startsession_external::startsession($jqshow->cmid, $createdsid);
 
         $this->assertIsArray($data);
         $this->assertArrayHasKey('started', $data);
         $this->assertTrue($data['started']);
 
-        $session = new \mod_jqshow\persistents\jqshow_sessions($createdsid);
+        $session = new \mod_kuet\persistents\kuet_sessions($createdsid);
         $this->assertEquals(sessions::SESSION_STARTED, $session->get('status'));
     }
 }

@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/selectquestions
+ * @module    mod_kuet/selectquestions
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -59,15 +59,15 @@ let REGION = {
 };
 
 let SERVICES = {
-    ADDQUESTIONS: 'mod_jqshow_addquestions',
-    SESSIONQUESTIONS: 'mod_jqshow_sessionquestions'
+    ADDQUESTIONS: 'mod_kuet_addquestions',
+    SESSIONQUESTIONS: 'mod_kuet_sessionquestions'
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    QUESTIONSSELECTED: 'mod_jqshow/createsession/sessionquestions'
+    QUESTIONSSELECTED: 'mod_kuet/createsession/sessionquestions'
 };
 
 let cmId;
@@ -135,8 +135,8 @@ SelectQuestions.prototype.addQuestions = function(e) {
     let questionschekced = jQuery(REGION.SELECTQUESTION + ':checked');
     if (questionschekced.length < 1) {
         const stringkeys = [
-            {key: 'selectone', component: 'mod_jqshow'},
-            {key: 'selectone_desc', component: 'mod_jqshow'}
+            {key: 'selectone', component: 'mod_kuet'},
+            {key: 'selectone_desc', component: 'mod_kuet'}
         ];
         getStrings(stringkeys).then((langStrings) => {
             const title = langStrings[0];
@@ -167,9 +167,9 @@ SelectQuestions.prototype.addQuestions = function(e) {
             questions.push(questiondata);
         });
         const stringkeys = [
-            {key: 'addquestions', component: 'mod_jqshow'},
-            {key: 'addquestions_desc', component: 'mod_jqshow', param: questionschekced.length},
-            {key: 'confirm', component: 'mod_jqshow'}
+            {key: 'addquestions', component: 'mod_kuet'},
+            {key: 'addquestions_desc', component: 'mod_kuet', param: questionschekced.length},
+            {key: 'confirm', component: 'mod_kuet'}
         ];
         getStrings(stringkeys).then((langStrings) => {
             const title = langStrings[0];
@@ -217,8 +217,8 @@ SelectQuestions.prototype.addQuestions = function(e) {
                     })
                     .fail( async (e) => {
                         const modal = await ModalFactory.create({
-                            title: 'JQSHOW',
-                            body: Templates.render('mod_jqshow/error_modal', {message: e.message, link: e.link})
+                            title: 'KUET',
+                            body: Templates.render('mod_kuet/error_modal', {message: e.message, link: e.link})
                         });
                         modal.getRoot().css('z-index', '3000');
                         modal.show();

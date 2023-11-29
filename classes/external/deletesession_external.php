@@ -24,13 +24,13 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_module;
@@ -40,11 +40,11 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\persistents\jqshow_sessions_grades;
-use mod_jqshow\persistents\jqshow_user_progress;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
+use mod_kuet\persistents\kuet_sessions_grades;
+use mod_kuet\persistents\kuet_user_progress;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -82,12 +82,12 @@ class deletesession_external extends external_api {
         );
         $cmcontext = context_module::instance($cmid);
         $deleted = false;
-        if ($cmcontext !== null && has_capability('mod/jqshow:managesessions', $cmcontext, $USER)) {
-            $ds = jqshow_sessions::delete_session($sessionid);
-            $dq = jqshow_questions::delete_session_questions($sessionid);
-            $dresponses = jqshow_questions_responses::delete_questions_responses($sessionid);
-            $dsgrades = jqshow_sessions_grades::delete_session_grades($sessionid);
-            $duprogress = jqshow_user_progress::delete_session_user_progress($sessionid);
+        if ($cmcontext !== null && has_capability('mod/kuet:managesessions', $cmcontext, $USER)) {
+            $ds = kuet_sessions::delete_session($sessionid);
+            $dq = kuet_questions::delete_session_questions($sessionid);
+            $dresponses = kuet_questions_responses::delete_questions_responses($sessionid);
+            $dsgrades = kuet_sessions_grades::delete_session_grades($sessionid);
+            $duprogress = kuet_user_progress::delete_session_user_progress($sessionid);
             $deleted = $dq && $ds && $dresponses && $dsgrades && $duprogress;
         }
         return [

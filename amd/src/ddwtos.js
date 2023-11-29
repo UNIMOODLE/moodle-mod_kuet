@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/ddwtos
+ * @module    mod_kuet/ddwtos
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -68,7 +68,7 @@ let REGION = {
 };
 
 let SERVICES = {
-    REPLY: 'mod_jqshow_ddwtos'
+    REPLY: 'mod_kuet_ddwtos'
 };
 
 let TEMPLATES = {

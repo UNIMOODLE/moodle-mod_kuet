@@ -24,16 +24,16 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\output\views;
+namespace mod_kuet\output\views;
 use dml_exception;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use moodle_url;
 use renderable;
@@ -61,13 +61,13 @@ class student_view implements renderable, templatable {
         $data = new stdClass();
         $data->cmid = $this->cmid;
         $data->jqshowid = $this->jqshowid;
-        $data->notsessionimage = $OUTPUT->image_url('f/not_session', 'mod_jqshow')->out(false);
-        $nextsession = jqshow_sessions::get_next_session($this->jqshowid);
+        $data->notsessionimage = $OUTPUT->image_url('f/not_session', 'mod_kuet')->out(false);
+        $nextsession = kuet_sessions::get_next_session($this->jqshowid);
         if ($nextsession !== 0) {
             $data->hasnextsession = true;
             $data->nextsessiontime = userdate($nextsession, get_string('strftimedatetimeshort', 'core_langconfig'));
         }
-        $data->urlreports = (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $this->cmid]))->out(false);
+        $data->urlreports = (new moodle_url('/mod/kuet/reports.php', ['cmid' => $this->cmid]))->out(false);
         return $data;
     }
 }

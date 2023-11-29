@@ -24,25 +24,25 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\persistents;
+namespace mod_kuet\persistents;
 
 use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
-use mod_jqshow\models\sessions;
+use mod_kuet\models\sessions;
 use moodle_exception;
 use stdClass;
 
-class jqshow_questions_responses extends persistent {
-    public const TABLE = 'jqshow_questions_responses';
+class kuet_questions_responses extends persistent {
+    public const TABLE = 'kuet_questions_responses';
     /**
      * Return the definition of the properties of this model.
      *
@@ -50,7 +50,7 @@ class jqshow_questions_responses extends persistent {
      */
     protected static function define_properties() : array {
         return [
-            'jqshow' => [
+            'kuet' => [
                 'type' => PARAM_INT,
             ],
             'session' => [
@@ -81,20 +81,20 @@ class jqshow_questions_responses extends persistent {
      * @param int $userid
      * @param int $jqshowid
      * @param int $sessionid
-     * @return jqshow_questions_responses[]
+     * @return kuet_questions_responses[]
      */
     public static function get_session_responses_for_user(int $userid, int $sessionid, int $jqshowid): array {
-        return self::get_records(['userid' => $userid, 'session' => $sessionid, 'jqshow' => $jqshowid]);
+        return self::get_records(['userid' => $userid, 'session' => $sessionid, 'kuet' => $jqshowid]);
     }
 
     /**
      * @param int $sessionid
      * @param int $jqshowid
      * @param int $jqid
-     * @return jqshow_questions_responses[]
+     * @return kuet_questions_responses[]
      */
     public static function get_question_responses(int $sessionid, int $jqshowid, int $jqid): array {
-        return self::get_records(['jqid' => $jqid, 'session' => $sessionid, 'jqshow' => $jqshowid]);
+        return self::get_records(['jqid' => $jqid, 'session' => $sessionid, 'kuet' => $jqshowid]);
     }
 
     /**
@@ -110,7 +110,7 @@ class jqshow_questions_responses extends persistent {
      * @param int $userid
      * @param int $session
      * @param int $jqid
-     * @return false|jqshow_questions_responses
+     * @return false|kuet_questions_responses
      */
     public static function get_question_response_for_user(int $userid, int $session, int $jqid) {
         return self::get_record(['session' => $session, 'userid' => $userid, 'jqid' => $jqid]);
@@ -132,13 +132,13 @@ class jqshow_questions_responses extends persistent {
     public static function add_response(
         int $jqshow, int $session, int $jqid, int $questionid, int $userid, int $result, string $response
     ): bool {
-        $sessiondata = jqshow_sessions::get_record(['id' => $session], MUST_EXIST);
-        $record = self::get_record(['jqshow' => $jqshow, 'session' => $session, 'jqid' => $jqid, 'userid' => $userid]);
+        $sessiondata = kuet_sessions::get_record(['id' => $session], MUST_EXIST);
+        $record = self::get_record(['kuet' => $jqshow, 'session' => $session, 'jqid' => $jqid, 'userid' => $userid]);
         // Only the first response for user is saved to prevent further responses by relaunching the services.
         if ($record === false && $sessiondata->get('status') === sessions::SESSION_STARTED) {
             try {
                 $data = new stdClass();
-                $data->jqshow = $jqshow;
+                $data->kuet = $jqshow;
                 $data->session = $session;
                 $data->jqid = $jqid;
                 $data->questionid = $questionid;
@@ -164,7 +164,7 @@ class jqshow_questions_responses extends persistent {
      */
     public static function delete_question_responses(int $jqshow, int $sid, int $jqid): bool {
         global $DB;
-        return  $DB->delete_records(self::TABLE, ['jqshow' => $jqshow, 'session' => $sid, 'jqid' => $jqid]);
+        return  $DB->delete_records(self::TABLE, ['kuet' => $jqshow, 'session' => $sid, 'jqid' => $jqid]);
     }
 
     /**

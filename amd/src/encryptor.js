@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/encryptor
+ * @module    mod_kuet/encryptor
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>

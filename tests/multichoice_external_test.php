@@ -14,12 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use mod_jqshow\models\sessions;
-use mod_jqshow\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\models\questions;
 
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @copyright   3iPunt <https://www.tresipunt.com/>
@@ -29,9 +29,9 @@ class multichoice_external_test extends advanced_testcase {
     public function test_multichoice() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -43,7 +43,7 @@ class multichoice_external_test extends advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -58,7 +58,7 @@ class multichoice_external_test extends advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
@@ -75,10 +75,10 @@ class multichoice_external_test extends advanced_testcase {
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]
         ];
         $generator->add_questions_to_session($questions);
-        \mod_jqshow\external\startsession_external::startsession($jqshow->cmid, $createdsid);
+        \mod_kuet\external\startsession_external::startsession($jqshow->cmid, $createdsid);
 
         $qbmc = question_bank::load_question($mcq->id);
-        $jmcq = \mod_jqshow\persistents\jqshow_questions::get_record(
+        $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]
         );
 
@@ -111,7 +111,7 @@ class multichoice_external_test extends advanced_testcase {
         // User 1 answers a correct answer.
         self::setUser($student1);
         $user1answerids = implode(',', $correctanswers);
-        $data1 = \mod_jqshow\external\multichoice_external::multichoice($user1answerids, $createdsid, $jqshow->id,
+        $data1 = \mod_kuet\external\multichoice_external::multichoice($user1answerids, $createdsid, $jqshow->id,
             $jqshow->cmid, $mcq->id, $jmcq->get('id'), 10, false);
         $this->assertIsArray($data1);
         $this->assertArrayHasKey('reply_status', $data1);
@@ -132,7 +132,7 @@ class multichoice_external_test extends advanced_testcase {
         // User 2 answers an incorrect answer.
         self::setUser($student2);
         $user2answerids = implode(',', $incorrectanswers);
-        $data2 = \mod_jqshow\external\multichoice_external::multichoice($user2answerids, $createdsid, $jqshow->id,
+        $data2 = \mod_kuet\external\multichoice_external::multichoice($user2answerids, $createdsid, $jqshow->id,
             $jqshow->cmid, $mcq->id, $jmcq->get('id'), 10, false);
         $this->assertIsArray($data2);
         $this->assertArrayHasKey('reply_status', $data2);

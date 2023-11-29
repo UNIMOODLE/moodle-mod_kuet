@@ -16,7 +16,7 @@
 
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @copyright   3iPunt <https://www.tresipunt.com/>
@@ -26,8 +26,8 @@ class activesession_external_test extends advanced_testcase {
     public function test_activesession(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
 
@@ -35,7 +35,7 @@ class activesession_external_test extends advanced_testcase {
             'name' => 'Session Test',
             'jqshowid' => $jqshow->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -56,7 +56,7 @@ class activesession_external_test extends advanced_testcase {
             'showgraderanking' => 0,
         ];
         $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
-        $data = \mod_jqshow\external\activesession_external::activesession($jqshow->cmid, $createdsid);
+        $data = \mod_kuet\external\activesession_external::activesession($jqshow->cmid, $createdsid);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('active', $data);
         $this->assertTrue($data['active']);
