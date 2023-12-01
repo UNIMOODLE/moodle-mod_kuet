@@ -278,6 +278,7 @@ Sockets.prototype.initSockets = function() {
 
     db = Database.initDb(sid, userid);
     let normalizeSocketUrl = Sockets.prototype.normalizeSocketUrl(socketUrl, portUrl);
+    let alreadyteacher = false;
     Sockets.prototype.webSocket = new WebSocket(normalizeSocketUrl);
 
     Sockets.prototype.webSocket.onopen = function() { // Waitingroom.
@@ -307,9 +308,11 @@ Sockets.prototype.initSockets = function() {
             currentQuestionJqid = firstquestion.jqid;
             that.setCurrentQuestion(firstquestion.jqid);
             that.getNextQuestion(firstquestion.jqid);
-            that.root.find(ACTION.INITSESSION).removeClass('disabled');
-            that.root.find(ACTION.INITSESSION).on('click', that.initSession);
-            that.root.find(ACTION.ENDSESSION).on('click', that.endSession);
+            if (alreadyteacher === false) {
+                that.root.find(ACTION.INITSESSION).removeClass('disabled');
+                that.root.find(ACTION.INITSESSION).on('click', that.initSession);
+                that.root.find(ACTION.ENDSESSION).on('click', that.endSession);
+            }
         }).fail(Notification.exception);
     };
 
@@ -403,6 +406,8 @@ Sockets.prototype.initSockets = function() {
                 messageBox.append(
                     '<div class="alert alert-danger" role="alert">' + response.message + '</div>'
                 );
+                alreadyteacher = true;
+                jQuery(ACTION.INITSESSION).addClass('disabled');
                 break;
             case 'pauseQuestion':
                 dispatchEvent(new Event('pauseQuestion_' + response.jqid));

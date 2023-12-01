@@ -15,6 +15,7 @@ body#page-mod-kuet-reports.kuet-reports {
             a {
                 display: flex;
                 flex-flow: row nowrap;
+                align-items: center;
                 &:hover {
                     text-decoration: none !important;
                     cursor: pointer;
@@ -334,6 +335,7 @@ body#page-mod-kuet-reports.kuet-reports {
                     a {
                         display: flex;
                         flex-flow: row nowrap;
+                        align-items: center;
                         &:hover {
                             text-decoration: none !important;
                             cursor: pointer;

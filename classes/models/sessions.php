@@ -666,22 +666,28 @@ class sessions {
                     switch ($userresponse->get('result')) {
                         case questions::FAILURE:
                             $studentresponse->responseclass = 'fail';
+                            $studentresponse->responsetext = get_string('incorrect', 'mod_jqshow');
                             break;
                         case questions::SUCCESS:
                             $studentresponse->responseclass = 'success';
+                            $studentresponse->responsetext = get_string('correct', 'mod_jqshow');
                             break;
                         case questions::PARTIALLY:
                             $studentresponse->responseclass = 'partially';
+                            $studentresponse->responsetext = get_string('partially_correct', 'mod_jqshow');
                             break;
                         case questions::NORESPONSE:
                         default:
-                        $studentresponse->responseclass = 'noresponse';
+                            $studentresponse->responseclass = 'noresponse';
+                            $studentresponse->responsetext = get_string('noresponse', 'mod_jqshow');
                             break;
                         case questions::NOTEVALUABLE:
                             $studentresponse->responseclass = 'noevaluable';
+                            $studentresponse->responsetext = get_string('noevaluable', 'mod_jqshow');
                             break;
                         case questions::INVALID:
                             $studentresponse->responseclass = 'invalid';
+                            $studentresponse->responsetext = get_string('invalid', 'mod_jqshow');
                             break;
                     }
                 } else {

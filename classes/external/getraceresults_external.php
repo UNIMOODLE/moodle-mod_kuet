@@ -132,7 +132,8 @@ class getraceresults_external extends external_api {
                             new external_single_structure(
                             [
                                 'userid' => new external_value(PARAM_INT, 'User of response'),
-                                'responseclass' => new external_value(PARAM_RAW, 'Css Class for response')
+                                'responseclass' => new external_value(PARAM_RAW, 'Css Class for response'),
+                                'responsetext' => new external_value(PARAM_RAW, 'Text for response tooltip', VALUE_OPTIONAL),
                             ], ''
                         ), ''),
                     ], ''
