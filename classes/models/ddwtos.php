@@ -62,20 +62,20 @@ defined('MOODLE_INTERNAL') || die();
 class ddwtos extends questions implements questionType {
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) :void {
-        parent::__construct($jqshowid, $cmid, $sid);
+    public function construct(int $kuetid, int $cmid, int $sid) :void {
+        parent::__construct($kuetid, $cmid, $sid);
     }
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param bool $preview
      * @return object
      * @throws JsonException
@@ -84,17 +84,17 @@ class ddwtos extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false): object {
         $session = kuet_sessions::get_record(['id' => $sessionid]);
-        $jqshowquestion = kuet_questions::get_record(['id' => $jqid]);
-        $question = question_bank::load_question($jqshowquestion->get('questionid'));
+        $kuetquestion = kuet_questions::get_record(['id' => $kid]);
+        $question = question_bank::load_question($kuetquestion->get('questionid'));
         if (!assert($question instanceof qtype_ddwtos_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
                 [], get_string('question_nosuitable', 'mod_kuet'));
         }
         $question->shufflechoices = 0;
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $kuetid, $preview, $kuetquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
         $data->questiontextformat = $question->questiontextformat;
@@ -125,10 +125,10 @@ class ddwtos extends questions implements questionType {
         $data->answered = true;
         $dataanswer = ddwtos_external::ddwtos(
             $data->sessionid,
-            $data->jqshowid,
+            $data->kuetid,
             $data->cmid,
             $data->questionid,
-            $data->jqid,
+            $data->kid,
             $responsedata->timeleft,
             true,
             $responsedata->response
@@ -399,7 +399,7 @@ class ddwtos extends questions implements questionType {
      * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
-     * @param int $jqid
+     * @param int $kid
      * @return void
      * @throws JsonException
      * @throws coding_exception
@@ -409,7 +409,7 @@ class ddwtos extends questions implements questionType {
     public static function get_question_report(kuet_sessions     $session,
                                                question_definition $questiondata,
                                                stdClass            $data,
-                                               int                 $jqid): stdClass {
+                                               int                 $kid): stdClass {
         if (!assert($questiondata instanceof qtype_ddwtos_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
                 [], get_string('question_nosuitable', 'mod_kuet'));
@@ -441,7 +441,7 @@ class ddwtos extends questions implements questionType {
         $participant->responsestr = get_string($participant->response, 'mod_kuet');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-            $session->get('jqshowid'));
+            $session->get('kuetid'));
         $participant->userpoints = grade::get_rounded_mark($spoints);
         if ($session->is_group_mode()) {
             $participant->grouppoints = grade::get_rounded_mark($spoints);
@@ -453,10 +453,10 @@ class ddwtos extends questions implements questionType {
 
     /**
      * @param int $cmid
-     * @param int $jqid
+     * @param int $kid
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $statmentfeedback
      * @param int $userid
      * @param int $timeleft
@@ -469,10 +469,10 @@ class ddwtos extends questions implements questionType {
      */
     public static function question_response(
         int $cmid,
-        int $jqid,
+        int $kid,
         int $questionid,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         string $statmentfeedback,
         int $userid,
         int $timeleft,
@@ -492,10 +492,10 @@ class ddwtos extends questions implements questionType {
             $response->type = questions::DDWTOS;
             $response->response = $responsetext;
             if ($session->is_group_mode()) {
-                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
+                parent::add_group_response($kuetid, $session, $kid, $questionid, $userid, $result, $response);
             } else {
                 kuet_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $kuetid, $sessionid, $kid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
@@ -513,8 +513,8 @@ class ddwtos extends questions implements questionType {
      */
     public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response) : float {
         $mark = 0;
-        $jqshow = new kuet($response->get('kuet'));
-        [$course, $cm] = get_course_and_cm_from_instance($response->get('kuet'), 'kuet', $jqshow->get('course'));
+        $kuet = new kuet($response->get('kuet'));
+        [$course, $cm] = get_course_and_cm_from_instance($response->get('kuet'), 'kuet', $kuet->get('course'));
         $question = question_bank::load_question($response->get('questionid'));
         if (assert($question instanceof qtype_ddwtos_question)) {
             $question->shufflechoices = 0;

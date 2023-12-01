@@ -59,36 +59,36 @@ defined('MOODLE_INTERNAL') || die();
 class matchquestion extends questions implements questionType {
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) : void {
-        parent::__construct($jqshowid, $cmid, $sid);
+    public function construct(int $kuetid, int $cmid, int $sid) : void {
+        parent::__construct($kuetid, $cmid, $sid);
     }
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param bool $preview
      * @return object
      * @throws JsonException
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false): object {
         $session = kuet_sessions::get_record(['id' => $sessionid]);
-        $jqshowquestion = kuet_questions::get_record(['id' => $jqid]);
-        $question = question_bank::load_question($jqshowquestion->get('questionid'));
+        $kuetquestion = kuet_questions::get_record(['id' => $kid]);
+        $question = question_bank::load_question($kuetquestion->get('questionid'));
         if (!assert($question instanceof qtype_match_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
                 [], get_string('question_nosuitable', 'mod_kuet'));
         }
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $kuetid, $preview, $kuetquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
         $data->questiontext =
@@ -97,7 +97,7 @@ class matchquestion extends questions implements questionType {
         $leftoptions = [];
         foreach ($question->stems as $key => $leftside) {
             $leftoptions[$key] = [
-                'questionid' => $jqshowquestion->get('questionid'),
+                'questionid' => $kuetquestion->get('questionid'),
                 'key' => $key,
                 'optionkey' => base_convert($key, 16, 2),
                 'optiontext' =>
@@ -107,7 +107,7 @@ class matchquestion extends questions implements questionType {
         $rightoptions = [];
         foreach ($question->choices as $key => $rightside) {
             $rightoptions[$key] = [
-                'questionid' => $jqshowquestion->get('questionid'),
+                'questionid' => $kuetquestion->get('questionid'),
                 'key' => $key,
                 'optionkey' => base_convert($key, 10, 26),
                 'optiontext' =>
@@ -143,10 +143,10 @@ class matchquestion extends questions implements questionType {
             $jsonresponse,
             $result,
             $data->sessionid,
-            $data->jqshowid,
+            $data->kuetid,
             $data->cmid,
             $data->questionid,
-            $data->jqid,
+            $data->kid,
             $responsedata->timeleft,
             true
         );
@@ -169,7 +169,7 @@ class matchquestion extends questions implements questionType {
      * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
-     * @param int $jqid
+     * @param int $kid
      * @return stdClass
      * @throws coding_exception
      * @throws moodle_exception
@@ -177,7 +177,7 @@ class matchquestion extends questions implements questionType {
     public static function get_question_report(kuet_sessions $session,
                                                question_definition $questiondata,
                                                stdClass $data,
-                                               int $jqid): stdClass {
+                                               int $kid): stdClass {
         $answers = [];
         $correctanswers = [];
         if (!assert($questiondata instanceof qtype_match_question)) {
@@ -216,7 +216,7 @@ class matchquestion extends questions implements questionType {
         $participant->responsestr = get_string($participant->response, 'mod_kuet');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-            $session->get('jqshowid'));
+            $session->get('kuetid'));
         $participant->userpoints = grade::get_rounded_mark($spoints);
         if ($session->is_group_mode()) {
             $participant->grouppoints = grade::get_rounded_mark($spoints);
@@ -228,10 +228,10 @@ class matchquestion extends questions implements questionType {
 
     /**
      * @param int $cmid
-     * @param int $jqid
+     * @param int $kid
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $statmentfeedback
      * @param int $userid
      * @param int $timeleft
@@ -244,10 +244,10 @@ class matchquestion extends questions implements questionType {
      */
     public static function question_response(
         int $cmid,
-        int $jqid,
+        int $kid,
         int $questionid,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         string $statmentfeedback,
         int $userid,
         int $timeleft,
@@ -267,11 +267,11 @@ class matchquestion extends questions implements questionType {
             $response->type = questions::MATCH;
             $response->response = json_decode($jsonresponse);
             if ($session->is_group_mode()) {
-                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
+                parent::add_group_response($kuetid, $session, $kid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
                 kuet_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $kuetid, $sessionid, $kid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }

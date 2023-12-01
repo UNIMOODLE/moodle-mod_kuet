@@ -30,8 +30,8 @@ class startsession_external_test extends advanced_testcase {
 
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -40,7 +40,7 @@ class startsession_external_test extends advanced_testcase {
         // Create session.
         $sessionmock = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
             'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
@@ -62,7 +62,7 @@ class startsession_external_test extends advanced_testcase {
             'submitbutton' => 0,
             'showgraderanking' => 0,
         ];
-        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
+        $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -76,15 +76,15 @@ class startsession_external_test extends advanced_testcase {
 
         // Add questions to a session.
         $questions = [
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER],
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL],
-            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE],
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE],
-            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS],
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION],
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER],
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL],
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE],
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE],
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS],
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION],
         ];
         $generator->add_questions_to_session($questions);
-        $data = \mod_kuet\external\startsession_external::startsession($jqshow->cmid, $createdsid);
+        $data = \mod_kuet\external\startsession_external::startsession($kuet->cmid, $createdsid);
 
         $this->assertIsArray($data);
         $this->assertArrayHasKey('started', $data);

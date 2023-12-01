@@ -28,8 +28,8 @@ class nextquestion_external_test extends advanced_testcase {
     public function test_nextquestion() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -38,7 +38,7 @@ class nextquestion_external_test extends advanced_testcase {
         // Create session.
         $sessionmock = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
             'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
@@ -60,7 +60,7 @@ class nextquestion_external_test extends advanced_testcase {
             'submitbutton' => 0,
             'showgraderanking' => 0,
         ];
-        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
+        $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -75,28 +75,28 @@ class nextquestion_external_test extends advanced_testcase {
 
         // Add question.
         \mod_kuet\external\addquestions_external::add_questions([
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER],
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL],
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE],
-            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE],
-            ['questionid' => $cq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::CALCULATED],
-            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS],
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION],
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER],
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL],
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE],
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE],
+            ['questionid' => $cq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::CALCULATED],
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS],
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION],
         ]);
 
         $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $mcq->id , 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]);
+            ['questionid' => $mcq->id , 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]);
         $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $tfq->id , 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]);
-        $shouldbetruefalse = \mod_kuet\external\nextquestion_external::nextquestion($jqshow->cmid, $createdsid, $jmcq->get('id'));
+            ['questionid' => $tfq->id , 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]);
+        $shouldbetruefalse = \mod_kuet\external\nextquestion_external::nextquestion($kuet->cmid, $createdsid, $jmcq->get('id'));
 
         $this->assertIsArray(  $shouldbetruefalse);
         $this->assertArrayHasKey('cmid',   $shouldbetruefalse);
-        $this->assertEquals($jqshow->cmid,   $shouldbetruefalse['cmid']);
+        $this->assertEquals($kuet->cmid,   $shouldbetruefalse['cmid']);
         $this->assertArrayHasKey('questionid',   $shouldbetruefalse);
         $this->assertEquals($tfq->id,   $shouldbetruefalse['questionid']);
-        $this->assertArrayHasKey('jqid',   $shouldbetruefalse);
-        $this->assertEquals($jtfq->get('id'),   $shouldbetruefalse['jqid']);
+        $this->assertArrayHasKey('kid',   $shouldbetruefalse);
+        $this->assertEquals($jtfq->get('id'),   $shouldbetruefalse['kid']);
         $this->assertArrayHasKey('qtype',   $shouldbetruefalse);
         $this->assertEquals(questions::TRUE_FALSE, $shouldbetruefalse['qtype']);
     }

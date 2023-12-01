@@ -43,10 +43,10 @@ use renderer_base;
 
 class student_view implements renderable, templatable {
 
-    public int $jqshowid;
+    public int $kuetid;
     public int $cmid;
-    public function __construct(int $jqshowid, int $cmid) {
-        $this->jqshowid = $jqshowid;
+    public function __construct(int $kuetid, int $cmid) {
+        $this->kuetid = $kuetid;
         $this->cmid = $cmid;
     }
 
@@ -60,9 +60,9 @@ class student_view implements renderable, templatable {
         global $OUTPUT;
         $data = new stdClass();
         $data->cmid = $this->cmid;
-        $data->jqshowid = $this->jqshowid;
+        $data->kuetid = $this->kuetid;
         $data->notsessionimage = $OUTPUT->image_url('f/not_session', 'mod_kuet')->out(false);
-        $nextsession = kuet_sessions::get_next_session($this->jqshowid);
+        $nextsession = kuet_sessions::get_next_session($this->kuetid);
         if ($nextsession !== 0) {
             $data->hasnextsession = true;
             $data->nextsessiontime = userdate($nextsession, get_string('strftimedatetimeshort', 'core_langconfig'));

@@ -40,7 +40,7 @@ let SELECTORS = {
     CANCEL_BUTTON: '[data-action="close"]',
 };
 
-const ModalJqshow = class extends Modal {
+const ModalKuet = class extends Modal {
     static TYPE = 'mod_kuet/modal';
     static TEMPLATE = 'mod_kuet/modal';
 
@@ -57,6 +57,6 @@ const ModalJqshow = class extends Modal {
     }
 };
 
-ModalRegistry.register(ModalJqshow.TYPE, ModalJqshow, ModalJqshow.TEMPLATE);
+ModalRegistry.register(ModalKuet.TYPE, ModalKuet, ModalKuet.TEMPLATE);
 
-export default ModalJqshow;
+export default ModalKuet;

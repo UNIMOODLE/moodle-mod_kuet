@@ -58,7 +58,7 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
         messageBox = this.root.find('#testresult');
 
         TestSockets.prototype.webSocket = new WebSocket(
-            'wss://' + socketUrl.replace(/^https?:\/\//, '') + ':' + portUrl + '/testjqshow'
+            'wss://' + socketUrl.replace(/^https?:\/\//, '') + ':' + portUrl + '/testkuet'
         );
 
         TestSockets.prototype.webSocket.onopen = function() {

@@ -26,8 +26,8 @@ class finishsession_external_test extends advanced_testcase {
     public function test_finishsession() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -36,7 +36,7 @@ class finishsession_external_test extends advanced_testcase {
         // Create session.
         $sessionmock = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
             'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
@@ -58,8 +58,8 @@ class finishsession_external_test extends advanced_testcase {
             'submitbutton' => 0,
             'showgraderanking' => 0,
         ];
-        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
-        $data = \mod_kuet\external\finishsession_external::finishsession($jqshow->cmid, $createdsid);
+        $createdsid = $generator->create_session($kuet, (object) $sessionmock);
+        $data = \mod_kuet\external\finishsession_external::finishsession($kuet->cmid, $createdsid);
 
         $session = new \mod_kuet\persistents\kuet_sessions($createdsid);
         $this->assertIsArray($data);

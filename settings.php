@@ -38,8 +38,8 @@ if ($ADMIN->fulltree) {
     /*$page = new admin_settingpage('mod_kuet_general', get_string('generalsettings', 'mod_kuet'));
 
     // Modedit defaults.
-    $setting = new admin_setting_heading('jqshow_header',
-        get_string('jqshow_header', 'mod_kuet'), '');
+    $setting = new admin_setting_heading('kuet_header',
+        get_string('kuet_header', 'mod_kuet'), '');
     $page->add($setting);
 
 

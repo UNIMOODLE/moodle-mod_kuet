@@ -74,7 +74,7 @@ class getsession_external extends external_api {
         return ['session' => [
             'id' => $session->get('id'),
             'name' => $session->get('name'),
-            'jqshowid' => $session->get('jqshowid'),
+            'kuetid' => $session->get('kuetid'),
             'anonymousanswer' => $session->get('anonymousanswer'),
             'sessionmode' => $session->get('sessionmode'),
             'countdown' => $session->get('countdown'),
@@ -103,7 +103,7 @@ class getsession_external extends external_api {
                 [
                     'id'   => new external_value(PARAM_INT, 'Id of session'),
                     'name'   => new external_value(PARAM_RAW, 'Name of session'),
-                    'jqshowid' => new external_value(PARAM_INT, 'jqshowid of session'),
+                    'kuetid' => new external_value(PARAM_INT, 'kuetid of session'),
                     'anonymousanswer' => new external_value(PARAM_INT, ''),
                     'sessionmode' => new external_value(PARAM_RAW, ''),
                     'countdown' => new external_value(PARAM_INT, ''),

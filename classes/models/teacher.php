@@ -66,10 +66,10 @@ class teacher extends user {
      * @throws moodle_exception
      */
     public function export_sessions(int $cmid) : Object {
-        $jqshow = new kuet($cmid);
+        $kuet = new kuet($cmid);
         $actives = [];
         $inactives = [];
-        $sessions = $jqshow->get_sessions();
+        $sessions = $kuet->get_sessions();
         $coursemodulecontext = context_module::instance($cmid);
         $managesessions = has_capability('mod/kuet:managesessions', $coursemodulecontext);
         $initsession = has_capability('mod/kuet:startsession', $coursemodulecontext);
@@ -85,14 +85,14 @@ class teacher extends user {
         $data = new stdClass();
         $data->activesessions = $actives;
         $data->endedsessions = $inactives;
-        $data->courseid = $jqshow->course->id;
-        $data->jqshowid = $jqshow->cm->instance;
+        $data->courseid = $kuet->course->id;
+        $data->kuetid = $kuet->cm->instance;
         $data->cmid = $cmid;
         $data->createsessionurl = (new moodle_url('/mod/kuet/sessions.php', ['cmid' => $cmid, 'page' => 1]))->out(false);
         $qrcode = generate_kuet_qrcode((new moodle_url('/mod/kuet/view.php', ['id' => $cmid]))->out(false));
         $data->hasqrcodeimage = $qrcode !== '';
         $data->urlqrcode = $data->hasqrcodeimage === true ? $qrcode : '';
-        $data->hasactivesession = kuet_sessions::get_active_session_id(($jqshow->get_jqshow())->id) !== 0;
+        $data->hasactivesession = kuet_sessions::get_active_session_id(($kuet->get_kuet())->id) !== 0;
         return $data;
     }
 

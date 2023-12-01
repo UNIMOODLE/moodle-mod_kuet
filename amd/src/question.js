@@ -69,7 +69,7 @@ let TEMPLATES = {
 
 let cmId;
 let sId;
-let jqId;
+let kId;
 let isRanking = false;
 
 /**
@@ -90,7 +90,7 @@ Question.prototype.node = null;
 Question.prototype.initQuestion = function() {
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
-    jqId = this.node.attr('data-jqid');
+    kId = this.node.attr('data-kid');
     this.node.find(ACTION.EXPAND).on('click', this.fullScreen);
     this.node.find(ACTION.COMPRESS).on('click', this.exitFullScreen);
     if (jQuery(REGION.BODY).hasClass('fullscreen')) {
@@ -153,7 +153,7 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
                     args: {
                         sid: sId,
                         cmid: cmId,
-                        jqid: jqId
+                        kid: kId
                     }
                 };
                 Ajax.call([requestProvisional])[0].done(function(provisionalRanking) {
@@ -170,7 +170,7 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
                     args: {
                         cmid: cmId,
                         sessionid: sId,
-                        jqid: jqId,
+                        kid: kId,
                         manual: false
                     }
                 };

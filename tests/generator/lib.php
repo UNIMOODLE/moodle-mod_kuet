@@ -49,13 +49,13 @@ class mod_kuet_generator extends testing_module_generator {
     }
 
     /**
-     * @param stdClass $jqshow
+     * @param stdClass $kuet
      * @return int
      * @throws \core\invalid_persistent_exception
      * @throws coding_exception
      */
-    public function create_session(stdClass $jqshow, stdClass $sessionmock) {
-        $sessions = new \mod_kuet\models\sessions($jqshow, $jqshow->cmid);
+    public function create_session(stdClass $kuet, stdClass $sessionmock) {
+        $sessions = new \mod_kuet\models\sessions($kuet, $kuet->cmid);
         return $sessions::save_session($sessionmock);
     }
 

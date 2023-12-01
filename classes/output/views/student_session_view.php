@@ -85,7 +85,7 @@ class student_session_view implements renderable, templatable {
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
                 $progress = kuet_user_progress::get_session_progress_for_user(
-                    $USER->id, $session->get('id'), $session->get('jqshowid')
+                    $USER->id, $session->get('id'), $session->get('kuetid')
                 );
                 if ($progress !== false) {
                     $progressdata = json_decode($progress->get('other'), false);
@@ -97,28 +97,28 @@ class student_session_view implements renderable, templatable {
                         $data->programmedmode = true;
                         break;
                     }
-                    $question = kuet_questions::get_question_by_jqid($progressdata->currentquestion);
+                    $question = kuet_questions::get_question_by_kid($progressdata->currentquestion);
                 } else {
                     progress::set_progress(
-                        $session->get('jqshowid'), $session->get('id'), $USER->id, $cmid, 0
+                        $session->get('kuetid'), $session->get('id'), $USER->id, $cmid, 0
                     );
                     $newprogress = kuet_user_progress::get_session_progress_for_user(
-                        $USER->id, $session->get('id'), $session->get('jqshowid')
+                        $USER->id, $session->get('id'), $session->get('kuetid')
                     );
                     $newprogressdata = json_decode($newprogress->get('other'), false);
-                    $question = kuet_questions::get_question_by_jqid($newprogressdata->currentquestion);
+                    $question = kuet_questions::get_question_by_kid($newprogressdata->currentquestion);
                 }
                 /** @var questions $type */
                 $type = questions::get_question_class_by_string_type($question->get('qtype'));
                 $data = $type::export_question($question->get('id'),
                     $cmid,
                     $sid,
-                    $question->get('jqshowid'));
+                    $question->get('kuetid'));
                 $response = kuet_questions_responses::get_record(
-                    ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                    ['session' => $question->get('sessionid'), 'kid' => $question->get('id'), 'userid' => $USER->id]
                 );
                 if ($response !== false) {
-                    $data->jqid = $question->get('id');
+                    $data->kid = $question->get('id');
                     $data =
                         $type::export_question_response($data, base64_decode($response->get('response')), $response->get('result'));
                 }
@@ -140,7 +140,7 @@ class student_session_view implements renderable, templatable {
                 $data = new stdClass();
                 $data->cmid = $cmid;
                 $data->sid = $sid;
-                $data->jqshowid = $session->get('jqshowid');
+                $data->kuetid = $session->get('kuetid');
                 $data->userid = $USER->id;
                 $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
 

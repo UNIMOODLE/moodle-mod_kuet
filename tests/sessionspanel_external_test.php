@@ -81,13 +81,13 @@ class sessionspanel_external_test extends advanced_testcase {
     public function test_sessionspanel(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
 
-        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
-        $createdsid = $generator->create_session($jqshow, (object) $this->sessionmock);
+        $createdsid = $generator->create_session($kuet, (object) $this->sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -101,15 +101,15 @@ class sessionspanel_external_test extends advanced_testcase {
 
         // Add questions to a session.
         $questions = [
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER],
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL],
-            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE],
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE],
-            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS],
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION],
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER],
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL],
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE],
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE],
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS],
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION],
         ];
         $generator->add_questions_to_session($questions);
-        $allsessions = kuet_sessions::get_records(['jqshowid' => $jqshow->id]);
+        $allsessions = kuet_sessions::get_records(['kuetid' => $kuet->id]);
         $expectedids = 0;
         foreach ($allsessions as $session) {
             if ($session->get('name') == $this->sessionmock['name']) {
@@ -118,7 +118,7 @@ class sessionspanel_external_test extends advanced_testcase {
             }
         }
         $this->assertSame($expectedids, $createdsid);
-        $result = sessionspanel_external::sessionspanel($jqshow->cmid);
+        $result = sessionspanel_external::sessionspanel($kuet->cmid);
         $this->assertIsArray($result);
         $this->assertArrayHasKey('activesessions', $result);
         $this->assertArrayHasKey('endedsessions', $result);
@@ -131,10 +131,10 @@ class sessionspanel_external_test extends advanced_testcase {
         $this->assertCount(0, $result['activesessions']);
         $this->assertCount(1, $result['endedsessions']);
         $this->assertSame($course->id, $result['courseid']);
-        $this->assertSame($jqshow->cmid, $result['cmid']);
+        $this->assertSame($kuet->cmid, $result['cmid']);
         $this->assertTrue($result['hasqrcodeimage']);
         $this->assertIsString($result['urlqrcode']);
-        $sessionurl = (new \moodle_url('/mod/kuet/sessions.php', ['cmid' => $jqshow->cmid, 'page' => 1]))->out(false);
+        $sessionurl = (new \moodle_url('/mod/kuet/sessions.php', ['cmid' => $kuet->cmid, 'page' => 1]))->out(false);
         $this->assertEquals($sessionurl, $result['createsessionurl']);
         $this->assertFalse($result['hasactivesession']);
         $this->assertIsArray($result['endedsessions']);
@@ -162,13 +162,13 @@ class sessionspanel_external_test extends advanced_testcase {
         $this->assertEquals(6, $result['endedsessions'][0]->questions_number);
         $this->assertTrue($result['endedsessions'][0]->managesessions);
         $this->assertTrue($result['endedsessions'][0]->initsession);
-        $initsessionurl = (new \moodle_url('/mod/kuet/session.php', ['cmid' => $jqshow->cmid, 'sid' => $createdsid]))->out(false);
+        $initsessionurl = (new \moodle_url('/mod/kuet/session.php', ['cmid' => $kuet->cmid, 'sid' => $createdsid]))->out(false);
         $this->assertEquals($initsessionurl, $result['endedsessions'][0]->initsessionurl);
         $viewreporturl =
-            (new \moodle_url('/mod/kuet/reports.php', ['cmid' => $jqshow->cmid, 'sid' => $createdsid]))->out(false);
+            (new \moodle_url('/mod/kuet/reports.php', ['cmid' => $kuet->cmid, 'sid' => $createdsid]))->out(false);
         $this->assertEquals($viewreporturl, $result['endedsessions'][0]->viewreporturl);
         $editsessionurl =
-            (new \moodle_url('/mod/kuet/sessions.php', ['cmid' => $jqshow->cmid, 'sid' => $createdsid]))->out(false);
+            (new \moodle_url('/mod/kuet/sessions.php', ['cmid' => $kuet->cmid, 'sid' => $createdsid]))->out(false);
         $this->assertEquals($editsessionurl, $result['endedsessions'][0]->editsessionurl);
         $this->assertEquals($this->sessionmock['status'], $result['endedsessions'][0]->status);
         $this->assertFalse($result['endedsessions'][0]->issessionstarted);

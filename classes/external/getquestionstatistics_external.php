@@ -64,29 +64,29 @@ class getquestionstatistics_external extends external_api {
         return new external_function_parameters(
             [
                 'sid' => new external_value(PARAM_INT, 'session id'),
-                'jqid' => new external_value(PARAM_INT, 'Id for kuet_questions')
+                'kid' => new external_value(PARAM_INT, 'Id for kuet_questions')
             ]
         );
     }
 
     /**
      * @param int $sid
-     * @param int $jqid
+     * @param int $kid
      * @return array|array[]
      * @throws dml_exception
      * @throws coding_exception
      * @throws invalid_parameter_exception
      */
-    public static function getquestionstatistics(int $sid, int $jqid): array {
+    public static function getquestionstatistics(int $sid, int $kid): array {
         self::validate_parameters(
             self::getquestionstatistics_parameters(),
-            ['sid' => $sid, 'jqid' => $jqid]
+            ['sid' => $sid, 'kid' => $kid]
         );
-        $jqshowquestion = kuet_questions::get_question_by_jqid($jqid);
-        $question = question_bank::load_question($jqshowquestion->get('questionid'));
+        $kuetquestion = kuet_questions::get_question_by_kid($kid);
+        $question = question_bank::load_question($kuetquestion->get('questionid'));
         $statistics = [];
         $session = new kuet_sessions($sid);
-        $responses = kuet_questions_responses::get_question_responses($sid, $jqshowquestion->get('jqshowid'), $jqid);
+        $responses = kuet_questions_responses::get_question_responses($sid, $kuetquestion->get('kuetid'), $kid);
         if ($session->is_group_mode()) {
             $members = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
 
@@ -101,7 +101,7 @@ class getquestionstatistics_external extends external_api {
 
         try {
             /** @var questions $type */
-            $type = questions::get_question_class_by_string_type($jqshowquestion->get('qtype'));
+            $type = questions::get_question_class_by_string_type($kuetquestion->get('qtype'));
             $statistics = $type::get_question_statistics($question, $responses);
         } catch(moodle_exception $exception) {
             return ['statistics' => $statistics];

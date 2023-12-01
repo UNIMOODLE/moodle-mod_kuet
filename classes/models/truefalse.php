@@ -63,20 +63,20 @@ require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 class truefalse extends questions implements questionType {
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) : void {
-        parent::__construct($jqshowid, $cmid, $sid);
+    public function construct(int $kuetid, int $cmid, int $sid) : void {
+        parent::__construct($kuetid, $cmid, $sid);
     }
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param bool $preview
      * @return stdClass
      * @throws JsonException
@@ -85,12 +85,12 @@ class truefalse extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false): object {
         global $USER;
         $session = kuet_sessions::get_record(['id' => $sessionid]);
-        $jqshowquestion = kuet_questions::get_record(['id' => $jqid]);
-        $question = question_bank::load_question($jqshowquestion->get('questionid'));
-        $numsessionquestions = kuet_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
+        $kuetquestion = kuet_questions::get_record(['id' => $kid]);
+        $question = question_bank::load_question($kuetquestion->get('questionid'));
+        $numsessionquestions = kuet_questions::count_records(['kuetid' => $kuetid, 'sessionid' => $sessionid]);
         $type = self::TRUE_FALSE;
         $answers = [];
         $feedbacks = [];
@@ -98,7 +98,7 @@ class truefalse extends questions implements questionType {
         // True answer.
         $answers[] = [
             'answerid' => $question->trueanswerid,
-            'questionid' => $jqshowquestion->get('questionid'),
+            'questionid' => $kuetquestion->get('questionid'),
             'answertext' => get_string('true', 'qtype_truefalse'),
             'fraction' => '1.0000000',
         ];
@@ -110,7 +110,7 @@ class truefalse extends questions implements questionType {
         // False answer.
         $answers[] = [
             'answerid' => $question->falseanswerid,
-            'questionid' => $jqshowquestion->get('questionid'),
+            'questionid' => $kuetquestion->get('questionid'),
             'answertext' => get_string('false', 'qtype_truefalse'),
             'fraction' => '1.0000000',
         ];
@@ -121,9 +121,9 @@ class truefalse extends questions implements questionType {
         ];
         $data->cmid = $cmid;
         $data->sessionid = $sessionid;
-        $data->jqshowid = $jqshowid;
-        $data->questionid = $jqshowquestion->get('questionid');
-        $data->jqid = $jqshowquestion->get('id');
+        $data->kuetid = $kuetid;
+        $data->questionid = $kuetquestion->get('questionid');
+        $data->kid = $kuetquestion->get('id');
         $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
         $data->endsession = false;
         switch ($session->get('sessionmode')) {
@@ -132,7 +132,7 @@ class truefalse extends questions implements questionType {
             case sessions::RACE_PROGRAMMED:
                 $data->programmedmode = true;
                 $progress = kuet_user_progress::get_session_progress_for_user(
-                    $USER->id, $session->get('id'), $session->get('jqshowid')
+                    $USER->id, $session->get('id'), $session->get('kuetid')
                 );
                 if ($progress !== false) {
                     $dataprogress = json_decode($progress->get('other'), false);
@@ -147,7 +147,7 @@ class truefalse extends questions implements questionType {
                     }
                 }
                 if (!isset($data->question_index_string)) {
-                    $order = $jqshowquestion->get('qorder');
+                    $order = $kuetquestion->get('qorder');
                     $a = new stdClass();
                     $a->num = $order;
                     $a->total = $numsessionquestions;
@@ -158,7 +158,7 @@ class truefalse extends questions implements questionType {
             case sessions::INACTIVE_MANUAL:
             case sessions::PODIUM_MANUAL:
             case sessions::RACE_MANUAL:
-                $order = $jqshowquestion->get('qorder');
+                $order = $kuetquestion->get('qorder');
                 $a = new stdClass();
                 $a->num = $order;
                 $a->total = $numsessionquestions;
@@ -176,9 +176,9 @@ class truefalse extends questions implements questionType {
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
             default:
-                if ($jqshowquestion->get('timelimit') !== 0) {
+                if ($kuetquestion->get('timelimit') !== 0) {
                     $data->hastime = true;
-                    $data->seconds = $jqshowquestion->get('timelimit');
+                    $data->seconds = $kuetquestion->get('timelimit');
                 } else {
                     $data->hastime = false;
                     $data->seconds = 0;
@@ -187,14 +187,14 @@ class truefalse extends questions implements questionType {
             case sessions::SESSION_TIME:
                 $data->hastime = true;
                 $numquestion = kuet_questions::count_records(
-                    ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
+                    ['sessionid' => $session->get('id'), 'kuetid' => $session->get('kuetid')]
                 );
                 $data->seconds = round((int)$session->get('sessiontime') / $numquestion);
                 break;
             case sessions::QUESTION_TIME:
                 $data->hastime = true;
                 $data->seconds =
-                    $jqshowquestion->get('timelimit') !== 0 ? $jqshowquestion->get('timelimit') : $session->get('questiontime');
+                    $kuetquestion->get('timelimit') !== 0 ? $kuetquestion->get('timelimit') : $session->get('questiontime');
                 break;
         }
         $data->countdown = $session->get('countdown');
@@ -234,10 +234,10 @@ class truefalse extends questions implements questionType {
         $dataanswer = truefalse_external::truefalse(
             $responsedata->answerids,
             $data->sessionid,
-            $data->jqshowid,
+            $data->kuetid,
             $data->cmid,
             $data->questionid,
-            $data->jqid,
+            $data->kid,
             $responsedata->timeleft,
             true
         );
@@ -262,7 +262,7 @@ class truefalse extends questions implements questionType {
      * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
-     * @param int $jqid
+     * @param int $kid
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -271,7 +271,7 @@ class truefalse extends questions implements questionType {
     public static function get_question_report(kuet_sessions $session,
                                                question_definition $questiondata,
                                                stdClass $data,
-                                               int $jqid): stdClass {
+                                               int $kid): stdClass {
         $answers = [];
         $correctanswers = [];
 
@@ -326,7 +326,7 @@ class truefalse extends questions implements questionType {
         if ($session->is_group_mode()) {
             $gmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         }
-        $responses = kuet_questions_responses::get_question_responses($session->get('id'), $data->jqshowid, $jqid);
+        $responses = kuet_questions_responses::get_question_responses($session->get('id'), $data->kuetid, $kid);
         foreach ($responses as $response) {
             if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
                 continue;
@@ -379,7 +379,7 @@ class truefalse extends questions implements questionType {
             }
             $points = grade::get_simple_mark($response);
             $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-                $session->get('jqshowid'));
+                $session->get('kuetid'));
             if ($session->is_group_mode()) {
                 $participant->grouppoints = grade::get_rounded_mark($spoints);
             } else {
@@ -393,10 +393,10 @@ class truefalse extends questions implements questionType {
 
     /**
      * @param int $cmid
-     * @param int $jqid
+     * @param int $kid
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $statmentfeedback
      * @param int $userid
      * @param int $timeleft
@@ -410,10 +410,10 @@ class truefalse extends questions implements questionType {
      */
     public static function question_response(
         int $cmid,
-        int $jqid,
+        int $kid,
         int $questionid,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         string $statmentfeedback,
         int $userid,
         int $timeleft,
@@ -426,7 +426,7 @@ class truefalse extends questions implements questionType {
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
         if ($isteacher !== true) {
-            multichoice::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
+            multichoice::manage_response($kid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $kuetid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::TRUE_FALSE);
         }
     }

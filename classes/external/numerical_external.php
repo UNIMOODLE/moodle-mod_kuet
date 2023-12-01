@@ -66,10 +66,10 @@ class numerical_external extends external_api {
                 'unit' => new external_value(PARAM_RAW, 'Unit for response, optional depending on configuration'),
                 'multiplier' => new external_value(PARAM_RAW, 'Multiplier of unit'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
-                'jqshowid' => new external_value(PARAM_INT, 'id of kuet'),
+                'kuetid' => new external_value(PARAM_INT, 'id of kuet'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
                 'questionid' => new external_value(PARAM_INT, 'id of question'),
-                'jqid' => new external_value(PARAM_INT, 'id of question in kuet_questions'),
+                'kid' => new external_value(PARAM_INT, 'id of question in kuet_questions'),
                 'timeleft' => new external_value(PARAM_INT, 'Time left of question, if question has time, else 0.'),
                 'preview' => new external_value(PARAM_BOOL, 'preview or not for grade'),
             ]
@@ -81,10 +81,10 @@ class numerical_external extends external_api {
      * @param string $unit
      * @param string $multiplier
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $questionid
-     * @param int $jqid
+     * @param int $kid
      * @param int $timeleft
      * @param bool $preview
      * @return array
@@ -101,10 +101,10 @@ class numerical_external extends external_api {
         string $unit,
         string $multiplier,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         int $cmid,
         int $questionid,
-        int $jqid,
+        int $kid,
         int $timeleft,
         bool $preview
     ): array {
@@ -116,10 +116,10 @@ class numerical_external extends external_api {
                 'unit' => $unit,
                 'multiplier' => $multiplier,
                 'sessionid' => $sessionid,
-                'jqshowid' => $jqshowid,
+                'kuetid' => $kuetid,
                 'cmid' => $cmid,
                 'questionid' => $questionid,
-                'jqid' => $jqid,
+                'kid' => $kid,
                 'timeleft' => $timeleft,
                 'preview' => $preview,
             ]
@@ -177,10 +177,10 @@ class numerical_external extends external_api {
                 ];
                 numerical::question_response(
                     $cmid,
-                    $jqid,
+                    $kid,
                     $questionid,
                     $sessionid,
-                    $jqshowid,
+                    $kuetid,
                     $statmentfeedback,
                     $USER->id,
                     $timeleft,

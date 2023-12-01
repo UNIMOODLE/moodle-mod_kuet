@@ -46,7 +46,7 @@ use moodle_exception;
 class observer {
 
     /**
-     * Jqshow session ended
+     * Kuet session ended
      * Before calculate and save session grade, check:
      * - mod_kuet->grademethod != 0
      * - session is gradeable too.
@@ -65,8 +65,8 @@ class observer {
         $data = $event->get_data();
         $context = context_module::instance((int) $data['contextinstanceid']);
         $PAGE->set_context($context);
-        $jqshow = \mod_kuet\persistents\kuet::get_kuet_from_cmid((int) $data['contextinstanceid']);
-        if (!$jqshow || (int)$jqshow->get('grademethod') === grade::MOD_OPTION_NO_GRADE) {
+        $kuet = \mod_kuet\persistents\kuet::get_kuet_from_cmid((int) $data['contextinstanceid']);
+        if (!$kuet || (int)$kuet->get('grademethod') === grade::MOD_OPTION_NO_GRADE) {
             return;
         }
         $session = kuet_sessions::get_record(['id' => $data['objectid']]);
@@ -80,9 +80,9 @@ class observer {
                 continue;
             }
             // Get session grade.
-            $sessiongrade = grade::get_session_grade($participant->{'id'}, $data['objectid'], $jqshow->get('id'));
+            $sessiongrade = grade::get_session_grade($participant->{'id'}, $data['objectid'], $kuet->get('id'));
             $params = [
-                'kuet' => $jqshow->get('id'),
+                'kuet' => $kuet->get('id'),
                 'session' => $data['objectid'],
                 'userid' => $participant->{'id'}
             ];
@@ -96,7 +96,7 @@ class observer {
                 $jgrade->set('grade', $sessiongrade);
                 $jgrade->update();
             }
-            grade::recalculate_mod_mark_by_userid($participant->{'id'}, $jqshow->get('id'));
+            grade::recalculate_mod_mark_by_userid($participant->{'id'}, $kuet->get('id'));
         }
     }
 

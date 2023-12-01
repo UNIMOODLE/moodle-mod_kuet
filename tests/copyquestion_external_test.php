@@ -27,8 +27,8 @@ class copyquestion_external_test extends advanced_testcase {
     public function test_copyquestion() :void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -37,7 +37,7 @@ class copyquestion_external_test extends advanced_testcase {
         // Create session.
         $sessionmock = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
             'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
@@ -59,7 +59,7 @@ class copyquestion_external_test extends advanced_testcase {
             'submitbutton' => 0,
             'showgraderanking' => 0,
         ];
-        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
+        $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -68,12 +68,12 @@ class copyquestion_external_test extends advanced_testcase {
 
         // Add question.
         \mod_kuet\external\addquestions_external::add_questions([
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => 'shortanswer']
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'shortanswer']
         ]);
-        $jquestion = mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id]);
-        $data = \mod_kuet\external\copyquestion_external::copyquestion($jquestion->get('id'));
-        $total = mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'jqshowid' => $jqshow->id]);
+        $kquestion = mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id]);
+        $data = \mod_kuet\external\copyquestion_external::copyquestion($kquestion->get('id'));
+        $total = mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'kuetid' => $kuet->id]);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('copied', $data);
         $this->assertTrue($data['copied']);

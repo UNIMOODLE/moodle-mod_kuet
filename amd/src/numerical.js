@@ -69,8 +69,8 @@ let TEMPLATES = {
 let cmId;
 let sId;
 let questionid;
-let jqshowId;
-let jqid;
+let kuetId;
+let kid;
 let questionEnd = false;
 let showQuestionFeedback = false;
 let manualMode = false;
@@ -93,8 +93,8 @@ function Numerical(selector, showquestionfeedback = false, manualmode = false, j
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
     questionid = this.node.attr('data-questionid');
-    jqshowId = this.node.attr('data-jqshowid');
-    jqid = this.node.attr('data-jqid');
+    kuetId = this.node.attr('data-kuetid');
+    kid = this.node.attr('data-kid');
     showQuestionFeedback = showquestionfeedback;
     manualMode = manualmode;
     questionEnd = false;
@@ -123,7 +123,7 @@ Numerical.prototype.initNumerical = function() {
 Numerical.prototype.initEvents = function() {
     addEventListener('timeFinish', Numerical.prototype.reply, {once: true});
     if (manualMode !== false) {
-        addEventListener('alreadyAnswered_' + jqid, (ev) => {
+        addEventListener('alreadyAnswered_' + kid, (ev) => {
             let userid = jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
@@ -133,7 +133,7 @@ Numerical.prototype.initEvents = function() {
                 Numerical.prototype.reply();
             }
         }, {once: true});
-        addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+        addEventListener('teacherQuestionEnd_' + kid, (e) => {
             if (questionEnd !== true) {
                 Numerical.prototype.reply();
             }
@@ -150,28 +150,28 @@ Numerical.prototype.initEvents = function() {
                     .width(statistic.partially + '%').html(statistic.partially + '%');
             });
         }, {once: true});
-        addEventListener('pauseQuestion_' + jqid, () => {
+        addEventListener('pauseQuestion_' + kid, () => {
             Numerical.prototype.pauseQuestion();
         }, false);
-        addEventListener('playQuestion_' + jqid, () => {
+        addEventListener('playQuestion_' + kid, () => {
             Numerical.prototype.playQuestion();
         }, false);
-        addEventListener('showAnswers_' + jqid, () => {
+        addEventListener('showAnswers_' + kid, () => {
             Numerical.prototype.showAnswers();
         }, false);
-        addEventListener('hideAnswers_' + jqid, () => {
+        addEventListener('hideAnswers_' + kid, () => {
             Numerical.prototype.hideAnswers();
         }, false);
-        addEventListener('showStatistics_' + jqid, () => {
+        addEventListener('showStatistics_' + kid, () => {
             Numerical.prototype.showStatistics();
         }, false);
-        addEventListener('hideStatistics_' + jqid, () => {
+        addEventListener('hideStatistics_' + kid, () => {
             Numerical.prototype.hideStatistics();
         }, false);
-        addEventListener('showFeedback_' + jqid, () => {
+        addEventListener('showFeedback_' + kid, () => {
             Numerical.prototype.showFeedback();
         }, false);
-        addEventListener('hideFeedback_' + jqid, () => {
+        addEventListener('hideFeedback_' + kid, () => {
             Numerical.prototype.hideFeedback();
         }, false);
         addEventListener('removeEvents', () => {
@@ -191,7 +191,7 @@ Numerical.prototype.initEvents = function() {
 Numerical.prototype.removeEvents = function() {
     removeEventListener('timeFinish', Numerical.prototype.reply, {once: true});
     if (manualMode !== false) {
-        removeEventListener('alreadyAnswered_' + jqid, (ev) => {
+        removeEventListener('alreadyAnswered_' + kid, (ev) => {
             let userid = jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
@@ -201,7 +201,7 @@ Numerical.prototype.removeEvents = function() {
                 Numerical.prototype.reply();
             }
         }, {once: true});
-        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+        removeEventListener('teacherQuestionEnd_' + kid, (e) => {
             if (questionEnd !== true) {
                 Numerical.prototype.reply();
             }
@@ -218,28 +218,28 @@ Numerical.prototype.removeEvents = function() {
                     .width(statistic.partially + '%').html(statistic.partially + '%');
             });
         }, {once: true});
-        removeEventListener('pauseQuestion_' + jqid, () => {
+        removeEventListener('pauseQuestion_' + kid, () => {
             Numerical.prototype.pauseQuestion();
         }, false);
-        removeEventListener('playQuestion_' + jqid, () => {
+        removeEventListener('playQuestion_' + kid, () => {
             Numerical.prototype.playQuestion();
         }, false);
-        removeEventListener('showAnswers_' + jqid, () => {
+        removeEventListener('showAnswers_' + kid, () => {
             Numerical.prototype.showAnswers();
         }, false);
-        removeEventListener('hideAnswers_' + jqid, () => {
+        removeEventListener('hideAnswers_' + kid, () => {
             Numerical.prototype.hideAnswers();
         }, false);
-        removeEventListener('showStatistics_' + jqid, () => {
+        removeEventListener('showStatistics_' + kid, () => {
             Numerical.prototype.showStatistics();
         }, false);
-        removeEventListener('hideStatistics_' + jqid, () => {
+        removeEventListener('hideStatistics_' + kid, () => {
             Numerical.prototype.hideStatistics();
         }, false);
-        removeEventListener('showFeedback_' + jqid, () => {
+        removeEventListener('showFeedback_' + kid, () => {
             Numerical.prototype.showFeedback();
         }, false);
-        removeEventListener('hideFeedback_' + jqid, () => {
+        removeEventListener('hideFeedback_' + kid, () => {
             Numerical.prototype.hideFeedback();
         }, false);
         removeEventListener('removeEvents', () => {
@@ -275,10 +275,10 @@ Numerical.prototype.reply = function() {
                 unit: unit === undefined ? '0' : unit,
                 multiplier: multiplier === undefined ? '0' : multiplier,
                 sessionid: sId,
-                jqshowid: jqshowId,
+                kuetid: kuetId,
                 cmid: cmId,
                 questionid: questionid,
-                jqid: jqid,
+                kid: kid,
                 timeleft: timeLeft || 0,
                 preview: false
             }

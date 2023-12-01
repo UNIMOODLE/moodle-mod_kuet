@@ -43,18 +43,18 @@ $sid = required_param('sid', PARAM_INT);    // Session id.
 
 $cm = get_coursemodule_from_id('kuet', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-$jqshow = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
+$kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
 
 $PAGE->set_url('/mod/kuet/view.php', ['id' => $id]);
 require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
 require_capability('mod/kuet:view', $cmcontext);
 $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
-$strjqshow = get_string('modulename', 'kuet');
+$strkuet = get_string('modulename', 'kuet');
 $PAGE->set_heading($course->fullname);
-$PAGE->set_title(get_string('session', 'kuet')) . ' - ' . kuet_sessions::get_sessionname($jqshow->id, $sid);
+$PAGE->set_title(get_string('session', 'kuet')) . ' - ' . kuet_sessions::get_sessionname($kuet->id, $sid);
 
-$activesession = kuet_sessions::get_active_session_id($jqshow->id);
+$activesession = kuet_sessions::get_active_session_id($kuet->id);
 if ($activesession !== 0 && $activesession !== $sid) {
     throw new moodle_exception('multiplesessionerror', 'mod_kuet', '', [],
         get_string('multiplesessionerror', 'mod_kuet'));

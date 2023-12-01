@@ -100,7 +100,7 @@ class jumptoquestion_external extends external_api {
         $question = kuet_questions::get_question_by_position($sessionid, $position);
         if ($question !== false) {
             progress::set_progress(
-                $question->get('jqshowid'), $sessionid, $USER->id, $cmid, $question->get('id')
+                $question->get('kuetid'), $sessionid, $USER->id, $cmid, $question->get('id')
             );
             /** @var questions $type */
             $type = questions::get_question_class_by_string_type($question->get('qtype'));
@@ -108,14 +108,14 @@ class jumptoquestion_external extends external_api {
                 $question->get('id'),
                 $cmid,
                 $sessionid,
-                $question->get('jqshowid'));
+                $question->get('kuetid'));
             $data->showstatistics = $type::show_statistics();
         } else {
             $session = new kuet_sessions($sessionid);
             $finishdata = new stdClass();
             $finishdata->endSession = 1;
             kuet_user_progress::add_progress(
-                $session->get('jqshowid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
+                $session->get('kuetid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
             );
             $data = sessions::export_endsession(
                 $cmid,

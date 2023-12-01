@@ -40,7 +40,7 @@ import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import SortableList from 'core/sortable_list';
-import ModalJqshow from 'mod_kuet/modal';
+import ModalKuet from 'mod_kuet/modal';
 
 let ACTION = {
     DELETEQUESTION: '[data-action="delete_question"]',
@@ -76,7 +76,7 @@ let TEMPLATES = {
 
 let cmId;
 let sId;
-let jqshowId;
+let kuetId;
 let sortable;
 
 /**
@@ -87,7 +87,7 @@ function SessionQuestions(selector) {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
-    jqshowId = this.node.attr('data-jqshowid');
+    kuetId = this.node.attr('data-kuetid');
     this.initPanel();
 }
 
@@ -135,18 +135,18 @@ SessionQuestions.prototype.questionPreview = function(e) {
             args: {
                 cmid: cmId,
                 sid: sId,
-                jqid: questionnId
+                kid: questionnId
             }
         };
         Ajax.call([request])[0].done(function(question) {
             Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
                 getString('preview', 'mod_kuet').done((title) => {
                     ModalFactory.create({
-                        classes: 'modal_jqshow',
+                        classes: 'modal_kuet',
                         body: html,
                         title: title,
                         footer: '',
-                        type: ModalJqshow.TYPE
+                        type: ModalKuet.TYPE
                     }).then(modal => {
                         modal.getRoot().on(ModalEvents.hidden, function() {
                             modal.destroy();
@@ -165,7 +165,7 @@ SessionQuestions.prototype.reloadSessionQuestionsHtml = function() {
     let request = {
         methodname: SERVICES.SESSIONQUESTIONS,
         args: {
-            jqshowid: jqshowId,
+            kuetid: kuetId,
             cmid: cmId,
             sid: sId
         }

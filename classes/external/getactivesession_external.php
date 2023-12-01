@@ -54,24 +54,24 @@ class getactivesession_external extends external_api {
         return new external_function_parameters(
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
-                'jqshowid' => new external_value(PARAM_INT, 'Jqshow id'),
+                'kuetid' => new external_value(PARAM_INT, 'Kuet id'),
             ]
         );
     }
 
     /**
      * @param int $cmid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @return array
      * @throws coding_exception
      * @throws invalid_parameter_exception
      */
-    public static function getactivesession(int $cmid, int $jqshowid): array {
+    public static function getactivesession(int $cmid, int $kuetid): array {
         self::validate_parameters(
             self::getactivesession_parameters(),
-            ['cmid' => $cmid, 'jqshowid' => $jqshowid]
+            ['cmid' => $cmid, 'kuetid' => $kuetid]
         );
-        $activessesion = kuet_sessions::get_active_session_id($jqshowid);
+        $activessesion = kuet_sessions::get_active_session_id($kuetid);
         return [
             'active' => $activessesion
         ];
@@ -83,7 +83,7 @@ class getactivesession_external extends external_api {
     public static function getactivesession_returns(): external_single_structure {
         return new external_single_structure(
             [
-                'active' => new external_value(PARAM_INT, 'Id of active session for jqshowid. 0 if there is no active session.'),
+                'active' => new external_value(PARAM_INT, 'Id of active session for kuetid. 0 if there is no active session.'),
             ]
         );
     }

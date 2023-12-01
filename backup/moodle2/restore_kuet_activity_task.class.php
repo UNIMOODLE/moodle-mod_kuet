@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/kuet/backup/moodle2/restore_kuet_stepslib.php');
 
 /**
- * Jqshow restore task that provides all the settings and steps to perform one
+ * Kuet restore task that provides all the settings and steps to perform one
  * complete restore of the activity
  */
 class restore_kuet_activity_task extends restore_activity_task {
@@ -69,7 +69,7 @@ class restore_kuet_activity_task extends restore_activity_task {
      */
     public static function define_decode_rules() {
         return [
-            new restore_decode_rule('JQSHOVIEWBYID', '/mod/kuet/view.php?id=$1', 'course_module'),
+            new restore_decode_rule('KUETVIEWBYID', '/mod/kuet/view.php?id=$1', 'course_module'),
             new restore_decode_rule('KUETINDEX', '/mod/kuet/index.php?id=$1', 'course')
         ];
     }

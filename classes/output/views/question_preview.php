@@ -49,24 +49,24 @@ use renderer_base;
 class question_preview implements renderable, templatable {
 
     protected int $qid;
-    protected int $jqid;
+    protected int $kid;
     protected int $cmid;
     protected int $sessionid;
-    protected int $jqshowid;
+    protected int $kuetid;
 
     /**
      * @param int $qid
-     * @param int $jqid
+     * @param int $kid
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      */
-    public function __construct(int $qid, int $jqid, int $cmid, int $sessionid, int $jqshowid) {
+    public function __construct(int $qid, int $kid, int $cmid, int $sessionid, int $kuetid) {
         $this->qid = $qid;
-        $this->jqid = $jqid;
+        $this->kid = $kid;
         $this->cmid = $cmid;
         $this->sessionid = $sessionid;
-        $this->jqshowid = $jqshowid;
+        $this->kuetid = $kuetid;
     }
 
     /**
@@ -80,13 +80,13 @@ class question_preview implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $question = new kuet_questions($this->jqid);
+        $question = new kuet_questions($this->kid);
         /** @var questions $type */
         $type = questions::get_question_class_by_string_type($question->get('qtype'));
         return $type::export_question(
             $question->get('id'),
             $this->cmid,
             $this->sessionid,
-            $this->jqshowid);
+            $this->kuetid);
     }
 }

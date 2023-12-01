@@ -39,16 +39,16 @@ let SERVICES = {
 };
 
 let cmId;
-let jqshowId;
+let kuetId;
 
 /**
  * @constructor
  * @param {int} cmid
- * @param {int} jqshowid
+ * @param {int} kuetid
  */
-function CheckActiveSession(cmid, jqshowid) {
+function CheckActiveSession(cmid, kuetid) {
     cmId = cmid;
-    jqshowId = jqshowid;
+    kuetId = kuetid;
     setInterval(this.checkActive, 5000);
 }
 
@@ -57,7 +57,7 @@ CheckActiveSession.prototype.checkActive = function() {
         methodname: SERVICES.GETACTIVESESSION,
         args: {
             cmid: cmId,
-            jqshowid: jqshowId
+            kuetid: kuetId
         }
     };
     Ajax.call([request])[0].done(function(response) {
@@ -70,6 +70,6 @@ CheckActiveSession.prototype.checkActive = function() {
     }).fail(Notification.exception);
 };
 
-export const checkActiveSession = (cmid, jqshowid) => {
-    return new CheckActiveSession(cmid, jqshowid);
+export const checkActiveSession = (cmid, kuetid) => {
+    return new CheckActiveSession(cmid, kuetid);
 };

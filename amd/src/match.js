@@ -79,8 +79,8 @@ let TEMPLATES = {
 let cmId;
 let sId;
 let questionid;
-let jqshowId;
-let jqid;
+let kuetId;
+let kid;
 let questionEnd = false;
 let showQuestionFeedback = false;
 let manualMode = false;
@@ -110,8 +110,8 @@ function Match(selector, showquestionfeedback = false, manualmode = false, jsonr
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
     questionid = this.node.attr('data-questionid');
-    jqshowId = this.node.attr('data-jqshowid');
-    jqid = this.node.attr('data-jqid');
+    kuetId = this.node.attr('data-kuetid');
+    kid = this.node.attr('data-kid');
     showQuestionFeedback = showquestionfeedback;
     manualMode = manualmode;
     questionEnd = false;
@@ -193,7 +193,7 @@ Match.prototype.normalizeCanvas = function() {
 Match.prototype.initEvents = function() {
     addEventListener('timeFinish', Match.prototype.sendResponse, {once: true});
     if (manualMode !== false) {
-        addEventListener('alreadyAnswered_' + jqid, (ev) => {
+        addEventListener('alreadyAnswered_' + kid, (ev) => {
             let userid =  jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
@@ -203,7 +203,7 @@ Match.prototype.initEvents = function() {
                 Match.prototype.sendResponse();
             }
         }, {once: true});
-        addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+        addEventListener('teacherQuestionEnd_' + kid, (e) => {
             if (questionEnd !== true) {
                 Match.prototype.sendResponse();
             }
@@ -220,28 +220,28 @@ Match.prototype.initEvents = function() {
                     .width(statistic.partially + '%').html(statistic.partially + '%');
             });
         }, {once: true});
-        addEventListener('pauseQuestion_' + jqid, () => {
+        addEventListener('pauseQuestion_' + kid, () => {
             Match.prototype.pauseQuestion();
         }, false);
-        addEventListener('playQuestion_' + jqid, () => {
+        addEventListener('playQuestion_' + kid, () => {
             Match.prototype.playQuestion();
         }, false);
-        addEventListener('showAnswers_' + jqid, () => {
+        addEventListener('showAnswers_' + kid, () => {
             Match.prototype.showAnswers();
         }, false);
-        addEventListener('hideAnswers_' + jqid, () => {
+        addEventListener('hideAnswers_' + kid, () => {
             Match.prototype.hideAnswers();
         }, false);
-        addEventListener('showStatistics_' + jqid, () => {
+        addEventListener('showStatistics_' + kid, () => {
             Match.prototype.showStatistics();
         }, false);
-        addEventListener('hideStatistics_' + jqid, () => {
+        addEventListener('hideStatistics_' + kid, () => {
             Match.prototype.hideStatistics();
         }, false);
-        addEventListener('showFeedback_' + jqid, () => {
+        addEventListener('showFeedback_' + kid, () => {
             Match.prototype.showFeedback();
         }, false);
-        addEventListener('hideFeedback_' + jqid, () => {
+        addEventListener('hideFeedback_' + kid, () => {
             Match.prototype.hideFeedback();
         }, false);
         addEventListener('removeEvents', () => {
@@ -261,7 +261,7 @@ Match.prototype.initEvents = function() {
 Match.prototype.removeEvents = function() {
     removeEventListener('timeFinish', () => Match.prototype.sendResponse, {once: true});
     if (manualMode !== false) {
-        removeEventListener('alreadyAnswered_' + jqid, (ev) => {
+        removeEventListener('alreadyAnswered_' + kid, (ev) => {
             let userid =  jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
@@ -271,7 +271,7 @@ Match.prototype.removeEvents = function() {
                 Match.prototype.sendResponse();
             }
         }, {once: true});
-        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+        removeEventListener('teacherQuestionEnd_' + kid, (e) => {
             if (questionEnd !== true) {
                 Match.prototype.sendResponse();
             }
@@ -288,28 +288,28 @@ Match.prototype.removeEvents = function() {
                     .width(statistic.partially + '%').html(statistic.partially + '%');
             });
         }, {once: true});
-        removeEventListener('pauseQuestion_' + jqid, () => {
+        removeEventListener('pauseQuestion_' + kid, () => {
             Match.prototype.pauseQuestion();
         }, false);
-        removeEventListener('playQuestion_' + jqid, () => {
+        removeEventListener('playQuestion_' + kid, () => {
             Match.prototype.playQuestion();
         }, false);
-        removeEventListener('showAnswers_' + jqid, () => {
+        removeEventListener('showAnswers_' + kid, () => {
             Match.prototype.showAnswers();
         }, false);
-        removeEventListener('hideAnswers_' + jqid, () => {
+        removeEventListener('hideAnswers_' + kid, () => {
             Match.prototype.hideAnswers();
         }, false);
-        removeEventListener('showStatistics_' + jqid, () => {
+        removeEventListener('showStatistics_' + kid, () => {
             Match.prototype.showStatistics();
         }, false);
-        removeEventListener('hideStatistics_' + jqid, () => {
+        removeEventListener('hideStatistics_' + kid, () => {
             Match.prototype.hideStatistics();
         }, false);
-        removeEventListener('showFeedback_' + jqid, () => {
+        removeEventListener('showFeedback_' + kid, () => {
             Match.prototype.showFeedback();
         }, false);
-        removeEventListener('hideFeedback_' + jqid, () => {
+        removeEventListener('hideFeedback_' + kid, () => {
             Match.prototype.hideFeedback();
         }, false);
         removeEventListener('removeEvents', () => {
@@ -423,10 +423,10 @@ Match.prototype.sendResponse = function() {
                 jsonresponse: JSON.stringify(linkList),
                 result: result,
                 sessionid: sId,
-                jqshowid: jqshowId,
+                kuetid: kuetId,
                 cmid: cmId,
                 questionid: questionid,
-                jqid: jqid,
+                kid: kid,
                 timeleft: timeLeft || 0,
                 preview: false
             }

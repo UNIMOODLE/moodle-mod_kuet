@@ -36,14 +36,14 @@ class getsession_external_test extends \advanced_testcase {
     public function test_getsession() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
 
         $sessionmock = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
             'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
@@ -64,8 +64,8 @@ class getsession_external_test extends \advanced_testcase {
             'sessionid' => 0,
             'showgraderanking' => 0,
         ];
-        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
-        $data = getsession_external::getsession($createdsid, $jqshow->cmid);
+        $createdsid = $generator->create_session($kuet, (object) $sessionmock);
+        $data = getsession_external::getsession($createdsid, $kuet->cmid);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('session', $data);
         $this->assertEquals($createdsid, $data['session']['id']);

@@ -28,8 +28,8 @@ class description_external_test extends advanced_testcase {
     public function test_description() : void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -40,7 +40,7 @@ class description_external_test extends advanced_testcase {
         // Create session.
         $sessionmock = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
             'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
@@ -62,7 +62,7 @@ class description_external_test extends advanced_testcase {
             'submitbutton' => 0,
             'showgraderanking' => 0,
         ];
-        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
+        $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -71,25 +71,25 @@ class description_external_test extends advanced_testcase {
 
         // Add questions to a session.
         $questions = [
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION]
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]
         ];
         $generator->add_questions_to_session($questions);
-        \mod_kuet\external\startsession_external::startsession($jqshow->cmid, $createdsid);
+        \mod_kuet\external\startsession_external::startsession($kuet->cmid, $createdsid);
 
         $qbd = question_bank::load_question($dq->id);
 
         $jdq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION]
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]
         );
 
         // User 1 answers a correct answer.
         self::setUser($student1);
         $hasfeedback = !empty($qbd->generalfeedback);
         $feedback = questions::get_text(
-            $jqshow->cmid, $qbd->generalfeedback, $qbd->generalfeedbackformat, $qbd->id, $qbd, 'generalfeedback'
+            $kuet->cmid, $qbd->generalfeedback, $qbd->generalfeedbackformat, $qbd->id, $qbd, 'generalfeedback'
         );
-        $data1 = \mod_kuet\external\description_external::description($createdsid, $jqshow->id,
-            $jqshow->cmid, $dq->id, $jdq->get('id'), 10, false);
+        $data1 = \mod_kuet\external\description_external::description($createdsid, $kuet->id,
+            $kuet->cmid, $dq->id, $jdq->get('id'), 10, false);
         $this->assertIsArray($data1);
         $this->assertArrayHasKey('reply_status', $data1);
         $this->assertArrayHasKey('result', $data1);

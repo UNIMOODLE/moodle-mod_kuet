@@ -74,23 +74,23 @@ interface questionType {
      * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
-     * @param int $jqid
+     * @param int $kid
      * @return mixed
      */
     public static function get_question_report(kuet_sessions $session,
                                                question_definition $questiondata,
                                                stdClass $data,
-                                               int $jqid) : stdClass;
+                                               int $kid) : stdClass;
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param bool $preview
      * @return mixed
      */
-    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview) : object ;
+    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview) : object ;
 
     /**
      * @param stdClass $data
@@ -102,10 +102,10 @@ interface questionType {
 
     /**
      * @param int $cmid
-     * @param int $jqid
+     * @param int $kid
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $statmentfeedback
      * @param int $userid
      * @param int $timeleft
@@ -114,10 +114,10 @@ interface questionType {
      */
     public static function question_response(
         int $cmid,
-        int $jqid,
+        int $kid,
         int $questionid,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         string $statmentfeedback,
         int $userid,
         int $timeleft,

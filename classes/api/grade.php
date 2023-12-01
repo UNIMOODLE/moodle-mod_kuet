@@ -102,8 +102,8 @@ class grade {
     public static function get_simple_mark(kuet_questions_responses $response): float {
         $mark = 0;
         // Check ignore grading setting.
-        $jquestion = kuet_questions::get_record(['id' => $response->get('jqid')]);
-        if ($jquestion !== false && $jquestion->get('ignorecorrectanswer')) {
+        $kquestion = kuet_questions::get_record(['id' => $response->get('kid')]);
+        if ($kquestion !== false && $kquestion->get('ignorecorrectanswer')) {
             return (float)$mark;
         }
 
@@ -123,14 +123,14 @@ class grade {
     /**
      * @param int $userid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @return float
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_session_grade(int $userid, int $sessionid, int $jqshowid) : float {
-        $responses = kuet_questions_responses::get_session_responses_for_user($userid, $sessionid, $jqshowid);
+    public static function get_session_grade(int $userid, int $sessionid, int $kuetid) : float {
+        $responses = kuet_questions_responses::get_session_responses_for_user($userid, $sessionid, $kuetid);
         if (count($responses) === 0) {
             return 0;
         }
@@ -166,7 +166,7 @@ class grade {
             if ($usermark === 0.0) {
                 continue;
             }
-            $qtime = kuet_questions::get_question_time($response->get('jqid'), $response->get('session'));
+            $qtime = kuet_questions::get_question_time($response->get('kid'), $response->get('session'));
             $useranswer = base64_decode($response->get('response'));
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
@@ -196,7 +196,7 @@ class grade {
             if ($usermark === 0.0) {
                 continue;
             }
-            $qtime = kuet_questions::get_question_time($response->get('jqid'), $response->get('session'));
+            $qtime = kuet_questions::get_question_time($response->get('kid'), $response->get('session'));
             $useranswer = base64_decode($response->get('response'));
             $percent = 1;
             if ($qtime && !empty($useranswer)) {
@@ -230,18 +230,18 @@ class grade {
 
     /**
      * @param int $userid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @return void
      * @throws invalid_persistent_exception
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function recalculate_mod_mark_by_userid(int $userid, int $jqshowid) :void {
-        $params = ['userid' => $userid, 'kuet' => $jqshowid];
+    public static function recalculate_mod_mark_by_userid(int $userid, int $kuetid) :void {
+        $params = ['userid' => $userid, 'kuet' => $kuetid];
         $allgrades = kuet_sessions_grades::get_records($params);
 
-        $jqshow = kuet::get_record(['id' => $jqshowid]);
-        $grademethod = $jqshow->get('grademethod');
+        $kuet = kuet::get_record(['id' => $kuetid]);
+        $grademethod = $kuet->get('grademethod');
 
         if (count($allgrades) === 0) {
             return;
@@ -263,24 +263,24 @@ class grade {
         $params['rawgrade'] = $finalgrade;
         $params['rawgrademax'] = get_config('core', 'gradepointmax');
         $params['rawgrademin'] = 0;
-        mod_kuet_grade_item_update($jqshow->to_record(), $params);
+        mod_kuet_grade_item_update($kuet->to_record(), $params);
     }
 
     /**
      * For all the course students.
      * @param int $cmid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @throws coding_exception
      * @throws dml_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function recalculate_mod_mark(int $cmid, int $jqshowid) : void {
+    public static function recalculate_mod_mark(int $cmid, int $kuetid) : void {
         $students = \mod_kuet\kuet::get_students($cmid);
         if (empty($students)) {
             return;
         }
-        $sessions = kuet_sessions::get_records(['jqshowid' => $jqshowid]);
+        $sessions = kuet_sessions::get_records(['kuetid' => $kuetid]);
         if (empty($sessions)) {
             return;
         }
@@ -294,7 +294,7 @@ class grade {
             return;
         }
         foreach ($students as $student) {
-            self::recalculate_mod_mark_by_userid($student->{'id'}, $jqshowid);
+            self::recalculate_mod_mark_by_userid($student->{'id'}, $kuetid);
         }
     }
 

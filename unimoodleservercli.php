@@ -287,7 +287,7 @@ class unimoodleservercli extends websockets {
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'alreadyAnswered',
                             'userid' => $data['userid'],
-                            'jqid' => $data['jqid'],
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             default:
@@ -368,7 +368,7 @@ class unimoodleservercli extends websockets {
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'teacherQuestionEnd',
-                            'jqid' => $data['jqid'],
+                            'kid' => $data['kid'],
                             'statistics' => $data['statistics']
                         ], JSON_THROW_ON_ERROR)
                     ));
@@ -376,63 +376,63 @@ class unimoodleservercli extends websockets {
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'pauseQuestion',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'playQuestion':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'playQuestion',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'showAnswers':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'showAnswers',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'hideAnswers':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'hideAnswers',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'showStatistics':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'showStatistics',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'hideStatistics':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'hideStatistics',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'showFeedback':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'showFeedback',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'hideFeedback':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'hideFeedback',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'improvising':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'improvising',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'closeImprovise':

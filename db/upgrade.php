@@ -74,7 +74,7 @@ function xmldb_kuet_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Jqshow savepoint reached.
+        // Kuet savepoint reached.
         upgrade_mod_savepoint(true, 2023071800, 'kuet');
     }
     return true;

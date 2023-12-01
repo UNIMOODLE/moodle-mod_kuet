@@ -55,20 +55,20 @@ function xmldb_kuet_uninstall(): bool {
             }
         }
         $dbman = $DB->get_manager();
-        $jqshow = new xmldb_table('kuet');
-        $dbman->drop_table($jqshow);
-        $jqshowgrades = new xmldb_table('kuet_grades');
-        $dbman->drop_table($jqshowgrades);
-        $jqshowquestions = new xmldb_table('kuet_questions');
-        $dbman->drop_table($jqshowquestions);
+        $kuet = new xmldb_table('kuet');
+        $dbman->drop_table($kuet);
+        $kuetgrades = new xmldb_table('kuet_grades');
+        $dbman->drop_table($kuetgrades);
+        $kuetquestions = new xmldb_table('kuet_questions');
+        $dbman->drop_table($kuetquestions);
         $questionsresponses = new xmldb_table('questions_responses');
         $dbman->drop_table($questionsresponses);
-        $jqshowsessions = new xmldb_table('kuet_sessions');
-        $dbman->drop_table($jqshowsessions);
-        $jqshowsessionsgrades = new xmldb_table('kuet_sessions_grades');
-        $dbman->drop_table($jqshowsessionsgrades);
-        $jqshowuserprogress = new xmldb_table('kuet_user_progress');
-        $dbman->drop_table($jqshowuserprogress);
+        $kuetsessions = new xmldb_table('kuet_sessions');
+        $dbman->drop_table($kuetsessions);
+        $kuetsessionsgrades = new xmldb_table('kuet_sessions_grades');
+        $dbman->drop_table($kuetsessionsgrades);
+        $kuetuserprogress = new xmldb_table('kuet_user_progress');
+        $dbman->drop_table($kuetuserprogress);
         return true;
     } catch (Exception $e) {
         return false;

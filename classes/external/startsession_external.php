@@ -84,7 +84,7 @@ class startsession_external extends external_api {
         $started = false;
         if ($cmcontext !== null && has_capability('mod/kuet:managesessions', $cmcontext, $USER)) {
             $session = new kuet_sessions($sessionid);
-            if (kuet_sessions::get_active_session_id($session->get('jqshowid')) === 0) {
+            if (kuet_sessions::get_active_session_id($session->get('kuetid')) === 0) {
                 if ($session->is_group_mode()) {
                     groupmode::check_all_users_in_groups($cmid, $session->get('groupings'));
                 }

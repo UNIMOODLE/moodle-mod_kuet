@@ -61,12 +61,12 @@ class kuet_sessions_grades extends persistent {
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $userid
      * @return kuet_sessions_grades[]
      */
-    public static function get_grades_for_user(int $jqshowid, int $userid): array {
-        return self::get_records(['kuet' => $jqshowid, 'userid' => $userid]);
+    public static function get_grades_for_user(int $kuetid, int $userid): array {
+        return self::get_records(['kuet' => $kuetid, 'userid' => $userid]);
     }
 
     /**

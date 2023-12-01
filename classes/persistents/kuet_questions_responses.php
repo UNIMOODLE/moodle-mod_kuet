@@ -56,7 +56,7 @@ class kuet_questions_responses extends persistent {
             'session' => [
                 'type' => PARAM_INT,
             ],
-            'jqid' => [
+            'kid' => [
                 'type' => PARAM_INT,
             ],
             'questionid' => [
@@ -79,22 +79,22 @@ class kuet_questions_responses extends persistent {
 
     /**
      * @param int $userid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $sessionid
      * @return kuet_questions_responses[]
      */
-    public static function get_session_responses_for_user(int $userid, int $sessionid, int $jqshowid): array {
-        return self::get_records(['userid' => $userid, 'session' => $sessionid, 'kuet' => $jqshowid]);
+    public static function get_session_responses_for_user(int $userid, int $sessionid, int $kuetid): array {
+        return self::get_records(['userid' => $userid, 'session' => $sessionid, 'kuet' => $kuetid]);
     }
 
     /**
      * @param int $sessionid
-     * @param int $jqshowid
-     * @param int $jqid
+     * @param int $kuetid
+     * @param int $kid
      * @return kuet_questions_responses[]
      */
-    public static function get_question_responses(int $sessionid, int $jqshowid, int $jqid): array {
-        return self::get_records(['jqid' => $jqid, 'session' => $sessionid, 'kuet' => $jqshowid]);
+    public static function get_question_responses(int $sessionid, int $kuetid, int $kid): array {
+        return self::get_records(['kid' => $kid, 'session' => $sessionid, 'kuet' => $kuetid]);
     }
 
     /**
@@ -109,17 +109,17 @@ class kuet_questions_responses extends persistent {
     /**
      * @param int $userid
      * @param int $session
-     * @param int $jqid
+     * @param int $kid
      * @return false|kuet_questions_responses
      */
-    public static function get_question_response_for_user(int $userid, int $session, int $jqid) {
-        return self::get_record(['session' => $session, 'userid' => $userid, 'jqid' => $jqid]);
+    public static function get_question_response_for_user(int $userid, int $session, int $kid) {
+        return self::get_record(['session' => $session, 'userid' => $userid, 'kid' => $kid]);
     }
 
     /**
-     * @param int $jqshow
+     * @param int $kuet
      * @param int $session
-     * @param int $jqid
+     * @param int $kid
      * @param int $questionid
      * @param int $userid
      * @param int $result
@@ -130,17 +130,17 @@ class kuet_questions_responses extends persistent {
      * @throws moodle_exception
      */
     public static function add_response(
-        int $jqshow, int $session, int $jqid, int $questionid, int $userid, int $result, string $response
+        int $kuet, int $session, int $kid, int $questionid, int $userid, int $result, string $response
     ): bool {
         $sessiondata = kuet_sessions::get_record(['id' => $session], MUST_EXIST);
-        $record = self::get_record(['kuet' => $jqshow, 'session' => $session, 'jqid' => $jqid, 'userid' => $userid]);
+        $record = self::get_record(['kuet' => $kuet, 'session' => $session, 'kid' => $kid, 'userid' => $userid]);
         // Only the first response for user is saved to prevent further responses by relaunching the services.
         if ($record === false && $sessiondata->get('status') === sessions::SESSION_STARTED) {
             try {
                 $data = new stdClass();
-                $data->kuet = $jqshow;
+                $data->kuet = $kuet;
                 $data->session = $session;
-                $data->jqid = $jqid;
+                $data->kid = $kid;
                 $data->questionid = $questionid;
                 $data->userid = $userid;
                 $data->anonymise = $sessiondata->get('anonymousanswer');
@@ -156,15 +156,15 @@ class kuet_questions_responses extends persistent {
     }
 
     /**
-     * @param int $jqshow
+     * @param int $kuet
      * @param int $sid
-     * @param int $jqid
+     * @param int $kid
      * @return bool
      * @throws dml_exception
      */
-    public static function delete_question_responses(int $jqshow, int $sid, int $jqid): bool {
+    public static function delete_question_responses(int $kuet, int $sid, int $kid): bool {
         global $DB;
-        return  $DB->delete_records(self::TABLE, ['kuet' => $jqshow, 'session' => $sid, 'jqid' => $jqid]);
+        return  $DB->delete_records(self::TABLE, ['kuet' => $kuet, 'session' => $sid, 'kid' => $kid]);
     }
 
     /**

@@ -48,12 +48,12 @@ $reportname = required_param('name', PARAM_RAW);
 $sid = required_param('sid', PARAM_INT);
 $userid = optional_param('userid', 0, PARAM_INT);
 $groupid = optional_param('groupid', 0, PARAM_INT);
-$jqid = optional_param('jqid', 0, PARAM_INT);
+$kid = optional_param('kid', 0, PARAM_INT);
 $download = optional_param('download', '', PARAM_ALPHA);
 
 $cm = get_coursemodule_from_id('kuet', $cmid, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-$jqshow = kuet::get_record(['id' => $cm->instance], MUST_EXIST);
+$kuet = kuet::get_record(['id' => $cm->instance], MUST_EXIST);
 
 require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
@@ -70,15 +70,15 @@ $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => $reportname];
 $url = new moodle_url('/mod/kuet/dwn_report.php',$params);
 $PAGE->set_url($url);
 if ($isteacher) {
-    $view = new teacher_reports($cmid, $jqshow->get('id'), $sid, $participantid, $jqid);
+    $view = new teacher_reports($cmid, $kuet->get('id'), $sid, $participantid, $kid);
 } else {
     if ((int)$userid !== 0 && (int)$userid !== (int)$USER->id) {
         die();
     }
-    $view = new student_reports($cm->id, $jqshow->get('id'), $sid);
+    $view = new student_reports($cm->id, $kuet->get('id'), $sid);
 }
-$PAGE->set_title("$course->shortname: ".format_string($jqshow->get('name')));
-$PAGE->set_heading($jqshow->get('name'));
+$PAGE->set_title("$course->shortname: ".format_string($kuet->get('name')));
+$PAGE->set_heading($kuet->get('name'));
 
 $output = $PAGE->get_renderer('mod_kuet');
 $data = $view->export_for_template($output);
@@ -95,10 +95,10 @@ switch ($reportname) {
             get_string('score_moment', 'mod_kuet'),
             get_string('time', 'mod_kuet'),
             get_string('reportlink', 'mod_kuet')];
-        $filename .= '_questionid_' . $jqid  ;
+        $filename .= '_questionid_' . $kid  ;
         $reportvalues = $data->questiongroupranking;
         $tabletitle = get_string('questionreport', 'mod_kuet');
-        $params =  array_merge($params, ['jqid' => $jqid]);
+        $params =  array_merge($params, ['kid' => $kid]);
         $url->params($params);
         break;
     case reports::QUESTION_REPORT:
@@ -110,10 +110,10 @@ switch ($reportname) {
             get_string('score_moment', 'mod_kuet'),
             get_string('time', 'mod_kuet'),
             get_string('reportlink', 'mod_kuet')];
-        $filename .= '_questionid_' . $jqid;
+        $filename .= '_questionid_' . $kid;
         $reportvalues = $data->questionranking;
         $tabletitle = get_string('questionreport', 'mod_kuet');
-        $params =  array_merge($params, ['jqid' => $jqid]);
+        $params =  array_merge($params, ['kid' => $kid]);
         $url->params($params);
         break;
     case reports::SESSION_QUESTIONS_REPORT:

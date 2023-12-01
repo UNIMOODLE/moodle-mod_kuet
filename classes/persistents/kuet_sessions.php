@@ -55,7 +55,7 @@ class kuet_sessions extends persistent {
             'name' => [
                 'type' => PARAM_RAW,
             ],
-            'jqshowid' => [
+            'kuetid' => [
                 'type' => PARAM_INT,
             ],
             'anonymousanswer' => [
@@ -200,34 +200,34 @@ class kuet_sessions extends persistent {
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @return int
      * @throws coding_exception
      */
-    public static function get_active_session_id(int $jqshowid): int {
-        $activesession = self::get_record(['jqshowid' => $jqshowid, 'status' => sessionsmodel::SESSION_STARTED]);
+    public static function get_active_session_id(int $kuetid): int {
+        $activesession = self::get_record(['kuetid' => $kuetid, 'status' => sessionsmodel::SESSION_STARTED]);
         return $activesession !== false ? $activesession->get('id') : 0;
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $sessionid
      * @return string
      * @throws coding_exception
      */
-    public static function get_sessionname(int $jqshowid, int $sessionid): string {
-        $sessionname = self::get_record(['id' => $sessionid, 'jqshowid' => $jqshowid]);
+    public static function get_sessionname(int $kuetid, int $sessionid): string {
+        $sessionname = self::get_record(['id' => $sessionid, 'kuetid' => $kuetid]);
         return $sessionname !== false ? $sessionname->get('name') : '';
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @return int
      * @throws dml_exception
      */
-    public static function get_next_session(int $jqshowid): int {
+    public static function get_next_session(int $kuetid): int {
         global $DB;
-        $allsessions = $DB->get_records(self::TABLE, ['jqshowid' => $jqshowid, 'status' => sessionsmodel::SESSION_ACTIVE],
+        $allsessions = $DB->get_records(self::TABLE, ['kuetid' => $kuetid, 'status' => sessionsmodel::SESSION_ACTIVE],
             'startdate DESC', 'id, startdate');
         $dates = [];
         foreach ($allsessions as $date) {
@@ -304,11 +304,11 @@ class kuet_sessions extends persistent {
         $session->set('enddate', time());
         $session->update();
 
-        $cm = get_coursemodule_from_instance('kuet', $session->get('jqshowid'));
-        $jqshow = new kuet($session->get('jqshowid'));
+        $cm = get_coursemodule_from_instance('kuet', $session->get('kuetid'));
+        $kuet = new kuet($session->get('kuetid'));
         $params = array(
             'objectid' => $sid,
-            'courseid' => $jqshow->get('course'),
+            'courseid' => $kuet->get('course'),
             'context' => context_module::instance($cm->id)
         );
         $event = session_ended::create($params);
@@ -336,36 +336,36 @@ class kuet_sessions extends persistent {
     public static function get_sessions_by_name(string $name, int $jsqhowid) : array {
         global $DB;
         $comparescaleclause = $DB->sql_compare_text('name')  . ' =  ' . $DB->sql_compare_text(':name');
-        $comparescaleclause .= ' AND jqshowid = :jqshowid';
+        $comparescaleclause .= ' AND kuetid = :kuetid';
 
         return $DB->get_records_sql("SELECT * FROM {kuet_sessions} WHERE $comparescaleclause",
-            ['name' => $name, 'jqshowid' => $jsqhowid]);
+            ['name' => $name, 'kuetid' => $jsqhowid]);
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @return array
      * @throws dml_exception
      */
-    private function get_active_sessions(int $jqshowid): array {
+    private function get_active_sessions(int $kuetid): array {
         global $DB;
-        $select = "jqshowid = :jqshowid AND sessionmode = :sessionmode AND automaticstart = :automaticstart AND status != 0";
+        $select = "kuetid = :kuetid AND sessionmode = :sessionmode AND automaticstart = :automaticstart AND status != 0";
         $params = [
-            'jqshowid' => $jqshowid
+            'kuetid' => $kuetid
         ];
         return $DB->get_records_select('kuet_sessions', $select, $params);
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @return array
      * @throws dml_exception
      */
-    private static function get_automaticstart_sessions(int $jqshowid): array {
+    private static function get_automaticstart_sessions(int $kuetid): array {
         global $DB;
-        $select = "jqshowid = :jqshowid AND sessionmode = :sessionmode AND automaticstart = :automaticstart AND status != 0";
+        $select = "kuetid = :kuetid AND sessionmode = :sessionmode AND automaticstart = :automaticstart AND status != 0";
         $params = [
-            'jqshowid' => $jqshowid,
+            'kuetid' => $kuetid,
             'sessionmode' => sessions::PODIUM_PROGRAMMED,
             'automaticstart' => 1
         ];

@@ -63,10 +63,10 @@ class match_external extends external_api {
                 'jsonresponse' => new external_value(PARAM_RAW, 'json with all responses'),
                 'result' => new external_value(PARAM_INT, 'const result'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
-                'jqshowid' => new external_value(PARAM_INT, 'id of kuet'),
+                'kuetid' => new external_value(PARAM_INT, 'id of kuet'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
                 'questionid' => new external_value(PARAM_INT, 'id of question'),
-                'jqid' => new external_value(PARAM_INT, 'id of question in kuet_questions'),
+                'kid' => new external_value(PARAM_INT, 'id of question in kuet_questions'),
                 'timeleft' => new external_value(PARAM_INT, 'Time left of question, if question has time, else 0.'),
                 'preview' => new external_value(PARAM_BOOL, 'preview or not for grade'),
             ]
@@ -77,10 +77,10 @@ class match_external extends external_api {
      * @param string $jsonresponse
      * @param int $result
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $questionid
-     * @param int $jqid
+     * @param int $kid
      * @param int $timeleft
      * @param bool $preview
      * @return array
@@ -94,10 +94,10 @@ class match_external extends external_api {
         string $jsonresponse,
         int $result,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         int $cmid,
         int $questionid,
-        int $jqid,
+        int $kid,
         int $timeleft,
         bool $preview
     ): array {
@@ -108,10 +108,10 @@ class match_external extends external_api {
                 'jsonresponse' => $jsonresponse,
                 'result' => $result,
                 'sessionid' => $sessionid,
-                'jqshowid' => $jqshowid,
+                'kuetid' => $kuetid,
                 'cmid' => $cmid,
                 'questionid' => $questionid,
-                'jqid' => $jqid,
+                'kid' => $kid,
                 'timeleft' => $timeleft,
                 'preview' => $preview
             ]
@@ -169,10 +169,10 @@ class match_external extends external_api {
                 ];
                 matchquestion::question_response(
                     $cmid,
-                    $jqid,
+                    $kid,
                     $questionid,
                     $sessionid,
-                    $jqshowid,
+                    $kuetid,
                     $statmentfeedback,
                     $USER->id,
                     $timeleft,

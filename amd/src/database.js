@@ -58,8 +58,8 @@ Db.prototype.openDb = function() {
     req.onupgradeneeded = function(evt) {
         // We create the database with the necessary objects and indexes.
         let questions = evt.currentTarget.result.createObjectStore(
-            'questions', {keyPath: 'jqid'});
-        questions.createIndex('jqid', 'jqid', {unique: true});
+            'questions', {keyPath: 'kid'});
+        questions.createIndex('kid', 'kid', {unique: true});
 
         let statequestions = evt.currentTarget.result.createObjectStore('statequestions', {keyPath: 'state'});
         statequestions.createIndex('state', 'state', {unique: true});

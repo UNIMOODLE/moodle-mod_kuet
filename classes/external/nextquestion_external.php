@@ -69,7 +69,7 @@ class nextquestion_external extends external_api {
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
-                'jqid' => new external_value(PARAM_INT, 'question id of kuet_questions'),
+                'kid' => new external_value(PARAM_INT, 'question id of kuet_questions'),
                 'manual' => new external_value(PARAM_BOOL, 'Mode of session')
             ]
         );
@@ -78,7 +78,7 @@ class nextquestion_external extends external_api {
     /**
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqid
+     * @param int $kid
      * @param bool $manual
      * @return array
      * @throws JsonException
@@ -91,20 +91,20 @@ class nextquestion_external extends external_api {
      * @throws moodle_exception
      */
     public static function nextquestion(
-        int $cmid, int $sessionid, int $jqid, bool $manual = false
+        int $cmid, int $sessionid, int $kid, bool $manual = false
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
             self::nextquestion_parameters(),
-            ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid, 'manual' => $manual]
+            ['cmid' => $cmid, 'sessionid' => $sessionid, 'kid' => $kid, 'manual' => $manual]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
-        $nextquestion = kuet_questions::get_next_question_of_session($sessionid, $jqid);
+        $nextquestion = kuet_questions::get_next_question_of_session($sessionid, $kid);
         $session = new kuet_sessions($sessionid);
         if ($nextquestion !== false) {
             progress::set_progress(
-                $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
+                $nextquestion->get('kuetid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
             );
             /** @var questions $type */
             $type = questions::get_question_class_by_string_type($nextquestion->get('qtype'));
@@ -112,13 +112,13 @@ class nextquestion_external extends external_api {
                 $nextquestion->get('id'),
                 $cmid,
                 $sessionid,
-                $nextquestion->get('jqshowid'));
+                $nextquestion->get('kuetid'));
             $data->showstatistics = $type::show_statistics();
         } else {
             $finishdata = new stdClass();
             $finishdata->endSession = 1;
             kuet_user_progress::add_progress(
-                $session->get('jqshowid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
+                $session->get('kuetid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
             );
             $data = sessions::export_endsession(
                 $cmid,

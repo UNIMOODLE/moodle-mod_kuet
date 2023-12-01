@@ -30,14 +30,14 @@ class getsessionresume_external_test extends advanced_testcase {
     public function test_getsessionresume() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
 
         $sessionmock1 = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
             'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
@@ -65,9 +65,9 @@ class getsessionresume_external_test extends advanced_testcase {
         $sessionmock2['startdate'] = 1697035302;
 
         // Create sessions.
-        $session1id = $generator->create_session($jqshow, (object) $sessionmock1);
+        $session1id = $generator->create_session($kuet, (object) $sessionmock1);
         $sessionmock1['sessionid'] = $session1id;
-        $session2id = $generator->create_session($jqshow, (object) $sessionmock2);
+        $session2id = $generator->create_session($kuet, (object) $sessionmock2);
         $sessionmock2['sessionid'] = $session2id;
 
         // Create questions.
@@ -78,16 +78,16 @@ class getsessionresume_external_test extends advanced_testcase {
 
         // Add questions.
         \mod_kuet\external\addquestions_external::add_questions([
-            ['questionid' => $saq->id, 'sessionid' => $session1id, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER],
-            ['questionid' => $nq->id, 'sessionid' => $session1id, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL]
+            ['questionid' => $saq->id, 'sessionid' => $session1id, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER],
+            ['questionid' => $nq->id, 'sessionid' => $session1id, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]
         ]);
         \mod_kuet\external\addquestions_external::add_questions([
-            ['questionid' => $saq->id, 'sessionid' => $session2id, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER],
-            ['questionid' => $nq->id, 'sessionid' => $session2id, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL]
+            ['questionid' => $saq->id, 'sessionid' => $session2id, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER],
+            ['questionid' => $nq->id, 'sessionid' => $session2id, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]
         ]);
 
-        $data1 = \mod_kuet\external\getsessionresume_external::getsessionresume($sessionmock1['sessionid'], $jqshow->cmid);
-        $data2 = \mod_kuet\external\getsessionresume_external::getsessionresume($sessionmock2['sessionid'], $jqshow->cmid);
+        $data1 = \mod_kuet\external\getsessionresume_external::getsessionresume($sessionmock1['sessionid'], $kuet->cmid);
+        $data2 = \mod_kuet\external\getsessionresume_external::getsessionresume($sessionmock2['sessionid'], $kuet->cmid);
 
         $this->assertIsArray($data1);
         $this->assertArrayHasKey('config', $data1);

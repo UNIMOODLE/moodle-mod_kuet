@@ -57,14 +57,14 @@ class mod_kuet_external extends external_api {
     /**
      *
      * @param array $courseids course ids
-     * @return array of warnings and jqshows
+     * @return array of warnings and kuets
      * @throws coding_exception
      * @throws invalid_parameter_exception
      * @since Moodle 3.3
      */
     public static function get_kuets_by_courses(array $courseids = []) : array {
         $warnings = [];
-        $returnedjqshows = [];
+        $returnedkuets = [];
         $params = [
             'courseids' => $courseids,
         ];
@@ -80,17 +80,17 @@ class mod_kuet_external extends external_api {
         if (!empty($params['courseids'])) {
             [$courses, $warnings] = external_util::validate_courses($params['courseids'], $mycourses);
 
-            // Get the jqshows in this course, this function checks users visibility permissions.
+            // Get the kuets in this course, this function checks users visibility permissions.
             // We can avoid then additional validate_context calls.
-            $jqshows = get_all_instances_in_courses("kuet", $courses);
-            foreach ($jqshows as $jqshow) {
-                helper_for_get_mods_by_courses::format_name_and_intro($jqshow, 'mod_kuet');
-                $returnedjqshows[] = $jqshow;
+            $kuets = get_all_instances_in_courses("kuet", $courses);
+            foreach ($kuets as $kuet) {
+                helper_for_get_mods_by_courses::format_name_and_intro($kuet, 'mod_kuet');
+                $returnedkuets[] = $kuet;
             }
         }
 
         return [
-            'jqshows' => $returnedjqshows,
+            'kuets' => $returnedkuets,
             'warnings' => $warnings
         ];
     }
@@ -101,7 +101,7 @@ class mod_kuet_external extends external_api {
     public static function get_kuets_by_courses_returns() : external_single_structure {
         return new external_single_structure(
             array(
-                'jqshows' => new external_multiple_structure(
+                'kuets' => new external_multiple_structure(
                     new external_single_structure(array_merge(
                         helper_for_get_mods_by_courses::standard_coursemodule_elements_returns(),
                         [

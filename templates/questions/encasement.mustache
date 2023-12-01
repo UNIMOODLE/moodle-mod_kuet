@@ -21,7 +21,7 @@
     Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
     Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 }}
-<div class="container-fluid question-content" data-jqid="{{jqid}}" data-questionid="{{questionid}}" data-sid="{{sessionid}}" data-cmid="{{cmid}}" data-jqshowid="{{jqshowid}}" data-region="question-content">
+<div class="container-fluid question-content" data-kid="{{kid}}" data-questionid="{{questionid}}" data-sid="{{sessionid}}" data-cmid="{{cmid}}" data-kuetid="{{kuetid}}" data-region="question-content">
     <div class="row">
         <div class="col-12 question-container">
             {{^endsession}}
@@ -90,7 +90,7 @@
                 {{#description}}
                     {{#programmedmode}}
                         {{^preview}}
-                            <div class="btn btn-primary m-3 float-right" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
+                            <div class="btn btn-primary m-3 float-right" data-action="next-question" data-questionid="{{questionid}}" data-kid="{{kid}}">
                                 {{#str}}next{{/str}}
                             </div>
                         {{/preview}}
@@ -99,7 +99,7 @@
                 {{#programmedmode}}
                     {{^preview}}
                         {{^description}}
-                            <div class="btn btn-primary m-3 float-right d-none" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
+                            <div class="btn btn-primary m-3 float-right d-none" data-action="next-question" data-questionid="{{questionid}}" data-kid="{{kid}}">
                                 {{#str}}next{{/str}}
                             </div>
                         {{/description}}

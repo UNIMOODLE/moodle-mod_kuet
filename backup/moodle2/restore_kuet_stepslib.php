@@ -52,7 +52,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         return $this->prepare_activity_structure($paths);
     }
 
-    protected function process_jqshow($data) {
+    protected function process_kuet($data) {
         global $DB;
         $data = (object)$data;
         $data->course = $this->get_courseid();
@@ -79,7 +79,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
             $data->questionid = $newquestionid;
         }
         $data->sessionid = $this->get_mappingid('kuet_sessions', $data->sessionid);
-        $data->jqshowid = $this->get_new_parentid('kuet');
+        $data->kuetid = $this->get_new_parentid('kuet');
         $newitemid = $DB->insert_record('kuet_questions', $data);
         $this->set_mapping('kuet_questions', $oldid, $newitemid);
     }
@@ -89,7 +89,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $data = (object)$data;
         $data->kuet = $this->get_new_parentid('kuet');
         $data->session = $this->get_mappingid('kuet_sessions', $data->session);
-        $data->jqid = $this->get_mappingid('kuet_questions', $data->jqid);
+        $data->kid = $this->get_mappingid('kuet_questions', $data->kid);
         $newquestionid = $this->get_mappingid('question', $data->questionid);
         if ($newquestionid) {
             $data->questionid = $newquestionid;
@@ -103,7 +103,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         global $DB;
         $data = (object)$data;
         $oldid = $data->id;
-        $data->jqshowid = $this->get_new_parentid('kuet');
+        $data->kuetid = $this->get_new_parentid('kuet');
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
         $data->groupings = $this->get_mappingid('groupings', $data->groupings);

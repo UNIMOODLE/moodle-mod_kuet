@@ -79,12 +79,12 @@ class getraceresults_external extends external_api {
         $session = new kuet_sessions($sid);
         if ($session->is_group_mode()) {
             $groupresults = sessions::get_group_session_results($sid, $cmid);
-            $questions = sessions::breakdown_responses_for_race_groups($groupresults, $sid, $cmid, $session->get('jqshowid'));
+            $questions = sessions::breakdown_responses_for_race_groups($groupresults, $sid, $cmid, $session->get('kuetid'));
             return ['groupmode' => true, 'groupresults' => $groupresults, 'questions' => $questions];
         } else {
             $userresults = sessions::get_session_results($sid, $cmid);
             usort($userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
-            $questions = sessions::breakdown_responses_for_race($userresults, $sid, $cmid, $session->get('jqshowid'));
+            $questions = sessions::breakdown_responses_for_race($userresults, $sid, $cmid, $session->get('kuetid'));
             return ['groupmode' => false, 'userresults' => $userresults, 'questions' => $questions];
         }
     }

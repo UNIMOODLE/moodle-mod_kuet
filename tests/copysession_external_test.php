@@ -49,13 +49,13 @@ class copysession_external_test extends advanced_testcase {
     public function test_copysession(): bool {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
         $sessiontest = new sessions_test();
         $sessiontest->test_session();
         $list = $sessiontest->sessions->get_list();
-        $result = copysession_external::copysession($course->id, $jqshow->cmid, $list[0]->get('id'));
+        $result = copysession_external::copysession($course->id, $kuet->cmid, $list[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertTrue($result['copied']);
         $sessiontest->sessions->set_list();
@@ -64,7 +64,7 @@ class copysession_external_test extends advanced_testcase {
 
         $student = self::getDataGenerator()->create_and_enrol($course);
         self::setUser($student);
-        $result = copysession_external::copysession($course->id, $jqshow->cmid, $newlist[0]->get('id'));
+        $result = copysession_external::copysession($course->id, $kuet->cmid, $newlist[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertFalse($result['copied']);
 

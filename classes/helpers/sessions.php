@@ -65,8 +65,8 @@ class sessions {
         $ds->name = $session->get('name');
         $ds->sessionid = $session->get('id');
         $ds->sessionmode = get_string($session->get('sessionmode'), 'mod_kuet');
-        $jqshow = new kuet($cmid);
-        $questions = new questions($jqshow->get_jqshow()->id, $cmid, $session->get('id'));
+        $kuet = new kuet($cmid);
+        $questions = new questions($kuet->get_kuet()->id, $cmid, $session->get('id'));
         $ds->questions_number = $questions->get_num_questions();
         switch ($session->get('timemode')) {
             case sessionsmodel::NO_TIME:

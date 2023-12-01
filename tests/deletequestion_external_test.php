@@ -28,8 +28,8 @@ class deletequestion_external_test extends advanced_testcase {
     public function test_deletequestion() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -38,7 +38,7 @@ class deletequestion_external_test extends advanced_testcase {
         // Create session.
         $sessionmock = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
             'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
@@ -60,7 +60,7 @@ class deletequestion_external_test extends advanced_testcase {
             'submitbutton' => 0,
             'showgraderanking' => 0,
         ];
-        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
+        $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -70,18 +70,18 @@ class deletequestion_external_test extends advanced_testcase {
 
         // Add question.
         \mod_kuet\external\addquestions_external::add_questions([
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => 'shortanswer'],
-            ['questionid' => $saq2->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => 'shortanswer'],
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'shortanswer'],
+            ['questionid' => $saq2->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'shortanswer'],
         ]);
 
         // Get questions.
-        $jquestions = mod_kuet\persistents\kuet_questions::get_records(
-            ['sessionid' => $createdsid, 'jqshowid' => $jqshow->id]);
-        $q1 = $jquestions[0];
+        $kquestions = mod_kuet\persistents\kuet_questions::get_records(
+            ['sessionid' => $createdsid, 'kuetid' => $kuet->id]);
+        $q1 = $kquestions[0];
         \mod_kuet\external\deletequestion_external::deletequestion($createdsid, $q1->get('id'));
-        $total = \mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'jqshowid' => $jqshow->id]);
+        $total = \mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'kuetid' => $kuet->id]);
 
-        $this->assertEquals(2, count($jquestions));
+        $this->assertEquals(2, count($kquestions));
         $this->assertEquals(1, $total);
     }
 }

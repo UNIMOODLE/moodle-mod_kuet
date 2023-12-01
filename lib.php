@@ -88,17 +88,17 @@ function kuet_add_instance(stdClass $data): int {
     $record->introformat = $data->introformat;
     $record->teamgrade = isset($data->teamgrade) ?? $data->teamgrade;
     $record->grademethod = $data->grademethod;
-    $record->completionanswerall = $data->completionanswerall;
+    $record->completionanswerall = $data->completionanswerall ?? 0;
     $record->usermodified = $USER->id;
-    $jqshow = new kuet(0, $record);
-    $jqshow->create();
-    $data->id  = $jqshow->get('id');
+    $kuet = new kuet(0, $record);
+    $kuet->create();
+    $data->id  = $kuet->get('id');
 
     // Update course module record - from now on this instance properly exists and all function may be used.
     $DB->set_field('course_modules', 'instance', $data->id, array('id' => $cmid));
 
     if (!empty($data->completionexpected)) {
-        api::update_completion_date_event($cmid, 'kuet', $jqshow->to_record(), $data->completionexpected);
+        api::update_completion_date_event($cmid, 'kuet', $kuet->to_record(), $data->completionexpected);
     }
 
     mod_kuet_grade_item_update($data, null);
@@ -118,15 +118,15 @@ function kuet_update_instance(stdClass $data): bool {
 
     $teamgrade = isset($data->teamgrade) ?? $data->teamgrade;
     // Update kuet record.
-    $jqshow = new kuet($data->instance);
-    $jqshow->set('name', $data->name);
-    $jqshow->set('intro', $data->intro);
-    $jqshow->set('introformat', $data->introformat);
-    $jqshow->set('teamgrade', $teamgrade);
-    $jqshow->set('grademethod', $data->grademethod);
-    $jqshow->set('completionanswerall', $data->completionanswerall);
-    $jqshow->set('usermodified', $USER->id);
-    $jqshow->update();
+    $kuet = new kuet($data->instance);
+    $kuet->set('name', $data->name);
+    $kuet->set('intro', $data->intro);
+    $kuet->set('introformat', $data->introformat);
+    $kuet->set('teamgrade', $teamgrade);
+    $kuet->set('grademethod', $data->grademethod);
+    $kuet->set('completionanswerall', $data->completionanswerall ?? 0);
+    $kuet->set('usermodified', $USER->id);
+    $kuet->update();
 
     grade::recalculate_mod_mark($data->{'update'}, $data->instance);
     $data->id = $data->instance;
@@ -144,21 +144,21 @@ function kuet_update_instance(stdClass $data): bool {
 function kuet_delete_instance(int $id): bool {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/lib/gradelib.php');
-    $jqshow = $DB->get_record('kuet', ['id' => $id], '*', MUST_EXIST);
-    if (!$jqshow) {
+    $kuet = $DB->get_record('kuet', ['id' => $id], '*', MUST_EXIST);
+    if (!$kuet) {
         return false;
     }
     // Finally delete the kuet object.
     $DB->delete_records('kuet', ['id' => $id]);
     $DB->delete_records('kuet_grades', ['kuet' => $id]);
-    $DB->delete_records('kuet_questions', ['jqshowid' => $id]);
+    $DB->delete_records('kuet_questions', ['kuetid' => $id]);
     $DB->delete_records('kuet_questions_responses', ['kuet' => $id]);
-    $DB->delete_records('kuet_sessions', ['jqshowid' => $id]);
+    $DB->delete_records('kuet_sessions', ['kuetid' => $id]);
     $DB->delete_records('kuet_sessions_grades', ['kuet' => $id]);
     $DB->delete_records('kuet_user_progress', ['kuet' => $id]);
 
     grade_update('mod/kuet',
-        $jqshow->course,
+        $kuet->course,
         'mod',
         'kuet',
         $id,
@@ -179,21 +179,21 @@ function kuet_get_coursemodule_info(stdClass $coursemodule): ?cached_cm_info {
 
     $dbparams = ['id' => $coursemodule->instance];
     $fields = 'id, name, intro, introformat, completionanswerall';
-    if (!$jqshow = $DB->get_record('kuet', $dbparams, $fields)) {
+    if (!$kuet = $DB->get_record('kuet', $dbparams, $fields)) {
         return false;
     }
 
     $result = new cached_cm_info();
-    $result->name = $jqshow->name;
+    $result->name = $kuet->name;
 
     if ($coursemodule->showdescription) {
         // Convert intro to html. Do not filter cached version, filters run at display time.
-        $result->content = format_module_intro('kuet', $jqshow, $coursemodule->id, false);
+        $result->content = format_module_intro('kuet', $kuet, $coursemodule->id, false);
     }
 
     // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
     if ((int)$coursemodule->completion === COMPLETION_TRACKING_AUTOMATIC) {
-        $result->customdata['customcompletionrules']['completionanswerall'] = $jqshow->completionanswerall;
+        $result->customdata['customcompletionrules']['completionanswerall'] = $kuet->completionanswerall;
     }
 
     return $result;
@@ -368,7 +368,7 @@ function kuet_pluginfile($course, $cm, $context, $filearea, $args, $forcedownloa
     }
     $question = $DB->get_record('kuet_questions', [
         'questionid' => $questionid,
-        'jqshowid' => $cm->instance
+        'kuetid' => $cm->instance
     ]);
     if (!$question) {
         return false;

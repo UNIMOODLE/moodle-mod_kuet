@@ -69,7 +69,7 @@ class teacher_session_view implements renderable, templatable {
         $userpicture->size = 1;
         $data->userimage = $userpicture->get_url($PAGE)->out(false);
         $session = new kuet_sessions($data->sid);
-        $data->jqshowid = $session->get('jqshowid');
+        $data->kuetid = $session->get('kuetid');
         $qrcode = generate_kuet_qrcode((new moodle_url('/mod/kuet/view.php', ['id' => $data->cmid]))->out(false));
         $data->hasqrcodeimage = $qrcode !== '';
         $data->urlqrcode = $data->hasqrcodeimage === true ? $qrcode : '';
@@ -91,11 +91,11 @@ class teacher_session_view implements renderable, templatable {
                     $data->racemode = true;
                     if ($session->is_group_mode()) {
                         $data->questions = sessions::breakdown_responses_for_race_groups($data->groupresults, $data->sid,
-                            $data->cmid, $session->get('jqshowid'));
+                            $data->cmid, $session->get('kuetid'));
                     } else {
                         usort($data->userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
                         $data->questions = sessions::breakdown_responses_for_race(
-                            $data->userresults, $data->sid, $data->cmid, $session->get('jqshowid')
+                            $data->userresults, $data->sid, $data->cmid, $session->get('kuetid')
                         );
                     }
                 }
@@ -106,7 +106,7 @@ class teacher_session_view implements renderable, templatable {
                 global $CFG;
                 // SOCKETS! Always start with waitingroom.
                 [$course, $cm] = get_course_and_cm_from_cmid($data->cmid, 'kuet', $COURSE);
-                $jqshow = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
+                $kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
                 $data->manualmode = true;
                 $data->groupmode = $session->is_group_mode();
                 $data->waitingroom = true;
@@ -114,7 +114,7 @@ class teacher_session_view implements renderable, templatable {
                 $data->sessionname = $data->config[0]['configvalue'];
                 unset($data->config[0]);
                 $data->config = array_values($data->config);
-                $allquestions = (new questions($jqshow->id, $data->cmid, $data->sid))->get_list();
+                $allquestions = (new questions($kuet->id, $data->cmid, $data->sid))->get_list();
                 $questiondata = [];
                 foreach ($allquestions as $question) {
                     $questionexport = sessionquestions_external::export_question($question, $data->cmid);

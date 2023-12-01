@@ -79,8 +79,8 @@ class questionform extends moodleform {
         $mform->addElement('hidden', 'id', $customdata['id']);
         $mform->setType('id', PARAM_INT);
 
-        $mform->addElement('hidden', 'jqid', $customdata['jqid']);
-        $mform->setType('jqid', PARAM_INT);
+        $mform->addElement('hidden', 'kid', $customdata['kid']);
+        $mform->setType('kid', PARAM_INT);
 
         $mform->addElement('hidden', 'sid', $customdata['sid']);
         $mform->setType('sid', PARAM_INT);

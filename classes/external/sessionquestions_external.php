@@ -60,7 +60,7 @@ class sessionquestions_external extends external_api {
     public static function sessionquestions_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'jqshowid' => new external_value(PARAM_INT, 'jqshowid'),
+                'kuetid' => new external_value(PARAM_INT, 'kuetid'),
                 'cmid' => new external_value(PARAM_INT, 'cmid for course module'),
                 'sid' => new external_value(PARAM_INT, 'sid for session kuet')
             ]
@@ -68,7 +68,7 @@ class sessionquestions_external extends external_api {
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $sid
      * @return array
@@ -77,17 +77,17 @@ class sessionquestions_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function sessionquestions(int $jqshowid, int $cmid, int $sid): array {
+    public static function sessionquestions(int $kuetid, int $cmid, int $sid): array {
         self::validate_parameters(
             self::sessionquestions_parameters(),
-            ['jqshowid' => $jqshowid, 'cmid' => $cmid, 'sid' => $sid]
+            ['kuetid' => $kuetid, 'cmid' => $cmid, 'sid' => $sid]
         );
-        $allquestions = (new questions($jqshowid, $cmid, $sid))->get_list();
+        $allquestions = (new questions($kuetid, $cmid, $sid))->get_list();
         $questiondata = [];
         foreach ($allquestions as $question) {
             $questiondata[] = self::export_question($question, $cmid);
         }
-        return ['jqshowid' => $jqshowid, 'cmid' => $cmid, 'sid' => $sid, 'sessionquestions' => $questiondata];
+        return ['kuetid' => $kuetid, 'cmid' => $cmid, 'sid' => $sid, 'sessionquestions' => $questiondata];
     }
 
     /**
@@ -113,7 +113,7 @@ class sessionquestions_external extends external_api {
         $data->icon = $icon->export_for_pix();
         $data->sid = $question->get('sessionid');
         $data->cmid = $cmid;
-        $data->jqshowid = $question->get('jqshowid');
+        $data->kuetid = $question->get('kuetid');
         $data->isvalid = $question->get('isvalid');
         $session = new kuet_sessions($question->get('sessionid'));
         switch ($session->get('timemode')) {
@@ -123,7 +123,7 @@ class sessionquestions_external extends external_api {
                 break;
             case sessions::SESSION_TIME:
                 $numquestion = kuet_questions::count_records(
-                    ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
+                    ['sessionid' => $session->get('id'), 'kuetid' => $session->get('kuetid')]
                 );
                 $timeperquestion = round((int)$session->get('sessiontime') / $numquestion);
                 $data->time = ($timeperquestion > 0) ? $timeperquestion . 's' : '-';
@@ -139,10 +139,10 @@ class sessionquestions_external extends external_api {
         $data->managesessions = has_capability('mod/kuet:managesessions', $cmcontext);
         $args = [
             'id' => $cmid,
-            'jqid' => $question->get('id'),
+            'kid' => $question->get('id'),
             'sid' => $question->get('sessionid'),
-            'jqsid' => $question->get('jqshowid'),
-            'cid' => ($DB->get_record('kuet', ['id' => $question->get('jqshowid')], 'course'))->course,
+            'ksid' => $question->get('kuetid'),
+            'cid' => ($DB->get_record('kuet', ['id' => $question->get('kuetid')], 'course'))->course,
          ];
         $data->question_preview_url = (new moodle_url('/mod/kuet/preview.php', $args))->out(false);
         $data->editquestionurl = (new moodle_url('/mod/kuet/editquestion.php', $args))->out(false);
@@ -153,13 +153,13 @@ class sessionquestions_external extends external_api {
         return new external_single_structure([
             'sid' => new external_value(PARAM_INT, 'Session id'),
             'cmid' => new external_value(PARAM_INT, 'Course Module id'),
-            'jqshowid' => new external_value(PARAM_INT, 'Jqshow id'),
+            'kuetid' => new external_value(PARAM_INT, 'Kuet id'),
             'sessionquestions' => new external_multiple_structure(
                 new external_single_structure(
                     [
                         'sid' => new external_value(PARAM_INT, 'Session id'),
                         'cmid' => new external_value(PARAM_INT, 'Course Module id'),
-                        'jqshowid' => new external_value(PARAM_INT, 'Jqshow id'),
+                        'kuetid' => new external_value(PARAM_INT, 'Kuet id'),
                         'questionnid' => new external_value(PARAM_INT, 'Question id'),
                         'position' => new external_value(PARAM_INT, 'Question order'),
                         'name' => new external_value(PARAM_RAW, 'Name of question'),

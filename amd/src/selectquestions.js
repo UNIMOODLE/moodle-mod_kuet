@@ -72,7 +72,7 @@ let TEMPLATES = {
 
 let cmId;
 let sId;
-let jqshowId;
+let kuetId;
 let showPerPage = 20;
 
 /**
@@ -83,7 +83,7 @@ function SelectQuestions(selector) {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
-    jqshowId = this.node.attr('data-jqshowid');
+    kuetId = this.node.attr('data-kuetid');
     this.initPanel();
 }
 
@@ -161,7 +161,7 @@ SelectQuestions.prototype.addQuestions = function(e) {
             let questiondata = {
                 questionid: jQuery(question).attr('data-questionnid'),
                 sessionid: sId,
-                jqshowid: jqshowId,
+                kuetid: kuetId,
                 qtype: jQuery(question).attr('data-type')
             };
             questions.push(questiondata);
@@ -200,7 +200,7 @@ SelectQuestions.prototype.addQuestions = function(e) {
                             let request = {
                                 methodname: SERVICES.SESSIONQUESTIONS,
                                 args: {
-                                    jqshowid: jqshowId,
+                                    kuetid: kuetId,
                                     cmid: cmId,
                                     sid: sId
                                 }
@@ -244,7 +244,7 @@ SelectQuestions.prototype.addQuestion = function(e) {
     let questiondata = {
         questionid: jQuery(e.currentTarget).attr('data-questionnid'),
         sessionid: sId,
-        jqshowid: jqshowId,
+        kuetid: kuetId,
         qtype: jQuery(e.currentTarget).attr('data-type')
     };
     questions.push(questiondata);
@@ -266,7 +266,7 @@ SelectQuestions.prototype.addQuestion = function(e) {
             let request = {
                 methodname: SERVICES.SESSIONQUESTIONS,
                 args: {
-                    jqshowid: jqshowId,
+                    kuetid: kuetId,
                     cmid: cmId,
                     sid: sId
                 }

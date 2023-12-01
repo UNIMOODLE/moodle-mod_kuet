@@ -55,16 +55,16 @@ class generator_test extends advanced_testcase {
 
         $generator->create_instance(['course' => $course->id]);
         $generator->create_instance(['course' => $course->id]);
-        $jqshow = $generator->create_instance(['course' => $course->id]);
+        $kuet = $generator->create_instance(['course' => $course->id]);
         $this->assertEquals(3, $DB->count_records('kuet'));
 
-        $cm = get_coursemodule_from_instance('kuet', $jqshow->id);
-        $this->assertEquals($jqshow->id, $cm->instance);
+        $cm = get_coursemodule_from_instance('kuet', $kuet->id);
+        $this->assertEquals($kuet->id, $cm->instance);
         $this->assertEquals('kuet', $cm->modname);
         $this->assertEquals($course->id, $cm->course);
 
         $context = context_module::instance($cm->id);
-        $this->assertEquals($jqshow->cmid, $context->instanceid);
+        $this->assertEquals($kuet->cmid, $context->instanceid);
     }
 
     public function test_create_session() {

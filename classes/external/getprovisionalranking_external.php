@@ -58,7 +58,7 @@ class getprovisionalranking_external extends external_api {
             [
                 'sid' => new external_value(PARAM_INT, 'sessionid id'),
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
-                'jqid' => new external_value(PARAM_INT, 'Question id for kuet_questions'),
+                'kid' => new external_value(PARAM_INT, 'Question id for kuet_questions'),
             ]
         );
     }
@@ -66,25 +66,25 @@ class getprovisionalranking_external extends external_api {
     /**
      * @param int $sid
      * @param int $cmid
-     * @param int $jqid
+     * @param int $kid
      * @return true[]
      * @throws coding_exception
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function getprovisionalranking(int $sid, int $cmid, int $jqid): array {
+    public static function getprovisionalranking(int $sid, int $cmid, int $kid): array {
         self::validate_parameters(
             self::getprovisionalranking_parameters(),
-            ['sid' => $sid, 'cmid' => $cmid, 'jqid' => $jqid]
+            ['sid' => $sid, 'cmid' => $cmid, 'kid' => $kid]
         );
         $session = kuet_sessions::get_record(['id' => $sid]);
-        $questions = new questions($session->get('jqshowid'), $cmid, $sid);
+        $questions = new questions($session->get('kuetid'), $cmid, $sid);
         return [
-            'provisionalranking' => sessions::get_provisional_ranking($sid, $cmid, $jqid),
-            'jqid' => $jqid,
+            'provisionalranking' => sessions::get_provisional_ranking($sid, $cmid, $kid),
+            'kid' => $kid,
             'sessionid' => $sid,
             'cmid' => $cmid,
-            'jqshowid' => $session->get('jqshowid'),
+            'kuetid' => $session->get('kuetid'),
             'numquestions' => $questions->get_num_questions(),
             'ranking' => true
         ];
@@ -106,10 +106,10 @@ class getprovisionalranking_external extends external_api {
                     ], ''
                 ), ''
             ),
-            'jqid' => new external_value(PARAM_INT, 'kuet_question id'),
+            'kid' => new external_value(PARAM_INT, 'kuet_question id'),
             'sessionid' => new external_value(PARAM_INT, 'kuet_session id'),
             'cmid' => new external_value(PARAM_INT, 'course module id'),
-            'jqshowid' => new external_value(PARAM_INT, 'kuet id'),
+            'kuetid' => new external_value(PARAM_INT, 'kuet id'),
             'numquestions' => new external_value(PARAM_INT, 'Number of questions for teacher panel'),
             'ranking' => new external_value(PARAM_BOOL, 'Is a ranking, for control panel context'),
         ]);

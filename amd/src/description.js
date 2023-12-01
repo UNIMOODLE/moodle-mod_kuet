@@ -65,8 +65,8 @@ let TEMPLATES = {
 let cmId;
 let sId;
 let questionid;
-let jqshowId;
-let jqid;
+let kuetId;
+let kid;
 let questionEnd = false;
 let showQuestionFeedback = false;
 let manualMode = false;
@@ -88,8 +88,8 @@ function Description(selector, showquestionfeedback = false, manualmode = false,
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
     questionid = this.node.attr('data-questionid');
-    jqshowId = this.node.attr('data-jqshowid');
-    jqid = this.node.attr('data-jqid');
+    kuetId = this.node.attr('data-kuetid');
+    kid = this.node.attr('data-kid');
     showQuestionFeedback = showquestionfeedback;
     manualMode = manualmode;
     questionEnd = false;
@@ -114,7 +114,7 @@ Description.prototype.initDescription = function() {
 Description.prototype.initEvents = function() {
     addEventListener('timeFinish', Description.prototype.reply, {once: true});
     if (manualMode !== false) {
-        addEventListener('alreadyAnswered_' + jqid, (ev) => {
+        addEventListener('alreadyAnswered_' + kid, (ev) => {
             let userid =  jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
@@ -124,7 +124,7 @@ Description.prototype.initEvents = function() {
                 Description.prototype.reply();
             }
         }, {once: true});
-        addEventListener('teacherQuestionEnd_' + jqid, (e) => {
+        addEventListener('teacherQuestionEnd_' + kid, (e) => {
             if (questionEnd !== true) {
                 Description.prototype.reply();
             }
@@ -132,28 +132,28 @@ Description.prototype.initEvents = function() {
                 jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
             });
         }, {once: true});
-        addEventListener('pauseQuestion_' + jqid, () => {
+        addEventListener('pauseQuestion_' + kid, () => {
             Description.prototype.pauseQuestion();
         }, false);
-        addEventListener('playQuestion_' + jqid, () => {
+        addEventListener('playQuestion_' + kid, () => {
             Description.prototype.playQuestion();
         }, false);
-        addEventListener('showAnswers_' + jqid, () => {
+        addEventListener('showAnswers_' + kid, () => {
             Description.prototype.showAnswers();
         }, false);
-        addEventListener('hideAnswers_' + jqid, () => {
+        addEventListener('hideAnswers_' + kid, () => {
             Description.prototype.hideAnswers();
         }, false);
-        addEventListener('showStatistics_' + jqid, () => {
+        addEventListener('showStatistics_' + kid, () => {
             Description.prototype.showStatistics();
         }, false);
-        addEventListener('hideStatistics_' + jqid, () => {
+        addEventListener('hideStatistics_' + kid, () => {
             Description.prototype.hideStatistics();
         }, false);
-        addEventListener('showFeedback_' + jqid, () => {
+        addEventListener('showFeedback_' + kid, () => {
             Description.prototype.showFeedback();
         }, false);
-        addEventListener('hideFeedback_' + jqid, () => {
+        addEventListener('hideFeedback_' + kid, () => {
             Description.prototype.hideFeedback();
         }, false);
         addEventListener('removeEvents', () => {
@@ -173,7 +173,7 @@ Description.prototype.initEvents = function() {
 Description.prototype.removeEvents = function() {
     removeEventListener('timeFinish', Description.prototype.reply, {once: true});
     if (manualMode !== false) {
-        removeEventListener('alreadyAnswered_' + jqid, (ev) => {
+        removeEventListener('alreadyAnswered_' + kid, (ev) => {
             let userid =  jQuery('[data-region="student-canvas"]').data('userid');
             if (userid != ev.detail.userid) {
                 jQuery('[data-region="group-message"]').css({'z-index': 3, 'padding': '15px'});
@@ -183,7 +183,7 @@ Description.prototype.removeEvents = function() {
                 Description.prototype.reply();
             }
         }, {once: true});
-        removeEventListener('teacherQuestionEnd_' + jqid, (e) => {
+        removeEventListener('teacherQuestionEnd_' + kid, (e) => {
             if (questionEnd !== true) {
                 Description.prototype.reply();
             }
@@ -191,28 +191,28 @@ Description.prototype.removeEvents = function() {
                 jQuery('[data-answerid="' + statistic.answerid + '"] .numberofreplies').html(statistic.numberofreplies);
             });
         }, {once: true});
-        removeEventListener('pauseQuestion_' + jqid, () => {
+        removeEventListener('pauseQuestion_' + kid, () => {
             Description.prototype.pauseQuestion();
         }, false);
-        removeEventListener('playQuestion_' + jqid, () => {
+        removeEventListener('playQuestion_' + kid, () => {
             Description.prototype.playQuestion();
         }, false);
-        removeEventListener('showAnswers_' + jqid, () => {
+        removeEventListener('showAnswers_' + kid, () => {
             Description.prototype.showAnswers();
         }, false);
-        removeEventListener('hideAnswers_' + jqid, () => {
+        removeEventListener('hideAnswers_' + kid, () => {
             Description.prototype.hideAnswers();
         }, false);
-        removeEventListener('showStatistics_' + jqid, () => {
+        removeEventListener('showStatistics_' + kid, () => {
             Description.prototype.showStatistics();
         }, false);
-        removeEventListener('hideStatistics_' + jqid, () => {
+        removeEventListener('hideStatistics_' + kid, () => {
             Description.prototype.hideStatistics();
         }, false);
-        removeEventListener('showFeedback_' + jqid, () => {
+        removeEventListener('showFeedback_' + kid, () => {
             Description.prototype.showFeedback();
         }, false);
-        removeEventListener('hideFeedback_' + jqid, () => {
+        removeEventListener('hideFeedback_' + kid, () => {
             Description.prototype.hideFeedback();
         }, false);
         removeEventListener('removeEvents', () => {
@@ -232,10 +232,10 @@ Description.prototype.reply = function() {
             methodname: SERVICES.REPLY,
             args: {
                 sessionid: sId,
-                jqshowid: jqshowId,
+                kuetid: kuetId,
                 cmid: cmId,
                 questionid: questionid,
-                jqid: jqid,
+                kid: kid,
                 timeleft: timeLeft || 0,
                 preview: false
             }

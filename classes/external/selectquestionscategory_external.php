@@ -76,8 +76,8 @@ class selectquestionscategory_external extends external_api {
             ['categorykey' => $categorykey, 'cmid' => $cmid]
         );
         [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'kuet');
-        $jqshow = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
-        return ['questions' => (new sessions($jqshow, $cmid))->get_questions_for_category($categorykey)];
+        $kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
+        return ['questions' => (new sessions($kuet, $cmid))->get_questions_for_category($categorykey)];
     }
 
     /**

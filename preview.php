@@ -42,27 +42,27 @@ use mod_kuet\output\views\question_preview;
 global $DB, $PAGE, $USER;
 
 $id = required_param('id', PARAM_INT);    // Course Module ID.
-$jqid = required_param('jqid', PARAM_INT);    // Id from mdl_kuet_questions.
-$sid = required_param('sid', PARAM_INT);    // Jqshow session ID. mdl_kuet_sessions.
-$jqshowid = required_param('jqsid', PARAM_INT);    // Jqshow session ID. mdl_jqshow.
+$kid = required_param('kid', PARAM_INT);    // Id from mdl_kuet_questions.
+$sid = required_param('sid', PARAM_INT);    // Kuet session ID. mdl_kuet_sessions.
+$kuetid = required_param('ksid', PARAM_INT);    // Kuet session ID. mdl_kuet.
 $cid = required_param('cid', PARAM_INT);    // Course ID. mdl_course.
 
-$jqquestion = $DB->get_record('kuet_questions', ['id' => $jqid], '*', MUST_EXIST);
-if (!in_array($jqquestion->qtype, questions::TYPES, true)) {
+$kquestion = $DB->get_record('kuet_questions', ['id' => $kid], '*', MUST_EXIST);
+if (!in_array($kquestion->qtype, questions::TYPES, true)) {
     throw new moodle_exception('incompatible_question', 'mod_kuet', '',
         [], get_string('incompatible_question', 'mod_kuet'));
 }
 
-$question = $DB->get_record('question', ['id' => $jqquestion->questionid], '*', MUST_EXIST);
+$question = $DB->get_record('question', ['id' => $kquestion->questionid], '*', MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cid], '*', MUST_EXIST);
 $coursecontext = context_course::instance($course->id);
 require_login($course, false);
 
 $question = question_bank::load_question((int) $question->id);
 
-$view = new question_preview($jqquestion->questionid, $jqid, $id, $sid, $jqshowid);
+$view = new question_preview($kquestion->questionid, $kid, $id, $sid, $kuetid);
 $PAGE->set_context($coursecontext);
-$PAGE->set_url('/mod/kuet/preview.php', ['id' => $id, 'jqid' => $jqid, 'sid' => $sid, 'cid' => $cid, 'jqshowid' => $jqshowid]);
+$PAGE->set_url('/mod/kuet/preview.php', ['id' => $id, 'kid' => $kid, 'sid' => $sid, 'cid' => $cid, 'kuetid' => $kuetid]);
 $PAGE->set_heading($question->name);
 $PAGE->set_title($question->name);
 $output = $PAGE->get_renderer('mod_kuet');

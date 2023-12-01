@@ -76,7 +76,7 @@ class copyquestion_external extends external_api {
             $newquestion = new stdClass();
             $newquestion->questionid = $sqp->get('questionid');
             $newquestion->sessionid = $sqp->get('sessionid');
-            $newquestion->jqshowid = $sqp->get('jqshowid');
+            $newquestion->kuetid = $sqp->get('kuetid');
             $newquestion->qorder = ($numquestionsinsession + 1);
             $newquestion->qtype = $sqp->get('qtype');
             $newquestion->timelimit = $sqp->get('timelimit');

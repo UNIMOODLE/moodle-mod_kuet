@@ -69,15 +69,15 @@ class kuet_user_progress extends persistent {
     /**
      * @param int $userid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @return false|static
      */
-    public static function get_session_progress_for_user(int $userid, int $sessionid, int $jqshowid) {
-        return self::get_record(['userid' => $userid, 'session' => $sessionid, 'kuet' => $jqshowid]);
+    public static function get_session_progress_for_user(int $userid, int $sessionid, int $kuetid) {
+        return self::get_record(['userid' => $userid, 'session' => $sessionid, 'kuet' => $kuetid]);
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $session
      * @param int $userid
      * @param string $other
@@ -86,13 +86,13 @@ class kuet_user_progress extends persistent {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function add_progress(int $jqshowid, int $session, int $userid, string $other): bool {
+    public static function add_progress(int $kuetid, int $session, int $userid, string $other): bool {
         $sessiondata = kuet_sessions::get_record(['id' => $session], MUST_EXIST);
-        $record = self::get_record(['kuet' => $jqshowid, 'session' => $session, 'userid' => $userid]);
+        $record = self::get_record(['kuet' => $kuetid, 'session' => $session, 'userid' => $userid]);
         try {
             if ($record === false) {
                 $data = new stdClass();
-                $data->kuet = $jqshowid;
+                $data->kuet = $kuetid;
                 $data->session = $session;
                 $data->userid = $userid;
                 $data->randomquestion = $sessiondata->get('randomquestions');

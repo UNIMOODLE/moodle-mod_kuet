@@ -45,11 +45,11 @@ $cmid = required_param('cmid', PARAM_INT);    // Course Module ID.
 $sid = optional_param('sid', 0, PARAM_INT);    // Session id.
 $userid = optional_param('userid', 0, PARAM_INT);
 $groupid = optional_param('groupid', 0, PARAM_INT);
-$jqid = optional_param('jqid', 0, PARAM_INT);
+$kid = optional_param('kid', 0, PARAM_INT);
 
 $cm = get_coursemodule_from_id('kuet', $cmid, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-$jqshow = kuet::get_record(['id' => $cm->instance], MUST_EXIST);
+$kuet = kuet::get_record(['id' => $cm->instance], MUST_EXIST);
 
 if ($sid) {
     $session = new kuet_sessions($sid);
@@ -71,7 +71,7 @@ navigation_node::override_active_url(new moodle_url('/mod/kuet/reports.php', ['c
 
 if ($isteacher) {
     $PAGE->add_body_classes(['kuet-reports', 'kuet-reports kuet-teacher-reports']);
-    $view = new teacher_reports($cmid, $jqshow->get('id'), $sid, $participantid, $jqid);
+    $view = new teacher_reports($cmid, $kuet->get('id'), $sid, $participantid, $kid);
 } else {
     if ((int)$userid !== 0 && (int)$userid !== (int)$USER->id) {
         redirect(
@@ -82,11 +82,11 @@ if ($isteacher) {
             [], get_string('otheruserreport', 'mod_kuet'));
     }
     $PAGE->add_body_classes(['kuet-reports', 'kuet-student-reports']);
-    $view = new student_reports($cm->id, $jqshow->get('id'), $sid);
+    $view = new student_reports($cm->id, $kuet->get('id'), $sid);
 }
 
 $output = $PAGE->get_renderer('mod_kuet');
 echo $output->header();
-echo $output->heading(format_string($jqshow->get('name')));
+echo $output->heading(format_string($kuet->get('name')));
 echo $output->render($view);
 echo $output->footer();

@@ -56,7 +56,7 @@ class kuet_questions extends persistent {
             'sessionid' => [
                 'type' => PARAM_INT,
             ],
-            'jqshowid' => [
+            'kuetid' => [
                 'type' => PARAM_INT,
             ],
             'qorder' => [
@@ -94,21 +94,21 @@ class kuet_questions extends persistent {
     /**
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $qtype
      * @return bool
      * @throws coding_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function add_question(int $questionid, int $sessionid, int $jqshowid, string $qtype) : bool {
+    public static function add_question(int $questionid, int $sessionid, int $kuetid, string $qtype) : bool {
         global $USER;
         $order = parent::count_records(['sessionid' => $sessionid]) + 1;
         $isvalid = 0; // Teacher must configure the question for this session.
         $data = new stdClass();
         $data->questionid = $questionid;
         $data->sessionid = $sessionid;
-        $data->jqshowid = $jqshowid;
+        $data->kuetid = $kuetid;
         $data->qorder = $order;
         $data->qtype = $qtype;
         $data->timelimit = 0;
@@ -150,7 +150,7 @@ class kuet_questions extends persistent {
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
                 $progress = kuet_user_progress::get_session_progress_for_user(
-                    $USER->id, $session->get('id'), $session->get('jqshowid')
+                    $USER->id, $session->get('id'), $session->get('kuetid')
                 );
                 if ($progress !== false) {
                     $data = json_decode($progress->get('other'), false);
@@ -189,11 +189,11 @@ class kuet_questions extends persistent {
     }
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @return false|kuet_questions
      */
-    public static function get_question_by_jqid(int $jqid): ?kuet_questions {
-        return self::get_record(['id' => $jqid], MUST_EXIST);
+    public static function get_question_by_kid(int $kid): ?kuet_questions {
+        return self::get_record(['id' => $kid], MUST_EXIST);
     }
 
     /**
@@ -266,14 +266,14 @@ class kuet_questions extends persistent {
     }
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @param int $sid
      * @return float
      * @throws coding_exception
      */
-    public static function get_question_time(int $jqid, int $sid) : float {
-        $jqquestion = new kuet_questions($jqid);
-        $qtime = $jqquestion->get('timelimit');
+    public static function get_question_time(int $kid, int $sid) : float {
+        $kquestion = new kuet_questions($kid);
+        $qtime = $kquestion->get('timelimit');
         if ($qtime === 0) {
             $session = new kuet_sessions($sid);
             if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {

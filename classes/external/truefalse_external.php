@@ -66,10 +66,10 @@ class truefalse_external extends external_api {
             [
                 'answerid' => new external_value(PARAM_INT, 'answer id'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
-                'jqshowid' => new external_value(PARAM_INT, 'id of kuet'),
+                'kuetid' => new external_value(PARAM_INT, 'id of kuet'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
                 'questionid' => new external_value(PARAM_INT, 'id of question'),
-                'jqid' => new external_value(PARAM_INT, 'id of question in kuet_questions'),
+                'kid' => new external_value(PARAM_INT, 'id of question in kuet_questions'),
                 'timeleft' => new external_value(PARAM_INT, 'Time left of question, if question has time, else 0.'),
                 'preview' => new external_value(PARAM_BOOL, 'preview or not for grade'),
             ]
@@ -79,10 +79,10 @@ class truefalse_external extends external_api {
     /**
      * @param int $answerid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $questionid
-     * @param int $jqid
+     * @param int $kid
      * @param int $timeleft
      * @param bool $preview
      * @return array
@@ -95,7 +95,7 @@ class truefalse_external extends external_api {
      * @throws moodle_exception
      */
     public static function truefalse(
-        int $answerid, int $sessionid, int $jqshowid, int $cmid, int $questionid, int $jqid, int $timeleft, bool $preview
+        int $answerid, int $sessionid, int $kuetid, int $cmid, int $questionid, int $kid, int $timeleft, bool $preview
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
@@ -103,10 +103,10 @@ class truefalse_external extends external_api {
             [
                 'answerid' => $answerid,
                 'sessionid' => $sessionid,
-                'jqshowid' => $jqshowid,
+                'kuetid' => $kuetid,
                 'cmid' => $cmid,
                 'questionid' => $questionid,
-                'jqid' => $jqid,
+                'kid' => $kid,
                 'timeleft' => $timeleft,
                 'preview' => $preview
             ]
@@ -139,10 +139,10 @@ class truefalse_external extends external_api {
             ];
             truefalse::question_response(
                 $cmid,
-                $jqid,
+                $kid,
                 $questionid,
                 $sessionid,
-                $jqshowid,
+                $kuetid,
                 $statmentfeedback,
                 $USER->id,
                 $timeleft,

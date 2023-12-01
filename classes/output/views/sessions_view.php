@@ -44,18 +44,18 @@ use renderer_base;
 class sessions_view implements renderable, templatable {
 
     /** @var stdClass kuet */
-    protected stdClass $jqshow;
+    protected stdClass $kuet;
 
     /** @var int cmid */
     protected int $cmid;
 
     /**
      * sessions_view constructor.
-     * @param stdClass $jqshow
+     * @param stdClass $kuet
      * @param int $cmid
      */
-    public function __construct(stdClass $jqshow, int $cmid) {
-        $this->kuet = $jqshow;
+    public function __construct(stdClass $kuet, int $cmid) {
+        $this->kuet = $kuet;
         $this->cmid = $cmid;
     }
 

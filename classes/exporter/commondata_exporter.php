@@ -46,13 +46,13 @@ class commondata_exporter extends question_exporter {
             'sessionid' => [
                 'type' => PARAM_TEXT,
             ],
-            'jqshowid' => [
+            'kuetid' => [
                 'type' => PARAM_INT,
             ],
             'questionid' => [
                 'type' => PARAM_INT,
             ],
-            'jqid' => [
+            'kid' => [
                 'type' => PARAM_INT,
             ],
             'questiontext' => [

@@ -54,20 +54,20 @@ class custom_completion extends activity_custom_completion {
         global $DB;
 
         $this->validate_rule($rule);
-        $jqshowid = $this->cm->instance;
+        $kuetid = $this->cm->instance;
         $userid = $this->userid;
 
-        if (!$DB->get_record('kuet', ['id' => $jqshowid])) {
+        if (!$DB->get_record('kuet', ['id' => $kuetid])) {
             throw new moodle_exception('kuetnotexist', 'mod_kuet', '',
-                [], get_string('kuetnotexist', 'mod_kuet', $jqshowid));
+                [], get_string('kuetnotexist', 'mod_kuet', $kuetid));
         }
 
-        $numsessions = kuet_sessions::count_records(['jqshowid' => $jqshowid]);
+        $numsessions = kuet_sessions::count_records(['kuetid' => $kuetid]);
         if ($numsessions === 0) {
             return COMPLETION_INCOMPLETE;
         }
         $hasparticipate = false;
-        if (kuet_questions_responses::count_records(['kuet' => $jqshowid, 'userid' => $userid]) > 0) {
+        if (kuet_questions_responses::count_records(['kuet' => $kuetid, 'userid' => $userid]) > 0) {
             $hasparticipate = true;
         }
         return $hasparticipate ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;

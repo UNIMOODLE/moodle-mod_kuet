@@ -61,7 +61,7 @@ class addquestions_external extends external_api {
                     [
                         'questionid' => new external_value(PARAM_INT, 'question id'),
                         'sessionid' => new external_value(PARAM_INT, 'sessionid'),
-                        'jqshowid' => new external_value(PARAM_INT, 'jqshowid'),
+                        'kuetid' => new external_value(PARAM_INT, 'kuetid'),
                         'qtype' => new external_value(PARAM_RAW, 'sessionid')
                     ]
                 ), 'List of session questions', VALUE_DEFAULT, []
@@ -89,7 +89,7 @@ class addquestions_external extends external_api {
                 continue;
             }
             $result = kuet_questions::add_question($question['questionid'], $question['sessionid'],
-                $question['jqshowid'], $question['qtype']);
+                $question['kuetid'], $question['qtype']);
             if (false === $result) {
                 $added = false;
             }

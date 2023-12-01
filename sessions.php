@@ -42,7 +42,7 @@ $id = required_param('cmid', PARAM_INT);    // Course Module ID.
 
 $cm = get_coursemodule_from_id('kuet', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-$jqshow = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
+$kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
 
 $PAGE->set_url('/mod/kuet/sessions.php', ['cmid' => $id]);
 require_login($course, false, $cm);
@@ -52,12 +52,12 @@ $coursecontext = context_course::instance($COURSE->id);
 require_capability('mod/kuet:managesessions', $coursecontext);
 
 $sid = optional_param('sid', 0, PARAM_INT);
-$activesession = kuet_sessions::get_active_session_id($jqshow->id);
+$activesession = kuet_sessions::get_active_session_id($kuet->id);
 if ($activesession !== 0 && $activesession === $sid) {
     throw new moodle_exception('erroreditsessionactive', 'mod_kuet', (new moodle_url('/mod/kuet/view.php', ['id' => $id])),
         [], get_string('erroreditsessionactive', 'mod_kuet'));
 }
-$view = new sessions_view($jqshow, $cm->id);
+$view = new sessions_view($kuet, $cm->id);
 $output = $PAGE->get_renderer('mod_kuet');
 $viehtml = $output->render($view);
 $PAGE->set_title(get_string('modulename', 'kuet'));

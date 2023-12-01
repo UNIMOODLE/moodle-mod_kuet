@@ -48,23 +48,23 @@ use templatable;
 
 class teacher_reports implements renderable, templatable {
 
-    public int $jqshowid;
+    public int $kuetid;
     public int $cmid;
     public int $sid;
     public int $userid = 0;
     public int $groupid = 0;
-    public int $jqid;
+    public int $kid;
 
     /**
      * @param int $cmid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $sid
      * @param int $partipantid could be userid or groupid
-     * @param int $jqid
+     * @param int $kid
      * @throws coding_exception
      */
-    public function __construct(int $cmid, int $jqshowid, int $sid, int $partipantid, int $jqid) {
-        $this->jqshowid = $jqshowid;
+    public function __construct(int $cmid, int $kuetid, int $sid, int $partipantid, int $kid) {
+        $this->kuetid = $kuetid;
         $this->cmid = $cmid;
         $this->sid = $sid;
         $session = new kuet_sessions($sid);
@@ -73,7 +73,7 @@ class teacher_reports implements renderable, templatable {
         } else {
             $this->userid = $partipantid;
         }
-        $this->jqid = $jqid;
+        $this->kid = $kid;
     }
 
     /**
@@ -85,18 +85,18 @@ class teacher_reports implements renderable, templatable {
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        $jqshow = new kuet($this->cmid);
+        $kuet = new kuet($this->cmid);
         $data = new stdClass();
-        $data->jqshowid = $this->jqshowid;
+        $data->kuetid = $this->kuetid;
         $data->cmid = $this->cmid;
         $cmcontext = context_module::instance($this->cmid);
         if ($this->sid === 0) {
             $data->allreports = true;
-            $data->endedsessions = $jqshow->get_completed_sessions();
-        } else if ($this->userid === 0 & $this->groupid === 0 && $this->jqid === 0) {
-            $data = reports::get_session_report($this->jqshowid, $data->cmid, $this->sid);
-        } else if ($this->userid === 0 && $this->jqid !== 0) {
-            $data = reports::get_question_report($this->cmid, $this->sid, $this->jqid);
+            $data->endedsessions = $kuet->get_completed_sessions();
+        } else if ($this->userid === 0 & $this->groupid === 0 && $this->kid === 0) {
+            $data = reports::get_session_report($this->kuetid, $data->cmid, $this->sid);
+        } else if ($this->userid === 0 && $this->kid !== 0) {
+            $data = reports::get_question_report($this->cmid, $this->sid, $this->kid);
         } else if ($this->groupid === 0) {
             $data = reports::get_user_report($this->cmid, $this->sid, $this->userid, $cmcontext);
         } else {

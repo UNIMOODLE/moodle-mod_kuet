@@ -226,8 +226,8 @@ class sessionform extends moodleform {
             $mform->addElement('html', '</div>');
         }
         // Hidden params.
-        $mform->addElement('hidden', 'jqshowid', $customdata['jqshowid']);
-        $mform->setType('jqshowid', PARAM_INT);
+        $mform->addElement('hidden', 'kuetid', $customdata['kuetid']);
+        $mform->setType('kuetid', PARAM_INT);
         $mform->addElement('hidden', 'groupmode', (int)$cm->groupmode);
         $mform->setType('groupmode', PARAM_INT);
         $mform->addElement('hidden', 'status', sessions::SESSION_CREATING);
@@ -274,7 +274,7 @@ class sessionform extends moodleform {
         $errors = parent::validation($data, $files);
         // Session name must be unique.
         $haserrorname = false;
-        $sessions = kuet_sessions::get_sessions_by_name($data['name'], $data['jqshowid']);
+        $sessions = kuet_sessions::get_sessions_by_name($data['name'], $data['kuetid']);
         if (count($sessions) === 1) {
             $sesion = reset($sessions);
             $haserrorname = (int)$sesion->id !== (int)$data['sessionid'];

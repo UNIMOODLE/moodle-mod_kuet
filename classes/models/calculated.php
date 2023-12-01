@@ -64,20 +64,20 @@ defined('MOODLE_INTERNAL') || die();
 class calculated extends questions implements questionType {
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) :void {
-        parent::__construct($jqshowid, $cmid, $sid);
+    public function construct(int $kuetid, int $cmid, int $sid) :void {
+        parent::__construct($kuetid, $cmid, $sid);
     }
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param bool $preview
      * @return object
      * @throws JsonException
@@ -87,16 +87,16 @@ class calculated extends questions implements questionType {
      * @throws moodle_exception
      * @throws ReflectionException
      */
-    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false): object {
+    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false): object {
         $session = kuet_sessions::get_record(['id' => $sessionid]);
-        $jqshowquestion = kuet_questions::get_record(['id' => $jqid]);
-        $question = question_bank::load_question($jqshowquestion->get('questionid'));
+        $kuetquestion = kuet_questions::get_record(['id' => $kid]);
+        $question = question_bank::load_question($kuetquestion->get('questionid'));
         if (!assert($question instanceof qtype_calculated_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
                 [], get_string('question_nosuitable', 'mod_kuet'));
         }
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $kuetid, $preview, $kuetquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
         self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
@@ -178,15 +178,15 @@ class calculated extends questions implements questionType {
             $responsedata->unit,
             $responsedata->multiplier,
             $data->sessionid,
-            $data->jqshowid,
+            $data->kuetid,
             $data->cmid,
             $data->questionid,
-            $data->jqid,
+            $data->kid,
             $responsedata->timeleft,
             true
         );
-        $jqshowquestion = kuet_questions::get_record(['id' => $data->jqid]);
-        $question = question_bank::load_question($jqshowquestion->get('questionid'));
+        $kuetquestion = kuet_questions::get_record(['id' => $data->kid]);
+        $question = question_bank::load_question($kuetquestion->get('questionid'));
         self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $responsedata->variant);
         $data->questiontext = self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $responsedata->variant, true);
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
@@ -202,7 +202,7 @@ class calculated extends questions implements questionType {
      * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
-     * @param int $jqid
+     * @param int $kid
      * @return void
      * @throws JsonException
      * @throws coding_exception
@@ -212,7 +212,7 @@ class calculated extends questions implements questionType {
     public static function get_question_report(kuet_sessions     $session,
                                                question_definition $questiondata,
                                                stdClass            $data,
-                                               int                 $jqid): stdClass {
+                                               int                 $kid): stdClass {
         if (!assert($questiondata instanceof qtype_calculated_question)) {
             throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
                 [], get_string('question_nosuitable', 'mod_kuet'));
@@ -271,7 +271,7 @@ class calculated extends questions implements questionType {
         if ($session->is_group_mode()) {
             $gmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         }
-        $responses = kuet_questions_responses::get_question_responses($session->get('id'), $data->jqshowid, $jqid);
+        $responses = kuet_questions_responses::get_question_responses($session->get('id'), $data->kuetid, $kid);
         foreach ($responses as $response) {
             if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
                 continue;
@@ -316,7 +316,7 @@ class calculated extends questions implements questionType {
         $participant->responsestr = get_string($participant->response, 'mod_kuet');
         $points = grade::get_simple_mark($response);
         $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-            $session->get('jqshowid'));
+            $session->get('kuetid'));
         $participant->userpoints = grade::get_rounded_mark($spoints);
         if ($session->is_group_mode()) {
             $participant->grouppoints = grade::get_rounded_mark($spoints);
@@ -328,10 +328,10 @@ class calculated extends questions implements questionType {
 
     /**
      * @param int $cmid
-     * @param int $jqid
+     * @param int $kid
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $statmentfeedback
      * @param int $userid
      * @param int $timeleft
@@ -344,10 +344,10 @@ class calculated extends questions implements questionType {
      */
     public static function question_response(
         int $cmid,
-        int $jqid,
+        int $kid,
         int $questionid,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         string $statmentfeedback,
         int $userid,
         int $timeleft,
@@ -373,11 +373,11 @@ class calculated extends questions implements questionType {
             $response->multiplier = $multiplier;
             $response->variant = $variant;
             if ($session->is_group_mode()) {
-                parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
+                parent::add_group_response($kuetid, $session, $kid, $questionid, $userid, $result, $response);
             } else {
                 // Individual.
                 kuet_questions_responses::add_response(
-                    $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $kuetid, $sessionid, $kid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
@@ -396,8 +396,8 @@ class calculated extends questions implements questionType {
     public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response) : float {
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
-        $jqshow = new kuet($response->get('kuet'));
-        [$course, $cm] = get_course_and_cm_from_instance($response->get('kuet'), 'kuet', $jqshow->get('course'));
+        $kuet = new kuet($response->get('kuet'));
+        [$course, $cm] = get_course_and_cm_from_instance($response->get('kuet'), 'kuet', $kuet->get('course'));
         if (assert($question instanceof qtype_calculated_question)) {
             $jsonresponse = json_decode(base64_decode($response->get('response')), false);
             questions::get_text(

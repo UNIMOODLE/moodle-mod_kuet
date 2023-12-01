@@ -58,14 +58,14 @@ class sessionfinished_external extends external_api {
     public static function sessionfinished_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'jqshowid' => new external_value(PARAM_INT, 'kuet id'),
+                'kuetid' => new external_value(PARAM_INT, 'kuet id'),
                 'cmid' => new external_value(PARAM_INT, 'course module id')
             ]
         );
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @return array|stdClass
      * @throws coding_exception
@@ -73,16 +73,16 @@ class sessionfinished_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function sessionfinished(int $jqshowid, int $cmid): array {
+    public static function sessionfinished(int $kuetid, int $cmid): array {
         self::validate_parameters(
             self::sessionfinished_parameters(),
-            ['jqshowid' => $jqshowid, 'cmid' => $cmid]
+            ['kuetid' => $kuetid, 'cmid' => $cmid]
         );
         global $OUTPUT, $PAGE;
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
 
-        $nextsession = kuet_sessions::get_next_session($jqshowid);
+        $nextsession = kuet_sessions::get_next_session($kuetid);
         return  [
             'sessionclosedimage' => $OUTPUT->image_url('f/error', 'mod_kuet')->out(false),
             'hasnextsession' => $nextsession !== 0,

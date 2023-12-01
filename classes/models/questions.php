@@ -87,19 +87,19 @@ class questions {
     public const NOTEVALUABLE = 4;
     public const INVALID = 5;
     public const CHARACTERS_TO_BE_STRIPPED = " \t\n\r\0\x0B\xC2\xA0";
-    protected int $jqshowid;
+    protected int $kuetid;
     protected int $cmid;
     protected int $sid;
     /** @var kuet_questions[] list */
     protected array $list;
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $sid
      */
-    public function __construct(int $jqshowid, int $cmid, int $sid) {
-        $this->jqshowid = $jqshowid;
+    public function __construct(int $kuetid, int $cmid, int $sid) {
+        $this->kuetid = $kuetid;
         $this->cmid = $cmid;
         $this->sid = $sid;
     }
@@ -108,7 +108,7 @@ class questions {
      * @return void
      */
     public function set_list() : void {
-        $this->list = kuet_questions::get_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid], 'qorder', 'ASC');
+        $this->list = kuet_questions::get_records(['sessionid' => $this->sid, 'kuetid' => $this->kuetid], 'qorder', 'ASC');
     }
 
     /**
@@ -125,7 +125,7 @@ class questions {
      * @return int
      */
     public function get_num_questions(): int {
-        return kuet_questions::count_records(['sessionid' => $this->sid, 'jqshowid' => $this->jqshowid]);
+        return kuet_questions::count_records(['sessionid' => $this->sid, 'kuetid' => $this->kuetid]);
     }
 
     /**
@@ -150,9 +150,9 @@ class questions {
      * @param kuet_sessions $session
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param bool $preview
-     * @param kuet_questions $jqshowquestion
+     * @param kuet_questions $kuetquestion
      * @param string $type
      * @return stdClass
      * @throws JsonException
@@ -163,19 +163,19 @@ class questions {
         kuet_sessions $session,
         int $cmid,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         bool $preview,
-        kuet_questions $jqshowquestion,
+        kuet_questions $kuetquestion,
         string $type
     ): stdClass {
         global $USER;
-        $numsessionquestions = kuet_questions::count_records(['jqshowid' => $jqshowid, 'sessionid' => $sessionid]);
+        $numsessionquestions = kuet_questions::count_records(['kuetid' => $kuetid, 'sessionid' => $sessionid]);
         $data = new stdClass();
         $data->cmid = $cmid;
         $data->sessionid = $sessionid;
-        $data->jqshowid = $jqshowid;
-        $data->questionid = $jqshowquestion->get('questionid');
-        $data->jqid = $jqshowquestion->get('id');
+        $data->kuetid = $kuetid;
+        $data->questionid = $kuetquestion->get('questionid');
+        $data->kid = $kuetquestion->get('id');
         $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
         $data->countdown = $session->get('countdown');
         $data->preview = $preview;
@@ -186,7 +186,7 @@ class questions {
             case sessions::RACE_PROGRAMMED:
                 $data->programmedmode = true;
                 $progress = kuet_user_progress::get_session_progress_for_user(
-                    $USER->id, $session->get('id'), $session->get('jqshowid')
+                    $USER->id, $session->get('id'), $session->get('kuetid')
                 );
                 if ($progress !== false) {
                     $dataprogress = json_decode($progress->get('other'), false);
@@ -201,7 +201,7 @@ class questions {
                     }
                 }
                 if (!isset($data->question_index_string)) {
-                    $order = $jqshowquestion->get('qorder');
+                    $order = $kuetquestion->get('qorder');
                     $a = new stdClass();
                     $a->num = $order;
                     $a->total = $numsessionquestions;
@@ -213,7 +213,7 @@ class questions {
             case sessions::INACTIVE_MANUAL:
             case sessions::PODIUM_MANUAL:
             case sessions::RACE_MANUAL:
-                $order = $jqshowquestion->get('qorder');
+                $order = $kuetquestion->get('qorder');
                 $a = new stdClass();
                 $a->num = $order;
                 $a->total = $numsessionquestions;
@@ -229,9 +229,9 @@ class questions {
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
             default:
-                if ($jqshowquestion->get('timelimit') !== 0) {
+                if ($kuetquestion->get('timelimit') !== 0) {
                     $data->hastime = true;
-                    $data->seconds = $jqshowquestion->get('timelimit');
+                    $data->seconds = $kuetquestion->get('timelimit');
                 } else {
                     $data->hastime = false;
                     $data->seconds = 0;
@@ -240,14 +240,14 @@ class questions {
             case sessions::SESSION_TIME:
                 $data->hastime = true;
                 $numquestion = kuet_questions::count_records(
-                    ['sessionid' => $session->get('id'), 'jqshowid' => $session->get('jqshowid')]
+                    ['sessionid' => $session->get('id'), 'kuetid' => $session->get('kuetid')]
                 );
                 $data->seconds = round((int)$session->get('sessiontime') / $numquestion);
                 break;
             case sessions::QUESTION_TIME:
                 $data->hastime = true;
                 $data->seconds =
-                    $jqshowquestion->get('timelimit') !== 0 ? $jqshowquestion->get('timelimit') : $session->get('questiontime');
+                    $kuetquestion->get('timelimit') !== 0 ? $kuetquestion->get('timelimit') : $session->get('questiontime');
                 break;
         }
         return $data;
@@ -321,9 +321,9 @@ class questions {
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param kuet_sessions $session
-     * @param int $jqid
+     * @param int $kid
      * @param int $questionid
      * @param int $userid
      * @param int $result
@@ -335,11 +335,11 @@ class questions {
      * @throws moodle_exception
      */
     protected static function add_group_response(
-        int $jqshowid, kuet_sessions $session, int $jqid, int $questionid, int $userid, int $result, stdClass $response
+        int $kuetid, kuet_sessions $session, int $kid, int $questionid, int $userid, int $result, stdClass $response
     ) : void {
         // All groupmembers has the same response saved on db.
         $num = kuet_questions_responses::count_records(
-            ['kuet' => $jqshowid, 'session' => $session->get('id'), 'jqid' => $jqid, 'userid' => $userid]);
+            ['kuet' => $kuetid, 'session' => $session->get('id'), 'kid' => $kid, 'userid' => $userid]);
         if ($num > 0) {
             return;
         }
@@ -347,7 +347,7 @@ class questions {
         $gmemberids = groupmode::get_grouping_group_members_by_userid($session->get('groupings'), $userid);
         foreach ($gmemberids as $gmemberid) {
             kuet_questions_responses::add_response(
-                $jqshowid, $session->get('id'), $jqid, $questionid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                $kuetid, $session->get('id'), $kid, $questionid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
     }

@@ -116,10 +116,10 @@ let countusers = null;
 let cmid = null;
 let sid = null;
 let db = null;
-let questionsJqids = [];
+let questionsKids = [];
 let waitingRoom = true;
-let currentQuestionJqid = null;
-let nextQuestionJqid = null;
+let currentQuestionKqid = null;
+let nextQuestionKqid = null;
 let sessionMode = null;
 let showRankingBetweenQuestions = false;
 let showRankingBetweenQuestionsSwitch = false;
@@ -300,14 +300,14 @@ Sockets.prototype.initSockets = function() {
         };
         Ajax.call([request])[0].done(function(firstquestion) {
             let data = {
-                jqid: firstquestion.jqid,
+                kid: firstquestion.kid,
                 value: firstquestion
             };
             db.add('questions', data);
-            questionsJqids.push(firstquestion.jqid);
-            currentQuestionJqid = firstquestion.jqid;
-            that.setCurrentQuestion(firstquestion.jqid);
-            that.getNextQuestion(firstquestion.jqid);
+            questionsKids.push(firstquestion.kid);
+            currentQuestionKqid = firstquestion.kid;
+            that.setCurrentQuestion(firstquestion.kid);
+            that.getNextQuestion(firstquestion.kid);
             if (alreadyteacher === false) {
                 that.root.find(ACTION.INITSESSION).removeClass('disabled');
                 that.root.find(ACTION.INITSESSION).on('click', that.initSession);
@@ -410,28 +410,28 @@ Sockets.prototype.initSockets = function() {
                 jQuery(ACTION.INITSESSION).addClass('disabled');
                 break;
             case 'pauseQuestion':
-                dispatchEvent(new Event('pauseQuestion_' + response.jqid));
+                dispatchEvent(new Event('pauseQuestion_' + response.kid));
                 break;
             case 'playQuestion':
-                dispatchEvent(new Event('playQuestion_' + response.jqid));
+                dispatchEvent(new Event('playQuestion_' + response.kid));
                 break;
             case 'showAnswers':
-                dispatchEvent(new Event('showAnswers_' + response.jqid));
+                dispatchEvent(new Event('showAnswers_' + response.kid));
                 break;
             case 'hideAnswers':
-                dispatchEvent(new Event('hideAnswers_' + response.jqid));
+                dispatchEvent(new Event('hideAnswers_' + response.kid));
                 break;
             case 'showStatistics':
-                dispatchEvent(new Event('showStatistics_' + response.jqid));
+                dispatchEvent(new Event('showStatistics_' + response.kid));
                 break;
             case 'hideStatistics':
-                dispatchEvent(new Event('hideStatistics_' + response.jqid));
+                dispatchEvent(new Event('hideStatistics_' + response.kid));
                 break;
             case 'showFeedback':
-                dispatchEvent(new Event('showFeedback_' + response.jqid));
+                dispatchEvent(new Event('showFeedback_' + response.kid));
                 break;
             case 'hideFeedback':
-                dispatchEvent(new Event('hideFeedback_' + response.jqid));
+                dispatchEvent(new Event('hideFeedback_' + response.kid));
                 break;
             case 'ImproviseStudentTag':
                 Sockets.prototype.manageCloudTags(response.improvisereply);
@@ -603,30 +603,30 @@ Sockets.prototype.setEndSession = function(endData) {
     showRankingBetweenQuestionsSwitch = false;
 };
 
-Sockets.prototype.getNextQuestion = function(jqid) {
+Sockets.prototype.getNextQuestion = function(kid) {
     let that = this;
     let request = {
         methodname: SERVICES.NEXTQUESTION,
         args: {
             cmid: cmid,
             sessionid: sid,
-            jqid: jqid,
+            kid: kid,
             manual: true
         }
     };
-    nextQuestionJqid = null;
+    nextQuestionKqid = null;
     Ajax.call([request])[0].done(function(nextquestion) {
         if (nextquestion.endsession !== true) {
             let data = {
-                jqid: nextquestion.jqid,
+                kid: nextquestion.kid,
                 value: nextquestion
             };
             db.add('questions', data);
-            nextQuestionJqid = nextquestion.jqid;
-            that.setNextQuestion(nextquestion.jqid);
+            nextQuestionKqid = nextquestion.kid;
+            that.setNextQuestion(nextquestion.kid);
         } else {
             // End session.
-            nextQuestionJqid = null;
+            nextQuestionKqid = null;
             that.setEndSession(nextquestion);
         }
     }).fail(Notification.exception);
@@ -649,7 +649,7 @@ Sockets.prototype.initSession = function() {
         }).then(modal => {
             modal.setSaveButtonText(langStrings[2]);
             modal.getRoot().on(ModalEvents.save, () => {
-                let firstQuestion = db.get('questions', currentQuestionJqid);
+                let firstQuestion = db.get('questions', currentQuestionKqid);
                 firstQuestion.onsuccess = function() {
                     let msg = {
                         'action': 'question',
@@ -661,7 +661,7 @@ Sockets.prototype.initSession = function() {
                         Sockets.prototype.initPanel();
                         let identifier = jQuery(REGION.TEACHERCANVAS);
                         identifier.append(html);
-                        currentQuestionJqid = firstQuestion.result.jqid;
+                        currentQuestionKqid = firstQuestion.result.kid;
                         firstQuestion.result.value.isteacher = true;
                         currentQuestionDataForRace = firstQuestion.result.value;
                         if (sessionMode === 'podium_manual' || sessionMode === 'inactive_manual') {
@@ -782,8 +782,8 @@ Sockets.prototype.endSession = function() {
 
 Sockets.prototype.nextQuestion = function() {
     let that = this;
-    if (nextQuestionJqid === null) {
-        this.getNextQuestion(currentQuestionJqid);
+    if (nextQuestionKqid === null) {
+        this.getNextQuestion(currentQuestionKqid);
     }
     let nextQuestion = db.get('statequestions', 'nextQuestion');
     nextQuestion.onsuccess = function() {
@@ -802,11 +802,11 @@ Sockets.prototype.nextQuestion = function() {
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.TEACHERCANVAS);
                     identifier.append(html);
-                    currentQuestionJqid = nextQuestionData.result.jqid;
+                    currentQuestionKqid = nextQuestionData.result.kid;
                     // The following question is marked as current.
-                    that.setCurrentQuestion(nextQuestionData.result.jqid);
+                    that.setCurrentQuestion(nextQuestionData.result.kid);
                     // And get the next question to store it.
-                    that.getNextQuestion(nextQuestionData.result.jqid);
+                    that.getNextQuestion(nextQuestionData.result.kid);
                     if (sessionMode === 'podium_manual' || sessionMode === 'inactive_manual') {
                         nextQuestionData.result.value.isteacher = true;
                         // Render questin for teacher.
@@ -835,7 +835,7 @@ Sockets.prototype.nextQuestion = function() {
                     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                         let identifier = jQuery(REGION.TEACHERCANVAS);
                         identifier.append(html);
-                        currentQuestionJqid = null;
+                        currentQuestionKqid = null;
                         db.delete('statequestions', 'currentQuestion');
                         that.setEndSession(endSession.result);
                         endSession.result.value.isteacher = true;
@@ -866,7 +866,7 @@ Sockets.prototype.nextQuestion = function() {
                         Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                             let identifier = jQuery(REGION.TEACHERCANVAS);
                             identifier.append(html);
-                            currentQuestionJqid = null;
+                            currentQuestionKqid = null;
                             db.delete('statequestions', 'currentQuestion');
                             that.setEndSession(endSession.result);
                             endSession.result.value.isteacher = true;
@@ -938,7 +938,7 @@ Sockets.prototype.manageNext = function() {
                 args: {
                     sid: sid,
                     cmid: cmid,
-                    jqid: currentQuestionJqid
+                    kid: currentQuestionKqid
                 }
             };
             Ajax.call([request])[0].done(function(provisionalRanking) {
@@ -968,7 +968,7 @@ Sockets.prototype.pauseQuestion = function() {
     let msg = {
         'action': 'pauseQuestion',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -977,7 +977,7 @@ Sockets.prototype.playQuestion = function() {
     let msg = {
         'action': 'playQuestion',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -988,14 +988,14 @@ Sockets.prototype.resendSelf = function() {
         args: {
             cmid: cmid,
             sessionid: sid,
-            jqid: currentQuestionJqid
+            kid: currentQuestionKqid
         }
     };
     let removeEvents = new CustomEvent('removeEvents');
     dispatchEvent(removeEvents);
     Ajax.call([request])[0].done(function(response) {
         if (response.deleted === true) {
-            let currentQuestionData = db.get('questions', currentQuestionJqid);
+            let currentQuestionData = db.get('questions', currentQuestionKqid);
             currentQuestionData.onsuccess = function() {
                 let msg = {
                     'action': 'question',
@@ -1036,18 +1036,18 @@ Sockets.prototype.jumpTo = function(questionNumber) {
             manual: true
         }
     };
-    nextQuestionJqid = null;
+    nextQuestionKqid = null;
     let removeEvents = new CustomEvent('removeEvents');
     dispatchEvent(removeEvents);
     Ajax.call([request])[0].done(function(question) {
         let data = {
-            jqid: question.jqid,
+            kid: question.kid,
             value: question
         };
         db.add('questions', data);
-        currentQuestionJqid = question.jqid;
-        that.setCurrentQuestion(question.jqid);
-        that.getNextQuestion(question.jqid);
+        currentQuestionKqid = question.kid;
+        that.setCurrentQuestion(question.kid);
+        that.getNextQuestion(question.kid);
         let msg = {
             'action': 'question',
             'sid': sid,
@@ -1079,18 +1079,18 @@ Sockets.prototype.questionEnd = function() {
         methodname: SERVICES.GETQUESTIONSTATISTICS,
         args: {
             sid: sid,
-            jqid: currentQuestionJqid
+            kid: currentQuestionKqid
         }
     };
     Ajax.call([request])[0].done(function(response) {
         let msg = {
             'action': 'teacherQuestionEnd',
             'sid': sid,
-            'jqid': currentQuestionJqid,
+            'kid': currentQuestionKqid,
             'statistics': response.statistics
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
-        dispatchEvent(new CustomEvent('teacherQuestionEnd_' + currentQuestionJqid, {
+        dispatchEvent(new CustomEvent('teacherQuestionEnd_' + currentQuestionKqid, {
             "detail": {"statistics": response.statistics}
         }));
     }).fail(Notification.exception);
@@ -1100,7 +1100,7 @@ Sockets.prototype.showAnswers = function() {
     let msg = {
         'action': 'showAnswers',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1109,7 +1109,7 @@ Sockets.prototype.hideAnswers = function() {
     let msg = {
         'action': 'hideAnswers',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1118,7 +1118,7 @@ Sockets.prototype.showStatistics = function() {
     let msg = {
         'action': 'showStatistics',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1127,7 +1127,7 @@ Sockets.prototype.hideStatistics = function() {
     let msg = {
         'action': 'hideStatistics',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1136,7 +1136,7 @@ Sockets.prototype.showFeedback = function() {
     let msg = {
         'action': 'showFeedback',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1145,7 +1145,7 @@ Sockets.prototype.hideFeedback = function() {
     let msg = {
         'action': 'hideFeedback',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };

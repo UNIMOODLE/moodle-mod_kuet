@@ -97,7 +97,7 @@ class firstquestion_external extends external_api {
             $firstquestion->get('id'),
             $cmid,
             $sessionid,
-            $firstquestion->get('jqshowid'));
+            $firstquestion->get('kuetid'));
         $question->showstatistics = $type::show_statistics();
         $session = new kuet_sessions($sessionid);
         if ($session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||

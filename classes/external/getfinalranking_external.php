@@ -78,7 +78,7 @@ class getfinalranking_external extends external_api {
             ['sid' => $sid, 'cmid' => $cmid]
         );
         $session = kuet_sessions::get_record(['id' => $sid]);
-        $questions = new questions($session->get('jqshowid'), $cmid, $sid);
+        $questions = new questions($session->get('kuetid'), $cmid, $sid);
         $contextmodule = context_module::instance($cmid);
         $ranking = sessions::get_final_ranking($sid, $cmid);
         $finalranking = $ranking;
@@ -97,7 +97,7 @@ class getfinalranking_external extends external_api {
             'thirduserpoints' => $ranking[2]->userpoints,
             'sessionid' => $sid,
             'cmid' => $cmid,
-            'jqshowid' => $session->get('jqshowid'),
+            'kuetid' => $session->get('kuetid'),
             'numquestions' => $questions->get_num_questions(),
             'ranking' => true,
             'endsession' => true,
@@ -123,7 +123,7 @@ class getfinalranking_external extends external_api {
             ),
             'sessionid' => new external_value(PARAM_INT, 'kuet_session id'),
             'cmid' => new external_value(PARAM_INT, 'course module id'),
-            'jqshowid' => new external_value(PARAM_INT, 'kuet id'),
+            'kuetid' => new external_value(PARAM_INT, 'kuet id'),
             'numquestions' => new external_value(PARAM_INT, 'Number of questions for teacher panel'),
             'ranking' => new external_value(PARAM_BOOL, 'Is a ranking, for control panel context'),
             'endsession' => new external_value(PARAM_BOOL, 'Mark end session'),

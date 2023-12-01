@@ -69,7 +69,7 @@ class kuet {
      * @return void
      * @throws dml_exception
      */
-    protected function set_jqshow() : void {
+    protected function set_kuet() : void {
         global $DB;
         $this->kuet = $DB->get_record('kuet', ['id' => $this->cm->instance], '*', MUST_EXIST);
     }
@@ -78,9 +78,9 @@ class kuet {
      * @return stdClass
      * @throws dml_exception
      */
-    public function get_jqshow() : stdClass {
+    public function get_kuet() : stdClass {
         if (is_null($this->kuet)) {
-            $this->set_jqshow();
+            $this->set_kuet();
         }
         return $this->kuet;
     }
@@ -91,7 +91,7 @@ class kuet {
      */
     protected function set_sessions() : void {
         if (is_null($this->kuet)) {
-            $this->set_jqshow();
+            $this->set_kuet();
         }
         $this->sessions = new sessions($this->kuet, $this->cm->id);
     }

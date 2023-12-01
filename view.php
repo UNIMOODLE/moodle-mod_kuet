@@ -44,7 +44,7 @@ $id = required_param('id', PARAM_INT);    // Course Module ID.
 
 $cm = get_coursemodule_from_id('kuet', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-$jqshow = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
+$kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
 
 $PAGE->set_url('/mod/kuet/view.php', ['id' => $id]);
 require_login($course, false, $cm);
@@ -57,15 +57,15 @@ $PAGE->set_title(get_string('modulename', 'kuet'));
 if ($isteacher) {
     $view = new teacher_view();
 } else {
-    $activessesion = kuet_sessions::get_active_session_id($jqshow->id);
+    $activessesion = kuet_sessions::get_active_session_id($kuet->id);
     if ($activessesion !== 0) {
         redirect((new moodle_url('/mod/kuet/session.php', ['cmid' => $cm->id, 'sid' => $activessesion]))->out(false));
     }
-    $view = new student_view($jqshow->id, $cm->id);
+    $view = new student_view($kuet->id, $cm->id);
 }
 
 $output = $PAGE->get_renderer('mod_kuet');
 echo $output->header();
-echo $output->heading(format_string($jqshow->name));
+echo $output->heading(format_string($kuet->name));
 echo $output->render($view);
 echo $output->footer();

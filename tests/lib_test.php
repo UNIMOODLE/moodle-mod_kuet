@@ -60,10 +60,10 @@ class lib_test extends advanced_testcase {
     public function test_kuet_core_calendar_provide_event_action() {
         // Create the activity.
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $jqshow->id,
+        $event = $this->create_action_event($course->id, $kuet->id,
             api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Create an action factory.
@@ -90,10 +90,10 @@ class lib_test extends advanced_testcase {
 
         // Create the activity.
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $jqshow->id,
+        $event = $this->create_action_event($course->id, $kuet->id,
                 api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Now log out.
@@ -118,13 +118,13 @@ class lib_test extends advanced_testcase {
     public function test_kuet_core_calendar_provide_event_action_in_hidden_section() {
         // Create the activity.
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
 
         // Create a student.
         $student = self::getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $jqshow->id,
+        $event = $this->create_action_event($course->id, $kuet->id,
                 api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Set sections 0 as hidden.
@@ -150,13 +150,13 @@ class lib_test extends advanced_testcase {
 
         // Create the activity.
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
 
         // Enrol a student in the course.
         $student = self::getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $jqshow->id,
+        $event = $this->create_action_event($course->id, $kuet->id,
             api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Now, log out.
@@ -189,14 +189,14 @@ class lib_test extends advanced_testcase {
 
         // Create the activity.
         $course = self::getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id],
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id],
             ['completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS]);
 
         // Get some additional data.
-        $cm = get_coursemodule_from_instance('kuet', $jqshow->id);
+        $cm = get_coursemodule_from_instance('kuet', $kuet->id);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $jqshow->id,
+        $event = $this->create_action_event($course->id, $kuet->id,
             api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Mark the activity as completed.
@@ -225,17 +225,17 @@ class lib_test extends advanced_testcase {
 
         // Create the activity.
         $course = self::getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id],
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id],
                 ['completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS]);
 
         // Enrol a student in the course.
         $student = self::getDataGenerator()->create_and_enrol($course, 'student');
 
         // Get some additional data.
-        $cm = get_coursemodule_from_instance('kuet', $jqshow->id);
+        $cm = get_coursemodule_from_instance('kuet', $kuet->id);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $jqshow->id,
+        $event = $this->create_action_event($course->id, $kuet->id,
                 api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
 
         // Mark the activity as completed for the student.

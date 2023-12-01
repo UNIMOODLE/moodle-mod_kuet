@@ -44,7 +44,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
         $userinfo = $this->get_setting_value('userinfo');
 
         // Define each element separated.
-        $jqshow = new backup_nested_element('kuet', ['id'], [
+        $kuet = new backup_nested_element('kuet', ['id'], [
             'name',
             'intro',
             'introformat',
@@ -99,7 +99,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
         $questionsresponses = new backup_nested_element('questions_responses');
         $questionsresponse = new backup_nested_element('questions_response', ['id'], [
             'session',
-            'jqid',
+            'kid',
             'questionid',
             'userid',
             'anonymise',
@@ -136,28 +136,28 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
         ]);
 
         // Build the tree.
-        $jqshow->add_child($grades);
+        $kuet->add_child($grades);
         $grades->add_child($grade);
 
-        $jqshow->add_child($sessions);
+        $kuet->add_child($sessions);
         $sessions->add_child($session);
 
-        $jqshow->add_child($questions);
+        $kuet->add_child($questions);
         $questions->add_child($question);
 
-        $jqshow->add_child($sessionsgrades);
+        $kuet->add_child($sessionsgrades);
         $sessionsgrades->add_child($sessiongrade);
 
-        $jqshow->add_child($userprogress);
+        $kuet->add_child($userprogress);
         $userprogress->add_child($userprogres);
 
-        $jqshow->add_child($questionsresponses);
+        $kuet->add_child($questionsresponses);
         $questionsresponses->add_child($questionsresponse);
 
         // Define sources.
-        $jqshow->set_source_table('kuet', ['id' => backup::VAR_ACTIVITYID]);
-        $session->set_source_table('kuet_sessions', ['jqshowid' => backup::VAR_PARENTID]);
-        $question->set_source_table('kuet_questions', ['jqshowid' => backup::VAR_PARENTID]);
+        $kuet->set_source_table('kuet', ['id' => backup::VAR_ACTIVITYID]);
+        $session->set_source_table('kuet_sessions', ['kuetid' => backup::VAR_PARENTID]);
+        $question->set_source_table('kuet_questions', ['kuetid' => backup::VAR_PARENTID]);
 
         if ($userinfo) {
             $grade->set_source_table('kuet_grades', ['kuet' => backup::VAR_PARENTID]);
@@ -174,9 +174,9 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
         $questionsresponse->annotate_ids('question', 'questionid');
 
         // Define file annotations.
-        $jqshow->annotate_files('mod_kuet', 'intro', null);
+        $kuet->annotate_files('mod_kuet', 'intro', null);
 
         // Return the root element (choice), wrapped into standard activity structure.
-        return $this->prepare_activity_structure($jqshow);
+        return $this->prepare_activity_structure($kuet);
     }
 }

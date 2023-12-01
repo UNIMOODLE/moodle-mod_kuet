@@ -65,7 +65,7 @@ class getquestion_external extends external_api {
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sid' => new external_value(PARAM_INT, 'session id'),
-                'jqid' => new external_value(PARAM_INT, 'kuet id')
+                'kid' => new external_value(PARAM_INT, 'kuet id')
             ]
         );
     }
@@ -73,7 +73,7 @@ class getquestion_external extends external_api {
     /**
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqid
+     * @param int $kid
      * @return array
      * @throws JsonException
      * @throws ReflectionException
@@ -83,20 +83,20 @@ class getquestion_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws moodle_exception
      */
-    public static function getquestion(int $cmid, int $sessionid, int $jqid): array {
+    public static function getquestion(int $cmid, int $sessionid, int $kid): array {
         global $PAGE;
         self::validate_parameters(
             self::getquestion_parameters(),
-            ['cmid' => $cmid, 'sid' => $sessionid, 'jqid' => $jqid]
+            ['cmid' => $cmid, 'sid' => $sessionid, 'kid' => $kid]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $session = new kuet_sessions($sessionid);
 
-        $jquestion = new kuet_questions($jqid);
+        $kquestion = new kuet_questions($kid);
         /** @var questions $type */
-        $type = questions::get_question_class_by_string_type($jquestion->get('qtype'));
-        $question = $type::export_question($jqid, $cmid, $sessionid, $session->get('jqshowid'), true);
+        $type = questions::get_question_class_by_string_type($kquestion->get('qtype'));
+        $question = $type::export_question($kid, $cmid, $sessionid, $session->get('kuetid'), true);
         $session = new kuet_sessions($sessionid);
         $question->programmedmode = in_array($session->get('sessionmode'),
             [sessions::PODIUM_PROGRAMMED, sessions::INACTIVE_PROGRAMMED, sessions::RACE_PROGRAMMED], true);

@@ -63,20 +63,20 @@ require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 class multichoice extends questions implements questionType {
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) : void {
-        parent::__construct($jqshowid, $cmid, $sid);
+    public function construct(int $kuetid, int $cmid, int $sid) : void {
+        parent::__construct($kuetid, $cmid, $sid);
     }
 
     /**
-     * @param int $jqid // kuet_question id
+     * @param int $kid // kuet_question id
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param bool $preview
      * @return object
      * @throws JsonException
@@ -85,12 +85,12 @@ class multichoice extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
+    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false) : object {
         $session = kuet_sessions::get_record(['id' => $sessionid]);
-        $jqshowquestion = kuet_questions::get_record(['id' => $jqid]);
-        $question = question_bank::load_question($jqshowquestion->get('questionid'));
+        $kuetquestion = kuet_questions::get_record(['id' => $kid]);
+        $question = question_bank::load_question($kuetquestion->get('questionid'));
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $kuetid, $preview, $kuetquestion, $type);
         $data->$type = true;
         $data->questiontext =
             self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
@@ -104,7 +104,7 @@ class multichoice extends questions implements questionType {
                 $answertext = self::get_text($cmid, $response->answer, $response->answerformat, $response->id, $question, 'answer');
                 $answers[] = [
                     'answerid' => $response->id,
-                    'questionid' => $jqshowquestion->get('questionid'),
+                    'questionid' => $kuetquestion->get('questionid'),
                     'answertext' => $answertext,
                     'fraction' => $response->fraction,
                 ];
@@ -144,10 +144,10 @@ class multichoice extends questions implements questionType {
         $dataanswer = multichoice_external::multichoice(
             $responsedata->answerids,
             $data->sessionid,
-            $data->jqshowid,
+            $data->kuetid,
             $data->cmid,
             $data->questionid,
-            $data->jqid,
+            $data->kid,
             $responsedata->timeleft,
             true
         );
@@ -172,7 +172,7 @@ class multichoice extends questions implements questionType {
      * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
-     * @param int $jqid
+     * @param int $kid
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -181,7 +181,7 @@ class multichoice extends questions implements questionType {
     public static function get_question_report(kuet_sessions $session,
                                                question_definition $questiondata,
                                                stdClass $data,
-                                               int $jqid): stdClass {
+                                               int $kid): stdClass {
         $answers = [];
         $correctanswers = [];
         foreach ($questiondata->answers as $key => $answer) {
@@ -236,7 +236,7 @@ class multichoice extends questions implements questionType {
         if ($session->is_group_mode()) {
             $gmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         }
-        $responses = kuet_questions_responses::get_question_responses($session->get('id'), $data->jqshowid, $jqid);
+        $responses = kuet_questions_responses::get_question_responses($session->get('id'), $data->kuetid, $kid);
         foreach ($responses as $response) {
             if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
                 continue;
@@ -286,7 +286,7 @@ class multichoice extends questions implements questionType {
                 }
                 $points = grade::get_simple_mark($response);
                 $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-                    $session->get('jqshowid'));
+                    $session->get('kuetid'));
                 if ($session->is_group_mode()) {
                     $participant->grouppoints = grade::get_rounded_mark($spoints);
                 } else {
@@ -309,7 +309,7 @@ class multichoice extends questions implements questionType {
             $participant->responsestr = get_string($participant->response, 'mod_kuet');
             $participant->answertext = trim($answertext, '<br>');
             $points = grade::get_simple_mark($response);
-            $spoints = grade::get_session_grade($participant->id, $session->get('id'), $session->get('jqshowid'));
+            $spoints = grade::get_session_grade($participant->id, $session->get('id'), $session->get('kuetid'));
             if ($session->is_group_mode()) {
                 $participant->grouppoints = grade::get_rounded_mark($spoints);
             } else {
@@ -323,10 +323,10 @@ class multichoice extends questions implements questionType {
 
     /**
      * @param int $cmid
-     * @param int $jqid
+     * @param int $kid
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $statmentfeedback
      * @param int $userid
      * @param int $timeleft
@@ -340,10 +340,10 @@ class multichoice extends questions implements questionType {
      */
     public static function question_response(
         int $cmid,
-        int $jqid,
+        int $kid,
         int $questionid,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         string $statmentfeedback,
         int $userid,
         int $timeleft,
@@ -356,19 +356,19 @@ class multichoice extends questions implements questionType {
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
         if ($isteacher !== true) {
-            self::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
+            self::manage_response($kid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $kuetid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::MULTICHOICE);
         }
     }
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @param string $answerids
      * @param string $answertexts
      * @param string $correctanswers
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $statmentfeedback
      * @param string $answerfeedback
      * @param int $userid
@@ -381,13 +381,13 @@ class multichoice extends questions implements questionType {
      * @throws moodle_exception
      */
     public static function manage_response(
-        int $jqid,
+        int $kid,
         string $answerids,
         string $answertexts,
         string $correctanswers,
         int $questionid,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         string $statmentfeedback,
         string $answerfeedback,
         int $userid,
@@ -404,11 +404,11 @@ class multichoice extends questions implements questionType {
         $response->type = $qtype;
         $session = new kuet_sessions($sessionid);
         if ($session->is_group_mode()) {
-            parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
+            parent::add_group_response($kuetid, $session, $kid, $questionid, $userid, $result, $response);
         } else {
             // Individual.
             kuet_questions_responses::add_response(
-                $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                $kuetid, $sessionid, $kid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
     }

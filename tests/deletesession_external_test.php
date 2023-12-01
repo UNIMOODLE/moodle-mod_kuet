@@ -77,17 +77,17 @@ class deletesession_external_test extends advanced_testcase {
     public function test_deletesession(): bool {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
 //        $sessiontest = new sessions_test();
-        $sessiontest = new sessions($jqshow, $jqshow->cmid);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
-//        $sessiontest->test_session($jqshow);
+        $sessiontest = new sessions($kuet, $kuet->cmid);
+        $this->sessionmock['kuetid'] = $kuet->id;
+//        $sessiontest->test_session($kuet);
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
-        $sessionid = $generator->create_session($jqshow, (object) $this->sessionmock);
+        $sessionid = $generator->create_session($kuet, (object) $this->sessionmock);
         $list = $sessiontest->get_list();
-        $result = deletesession_external::deletesession($course->id, $jqshow->cmid, $list[0]->get('id'));
+        $result = deletesession_external::deletesession($course->id, $kuet->cmid, $list[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertTrue($result['deleted']);
         $sessiontest->set_list();
@@ -96,12 +96,12 @@ class deletesession_external_test extends advanced_testcase {
 
         $student = self::getDataGenerator()->create_and_enrol($course);
         self::setUser($student);
-//        $sessiontest->test_session($jqshow);
+//        $sessiontest->test_session($kuet);
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
-        $sessionid = $generator->create_session($jqshow, (object) $this->sessionmock);
+        $sessionid = $generator->create_session($kuet, (object) $this->sessionmock);
 
         $newlist = $sessiontest->get_list();
-        $result = deletesession_external::deletesession($course->id, $jqshow->cmid, $newlist[0]->get('id'));
+        $result = deletesession_external::deletesession($course->id, $kuet->cmid, $newlist[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertFalse($result['deleted']);
         $this->assertCount(1, $newlist);

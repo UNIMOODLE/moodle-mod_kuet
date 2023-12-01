@@ -242,8 +242,8 @@ class groupmode {
             $data = new stdClass();
             $data->name = get_string('fakegroup', 'mod_kuet', random_string(5));
             $data->description = get_string('fakegroupdescription', 'mod_kuet');
-            $jqshow = \mod_kuet\persistents\kuet::get_kuet_from_cmid($cmid);
-            $data->courseid = $jqshow->get('course');
+            $kuet = \mod_kuet\persistents\kuet::get_kuet_from_cmid($cmid);
+            $data->courseid = $kuet->get('course');
             $groupid = groups_create_group($data);
             foreach ($diff as $userid) {
                 groups_add_member($groupid, (int) $userid);

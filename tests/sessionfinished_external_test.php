@@ -29,8 +29,8 @@ class sessionfinished_external_test extends advanced_testcase {
         global $OUTPUT;
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -39,7 +39,7 @@ class sessionfinished_external_test extends advanced_testcase {
         // Create session.
         $sessionmock1 = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
             'sessionmode' => \mod_kuet\models\sessions::INACTIVE_PROGRAMMED,
             'sgrade' => 0,
@@ -61,7 +61,7 @@ class sessionfinished_external_test extends advanced_testcase {
             'submitbutton' => 0,
             'showgraderanking' => 0,
         ];
-        $sessionmock1['id'] = $generator->create_session($jqshow, (object) $sessionmock1);
+        $sessionmock1['id'] = $generator->create_session($kuet, (object) $sessionmock1);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -75,21 +75,21 @@ class sessionfinished_external_test extends advanced_testcase {
 
         // Add questions to a session.
         $questions = [
-            ['questionid' => $saq->id, 'sessionid' => $sessionmock1['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $saq->id, 'sessionid' => $sessionmock1['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::SHORTANSWER],
-            ['questionid' => $nq->id, 'sessionid' => $sessionmock1['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $nq->id, 'sessionid' => $sessionmock1['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::NUMERICAL],
-            ['questionid' => $tfq->id, 'sessionid' => $sessionmock1['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $tfq->id, 'sessionid' => $sessionmock1['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::TRUE_FALSE],
-            ['questionid' => $mcq->id, 'sessionid' => $sessionmock1['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $mcq->id, 'sessionid' => $sessionmock1['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::MULTICHOICE],
-            ['questionid' => $ddwtosq->id, 'sessionid' => $sessionmock1['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $ddwtosq->id, 'sessionid' => $sessionmock1['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::DDWTOS],
-            ['questionid' => $dq->id, 'sessionid' => $sessionmock1['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $dq->id, 'sessionid' => $sessionmock1['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::DESCRIPTION],
         ];
         $generator->add_questions_to_session($questions);
-        $data = \mod_kuet\external\sessionfinished_external::sessionfinished($jqshow->id, $jqshow->cmid);
+        $data = \mod_kuet\external\sessionfinished_external::sessionfinished($kuet->id, $kuet->cmid);
         $sessionmock2 = $sessionmock1;
         $sessionmock2['id'] = 0;
         $sessionmock2['sessionmode'] = \mod_kuet\models\sessions::PODIUM_MANUAL;
@@ -98,25 +98,25 @@ class sessionfinished_external_test extends advanced_testcase {
         $sessionmock2['startdate'] = time();
         $sessionmock2['enddate'] = mktime(date("h"), date("i"), date("s"), date("m"),
             date("d") + 1, date("Y"));
-        $sessionmock2['id'] = $generator->create_session($jqshow, (object) $sessionmock2);
+        $sessionmock2['id'] = $generator->create_session($kuet, (object) $sessionmock2);
 
         // Add questions to a session.
         $questions = [
-            ['questionid' => $saq->id, 'sessionid' => $sessionmock2['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $saq->id, 'sessionid' => $sessionmock2['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::SHORTANSWER],
-            ['questionid' => $nq->id, 'sessionid' => $sessionmock2['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $nq->id, 'sessionid' => $sessionmock2['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::NUMERICAL],
-            ['questionid' => $tfq->id, 'sessionid' => $sessionmock2['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $tfq->id, 'sessionid' => $sessionmock2['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::TRUE_FALSE],
-            ['questionid' => $mcq->id, 'sessionid' => $sessionmock2['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $mcq->id, 'sessionid' => $sessionmock2['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::MULTICHOICE],
-            ['questionid' => $ddwtosq->id, 'sessionid' => $sessionmock2['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $ddwtosq->id, 'sessionid' => $sessionmock2['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::DDWTOS],
-            ['questionid' => $dq->id, 'sessionid' => $sessionmock2['id'], 'jqshowid' => $jqshow->id,
+            ['questionid' => $dq->id, 'sessionid' => $sessionmock2['id'], 'kuetid' => $kuet->id,
                 'qtype' => questions::DESCRIPTION],
         ];
         $generator->add_questions_to_session($questions);
-        $data2 = \mod_kuet\external\sessionfinished_external::sessionfinished($jqshow->id, $jqshow->cmid);
+        $data2 = \mod_kuet\external\sessionfinished_external::sessionfinished($kuet->id, $kuet->cmid);
 
         // Test session 1.
         $this->assertIsArray($data);
@@ -127,7 +127,7 @@ class sessionfinished_external_test extends advanced_testcase {
         $this->assertEquals($OUTPUT->image_url('f/error', 'mod_kuet')->out(false), $data['sessionclosedimage']);
         $this->assertEquals(0, $data['hasnextsession']);
         $this->assertEquals('', $data['nextsessiontime']);
-        $this->assertEquals((new moodle_url('/mod/kuet/reports.php', ['cmid' => $jqshow->cmid]))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/reports.php', ['cmid' => $kuet->cmid]))->out(false),
             $data['urlreports']);
         // Test session 2.
         $this->assertIsArray($data);
@@ -139,7 +139,7 @@ class sessionfinished_external_test extends advanced_testcase {
         $date = userdate($sessionmock2['startdate'], get_string('strftimedatetimeshort', 'core_langconfig'));
         $this->assertTrue($data2['hasnextsession']);
         $this->assertEquals($date, $data2['nextsessiontime']);
-        $this->assertEquals((new moodle_url('/mod/kuet/reports.php', ['cmid' => $jqshow->cmid]))->out(false),
+        $this->assertEquals((new moodle_url('/mod/kuet/reports.php', ['cmid' => $kuet->cmid]))->out(false),
             $data2['urlreports']);
     }
 }

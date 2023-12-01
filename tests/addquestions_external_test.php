@@ -27,8 +27,8 @@ class addquestions_external_test extends advanced_testcase {
     public function test_add_questions() :void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -38,7 +38,7 @@ class addquestions_external_test extends advanced_testcase {
         // Create session.
         $sessionmock = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
             'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
@@ -60,7 +60,7 @@ class addquestions_external_test extends advanced_testcase {
             'submitbutton' => 0,
             'showgraderanking' => 0,
         ];
-        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
+        $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -71,8 +71,8 @@ class addquestions_external_test extends advanced_testcase {
 
         // Compatible questions.
         $data = \mod_kuet\external\addquestions_external::add_questions([
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => 'shortanswer'],
-            ['questionid' => $numq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => 'numerical']
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'shortanswer'],
+            ['questionid' => $numq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'numerical']
         ]);
 
         $this->assertIsArray($data);
@@ -81,9 +81,9 @@ class addquestions_external_test extends advanced_testcase {
 
         // Not compatible question.
         $data = \mod_kuet\external\addquestions_external::add_questions([
-            ['questionid' => $essayq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => 'essay']
+            ['questionid' => $essayq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'essay']
         ]);
-        $total = mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'jqshowid' => $jqshow->id]);
+        $total = mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'kuetid' => $kuet->id]);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('added', $data);
         $this->assertTrue($data['added']);

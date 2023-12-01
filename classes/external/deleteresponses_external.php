@@ -54,7 +54,7 @@ class deleteresponses_external extends external_api {
             [
                 'cmid' => new external_value(PARAM_INT, 'id of course module'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
-                'jqid' => new external_value(PARAM_INT, 'id of kuet_question'),
+                'kid' => new external_value(PARAM_INT, 'id of kuet_question'),
             ]
         );
     }
@@ -62,21 +62,21 @@ class deleteresponses_external extends external_api {
     /**
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqid
+     * @param int $kid
      * @return array
      * @throws moodle_exception
      * @throws invalid_parameter_exception
      */
-    public static function deleteresponses(int $cmid, int $sessionid, int $jqid): array {
+    public static function deleteresponses(int $cmid, int $sessionid, int $kid): array {
         self::validate_parameters(
             self::deleteresponses_parameters(),
-            ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid]
+            ['cmid' => $cmid, 'sessionid' => $sessionid, 'kid' => $kid]
         );
         $cmcontext = context_module::instance($cmid);
         if (has_capability('mod/kuet:startsession', $cmcontext)) {
-            $jqshow = new kuet($cmid);
+            $kuet = new kuet($cmid);
             return [
-                'deleted' => kuet_questions_responses::delete_question_responses($jqshow->get_jqshow()->id, $sessionid, $jqid)
+                'deleted' => kuet_questions_responses::delete_question_responses($kuet->get_kuet()->id, $sessionid, $kid)
             ];
         }
         return [

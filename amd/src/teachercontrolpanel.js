@@ -64,18 +64,18 @@ let ACTION = {
 };
 
 TeacherControlPanel.prototype.root = null;
-TeacherControlPanel.prototype.jqid = null;
+TeacherControlPanel.prototype.kid = null;
 
 /**
  * @constructor
  * @param {String} region
- * @param {int} jqid
+ * @param {int} kid
  */
-function TeacherControlPanel(region, jqid) {
+function TeacherControlPanel(region, kid) {
     this.root = jQuery(region);
-    this.jqid = jqid;
+    this.kid = kid;
     this.initControlPanel();
-    finishquestionEvent = new Event('teacherQuestionEnd_' + this.jqid);
+    finishquestionEvent = new Event('teacherQuestionEnd_' + this.kid);
 }
 
 const nextEvent = new Event('nextQuestion');
@@ -251,6 +251,6 @@ TeacherControlPanel.prototype.endsession = function() {
     dispatchEvent(endSession);
 };
 
-export const teacherControlPanel = (region, jqid) => {
-    return new TeacherControlPanel(region, jqid);
+export const teacherControlPanel = (region, kid) => {
+    return new TeacherControlPanel(region, kid);
 };
