@@ -24,50 +24,50 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_jqshow\forms\questionform;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\forms\questionform;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_sessions;
 
 require_once('../../config.php');
 global $OUTPUT, $DB, $PAGE;
 
 $cmid = required_param('id', PARAM_INT);
 $sid = required_param('sid', PARAM_INT);
-$jqid = required_param('jqid', PARAM_INT);
+$kid = required_param('kid', PARAM_INT);
 
-$cm = get_coursemodule_from_id('jqshow', $cmid, 0, false, MUST_EXIST);
+$cm = get_coursemodule_from_id('kuet', $cmid, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-$jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
+$kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
 
-$PAGE->set_url('/mod/jqshow/editquestion.php', ['id' => $cmid, 'sid' => $sid, 'jqid' => $jqid]);
+$PAGE->set_url('/mod/kuet/editquestion.php', ['id' => $cmid, 'sid' => $sid, 'kid' => $kid]);
 require_login($course, false, $cm);
 
-$jqsquestion = new jqshow_questions($jqid);
-$question = $DB->get_record('question', ['id' => $jqsquestion->get('questionid')], '*', MUST_EXIST);
+$ksquestion = new kuet_questions($kid);
+$question = $DB->get_record('question', ['id' => $ksquestion->get('questionid')], '*', MUST_EXIST);
 
-$session = jqshow_sessions::get_record(['id' => $sid]);
+$session = kuet_sessions::get_record(['id' => $sid]);
 $customdata = [
     'id' => $cmid,
-    'jqid' => $jqid,
+    'kid' => $kid,
     'sid' => $sid,
     'qname' => $question->name,
-    'qtype' => $jqsquestion->get('qtype'),
-    'timelimit' => $jqsquestion->get('timelimit'),
+    'qtype' => $ksquestion->get('qtype'),
+    'timelimit' => $ksquestion->get('timelimit'),
     'sessionlimittimebyquestionsenabled' => $session->get('timemode') === sessions::QUESTION_TIME,
     'notimelimit' => $session->get('timemode') === sessions::NO_TIME,
-    'nograding' => $jqsquestion->get('ignorecorrectanswer'),
+    'nograding' => $ksquestion->get('ignorecorrectanswer'),
     ];
 
-$sesionurl = new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $sid, 'page' => 2]);
-$actionurl = new moodle_url('/mod/jqshow/editquestion.php', ['id' => $cmid, 'sid' => $sid, 'jqid' => $jqid]);
+$sesionurl = new moodle_url('/mod/kuet/sessions.php', ['cmid' => $cmid, 'sid' => $sid, 'page' => 2]);
+$actionurl = new moodle_url('/mod/kuet/editquestion.php', ['id' => $cmid, 'sid' => $sid, 'kid' => $kid]);
 $mform = new questionform($actionurl->out(false), $customdata);
 $mform->set_data($customdata);
 if ($mform->is_cancelled()) {
@@ -75,15 +75,15 @@ if ($mform->is_cancelled()) {
 } else if ($fromform = $mform->get_data()) {
     // Save new data.
     if (isset($fromform->{'timelimit'})) {
-        $jqsquestion->set('timelimit', $fromform->{'timelimit'});
+        $ksquestion->set('timelimit', $fromform->{'timelimit'});
     }
     $nograding = isset($fromform->{'nograding'}) ? $fromform->{'nograding'} : 0;
-    $jqsquestion->set('ignorecorrectanswer', $nograding);
-    $jqsquestion->update();
+    $ksquestion->set('ignorecorrectanswer', $nograding);
+    $ksquestion->update();
     redirect($sesionurl);
 }
 echo $OUTPUT->header();
-echo $OUTPUT->heading(format_string($jqshow->name));
+echo $OUTPUT->heading(format_string($kuet->name));
 echo $mform->render();
 echo $OUTPUT->footer();
 

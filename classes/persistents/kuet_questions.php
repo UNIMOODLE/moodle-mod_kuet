@@ -24,25 +24,25 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\persistents;
+namespace mod_kuet\persistents;
 use coding_exception;
 use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
 use JsonException;
-use mod_jqshow\models\sessions;
+use mod_kuet\models\sessions;
 use moodle_exception;
 use stdClass;
 
-class jqshow_questions extends persistent {
-    public const TABLE = 'jqshow_questions';
+class kuet_questions extends persistent {
+    public const TABLE = 'kuet_questions';
     /**
      * Return the definition of the properties of this model.
      *
@@ -56,7 +56,7 @@ class jqshow_questions extends persistent {
             'sessionid' => [
                 'type' => PARAM_INT,
             ],
-            'jqshowid' => [
+            'kuetid' => [
                 'type' => PARAM_INT,
             ],
             'qorder' => [
@@ -94,21 +94,21 @@ class jqshow_questions extends persistent {
     /**
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $qtype
      * @return bool
      * @throws coding_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function add_question(int $questionid, int $sessionid, int $jqshowid, string $qtype) : bool {
+    public static function add_question(int $questionid, int $sessionid, int $kuetid, string $qtype) : bool {
         global $USER;
         $order = parent::count_records(['sessionid' => $sessionid]) + 1;
         $isvalid = 0; // Teacher must configure the question for this session.
         $data = new stdClass();
         $data->questionid = $questionid;
         $data->sessionid = $sessionid;
-        $data->jqshowid = $jqshowid;
+        $data->kuetid = $kuetid;
         $data->qorder = $order;
         $data->qtype = $qtype;
         $data->timelimit = 0;
@@ -127,30 +127,30 @@ class jqshow_questions extends persistent {
 
     /**
      * @param int $sessionid
-     * @return jqshow_questions
+     * @return kuet_questions
      */
-    public static function get_first_question_of_session(int $sessionid): jqshow_questions {
+    public static function get_first_question_of_session(int $sessionid): kuet_questions {
         return self::get_record(['sessionid' => $sessionid, 'qorder' => 1], MUST_EXIST);
     }
 
     /**
      * @param int $sessionid
      * @param int $questionid
-     * @return false|jqshow_questions
+     * @return false|kuet_questions
      * @throws JsonException
      * @throws coding_exception
      * @throws moodle_exception
      */
     public static function get_next_question_of_session(int $sessionid, int $questionid) {
         global $USER;
-        $session = jqshow_sessions::get_record(['id' => $sessionid], MUST_EXIST);
+        $session = kuet_sessions::get_record(['id' => $sessionid], MUST_EXIST);
         $nextquestion = false;
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
-                $progress = jqshow_user_progress::get_session_progress_for_user(
-                    $USER->id, $session->get('id'), $session->get('jqshowid')
+                $progress = kuet_user_progress::get_session_progress_for_user(
+                    $USER->id, $session->get('id'), $session->get('kuetid')
                 );
                 if ($progress !== false) {
                     $data = json_decode($progress->get('other'), false);
@@ -173,8 +173,8 @@ class jqshow_questions extends persistent {
                 }
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
-                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
+                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
+                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
         }
         return $nextquestion;
     }
@@ -182,18 +182,18 @@ class jqshow_questions extends persistent {
     /**
      * @param int $sid
      * @param int $order
-     * @return false|jqshow_questions
+     * @return false|kuet_questions
      */
     public static function get_question_by_position(int $sid, int $order) {
         return self::get_record(['sessionid' => $sid, 'qorder' => $order]);
     }
 
     /**
-     * @param int $jqid
-     * @return false|jqshow_questions
+     * @param int $kid
+     * @return false|kuet_questions
      */
-    public static function get_question_by_jqid(int $jqid): ?jqshow_questions {
-        return self::get_record(['id' => $jqid], MUST_EXIST);
+    public static function get_question_by_kid(int $kid): ?kuet_questions {
+        return self::get_record(['id' => $kid], MUST_EXIST);
     }
 
     /**
@@ -266,16 +266,16 @@ class jqshow_questions extends persistent {
     }
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @param int $sid
      * @return float
      * @throws coding_exception
      */
-    public static function get_question_time(int $jqid, int $sid) : float {
-        $jqquestion = new jqshow_questions($jqid);
-        $qtime = $jqquestion->get('timelimit');
+    public static function get_question_time(int $kid, int $sid) : float {
+        $kquestion = new kuet_questions($kid);
+        $qtime = $kquestion->get('timelimit');
         if ($qtime === 0) {
-            $session = new jqshow_sessions($sid);
+            $session = new kuet_sessions($sid);
             if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
                 $qtime =  $session->get('questiontime');
             } else if ((int)$session->get('timemode') === sessions::SESSION_TIME) {

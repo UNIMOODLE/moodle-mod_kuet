@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -34,35 +34,35 @@ require_once('../../config.php');
 require_once('lib.php');
 global $OUTPUT, $PAGE, $CFG;
 
-$PAGE->set_url('/mod/jqshow/testssl.php');
+$PAGE->set_url('/mod/kuet/testssl.php');
 require_login();
 $context = context_system::instance();
 $PAGE->set_context($context);
-$PAGE->set_heading(get_string('testssl', 'mod_jqshow'));
-$PAGE->set_title(get_string('testssl', 'mod_jqshow'));
+$PAGE->set_heading(get_string('testssl', 'mod_kuet'));
+$PAGE->set_title(get_string('testssl', 'mod_kuet'));
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('testssl', 'mod_jqshow'));
+echo $OUTPUT->heading(get_string('testssl', 'mod_kuet'));
 
-if (get_config('jqshow', 'sockettype') === 'local') {
-    $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
-    run_server_background($server);
+if (get_config('kuet', 'sockettype') === 'local') {
+    $server = $CFG->dirroot . '/mod/kuet/classes/server.php';
+    mod_kuet_run_server_background($server);
 }
 
 echo html_writer::div('', '', ['id' => 'testresult']);
-$typesocket = get_config('jqshow', 'sockettype');
+$typesocket = get_config('kuet', 'sockettype');
 if ($typesocket === 'local') {
     $socketurl = $CFG->wwwroot;
-    $port = get_config('jqshow', 'localport') !== false ? get_config('jqshow', 'localport') : '8080';
+    $port = get_config('kuet', 'localport') !== false ? get_config('kuet', 'localport') : '8080';
 }
 if ($typesocket === 'external') {
-    $socketurl = get_config('jqshow', 'externalurl');
-    $port = get_config('jqshow', 'externalport') !== false ? get_config('jqshow', 'externalport') : '8080';
+    $socketurl = get_config('kuet', 'externalurl');
+    $port = get_config('kuet', 'externalport') !== false ? get_config('kuet', 'externalport') : '8080';
 }
 if ($typesocket === 'nosocket') {
-    throw new moodle_exception('nosocket', 'mod_jqshow', '',
-        [], get_string('nosocket', 'mod_jqshow'));
+    throw new moodle_exception('nosocket', 'mod_kuet', '',
+        [], get_string('nosocket', 'mod_kuet'));
 }
-$PAGE->requires->js_amd_inline("require(['mod_jqshow/testssl'], function(TestSockets) {
+$PAGE->requires->js_amd_inline("require(['mod_kuet/testssl'], function(TestSockets) {
     TestSockets.initTestSockets('[data-region=\"mainpage\"]', '" . $socketurl . "', '" . $port . "');
 });");
 

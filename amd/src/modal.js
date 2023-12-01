@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/modal
+ * @module    mod_kuet/modal
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -40,9 +40,9 @@ let SELECTORS = {
     CANCEL_BUTTON: '[data-action="close"]',
 };
 
-const ModalJqshow = class extends Modal {
-    static TYPE = 'mod_jqshow/modal';
-    static TEMPLATE = 'mod_jqshow/modal';
+const ModalKuet = class extends Modal {
+    static TYPE = 'mod_kuet/modal';
+    static TEMPLATE = 'mod_kuet/modal';
 
     registerEventListeners() {
         // Call the parent registration.
@@ -57,6 +57,6 @@ const ModalJqshow = class extends Modal {
     }
 };
 
-ModalRegistry.register(ModalJqshow.TYPE, ModalJqshow, ModalJqshow.TEMPLATE);
+ModalRegistry.register(ModalKuet.TYPE, ModalKuet, ModalKuet.TEMPLATE);
 
-export default ModalJqshow;
+export default ModalKuet;

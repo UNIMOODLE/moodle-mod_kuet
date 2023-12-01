@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\models;
+namespace mod_kuet\models;
 
 use coding_exception;
 use context_module;
@@ -40,20 +40,20 @@ use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\api\grade;
-use mod_jqshow\api\groupmode;
-use mod_jqshow\external\multichoice_external;
-use mod_jqshow\helpers\reports;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\api\grade;
+use mod_kuet\api\groupmode;
+use mod_kuet\external\multichoice_external;
+use mod_kuet\helpers\reports;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use pix_icon;
 use question_answer;
 use question_bank;
 use question_definition;
 use stdClass;
-use mod_jqshow\interfaces\questionType;
+use mod_kuet\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -63,20 +63,20 @@ require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 class multichoice extends questions implements questionType {
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $sid
      * @return void
      */
-    public function construct(int $jqshowid, int $cmid, int $sid) : void {
-        parent::__construct($jqshowid, $cmid, $sid);
+    public function construct(int $kuetid, int $cmid, int $sid) : void {
+        parent::__construct($kuetid, $cmid, $sid);
     }
 
     /**
-     * @param int $jqid // jqshow_question id
+     * @param int $kid // kuet_question id
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param bool $preview
      * @return object
      * @throws JsonException
@@ -85,12 +85,12 @@ class multichoice extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_question(int $jqid, int $cmid, int $sessionid, int $jqshowid, bool $preview = false) : object {
-        $session = jqshow_sessions::get_record(['id' => $sessionid]);
-        $jqshowquestion = jqshow_questions::get_record(['id' => $jqid]);
-        $question = question_bank::load_question($jqshowquestion->get('questionid'));
+    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false) : object {
+        $session = kuet_sessions::get_record(['id' => $sessionid]);
+        $kuetquestion = kuet_questions::get_record(['id' => $kid]);
+        $question = question_bank::load_question($kuetquestion->get('questionid'));
         $type = $question->get_type_name();
-        $data = self::get_question_common_data($session, $cmid, $sessionid, $jqshowid, $preview, $jqshowquestion, $type);
+        $data = self::get_question_common_data($session, $cmid, $sessionid, $kuetid, $preview, $kuetquestion, $type);
         $data->$type = true;
         $data->questiontext =
             self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
@@ -104,7 +104,7 @@ class multichoice extends questions implements questionType {
                 $answertext = self::get_text($cmid, $response->answer, $response->answerformat, $response->id, $question, 'answer');
                 $answers[] = [
                     'answerid' => $response->id,
-                    'questionid' => $jqshowquestion->get('questionid'),
+                    'questionid' => $kuetquestion->get('questionid'),
                     'answertext' => $answertext,
                     'fraction' => $response->fraction,
                 ];
@@ -144,10 +144,10 @@ class multichoice extends questions implements questionType {
         $dataanswer = multichoice_external::multichoice(
             $responsedata->answerids,
             $data->sessionid,
-            $data->jqshowid,
+            $data->kuetid,
             $data->cmid,
             $data->questionid,
-            $data->jqid,
+            $data->kid,
             $responsedata->timeleft,
             true
         );
@@ -169,19 +169,19 @@ class multichoice extends questions implements questionType {
     }
 
     /**
-     * @param jqshow_sessions $session
+     * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
-     * @param int $jqid
+     * @param int $kid
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_question_report(jqshow_sessions $session,
+    public static function get_question_report(kuet_sessions $session,
                                                question_definition $questiondata,
                                                stdClass $data,
-                                               int $jqid): stdClass {
+                                               int $kid): stdClass {
         $answers = [];
         $correctanswers = [];
         foreach ($questiondata->answers as $key => $answer) {
@@ -189,37 +189,37 @@ class multichoice extends questions implements questionType {
             $answers[$key]['answerid'] = $key;
             if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
                 $answers[$key]['result'] = 'incorrect';
-                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_jqshow');
+                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_kuet');
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_jqshow'), 'mod_jqshow', [
+                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('incorrect', 'mod_jqshow')
+                    'title' => get_string('incorrect', 'mod_kuet')
                 ]);
-                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_jqshow', [
+                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
                     'class' => 'icon',
                     'title' => ''
                 ]);
             } else if ($answer->fraction === '1.0000000') {
                 $answers[$key]['result'] = 'correct';
-                $answers[$key]['resultstr'] = get_string('correct', 'mod_jqshow');
+                $answers[$key]['resultstr'] = get_string('correct', 'mod_kuet');
                 $answers[$key]['fraction'] = '1';
-                $icon = new pix_icon('i/correct', get_string('correct', 'mod_jqshow'), 'mod_jqshow', [
+                $icon = new pix_icon('i/correct', get_string('correct', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('correct', 'mod_jqshow')
+                    'title' => get_string('correct', 'mod_kuet')
                 ]);
-                $usersicon = new pix_icon('i/correct_users', '', 'mod_jqshow', [
+                $usersicon = new pix_icon('i/correct_users', '', 'mod_kuet', [
                     'class' => 'icon',
                     'title' => ''
                 ]);
             } else {
                 $answers[$key]['result'] = 'partially';
-                $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_jqshow');
+                $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_kuet');
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_jqshow'), 'mod_jqshow', [
+                $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('partially_correct', 'mod_jqshow')
+                    'title' => get_string('partially_correct', 'mod_kuet')
                 ]);
-                $usersicon = new pix_icon('i/partially_users', '', 'mod_jqshow', [
+                $usersicon = new pix_icon('i/partially_users', '', 'mod_kuet', [
                     'class' => 'icon',
                     'title' => ''
                 ]);
@@ -236,7 +236,7 @@ class multichoice extends questions implements questionType {
         if ($session->is_group_mode()) {
             $gmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         }
-        $responses = jqshow_questions_responses::get_question_responses($session->get('id'), $data->jqshowid, $jqid);
+        $responses = kuet_questions_responses::get_question_responses($session->get('id'), $data->kuetid, $kid);
         foreach ($responses as $response) {
             if ($session->is_group_mode() && !in_array($response->get('userid'), $gmembers)) {
                 continue;
@@ -256,10 +256,10 @@ class multichoice extends questions implements questionType {
 
     /**
      * @param stdClass $participant
-     * @param jqshow_questions_responses $response
+     * @param kuet_questions_responses $response
      * @param array $answers
-     * @param jqshow_sessions $session
-     * @param jqshow_questions $question
+     * @param kuet_sessions $session
+     * @param kuet_questions $question
      * @return stdClass
      * @throws JsonException
      * @throws coding_exception
@@ -267,26 +267,26 @@ class multichoice extends questions implements questionType {
      */
     public static function get_ranking_for_question(
         stdClass $participant,
-        jqshow_questions_responses $response,
+        kuet_questions_responses $response,
         array $answers,
-        jqshow_sessions $session,
-        jqshow_questions $question): stdClass {
+        kuet_sessions $session,
+        kuet_questions $question): stdClass {
         $other = json_decode(base64_decode($response->get('response')), false);
         $arrayresponses = explode(',', $other->answerids);
         if (count($arrayresponses) === 1) {
             foreach ($answers as $answer) {
                 if ((int)$answer['answerid'] === (int)$arrayresponses[0]) {
                     $participant->response = $answer['result'];
-                    $participant->responsestr = get_string($answer['result'], 'mod_jqshow');
+                    $participant->responsestr = get_string($answer['result'], 'mod_kuet');
                     $participant->answertext = $answer['answertext'];
                 } else if ((int)$arrayresponses[0] === 0) {
                     $participant->response = 'noresponse';
-                    $participant->responsestr = get_string('qstatus_' . questions::NORESPONSE, 'mod_jqshow');
+                    $participant->responsestr = get_string('qstatus_' . questions::NORESPONSE, 'mod_kuet');
                     $participant->answertext = '';
                 }
                 $points = grade::get_simple_mark($response);
                 $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-                    $session->get('jqshowid'));
+                    $session->get('kuetid'));
                 if ($session->is_group_mode()) {
                     $participant->grouppoints = grade::get_rounded_mark($spoints);
                 } else {
@@ -305,11 +305,11 @@ class multichoice extends questions implements questionType {
                 }
             }
             $status = grade::get_status_response_for_multiple_answers($question->get('questionid'), $other->answerids);
-            $participant->response = get_string('qstatus_' . $status, 'mod_jqshow');
-            $participant->responsestr = get_string($participant->response, 'mod_jqshow');
+            $participant->response = get_string('qstatus_' . $status, 'mod_kuet');
+            $participant->responsestr = get_string($participant->response, 'mod_kuet');
             $participant->answertext = trim($answertext, '<br>');
             $points = grade::get_simple_mark($response);
-            $spoints = grade::get_session_grade($participant->id, $session->get('id'), $session->get('jqshowid'));
+            $spoints = grade::get_session_grade($participant->id, $session->get('id'), $session->get('kuetid'));
             if ($session->is_group_mode()) {
                 $participant->grouppoints = grade::get_rounded_mark($spoints);
             } else {
@@ -323,10 +323,10 @@ class multichoice extends questions implements questionType {
 
     /**
      * @param int $cmid
-     * @param int $jqid
+     * @param int $kid
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $statmentfeedback
      * @param int $userid
      * @param int $timeleft
@@ -340,10 +340,10 @@ class multichoice extends questions implements questionType {
      */
     public static function question_response(
         int $cmid,
-        int $jqid,
+        int $kid,
         int $questionid,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         string $statmentfeedback,
         int $userid,
         int $timeleft,
@@ -354,21 +354,21 @@ class multichoice extends questions implements questionType {
         $correctanswers = $custom['correctanswers'];
         $answerfeedback = $custom['answerfeedback'];
         $cmcontext = context_module::instance($cmid);
-        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
+        $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
         if ($isteacher !== true) {
-            self::manage_response($jqid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $jqshowid,
+            self::manage_response($kid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $kuetid,
                 $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::MULTICHOICE);
         }
     }
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @param string $answerids
      * @param string $answertexts
      * @param string $correctanswers
      * @param int $questionid
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param string $statmentfeedback
      * @param string $answerfeedback
      * @param int $userid
@@ -381,13 +381,13 @@ class multichoice extends questions implements questionType {
      * @throws moodle_exception
      */
     public static function manage_response(
-        int $jqid,
+        int $kid,
         string $answerids,
         string $answertexts,
         string $correctanswers,
         int $questionid,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         string $statmentfeedback,
         string $answerfeedback,
         int $userid,
@@ -402,13 +402,13 @@ class multichoice extends questions implements questionType {
         $response->answertexts = $answertexts;
         $response->timeleft = $timeleft;
         $response->type = $qtype;
-        $session = new jqshow_sessions($sessionid);
+        $session = new kuet_sessions($sessionid);
         if ($session->is_group_mode()) {
-            parent::add_group_response($jqshowid, $session, $jqid, $questionid, $userid, $result, $response);
+            parent::add_group_response($kuetid, $session, $kid, $questionid, $userid, $result, $response);
         } else {
             // Individual.
-            jqshow_questions_responses::add_response(
-                $jqshowid, $sessionid, $jqid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+            kuet_questions_responses::add_response(
+                $kuetid, $sessionid, $kid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
     }
@@ -439,12 +439,12 @@ class multichoice extends questions implements questionType {
 
     /**
      * @param stdClass $useranswer
-     * @param jqshow_questions_responses $response
+     * @param kuet_questions_responses $response
      * @return float
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  jqshow_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response) : float {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
@@ -462,7 +462,7 @@ class multichoice extends questions implements questionType {
 
     /**
      * @param question_definition $question
-     * @param jqshow_questions_responses[] $responses
+     * @param kuet_questions_responses[] $responses
      * @return array
      * @throws coding_exception
      */

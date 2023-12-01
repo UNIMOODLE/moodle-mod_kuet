@@ -27,29 +27,29 @@
      data-cmid="{{cmid}}"
      data-sid="{{sid}}"
      data-userimage="{{userimage}}"
-     data-jqshowid="{{jqshowid}}"
+     data-kuetid="{{kuetid}}"
      data-groupmode="{{groupmode}}"
      class="position-relative"
 >
     <div class="row content-header">
         <div class="content-title col-12 col-md-3 col-lg-6">
-            <h2>{{#str}}waitingroom, mod_jqshow{{/str}}</h2>
-            <small>{{#str}}waitingroom_info, mod_jqshow{{/str}}</small>
+            <h2>{{#str}}waitingroom, mod_kuet{{/str}}</h2>
+            <small>{{#str}}waitingroom_info, mod_kuet{{/str}}</small>
             <div id="message-box"></div>
         </div>
         <div class="more-info-session col-12 col-md-9 col-lg-6">
             <div class="sessionname">
-                {{#pix}}s/name, mod_jqshow{{/pix}}
+                {{#pix}}s/name, mod_kuet{{/pix}}
                 <div class="sessionname-text">
-                    {{#str}}session_name_placeholder, mod_jqshow{{/str}}
+                    {{#str}}session_name_placeholder, mod_kuet{{/str}}
                     <span>{{sessionname}}</span>
                 </div>
             </div>
             <div class="numusers">
-                {{#pix}}s/users, mod_jqshow{{/pix}}
+                {{#pix}}s/users, mod_kuet{{/pix}}
                 <div class="countusers">
                     <span id="countusers">0</span>
-                    <span class="participants">{{#str}}participants, mod_jqshow{{/str}}</span>
+                    <span class="participants">{{#str}}participants, mod_kuet{{/str}}</span>
                 </div>
                 {{#hasqrcodeimage}}
                     <div class="imageQr">
@@ -75,10 +75,10 @@
                 {{#str}}back{{/str}}
             </button>
             <button class="btn btn-primary disabled" data-action="init-session">
-                {{#str}}init_session, mod_jqshow{{/str}}
+                {{#str}}init_session, mod_kuet{{/str}}
             </button>
             <button class="btn btn-primary disabled hidden" data-action="end-session">
-                {{#str}}end_session, mod_jqshow{{/str}}
+                {{#str}}end_session, mod_kuet{{/str}}
             </button>
         </div>
     </div>
@@ -87,45 +87,45 @@
     </div>
     <div data-region="teacher-canvas" class="d-flex">
         {{#waitingroom}}
-            {{> mod_jqshow/session/manual/waitingroom/teacher }}
+            {{> mod_kuet/session/manual/waitingroom/teacher }}
         {{/waitingroom}}
     </div>
     <div class="d-none teacher-improvise-form" data-region="teacher-improvise">
         <div class="close-improvise bg-primary" data-action="close-improvise">
-            {{#pix}}i/close, mod_jqshow{{/pix}}
+            {{#pix}}i/close, mod_kuet{{/pix}}
         </div>
-        <h2 class="text-center">{{#str}}statement_improvising, mod_jqshow{{/str}}</h2>
+        <h2 class="text-center">{{#str}}statement_improvising, mod_kuet{{/str}}</h2>
         <div class="improvise-form">
             <div class="form-group">
-                <label for="statement">{{#str}}statement_improvise, mod_jqshow{{/str}}</label>
+                <label for="statement">{{#str}}statement_improvise, mod_kuet{{/str}}</label>
                 <input type="text" class="form-control" id="statement">
-                <small id="statementHelp" class="form-text text-muted">{{#str}}statement_improvise_help, mod_jqshow{{/str}}</small>
+                <small id="statementHelp" class="form-text text-muted">{{#str}}statement_improvise_help, mod_kuet{{/str}}</small>
             </div>
             <div class="form-group">
-                <label for="reply_improvise">{{#str}}reply_improvise, mod_jqshow{{/str}}</label>
+                <label for="reply_improvise">{{#str}}reply_improvise, mod_kuet{{/str}}</label>
                 <input type="text" class="form-control" maxlength="30" id="reply_improvise">
-                <small id="statementHelp" class="form-text text-muted">{{#str}}reply_improvise_help, mod_jqshow{{/str}}</small>
+                <small id="statementHelp" class="form-text text-muted">{{#str}}reply_improvise_help, mod_kuet{{/str}}</small>
             </div>
-            <button type="submit" data-action="submit-improvise" class="btn btn-primary">{{#str}}submit, mod_jqshow{{/str}}</button>
+            <button type="submit" data-action="submit-improvise" class="btn btn-primary">{{#str}}submit, mod_kuet{{/str}}</button>
         </div>
     </div>
     <div data-region="teacher-panel" class="d-none row">
         <div class="col-12 col-lg-4 container">
             <div class="resume-config" data-region="session-resume">
                 <h6 class="titlecontainer bg-primary">
-                    {{#pix}}i/settings, mod_jqshow {{/pix}}
-                    {{#str}}sessionconfiguration, mod_jqshow{{/str}}
+                    {{#pix}}i/settings, mod_kuet {{/pix}}
+                    {{#str}}sessionconfiguration, mod_kuet{{/str}}
                 </h6>
             </div>
         </div>
         <div class="col-12 col-lg-8 container">
             <div class="users-results">
                 <h6 class="titlecontainer bg-primary">
-                    {{#pix}} i/questions_list, mod_jqshow {{/pix}}
-                    {{#str}}results, mod_jqshow{{/str}}
+                    {{#pix}} i/questions_list, mod_kuet {{/pix}}
+                    {{#str}}results, mod_kuet{{/str}}
                 </h6>
                 <div class="list-results" data-region="list-results" data-sid="{{sid}}" data-cmid="{{cmid}}" data-courseid="{{courseid}}" data-groupmode="{{groupmode}}">
-                    {{> mod_jqshow/session/listresults }}
+                    {{> mod_kuet/session/listresults }}
                 </div>
             </div>
         </div>
@@ -133,7 +133,7 @@
 </div>
 
 {{#js}}
-    require(['mod_jqshow/teachersockets'], function(Sockets) {
+    require(['mod_kuet/teachersockets'], function(Sockets) {
         Sockets.teacherInitSockets('[data-region="teacher-canvas-content"]', '{{socketurl}}', {{port}}, '{{sessionmode}}', {{groupmode}});
         /*window.onbeforeunload = function(e) {
             // TODO review.

@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_module;
@@ -44,10 +44,10 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\models\shortanswer;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use qtype_shortanswer_question;
 use question_bank;
@@ -64,10 +64,10 @@ class shortanswer_external extends external_api {
             [
                 'responsetext' => new external_value(PARAM_RAW, 'User response text'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session'),
-                'jqshowid' => new external_value(PARAM_INT, 'id of jqshow'),
+                'kuetid' => new external_value(PARAM_INT, 'id of kuet'),
                 'cmid' => new external_value(PARAM_INT, 'id of cm'),
                 'questionid' => new external_value(PARAM_INT, 'id of question'),
-                'jqid' => new external_value(PARAM_INT, 'id of question in jqshow_questions'),
+                'kid' => new external_value(PARAM_INT, 'id of question in kuet_questions'),
                 'timeleft' => new external_value(PARAM_INT, 'Time left of question, if question has time, else 0.'),
                 'preview' => new external_value(PARAM_BOOL, 'preview or not for grade'),
             ]
@@ -77,10 +77,10 @@ class shortanswer_external extends external_api {
     /**
      * @param string $responsetext
      * @param int $sessionid
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $questionid
-     * @param int $jqid
+     * @param int $kid
      * @param int $timeleft
      * @param bool $preview
      * @return array
@@ -95,10 +95,10 @@ class shortanswer_external extends external_api {
     public static function shortanswer(
         string $responsetext,
         int $sessionid,
-        int $jqshowid,
+        int $kuetid,
         int $cmid,
         int $questionid,
-        int $jqid,
+        int $kid,
         int $timeleft,
         bool $preview
     ): array {
@@ -108,10 +108,10 @@ class shortanswer_external extends external_api {
             [
                 'responsetext' => $responsetext,
                 'sessionid' => $sessionid,
-                'jqshowid' => $jqshowid,
+                'kuetid' => $kuetid,
                 'cmid' => $cmid,
                 'questionid' => $questionid,
-                'jqid' => $jqid,
+                'kid' => $kid,
                 'timeleft' => $timeleft,
                 'preview' => $preview
             ]
@@ -119,7 +119,7 @@ class shortanswer_external extends external_api {
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
 
-        $session = new jqshow_sessions($sessionid);
+        $session = new kuet_sessions($sessionid);
         $question = question_bank::load_question($questionid);
         $result = questions::FAILURE;
         $answerfeedback = '';
@@ -154,10 +154,10 @@ class shortanswer_external extends external_api {
                 ];
                 shortanswer::question_response(
                     $cmid,
-                    $jqid,
+                    $kid,
                     $questionid,
                     $sessionid,
-                    $jqshowid,
+                    $kuetid,
                     $statmentfeedback,
                     $USER->id,
                     $timeleft,

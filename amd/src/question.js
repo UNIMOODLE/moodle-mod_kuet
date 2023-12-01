@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/question
+ * @module    mod_kuet/question
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -47,7 +47,7 @@ let ACTION = {
 
 let REGION = {
     PAGE_HEADER: '#page-header',
-    BODY: 'body.path-mod-jqshow',
+    BODY: 'body.path-mod-kuet',
     NAV: 'nav.navbar',
     SESSIONCONTENT: '[data-region="session-content"]',
     QUESTIONCONTENT: '[data-region="question-content"]',
@@ -55,21 +55,21 @@ let REGION = {
 };
 
 let SERVICES = {
-    NEXTQUESTION: 'mod_jqshow_nextquestion',
-    GETSESSIONCONFIG: 'mod_jqshow_getsession',
-    GETPROVISIONALRANKING: 'mod_jqshow_getprovisionalranking',
-    GETFINALRANKING: 'mod_jqshow_getfinalranking',
+    NEXTQUESTION: 'mod_kuet_nextquestion',
+    GETSESSIONCONFIG: 'mod_kuet_getsession',
+    GETPROVISIONALRANKING: 'mod_kuet_getprovisionalranking',
+    GETFINALRANKING: 'mod_kuet_getfinalranking',
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
-    QUESTION: 'mod_jqshow/questions/encasement',
-    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional'
+    QUESTION: 'mod_kuet/questions/encasement',
+    PROVISIONALRANKING: 'mod_kuet/ranking/provisional'
 };
 
 let cmId;
 let sId;
-let jqId;
+let kId;
 let isRanking = false;
 
 /**
@@ -90,7 +90,7 @@ Question.prototype.node = null;
 Question.prototype.initQuestion = function() {
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
-    jqId = this.node.attr('data-jqid');
+    kId = this.node.attr('data-kid');
     this.node.find(ACTION.EXPAND).on('click', this.fullScreen);
     this.node.find(ACTION.COMPRESS).on('click', this.exitFullScreen);
     if (jQuery(REGION.BODY).hasClass('fullscreen')) {
@@ -153,7 +153,7 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
                     args: {
                         sid: sId,
                         cmid: cmId,
-                        jqid: jqId
+                        kid: kId
                     }
                 };
                 Ajax.call([requestProvisional])[0].done(function(provisionalRanking) {
@@ -170,7 +170,7 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
                     args: {
                         cmid: cmId,
                         sessionid: sId,
-                        jqid: jqId,
+                        kid: kId,
                         manual: false
                     }
                 };
@@ -204,8 +204,8 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
                 }).fail(async (e) =>  {
                     if (e.message && e.link) {
                         const modal = await ModalFactory.create({
-                            title: 'JQSHOW',
-                            body: Templates.render('mod_jqshow/error_modal', {message: e.message, link: e.link})
+                            title: 'KUET',
+                            body: Templates.render('mod_kuet/error_modal', {message: e.message, link: e.link})
                         });
                         modal.getRoot().css('z-index', '3000');
                         modal.show();

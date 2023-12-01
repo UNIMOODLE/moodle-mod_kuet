@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -35,8 +35,8 @@ use core\invalid_persistent_exception;
 use core_calendar\action_factory;
 use core_calendar\local\event\value_objects\action;
 use core_completion\api;
-use mod_jqshow\api\grade;
-use mod_jqshow\persistents\jqshow;
+use mod_kuet\api\grade;
+use mod_kuet\persistents\kuet;
 
 global $CFG;
 require_once($CFG->dirroot . '/lib/gradelib.php');
@@ -52,7 +52,7 @@ require_once($CFG->dirroot . '/lib/gradelib.php');
  * @param string $feature FEATURE_xx constant for requested feature
  * @return true|null True if module supports feature, false if not, null if doesn't know
  */
-function jqshow_supports(string $feature): ?bool {
+function kuet_supports(string $feature): ?bool {
     switch($feature) {
         case FEATURE_GROUPINGS:
         case FEATURE_MOD_INTRO:
@@ -72,15 +72,15 @@ function jqshow_supports(string $feature): ?bool {
 /**
  *
  * @param stdClass $data An object from the form in mod.html.
- * @return int The id of the newly inserted jqshow record.
+ * @return int The id of the newly inserted kuet record.
  * @throws dml_exception
  */
-function jqshow_add_instance(stdClass $data): int {
+function kuet_add_instance(stdClass $data): int {
     global $DB, $USER;
 
     $cmid = $data->coursemodule;
 
-    // Create jqshow on db.
+    // Create kuet on db.
     $record = new stdClass();
     $record->course = $data->course;
     $record->name = $data->name;
@@ -88,20 +88,20 @@ function jqshow_add_instance(stdClass $data): int {
     $record->introformat = $data->introformat;
     $record->teamgrade = isset($data->teamgrade) ?? $data->teamgrade;
     $record->grademethod = $data->grademethod;
-    $record->completionanswerall = $data->completionanswerall;
+    $record->completionanswerall = $data->completionanswerall ?? 0;
     $record->usermodified = $USER->id;
-    $jqshow = new jqshow(0, $record);
-    $jqshow->create();
-    $data->id  = $jqshow->get('id');
+    $kuet = new kuet(0, $record);
+    $kuet->create();
+    $data->id  = $kuet->get('id');
 
     // Update course module record - from now on this instance properly exists and all function may be used.
     $DB->set_field('course_modules', 'instance', $data->id, array('id' => $cmid));
 
     if (!empty($data->completionexpected)) {
-        api::update_completion_date_event($cmid, 'jqshow', $jqshow->to_record(), $data->completionexpected);
+        api::update_completion_date_event($cmid, 'kuet', $kuet->to_record(), $data->completionexpected);
     }
 
-    mod_jqshow_grade_item_update($data, null);
+    mod_kuet_grade_item_update($data, null);
     return $data->id;
 }
 
@@ -113,24 +113,24 @@ function jqshow_add_instance(stdClass $data): int {
  * @throws dml_exception
  * @throws moodle_exception
  */
-function jqshow_update_instance(stdClass $data): bool {
+function kuet_update_instance(stdClass $data): bool {
     global $USER;
 
     $teamgrade = isset($data->teamgrade) ?? $data->teamgrade;
-    // Update jqshow record.
-    $jqshow = new jqshow($data->instance);
-    $jqshow->set('name', $data->name);
-    $jqshow->set('intro', $data->intro);
-    $jqshow->set('introformat', $data->introformat);
-    $jqshow->set('teamgrade', $teamgrade);
-    $jqshow->set('grademethod', $data->grademethod);
-    $jqshow->set('completionanswerall', $data->completionanswerall);
-    $jqshow->set('usermodified', $USER->id);
-    $jqshow->update();
+    // Update kuet record.
+    $kuet = new kuet($data->instance);
+    $kuet->set('name', $data->name);
+    $kuet->set('intro', $data->intro);
+    $kuet->set('introformat', $data->introformat);
+    $kuet->set('teamgrade', $teamgrade);
+    $kuet->set('grademethod', $data->grademethod);
+    $kuet->set('completionanswerall', $data->completionanswerall ?? 0);
+    $kuet->set('usermodified', $USER->id);
+    $kuet->update();
 
     grade::recalculate_mod_mark($data->{'update'}, $data->instance);
     $data->id = $data->instance;
-    mod_jqshow_grade_item_update($data, null);
+    mod_kuet_grade_item_update($data, null);
 
     return true;
 }
@@ -141,26 +141,26 @@ function jqshow_update_instance(stdClass $data): bool {
  * @return boolean Success/Failure
  * @throws dml_exception
  */
-function jqshow_delete_instance(int $id): bool {
+function kuet_delete_instance(int $id): bool {
     global $DB, $CFG;
     require_once($CFG->dirroot . '/lib/gradelib.php');
-    $jqshow = $DB->get_record('jqshow', ['id' => $id], '*', MUST_EXIST);
-    if (!$jqshow) {
+    $kuet = $DB->get_record('kuet', ['id' => $id], '*', MUST_EXIST);
+    if (!$kuet) {
         return false;
     }
-    // Finally delete the jqshow object.
-    $DB->delete_records('jqshow', ['id' => $id]);
-    $DB->delete_records('jqshow_grades', ['jqshow' => $id]);
-    $DB->delete_records('jqshow_questions', ['jqshowid' => $id]);
-    $DB->delete_records('jqshow_questions_responses', ['jqshow' => $id]);
-    $DB->delete_records('jqshow_sessions', ['jqshowid' => $id]);
-    $DB->delete_records('jqshow_sessions_grades', ['jqshow' => $id]);
-    $DB->delete_records('jqshow_user_progress', ['jqshow' => $id]);
+    // Finally delete the kuet object.
+    $DB->delete_records('kuet', ['id' => $id]);
+    $DB->delete_records('kuet_grades', ['kuet' => $id]);
+    $DB->delete_records('kuet_questions', ['kuetid' => $id]);
+    $DB->delete_records('kuet_questions_responses', ['kuet' => $id]);
+    $DB->delete_records('kuet_sessions', ['kuetid' => $id]);
+    $DB->delete_records('kuet_sessions_grades', ['kuet' => $id]);
+    $DB->delete_records('kuet_user_progress', ['kuet' => $id]);
 
-    grade_update('mod/jqshow',
-        $jqshow->course,
+    grade_update('mod/kuet',
+        $kuet->course,
         'mod',
-        'jqshow',
+        'kuet',
         $id,
         0,
         null,
@@ -174,26 +174,26 @@ function jqshow_delete_instance(int $id): bool {
  * @return cached_cm_info|bool
  * @throws dml_exception
  */
-function jqshow_get_coursemodule_info(stdClass $coursemodule): ?cached_cm_info {
+function kuet_get_coursemodule_info(stdClass $coursemodule): ?cached_cm_info {
     global $DB;
 
     $dbparams = ['id' => $coursemodule->instance];
     $fields = 'id, name, intro, introformat, completionanswerall';
-    if (!$jqshow = $DB->get_record('jqshow', $dbparams, $fields)) {
+    if (!$kuet = $DB->get_record('kuet', $dbparams, $fields)) {
         return false;
     }
 
     $result = new cached_cm_info();
-    $result->name = $jqshow->name;
+    $result->name = $kuet->name;
 
     if ($coursemodule->showdescription) {
         // Convert intro to html. Do not filter cached version, filters run at display time.
-        $result->content = format_module_intro('jqshow', $jqshow, $coursemodule->id, false);
+        $result->content = format_module_intro('kuet', $kuet, $coursemodule->id, false);
     }
 
     // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
     if ((int)$coursemodule->completion === COMPLETION_TRACKING_AUTOMATIC) {
-        $result->customdata['customcompletionrules']['completionanswerall'] = $jqshow->completionanswerall;
+        $result->customdata['customcompletionrules']['completionanswerall'] = $kuet->completionanswerall;
     }
 
     return $result;
@@ -204,7 +204,7 @@ function jqshow_get_coursemodule_info(stdClass $coursemodule): ?cached_cm_info {
  * @return array $descriptions the array of descriptions for the custom rules.
  * @throws coding_exception
  */
-function mod_jqshow_get_completion_active_rule_descriptions($cm): array {
+function mod_kuet_get_completion_active_rule_descriptions($cm): array {
     // Values will be present in cm_info, and we assume these are up to date.
     if (empty($cm->customdata['customcompletionrules'])
         || (int)$cm->completion !== COMPLETION_TRACKING_AUTOMATIC) {
@@ -216,7 +216,7 @@ function mod_jqshow_get_completion_active_rule_descriptions($cm): array {
         switch ($key) {
             case 'completionanswerall':
                 if (!empty($val)) {
-                    $descriptions[] = get_string('completionanswerall', 'jqshow');
+                    $descriptions[] = get_string('completionanswerall', 'kuet');
                 }
                 break;
             default:
@@ -230,7 +230,7 @@ function mod_jqshow_get_completion_active_rule_descriptions($cm): array {
  * @param $server
  * @return void
  */
-function run_server_background($server) {
+function mod_kuet_run_server_background($server) {
     switch (strtolower(PHP_OS_FAMILY)) {
         case "windows":
             pclose(popen("start /B php $server", "r"));
@@ -248,12 +248,12 @@ function run_server_background($server) {
  * @throws moodle_exception
  * @throws coding_exception
  */
-function mod_jqshow_core_calendar_provide_event_action(
+function mod_kuet_core_calendar_provide_event_action(
     calendar_event $event,
     action_factory $factory,
     int $userid = 0
 ): ?action {
-    $cm = get_fast_modinfo($event->courseid, $userid)->instances['jqshow'][$event->instance];
+    $cm = get_fast_modinfo($event->courseid, $userid)->instances['kuet'][$event->instance];
 
     if (!$cm->uservisible) {
         // The module is not visible to the user for any reason.
@@ -270,7 +270,7 @@ function mod_jqshow_core_calendar_provide_event_action(
 
     return $factory->create_instance(
         get_string('view'),
-        new moodle_url('/mod/jqshow/view.php', ['id' => $cm->id]),
+        new moodle_url('/mod/kuet/view.php', ['id' => $cm->id]),
         1,
         true
     );
@@ -283,7 +283,7 @@ function mod_jqshow_core_calendar_provide_event_action(
  * @throws coding_exception
  * @throws moodle_exception
  */
-function jqshow_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
+function kuet_extend_settings_navigation(settings_navigation $settings, navigation_node $navref) {
     $cm = $settings->get_page()->cm;
     if (!$cm) {
         return;
@@ -292,10 +292,10 @@ function jqshow_extend_settings_navigation(settings_navigation $settings, naviga
     if (!$course) {
         return;
     }
-    $url = new moodle_url('/mod/jqshow/reports.php', ['cmid' => $settings->get_page()->cm->id]);
-    $node = navigation_node::create(get_string('reports', 'mod_jqshow'),
+    $url = new moodle_url('/mod/kuet/reports.php', ['cmid' => $settings->get_page()->cm->id]);
+    $node = navigation_node::create(get_string('reports', 'mod_kuet'),
         $url,
-        navigation_node::TYPE_SETTING, null, 'mmod_jqshow_reports');
+        navigation_node::TYPE_SETTING, null, 'mmod_kuet_reports');
     $navref->add_node($node);
 }
 
@@ -304,7 +304,7 @@ function jqshow_extend_settings_navigation(settings_navigation $settings, naviga
  * @param $text
  * @return string|null
  */
-function encrypt($password, $text) {
+function kuet_encrypt($password, $text) {
     $base64 = base64_encode($text);
     $arr = str_split($base64);
     $arrpass = str_split($password);
@@ -313,7 +313,7 @@ function encrypt($password, $text) {
     foreach ($arr as $value) {
         $letter = $value;
         $passwordletter = $arrpass[$lastpassletter];
-        $temp = get_letter_from_alphabet_for_letter($passwordletter, $letter);
+        $temp = kuet_get_letter_from_alphabet_for_letter($passwordletter, $letter);
         if ($temp !== null) {
             $encrypted .= $temp;
         } else {
@@ -334,7 +334,7 @@ function encrypt($password, $text) {
  * @param $lettertochange
  * @return mixed|null
  */
-function get_letter_from_alphabet_for_letter($letter, $lettertochange) {
+function kuet_get_letter_from_alphabet_for_letter($letter, $lettertochange) {
     $abc = 'abcdefghijklmnopqrstuvwxyz0123456789=ABCDEFGHIJKLMNOPQRSTUVWXYZ/+-*';
     $posletter = strpos($abc, $letter);
     if ($posletter === false) {
@@ -351,7 +351,7 @@ function get_letter_from_alphabet_for_letter($letter, $lettertochange) {
     return $temp[$poslettertochange];
 }
 
-function jqshow_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
+function kuet_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
     global $DB;
     if ($context->contextlevel != CONTEXT_MODULE) {
         return false;
@@ -362,20 +362,20 @@ function jqshow_pluginfile($course, $cm, $context, $filearea, $args, $forcedownl
     require_course_login($course, true, $cm);
 
     $questionid = (int)array_shift($args);
-    $quiz = $DB->get_record('jqshow', ['id' => $cm->instance]);
+    $quiz = $DB->get_record('kuet', ['id' => $cm->instance]);
     if (!$quiz) {
         return false;
     }
-    $question = $DB->get_record('jqshow_questions', [
+    $question = $DB->get_record('kuet_questions', [
         'questionid' => $questionid,
-        'jqshowid' => $cm->instance
+        'kuetid' => $cm->instance
     ]);
     if (!$question) {
         return false;
     }
     $fs = get_file_storage();
     $relative = implode('/', $args);
-    $fullpath = "/$context->id/mod_jqshow/$filearea/$questionid/$relative";
+    $fullpath = "/$context->id/mod_kuet/$filearea/$questionid/$relative";
     $file = $fs->get_file_by_hash(sha1($fullpath));
     if (!$file || $file->is_directory()) {
         return false;
@@ -384,7 +384,7 @@ function jqshow_pluginfile($course, $cm, $context, $filearea, $args, $forcedownl
     return false;
 }
 
-function mod_jqshow_question_pluginfile($course, $context, $component, $filearea, $qubaid, $slot,
+function mod_kuet_question_pluginfile($course, $context, $component, $filearea, $qubaid, $slot,
                                           $args, $forcedownload, $options = []) {
     $fs = get_file_storage();
     $relative = implode('/', $args);
@@ -400,24 +400,24 @@ function mod_jqshow_question_pluginfile($course, $context, $component, $filearea
  * @return array
  * @throws coding_exception
  */
-function mod_jqshow_get_grading_options() : array {
+function mod_kuet_get_grading_options() : array {
     return [
-        grade::MOD_OPTION_NO_GRADE => get_string('nograde', 'mod_jqshow'),
-        grade::MOD_OPTION_GRADE_HIGHEST => get_string('gradehighest', 'mod_jqshow'),
-        grade::MOD_OPTION_GRADE_AVERAGE => get_string('gradeaverage', 'mod_jqshow'),
-        grade::MOD_OPTION_GRADE_FIRST_SESSION => get_string('firstsession', 'mod_jqshow'),
-        grade::MOD_OPTION_GRADE_LAST_SESSION => get_string('lastsession', 'mod_jqshow')
+        grade::MOD_OPTION_NO_GRADE => get_string('nograde', 'mod_kuet'),
+        grade::MOD_OPTION_GRADE_HIGHEST => get_string('gradehighest', 'mod_kuet'),
+        grade::MOD_OPTION_GRADE_AVERAGE => get_string('gradeaverage', 'mod_kuet'),
+        grade::MOD_OPTION_GRADE_FIRST_SESSION => get_string('firstsession', 'mod_kuet'),
+        grade::MOD_OPTION_GRADE_LAST_SESSION => get_string('lastsession', 'mod_kuet')
     ];
 }
 
 /**
  * Update/create grade item for given data
- * @param stdClass $data A jqshow instance
+ * @param stdClass $data A kuet instance
  * @param $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
  * @return int|null
  * @throws dml_exception
  */
-function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
+function mod_kuet_grade_item_update(stdClass $data, $grades = null) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
@@ -440,7 +440,7 @@ function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
     if (is_null($grades)) {
         $params['reset'] = true;
     }
-    return grade_update('mod/jqshow', $data->course, 'mod', 'jqshow', $data->id, 0, $grades, $params);
+    return grade_update('mod/kuet', $data->course, 'mod', 'kuet', $data->id, 0, $grades, $params);
 
 }
 
@@ -450,13 +450,13 @@ function mod_jqshow_grade_item_update(stdClass $data, $grades = null) {
  * @throws coding_exception
  * @throws dml_exception
  */
-function jqshow_questions_in_use($questionids) : bool {
+function kuet_questions_in_use($questionids) : bool {
     global $DB;
     [$sqlfragment, $params] = $DB->get_in_or_equal($questionids);
-    $params['component'] = 'mod_jqshow';
+    $params['component'] = 'mod_kuet';
     $params['questionarea'] = 'slot';
     $sql = "SELECT jq.id
-              FROM {jqshow_questions} jq
+              FROM {kuet_questions} jq
              WHERE jq.questionid $sqlfragment";
     return $DB->record_exists_sql($sql, $params);
 }
@@ -465,7 +465,7 @@ function jqshow_questions_in_use($questionids) : bool {
  * @param string $url
  * @return string
  */
-function generate_jqshow_qrcode(string $url): string {
+function generate_kuet_qrcode(string $url): string {
     if (class_exists(core_qrcode::class)) {
         $qrcode = new core_qrcode($url);
         return 'data:image/png;base64,' . base64_encode($qrcode->getBarcodePngData(15, 15));

@@ -22,18 +22,18 @@
     Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 }}
 <input type="checkbox" name="selectall" id="selectall">
-<label for="selectall">{{#str}}selectall, mod_jqshow{{/str}}</label>
+<label for="selectall">{{#str}}selectall, mod_kuet{{/str}}</label>
 <br>
 <input type="checkbox" name="selectvisibles" id="selectvisibles">
-<label for="selectvisibles">{{#str}}selectvisibles, mod_jqshow{{/str}}</label>
+<label for="selectvisibles">{{#str}}selectvisibles, mod_kuet{{/str}}</label>
 <input type='hidden' id='current_page' />
 <input type='hidden' id='show_per_page' />
 <div id="content_questions">
     {{#questions}}
         <div class="question" >
-            <div class="add-question {{^issuitable}}noimage{{/issuitable}}" {{^issuitable}}data-toggle="tooltip" title="{{#str}}question_nosuitable, mod_jqshow{{/str}}" {{/issuitable}} {{#issuitable}}data-action="add_question" data-questionnid="{{id}}" data-type="{{qtype}}" {{/issuitable}}>
+            <div class="add-question {{^issuitable}}noimage{{/issuitable}}" {{^issuitable}}data-toggle="tooltip" title="{{#str}}question_nosuitable, mod_kuet{{/str}}" {{/issuitable}} {{#issuitable}}data-action="add_question" data-questionnid="{{id}}" data-type="{{qtype}}" {{/issuitable}}>
                 {{#issuitable}}
-                    {{#pix}}i/add, mod_jqshow{{/pix}}
+                    {{#pix}}i/add, mod_kuet{{/pix}}
                 {{/issuitable}}
                 {{^issuitable}}
                     {{#pix}}i/warning, core{{/pix}}
@@ -51,7 +51,7 @@
                     {{#pix}}i/edit, core{{/pix}}
                 </a>
                 <a href="{{questionpreview}}" target="_blank">
-                    {{#pix}}i/loupe, mod_jqshow{{/pix}}
+                    {{#pix}}i/loupe, mod_kuet{{/pix}}
                 </a>
             {{/issuitable}}
         </div>
@@ -60,13 +60,13 @@
 <div id='page_navigation' class="mt-3 d-flex justify-content-center pagination"></div>
 <hr>
 <button class="btn btn-primary" data-action="add_questions">
-    {{#str}}add_questions, mod_jqshow{{/str}}
+    {{#str}}add_questions, mod_kuet{{/str}}
 </button>
 <small>
-    {{#str}}number_select, mod_jqshow{{/str}} <span id="number_select">0</span>
+    {{#str}}number_select, mod_kuet{{/str}} <span id="number_select">0</span>
 </small>
 {{#js}}
-    require(['mod_jqshow/selectquestions'],
+    require(['mod_kuet/selectquestions'],
         function(SelectQuestions) {
             SelectQuestions.initSelectQuestions('[data-region="questions-panel"]');
         }

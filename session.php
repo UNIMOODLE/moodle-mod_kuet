@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -33,44 +33,44 @@
 require_once('../../config.php');
 require_once('lib.php');
 
-use mod_jqshow\output\views\student_session_view;
-use mod_jqshow\output\views\teacher_session_view;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\output\views\student_session_view;
+use mod_kuet\output\views\teacher_session_view;
+use mod_kuet\persistents\kuet_sessions;
 
 global $CFG, $PAGE, $DB, $COURSE, $USER;
 $id = required_param('cmid', PARAM_INT);    // Course Module ID.
 $sid = required_param('sid', PARAM_INT);    // Session id.
 
-$cm = get_coursemodule_from_id('jqshow', $id, 0, false, MUST_EXIST);
+$cm = get_coursemodule_from_id('kuet', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
-$jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
+$kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
 
-$PAGE->set_url('/mod/jqshow/view.php', ['id' => $id]);
+$PAGE->set_url('/mod/kuet/view.php', ['id' => $id]);
 require_login($course, false, $cm);
 $cmcontext = context_module::instance($cm->id);
-require_capability('mod/jqshow:view', $cmcontext);
-$isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
-$strjqshow = get_string('modulename', 'jqshow');
+require_capability('mod/kuet:view', $cmcontext);
+$isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
+$strkuet = get_string('modulename', 'kuet');
 $PAGE->set_heading($course->fullname);
-$PAGE->set_title(get_string('session', 'jqshow')) . ' - ' . jqshow_sessions::get_sessionname($jqshow->id, $sid);
+$PAGE->set_title(get_string('session', 'kuet')) . ' - ' . kuet_sessions::get_sessionname($kuet->id, $sid);
 
-$activesession = jqshow_sessions::get_active_session_id($jqshow->id);
+$activesession = kuet_sessions::get_active_session_id($kuet->id);
 if ($activesession !== 0 && $activesession !== $sid) {
-    throw new moodle_exception('multiplesessionerror', 'mod_jqshow', '', [],
-        get_string('multiplesessionerror', 'mod_jqshow'));
+    throw new moodle_exception('multiplesessionerror', 'mod_kuet', '', [],
+        get_string('multiplesessionerror', 'mod_kuet'));
 }
 
 if ($isteacher) {
-    if (get_config('jqshow', 'sockettype') === 'local') {
-        $server = $CFG->dirroot . '/mod/jqshow/classes/server.php';
-        run_server_background($server);
+    if (get_config('kuet', 'sockettype') === 'local') {
+        $server = $CFG->dirroot . '/mod/kuet/classes/server.php';
+        mod_kuet_run_server_background($server);
     }
     $view = new teacher_session_view();
 } else {
     $view = new student_session_view();
 }
 
-$output = $PAGE->get_renderer('mod_jqshow');
+$output = $PAGE->get_renderer('mod_kuet');
 echo $output->header();
 echo $output->render($view);
 echo $output->footer();

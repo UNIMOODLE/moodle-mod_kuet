@@ -21,16 +21,16 @@
     Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
     Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 }}
-<div class="container-fluid ranking-content general-ranking bg-primary provisional {{#isteacher}}isteacher{{/isteacher}}" data-jqid="{{jqid}}" data-questionid="{{questionid}}" data-sid="{{sessionid}}" data-cmid="{{cmid}}" data-jqshowid="{{jqshowid}}" data-region="ranking-content">
+<div class="container-fluid ranking-content general-ranking bg-primary provisional {{#isteacher}}isteacher{{/isteacher}}" data-kid="{{kid}}" data-questionid="{{questionid}}" data-sid="{{sessionid}}" data-cmid="{{cmid}}" data-kuetid="{{kuetid}}" data-region="ranking-content">
     <div class="row">
         <div class="col-12 ranking-container">
             <div class="ranking-heading">
-                <h2>{{#str}}provisional_ranking, mod_jqshow{{/str}}</h2>
+                <h2>{{#str}}provisional_ranking, mod_kuet{{/str}}</h2>
                 <div class="question-fullscreen" data-action="question-fullscreen">
-                    {{#pix}}q/zoomin, mod_jqshow{{/pix}}
+                    {{#pix}}q/zoomin, mod_kuet{{/pix}}
                 </div>
                 <div class="question-fullscreen" data-action="question-exit-fullscreen">
-                    {{#pix}}q/zoomout, mod_jqshow{{/pix}}
+                    {{#pix}}q/zoomout, mod_kuet{{/pix}}
                 </div>
             </div>
             <div class="ranking-users provisionalranking container-fluid px-0" data-region="ranking-users">
@@ -38,8 +38,8 @@
                     <div class="d-table-row ranking-users-thead">
                         <div class="d-table-cell"></div>
                         <div class="d-table-cell text-center">{{#str}}name, moodle{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}score_obtained, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}total_score, mod_jqshow{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}score_obtained, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}total_score, mod_kuet{{/str}}</div>
                     </div>
                     {{#provisionalranking}}
                         <div class="PROVISIONAL d-table-row ranking-users-data user-item" data-userid="{{userid}}">
@@ -51,11 +51,11 @@
                             </div>
                             <div class="d-table-cell questionscore text-center">
                                 <span>{{questionscore}}</span>
-                                {{#pix}}q/points, mod_jqshow{{/pix}}
+                                {{#pix}}q/points, mod_kuet{{/pix}}
                             </div>
                             <div class="d-table-cell userpoints text-center">
                                 <span>{{userpoints}}</span>
-                                {{#pix}}q/points, mod_jqshow{{/pix}}
+                                {{#pix}}q/points, mod_kuet{{/pix}}
                             </div>
                         </div>
                     {{/provisionalranking}}
@@ -65,15 +65,15 @@
     </div>
 </div>
 {{#isteacher}}
-    {{> mod_jqshow/session/manual/teachercontrolpanel }}
+    {{> mod_kuet/session/manual/teachercontrolpanel }}
 {{/isteacher}}
 {{#programmedmode}}
-    <div class="btn btn-primary m-3 float-right" data-action="next-question" data-questionid="{{questionid}}" data-jqid="{{jqid}}">
+    <div class="btn btn-primary m-3 float-right" data-action="next-question" data-questionid="{{questionid}}" data-kid="{{kid}}">
         {{#str}}next{{/str}}
     </div>
 {{/programmedmode}}
 {{#js}}
-    require(['mod_jqshow/question'], function(Question) {
+    require(['mod_kuet/question'], function(Question) {
         Question.initQuestion('[data-region="ranking-content"]');
     });
 {{/js}}

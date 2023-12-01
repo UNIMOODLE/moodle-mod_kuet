@@ -28,7 +28,7 @@
     data-cmid="{{cmid}}"
     data-sid="{{sid}}"
     data-userimage="{{userimage}}"
-    data-jqshowid="{{jqshowid}}"
+    data-kuetid="{{kuetid}}"
     data-groupmode="{{isgroupmode}}"
     data-groupid="{{groupid}}"
     data-groupimage="{{groupimage}}"
@@ -37,23 +37,23 @@
     <div class="row content-header">
         <div class="more-info-session col-12">
             <div class="sessionname">
-                {{#pix}}s/name, mod_jqshow{{/pix}}
+                {{#pix}}s/name, mod_kuet{{/pix}}
                 <div class="sessionname-text">
-                    {{#str}}session_name_placeholder, mod_jqshow{{/str}}
+                    {{#str}}session_name_placeholder, mod_kuet{{/str}}
                     <span>{{sessionname}}</span>
                 </div>
             </div>
             <div class="numusers">
-                {{#pix}}s/users, mod_jqshow{{/pix}}
+                {{#pix}}s/users, mod_kuet{{/pix}}
                 <div class="countusers">
                     <span id="countusers">0</span>
-                    <span class="participants">{{#str}}participants, mod_jqshow{{/str}}</span>
+                    <span class="participants">{{#str}}participants, mod_kuet{{/str}}</span>
                 </div>
             </div>
         </div>
     </div>
     {{#waitingroom}}
-        {{> mod_jqshow/session/manual/waitingroom/student }}
+        {{> mod_kuet/session/manual/waitingroom/student }}
     {{/waitingroom}}
 
     <div id="message-box"></div>
@@ -61,16 +61,16 @@
 </div>
 <div class="d-none student-improvising" data-region="student-improvise">
     <div class="improvising-image">
-        {{#pix}}f/not_session, mod_jqshow{{/pix}}
+        {{#pix}}f/not_session, mod_kuet{{/pix}}
     </div>
     <div class="improvising-text">
-        <h2>{{#str}}waitteacher, mod_jqshow{{/str}}</h2>
-        <p>{{#str}}teacherimprovising, mod_jqshow{{/str}}</p>
+        <h2>{{#str}}waitteacher, mod_kuet{{/str}}</h2>
+        <p>{{#str}}teacherimprovising, mod_kuet{{/str}}</p>
     </div>
 </div>
 
 {{#js}}
-    require(['mod_jqshow/studentsockets'], function(Sockets) {
+    require(['mod_kuet/studentsockets'], function(Sockets) {
         Sockets.studentInitSockets('[data-region="student-canvas"]', '{{socketurl}}', {{port}});
         /*window.onbeforeunload = function(e) {
             // TODO review.

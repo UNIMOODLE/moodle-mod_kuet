@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_module;
@@ -43,11 +43,11 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\exporter\question_exporter;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\exporter\question_exporter;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use ReflectionException;
 
@@ -90,16 +90,16 @@ class firstquestion_external extends external_api {
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
-        $firstquestion = jqshow_questions::get_first_question_of_session($sessionid);
+        $firstquestion = kuet_questions::get_first_question_of_session($sessionid);
         /** @var questions $type */
         $type = questions::get_question_class_by_string_type($firstquestion->get('qtype'));
         $question = $type::export_question(
             $firstquestion->get('id'),
             $cmid,
             $sessionid,
-            $firstquestion->get('jqshowid'));
+            $firstquestion->get('kuetid'));
         $question->showstatistics = $type::show_statistics();
-        $session = new jqshow_sessions($sessionid);
+        $session = new kuet_sessions($sessionid);
         if ($session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
             $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
             $session->get('sessionmode') === sessions::RACE_PROGRAMMED) {
@@ -107,7 +107,7 @@ class firstquestion_external extends external_api {
         } else {
             $question->programmedmode = false;
         }
-        return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
+        return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_kuet'));
     }
 
     /**

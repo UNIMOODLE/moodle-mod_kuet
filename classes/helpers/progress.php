@@ -24,33 +24,33 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow\helpers;
+namespace mod_kuet\helpers;
 
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
 use JsonException;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\persistents\jqshow_user_progress;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_sessions;
+use mod_kuet\persistents\kuet_user_progress;
 use moodle_exception;
 use stdClass;
 
 class progress {
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $sessionid
      * @param int $userid
      * @param int $cmid
-     * @param int $currentquestionjqid
+     * @param int $currentquestionkid
      * @return void
      * @throws JsonException
      * @throws coding_exception
@@ -58,61 +58,61 @@ class progress {
      * @throws moodle_exception
      */
     public static function set_progress(
-        int $jqshowid,
+        int $kuetid,
         int $sessionid,
         int $userid,
         int $cmid,
-        int $currentquestionjqid
+        int $currentquestionkid
     ): void {
 
         $cmcontext = context_module::instance($cmid);
-        $isteacher = has_capability('mod/jqshow:managesessions', $cmcontext);
+        $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
         if (!$isteacher) {
-            $session = jqshow_sessions::get_record(['id' => $sessionid] );
+            $session = kuet_sessions::get_record(['id' => $sessionid] );
             switch ($session->get('sessionmode')) {
                 case sessions::INACTIVE_PROGRAMMED:
                 case sessions::PODIUM_PROGRAMMED:
                 case sessions::RACE_PROGRAMMED:
-                    $record = jqshow_user_progress::get_session_progress_for_user(
-                        $userid, $sessionid, $jqshowid
+                    $record = kuet_user_progress::get_session_progress_for_user(
+                        $userid, $sessionid, $kuetid
                     );
                     switch ([$record !== false, $session->get('randomquestions')]) {
                         case [false, 1]:  // New order of questions for one user.
                             $data = new stdClass();
-                            $data->questionsorder = self::shuffle_order($jqshowid, $cmid, $sessionid);
-                            if ($currentquestionjqid === 0) {
+                            $data->questionsorder = self::shuffle_order($kuetid, $cmid, $sessionid);
+                            if ($currentquestionkid === 0) {
                                 $firstquestion = explode(',', $data->questionsorder);
                                 $data->currentquestion = reset($firstquestion);
                             } else {
-                                $data->currentquestion = $currentquestionjqid;
+                                $data->currentquestion = $currentquestionkid;
                             }
                             break;
                         case [true, 1]:
                         case [true, 0]: // Order records already exist, so it is retained.
                             $data = json_decode($record->get('other'), false);
-                            $data->currentquestion = $currentquestionjqid;
+                            $data->currentquestion = $currentquestionkid;
                             break;
                         case [false, 0]: // New order, but no need to randomise.
-                            $order = (new questions($jqshowid, $cmid, $sessionid))->get_list();
+                            $order = (new questions($kuetid, $cmid, $sessionid))->get_list();
                             $keys = '';
                             foreach ($order as $question) {
                                 $keys .= $question->get('id') . ',';
                             }
                             $data = new stdClass();
                             $data->questionsorder = trim($keys, ',');
-                            if ($currentquestionjqid === 0) {
+                            if ($currentquestionkid === 0) {
                                 $firstquestion = explode(',', $data->questionsorder);
                                 $data->currentquestion = reset($firstquestion);
                             } else {
-                                $data->currentquestion = $currentquestionjqid;
+                                $data->currentquestion = $currentquestionkid;
                             }
                             break;
                         default:
                             $data = new stdClass();
-                            $data->currentquestion = $currentquestionjqid;
+                            $data->currentquestion = $currentquestionkid;
                             break;
                     }
-                    jqshow_user_progress::add_progress($jqshowid, $sessionid, $userid, json_encode($data, JSON_THROW_ON_ERROR));
+                    kuet_user_progress::add_progress($kuetid, $sessionid, $userid, json_encode($data, JSON_THROW_ON_ERROR));
                     break;
                 case sessions::INACTIVE_MANUAL:
                 case sessions::PODIUM_MANUAL:
@@ -125,14 +125,14 @@ class progress {
     }
 
     /**
-     * @param int $jqshowid
+     * @param int $kuetid
      * @param int $cmid
      * @param int $sessionid
      * @return string
      * @throws coding_exception
      */
-    public static function shuffle_order(int $jqshowid, int $cmid, int $sessionid): string {
-        $order = (new questions($jqshowid, $cmid, $sessionid))->get_list();
+    public static function shuffle_order(int $kuetid, int $cmid, int $sessionid): string {
+        $order = (new questions($kuetid, $cmid, $sessionid))->get_list();
         shuffle($order);
         $neworder = '';
         foreach ($order as $question) {

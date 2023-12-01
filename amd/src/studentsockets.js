@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/studentsockets
+ * @module    mod_kuet/studentsockets
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -35,7 +35,7 @@ import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import Ajax from 'core/ajax';
-import Encryptor from 'mod_jqshow/encryptor';
+import Encryptor from 'mod_kuet/encryptor';
 import mEvent from 'core/event';
 
 let REGION = {
@@ -54,20 +54,20 @@ let ACTIONS = {
 };
 
 let SERVICES = {
-    SESSIONFIINISHED: 'mod_jqshow_sessionfinished',
-    USERQUESTIONRESPONSE: 'mod_jqshow_getuserquestionresponse'
+    SESSIONFIINISHED: 'mod_kuet_sessionfinished',
+    USERQUESTIONRESPONSE: 'mod_kuet_getuserquestionresponse'
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
-    GROUPPARTICIPANT: 'mod_jqshow/session/manual/waitingroom/groupparticipant',
-    SESSIONFIINISHED: 'mod_jqshow/session/manual/closeconnection',
-    QUESTION: 'mod_jqshow/questions/encasement',
-    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional',
-    IMPROVISESTUDENTRESPONSE: 'mod_jqshow/session/manual/improvise/studentresponse',
+    PARTICIPANT: 'mod_kuet/session/manual/waitingroom/participant',
+    GROUPPARTICIPANT: 'mod_kuet/session/manual/waitingroom/groupparticipant',
+    SESSIONFIINISHED: 'mod_kuet/session/manual/closeconnection',
+    QUESTION: 'mod_kuet/questions/encasement',
+    PROVISIONALRANKING: 'mod_kuet/ranking/provisional',
+    IMPROVISESTUDENTRESPONSE: 'mod_kuet/session/manual/improvise/studentresponse',
 };
 
 let portUrl = '8080';
@@ -114,8 +114,8 @@ let messageBox = null;
 let countusers = null;
 let cmid = null;
 let sid = null;
-let jqshowid = null;
-let currentCuestionJqid = null;
+let kuetid = null;
+let currentCuestionKqid = null;
 let groupid = 0;
 let groupmode = '';
 let groupimage = null;
@@ -130,7 +130,7 @@ Sockets.prototype.initSockets = function() {
     userid = this.root[0].dataset.userid;
     username = this.root[0].dataset.username;
     userimage = this.root[0].dataset.userimage;
-    jqshowid = this.root[0].dataset.jqshowid;
+    kuetid = this.root[0].dataset.kuetid;
     cmid = this.root[0].dataset.cmid;
     sid = this.root[0].dataset.sid;
     messageBox = this.root.find(REGION.MESSAGEBOX);
@@ -156,7 +156,7 @@ Sockets.prototype.initSockets = function() {
         switch (resAction) {
             case 'alreadyAnswered':
                 if (groupmode == '1') {
-                    dispatchEvent(new CustomEvent('alreadyAnswered_' + response.jqid, {detail: { userid : response.userid }}));
+                    dispatchEvent(new CustomEvent('alreadyAnswered_' + response.kid, {detail: { userid : response.userid }}));
                 }
                 break;
             case 'connect':
@@ -224,11 +224,11 @@ Sockets.prototype.initSockets = function() {
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.ROOT);
                     identifier.append(html);
-                    currentCuestionJqid = response.context.jqid;
+                    currentCuestionKqid = response.context.kid;
                     let request = {
                         methodname: SERVICES.USERQUESTIONRESPONSE,
                         args: {
-                            jqid: response.context.jqid,
+                            kid: response.context.kid,
                             cmid: cmid,
                             sid: sid,
                             uid: 0,
@@ -265,28 +265,28 @@ Sockets.prototype.initSockets = function() {
                 });
                 break;
             case 'pauseQuestion':
-                dispatchEvent(new Event('pauseQuestion_' + response.jqid));
+                dispatchEvent(new Event('pauseQuestion_' + response.kid));
                 break;
             case 'playQuestion':
-                dispatchEvent(new Event('playQuestion_' + response.jqid));
+                dispatchEvent(new Event('playQuestion_' + response.kid));
                 break;
             case 'showAnswers':
-                dispatchEvent(new Event('showAnswers_' + response.jqid));
+                dispatchEvent(new Event('showAnswers_' + response.kid));
                 break;
             case 'hideAnswers':
-                dispatchEvent(new Event('hideAnswers_' + response.jqid));
+                dispatchEvent(new Event('hideAnswers_' + response.kid));
                 break;
             case 'showStatistics':
-                dispatchEvent(new Event('showStatistics_' + response.jqid));
+                dispatchEvent(new Event('showStatistics_' + response.kid));
                 break;
             case 'hideStatistics':
-                dispatchEvent(new Event('hideStatistics_' + response.jqid));
+                dispatchEvent(new Event('hideStatistics_' + response.kid));
                 break;
             case 'showFeedback':
-                dispatchEvent(new Event('showFeedback_' + response.jqid));
+                dispatchEvent(new Event('showFeedback_' + response.kid));
                 break;
             case 'hideFeedback':
-                dispatchEvent(new Event('hideFeedback_' + response.jqid));
+                dispatchEvent(new Event('hideFeedback_' + response.kid));
                 break;
             case 'improvising':
                 jQuery(REGION.IMPROVISE).removeClass('d-none');
@@ -361,7 +361,7 @@ Sockets.prototype.initSockets = function() {
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.ROOT);
                     identifier.append(html);
-                    currentCuestionJqid = response.context.jqid;
+                    currentCuestionKqid = response.context.kid;
                     Templates.render(TEMPLATES.QUESTION, response.context.value).then(function(html, js) {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
@@ -370,7 +370,7 @@ Sockets.prototype.initSockets = function() {
                 });
                 break;
             case 'teacherQuestionEnd':
-                dispatchEvent(new CustomEvent('teacherQuestionEnd_' + response.jqid, {
+                dispatchEvent(new CustomEvent('teacherQuestionEnd_' + response.kid, {
                     "detail": {"statistics": response.statistics}
                 }));
                 break;
@@ -406,7 +406,7 @@ Sockets.prototype.initSockets = function() {
         let request = {
             methodname: SERVICES.SESSIONFIINISHED,
             args: {
-                jqshowid: jqshowid,
+                kuetid: kuetid,
                 cmid: cmid
             }
         };
@@ -425,9 +425,9 @@ Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
         jsUrl.port = port;
         jsUrl.protocol = 'wss:';
         if (jsUrl.pathname === '/') {
-            jsUrl.pathname = jsUrl.pathname + 'jqshow';
+            jsUrl.pathname = jsUrl.pathname + 'kuet';
         } else {
-            jsUrl.pathname = jsUrl.pathname + '/jqshow';
+            jsUrl.pathname = jsUrl.pathname + '/kuet';
         }
         return jsUrl.toString();
     }
@@ -440,7 +440,7 @@ Sockets.prototype.initListeners = function() {
             'userid': userid,
             'sid': sid,
             'usersocketid': usersocketid,
-            'jqid': currentCuestionJqid,
+            'kid': currentCuestionKqid,
             'oft': true,
             'action': 'studentQuestionEnd',
         };
@@ -450,7 +450,7 @@ Sockets.prototype.initListeners = function() {
                 'userid': userid,
                 'sid': sid,
                 'usersocketid': usersocketid,
-                'jqid': currentCuestionJqid,
+                'kid': currentCuestionKqid,
                 'ofg': true,
                 'action': 'alreadyAnswered',
             };

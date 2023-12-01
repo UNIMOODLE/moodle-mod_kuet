@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/teachercontrolpanel
+ * @module    mod_kuet/teachercontrolpanel
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -64,18 +64,18 @@ let ACTION = {
 };
 
 TeacherControlPanel.prototype.root = null;
-TeacherControlPanel.prototype.jqid = null;
+TeacherControlPanel.prototype.kid = null;
 
 /**
  * @constructor
  * @param {String} region
- * @param {int} jqid
+ * @param {int} kid
  */
-function TeacherControlPanel(region, jqid) {
+function TeacherControlPanel(region, kid) {
     this.root = jQuery(region);
-    this.jqid = jqid;
+    this.kid = kid;
     this.initControlPanel();
-    finishquestionEvent = new Event('teacherQuestionEnd_' + this.jqid);
+    finishquestionEvent = new Event('teacherQuestionEnd_' + this.kid);
 }
 
 const nextEvent = new Event('nextQuestion');
@@ -179,9 +179,9 @@ TeacherControlPanel.prototype.jump = function() {
     let value = jQuery(REGION.JUMPTOINPUT).val();
     if (value > numquestion || value < 1) {
         const stringkeys = [
-            {key: 'jump', component: 'mod_jqshow'},
-            {key: 'jumpto_error', component: 'mod_jqshow', param: numquestion},
-            {key: 'confirm', component: 'mod_jqshow'}
+            {key: 'jump', component: 'mod_kuet'},
+            {key: 'jumpto_error', component: 'mod_kuet', param: numquestion},
+            {key: 'confirm', component: 'mod_kuet'}
         ];
         getStrings(stringkeys).then((langStrings) => {
             return ModalFactory.create({
@@ -251,6 +251,6 @@ TeacherControlPanel.prototype.endsession = function() {
     dispatchEvent(endSession);
 };
 
-export const teacherControlPanel = (region, jqid) => {
-    return new TeacherControlPanel(region, jqid);
+export const teacherControlPanel = (region, kid) => {
+    return new TeacherControlPanel(region, kid);
 };

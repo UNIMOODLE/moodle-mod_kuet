@@ -1,12 +1,12 @@
 {
-  "name": "jqshow",
+  "name": "kuet",
   "version": "1.0.0",
   "scripts": {
-    "scss": "node-sass --watch scss/jqshow.scss styles.css --output-style compressed"
+    "scss": "node-sass --watch scss/kuet.scss styles.css --output-style compressed"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@bitbucket.org/tresipunt/mod_jqshow.git"
+    "url": "git+ssh://git@bitbucket.org/tresipunt/mod_kuet.git"
   },
   "author": "3&Punt",
   "dependencies": {

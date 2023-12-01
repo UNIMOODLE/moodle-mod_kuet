@@ -9,7 +9,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -109,7 +109,7 @@ class unimoodleservercli extends websockets {
         $sock = socket_import_stream ($socket);
         socket_set_option($sock, SOL_SOCKET, SO_KEEPALIVE, 1);*/
         $response = $this->mask(
-            encrypt($this->password, json_encode([
+            kuet_encrypt($this->password, json_encode([
                 'action' => 'connect',
                 'usersocketid' => $user->usersocketid
             ], JSON_THROW_ON_ERROR))
@@ -146,7 +146,7 @@ class unimoodleservercli extends websockets {
         }
         if ($groupdisconected) {
             $groupresponse = $this->mask(
-                encrypt($this->password, json_encode([
+                kuet_encrypt($this->password, json_encode([
                     'action' => 'groupdisconnected',
                     'usersocketid' => $user->usersocketid,
                     'groupid' => $groupid,
@@ -161,7 +161,7 @@ class unimoodleservercli extends websockets {
             }
         } else if ($groupmemberdisconected) {
             $groupresponse = $this->mask(
-                encrypt($this->password, json_encode([
+                kuet_encrypt($this->password, json_encode([
                     'action' => 'groupmemberdisconnected',
                     'usersocketid' => $user->usersocketid,
                     'groupid' => $groupid,
@@ -189,7 +189,7 @@ class unimoodleservercli extends websockets {
         // Group mode.
         $this->close_groupmember($user);
         $response = $this->mask(
-            encrypt($this->password, json_encode([
+            kuet_encrypt($this->password, json_encode([
                 'action' => 'userdisconnected',
                 'usersocketid' => $user->usersocketid,
                 'message' =>
@@ -224,7 +224,7 @@ class unimoodleservercli extends websockets {
         switch ($useraction) {
             case 'studentQuestionEnd':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'studentQuestionEnd',
                             'onlyforteacher' => true,
                             'context' => $data,
@@ -233,7 +233,7 @@ class unimoodleservercli extends websockets {
                     ));
             case 'ImproviseStudentTag':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'ImproviseStudentTag',
                             'onlyforteacher' => true,
                             'improvisereply' => $data['improvisereply'],
@@ -243,7 +243,7 @@ class unimoodleservercli extends websockets {
                     ));
             case 'StudentVotedTag':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'StudentVotedTag',
                             'onlyforteacher' => true,
                             'votedtag' => $data['votedtag'],
@@ -284,10 +284,10 @@ class unimoodleservercli extends websockets {
         switch ($data['action']) {
             case 'alreadyAnswered':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'alreadyAnswered',
                             'userid' => $data['userid'],
-                            'jqid' => $data['jqid'],
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             default:
@@ -306,7 +306,7 @@ class unimoodleservercli extends websockets {
         switch ($useraction) {
             case 'normalizeUser':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'question',
                             'context' => $data['context'],
                         ], JSON_THROW_ON_ERROR)
@@ -338,112 +338,112 @@ class unimoodleservercli extends websockets {
                 return $this->manage_newstudent_for_sid($user, $data);
             case 'countusers':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'countusers',
                             'count' => count($this->students[$data['sid']]),
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'question':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'question',
                             'context' => $data['context'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'ranking':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'ranking',
                             'context' => $data['context'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'endSession':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'endSession',
                             'context' => $data['context'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'teacherQuestionEnd':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'teacherQuestionEnd',
-                            'jqid' => $data['jqid'],
+                            'kid' => $data['kid'],
                             'statistics' => $data['statistics']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'pauseQuestion':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'pauseQuestion',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'playQuestion':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'playQuestion',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'showAnswers':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'showAnswers',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'hideAnswers':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'hideAnswers',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'showStatistics':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'showStatistics',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'hideStatistics':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'hideStatistics',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'showFeedback':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'showFeedback',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'hideFeedback':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'hideFeedback',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'improvising':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'improvising',
-                            'jqid' => $data['jqid']
+                            'kid' => $data['kid']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'closeImprovise':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'closeImprovise',
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'improvised':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'improvised',
                             'improvisestatement' => $data['improvisestatement'],
                             'improvisereply' => $data['improvisereply'],
@@ -453,14 +453,14 @@ class unimoodleservercli extends websockets {
                     ));
             case 'printNewTag':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'printNewTag',
                             'tags' => $data['tags']
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'initVote':
                 return $this->mask(
-                    encrypt($this->password, json_encode([
+                    kuet_encrypt($this->password, json_encode([
                             'action' => 'initVote'
                         ], JSON_THROW_ON_ERROR)
                     ));
@@ -521,7 +521,7 @@ class unimoodleservercli extends websockets {
         if (isset($this->teacher[$data['sid']]) && count($this->teacher[$data['sid']]) === 1) {
             // There can only be one teacher in each session to avoid conflicts of functionality.
             $response = $this->mask(
-                encrypt($this->password, json_encode([
+                kuet_encrypt($this->password, json_encode([
                         'action' => 'alreadyteacher',
                         'message' => 'There is already a teacher imparting this session, so you cannot connect. Please wait for the current session to end before you can enter.'
                     ], JSON_THROW_ON_ERROR)
@@ -538,7 +538,7 @@ class unimoodleservercli extends websockets {
         $this->teacher[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
         $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
         return $this->mask(
-            encrypt($this->password, json_encode([
+            kuet_encrypt($this->password, json_encode([
                 'action' => 'newteacher',
                 'name' => $data['name'] ?? '',
                 'userid' => $user->id ?? '',
@@ -585,7 +585,7 @@ class unimoodleservercli extends websockets {
             $studentsdata[$key]['name'] = $student->dataname;
         }
         return $this->mask(
-            encrypt($this->password, json_encode([
+            kuet_encrypt($this->password, json_encode([
                 'action' => 'newuser',
                 'usersocketid' => $user->usersocketid,
                 'students' => array_values($studentsdata),
@@ -614,7 +614,7 @@ class unimoodleservercli extends websockets {
             $groupsdata[$key]['numgroupusers'] = count($group->users);
         }
         return $this->mask(
-            encrypt($this->password, json_encode([
+            kuet_encrypt($this->password, json_encode([
                     'action' => 'newgroup',
                     'usersocketid' => $user->usersocketid,
                     'groups' => array_values($groupsdata),
@@ -1369,7 +1369,7 @@ class websocketuser {
  * @param $text
  * @return string|null
  */
-function encrypt($password, $text) {
+function kuet_encrypt($password, $text) {
     $base64 = base64_encode($text);
     $arr = str_split($base64);
     $arrpass = str_split($password);

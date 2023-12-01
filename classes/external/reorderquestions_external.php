@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use core\invalid_persistent_exception;
@@ -41,7 +41,7 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\persistents\jqshow_questions;
+use mod_kuet\persistents\kuet_questions;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -82,7 +82,7 @@ class reorderquestions_external extends external_api {
 
         $added = true;
         foreach ($questions as $question) {
-            $result = jqshow_questions::reorder_question($question['qid'], $question['qorder']);
+            $result = kuet_questions::reorder_question($question['qid'], $question['qorder']);
             if (false === $result) {
                 $added = false;
             }

@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_module;
@@ -42,8 +42,8 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_sessions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -79,9 +79,9 @@ class copysession_external extends external_api {
         );
         $cmcontext = context_module::instance($cmid);
         $copied = false;
-        if ($cmcontext !== null && has_capability('mod/jqshow:managesessions', $cmcontext, $USER)) {
-            $newsessionid = jqshow_sessions::duplicate_session($sessionid);
-            $copied = jqshow_questions::copy_session_questions($sessionid, $newsessionid);
+        if ($cmcontext !== null && has_capability('mod/kuet:managesessions', $cmcontext, $USER)) {
+            $newsessionid = kuet_sessions::duplicate_session($sessionid);
+            $copied = kuet_questions::copy_session_questions($sessionid, $newsessionid);
         }
         return [
             'copied' => $copied

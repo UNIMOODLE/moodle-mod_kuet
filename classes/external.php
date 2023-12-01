@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -37,14 +37,14 @@ defined('MOODLE_INTERNAL') || die;
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
-class mod_jqshow_external extends external_api {
+class mod_kuet_external extends external_api {
 
     /**
      *
      * @return external_function_parameters
      * @since Moodle 3.3
      */
-    public static function get_jqshows_by_courses_parameters(): external_function_parameters {
+    public static function get_kuets_by_courses_parameters(): external_function_parameters {
         return new external_function_parameters (
             [
                 'courseids' => new external_multiple_structure(
@@ -57,18 +57,18 @@ class mod_jqshow_external extends external_api {
     /**
      *
      * @param array $courseids course ids
-     * @return array of warnings and jqshows
+     * @return array of warnings and kuets
      * @throws coding_exception
      * @throws invalid_parameter_exception
      * @since Moodle 3.3
      */
-    public static function get_jqshows_by_courses(array $courseids = []) : array {
+    public static function get_kuets_by_courses(array $courseids = []) : array {
         $warnings = [];
-        $returnedjqshows = [];
+        $returnedkuets = [];
         $params = [
             'courseids' => $courseids,
         ];
-        $params = self::validate_parameters(self::get_jqshows_by_courses_parameters(), $params);
+        $params = self::validate_parameters(self::get_kuets_by_courses_parameters(), $params);
 
         $mycourses = [];
         if (empty($params['courseids'])) {
@@ -80,17 +80,17 @@ class mod_jqshow_external extends external_api {
         if (!empty($params['courseids'])) {
             [$courses, $warnings] = external_util::validate_courses($params['courseids'], $mycourses);
 
-            // Get the jqshows in this course, this function checks users visibility permissions.
+            // Get the kuets in this course, this function checks users visibility permissions.
             // We can avoid then additional validate_context calls.
-            $jqshows = get_all_instances_in_courses("jqshow", $courses);
-            foreach ($jqshows as $jqshow) {
-                helper_for_get_mods_by_courses::format_name_and_intro($jqshow, 'mod_jqshow');
-                $returnedjqshows[] = $jqshow;
+            $kuets = get_all_instances_in_courses("kuet", $courses);
+            foreach ($kuets as $kuet) {
+                helper_for_get_mods_by_courses::format_name_and_intro($kuet, 'mod_kuet');
+                $returnedkuets[] = $kuet;
             }
         }
 
         return [
-            'jqshows' => $returnedjqshows,
+            'kuets' => $returnedkuets,
             'warnings' => $warnings
         ];
     }
@@ -98,14 +98,14 @@ class mod_jqshow_external extends external_api {
     /**
      * @return external_single_structure
      */
-    public static function get_jqshows_by_courses_returns() : external_single_structure {
+    public static function get_kuets_by_courses_returns() : external_single_structure {
         return new external_single_structure(
             array(
-                'jqshows' => new external_multiple_structure(
+                'kuets' => new external_multiple_structure(
                     new external_single_structure(array_merge(
                         helper_for_get_mods_by_courses::standard_coursemodule_elements_returns(),
                         [
-                            'timemodified' => new external_value(PARAM_INT, 'Last time the jqshow was modified'),
+                            'timemodified' => new external_value(PARAM_INT, 'Last time the kuet was modified'),
                         ]
                     ))
                 ),

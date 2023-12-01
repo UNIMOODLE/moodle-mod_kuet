@@ -24,13 +24,13 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_module;
@@ -44,19 +44,19 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\exporter\question_exporter;
-use mod_jqshow\models\calculated;
-use mod_jqshow\models\ddwtos;
-use mod_jqshow\models\description;
-use mod_jqshow\models\matchquestion;
-use mod_jqshow\models\multichoice;
-use mod_jqshow\models\numerical;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\shortanswer;
-use mod_jqshow\models\truefalse;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\exporter\question_exporter;
+use mod_kuet\models\calculated;
+use mod_kuet\models\ddwtos;
+use mod_kuet\models\description;
+use mod_kuet\models\matchquestion;
+use mod_kuet\models\multichoice;
+use mod_kuet\models\numerical;
+use mod_kuet\models\questions;
+use mod_kuet\models\shortanswer;
+use mod_kuet\models\truefalse;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use ReflectionException;
 use stdClass;
@@ -73,7 +73,7 @@ class getuserquestionresponse_external extends external_api {
     public static function getuserquestionresponse_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'jqid' => new external_value(PARAM_INT, 'id of jqshow_questions'),
+                'kid' => new external_value(PARAM_INT, 'id of kuet_questions'),
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sid' => new external_value(PARAM_INT, 'session id'),
                 'uid' => new external_value(PARAM_INT, 'user id'),
@@ -83,7 +83,7 @@ class getuserquestionresponse_external extends external_api {
     }
 
     /**
-     * @param int $jqid
+     * @param int $kid
      * @param int $cmid
      * @param int $sid
      * @param int $uid
@@ -98,28 +98,28 @@ class getuserquestionresponse_external extends external_api {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function getuserquestionresponse(int $jqid, int $cmid, int $sid, int $uid = 0, bool $preview = false): array {
+    public static function getuserquestionresponse(int $kid, int $cmid, int $sid, int $uid = 0, bool $preview = false): array {
         self::validate_parameters(
             self::getuserquestionresponse_parameters(),
-            ['jqid' => $jqid, 'cmid' => $cmid, 'sid' => $sid, 'uid' => $uid, 'preview' => $preview]
+            ['kid' => $kid, 'cmid' => $cmid, 'sid' => $sid, 'uid' => $uid, 'preview' => $preview]
         );
         global $USER, $PAGE;
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $userid = $uid === 0 ? $USER->id : $uid;
-        $response = jqshow_questions_responses::get_question_response_for_user($userid, $sid, $jqid);
+        $response = kuet_questions_responses::get_question_response_for_user($userid, $sid, $kid);
         $data = new stdClass();
         $data->sessionid = $sid;
         $data->cmid = $cmid;
-        $data->jqid = $jqid;
+        $data->kid = $kid;
         if ($response !== false) {
             $json = base64_decode($response->get('response'));
             $other = json_decode($json, false);
-            $data->jqshowid = $response->get('jqshow');
+            $data->kuetid = $response->get('kuet');
             $data->questionid = $response->get('questionid');
             $result = $response->get('result');
         } else if ($uid !== 0) { // It is a response review, where there is no response for the user. Mock required.
-            $question = new jqshow_questions($jqid);
+            $question = new kuet_questions($kid);
             $other = new stdClass();
             $other->questionid = $question->get('questionid');
             $other->hasfeedbacks = false;
@@ -129,18 +129,18 @@ class getuserquestionresponse_external extends external_api {
             $other->type = $question->get('qtype');
             $other->response = [];
             $json = json_encode($other, JSON_THROW_ON_ERROR);
-            $data->jqshowid = $question->get('jqshowid');
+            $data->kuetid = $question->get('kuetid');
             $data->questionid = $question->get('questionid');
             $result = questions::NORESPONSE;
         } else {
-            $question = new jqshow_questions($jqid);
-            $session = new jqshow_sessions($sid);
+            $question = new kuet_questions($kid);
+            $session = new kuet_sessions($sid);
             return [
                 'cmid' => $cmid,
                 'sessionid' => $sid,
-                'jqshowid' => $question->get('jqshowid'),
+                'kuetid' => $question->get('kuetid'),
                 'questionid' => $question->get('questionid'),
-                'jqid' => $jqid,
+                'kid' => $kid,
                 'programmedmode' => $session->is_programmed_mode(),
             ];
         }
@@ -156,34 +156,34 @@ class getuserquestionresponse_external extends external_api {
                 return (array)shortanswer::export_question_response($data, $json);
             case questions::NUMERICAL:
                 $dataexport = numerical::export_question(
-                    $data->jqid,
+                    $data->kid,
                     $cmid,
                     $sid,
-                    $data->jqshowid,
+                    $data->kuetid,
                     $preview);
                 $dataexport->uid = $uid;
                 return (array)numerical::export_question_response($dataexport, $json);
             case questions::CALCULATED:
                 $dataexport = calculated::export_question(
-                    $data->jqid,
+                    $data->kid,
                     $cmid,
                     $sid,
-                    $data->jqshowid,
+                    $data->kuetid,
                     $preview);
                 return (array)calculated::export_question_response($dataexport, $json);
             case questions::DESCRIPTION:
                 return (array)description::export_question_response($data, $json);
             case questions::DDWTOS:
                 $dataexport = ddwtos::export_question(
-                    $data->jqid,
+                    $data->kid,
                     $cmid,
                     $sid,
-                    $data->jqshowid,
+                    $data->kuetid,
                     $preview);
                 return (array)ddwtos::export_question_response($dataexport, $json);
             default:
-                throw new moodle_exception('question_nosuitable', 'mod_jqshow', '',
-                    [], get_string('question_nosuitable', 'mod_jqshow'));
+                throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
+                    [], get_string('question_nosuitable', 'mod_kuet'));
         }
     }
 

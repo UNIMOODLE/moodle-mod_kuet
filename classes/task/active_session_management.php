@@ -24,22 +24,22 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\task;
+namespace mod_kuet\task;
 
 use coding_exception;
 use core\invalid_persistent_exception;
 use core\task\scheduled_task;
 use lang_string;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet;
+use mod_kuet\persistents\kuet_sessions;
 use stdClass;
 
 class active_session_management extends scheduled_task {
@@ -49,7 +49,7 @@ class active_session_management extends scheduled_task {
      * @throws coding_exception
      */
     public function get_name(): string {
-        return get_string('activesessionmanagement', 'mod_jqshow');
+        return get_string('activesessionmanagement', 'mod_kuet');
     }
 
     /**
@@ -59,22 +59,22 @@ class active_session_management extends scheduled_task {
      */
     public function execute(): void {
         // TODO provide for time zones for each user, and activate them if they are met, for each user. Great implementation.
-        $jqshows = jqshow::get_records();
+        $kuets = kuet::get_records();
         $date = time();
         $a = new stdClass();
-        foreach ($jqshows as $jqshow) {
-            $sessions = jqshow_sessions::get_records(['jqshowid' => $jqshow->get('id')], 'startdate');
-            $sessionstarted = jqshow_sessions::get_record(['jqshowid' => $jqshow->get('id'),
+        foreach ($kuets as $kuet) {
+            $sessions = kuet_sessions::get_records(['kuetid' => $kuet->get('id')], 'startdate');
+            $sessionstarted = kuet_sessions::get_record(['kuetid' => $kuet->get('id'),
                 'status' => sessions::SESSION_STARTED]);
             if ($sessionstarted !== false) {
                 $sessionstartedmode = $sessionstarted->get('sessionmode');
                 if ($sessionstartedmode === sessions::INACTIVE_MANUAL ||
                     $sessionstartedmode === sessions::PODIUM_MANUAL ||
                     $sessionstartedmode === sessions::RACE_MANUAL) {
-                    // A manual session is active, and will prevail over scheduled sessions until it ends in this jqshow.
+                    // A manual session is active, and will prevail over scheduled sessions until it ends in this kuet.
                     $a->sessionid = $sessionstarted->get('id');
-                    $a->jqshowid = $sessionstarted->get('jqshowid');
-                    mtrace(get_string('sessionmanualactivated', 'mod_jqshow', $a));
+                    $a->kuetid = $sessionstarted->get('kuetid');
+                    mtrace(get_string('sessionmanualactivated', 'mod_kuet', $a));
                     continue;
                 }
             }
@@ -89,21 +89,21 @@ class active_session_management extends scheduled_task {
                         $session->get('enddate') > $date &&
                         $session->get('status') === sessions::SESSION_ACTIVE) {
                         // We start the session if it is in session.
-                        (new jqshow_sessions($session->get('id')))->set('status', sessions::SESSION_STARTED)->update();
+                        (new kuet_sessions($session->get('id')))->set('status', sessions::SESSION_STARTED)->update();
                         $activated = true;
                         $a->sessionid = $session->get('id');
-                        $a->jqshowid = $session->get('jqshowid');
-                        mtrace(get_string('sessionactivated', 'mod_jqshow', $a));
+                        $a->kuetid = $session->get('kuetid');
+                        mtrace(get_string('sessionactivated', 'mod_kuet', $a));
                     }
                     if ($session->get('enddate') <= $date &&
                         ($session->get('status') === sessions::SESSION_STARTED ||
                             $session->get('status') === sessions::SESSION_ACTIVE)) {
                         // We end the session if you have complied.
-                        (new jqshow_sessions($session->get('id')))->set('status', sessions::SESSION_FINISHED)->update();
-                        (new jqshow_sessions($session->get('id')))->set('enddate', time())->update();
+                        (new kuet_sessions($session->get('id')))->set('status', sessions::SESSION_FINISHED)->update();
+                        (new kuet_sessions($session->get('id')))->set('enddate', time())->update();
                         $a->sessionid = $session->get('id');
-                        $a->jqshowid = $session->get('jqshowid');
-                        mtrace(get_string('sessionfinished', 'mod_jqshow', $a));
+                        $a->kuetid = $session->get('kuetid');
+                        mtrace(get_string('sessionfinished', 'mod_kuet', $a));
                     }
                 }
                 if ($activated === true) {
@@ -111,15 +111,15 @@ class active_session_management extends scheduled_task {
                     break;
                 }
             }
-            $sessionsstarted = jqshow_sessions::get_records(['jqshowid' => $jqshow->get('id'),
+            $sessionsstarted = kuet_sessions::get_records(['kuetid' => $kuet->get('id'),
                 'status' => sessions::SESSION_STARTED], 'timemodified');
             if (count($sessionsstarted) > 1) {
                 array_shift($sessionsstarted);
                 foreach ($sessionsstarted as $sessionstarted) {
-                    (new jqshow_sessions($sessionstarted->get('id')))->set('status', sessions::SESSION_FINISHED)->update();
+                    (new kuet_sessions($sessionstarted->get('id')))->set('status', sessions::SESSION_FINISHED)->update();
                     $a->sessionid = $sessionstarted->get('id');
-                    $a->jqshowid = $sessionstarted->get('jqshowid');
-                    mtrace(get_string('sessionfinishedformoreone', 'mod_jqshow', $a));
+                    $a->kuetid = $sessionstarted->get('kuetid');
+                    mtrace(get_string('sessionfinishedformoreone', 'mod_kuet', $a));
                 }
             }
         }

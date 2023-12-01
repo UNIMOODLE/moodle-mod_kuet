@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/sessionquestions
+ * @module    mod_kuet/sessionquestions
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -40,7 +40,7 @@ import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import SortableList from 'core/sortable_list';
-import ModalJqshow from 'mod_jqshow/modal';
+import ModalKuet from 'mod_kuet/modal';
 
 let ACTION = {
     DELETEQUESTION: '[data-action="delete_question"]',
@@ -51,11 +51,11 @@ let ACTION = {
 };
 
 let SERVICES = {
-    DELETEQUESTION: 'mod_jqshow_deletequestion',
-    SESSIONQUESTIONS: 'mod_jqshow_sessionquestions',
-    REORDER: 'mod_jqshow_reorderquestions',
-    GETQUESTION: 'mod_jqshow_getquestion',
-    ACTIVESESSION: 'mod_jqshow_activesession',
+    DELETEQUESTION: 'mod_kuet_deletequestion',
+    SESSIONQUESTIONS: 'mod_kuet_sessionquestions',
+    REORDER: 'mod_kuet_reorderquestions',
+    GETQUESTION: 'mod_kuet_getquestion',
+    ACTIVESESSION: 'mod_kuet_activesession',
 };
 
 let REGION = {
@@ -70,13 +70,13 @@ let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    QUESTIONSSELECTED: 'mod_jqshow/createsession/sessionquestions',
-    QUESTION: 'mod_jqshow/questions/encasement'
+    QUESTIONSSELECTED: 'mod_kuet/createsession/sessionquestions',
+    QUESTION: 'mod_kuet/questions/encasement'
 };
 
 let cmId;
 let sId;
-let jqshowId;
+let kuetId;
 let sortable;
 
 /**
@@ -87,7 +87,7 @@ function SessionQuestions(selector) {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
-    jqshowId = this.node.attr('data-jqshowid');
+    kuetId = this.node.attr('data-kuetid');
     this.initPanel();
 }
 
@@ -119,7 +119,7 @@ SessionQuestions.prototype.activeSession = function(e) {
         }
     };
     Ajax.call([request])[0].done(function() {
-        window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmId);
+        window.location.replace(M.cfg.wwwroot + '/mod/kuet/view.php?id=' + cmId);
     }).fail(Notification.exception);
 };
 
@@ -135,18 +135,18 @@ SessionQuestions.prototype.questionPreview = function(e) {
             args: {
                 cmid: cmId,
                 sid: sId,
-                jqid: questionnId
+                kid: questionnId
             }
         };
         Ajax.call([request])[0].done(function(question) {
             Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
-                getString('preview', 'mod_jqshow').done((title) => {
+                getString('preview', 'mod_kuet').done((title) => {
                     ModalFactory.create({
-                        classes: 'modal_jqshow',
+                        classes: 'modal_kuet',
                         body: html,
                         title: title,
                         footer: '',
-                        type: ModalJqshow.TYPE
+                        type: ModalKuet.TYPE
                     }).then(modal => {
                         modal.getRoot().on(ModalEvents.hidden, function() {
                             modal.destroy();
@@ -165,7 +165,7 @@ SessionQuestions.prototype.reloadSessionQuestionsHtml = function() {
     let request = {
         methodname: SERVICES.SESSIONQUESTIONS,
         args: {
-            jqshowid: jqshowId,
+            kuetid: kuetId,
             cmid: cmId,
             sid: sId
         }
@@ -185,9 +185,9 @@ SessionQuestions.prototype.deleteQuestion = function(e) {
     let that = this;
     let questionId = jQuery(e.currentTarget).attr('data-questionnid');
     const stringkeys = [
-        {key: 'deletequestion', component: 'mod_jqshow'},
-        {key: 'deletequestion_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'}
+        {key: 'deletequestion', component: 'mod_kuet'},
+        {key: 'deletequestion_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
         const title = langStrings[0];

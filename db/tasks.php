@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die;
 
 $tasks = [
     [
-        'classname' => 'mod_jqshow\task\active_session_management',
+        'classname' => 'mod_kuet\task\active_session_management',
         'blocking' => 0,
         'minute' => '*',
         'hour' => '*',

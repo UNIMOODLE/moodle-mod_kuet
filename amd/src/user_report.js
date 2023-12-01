@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/user_report
+ * @module    mod_kuet/user_report
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -36,7 +36,7 @@ import jQuery from 'jquery';
 import Templates from 'core/templates';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
-import ModalJqshow from 'mod_jqshow/modal';
+import ModalKuet from 'mod_kuet/modal';
 import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import {get_string as getString} from 'core/str';
@@ -51,13 +51,13 @@ let ACTION = {
 };
 
 let SERVICES = {
-    GETQUESTION: 'mod_jqshow_getquestion',
-    USERQUESTIONRESPONSE: 'mod_jqshow_getuserquestionresponse',
+    GETQUESTION: 'mod_kuet_getquestion',
+    USERQUESTIONRESPONSE: 'mod_kuet_getuserquestionresponse',
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
-    QUESTION: 'mod_jqshow/questions/encasement'
+    QUESTION: 'mod_kuet/questions/encasement'
 };
 
 UserReport.prototype.root = null;
@@ -86,14 +86,14 @@ UserReport.prototype.seeAnswer = function(e) {
             args: {
                 cmid: cmId,
                 sid: sessionId,
-                jqid: questionnId
+                kid: questionnId
             }
         };
         Ajax.call([request])[0].done(function(question) {
             let requestAnswer = {
                 methodname: SERVICES.USERQUESTIONRESPONSE,
                 args: {
-                    jqid: question.jqid,
+                    kid: question.kid,
                     cmid: cmId,
                     sid: sessionId,
                     uid: userId,
@@ -105,14 +105,14 @@ UserReport.prototype.seeAnswer = function(e) {
                     ...question,
                     ...answer
                 };
-                getString('viewquestion_user', 'mod_jqshow').done((title) => {
+                getString('viewquestion_user', 'mod_kuet').done((title) => {
                     Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
                         ModalFactory.create({
-                            classes: 'modal_jqshow',
+                            classes: 'modal_kuet',
                             body: html,
                             title: title,
                             footer: '',
-                            type: ModalJqshow.TYPE
+                            type: ModalKuet.TYPE
                         }).then(modal => {
                             modal.getRoot().on(ModalEvents.hidden, function() {
                                 modal.destroy();

@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -34,7 +34,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
-    'mod/jqshow:addinstance' => [
+    'mod/kuet:addinstance' => [
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
@@ -44,7 +44,7 @@ $capabilities = [
         ],
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ],
-    'mod/jqshow:view' => [
+    'mod/kuet:view' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => [
@@ -55,7 +55,7 @@ $capabilities = [
             'manager' => CAP_ALLOW
         ]
     ],
-    'mod/jqshow:managesessions' => [
+    'mod/kuet:managesessions' => [
         'riskbitmask' => RISK_CONFIG,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -65,7 +65,7 @@ $capabilities = [
             'manager' => CAP_ALLOW
         ]
     ],
-    'mod/jqshow:startsession' => [
+    'mod/kuet:startsession' => [
         'riskbitmask' => RISK_CONFIG,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
@@ -75,7 +75,7 @@ $capabilities = [
             'manager' => CAP_ALLOW
         ]
     ],
-    'mod/jqshow:viewanonymousanswers' => [
+    'mod/kuet:viewanonymousanswers' => [
         'riskbitmask' => RISK_CONFIG,
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,

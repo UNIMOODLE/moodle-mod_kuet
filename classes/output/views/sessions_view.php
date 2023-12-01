@@ -24,17 +24,17 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\output\views;
+namespace mod_kuet\output\views;
 use coding_exception;
 use core\invalid_persistent_exception;
-use mod_jqshow\models\sessions;
+use mod_kuet\models\sessions;
 use moodle_exception;
 use renderable;
 use stdClass;
@@ -43,19 +43,19 @@ use renderer_base;
 
 class sessions_view implements renderable, templatable {
 
-    /** @var stdClass jqshow */
-    protected stdClass $jqshow;
+    /** @var stdClass kuet */
+    protected stdClass $kuet;
 
     /** @var int cmid */
     protected int $cmid;
 
     /**
      * sessions_view constructor.
-     * @param stdClass $jqshow
+     * @param stdClass $kuet
      * @param int $cmid
      */
-    public function __construct(stdClass $jqshow, int $cmid) {
-        $this->jqshow = $jqshow;
+    public function __construct(stdClass $kuet, int $cmid) {
+        $this->kuet = $kuet;
         $this->cmid = $cmid;
     }
 
@@ -67,6 +67,6 @@ class sessions_view implements renderable, templatable {
      * @throws coding_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
-        return (new sessions($this->jqshow, $this->cmid))->export();
+        return (new sessions($this->kuet, $this->cmid))->export();
     }
 }

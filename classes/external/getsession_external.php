@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use external_api;
@@ -39,7 +39,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\persistents\kuet_sessions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -70,11 +70,11 @@ class getsession_external extends external_api {
             self::getsession_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         return ['session' => [
             'id' => $session->get('id'),
             'name' => $session->get('name'),
-            'jqshowid' => $session->get('jqshowid'),
+            'kuetid' => $session->get('kuetid'),
             'anonymousanswer' => $session->get('anonymousanswer'),
             'sessionmode' => $session->get('sessionmode'),
             'countdown' => $session->get('countdown'),
@@ -103,7 +103,7 @@ class getsession_external extends external_api {
                 [
                     'id'   => new external_value(PARAM_INT, 'Id of session'),
                     'name'   => new external_value(PARAM_RAW, 'Name of session'),
-                    'jqshowid' => new external_value(PARAM_INT, 'jqshowid of session'),
+                    'kuetid' => new external_value(PARAM_INT, 'kuetid of session'),
                     'anonymousanswer' => new external_value(PARAM_INT, ''),
                     'sessionmode' => new external_value(PARAM_RAW, ''),
                     'countdown' => new external_value(PARAM_INT, ''),
