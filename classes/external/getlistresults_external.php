@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use context_module;
 use external_api;
@@ -40,8 +40,8 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -76,7 +76,7 @@ class getlistresults_external extends external_api {
         );
         $context = context_module::instance($cmid);
         $PAGE->set_context($context);
-        $session = new jqshow_sessions($sid);
+        $session = new kuet_sessions($sid);
         if ($session->is_group_mode()) {
             $groupresults = sessions::get_group_session_results($sid, $cmid);
             return ['groupmode' => true, 'groupresults' => $groupresults];

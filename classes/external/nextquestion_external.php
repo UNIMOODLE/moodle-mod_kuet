@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_module;
@@ -44,13 +44,13 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\exporter\question_exporter;
-use mod_jqshow\helpers\progress;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\persistents\jqshow_user_progress;
+use mod_kuet\exporter\question_exporter;
+use mod_kuet\helpers\progress;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_sessions;
+use mod_kuet\persistents\kuet_user_progress;
 use moodle_exception;
 use ReflectionException;
 use stdClass;
@@ -69,7 +69,7 @@ class nextquestion_external extends external_api {
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
-                'jqid' => new external_value(PARAM_INT, 'question id of jqshow_questions'),
+                'kid' => new external_value(PARAM_INT, 'question id of kuet_questions'),
                 'manual' => new external_value(PARAM_BOOL, 'Mode of session')
             ]
         );
@@ -78,7 +78,7 @@ class nextquestion_external extends external_api {
     /**
      * @param int $cmid
      * @param int $sessionid
-     * @param int $jqid
+     * @param int $kid
      * @param bool $manual
      * @return array
      * @throws JsonException
@@ -91,20 +91,20 @@ class nextquestion_external extends external_api {
      * @throws moodle_exception
      */
     public static function nextquestion(
-        int $cmid, int $sessionid, int $jqid, bool $manual = false
+        int $cmid, int $sessionid, int $kid, bool $manual = false
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
             self::nextquestion_parameters(),
-            ['cmid' => $cmid, 'sessionid' => $sessionid, 'jqid' => $jqid, 'manual' => $manual]
+            ['cmid' => $cmid, 'sessionid' => $sessionid, 'kid' => $kid, 'manual' => $manual]
         );
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
-        $nextquestion = jqshow_questions::get_next_question_of_session($sessionid, $jqid);
-        $session = new jqshow_sessions($sessionid);
+        $nextquestion = kuet_questions::get_next_question_of_session($sessionid, $kid);
+        $session = new kuet_sessions($sessionid);
         if ($nextquestion !== false) {
             progress::set_progress(
-                $nextquestion->get('jqshowid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
+                $nextquestion->get('kuetid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
             );
             /** @var questions $type */
             $type = questions::get_question_class_by_string_type($nextquestion->get('qtype'));
@@ -112,13 +112,13 @@ class nextquestion_external extends external_api {
                 $nextquestion->get('id'),
                 $cmid,
                 $sessionid,
-                $nextquestion->get('jqshowid'));
+                $nextquestion->get('kuetid'));
             $data->showstatistics = $type::show_statistics();
         } else {
             $finishdata = new stdClass();
             $finishdata->endSession = 1;
-            jqshow_user_progress::add_progress(
-                $session->get('jqshowid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
+            kuet_user_progress::add_progress(
+                $session->get('kuetid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
             );
             $data = sessions::export_endsession(
                 $cmid,
@@ -126,7 +126,7 @@ class nextquestion_external extends external_api {
         }
         $data->programmedmode = $manual === false;
         $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;
-        return (array)(new question_exporter($data, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_jqshow'));
+        return (array)(new question_exporter($data, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_kuet'));
     }
 
     /**

@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/teachersockets
+ * @module    mod_kuet/teachersockets
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -38,8 +38,8 @@ import {get_string as getString, get_strings as getStrings} from 'core/str';
 import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Ajax from 'core/ajax';
-import Encryptor from 'mod_jqshow/encryptor';
-import Database from 'mod_jqshow/database';
+import Encryptor from 'mod_kuet/encryptor';
+import Database from 'mod_kuet/database';
 import mEvent from 'core/event';
 
 let REGION = {
@@ -76,33 +76,33 @@ let ACTION = {
 };
 
 let SERVICES = {
-    ACTIVESESSION: 'mod_jqshow_activesession',
-    NEXTQUESTION: 'mod_jqshow_nextquestion',
-    FIRSTQUESTION: 'mod_jqshow_firstquestion',
-    FINISHSESSION: 'mod_jqshow_finishsession',
-    DELETERESPONSES: 'mod_jqshow_deleteresponses',
-    JUMPTOQUESTION: 'mod_jqshow_jumptoquestion',
-    GETSESSIONRESUME: 'mod_jqshow_getsessionresume',
-    GETLISTRESULTS: 'mod_jqshow_getlistresults',
-    GETGROUPLISTRESULTS: 'mod_jqshow_getgrouplistresults',
-    GETQUESTIONSTATISTICS: 'mod_jqshow_getquestionstatistics',
-    GETSESSIONCONFIG: 'mod_jqshow_getsession',
-    GETPROVISIONALRANKING: 'mod_jqshow_getprovisionalranking',
-    GETFINALRANKING: 'mod_jqshow_getfinalranking',
-    GETRACERESULTS: 'mod_jqshow_getraceresults'
+    ACTIVESESSION: 'mod_kuet_activesession',
+    NEXTQUESTION: 'mod_kuet_nextquestion',
+    FIRSTQUESTION: 'mod_kuet_firstquestion',
+    FINISHSESSION: 'mod_kuet_finishsession',
+    DELETERESPONSES: 'mod_kuet_deleteresponses',
+    JUMPTOQUESTION: 'mod_kuet_jumptoquestion',
+    GETSESSIONRESUME: 'mod_kuet_getsessionresume',
+    GETLISTRESULTS: 'mod_kuet_getlistresults',
+    GETGROUPLISTRESULTS: 'mod_kuet_getgrouplistresults',
+    GETQUESTIONSTATISTICS: 'mod_kuet_getquestionstatistics',
+    GETSESSIONCONFIG: 'mod_kuet_getsession',
+    GETPROVISIONALRANKING: 'mod_kuet_getprovisionalranking',
+    GETFINALRANKING: 'mod_kuet_getfinalranking',
+    GETRACERESULTS: 'mod_kuet_getraceresults'
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    PARTICIPANT: 'mod_jqshow/session/manual/waitingroom/participant',
-    GROUPPARTICIPANT: 'mod_jqshow/session/manual/waitingroom/groupparticipant',
-    QUESTION: 'mod_jqshow/questions/encasement',
-    SESSIONRESUME: 'mod_jqshow/session/sessionresume',
-    LISTRESULTS: 'mod_jqshow/session/listresults',
-    PROVISIONALRANKING: 'mod_jqshow/ranking/provisional',
-    RACERESULTS: 'mod_jqshow/session/raceresults'
+    PARTICIPANT: 'mod_kuet/session/manual/waitingroom/participant',
+    GROUPPARTICIPANT: 'mod_kuet/session/manual/waitingroom/groupparticipant',
+    QUESTION: 'mod_kuet/questions/encasement',
+    SESSIONRESUME: 'mod_kuet/session/sessionresume',
+    LISTRESULTS: 'mod_kuet/session/listresults',
+    PROVISIONALRANKING: 'mod_kuet/ranking/provisional',
+    RACERESULTS: 'mod_kuet/session/raceresults'
 };
 
 let socketUrl = '';
@@ -116,10 +116,10 @@ let countusers = null;
 let cmid = null;
 let sid = null;
 let db = null;
-let questionsJqids = [];
+let questionsKids = [];
 let waitingRoom = true;
-let currentQuestionJqid = null;
-let nextQuestionJqid = null;
+let currentQuestionKqid = null;
+let nextQuestionKqid = null;
 let sessionMode = null;
 let showRankingBetweenQuestions = false;
 let showRankingBetweenQuestionsSwitch = false;
@@ -217,7 +217,7 @@ Sockets.prototype.measuringSpeed = function() {
                 effectiveType: connection.effectiveType,
                 downlink: connection.downlink
             };
-            getString('lowspeed', 'mod_jqshow', reason).done((s) => {
+            getString('lowspeed', 'mod_kuet', reason).done((s) => {
                 messageBox.append(
                     '<div class="alert alert-danger" role="alert">' + s + '</div>'
                 );
@@ -231,9 +231,9 @@ Sockets.prototype.measuringSpeed = function() {
 
 Sockets.prototype.backSession = function() {
     const stringkeys = [
-        {key: 'backtopanelfromsession', component: 'mod_jqshow'},
-        {key: 'backtopanelfromsession_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'}
+        {key: 'backtopanelfromsession', component: 'mod_kuet'},
+        {key: 'backtopanelfromsession_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
         return ModalFactory.create({
@@ -251,7 +251,7 @@ Sockets.prototype.backSession = function() {
                     }
                 };
                 Ajax.call([request])[0].done(function() {
-                    window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
+                    window.location.replace(M.cfg.wwwroot + '/mod/kuet/view.php?id=' + cmid);
                 }).fail(Notification.exception);
             });
             modal.getRoot().on(ModalEvents.hidden, () => {
@@ -278,6 +278,7 @@ Sockets.prototype.initSockets = function() {
 
     db = Database.initDb(sid, userid);
     let normalizeSocketUrl = Sockets.prototype.normalizeSocketUrl(socketUrl, portUrl);
+    let alreadyteacher = false;
     Sockets.prototype.webSocket = new WebSocket(normalizeSocketUrl);
 
     Sockets.prototype.webSocket.onopen = function() { // Waitingroom.
@@ -299,17 +300,19 @@ Sockets.prototype.initSockets = function() {
         };
         Ajax.call([request])[0].done(function(firstquestion) {
             let data = {
-                jqid: firstquestion.jqid,
+                kid: firstquestion.kid,
                 value: firstquestion
             };
             db.add('questions', data);
-            questionsJqids.push(firstquestion.jqid);
-            currentQuestionJqid = firstquestion.jqid;
-            that.setCurrentQuestion(firstquestion.jqid);
-            that.getNextQuestion(firstquestion.jqid);
-            that.root.find(ACTION.INITSESSION).removeClass('disabled');
-            that.root.find(ACTION.INITSESSION).on('click', that.initSession);
-            that.root.find(ACTION.ENDSESSION).on('click', that.endSession);
+            questionsKids.push(firstquestion.kid);
+            currentQuestionKqid = firstquestion.kid;
+            that.setCurrentQuestion(firstquestion.kid);
+            that.getNextQuestion(firstquestion.kid);
+            if (alreadyteacher === false) {
+                that.root.find(ACTION.INITSESSION).removeClass('disabled');
+                that.root.find(ACTION.INITSESSION).on('click', that.initSession);
+                that.root.find(ACTION.ENDSESSION).on('click', that.endSession);
+            }
         }).fail(Notification.exception);
     };
 
@@ -403,30 +406,32 @@ Sockets.prototype.initSockets = function() {
                 messageBox.append(
                     '<div class="alert alert-danger" role="alert">' + response.message + '</div>'
                 );
+                alreadyteacher = true;
+                jQuery(ACTION.INITSESSION).addClass('disabled');
                 break;
             case 'pauseQuestion':
-                dispatchEvent(new Event('pauseQuestion_' + response.jqid));
+                dispatchEvent(new Event('pauseQuestion_' + response.kid));
                 break;
             case 'playQuestion':
-                dispatchEvent(new Event('playQuestion_' + response.jqid));
+                dispatchEvent(new Event('playQuestion_' + response.kid));
                 break;
             case 'showAnswers':
-                dispatchEvent(new Event('showAnswers_' + response.jqid));
+                dispatchEvent(new Event('showAnswers_' + response.kid));
                 break;
             case 'hideAnswers':
-                dispatchEvent(new Event('hideAnswers_' + response.jqid));
+                dispatchEvent(new Event('hideAnswers_' + response.kid));
                 break;
             case 'showStatistics':
-                dispatchEvent(new Event('showStatistics_' + response.jqid));
+                dispatchEvent(new Event('showStatistics_' + response.kid));
                 break;
             case 'hideStatistics':
-                dispatchEvent(new Event('hideStatistics_' + response.jqid));
+                dispatchEvent(new Event('hideStatistics_' + response.kid));
                 break;
             case 'showFeedback':
-                dispatchEvent(new Event('showFeedback_' + response.jqid));
+                dispatchEvent(new Event('showFeedback_' + response.kid));
                 break;
             case 'hideFeedback':
-                dispatchEvent(new Event('hideFeedback_' + response.jqid));
+                dispatchEvent(new Event('hideFeedback_' + response.kid));
                 break;
             case 'ImproviseStudentTag':
                 Sockets.prototype.manageCloudTags(response.improvisereply);
@@ -445,7 +450,7 @@ Sockets.prototype.initSockets = function() {
     };
 
     Sockets.prototype.webSocket.onerror = function() {
-        getString('system_error', 'mod_jqshow').done((s) => {
+        getString('system_error', 'mod_kuet').done((s) => {
             messageBox.append(
                 '<div class="alert alert-danger" role="alert">' + s + '</div>'
             );
@@ -460,7 +465,7 @@ Sockets.prototype.initSockets = function() {
             reason: ev.reason,
             code: ev.code
         };
-        getString('connection_closed', 'mod_jqshow', reason).done((s) => {
+        getString('connection_closed', 'mod_kuet', reason).done((s) => {
             jQuery(REGION.TEACHERCANVASCONTENT).prepend(
                 '<div class="alert alert-danger" role="alert">' + s + '</div>'
             );
@@ -477,9 +482,9 @@ Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
         jsUrl.port = port;
         jsUrl.protocol = 'wss:';
         if (jsUrl.pathname === '/') {
-            jsUrl.pathname = jsUrl.pathname + 'jqshow';
+            jsUrl.pathname = jsUrl.pathname + 'kuet';
         } else {
-            jsUrl.pathname = jsUrl.pathname + '/jqshow';
+            jsUrl.pathname = jsUrl.pathname + '/kuet';
         }
         return jsUrl.toString();
     }
@@ -598,30 +603,30 @@ Sockets.prototype.setEndSession = function(endData) {
     showRankingBetweenQuestionsSwitch = false;
 };
 
-Sockets.prototype.getNextQuestion = function(jqid) {
+Sockets.prototype.getNextQuestion = function(kid) {
     let that = this;
     let request = {
         methodname: SERVICES.NEXTQUESTION,
         args: {
             cmid: cmid,
             sessionid: sid,
-            jqid: jqid,
+            kid: kid,
             manual: true
         }
     };
-    nextQuestionJqid = null;
+    nextQuestionKqid = null;
     Ajax.call([request])[0].done(function(nextquestion) {
         if (nextquestion.endsession !== true) {
             let data = {
-                jqid: nextquestion.jqid,
+                kid: nextquestion.kid,
                 value: nextquestion
             };
             db.add('questions', data);
-            nextQuestionJqid = nextquestion.jqid;
-            that.setNextQuestion(nextquestion.jqid);
+            nextQuestionKqid = nextquestion.kid;
+            that.setNextQuestion(nextquestion.kid);
         } else {
             // End session.
-            nextQuestionJqid = null;
+            nextQuestionKqid = null;
             that.setEndSession(nextquestion);
         }
     }).fail(Notification.exception);
@@ -630,11 +635,11 @@ Sockets.prototype.getNextQuestion = function(jqid) {
 Sockets.prototype.initSession = function() {
     db.delete('statequestions', 'endSession');
     const stringkeys = [
-        {key: 'init_session', component: 'mod_jqshow'},
-        {key: 'init_session_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'},
-        {key: 'sessionstarted', component: 'mod_jqshow'},
-        {key: 'sessionstarted_info', component: 'mod_jqshow'}
+        {key: 'init_session', component: 'mod_kuet'},
+        {key: 'init_session_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'},
+        {key: 'sessionstarted', component: 'mod_kuet'},
+        {key: 'sessionstarted_info', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
         return ModalFactory.create({
@@ -644,7 +649,7 @@ Sockets.prototype.initSession = function() {
         }).then(modal => {
             modal.setSaveButtonText(langStrings[2]);
             modal.getRoot().on(ModalEvents.save, () => {
-                let firstQuestion = db.get('questions', currentQuestionJqid);
+                let firstQuestion = db.get('questions', currentQuestionKqid);
                 firstQuestion.onsuccess = function() {
                     let msg = {
                         'action': 'question',
@@ -656,7 +661,7 @@ Sockets.prototype.initSession = function() {
                         Sockets.prototype.initPanel();
                         let identifier = jQuery(REGION.TEACHERCANVAS);
                         identifier.append(html);
-                        currentQuestionJqid = firstQuestion.result.jqid;
+                        currentQuestionKqid = firstQuestion.result.kid;
                         firstQuestion.result.value.isteacher = true;
                         currentQuestionDataForRace = firstQuestion.result.value;
                         if (sessionMode === 'podium_manual' || sessionMode === 'inactive_manual') {
@@ -729,10 +734,10 @@ Sockets.prototype.initPanel = function() {
 
 Sockets.prototype.endSession = function() {
     const stringkeys = [
-        {key: 'end_session', component: 'mod_jqshow'},
-        {key: 'end_session_manual_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'},
-        {key: 'end_session_error', component: 'mod_jqshow'}
+        {key: 'end_session', component: 'mod_kuet'},
+        {key: 'end_session_manual_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'},
+        {key: 'end_session_error', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
         return ModalFactory.create({
@@ -757,7 +762,7 @@ Sockets.prototype.endSession = function() {
                             console.error("Error deleting database.", event);
                         };
                         deleteDb.onsuccess = function() {
-                            window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmid);
+                            window.location.replace(M.cfg.wwwroot + '/mod/kuet/view.php?id=' + cmid);
                         };
                     } else {
                         Notification.alert('Error', langStrings[3], langStrings[2]);
@@ -777,8 +782,8 @@ Sockets.prototype.endSession = function() {
 
 Sockets.prototype.nextQuestion = function() {
     let that = this;
-    if (nextQuestionJqid === null) {
-        this.getNextQuestion(currentQuestionJqid);
+    if (nextQuestionKqid === null) {
+        this.getNextQuestion(currentQuestionKqid);
     }
     let nextQuestion = db.get('statequestions', 'nextQuestion');
     nextQuestion.onsuccess = function() {
@@ -797,11 +802,11 @@ Sockets.prototype.nextQuestion = function() {
                 Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                     let identifier = jQuery(REGION.TEACHERCANVAS);
                     identifier.append(html);
-                    currentQuestionJqid = nextQuestionData.result.jqid;
+                    currentQuestionKqid = nextQuestionData.result.kid;
                     // The following question is marked as current.
-                    that.setCurrentQuestion(nextQuestionData.result.jqid);
+                    that.setCurrentQuestion(nextQuestionData.result.kid);
                     // And get the next question to store it.
-                    that.getNextQuestion(nextQuestionData.result.jqid);
+                    that.getNextQuestion(nextQuestionData.result.kid);
                     if (sessionMode === 'podium_manual' || sessionMode === 'inactive_manual') {
                         nextQuestionData.result.value.isteacher = true;
                         // Render questin for teacher.
@@ -830,7 +835,7 @@ Sockets.prototype.nextQuestion = function() {
                     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                         let identifier = jQuery(REGION.TEACHERCANVAS);
                         identifier.append(html);
-                        currentQuestionJqid = null;
+                        currentQuestionKqid = null;
                         db.delete('statequestions', 'currentQuestion');
                         that.setEndSession(endSession.result);
                         endSession.result.value.isteacher = true;
@@ -861,7 +866,7 @@ Sockets.prototype.nextQuestion = function() {
                         Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
                             let identifier = jQuery(REGION.TEACHERCANVAS);
                             identifier.append(html);
-                            currentQuestionJqid = null;
+                            currentQuestionKqid = null;
                             db.delete('statequestions', 'currentQuestion');
                             that.setEndSession(endSession.result);
                             endSession.result.value.isteacher = true;
@@ -933,7 +938,7 @@ Sockets.prototype.manageNext = function() {
                 args: {
                     sid: sid,
                     cmid: cmid,
-                    jqid: currentQuestionJqid
+                    kid: currentQuestionKqid
                 }
             };
             Ajax.call([request])[0].done(function(provisionalRanking) {
@@ -963,7 +968,7 @@ Sockets.prototype.pauseQuestion = function() {
     let msg = {
         'action': 'pauseQuestion',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -972,7 +977,7 @@ Sockets.prototype.playQuestion = function() {
     let msg = {
         'action': 'playQuestion',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -983,14 +988,14 @@ Sockets.prototype.resendSelf = function() {
         args: {
             cmid: cmid,
             sessionid: sid,
-            jqid: currentQuestionJqid
+            kid: currentQuestionKqid
         }
     };
     let removeEvents = new CustomEvent('removeEvents');
     dispatchEvent(removeEvents);
     Ajax.call([request])[0].done(function(response) {
         if (response.deleted === true) {
-            let currentQuestionData = db.get('questions', currentQuestionJqid);
+            let currentQuestionData = db.get('questions', currentQuestionKqid);
             currentQuestionData.onsuccess = function() {
                 let msg = {
                     'action': 'question',
@@ -1031,18 +1036,18 @@ Sockets.prototype.jumpTo = function(questionNumber) {
             manual: true
         }
     };
-    nextQuestionJqid = null;
+    nextQuestionKqid = null;
     let removeEvents = new CustomEvent('removeEvents');
     dispatchEvent(removeEvents);
     Ajax.call([request])[0].done(function(question) {
         let data = {
-            jqid: question.jqid,
+            kid: question.kid,
             value: question
         };
         db.add('questions', data);
-        currentQuestionJqid = question.jqid;
-        that.setCurrentQuestion(question.jqid);
-        that.getNextQuestion(question.jqid);
+        currentQuestionKqid = question.kid;
+        that.setCurrentQuestion(question.kid);
+        that.getNextQuestion(question.kid);
         let msg = {
             'action': 'question',
             'sid': sid,
@@ -1074,18 +1079,18 @@ Sockets.prototype.questionEnd = function() {
         methodname: SERVICES.GETQUESTIONSTATISTICS,
         args: {
             sid: sid,
-            jqid: currentQuestionJqid
+            kid: currentQuestionKqid
         }
     };
     Ajax.call([request])[0].done(function(response) {
         let msg = {
             'action': 'teacherQuestionEnd',
             'sid': sid,
-            'jqid': currentQuestionJqid,
+            'kid': currentQuestionKqid,
             'statistics': response.statistics
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
-        dispatchEvent(new CustomEvent('teacherQuestionEnd_' + currentQuestionJqid, {
+        dispatchEvent(new CustomEvent('teacherQuestionEnd_' + currentQuestionKqid, {
             "detail": {"statistics": response.statistics}
         }));
     }).fail(Notification.exception);
@@ -1095,7 +1100,7 @@ Sockets.prototype.showAnswers = function() {
     let msg = {
         'action': 'showAnswers',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1104,7 +1109,7 @@ Sockets.prototype.hideAnswers = function() {
     let msg = {
         'action': 'hideAnswers',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1113,7 +1118,7 @@ Sockets.prototype.showStatistics = function() {
     let msg = {
         'action': 'showStatistics',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1122,7 +1127,7 @@ Sockets.prototype.hideStatistics = function() {
     let msg = {
         'action': 'hideStatistics',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1131,7 +1136,7 @@ Sockets.prototype.showFeedback = function() {
     let msg = {
         'action': 'showFeedback',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1140,7 +1145,7 @@ Sockets.prototype.hideFeedback = function() {
     let msg = {
         'action': 'hideFeedback',
         'sid': sid,
-        'jqid': currentQuestionJqid
+        'kid': currentQuestionKqid
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };

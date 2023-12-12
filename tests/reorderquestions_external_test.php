@@ -13,10 +13,10 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-use mod_jqshow\models\questions;
+use mod_kuet\models\questions;
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @category   test
@@ -28,9 +28,9 @@ class reorderquestions_external_test extends advanced_testcase {
     public function test_reorderquestions() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $this->sessionmock['kuetid'] = $kuet->id;
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
@@ -38,9 +38,9 @@ class reorderquestions_external_test extends advanced_testcase {
         // Create session.
         $sessionmock = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -55,12 +55,12 @@ class reorderquestions_external_test extends advanced_testcase {
             'sessiontime' => 0,
             'questiontime' => 10,
             'groupings' => 0,
-            'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+            'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
             'showgraderanking' => 0,
         ];
-        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
+        $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -75,30 +75,30 @@ class reorderquestions_external_test extends advanced_testcase {
 
         // Add questions to a session.
         $questions = [
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER],
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL],
-            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE],
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE],
-            ['questionid' => $cq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::CALCULATED],
-            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS],
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION],
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER],
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL],
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE],
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE],
+            ['questionid' => $cq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::CALCULATED],
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS],
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION],
         ];
         $generator->add_questions_to_session($questions);
 
-        $jdq = \mod_jqshow\persistents\jqshow_questions::get_record(
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DESCRIPTION]);
-        $jddwtosq = \mod_jqshow\persistents\jqshow_questions::get_record(
-            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::DDWTOS]);
-        $jcq = \mod_jqshow\persistents\jqshow_questions::get_record(
-            ['questionid' => $cq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::CALCULATED]);
-        $jmcq = \mod_jqshow\persistents\jqshow_questions::get_record(
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::MULTICHOICE]);
-        $jtfq = \mod_jqshow\persistents\jqshow_questions::get_record(
-            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::TRUE_FALSE]);
-        $jnq = \mod_jqshow\persistents\jqshow_questions::get_record(
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::NUMERICAL]);
-        $jsaq = \mod_jqshow\persistents\jqshow_questions::get_record(
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'jqshowid' => $jqshow->id, 'qtype' => questions::SHORTANSWER]);
+        $jdq = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]);
+        $jddwtosq = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS]);
+        $jcq = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $cq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::CALCULATED]);
+        $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]);
+        $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]);
+        $jnq = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]);
+        $jsaq = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER]);
 
         $neworderquestions = [
             ['qid' => $jdq->get('id'), 'qorder' => 1],
@@ -110,14 +110,14 @@ class reorderquestions_external_test extends advanced_testcase {
             ['qid' => $jsaq->get('id'), 'qorder' => 7],
             ];
 
-        \mod_jqshow\external\reorderquestions_external::reorderquestions($neworderquestions);
-        $jdq = new \mod_jqshow\persistents\jqshow_questions($jdq->get('id'));
-        $jddwtosq = new \mod_jqshow\persistents\jqshow_questions($jddwtosq->get('id'));
-        $jcq = new \mod_jqshow\persistents\jqshow_questions($jcq->get('id'));
-        $jmcq = new \mod_jqshow\persistents\jqshow_questions($jmcq->get('id'));
-        $jtfq = new \mod_jqshow\persistents\jqshow_questions($jtfq->get('id'));
-        $jnq = new \mod_jqshow\persistents\jqshow_questions($jnq->get('id'));
-        $jsaq = new \mod_jqshow\persistents\jqshow_questions($jsaq->get('id'));
+        \mod_kuet\external\reorderquestions_external::reorderquestions($neworderquestions);
+        $jdq = new \mod_kuet\persistents\kuet_questions($jdq->get('id'));
+        $jddwtosq = new \mod_kuet\persistents\kuet_questions($jddwtosq->get('id'));
+        $jcq = new \mod_kuet\persistents\kuet_questions($jcq->get('id'));
+        $jmcq = new \mod_kuet\persistents\kuet_questions($jmcq->get('id'));
+        $jtfq = new \mod_kuet\persistents\kuet_questions($jtfq->get('id'));
+        $jnq = new \mod_kuet\persistents\kuet_questions($jnq->get('id'));
+        $jsaq = new \mod_kuet\persistents\kuet_questions($jsaq->get('id'));
 
         // Test.
         $this->assertEquals(1, $jdq->get('qorder'));

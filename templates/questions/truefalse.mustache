@@ -26,13 +26,13 @@
         <div class="content-indicators">
             {{#managesession}}
                 <div class="users">
-                    {{#pix}}q/users, mod_jqshow{{/pix}}
+                    {{#pix}}q/users, mod_kuet{{/pix}}
                     <span class="numusers">{{ numusers }}</span>
                 </div>
             {{/managesession}}
             {{#hastime}}
                 <div class="timer {{^countdown}}d-none{{/countdown}}" data-region="question-timer">
-                    {{#pix}}q/timer, mod_jqshow{{/pix}}
+                    {{#pix}}q/timer, mod_kuet{{/pix}}
                     <span class="seconds" data-region="seconds">{{ seconds }}</span>
                 </div>
             {{/hastime}}
@@ -44,7 +44,7 @@
         </div>
         <div class="col-12 hidden contain-group-message" data-region="group-message">
             <div class="text">
-                {{#str}} alreadyanswered, mod_jqshow {{/str}}
+                {{#str}} alreadyanswered, mod_kuet {{/str}}
             </div>
         </div>
         <div class="col-12 containt-answers">
@@ -56,8 +56,8 @@
                         data-action="truefalse-answer"
                 >
                     <div class="feedback-icons">
-                        <span class="feedback-icon correct">{{#pix}}q/correct, mod_jqshow{{/pix}}</span>
-                        <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_jqshow{{/pix}}</span>
+                        <span class="feedback-icon correct">{{#pix}}q/correct, mod_kuet{{/pix}}</span>
+                        <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_kuet{{/pix}}</span>
                     </div>
                     <div class="statistics-icons">
                         <span class="statistics-icon">
@@ -75,13 +75,13 @@
         </div>
         {{#multianswers}}
             <div class="btn btn-primary ml-auto mt-3" data-action="send-multianswer">
-                {{#str}}send_response, mod_jqshow{{/str}}
+                {{#str}}send_response, mod_kuet{{/str}}
             </div>
         {{/multianswers}}
         <div class="col-12 containt-feedbacks bg-primary" data-region="containt-feedbacks">
             <div class="feedback-title">
-                {{#pix}}q/feedback, mod_jqshow{{/pix}}
-                {{#str}}feedback, mod_jqshow{{/str}}
+                {{#pix}}q/feedback, mod_kuet{{/pix}}
+                {{#str}}feedback, mod_kuet{{/str}}
             </div>
             <div class="content-feedbacks" data-region="content-feedback">
                 <hr>
@@ -102,7 +102,7 @@
     </div>
 </div>
 {{#js}}
-    require(['mod_jqshow/truefalse'{{#hastime}}, 'mod_jqshow/questiontimer'{{/hastime}}], function(TrueFalse{{#hastime}}, QuestionTimer{{/hastime}}) {
+    require(['mod_kuet/truefalse'{{#hastime}}, 'mod_kuet/questiontimer'{{/hastime}}], function(TrueFalse{{#hastime}}, QuestionTimer{{/hastime}}) {
     TrueFalse.initTrueFalse('[data-region="question-content"]',
             {{#showquestionfeedback}}true{{/showquestionfeedback}}{{^showquestionfeedback}}false{{/showquestionfeedback}},
             {{#programmedmode}}false{{/programmedmode}}{{^programmedmode}}true{{/programmedmode}}{{#answered}}, '{{{jsonresponse}}}'{{/answered}});

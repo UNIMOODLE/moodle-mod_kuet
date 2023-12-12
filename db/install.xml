@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/jqshow/db" VERSION="2023041201" COMMENT="XMLDB file for Moodle mod/jqshow"
+<XMLDB PATH="mod/kuet/db" VERSION="2023041201" COMMENT="XMLDB file for Moodle mod/kuet"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="jqshow" COMMENT="each table is one jqshow module and its configuration">
+    <TABLE NAME="kuet" COMMENT="each table is one kuet module and its configuration">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT=""/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
@@ -26,11 +26,11 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="jqshow_sessions" COMMENT="">
+    <TABLE NAME="kuet_sessions" COMMENT="">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT=""/>
         <FIELD NAME="name" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="session name"/>
-        <FIELD NAME="jqshowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT=""/>
+        <FIELD NAME="kuetid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="anonymousanswer" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="There are 3 types: 0 (partially) 1(totally) 2(not anonymous)"/>
         <FIELD NAME="sessionmode" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="inactive_manual" SEQUENCE="false" COMMENT="Options:inactive_manual,podium_manual,podium_programmed"/>
         <FIELD NAME="sgrade" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="Options: 0-notgrades, 1-relative position, 2-relative points, 3-combined."/>
@@ -54,18 +54,18 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshowid" REFTABLE="jqshow" REFFIELDS="id"/>
+        <KEY NAME="kuet" TYPE="foreign" FIELDS="kuetid" REFTABLE="kuet" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshowid"/>
+        <INDEX NAME="kuet" UNIQUE="false" FIELDS="kuetid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="jqshow_questions" COMMENT="Questions from the question bank that were added to sessions">
+    <TABLE NAME="kuet_questions" COMMENT="Questions from the question bank that were added to sessions">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true" COMMENT=""/>
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key references question.id."/>
-        <FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key references jqshow_sessions.id."/>
-        <FIELD NAME="jqshowid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key references jqshow.id." />
+        <FIELD NAME="sessionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key references kuet_sessions.id."/>
+        <FIELD NAME="kuetid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key references kuet.id." />
         <FIELD NAME="qorder" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Order of appearance of the question in the session" />
         <FIELD NAME="qtype" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="Type of question"/>
         <FIELD NAME="timelimit" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Time to answer the question in seconds"/>
@@ -79,62 +79,62 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="question" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
-        <KEY NAME="session" TYPE="foreign" FIELDS="sessionid" REFTABLE="jqshow_sessions" REFFIELDS="id"/>
-        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshowid" REFTABLE="jqshow" REFFIELDS="id"/>
+        <KEY NAME="session" TYPE="foreign" FIELDS="sessionid" REFTABLE="kuet_sessions" REFFIELDS="id"/>
+        <KEY NAME="kuet" TYPE="foreign" FIELDS="kuetid" REFTABLE="kuet" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="question" UNIQUE="false" FIELDS="questionid"/>
         <INDEX NAME="session" UNIQUE="false" FIELDS="sessionid"/>
-        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshowid"/>
+        <INDEX NAME="kuet" UNIQUE="false" FIELDS="kuetid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="jqshow_grades" COMMENT="Stores the overall grade for each user on the jqshow, based on their various sessions and the jqshow.grademethod setting.">
+    <TABLE NAME="kuet_grades" COMMENT="Stores the overall grade for each user on the kuet, based on their various sessions and the kuet.grademethod setting.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="jqshow" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow.id."/>
+        <FIELD NAME="kuet" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references kuet.id."/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references user.id."/>
-        <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="The overall grade from the jqshow. Not affected by overrides in the gradebook."/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="The overall grade from the kuet. Not affected by overrides in the gradebook."/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this grade changed."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshow" REFTABLE="jqshow" REFFIELDS="id"/>
+        <KEY NAME="kuet" TYPE="foreign" FIELDS="kuet" REFTABLE="kuet" REFFIELDS="id"/>
         <KEY NAME="user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshow"/>
+        <INDEX NAME="kuet" UNIQUE="false" FIELDS="kuet"/>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="jqshow_sessions_grades" COMMENT="Stores the overall grade for each user on each session, based on their session setting.">
+    <TABLE NAME="kuet_sessions_grades" COMMENT="Stores the overall grade for each user on each session, based on their session setting.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="jqshow" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow.id."/>
-        <FIELD NAME="session" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow_sessions.id."/>
+        <FIELD NAME="kuet" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references kuet.id."/>
+        <FIELD NAME="session" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references kuet_sessions.id."/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references user.id."/>
-        <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="The overall grade from the session. Used to get the jqshow grade."/>
+        <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="The overall grade from the session. Used to get the kuet grade."/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this grade changed."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshow" REFTABLE="jqshow" REFFIELDS="id"/>
-        <KEY NAME="session" TYPE="foreign" FIELDS="session" REFTABLE="jqshow_sessions" REFFIELDS="id"/>
+        <KEY NAME="kuet" TYPE="foreign" FIELDS="kuet" REFTABLE="kuet" REFFIELDS="id"/>
+        <KEY NAME="session" TYPE="foreign" FIELDS="session" REFTABLE="kuet_sessions" REFFIELDS="id"/>
         <KEY NAME="user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshow"/>
+        <INDEX NAME="kuet" UNIQUE="false" FIELDS="kuet"/>
         <INDEX NAME="session" UNIQUE="false" FIELDS="session"/>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
-        <INDEX NAME="usersessiongrade" UNIQUE="true" FIELDS="userid, jqshow, session"/>
+        <INDEX NAME="usersessiongrade" UNIQUE="true" FIELDS="userid, kuet, session"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="jqshow_questions_responses" COMMENT="Stores user responses to each question, in each session, for each jqshowid.">
+    <TABLE NAME="kuet_questions_responses" COMMENT="Stores user responses to each question, in each session, for each kuetid.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="jqshow" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow.id."/>
-        <FIELD NAME="session" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow_sessions.id."/>
-        <FIELD NAME="jqid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow_questions.id."/>
+        <FIELD NAME="kuet" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references kuet.id."/>
+        <FIELD NAME="session" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references kuet_sessions.id."/>
+        <FIELD NAME="kid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references kuet_questions.id."/>
         <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references question.id."/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references user.id."/>
         <FIELD NAME="anonymise" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 not anonymise, 1 Anonymise student response"/>
@@ -145,27 +145,27 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshow" REFTABLE="jqshow" REFFIELDS="id"/>
-        <KEY NAME="session" TYPE="foreign" FIELDS="session" REFTABLE="jqshow_sessions" REFFIELDS="id"/>
-        <KEY NAME="jqid" TYPE="foreign" FIELDS="jqid" REFTABLE="jqshow_questions" REFFIELDS="id"/>
+        <KEY NAME="kuet" TYPE="foreign" FIELDS="kuet" REFTABLE="kuet" REFFIELDS="id"/>
+        <KEY NAME="session" TYPE="foreign" FIELDS="session" REFTABLE="kuet_sessions" REFFIELDS="id"/>
+        <KEY NAME="kid" TYPE="foreign" FIELDS="kid" REFTABLE="kuet_questions" REFFIELDS="id"/>
         <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
         <KEY NAME="user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
-        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshow"/>
+        <INDEX NAME="kuet" UNIQUE="false" FIELDS="kuet"/>
         <INDEX NAME="session" UNIQUE="false" FIELDS="session"/>
-        <INDEX NAME="jqid" UNIQUE="false" FIELDS="jqid"/>
+        <INDEX NAME="kid" UNIQUE="false" FIELDS="kid"/>
         <INDEX NAME="questionid" UNIQUE="false" FIELDS="questionid"/>
-        <INDEX NAME="questionresponses" UNIQUE="true" FIELDS="userid, session, jqid"/>
+        <INDEX NAME="questionresponses" UNIQUE="true" FIELDS="userid, session, kid"/>
         <INDEX NAME="userresponsesinsession" UNIQUE="false" FIELDS="userid, session"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="jqshow_user_progress" COMMENT="Stores the user's progress in the scheduled sessions, in order to be able to resume their progress.">
+    <TABLE NAME="kuet_user_progress" COMMENT="Stores the user's progress in the scheduled sessions, in order to be able to resume their progress.">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="jqshow" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow.id."/>
-        <FIELD NAME="session" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references jqshow_sessions.id."/>
+        <FIELD NAME="kuet" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references kuet.id."/>
+        <FIELD NAME="session" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references kuet_sessions.id."/>
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references user.id."/>
         <FIELD NAME="randomquestion" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 set order, 1 random order"/>
         <FIELD NAME="other" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Object with the order of the questions for the user in case they are randomised, and the current question. Must be serialisable using json_encode()"/>
@@ -174,15 +174,15 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="jqshow" TYPE="foreign" FIELDS="jqshow" REFTABLE="jqshow" REFFIELDS="id"/>
-        <KEY NAME="session" TYPE="foreign" FIELDS="session" REFTABLE="jqshow_sessions" REFFIELDS="id"/>
+        <KEY NAME="kuet" TYPE="foreign" FIELDS="kuet" REFTABLE="kuet" REFFIELDS="id"/>
+        <KEY NAME="session" TYPE="foreign" FIELDS="session" REFTABLE="kuet_sessions" REFFIELDS="id"/>
         <KEY NAME="user" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
-        <INDEX NAME="jqshow" UNIQUE="false" FIELDS="jqshow"/>
+        <INDEX NAME="kuet" UNIQUE="false" FIELDS="kuet"/>
         <INDEX NAME="session" UNIQUE="false" FIELDS="session"/>
-        <INDEX NAME="usersessionprogress" UNIQUE="true" FIELDS="userid, jqshow, session"/>
+        <INDEX NAME="usersessionprogress" UNIQUE="true" FIELDS="userid, kuet, session"/>
       </INDEXES>
     </TABLE>
   </TABLES>

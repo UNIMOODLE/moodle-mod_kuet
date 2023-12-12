@@ -24,21 +24,21 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\output\views;
+namespace mod_kuet\output\views;
 
 use coding_exception;
 use dml_exception;
 use JsonException;
-use mod_jqshow\api\grade;
-use mod_jqshow\helpers\reports;
-use mod_jqshow\jqshow;
+use mod_kuet\api\grade;
+use mod_kuet\helpers\reports;
+use mod_kuet\kuet;
 use moodle_exception;
 use moodle_url;
 use renderable;
@@ -48,11 +48,11 @@ use templatable;
 
 class student_reports implements renderable, templatable {
 
-    public int $jqshowid;
+    public int $kuetid;
     public int $cmid;
     public int $sid;
-    public function __construct(int $cmid, int $jqshowid, int $sid) {
-        $this->jqshowid = $jqshowid;
+    public function __construct(int $cmid, int $kuetid, int $sid) {
+        $this->kuetid = $kuetid;
         $this->cmid = $cmid;
         $this->sid = $sid;
     }
@@ -67,18 +67,18 @@ class student_reports implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         global $USER;
-        $jqshow = new jqshow($this->cmid);
+        $kuet = new kuet($this->cmid);
         $data = new stdClass();
-        $data->jqshowid = $this->jqshowid;
+        $data->kuetid = $this->kuetid;
         $data->cmid = $this->cmid;
         if ($this->sid === 0) {
             $data->allreports = true;
-            $data->endedsessions = $jqshow->get_completed_sessions();
+            $data->endedsessions = $kuet->get_completed_sessions();
             $data->groupmode = false;
             foreach ($data->endedsessions as $endedsession) {
-                $endedsession->viewreporturl = (new moodle_url('/mod/jqshow/reports.php',
+                $endedsession->viewreporturl = (new moodle_url('/mod/kuet/reports.php',
                     ['cmid' => $this->cmid, 'sid' => $endedsession->sessionid, 'userid' => $USER->id]))->out(false);
-                $data->score = round(grade::get_session_grade($USER->id, $endedsession->sessionid, $this->jqshowid), 2);
+                $data->score = round(grade::get_session_grade($USER->id, $endedsession->sessionid, $this->kuetid), 2);
             }
         } else {
             $data = reports::get_student_report($this->cmid, $this->sid);

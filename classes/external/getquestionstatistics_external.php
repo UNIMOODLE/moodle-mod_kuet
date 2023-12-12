@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use dml_exception;
@@ -42,11 +42,11 @@ use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\api\groupmode;
-use mod_jqshow\models\questions;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\api\groupmode;
+use mod_kuet\models\questions;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use question_bank;
 
@@ -64,29 +64,29 @@ class getquestionstatistics_external extends external_api {
         return new external_function_parameters(
             [
                 'sid' => new external_value(PARAM_INT, 'session id'),
-                'jqid' => new external_value(PARAM_INT, 'Id for jqshow_questions')
+                'kid' => new external_value(PARAM_INT, 'Id for kuet_questions')
             ]
         );
     }
 
     /**
      * @param int $sid
-     * @param int $jqid
+     * @param int $kid
      * @return array|array[]
      * @throws dml_exception
      * @throws coding_exception
      * @throws invalid_parameter_exception
      */
-    public static function getquestionstatistics(int $sid, int $jqid): array {
+    public static function getquestionstatistics(int $sid, int $kid): array {
         self::validate_parameters(
             self::getquestionstatistics_parameters(),
-            ['sid' => $sid, 'jqid' => $jqid]
+            ['sid' => $sid, 'kid' => $kid]
         );
-        $jqshowquestion = jqshow_questions::get_question_by_jqid($jqid);
-        $question = question_bank::load_question($jqshowquestion->get('questionid'));
+        $kuetquestion = kuet_questions::get_question_by_kid($kid);
+        $question = question_bank::load_question($kuetquestion->get('questionid'));
         $statistics = [];
-        $session = new jqshow_sessions($sid);
-        $responses = jqshow_questions_responses::get_question_responses($sid, $jqshowquestion->get('jqshowid'), $jqid);
+        $session = new kuet_sessions($sid);
+        $responses = kuet_questions_responses::get_question_responses($sid, $kuetquestion->get('kuetid'), $kid);
         if ($session->is_group_mode()) {
             $members = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
 
@@ -101,7 +101,7 @@ class getquestionstatistics_external extends external_api {
 
         try {
             /** @var questions $type */
-            $type = questions::get_question_class_by_string_type($jqshowquestion->get('qtype'));
+            $type = questions::get_question_class_by_string_type($kuetquestion->get('qtype'));
             $statistics = $type::get_question_statistics($question, $responses);
         } catch(moodle_exception $exception) {
             return ['statistics' => $statistics];

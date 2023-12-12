@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/selectquestions
+ * @module    mod_kuet/selectquestions
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -59,20 +59,20 @@ let REGION = {
 };
 
 let SERVICES = {
-    ADDQUESTIONS: 'mod_jqshow_addquestions',
-    SESSIONQUESTIONS: 'mod_jqshow_sessionquestions'
+    ADDQUESTIONS: 'mod_kuet_addquestions',
+    SESSIONQUESTIONS: 'mod_kuet_sessionquestions'
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    QUESTIONSSELECTED: 'mod_jqshow/createsession/sessionquestions'
+    QUESTIONSSELECTED: 'mod_kuet/createsession/sessionquestions'
 };
 
 let cmId;
 let sId;
-let jqshowId;
+let kuetId;
 let showPerPage = 20;
 
 /**
@@ -83,7 +83,7 @@ function SelectQuestions(selector) {
     this.node = jQuery(selector);
     sId = this.node.attr('data-sid');
     cmId = this.node.attr('data-cmid');
-    jqshowId = this.node.attr('data-jqshowid');
+    kuetId = this.node.attr('data-kuetid');
     this.initPanel();
 }
 
@@ -135,8 +135,8 @@ SelectQuestions.prototype.addQuestions = function(e) {
     let questionschekced = jQuery(REGION.SELECTQUESTION + ':checked');
     if (questionschekced.length < 1) {
         const stringkeys = [
-            {key: 'selectone', component: 'mod_jqshow'},
-            {key: 'selectone_desc', component: 'mod_jqshow'}
+            {key: 'selectone', component: 'mod_kuet'},
+            {key: 'selectone_desc', component: 'mod_kuet'}
         ];
         getStrings(stringkeys).then((langStrings) => {
             const title = langStrings[0];
@@ -161,15 +161,15 @@ SelectQuestions.prototype.addQuestions = function(e) {
             let questiondata = {
                 questionid: jQuery(question).attr('data-questionnid'),
                 sessionid: sId,
-                jqshowid: jqshowId,
+                kuetid: kuetId,
                 qtype: jQuery(question).attr('data-type')
             };
             questions.push(questiondata);
         });
         const stringkeys = [
-            {key: 'addquestions', component: 'mod_jqshow'},
-            {key: 'addquestions_desc', component: 'mod_jqshow', param: questionschekced.length},
-            {key: 'confirm', component: 'mod_jqshow'}
+            {key: 'addquestions', component: 'mod_kuet'},
+            {key: 'addquestions_desc', component: 'mod_kuet', param: questionschekced.length},
+            {key: 'confirm', component: 'mod_kuet'}
         ];
         getStrings(stringkeys).then((langStrings) => {
             const title = langStrings[0];
@@ -200,7 +200,7 @@ SelectQuestions.prototype.addQuestions = function(e) {
                             let request = {
                                 methodname: SERVICES.SESSIONQUESTIONS,
                                 args: {
-                                    jqshowid: jqshowId,
+                                    kuetid: kuetId,
                                     cmid: cmId,
                                     sid: sId
                                 }
@@ -217,8 +217,8 @@ SelectQuestions.prototype.addQuestions = function(e) {
                     })
                     .fail( async (e) => {
                         const modal = await ModalFactory.create({
-                            title: 'JQSHOW',
-                            body: Templates.render('mod_jqshow/error_modal', {message: e.message, link: e.link})
+                            title: 'KUET',
+                            body: Templates.render('mod_kuet/error_modal', {message: e.message, link: e.link})
                         });
                         modal.getRoot().css('z-index', '3000');
                         modal.show();
@@ -244,7 +244,7 @@ SelectQuestions.prototype.addQuestion = function(e) {
     let questiondata = {
         questionid: jQuery(e.currentTarget).attr('data-questionnid'),
         sessionid: sId,
-        jqshowid: jqshowId,
+        kuetid: kuetId,
         qtype: jQuery(e.currentTarget).attr('data-type')
     };
     questions.push(questiondata);
@@ -266,7 +266,7 @@ SelectQuestions.prototype.addQuestion = function(e) {
             let request = {
                 methodname: SERVICES.SESSIONQUESTIONS,
                 args: {
-                    jqshowid: jqshowId,
+                    kuetid: kuetId,
                     cmid: cmId,
                     sid: sId
                 }

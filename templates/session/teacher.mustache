@@ -22,7 +22,7 @@
     Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 }}
 {{#manualmode}}
-    {{> mod_jqshow/session/manual/teachercanvas }}
+    {{> mod_kuet/session/manual/teachercanvas }}
 {{/manualmode}}
 {{#programmedmode}}
     <div class="teacher-session-content" data-region="teacher-session-content">
@@ -46,33 +46,33 @@
                             </div>
                         </div>
                     {{/hasqrcodeimage}}
-                    <button class="btn btn-primary mb-0" data-action="end_session" data-sessionid="{{sid}}">{{#str}}end_session, mod_jqshow{{/str}}</button>
+                    <button class="btn btn-primary mb-0" data-action="end_session" data-sessionid="{{sid}}">{{#str}}end_session, mod_kuet{{/str}}</button>
                 </div>
             </div>
             {{#racemode}}
                 <div class="col-12 container mb-4">
                     <div class="race-results" data-region="race-results" data-sid="{{sid}}" data-cmid="{{cmid}}" data-courseid="{{courseid}}" data-groupmode="{{groupmode}}">
-                        {{> mod_jqshow/session/raceresults }}
+                        {{> mod_kuet/session/raceresults }}
                     </div>
                 </div>
             {{/racemode}}
             <div class="col-12 col-lg-4 container">
                 <div class="resume-config">
                     <h6 class="titlecontainer bg-primary">
-                        {{#pix}} i/settings, mod_jqshow {{/pix}}
-                        {{#str}}session_info, mod_jqshow{{/str}}
+                        {{#pix}} i/settings, mod_kuet {{/pix}}
+                        {{#str}}session_info, mod_kuet{{/str}}
                     </h6>
-                    {{> mod_jqshow/session/sessionresume }}
+                    {{> mod_kuet/session/sessionresume }}
                 </div>
             </div>
             <div class="col-12 col-lg-8 container">
                 <div class="users-results">
                     <h6 class="titlecontainer bg-primary">
-                        {{#pix}} i/questions_list, mod_jqshow {{/pix}}
-                        {{#str}}results, mod_jqshow{{/str}}
+                        {{#pix}} i/questions_list, mod_kuet {{/pix}}
+                        {{#str}}results, mod_kuet{{/str}}
                     </h6>
                     <div class="list-results" data-region="list-results" data-sid="{{sid}}" data-cmid="{{cmid}}" data-courseid="{{courseid}}" {{#groupmode}}data-groupmode="1"{{/groupmode}}>
-                        {{> mod_jqshow/session/listresults }}
+                        {{> mod_kuet/session/listresults }}
                     </div>
                 </div>
             </div>
@@ -82,7 +82,7 @@
 
 {{#programmedmode}}
     {{#js}}
-        require(['mod_jqshow/teacher_programmedmode'], function(ProgrammedMode) {
+        require(['mod_kuet/teacher_programmedmode'], function(ProgrammedMode) {
         ProgrammedMode.initProgrammedMode('[data-region="list-results"]'{{#racemode}}, true{{/racemode}});
         });
     {{/js}}

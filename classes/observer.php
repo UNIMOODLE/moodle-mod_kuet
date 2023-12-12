@@ -24,31 +24,31 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow;
+namespace mod_kuet;
 
 use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
-use mod_jqshow\api\grade;
-use mod_jqshow\event\session_ended;
-use mod_jqshow\models\sessions;
-use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\persistents\jqshow_sessions_grades;
+use mod_kuet\api\grade;
+use mod_kuet\event\session_ended;
+use mod_kuet\models\sessions;
+use mod_kuet\persistents\kuet_sessions;
+use mod_kuet\persistents\kuet_sessions_grades;
 use moodle_exception;
 
 class observer {
 
     /**
-     * Jqshow session ended
+     * Kuet session ended
      * Before calculate and save session grade, check:
-     * - mod_jqshow->grademethod != 0
+     * - mod_kuet->grademethod != 0
      * - session is gradeable too.
      *
      * @param session_ended $event The event.
@@ -65,11 +65,11 @@ class observer {
         $data = $event->get_data();
         $context = context_module::instance((int) $data['contextinstanceid']);
         $PAGE->set_context($context);
-        $jqshow = \mod_jqshow\persistents\jqshow::get_jqshow_from_cmid((int) $data['contextinstanceid']);
-        if (!$jqshow || (int)$jqshow->get('grademethod') === grade::MOD_OPTION_NO_GRADE) {
+        $kuet = \mod_kuet\persistents\kuet::get_kuet_from_cmid((int) $data['contextinstanceid']);
+        if (!$kuet || (int)$kuet->get('grademethod') === grade::MOD_OPTION_NO_GRADE) {
             return;
         }
-        $session = jqshow_sessions::get_record(['id' => $data['objectid']]);
+        $session = kuet_sessions::get_record(['id' => $data['objectid']]);
         if (!$session || (int)$session->get('sgrade') === sessions::GM_DISABLED) {
             return;
         }
@@ -80,23 +80,23 @@ class observer {
                 continue;
             }
             // Get session grade.
-            $sessiongrade = grade::get_session_grade($participant->{'id'}, $data['objectid'], $jqshow->get('id'));
+            $sessiongrade = grade::get_session_grade($participant->{'id'}, $data['objectid'], $kuet->get('id'));
             $params = [
-                'jqshow' => $jqshow->get('id'),
+                'kuet' => $kuet->get('id'),
                 'session' => $data['objectid'],
                 'userid' => $participant->{'id'}
             ];
              // Save grade on db.
-            $jgrade = jqshow_sessions_grades::get_record($params);
+            $jgrade = kuet_sessions_grades::get_record($params);
             if (!$jgrade) {
                 $params['grade'] = $sessiongrade;
-                $jsg = new jqshow_sessions_grades(0, (object) $params);
+                $jsg = new kuet_sessions_grades(0, (object) $params);
                 $jsg->create();
             } else {
                 $jgrade->set('grade', $sessiongrade);
                 $jgrade->update();
             }
-            grade::recalculate_mod_mark_by_userid($participant->{'id'}, $jqshow->get('id'));
+            grade::recalculate_mod_mark_by_userid($participant->{'id'}, $kuet->get('id'));
         }
     }
 
@@ -111,9 +111,9 @@ class observer {
         // Check if userid is teacher or student.
         $students = [(object) ['id' => $data['userid']]];
         $context = context_module::instance($data['contextinstanceid']);
-        $isteacher = has_capability('mod/jqshow:startsession', $context, $data['userid']);
+        $isteacher = has_capability('mod/kuet:startsession', $context, $data['userid']);
         if ($isteacher) {
-            $students = jqshow::get_students($data['contextinstanceid'], $grouping);
+            $students = kuet::get_students($data['contextinstanceid'], $grouping);
         }
         return $students;
     }

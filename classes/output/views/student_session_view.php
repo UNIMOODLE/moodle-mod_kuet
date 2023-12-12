@@ -24,29 +24,29 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\output\views;
+namespace mod_kuet\output\views;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
 use JsonException;
-use mod_jqshow\api\groupmode;
-use mod_jqshow\helpers\progress;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions;
-use mod_jqshow\models\sessions as sessionsmodel;
-use mod_jqshow\persistents\jqshow_questions;
-use mod_jqshow\persistents\jqshow_questions_responses;
-use mod_jqshow\persistents\jqshow_sessions;
-use mod_jqshow\persistents\jqshow_user_progress;
+use mod_kuet\api\groupmode;
+use mod_kuet\helpers\progress;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions;
+use mod_kuet\models\sessions as sessionsmodel;
+use mod_kuet\persistents\kuet_questions;
+use mod_kuet\persistents\kuet_questions_responses;
+use mod_kuet\persistents\kuet_sessions;
+use mod_kuet\persistents\kuet_user_progress;
 use moodle_exception;
 use ReflectionException;
 use renderable;
@@ -73,19 +73,19 @@ class student_session_view implements renderable, templatable {
         global $USER, $PAGE;
         $cmid = required_param('cmid', PARAM_INT);
         $sid = required_param('sid', PARAM_INT);
-        $session = new jqshow_sessions($sid);
-        $PAGE->set_title(get_string('session', 'jqshow') . ' ' . $session->get('name'));
+        $session = new kuet_sessions($sid);
+        $PAGE->set_title(get_string('session', 'kuet') . ' ' . $session->get('name'));
         if ($session->get('status') !== sessionsmodel::SESSION_STARTED) {
             // TODO session layaout not active or redirect to cmid view.
-            throw new moodle_exception('notactivesession', 'mod_jqshow', '',
-                [], get_string('notactivesession', 'mod_jqshow'));
+            throw new moodle_exception('notactivesession', 'mod_kuet', '',
+                [], get_string('notactivesession', 'mod_kuet'));
         }
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
-                $progress = jqshow_user_progress::get_session_progress_for_user(
-                    $USER->id, $session->get('id'), $session->get('jqshowid')
+                $progress = kuet_user_progress::get_session_progress_for_user(
+                    $USER->id, $session->get('id'), $session->get('kuetid')
                 );
                 if ($progress !== false) {
                     $progressdata = json_decode($progress->get('other'), false);
@@ -97,28 +97,28 @@ class student_session_view implements renderable, templatable {
                         $data->programmedmode = true;
                         break;
                     }
-                    $question = jqshow_questions::get_question_by_jqid($progressdata->currentquestion);
+                    $question = kuet_questions::get_question_by_kid($progressdata->currentquestion);
                 } else {
                     progress::set_progress(
-                        $session->get('jqshowid'), $session->get('id'), $USER->id, $cmid, 0
+                        $session->get('kuetid'), $session->get('id'), $USER->id, $cmid, 0
                     );
-                    $newprogress = jqshow_user_progress::get_session_progress_for_user(
-                        $USER->id, $session->get('id'), $session->get('jqshowid')
+                    $newprogress = kuet_user_progress::get_session_progress_for_user(
+                        $USER->id, $session->get('id'), $session->get('kuetid')
                     );
                     $newprogressdata = json_decode($newprogress->get('other'), false);
-                    $question = jqshow_questions::get_question_by_jqid($newprogressdata->currentquestion);
+                    $question = kuet_questions::get_question_by_kid($newprogressdata->currentquestion);
                 }
                 /** @var questions $type */
                 $type = questions::get_question_class_by_string_type($question->get('qtype'));
                 $data = $type::export_question($question->get('id'),
                     $cmid,
                     $sid,
-                    $question->get('jqshowid'));
-                $response = jqshow_questions_responses::get_record(
-                    ['session' => $question->get('sessionid'), 'jqid' => $question->get('id'), 'userid' => $USER->id]
+                    $question->get('kuetid'));
+                $response = kuet_questions_responses::get_record(
+                    ['session' => $question->get('sessionid'), 'kid' => $question->get('id'), 'userid' => $USER->id]
                 );
                 if ($response !== false) {
-                    $data->jqid = $question->get('id');
+                    $data->kid = $question->get('id');
                     $data =
                         $type::export_question_response($data, base64_decode($response->get('response')), $response->get('result'));
                 }
@@ -140,7 +140,7 @@ class student_session_view implements renderable, templatable {
                 $data = new stdClass();
                 $data->cmid = $cmid;
                 $data->sid = $sid;
-                $data->jqshowid = $session->get('jqshowid');
+                $data->kuetid = $session->get('kuetid');
                 $data->userid = $USER->id;
                 $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
 
@@ -148,14 +148,14 @@ class student_session_view implements renderable, templatable {
                 $data->waitingroom = true;
                 $data->config = sessions::get_session_config($data->sid, $data->cmid);
                 $data->sessionname = $data->config[0]['configvalue'];
-                $typesocket = get_config('jqshow', 'sockettype');
+                $typesocket = get_config('kuet', 'sockettype');
                 if ($typesocket === 'local') {
                     $data->socketurl = $CFG->wwwroot;
-                    $data->port = get_config('jqshow', 'localport') !== false ? get_config('jqshow', 'localport') : '8080';
+                    $data->port = get_config('kuet', 'localport') !== false ? get_config('kuet', 'localport') : '8080';
                 }
                 if ($typesocket === 'external') {
-                    $data->socketurl = get_config('jqshow', 'externalurl');
-                    $data->port = get_config('jqshow', 'externalport') !== false ? get_config('jqshow', 'externalport') : '8080';
+                    $data->socketurl = get_config('kuet', 'externalurl');
+                    $data->port = get_config('kuet', 'externalport') !== false ? get_config('kuet', 'externalport') : '8080';
                 }
                 if ($session->is_group_mode()) {
                     $data->isgroupmode = true;
@@ -170,8 +170,8 @@ class student_session_view implements renderable, templatable {
                 }
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_jqshow', '',
-                    [], get_string('incorrect_sessionmode', 'mod_jqshow'));
+                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
+                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
         }
         return $data;
     }

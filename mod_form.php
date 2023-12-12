@@ -24,20 +24,20 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_jqshow\api\grade;
+use mod_kuet\api\grade;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 
-class mod_jqshow_mod_form extends moodleform_mod {
+class mod_kuet_mod_form extends moodleform_mod {
 
     /**
      * @return void
@@ -46,10 +46,10 @@ class mod_jqshow_mod_form extends moodleform_mod {
      */
     public function definition() : void {
         $mform =& $this->_form;
-        $mform->addElement('text', 'name', get_string('name', 'jqshow'), ['size' => '64']);
+        $mform->addElement('text', 'name', get_string('name', 'kuet'), ['size' => '64']);
         $mform->setType('name', PARAM_TEXT);
 
-        $this->standard_intro_elements(get_string('introduction', 'jqshow'));
+        $this->standard_intro_elements(get_string('introduction', 'kuet'));
 
         // Grade settings.
         $this->standard_grading_coursemodule_elements();
@@ -62,25 +62,25 @@ class mod_jqshow_mod_form extends moodleform_mod {
         $mform->addElement('hidden', 'grade', $currentgrade);
         $mform->setType('grade', PARAM_FLOAT);
 
-        $grademethodelement = $mform->createElement('select', 'grademethod', get_string('grademethod', 'jqshow'),
-            mod_jqshow_get_grading_options());
+        $grademethodelement = $mform->createElement('select', 'grademethod', get_string('grademethod', 'kuet'),
+            mod_kuet_get_grading_options());
         $mform->disabledIf('gradecat', 'grademethod', 'eq', grade::MOD_OPTION_NO_GRADE);
         $mform->disabledIf('gradepass', 'grademethod', 'eq', grade::MOD_OPTION_NO_GRADE);
         $mform->insertElementBefore($grademethodelement, 'gradecat');
-        $mform->addHelpButton('grademethod', 'grademethod', 'jqshow');
+        $mform->addHelpButton('grademethod', 'grademethod', 'kuet');
 
         // Course module elements.
         $this->standard_coursemodule_elements();
 
         // Teams grade.
-//        $mform->addElement('header', 'teamsgrade', get_string('teamsgradeheader', 'jqshow'));
-//        $options = [groupmode::TEAM_GRADE_FIRST => get_string('team_grade_first', 'mod_jqshow'),
+//        $mform->addElement('header', 'teamsgrade', get_string('teamsgradeheader', 'kuet'));
+//        $options = [groupmode::TEAM_GRADE_FIRST => get_string('team_grade_first', 'mod_kuet'),
 ////            groupmode::TEAM_GRADE_LAST => 'last',
 ////            groupmode::TEAM_GRADE_AVERAGE => 'average'
 //        ];
-//        $mform->addElement('select', 'teamgrade', get_string('teamgrade', 'jqshow'), $options);
+//        $mform->addElement('select', 'teamgrade', get_string('teamgrade', 'kuet'), $options);
 //        $mform->disabledIf('teamgrade', 'groupmode', 'eq', 0);
-//        $mform->addHelpButton('teamgrade', 'teamgrade', 'jqshow');
+//        $mform->addHelpButton('teamgrade', 'teamgrade', 'kuet');
 //        $mform->setType('teamgrade', PARAM_RAW);
 
         $this->add_action_buttons();
@@ -98,8 +98,8 @@ class mod_jqshow_mod_form extends moodleform_mod {
         $mform->addElement(
             'advcheckbox',
             'completionanswerall',
-            get_string('completionansweralllabel', 'jqshow'),
-            get_string('completionansweralldesc', 'jqshow')
+            get_string('completionansweralllabel', 'kuet'),
+            get_string('completionansweralldesc', 'kuet')
         );
         // Enable this completion rule by default.
         $mform->setDefault('completionanswerall', 0);

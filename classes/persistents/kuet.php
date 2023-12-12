@@ -24,67 +24,60 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\persistents;
-
+namespace mod_kuet\persistents;
 use core\persistent;
-use dml_exception;
+use moodle_exception;
 
-class jqshow_sessions_grades extends persistent {
-    const TABLE = 'jqshow_sessions_grades';
+class kuet extends persistent {
+    public const TABLE = 'kuet';
+
     /**
-     * Return the definition of the properties of this model.
-     *
-     * @return array
+     * @return array[]
      */
-    protected static function define_properties() :array {
+    protected static function define_properties() : array {
         return [
-            'jqshow' => [
+            'course' => [
                 'type' => PARAM_INT,
             ],
-            'session' => [
+            'name' => [
+                'type' => PARAM_RAW,
+            ],
+            'intro' => [
+                'type' => PARAM_RAW,
+            ],
+            'introformat' => [
                 'type' => PARAM_INT,
             ],
-            'userid' => [
+            'teamgrade' => [
+                'type' => PARAM_RAW,
+            ],
+            'grademethod' => [
                 'type' => PARAM_INT,
             ],
-            'grade' => [
-                'type' => PARAM_FLOAT,
+            'completionanswerall' => [
+                'type' => PARAM_INT,
+            ],
+            'usermodified' => [
+                'type' => PARAM_INT,
             ]
         ];
     }
 
     /**
-     * @param int $jqshowid
-     * @param int $userid
-     * @return jqshow_sessions_grades[]
+     * Get persisten from course module id.
+     * @param int $cmid
+     * @return false|kuet
+     * @throws moodle_exception
      */
-    public static function get_grades_for_user(int $jqshowid, int $userid): array {
-        return self::get_records(['jqshow' => $jqshowid, 'userid' => $userid]);
-    }
-
-    /**
-     * @param int $session
-     * @param int $userid
-     * @return jqshow_sessions_grades
-     */
-    public static function get_grade_for_session_user(int $session, int $userid): jqshow_sessions_grades {
-        return self::get_record(['session' => $session, 'userid' => $userid], MUST_EXIST);
-    }
-
-    /**
-     * @param int $sid
-     * @return bool
-     * @throws dml_exception
-     */
-    public static function delete_session_grades(int $sid): bool {
-        global $DB;
-        return  $DB->delete_records(self::TABLE, ['session' => $sid]);
+    public static function get_kuet_from_cmid(int $cmid) {
+        list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'kuet');
+        return self::get_record(['id' => (int) $cm->instance, 'course' => $course->id]);
     }
 }

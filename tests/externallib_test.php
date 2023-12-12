@@ -24,13 +24,13 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow;
+namespace mod_kuet;
 
 use coding_exception;
 use context_module;
@@ -40,7 +40,7 @@ use externallib_advanced_testcase;
 use file_exception;
 use invalid_parameter_exception;
 use invalid_response_exception;
-use mod_jqshow_external;
+use mod_kuet_external;
 use stdClass;
 use stored_file_creation_exception;
 
@@ -60,7 +60,7 @@ class externallib_test extends externallib_advanced_testcase {
      * @throws invalid_response_exception
      * @throws stored_file_creation_exception
      */
-    public function test_mod_jqshow_get_jqshows_by_courses() {
+    public function test_mod_kuet_get_kuets_by_courses() {
         global $DB;
 
         $this->resetAfterTest(true);
@@ -72,15 +72,15 @@ class externallib_test extends externallib_advanced_testcase {
         $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         self::getDataGenerator()->enrol_user($student->id, $course1->id, $studentrole->id);
 
-        // First jqshow.
+        // First kuet.
         $record = new stdClass();
         $record->course = $course1->id;
-        $jqshow1 = self::getDataGenerator()->create_module('jqshow', $record);
+        $kuet1 = self::getDataGenerator()->create_module('kuet', $record);
 
-        // Second jqshow.
+        // Second kuet.
         $record = new stdClass();
         $record->course = $course2->id;
-        $jqshow2 = self::getDataGenerator()->create_module('jqshow', $record);
+        $kuet2 = self::getDataGenerator()->create_module('kuet', $record);
 
         // Execute real Moodle enrolment as we'll call unenrol() method on the instance later.
         $enrol = enrol_get_plugin('manual');
@@ -95,56 +95,56 @@ class externallib_test extends externallib_advanced_testcase {
 
         self::setUser($student);
 
-        $returndescription = \mod_jqshow_external::get_jqshows_by_courses_returns();
+        $returndescription = \mod_kuet_external::get_kuets_by_courses_returns();
 
         // Create what we expect to be returned when querying the two courses.
         $expectedfields = ['id', 'coursemodule', 'course', 'name', 'intro', 'introformat', 'introfiles', 'timemodified',
             'section', 'visible', 'groupmode', 'groupingid', 'lang'];
 
         // Add expected coursemodule and data.
-        $jqshow1->coursemodule = $jqshow1->cmid;
-        $jqshow1->introformat = 1;
-        $jqshow1->section = 0;
-        $jqshow1->visible = true;
-        $jqshow1->groupmode = 0;
-        $jqshow1->groupingid = 0;
-        $jqshow1->introfiles = [];
-        $jqshow1->lang = '';
+        $kuet1->coursemodule = $kuet1->cmid;
+        $kuet1->introformat = 1;
+        $kuet1->section = 0;
+        $kuet1->visible = true;
+        $kuet1->groupmode = 0;
+        $kuet1->groupingid = 0;
+        $kuet1->introfiles = [];
+        $kuet1->lang = '';
 
-        $jqshow2->coursemodule = $jqshow2->cmid;
-        $jqshow2->introformat = 1;
-        $jqshow2->section = 0;
-        $jqshow2->visible = true;
-        $jqshow2->groupmode = 0;
-        $jqshow2->groupingid = 0;
-        $jqshow2->introfiles = [];
-        $jqshow2->lang = '';
+        $kuet2->coursemodule = $kuet2->cmid;
+        $kuet2->introformat = 1;
+        $kuet2->section = 0;
+        $kuet2->visible = true;
+        $kuet2->groupmode = 0;
+        $kuet2->groupingid = 0;
+        $kuet2->introfiles = [];
+        $kuet2->lang = '';
 
         foreach ($expectedfields as $field) {
-            $expected1[$field] = $jqshow1->{$field};
-            $expected2[$field] = $jqshow2->{$field};
+            $expected1[$field] = $kuet1->{$field};
+            $expected2[$field] = $kuet2->{$field};
         }
 
-        $expectedjqshows = [$expected2, $expected1];
+        $expectedkuets = [$expected2, $expected1];
 
         // Call the external function passing course ids.
-        $result = mod_jqshow_external::get_jqshows_by_courses([$course2->id, $course1->id]);
+        $result = mod_kuet_external::get_kuets_by_courses([$course2->id, $course1->id]);
         $result = external_api::clean_returnvalue($returndescription, $result);
 
-        $this->assertEquals($expectedjqshows, $result['jqshows']);
+        $this->assertEquals($expectedkuets, $result['kuets']);
         $this->assertCount(0, $result['warnings']);
 
         // Call the external function without passing course id.
-        $result = mod_jqshow_external::get_jqshows_by_courses();
+        $result = mod_kuet_external::get_kuets_by_courses();
         $result = external_api::clean_returnvalue($returndescription, $result);
-        $this->assertEquals($expectedjqshows, $result['jqshows']);
+        $this->assertEquals($expectedkuets, $result['kuets']);
         $this->assertCount(0, $result['warnings']);
 
         // Add a file to the intro.
         $filename = "file.txt";
         $filerecordinline = [
-            'contextid' => context_module::instance($jqshow2->cmid)->id,
-            'component' => 'mod_jqshow',
+            'contextid' => context_module::instance($kuet2->cmid)->id,
+            'component' => 'mod_kuet',
             'filearea'  => 'intro',
             'itemid'    => 0,
             'filepath'  => '/',
@@ -153,23 +153,23 @@ class externallib_test extends externallib_advanced_testcase {
         $fs = get_file_storage();
         $fs->create_file_from_string($filerecordinline, 'image contents (not really)');
 
-        $result = mod_jqshow_external::get_jqshows_by_courses(array($course2->id, $course1->id));
+        $result = mod_kuet_external::get_kuets_by_courses(array($course2->id, $course1->id));
         $result = external_api::clean_returnvalue($returndescription, $result);
 
-        $this->assertCount(1, $result['jqshows'][0]['introfiles']);
-        $this->assertEquals($filename, $result['jqshows'][0]['introfiles'][0]['filename']);
+        $this->assertCount(1, $result['kuets'][0]['introfiles']);
+        $this->assertEquals($filename, $result['kuets'][0]['introfiles'][0]['filename']);
 
         // Unenrol user from second course.
         $enrol->unenrol_user($instance2, $student->id);
-        array_shift($expectedjqshows);
+        array_shift($expectedkuets);
 
         // Call the external function without passing course id.
-        $result = mod_jqshow_external::get_jqshows_by_courses();
+        $result = mod_kuet_external::get_kuets_by_courses();
         $result = external_api::clean_returnvalue($returndescription, $result);
-        $this->assertEquals($expectedjqshows, $result['jqshows']);
+        $this->assertEquals($expectedkuets, $result['kuets']);
 
         // Call for the second course we unenrolled the user from, expected warning.
-        $result = mod_jqshow_external::get_jqshows_by_courses(array($course2->id));
+        $result = mod_kuet_external::get_kuets_by_courses(array($course2->id));
         $this->assertCount(1, $result['warnings']);
         $this->assertEquals('1', $result['warnings'][0]['warningcode']);
         $this->assertEquals($course2->id, $result['warnings'][0]['itemid']);

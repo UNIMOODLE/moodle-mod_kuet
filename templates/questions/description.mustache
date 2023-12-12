@@ -26,13 +26,13 @@
         <div class="content-indicators">
             {{#managesession}}
                 <div class="users">
-                    {{#pix}}q/users, mod_jqshow{{/pix}}
+                    {{#pix}}q/users, mod_kuet{{/pix}}
                     <span class="numusers">{{ numusers }}</span>
                 </div>
             {{/managesession}}
             {{#hastime}}
                 <div class="timer {{^countdown}}d-none{{/countdown}}" data-region="question-timer">
-                    {{#pix}}q/timer, mod_jqshow{{/pix}}
+                    {{#pix}}q/timer, mod_kuet{{/pix}}
                     <span class="seconds" data-region="seconds">{{ seconds }}</span>
                 </div>
             {{/hastime}}
@@ -44,8 +44,8 @@
         </div>
         <div class="col-12 containt-feedbacks bg-primary" data-region="containt-feedbacks">
             <div class="feedback-title">
-                {{#pix}}q/feedback, mod_jqshow{{/pix}}
-                {{#str}}feedback, mod_jqshow{{/str}}
+                {{#pix}}q/feedback, mod_kuet{{/pix}}
+                {{#str}}feedback, mod_kuet{{/str}}
             </div>
             <div class="content-feedbacks" data-region="content-feedback">
                 <hr>
@@ -61,7 +61,7 @@
     </div>
 </div>
 {{#js}}
-    require(['mod_jqshow/description'{{#hastime}}, 'mod_jqshow/questiontimer'{{/hastime}}], function(Description{{#hastime}}, QuestionTimer{{/hastime}}) {
+    require(['mod_kuet/description'{{#hastime}}, 'mod_kuet/questiontimer'{{/hastime}}], function(Description{{#hastime}}, QuestionTimer{{/hastime}}) {
         Description.initDescription('[data-region="question-content"]',
             {{#showquestionfeedback}}true{{/showquestionfeedback}}{{^showquestionfeedback}}false{{/showquestionfeedback}},
             {{#programmedmode}}false{{/programmedmode}}{{^programmedmode}}true{{/programmedmode}}{{#answered}}, '{{{jsonresponse}}}'{{/answered}});

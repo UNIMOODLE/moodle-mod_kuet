@@ -24,7 +24,7 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -33,44 +33,44 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-class restore_jqshow_activity_structure_step extends restore_questions_activity_structure_step {
+class restore_kuet_activity_structure_step extends restore_questions_activity_structure_step {
 
     protected function define_structure() {
         $userinfo = $this->get_setting_value('userinfo');
         $paths = [];
-        $paths[] = new restore_path_element('jqshow', '/activity/jqshow');
-        $paths[] = new restore_path_element('jqshow_session','/activity/jqshow/sessions/session');
-        $question = new restore_path_element('jqshow_question', '/activity/jqshow/questions/question');
+        $paths[] = new restore_path_element('kuet', '/activity/kuet');
+        $paths[] = new restore_path_element('kuet_session','/activity/kuet/sessions/session');
+        $question = new restore_path_element('kuet_question', '/activity/kuet/questions/question');
         $paths[] = $question;
         $this->add_question_usages($question, $paths);
         if ($userinfo) {
-            $paths[] = new restore_path_element('jqshow_grade','/activity/jqshow/grades/grade');
-            $paths[] = new restore_path_element('jqshow_session_grade','/activity/jqshow/sessions_grades/session_grade');
-            $paths[] = new restore_path_element('jqshow_user_progres', '/activity/jqshow/user_progress/user_progres');
-            $paths[] = new restore_path_element('jqshow_questions_response','/activity/jqshow/questions_responses/questions_response');
+            $paths[] = new restore_path_element('kuet_grade','/activity/kuet/grades/grade');
+            $paths[] = new restore_path_element('kuet_session_grade','/activity/kuet/sessions_grades/session_grade');
+            $paths[] = new restore_path_element('kuet_user_progres', '/activity/kuet/user_progress/user_progres');
+            $paths[] = new restore_path_element('kuet_questions_response','/activity/kuet/questions_responses/questions_response');
         }
         return $this->prepare_activity_structure($paths);
     }
 
-    protected function process_jqshow($data) {
+    protected function process_kuet($data) {
         global $DB;
         $data = (object)$data;
         $data->course = $this->get_courseid();
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
-        $newitemid = $DB->insert_record('jqshow', $data);
+        $newitemid = $DB->insert_record('kuet', $data);
         $this->apply_activity_instance($newitemid);
     }
 
-    protected function process_jqshow_grade($data) {
+    protected function process_kuet_grade($data) {
         global $DB;
         $data = (object)$data;
-        $data->jqshow = $this->get_new_parentid('jqshow');
+        $data->kuet = $this->get_new_parentid('kuet');
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $DB->insert_record('jqshow_grades', $data);
+        $DB->insert_record('kuet_grades', $data);
     }
 
-    protected function process_jqshow_question($data) {
+    protected function process_kuet_question($data) {
         global $DB;
         $data = (object)$data;
         $oldid = $data->id;
@@ -78,59 +78,59 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
         if ($newquestionid) {
             $data->questionid = $newquestionid;
         }
-        $data->sessionid = $this->get_mappingid('jqshow_sessions', $data->sessionid);
-        $data->jqshowid = $this->get_new_parentid('jqshow');
-        $newitemid = $DB->insert_record('jqshow_questions', $data);
-        $this->set_mapping('jqshow_questions', $oldid, $newitemid);
+        $data->sessionid = $this->get_mappingid('kuet_sessions', $data->sessionid);
+        $data->kuetid = $this->get_new_parentid('kuet');
+        $newitemid = $DB->insert_record('kuet_questions', $data);
+        $this->set_mapping('kuet_questions', $oldid, $newitemid);
     }
 
-    protected function process_jqshow_questions_response($data) {
+    protected function process_kuet_questions_response($data) {
         global $DB;
         $data = (object)$data;
-        $data->jqshow = $this->get_new_parentid('jqshow');
-        $data->session = $this->get_mappingid('jqshow_sessions', $data->session);
-        $data->jqid = $this->get_mappingid('jqshow_questions', $data->jqid);
+        $data->kuet = $this->get_new_parentid('kuet');
+        $data->session = $this->get_mappingid('kuet_sessions', $data->session);
+        $data->kid = $this->get_mappingid('kuet_questions', $data->kid);
         $newquestionid = $this->get_mappingid('question', $data->questionid);
         if ($newquestionid) {
             $data->questionid = $newquestionid;
             $data->response = $this->replace_answerids($data->response, $newquestionid);
         }
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $DB->insert_record('jqshow_questions_responses', $data);
+        $DB->insert_record('kuet_questions_responses', $data);
     }
 
-    protected function process_jqshow_session($data) {
+    protected function process_kuet_session($data) {
         global $DB;
         $data = (object)$data;
         $oldid = $data->id;
-        $data->jqshowid = $this->get_new_parentid('jqshow');
+        $data->kuetid = $this->get_new_parentid('kuet');
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
         $data->groupings = $this->get_mappingid('groupings', $data->groupings);
-        $newitemid = $DB->insert_record('jqshow_sessions', $data);
-        $this->set_mapping('jqshow_sessions', $oldid, $newitemid);
+        $newitemid = $DB->insert_record('kuet_sessions', $data);
+        $this->set_mapping('kuet_sessions', $oldid, $newitemid);
     }
 
-    protected function process_jqshow_session_grade($data) {
+    protected function process_kuet_session_grade($data) {
         global $DB;
         $data = (object)$data;
-        $data->session = $this->get_mappingid('jqshow_sessions', $data->session);
-        $data->jqshow = $this->get_new_parentid('jqshow');
+        $data->session = $this->get_mappingid('kuet_sessions', $data->session);
+        $data->kuet = $this->get_new_parentid('kuet');
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $DB->insert_record('jqshow_sessions_grades', $data);
+        $DB->insert_record('kuet_sessions_grades', $data);
     }
 
-    protected function process_jqshow_user_progres($data) {
+    protected function process_kuet_user_progres($data) {
         global $DB;
         $data = (object)$data;
-        $data->jqshow = $this->get_new_parentid('jqshow');
+        $data->kuet = $this->get_new_parentid('kuet');
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
-        $data->session = $this->get_mappingid('jqshow_sessions', $data->session);
+        $data->session = $this->get_mappingid('kuet_sessions', $data->session);
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $DB->insert_record('jqshow_user_progress', $data);
+        $DB->insert_record('kuet_user_progress', $data);
     }
     protected function inform_new_usage_id($newusageid) {
         // Not used in this activity module.
@@ -139,7 +139,7 @@ class restore_jqshow_activity_structure_step extends restore_questions_activity_
 
 
     protected function after_execute() {
-        $this->add_related_files('mod_jqshow', 'intro', null);
+        $this->add_related_files('mod_kuet', 'intro', null);
     }
     private function replace_answerids(string $responsejson, int $newquestionid) : string {
         if (!$newquestionid) {

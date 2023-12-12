@@ -24,25 +24,25 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['pluginname'] = 'Jam Quiz Show';
-$string['pluginadministration'] = 'Jam Quiz Show Administration';
-$string['modulename'] = 'Jam Quiz Show';
-$string['modulenameplural'] = 'Jam Quiz Shows';
-$string['jqshow:addinstance'] = 'Add a new Jam Quiz Show package';
-$string['jqshow:view'] = 'View Jam Quiz Show';
-$string['jqshow:managesessions'] = 'Manage Sessions';
-$string['jqshow:startsession'] = 'Initialise Sessions';
-$string['jqshow:viewanonymousanswers'] = 'View anonymous answers';
+$string['pluginname'] = 'Kuet';
+$string['pluginadministration'] = 'Kuet Administration';
+$string['modulename'] = 'Kuet';
+$string['modulenameplural'] = 'Kuets';
+$string['kuet:addinstance'] = 'Add a new Kuet package';
+$string['kuet:view'] = 'View Kuet';
+$string['kuet:managesessions'] = 'Manage Sessions';
+$string['kuet:startsession'] = 'Initialise Sessions';
+$string['kuet:viewanonymousanswers'] = 'View anonymous answers';
 $string['name'] = 'Name';
 $string['introduction'] = 'Description';
-$string['jqshow_header'] = 'JAM Quiz Show settings';
+$string['kuet_header'] = 'Kuet settings';
 $string['questiontime'] = 'Question time';
 $string['questiontime_desc'] = 'Time for every question in seconds.';
 $string['questiontime_help'] = 'HELP! Time for every question in seconds.';
@@ -53,7 +53,7 @@ $string['chooseoption'] = 'Choose an option';
 $string['completiondetail:answerall'] = 'Participate on a session answering questions';
 $string['completionansweralllabel'] = 'Participate on a session.';
 $string['completionansweralldesc'] = 'Participate on a session answering questions.';
-$string['configtitle'] = 'JQ Show';
+$string['configtitle'] = 'Kuet';
 $string['generalsettings'] = 'General settings';
 $string['sslcertificates'] = 'SSL Certificates';
 $string['socket'] = 'Socket';
@@ -132,10 +132,10 @@ $string['copy_session'] = 'Copy session';
 $string['delete_session'] = 'Delete session';
 $string['copysession'] = 'Copy Session';
 $string['copysession_desc'] = 'Are you sure you want to copy this session? If the session has automatic start or start and end dates, these will need to be reset.';
-$string['copysessionerror'] = 'An error occurred while copying the session. Check that you have the capacity "mod/jqshow:managesessions", or try again later.';
+$string['copysessionerror'] = 'An error occurred while copying the session. Check that you have the capacity "mod/kuet:managesessions", or try again later.';
 $string['deletesession'] = 'Delete Session';
 $string['deletesession_desc'] = 'Are you sure you want to delete this session?';
-$string['deletesessionerror'] = 'An error occurred while deleting the session. Check that you have the capacity "mod/jqshow:managesessions", or try again later.';
+$string['deletesessionerror'] = 'An error occurred while deleting the session. Check that you have the capacity "mod/kuet:managesessions", or try again later.';
 $string['confirm'] = 'Confirm';
 $string['copy'] = 'Copy';
 $string['groupings'] = 'Groupings';
@@ -192,7 +192,7 @@ $string['inactivemode'] = 'Inactive';
 $string['racemode'] = 'Race';
 $string['podiummode'] = 'Podium';
 $string['showgraderanking'] = 'Show ranking between questions';
-$string['question_nosuitable'] = 'Not suitable with jqshow plugin.';
+$string['question_nosuitable'] = 'Not suitable with kuet plugin.';
 $string['configuration'] = 'Configuration';
 $string['end'] = 'End';
 $string['questionidnotsent'] = 'questionidnotsent';
@@ -215,7 +215,7 @@ $string['race_manual'] = 'Manual Race';
 $string['race_programmed'] = 'Programmed Race';
 $string['sessionmode'] = 'Session mode';
 $string['anonymousanswer_help'] = 'Teacher will not know who is answering in live quizzes';
-$string['sessionmode_help'] = 'Session modes show different ways to use jqshow sessions.';
+$string['sessionmode_help'] = 'Session modes show different ways to use kuet sessions.';
 $string['countdown_help'] = 'Enable this option so that students can see the countdown in each question. (Only if the question has time)';
 $string['showgraderanking_help'] = 'Teacher will not see the ranking during a live session. Only available on podiums session modes.';
 $string['showgraderankinghelp'] = 'SIN _Teacher will not see the ranking during a live session. Only available on podiums session modes.';
@@ -289,10 +289,10 @@ $string['sessionwarning'] = 'This session should have started, but there is curr
 $string['sessionerror'] = 'An error has occurred in this session and cannot be continued (deletion of active groups or groupings, deletion of questions, modification of mod settings, etc.). Duplicate it and/or delete it, but check all the configuration involved.';
 $string['startminorend'] = 'The end date of the session cannot be equal to or less than the start date.';
 $string['previousstarterror'] = 'The start date cannot be less than the current date.';
-$string['sessionmanualactivated'] = 'The session {$a->sessionid} is active in jqshowid -> {$a->jqshowid}. The remainder of the session is omitted until the end of this session.';
-$string['sessionactivated'] = 'Session {$a->sessionid} activated for jqshowid {$a->jqshowid}';
-$string['sessionfinished'] = 'Session {$a->sessionid} finished for jqshowid {$a->jqshowid}';
-$string['sessionfinishedformoreone'] = 'Session {$a->sessionid} finished for jqshowid {$a->jqshowid} because more than one session is active.';
+$string['sessionmanualactivated'] = 'The session {$a->sessionid} is active in kuetid -> {$a->kuetid}. The remainder of the session is omitted until the end of this session.';
+$string['sessionactivated'] = 'Session {$a->sessionid} activated for kuetid {$a->kuetid}';
+$string['sessionfinished'] = 'Session {$a->sessionid} finished for kuetid {$a->kuetid}';
+$string['sessionfinishedformoreone'] = 'Session {$a->sessionid} finished for kuetid {$a->kuetid} because more than one session is active.';
 $string['error_initsession'] = 'Error init session';
 $string['error_initsession_desc'] = 'The session could not be started, either because a session has already been started or because of a specific error. Please refresh the page and try again.';
 $string['success'] = 'Success';
@@ -329,7 +329,7 @@ $string['score_moment'] = 'Question score';
 $string['time'] = 'Time';
 $string['status'] = 'Status';
 $string['anonymousanswers'] = 'The answers to this questionnaire are anonymous.';
-$string['jqshownotexist'] = 'Unable to find jqshow with id {$a}';
+$string['kuetnotexist'] = 'Unable to find kuet with id {$a}';
 $string['jumpto_error'] = 'Must be a number between 1 and {$a}';
 $string['session'] = 'Session';
 $string['send_response'] = 'Send response';
@@ -359,14 +359,14 @@ $string['session_gm_points'] = 'Rating relative to the points obtained: [score]/
 $string['session_gm_points_short'] = '[score]/[maximum score] * 100%';
 $string['session_gm_combined'] = 'Average rating between the rating relative to the ranking situation and the rating relative to the points obtained.';
 $string['session_gm_combined_short'] = 'Average between the ranking situation and the points obtained.';
-$string['cachedef_grades'] = 'This is the description of the jqshow cache grades';
+$string['cachedef_grades'] = 'This is the description of the kuet cache grades';
 $string['qstatus_0'] = 'Incorrect';
 $string['qstatus_1'] = 'Success';
 $string['qstatus_2'] = 'Partially';
 $string['qstatus_3'] = 'No response';
 $string['qstatus_4'] = 'Not evaluable';
 $string['qstatus_5'] = 'Invalid';
-$string['error_delete_instance'] = 'Error deleting mod Jqshow.';
+$string['error_delete_instance'] = 'Error deleting mod Kuet.';
 $string['team_grade_first'] = 'First answer';
 $string['team_grade_last'] = 'Last answer';
 $string['team_grade_average'] = 'Average answer';
@@ -376,8 +376,8 @@ $string['session_groupings_no_groups'] = 'Grouping is empty. Please, select a gr
 $string['session_groupings_no_members'] = 'Grouping is empty. Please, select a grouping with participants.';
 $string['session_groupings_same_user_in_groups'] = 'Participants must be part of just one group. Check this participants: {$a}';
 $string['groupmode'] = 'Teams mode';
-$string['fakegroup'] = 'Jqshow team {$a}';
-$string['fakegroupdescription'] = 'Jqshow activity has created this group because there are participants on this course
+$string['fakegroup'] = 'Kuet team {$a}';
+$string['fakegroupdescription'] = 'Kuet activity has created this group because there are participants on this course
 that are not part of the grouping selected.';
 $string['groups'] = 'Teams';
 $string['abbreviationquestion'] = 'Q';

@@ -24,21 +24,21 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\helpers;
+namespace mod_kuet\helpers;
 
 use coding_exception;
 use dml_exception;
-use mod_jqshow\jqshow;
-use mod_jqshow\models\questions;
-use mod_jqshow\models\sessions as sessionsmodel;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\kuet;
+use mod_kuet\models\questions;
+use mod_kuet\models\sessions as sessionsmodel;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use moodle_url;
 use stdClass;
@@ -46,7 +46,7 @@ use stdClass;
 class sessions {
 
     /**
-     * @param jqshow_sessions $session
+     * @param kuet_sessions $session
      * @param int $cmid
      * @param bool $managesessions
      * @param bool $initsession
@@ -56,7 +56,7 @@ class sessions {
      * @throws moodle_exception
      */
     public static function get_data_session(
-        jqshow_sessions $session,
+        kuet_sessions $session,
         int $cmid,
         bool $managesessions,
         bool $initsession
@@ -64,25 +64,25 @@ class sessions {
         $ds = new stdClass();
         $ds->name = $session->get('name');
         $ds->sessionid = $session->get('id');
-        $ds->sessionmode = get_string($session->get('sessionmode'), 'mod_jqshow');
-        $jqshow = new jqshow($cmid);
-        $questions = new questions($jqshow->get_jqshow()->id, $cmid, $session->get('id'));
+        $ds->sessionmode = get_string($session->get('sessionmode'), 'mod_kuet');
+        $kuet = new kuet($cmid);
+        $questions = new questions($kuet->get_kuet()->id, $cmid, $session->get('id'));
         $ds->questions_number = $questions->get_num_questions();
         switch ($session->get('timemode')) {
             case sessionsmodel::NO_TIME:
             default:
-                $ds->timemode = get_string('no_time', 'mod_jqshow');
+                $ds->timemode = get_string('no_time', 'mod_kuet');
                 $ds->sessiontime = '-';
                 $ds->timeperquestion = '-';
                 break;
             case sessionsmodel::SESSION_TIME:
-                $ds->timemode = get_string('session_time', 'mod_jqshow');
+                $ds->timemode = get_string('session_time', 'mod_kuet');
                 $ds->sessiontime = userdate($session->get('sessiontime'), '%Mm %Ss');
                 $ds->timeperquestion =
                     $ds->questions_number !== 0 ? userdate(($session->get('sessiontime') / $ds->questions_number), '%ss') : 0;
                 break;
             case sessionsmodel::QUESTION_TIME:
-                $ds->timemode = get_string('question_time', 'mod_jqshow');
+                $ds->timemode = get_string('question_time', 'mod_kuet');
                 $ds->sessiontime = userdate($questions->get_sum_questions_times(), '%Mm %Ss');
                 $ds->timeperquestion = userdate($session->get('questiontime'), '%ss');
                 break;
@@ -90,22 +90,22 @@ class sessions {
         $ds->managesessions = $managesessions;
         $ds->initsession = $initsession;
         $ds->initsessionurl =
-            (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
+            (new moodle_url('/mod/kuet/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->viewreporturl =
-            (new moodle_url('/mod/jqshow/reports.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
+            (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->editsessionurl =
-            (new moodle_url('/mod/jqshow/sessions.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
+            (new moodle_url('/mod/kuet/sessions.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->status = $session->get('status');
         $ds->issessionstarted = $ds->status === sessionsmodel::SESSION_STARTED;
         $ds->sessioncreating = $ds->status === sessionsmodel::SESSION_CREATING;
         $ds->haserror = $ds->status === sessionsmodel::SESSION_ERROR;
         if ($ds->issessionstarted) {
             $ds->startedssionurl =
-                (new moodle_url('/mod/jqshow/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
+                (new moodle_url('/mod/kuet/session.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         }
         $ds->stringsession =
             $ds->status === sessionsmodel::SESSION_STARTED ?
-                get_string('sessionstarted', 'mod_jqshow') : get_string('init_session', 'mod_jqshow');
+                get_string('sessionstarted', 'mod_kuet') : get_string('init_session', 'mod_kuet');
         $ds->date = '';
         $ds->enddate = '';
         $ds->automaticstart = false;

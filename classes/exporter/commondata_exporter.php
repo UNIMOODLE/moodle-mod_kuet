@@ -24,13 +24,13 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow\exporter;
+namespace mod_kuet\exporter;
 use context;
 
 class commondata_exporter extends question_exporter {
@@ -46,13 +46,13 @@ class commondata_exporter extends question_exporter {
             'sessionid' => [
                 'type' => PARAM_TEXT,
             ],
-            'jqshowid' => [
+            'kuetid' => [
                 'type' => PARAM_INT,
             ],
             'questionid' => [
                 'type' => PARAM_INT,
             ],
-            'jqid' => [
+            'kid' => [
                 'type' => PARAM_INT,
             ],
             'questiontext' => [

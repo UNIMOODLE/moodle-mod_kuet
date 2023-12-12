@@ -24,26 +24,26 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow;
+namespace mod_kuet;
 
 use advanced_testcase;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
 use invalid_parameter_exception;
-use mod_jqshow\external\copysession_external;
-use mod_jqshow\external\deletesession_external;
-use mod_jqshow\models\sessions;
+use mod_kuet\external\copysession_external;
+use mod_kuet\external\deletesession_external;
+use mod_kuet\models\sessions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot . '/mod/jqshow/tests/sessions_test.php');
+require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
 
 class deletesession_external_test extends advanced_testcase {
     public array $sessionmock = [
@@ -62,7 +62,7 @@ class deletesession_external_test extends advanced_testcase {
         'sessiontime' => 0,
         'questiontime' => 10,
         'groupings' => 0,
-        'status' => \mod_jqshow\models\sessions::SESSION_ACTIVE,
+        'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
         'sessionid' => 0,
         'submitbutton' => 0,
         'showgraderanking' => 0,
@@ -77,17 +77,17 @@ class deletesession_external_test extends advanced_testcase {
     public function test_deletesession(): bool {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
 //        $sessiontest = new sessions_test();
-        $sessiontest = new sessions($jqshow, $jqshow->cmid);
-        $this->sessionmock['jqshowid'] = $jqshow->id;
-//        $sessiontest->test_session($jqshow);
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
-        $sessionid = $generator->create_session($jqshow, (object) $this->sessionmock);
+        $sessiontest = new sessions($kuet, $kuet->cmid);
+        $this->sessionmock['kuetid'] = $kuet->id;
+//        $sessiontest->test_session($kuet);
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
+        $sessionid = $generator->create_session($kuet, (object) $this->sessionmock);
         $list = $sessiontest->get_list();
-        $result = deletesession_external::deletesession($course->id, $jqshow->cmid, $list[0]->get('id'));
+        $result = deletesession_external::deletesession($course->id, $kuet->cmid, $list[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertTrue($result['deleted']);
         $sessiontest->set_list();
@@ -96,12 +96,12 @@ class deletesession_external_test extends advanced_testcase {
 
         $student = self::getDataGenerator()->create_and_enrol($course);
         self::setUser($student);
-//        $sessiontest->test_session($jqshow);
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
-        $sessionid = $generator->create_session($jqshow, (object) $this->sessionmock);
+//        $sessiontest->test_session($kuet);
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
+        $sessionid = $generator->create_session($kuet, (object) $this->sessionmock);
 
         $newlist = $sessiontest->get_list();
-        $result = deletesession_external::deletesession($course->id, $jqshow->cmid, $newlist[0]->get('id'));
+        $result = deletesession_external::deletesession($course->id, $kuet->cmid, $newlist[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertFalse($result['deleted']);
         $this->assertCount(1, $newlist);

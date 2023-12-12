@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use coding_exception;
 use context_course;
@@ -41,7 +41,7 @@ use external_function_parameters;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\persistents\kuet_sessions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -77,9 +77,9 @@ class editsessionsettings_external extends external_api {
             ['courseid' => $courseid, 'sessionid' => $sessionid, 'name' => $name, 'value' => $value]
         );
         $coursecontext = context_course::instance($courseid);
-        if ($coursecontext !== null && has_capability('mod/jqshow:managesessions', $coursecontext, $USER)) {
+        if ($coursecontext !== null && has_capability('mod/kuet:managesessions', $coursecontext, $USER)) {
             return [
-                'updated' => jqshow_sessions::duplicate_session($sessionid)
+                'updated' => kuet_sessions::duplicate_session($sessionid)
             ];
         }
         return [

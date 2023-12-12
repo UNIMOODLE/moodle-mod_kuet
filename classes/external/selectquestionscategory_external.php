@@ -24,14 +24,14 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow\external;
+namespace mod_kuet\external;
 
 use dml_exception;
 use external_api;
@@ -40,7 +40,7 @@ use external_multiple_structure;
 use external_single_structure;
 use external_value;
 use invalid_parameter_exception;
-use mod_jqshow\models\sessions;
+use mod_kuet\models\sessions;
 use moodle_exception;
 
 defined('MOODLE_INTERNAL') || die();
@@ -75,9 +75,9 @@ class selectquestionscategory_external extends external_api {
             self::selectquestionscategory_parameters(),
             ['categorykey' => $categorykey, 'cmid' => $cmid]
         );
-        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'jqshow');
-        $jqshow = $DB->get_record('jqshow', ['id' => $cm->instance], '*', MUST_EXIST);
-        return ['questions' => (new sessions($jqshow, $cmid))->get_questions_for_category($categorykey)];
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'kuet');
+        $kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
+        return ['questions' => (new sessions($kuet, $cmid))->get_questions_for_category($categorykey)];
     }
 
     /**
@@ -98,7 +98,7 @@ class selectquestionscategory_external extends external_api {
                         'name' => new external_value(PARAM_RAW, 'Name of question'),
                         'idnumber' => new external_value(PARAM_RAW, 'Idnumber of question', VALUE_OPTIONAL),
                         'contextid' => new external_value(PARAM_INT, 'Id of question context'),
-                        'issuitable' => new external_value(PARAM_BOOL, 'Compatible with jqshow'),
+                        'issuitable' => new external_value(PARAM_BOOL, 'Compatible with kuet'),
                         'questionpreview' => new external_value(PARAM_URL, 'Url for Moodle preview'),
                         'questionedit' => new external_value(PARAM_URL, 'Url for Moodle edit question'),
                         'icon' => new external_single_structure([

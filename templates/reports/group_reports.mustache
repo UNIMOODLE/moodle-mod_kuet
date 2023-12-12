@@ -21,32 +21,32 @@
     Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
     Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 }}
-<div data-region="reports" data-jqshowid="{{jqshowid}}" data-cmid="{{cmid}}">
+<div data-region="reports" data-kuetid="{{kuetid}}" data-cmid="{{cmid}}">
     {{#allreports}}
-        <h2>{{#str}}reports, mod_jqshow{{/str}}</h2>
-        <small>{{#str}}reports_info, mod_jqshow{{/str}}</small>
+        <h2>{{#str}}reports, mod_kuet{{/str}}</h2>
+        <small>{{#str}}reports_info, mod_kuet{{/str}}</small>
     {{/allreports}}
     {{#userreport}}
-        <h2>{{#str}}groupreport, mod_jqshow{{/str}} - {{sessionname}}</h2>
-        <small class="d-block mb-2">{{#str}}groupreport_info, mod_jqshow{{/str}}</small>
+        <h2>{{#str}}groupreport, mod_kuet{{/str}} - {{sessionname}}</h2>
+        <small class="d-block mb-2">{{#str}}groupreport_info, mod_kuet{{/str}}</small>
     {{/userreport}}
     <div class="row">
         <div class="col-12 completed-sessions sessions-list">
             {{#allreports}}
                 <div class="sessions-list-header bg-primary">
                     <div class="sessions-list-header-title">
-                        {{#pix}} i/sessions_list, mod_jqshow {{/pix}}
-                        <h5>{{#str}}completed_sessions, mod_jqshow{{/str}}</h5>
+                        {{#pix}} i/sessions_list, mod_kuet {{/pix}}
+                        <h5>{{#str}}completed_sessions, mod_kuet{{/str}}</h5>
                     </div>
                 </div>
                 <div class="sessions-list-body d-table">
                     <div class="d-table-row sessions-list-thead">
-                        <div class="d-table-cell">{{#str}}session_name, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell">{{#str}}sessionmode, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell">{{#str}}timemode, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}sessiontime, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}questions_number, mod_jqshow{{/str}}</div>
-                        <div class="d-table-cell text-center">{{#str}}session_date, mod_jqshow{{/str}}</div>
+                        <div class="d-table-cell">{{#str}}session_name, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell">{{#str}}sessionmode, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell">{{#str}}timemode, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}sessiontime, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}questions_number, mod_kuet{{/str}}</div>
+                        <div class="d-table-cell text-center">{{#str}}session_date, mod_kuet{{/str}}</div>
                         <div class="d-table-cell"></div>
                     </div>
                     {{#endedsessions}}
@@ -59,7 +59,7 @@
                             <div class="d-table-cell text-center">{{date}}</div>
                             <div class="d-table-cell viewreport-session">
                                 <a href="{{viewreporturl}}">
-                                    + <span>{{#str}}viewreport_session, mod_jqshow{{/str}}</span>
+                                    + <span>{{#str}}viewreport_session, mod_kuet{{/str}}</span>
                                 </a>
                             </div>
                         </div>
@@ -83,27 +83,27 @@
                     </div>
                     <div class="d-flex flex-row justify-content-center w-100 mt-4 count_info">
                         <div class="alert alert-info rounded-left mb-0" role="alert">
-                            <b>{{#str}}questions_number, mod_jqshow{{/str}}:</b> {{ numquestions }}
+                            <b>{{#str}}questions_number, mod_kuet{{/str}}:</b> {{ numquestions }}
                         </div>
                         <div class="alert alert-success rounded-0 mb-0" role="alert">
-                            <b>{{#str}}success, mod_jqshow{{/str}}:</b> {{ success }}
+                            <b>{{#str}}success, mod_kuet{{/str}}:</b> {{ success }}
                         </div>
                         <div class="alert alert-light rounded-0 mb-0" role="alert">
-                            <b>{{#str}}partially_correct, mod_jqshow{{/str}}:</b> {{ partially }}
+                            <b>{{#str}}partially_correct, mod_kuet{{/str}}:</b> {{ partially }}
                         </div>
                         <div class="alert alert-danger rounded-0 mb-0" role="alert">
-                            <b>{{#str}}incorrect, mod_jqshow{{/str}}:</b> {{ failures }}
+                            <b>{{#str}}incorrect, mod_kuet{{/str}}:</b> {{ failures }}
                         </div>
                         <div class="alert alert-warning rounded-0 mb-0" role="alert">
-                            <b>{{#str}}noresponse, mod_jqshow{{/str}}:</b> {{ noresponse }}
+                            <b>{{#str}}noresponse, mod_kuet{{/str}}:</b> {{ noresponse }}
                         </div>
                         <div class="alert alert-dark rounded-right mb-0" role="alert">
-                            <b>{{#str}}noevaluable, mod_jqshow{{/str}}:</b> {{ noevaluable }}
+                            <b>{{#str}}noevaluable, mod_kuet{{/str}}:</b> {{ noevaluable }}
                         </div>
                     </div>
                 </div>
                 <div class="col-12 col-lg-12 container">
-                    {{> mod_jqshow/reports/student_questions }}
+                    {{> mod_kuet/reports/student_questions }}
                 </div>
             {{/userreport}}
         </div>

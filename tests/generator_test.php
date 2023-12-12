@@ -24,13 +24,13 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_jqshow;
+namespace mod_kuet;
 
 use advanced_testcase;
 use coding_exception;
@@ -46,25 +46,25 @@ class generator_test extends advanced_testcase {
     public function test_generator() {
         global $DB;
         $this->resetAfterTest(true);
-        $this->assertEquals(0, $DB->count_records('jqshow'));
+        $this->assertEquals(0, $DB->count_records('kuet'));
         $course = self::getDataGenerator()->create_course();
 
-        $generator = self::getDataGenerator()->get_plugin_generator('mod_jqshow');
-        $this->assertInstanceOf('mod_jqshow_generator', $generator);
-        $this->assertEquals('jqshow', $generator->get_modulename());
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_kuet');
+        $this->assertInstanceOf('mod_kuet_generator', $generator);
+        $this->assertEquals('kuet', $generator->get_modulename());
 
         $generator->create_instance(['course' => $course->id]);
         $generator->create_instance(['course' => $course->id]);
-        $jqshow = $generator->create_instance(['course' => $course->id]);
-        $this->assertEquals(3, $DB->count_records('jqshow'));
+        $kuet = $generator->create_instance(['course' => $course->id]);
+        $this->assertEquals(3, $DB->count_records('kuet'));
 
-        $cm = get_coursemodule_from_instance('jqshow', $jqshow->id);
-        $this->assertEquals($jqshow->id, $cm->instance);
-        $this->assertEquals('jqshow', $cm->modname);
+        $cm = get_coursemodule_from_instance('kuet', $kuet->id);
+        $this->assertEquals($kuet->id, $cm->instance);
+        $this->assertEquals('kuet', $cm->modname);
         $this->assertEquals($course->id, $cm->course);
 
         $context = context_module::instance($cm->id);
-        $this->assertEquals($jqshow->cmid, $context->instanceid);
+        $this->assertEquals($kuet->cmid, $context->instanceid);
     }
 
     public function test_create_session() {

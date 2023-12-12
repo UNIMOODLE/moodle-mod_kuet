@@ -24,43 +24,43 @@
 
 /**
  *
- * @package    mod_jqshow
+ * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_jqshow;
+namespace mod_kuet;
 use cm_info;
 use coding_exception;
 use context_course;
 use context_module;
 use dml_exception;
-use mod_jqshow\api\groupmode;
-use mod_jqshow\helpers\sessions as sessions_helper;
-use mod_jqshow\models\sessions;
-use mod_jqshow\models\sessions as sessionsmodel;
-use mod_jqshow\persistents\jqshow_sessions;
+use mod_kuet\api\groupmode;
+use mod_kuet\helpers\sessions as sessions_helper;
+use mod_kuet\models\sessions;
+use mod_kuet\models\sessions as sessionsmodel;
+use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use stdClass;
 
-class jqshow {
+class kuet {
     /** @var cm_info cm */
     public $cm;
     /** @var mixed course */
     public $course;
     /** @var sessions */
     protected $sessions;
-    /** @var stdClass jqshow */
-    protected $jqshow;
+    /** @var stdClass kuet */
+    protected $kuet;
 
     /**
      * @param int $cmid
      * @throws moodle_exception
      */
     public function __construct(int $cmid) {
-        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'jqshow');
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'kuet');
         $this->cm = $cm;
         $this->course = $course;
     }
@@ -69,20 +69,20 @@ class jqshow {
      * @return void
      * @throws dml_exception
      */
-    protected function set_jqshow() : void {
+    protected function set_kuet() : void {
         global $DB;
-        $this->jqshow = $DB->get_record('jqshow', ['id' => $this->cm->instance], '*', MUST_EXIST);
+        $this->kuet = $DB->get_record('kuet', ['id' => $this->cm->instance], '*', MUST_EXIST);
     }
 
     /**
      * @return stdClass
      * @throws dml_exception
      */
-    public function get_jqshow() : stdClass {
-        if (is_null($this->jqshow)) {
-            $this->set_jqshow();
+    public function get_kuet() : stdClass {
+        if (is_null($this->kuet)) {
+            $this->set_kuet();
         }
-        return $this->jqshow;
+        return $this->kuet;
     }
 
     /**
@@ -90,14 +90,14 @@ class jqshow {
      * @throws dml_exception
      */
     protected function set_sessions() : void {
-        if (is_null($this->jqshow)) {
-            $this->set_jqshow();
+        if (is_null($this->kuet)) {
+            $this->set_kuet();
         }
-        $this->sessions = new sessions($this->jqshow, $this->cm->id);
+        $this->sessions = new sessions($this->kuet, $this->cm->id);
     }
 
     /**
-     * @return jqshow_sessions[] array
+     * @return kuet_sessions[] array
      * @throws dml_exception
      */
     public function get_sessions(): array {
@@ -142,7 +142,7 @@ class jqshow {
             if (is_null($participant->{'id'})) {
                 continue;
             }
-            if (has_capability('mod/jqshow:startsession', $context, $participant->{'id'})) {
+            if (has_capability('mod/kuet:startsession', $context, $participant->{'id'})) {
                 continue;
             }
             $students[] = $participant;
@@ -158,7 +158,7 @@ class jqshow {
      * @throws moodle_exception
      */
     private static function get_participants(int $cmid, context_module $context, int $groupingid = 0) : array {
-        $data = get_course_and_cm_from_cmid($cmid, 'jqshow');
+        $data = get_course_and_cm_from_cmid($cmid, 'kuet');
         /** @var cm_info $cm */
         $cm = $data[1];
         if ($cm->groupmode == '0' && $groupingid === 0) {

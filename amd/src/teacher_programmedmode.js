@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/teacher_programmedmode
+ * @module    mod_kuet/teacher_programmedmode
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -50,16 +50,16 @@ let ACTION = {
 };
 
 let SERVICES = {
-    GETLISTRESULTS: 'mod_jqshow_getlistresults',
-    GETGROUPLISTRESULTS: 'mod_jqshow_getgrouplistresults',
-    GETRACERESULTS: 'mod_jqshow_getraceresults',
-    FINISHSESSION: 'mod_jqshow_finishsession'
+    GETLISTRESULTS: 'mod_kuet_getlistresults',
+    GETGROUPLISTRESULTS: 'mod_kuet_getgrouplistresults',
+    GETRACERESULTS: 'mod_kuet_getraceresults',
+    FINISHSESSION: 'mod_kuet_finishsession'
 };
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
-    LISTRESULTS: 'mod_jqshow/session/listresults',
-    RACERESULTS: 'mod_jqshow/session/raceresults'
+    LISTRESULTS: 'mod_kuet/session/listresults',
+    RACERESULTS: 'mod_kuet/session/raceresults'
 };
 
 let cmId;
@@ -119,9 +119,9 @@ ProgrammedMode.prototype.finishSession = function(e) {
     e.preventDefault();
     e.stopPropagation();
     const stringkeys = [
-        {key: 'end_session', component: 'mod_jqshow'},
-        {key: 'end_session_desc', component: 'mod_jqshow'},
-        {key: 'confirm', component: 'mod_jqshow'}
+        {key: 'end_session', component: 'mod_kuet'},
+        {key: 'end_session_desc', component: 'mod_kuet'},
+        {key: 'confirm', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
         const title = langStrings[0];
@@ -143,7 +143,7 @@ ProgrammedMode.prototype.finishSession = function(e) {
                 };
                 Ajax.call([request])[0].done(function(response) {
                     if (response.finished === true) {
-                        window.location.replace(M.cfg.wwwroot + '/mod/jqshow/view.php?id=' + cmId);
+                        window.location.replace(M.cfg.wwwroot + '/mod/kuet/view.php?id=' + cmId);
                     }
                 }).fail(Notification.exception);
             });

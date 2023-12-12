@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/check_activesession
+ * @module    mod_kuet/check_activesession
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -35,20 +35,20 @@ import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 
 let SERVICES = {
-    GETACTIVESESSION: 'mod_jqshow_getactivesession'
+    GETACTIVESESSION: 'mod_kuet_getactivesession'
 };
 
 let cmId;
-let jqshowId;
+let kuetId;
 
 /**
  * @constructor
  * @param {int} cmid
- * @param {int} jqshowid
+ * @param {int} kuetid
  */
-function CheckActiveSession(cmid, jqshowid) {
+function CheckActiveSession(cmid, kuetid) {
     cmId = cmid;
-    jqshowId = jqshowid;
+    kuetId = kuetid;
     setInterval(this.checkActive, 5000);
 }
 
@@ -57,12 +57,12 @@ CheckActiveSession.prototype.checkActive = function() {
         methodname: SERVICES.GETACTIVESESSION,
         args: {
             cmid: cmId,
-            jqshowid: jqshowId
+            kuetid: kuetId
         }
     };
     Ajax.call([request])[0].done(function(response) {
         if (response.active !== 0) {
-            let sessionUrl = new URL(M.cfg.wwwroot + '/mod/jqshow/session.php');
+            let sessionUrl = new URL(M.cfg.wwwroot + '/mod/kuet/session.php');
             sessionUrl.searchParams.set('cmid', cmId);
             sessionUrl.searchParams.set('sid', response.active);
             window.location.href = sessionUrl.href;
@@ -70,6 +70,6 @@ CheckActiveSession.prototype.checkActive = function() {
     }).fail(Notification.exception);
 };
 
-export const checkActiveSession = (cmid, jqshowid) => {
-    return new CheckActiveSession(cmid, jqshowid);
+export const checkActiveSession = (cmid, kuetid) => {
+    return new CheckActiveSession(cmid, kuetid);
 };

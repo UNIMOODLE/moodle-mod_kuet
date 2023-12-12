@@ -23,7 +23,7 @@
 
 /**
  *
- * @module    mod_jqshow/questionspanel
+ * @module    mod_kuet/questionspanel
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
@@ -45,7 +45,7 @@ let ACTION = {
 };
 
 let SERVICES = {
-    SELECTCATEGORY: 'mod_jqshow_selectquestionscategory',
+    SELECTCATEGORY: 'mod_kuet_selectquestionscategory',
 };
 
 let REGION = {
@@ -60,7 +60,7 @@ let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    QUESTIONSFORSELECT: 'mod_jqshow/createsession/contentquestions'
+    QUESTIONSFORSELECT: 'mod_kuet/createsession/contentquestions'
 };
 
 let cmId;
@@ -92,9 +92,9 @@ QuestionsPanel.prototype.selectCategory = function(e) {
     let identifier = jQuery(REGION.CONTENTQUESTIONS);
     if (jQuery(REGION.SELECTQUESTION + ':checked').length > 0) {
         const stringkeys = [
-            {key: 'changecategory', component: 'mod_jqshow'},
-            {key: 'changecategory_desc', component: 'mod_jqshow'},
-            {key: 'confirm', component: 'mod_jqshow'}
+            {key: 'changecategory', component: 'mod_kuet'},
+            {key: 'changecategory_desc', component: 'mod_kuet'},
+            {key: 'confirm', component: 'mod_kuet'}
         ];
         getStrings(stringkeys).then((langStrings) => {
             const title = langStrings[0];

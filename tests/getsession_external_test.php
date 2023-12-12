@@ -16,7 +16,7 @@
 
 /**
  *
- * @package     mod_jqshow
+ * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
  * @author      2023 Tomás Zafra <jmtomas@tresipunt.com> | Elena Barrios <elena@tresipunt.com>
  * @category   test
@@ -25,27 +25,27 @@
  */
 
 
-namespace mod_jqshow;
+namespace mod_kuet;
 
 
-use mod_jqshow\external\getsession_external;
-use mod_jqshow\models\sessions;
+use mod_kuet\external\getsession_external;
+use mod_kuet\models\sessions;
 
 class getsession_external_test extends \advanced_testcase {
 
     public function test_getsession() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
-        $jqshow = self::getDataGenerator()->create_module('jqshow', ['course' => $course->id]);
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_jqshow');
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
 
         $sessionmock = [
             'name' => 'Session Test',
-            'jqshowid' => $jqshow->id,
+            'kuetid' => $kuet->id,
             'anonymousanswer' => 0,
-            'sessionmode' => \mod_jqshow\models\sessions::PODIUM_MANUAL,
+            'sessionmode' => \mod_kuet\models\sessions::PODIUM_MANUAL,
             'sgrade' => 0,
             'countdown' => 0,
             'showgraderanking' => 0,
@@ -64,8 +64,8 @@ class getsession_external_test extends \advanced_testcase {
             'sessionid' => 0,
             'showgraderanking' => 0,
         ];
-        $createdsid = $generator->create_session($jqshow, (object) $sessionmock);
-        $data = getsession_external::getsession($createdsid, $jqshow->cmid);
+        $createdsid = $generator->create_session($kuet, (object) $sessionmock);
+        $data = getsession_external::getsession($createdsid, $kuet->cmid);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('session', $data);
         $this->assertEquals($createdsid, $data['session']['id']);
