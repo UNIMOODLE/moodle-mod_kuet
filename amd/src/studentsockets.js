@@ -37,6 +37,7 @@ import Notification from 'core/notification';
 import Ajax from 'core/ajax';
 import Encryptor from 'mod_kuet/encryptor';
 import mEvent from 'core/event';
+import {get_strings as getStrings} from "../../../../lib/amd/src/str";
 
 let REGION = {
     MESSAGEBOX: '#message-box',
@@ -431,6 +432,12 @@ Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
         }
         return jsUrl.toString();
     }
+    getStrings([
+        {key: 'httpsrequired', component: 'mod_kuet'}
+    ]).done(function(strings) {
+        messageBox = this.root.find('#testresult');
+        messageBox.append('<div class="alert alert-danger" role="alert">' + strings[0] + '</div>');
+    }).fail(Notification.exception);
     return '';
 };
 

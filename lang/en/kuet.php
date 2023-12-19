@@ -411,3 +411,4 @@ $string['groupingremoved'] = 'This activity grouping has been removed or it has 
 $string['groupremoved'] = 'Your group has been removed or it is not a member of this activity grouping. You can not continue with this session.';
 $string['gocourse'] = 'Go back to your course';
 $string['sessionerror'] = 'This session is not correctly configured';
+$string['httpsrequired'] = 'It is mandatory to use https protocol on the platform to use Kuet.';
