@@ -37,7 +37,7 @@ import Notification from 'core/notification';
 import Ajax from 'core/ajax';
 import Encryptor from 'mod_kuet/encryptor';
 import mEvent from 'core/event';
-import {get_strings as getStrings} from "../../../../lib/amd/src/str";
+import {get_strings as getStrings} from 'core/str';
 
 let REGION = {
     MESSAGEBOX: '#message-box',
