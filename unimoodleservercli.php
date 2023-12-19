@@ -1,11 +1,26 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 // Project implemented by the "Recovery, Transformation and Resilience Plan.
 // Funded by the European Union - Next GenerationEU".
 //
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  *
@@ -649,7 +664,6 @@ abstract class websockets {
         if (isset($_SERVER['argv'][1]) && isset($_SERVER['argv'][2]) && isset($_SERVER['argv'][3])) {
             [$script, $port, $certificate, $privatekey] = $_SERVER['argv'];
         } else {
-            $this->print_signature();
             $this->executeform();
             echo "\033[32m". PHP_EOL .
                 'Socket is running in the background. You can see the process running in the process list of your server.' .
@@ -739,34 +753,6 @@ abstract class websockets {
         } else {
             echo "\033[31m" . $port . ' Not a valid port. Rerun the script' . "\033[0m" . PHP_EOL;
             exit();
-        }
-    }
-
-    /**
-     * @return void
-     */
-    public function print_signature() {
-        $file = 'https://tresipunt.com/wp-content/uploads/2020/04/logo3ipunt.png';
-        $img = imagecreatefromstring(file_get_contents($file));
-        [$width, $height] = getimagesize($file);
-        $scale = 10;
-        $chars = array(
-            ' ', '\'', '.', ':',
-            '|', 'T',  'X', '0',
-            '#',
-        );
-        $chars = array_reverse($chars);
-        $ccount = count($chars);
-        for ($y = 0; $y <= $height - $scale - 1; $y += $scale) {
-            for ($x = 0; $x <= $width - ($scale / 2) - 1; $x += ($scale / 2)) {
-                $rgb = imagecolorat($img, $x, $y);
-                $r = (($rgb >> 16) & 0xFF);
-                $g = (($rgb >> 8) & 0xFF);
-                $b = ($rgb & 0xFF);
-                $sat = ($r + $g + $b) / (255 * 3);
-                echo "\033[31m". $chars[ (int)( $sat * ($ccount - 1) ) ] . "\033[0m";
-            }
-            echo PHP_EOL;
         }
     }
 

@@ -421,7 +421,6 @@ function mod_kuet_grade_item_update(stdClass $data, $grades = null) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
-
     if (!isset($data->id)) {
         return null;
     }
@@ -437,8 +436,10 @@ function mod_kuet_grade_item_update(stdClass $data, $grades = null) {
         $params['grademax'] = get_config('core', 'gradepointmax');
         $params['grademin'] = 0;
     }
-    if (is_null($grades)) {
+
+    if ($grades  === 'reset') {
         $params['reset'] = true;
+        $grades = null;
     }
     return grade_update('mod/kuet', $data->course, 'mod', 'kuet', $data->id, 0, $grades, $params);
 

@@ -49,6 +49,28 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
         this.initTestSockets();
     }
 
+    TestSockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
+        let jsUrl = new URL(socketUrl);
+        if (jsUrl.protocol === 'https:') {
+            jsUrl.port = port;
+            jsUrl.protocol = 'wss:';
+            if (jsUrl.pathname === '/') {
+                jsUrl.pathname = jsUrl.pathname + 'testkuet';
+            } else {
+                jsUrl.pathname = jsUrl.pathname + '/testkuet';
+            }
+            return jsUrl.toString();
+        }
+
+        str.get_strings([
+            {key: 'httpsrequired', component: 'mod_kuet'}
+        ]).done(function(strings) {
+            messageBox = this.root.find('#testresult');
+            messageBox.append('<div class="alert alert-danger" role="alert">' + strings[0] + '</div>');
+        }).fail(notification.exception);
+        return '';
+    };
+
     /** @type {jQuery} The jQuery node for the page region. */
     TestSockets.prototype.root = null;
 
@@ -56,10 +78,8 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
 
     TestSockets.prototype.initTestSockets = function() {
         messageBox = this.root.find('#testresult');
-
-        TestSockets.prototype.webSocket = new WebSocket(
-            'wss://' + socketUrl.replace(/^https?:\/\//, '') + ':' + portUrl + '/testkuet'
-        );
+        let normalizeSocketUrl = TestSockets.prototype.normalizeSocketUrl(socketUrl, portUrl);
+        TestSockets.prototype.webSocket = new WebSocket(normalizeSocketUrl);
 
         TestSockets.prototype.webSocket.onopen = function() {
             str.get_strings([

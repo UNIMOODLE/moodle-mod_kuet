@@ -488,6 +488,13 @@ Sockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
         }
         return jsUrl.toString();
     }
+
+    getStrings([
+        {key: 'httpsrequired', component: 'mod_kuet'}
+    ]).done(function(strings) {
+        messageBox = this.root.find('#testresult');
+        messageBox.append('<div class="alert alert-danger" role="alert">' + strings[0] + '</div>');
+    }).fail(Notification.exception);
     return '';
 };
 
