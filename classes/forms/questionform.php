@@ -59,9 +59,9 @@ class questionform extends moodleform {
         if ($customdata['sessionlimittimebyquestionsenabled'] === true || $customdata['notimelimit'] === true) {
             $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_kuet'),
                 ['units' => [MINSECS, 1], 'optional' => true], 'asd');
+            $mform->addHelpButton('timelimit', 'timelimit', 'kuet');
             $mform->setType('timelimit', PARAM_INT);
         } else {
-            $mform->addHelpButton('timelimit', 'qtimelimit', 'kuet');
             $sid = required_param('sid', PARAM_INT);
             $session = new kuet_sessions($sid);
             $timelimit = userdate($session->get('sessiontime'), '%Mm %Ss');
