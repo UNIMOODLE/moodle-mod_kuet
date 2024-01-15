@@ -430,25 +430,25 @@ class reports {
         if ($mode !== sessions::INACTIVE_PROGRAMMED && $mode !== sessions::INACTIVE_MANUAL) {
             $data->showfinalranking = true;
             if ($session->is_group_mode()) {
-                $data->firstuserimageurl = $data->rankinggroups[0]->groupimage;
-                $data->firstuserfullname = $data->rankinggroups[0]->groupname;
-                $data->firstuserpoints = $data->rankinggroups[0]->grouppoints;
-                $data->seconduserimageurl = $data->rankinggroups[1]->groupimage;
-                $data->seconduserfullname = $data->rankinggroups[1]->groupname;
-                $data->seconduserpoints = $data->rankinggroups[1]->grouppoints;
-                $data->thirduserimageurl = $data->rankinggroups[2]->groupimage;
-                $data->thirduserfullname = $data->rankinggroups[2]->groupname;
-                $data->thirduserpoints = $data->rankinggroups[2]->grouppoints;
+                $data->firstuserimageurl = $data->rankinggroups[0]->groupimage ?? '';
+                $data->firstuserfullname = $data->rankinggroups[0]->groupname ?? '';
+                $data->firstuserpoints = $data->rankinggroups[0]->grouppoints ?? '';
+                $data->seconduserimageurl = $data->rankinggroups[1]->groupimage ?? '';
+                $data->seconduserfullname = $data->rankinggroups[1]->groupname ?? '';
+                $data->seconduserpoints = $data->rankinggroups[1]->grouppoints ?? '';
+                $data->thirduserimageurl = $data->rankinggroups[2]->groupimage ?? '';
+                $data->thirduserfullname = $data->rankinggroups[2]->groupname ?? '';
+                $data->thirduserpoints = $data->rankinggroups[2]->grouppoints ?? '';
             } else {
-                $data->firstuserimageurl = $data->rankingusers[0]->userimage;
-                $data->firstuserfullname = $data->rankingusers[0]->userfullname;
-                $data->firstuserpoints = $data->rankingusers[0]->userpoints;
-                $data->seconduserimageurl = $data->rankingusers[1]->userimage;
-                $data->seconduserfullname = $data->rankingusers[1]->userfullname;
-                $data->seconduserpoints = $data->rankingusers[1]->userpoints;
-                $data->thirduserimageurl = $data->rankingusers[2]->userimage;
-                $data->thirduserfullname = $data->rankingusers[2]->userfullname;
-                $data->thirduserpoints = $data->rankingusers[2]->userpoints;
+                $data->firstuserimageurl = $data->rankingusers[0]->userimage ?? '';
+                $data->firstuserfullname = $data->rankingusers[0]->userfullname ?? '';
+                $data->firstuserpoints = $data->rankingusers[0]->userpoints ?? '';
+                $data->seconduserimageurl = $data->rankingusers[1]->userimage ?? '';
+                $data->seconduserfullname = $data->rankingusers[1]->userfullname ?? '';
+                $data->seconduserpoints = $data->rankingusers[1]->userpoints ?? '';
+                $data->thirduserimageurl = $data->rankingusers[2]->userimage ?? '';
+                $data->thirduserfullname = $data->rankingusers[2]->userfullname ?? '';
+                $data->thirduserpoints = $data->rankingusers[2]->userpoints ?? '';
             }
         }
         $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::SESSION_QUESTIONS_REPORT];
