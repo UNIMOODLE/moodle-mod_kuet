@@ -129,6 +129,10 @@ class student_session_view implements renderable, templatable {
                     $data->groupimage = groupmode::get_group_image($group, $sid, 1);
                     $data->groupname = $group->name;
                     $data->groupid = $group->id;
+                    if ($session->get('anonymousanswer')) {
+                        unset($data->groupimage);
+                        unset($data->groupname);
+                    }
                 }
                 break;
             case sessions::INACTIVE_MANUAL:
@@ -143,7 +147,10 @@ class student_session_view implements renderable, templatable {
                 $data->kuetid = $session->get('kuetid');
                 $data->userid = $USER->id;
                 $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
-
+                if ($session->get('anonymousanswer') === 1) {
+                    unset($data->userimageurl);
+                    $data->userfullname = '**********';
+                }
                 $data->manualmode = true;
                 $data->waitingroom = true;
                 $data->config = sessions::get_session_config($data->sid, $data->cmid);
@@ -163,10 +170,18 @@ class student_session_view implements renderable, templatable {
                     $data->groupimage = groupmode::get_group_image($group, $sid, 1);
                     $data->groupname = $group->name;
                     $data->groupid = $group->id;
+                    if ($session->get('anonymousanswer') === 1) {
+                        unset($data->groupimage);
+                        $data->groupname = '**********';
+                    }
                 } else {
                     $userpicture = new user_picture($USER);
                     $userpicture->size = 1;
                     $data->userimage = $userpicture->get_url($PAGE)->out(false);
+                    if ($session->get('anonymousanswer') === 1) {
+                        unset($data->userimage);
+                        $data->username = '**********';
+                    }
                 }
                 break;
             default:

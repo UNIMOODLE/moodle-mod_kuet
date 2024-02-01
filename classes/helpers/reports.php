@@ -257,6 +257,8 @@ class reports {
                 if ($session->get('anonymousanswer') === 1
                     && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
                     unset($user->viewreporturl);
+                    unset($user->userimageurl);
+                    $user->userfullname = '**********';
                 }
             }
         }
@@ -286,6 +288,8 @@ class reports {
             if ($session->get('anonymousanswer') === 1
                 && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
                 unset($group->viewreporturl);
+                unset( $group->groupimage);
+                $group->groupname = '**********';
             }
         }
         return $results;

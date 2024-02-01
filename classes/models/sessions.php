@@ -579,6 +579,10 @@ class sessions {
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
                 $student->userprofileurl =
                     (new moodle_url('/user/view.php', ['id' => $user->id, 'course' => $course->id]))->out(false);
+                if ($session->get('anonymousanswer')) {
+                    $student->userfullname = '**********';
+                    $student->userprofileurl = '';
+                }
                 $student->correctanswers = $correctanswers;
                 $student->incorrectanswers = $incorrectanswers;
                 $student->partially = $partially;
@@ -627,6 +631,10 @@ class sessions {
                 $sessiongroup->id = $group->id;
                 $sessiongroup->groupname = $group->name;
                 $sessiongroup->groupimageurl = groupmode::get_group_image($group, $sid);
+                if ($session->get('anonymousanswer')) {
+                    $sessiongroup->groupname = '**********';
+                    $sessiongroup->groupimageurl = '';
+                }
                 $sessiongroup->correctanswers = $correctanswers;
                 $sessiongroup->incorrectanswers = $incorrectanswers;
                 $sessiongroup->partially = $partially;
@@ -879,6 +887,10 @@ class sessions {
                 $student = new stdClass();
                 $student->userimageurl = $userpicture->get_url($PAGE)->out(false);
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
+                if ($session->get('anonymousanswer')) {
+                    $student->userimageurl = '';
+                    $student->userfullname = '**********';
+                }
                 $userpoints = grade::get_session_grade($user->id, $sid, $session->get('kuetid'));
                 $kresponse = kuet_questions_responses::get_record(['kid' => $kid,
                     'kuet' => $session->get('kuetid'), 'session' => $sid, 'userid' => (int) $user->id]);
@@ -917,6 +929,10 @@ class sessions {
             $student = new stdClass();
             $student->userimageurl = $groupimage;
             $student->userfullname = $group->name;
+            if ($session->get('anonymousanswer')) {
+                $student->userimageurl = '';
+                $student->userfullname = '**********';
+            }
             $userpoints = grade::get_session_grade($groupmember->id, $sid, $session->get('kuetid'));
             $kresponse = kuet_questions_responses::get_record(['kid' => $kid,
                 'kuet' => $session->get('kuetid'), 'session' => $sid, 'userid' => (int) $groupmember->id]);
@@ -978,6 +994,10 @@ class sessions {
                 $student = new stdClass();
                 $student->userimageurl = $userpicture->get_url($PAGE)->out(false);
                 $student->userfullname = $user->firstname . ' ' . $user->lastname;
+                if ($session->get('anonymousanswer')) {
+                    $student->userimageurl = '';
+                    $student->userfullname = '**********';
+                }
                 $userpoints = grade::get_session_grade($user->id, $session->get('id'), $session->get('kuetid'));
                 $student->userpoints = grade::get_rounded_mark($userpoints);
                 $students[] = $student;
@@ -1008,6 +1028,10 @@ class sessions {
             $sessiongroup = new stdClass();
             $sessiongroup->userimageurl = $groupimage;
             $sessiongroup->userfullname = $group->name;
+            if ($session->get('anonymousanswer')) {
+                $sessiongroup->userimageurl = '';
+                $sessiongroup->userfullname = '**********';
+            }
             $userpoints = grade::get_session_grade($groupmember->id, $session->get('id'), $session->get('kuetid'));
             $sessiongroup->userpoints = grade::get_rounded_mark($userpoints);
             $data[] = $sessiongroup;
