@@ -173,7 +173,9 @@
                                 <div class="d-table-cell">
                                     <div class="participant" data-groupid="{{id}}">
                                         <a href="{{groupurl}}" target="_blank">
-                                            <img src="{{groupimage}}" alt="{{name}}">
+                                            {{#groupimage}}
+                                                <img src="{{groupimage}}" alt="{{name}}">
+                                            {{/groupimage}}
                                             <span class="user-fullname">
                                                 {{name}}
                                             </span>

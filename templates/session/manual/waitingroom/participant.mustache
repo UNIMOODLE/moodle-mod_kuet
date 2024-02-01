@@ -22,7 +22,9 @@
     Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 }}
 <div class="participant bg-primary" data-userid="{{usersocketid}}">
-    <img src="{{userimage}}" alt="{{userfullname}}">
+    {{#userimage}}
+        <img src="{{userimage}}" alt="{{userfullname}}">
+    {{/userimage}}
     <span class="user-fullname">
         {{userfullname}}
     </span>
