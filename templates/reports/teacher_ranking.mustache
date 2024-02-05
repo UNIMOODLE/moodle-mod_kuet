@@ -39,12 +39,14 @@
                 <div class="d-table-cell text-center"></div>
             </div>
             {{#rankingusers}}
-                <div class="INDIVIDUALTEACHER  2 d-table-row ranking-users-data user-item" data-userid="{{userid}}">
+                <div class="2 d-table-row ranking-users-data user-item" data-userid="{{userid}}">
                     <div class="d-table-cell">{{userposition}}º</div>
                     <div class="d-table-cell">
                         <div class="participant" data-userid="{{userid}}">
                             <a href="{{userprofileurl}}" target="_blank">
-                                <img src="{{userimage}}" alt="{{userfullname}}">
+                                {{#userimage}}
+                                    <img src="{{userimage}}" alt="{{userfullname}}">
+                                {{/userimage}}
                                 <span class="user-fullname">
                                     {{userfullname}}
                                 </span>
@@ -73,7 +75,9 @@
                     <div class="d-table-cell">
                         <div class="participant" data-userid="{{groupid}}">
                             <a href="{{groupurl}}" target="_blank">
-                                <img src="{{groupimage}}" alt="{{groupname}}">
+                                {{#groupimage}}
+                                    <img src="{{groupimage}}" alt="{{name}}">
+                                {{/groupimage}}
                                 <span class="user-fullname">
                                     {{groupname}}
                                 </span>
