@@ -491,7 +491,6 @@ class unimoodleservercli extends websockets {
      * @return void
      */
     private function newuser(websocketuser $user, array $data): void {
-        $this->users[$user->usersocketid] = new stdClass();
         $this->users[$user->usersocketid]->dataname = $data['name'];
         $this->users[$user->usersocketid]->picture = $data['pic'];
         $this->users[$user->usersocketid]->userid = $data['userid'];

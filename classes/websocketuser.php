@@ -40,6 +40,7 @@ class websocketuser {
     public $ip;
     public $headers = [];
     public $dataname; // Moodle Username.
+    public $picture;
     public $isteacher;
     public $handshake = false;
     public $cmid;
