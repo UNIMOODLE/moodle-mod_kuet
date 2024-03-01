@@ -84,16 +84,16 @@
                                     <div class="content-actions">
                                         {{^haserror}}
                                             <a class="session-action {{#issessionstarted}}disabled{{/issessionstarted}}" href="{{editsessionurl}}">
-                                                {{#pix}} i/edit_session, mod_kuet {{/pix}}
+                                                {{#pix}} i/edit_session, mod_kuet, {{#str}}edit_session, mod_kuet{{/str}} {{/pix}}
                                             </a>
                                         {{/haserror}}
                                         <div class="session-action" data-action="copy_session" data-sessionid="{{sessionid}}">
-                                            {{#pix}} i/copy_session, mod_kuet {{/pix}}
+                                            {{#pix}} i/copy_session, mod_kuet, {{#str}}copy_session, mod_kuet{{/str}} {{/pix}}
                                         </div>
                                         <div class="session-action {{#issessionstarted}}disabled{{/issessionstarted}}"
                                              {{^issessionstarted}}data-action="delete_session"{{/issessionstarted}}
                                              data-sessionid="{{sessionid}}">
-                                            {{#pix}} i/delete_session, mod_kuet {{/pix}}
+                                            {{#pix}} i/delete_session, mod_kuet, {{#str}}delete_session, mod_kuet{{/str}} {{/pix}}
                                         </div>
                                     </div>
                                     <div class="dropdown show mobile-content-actions">
@@ -203,10 +203,10 @@
                                 {{#managesessions}}
                                     <div class="content-actions">
                                         <div class="session-action" data-action="copy_session" data-sessionid="{{sessionid}}">
-                                            {{#pix}} i/copy_session, mod_kuet {{/pix}}
+                                            {{#pix}} i/copy_session, mod_kuet, {{#str}}copy_session, mod_kuet{{/str}} {{/pix}}
                                         </div>
                                         <div class="session-action" data-action="delete_session" data-sessionid="{{sessionid}}">
-                                            {{#pix}} i/delete_session, mod_kuet {{/pix}}
+                                            {{#pix}} i/delete_session, mod_kuet, {{#str}}delete_session, mod_kuet{{/str}} {{/pix}}
                                         </div>
                                     </div>
                                     <div class="dropdown show mobile-content-actions">
