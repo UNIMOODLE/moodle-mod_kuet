@@ -72,17 +72,6 @@ class mod_kuet_mod_form extends moodleform_mod {
         // Course module elements.
         $this->standard_coursemodule_elements();
 
-        // Teams grade.
-//        $mform->addElement('header', 'teamsgrade', get_string('teamsgradeheader', 'kuet'));
-//        $options = [groupmode::TEAM_GRADE_FIRST => get_string('team_grade_first', 'mod_kuet'),
-////            groupmode::TEAM_GRADE_LAST => 'last',
-////            groupmode::TEAM_GRADE_AVERAGE => 'average'
-//        ];
-//        $mform->addElement('select', 'teamgrade', get_string('teamgrade', 'kuet'), $options);
-//        $mform->disabledIf('teamgrade', 'groupmode', 'eq', 0);
-//        $mform->addHelpButton('teamgrade', 'teamgrade', 'kuet');
-//        $mform->setType('teamgrade', PARAM_RAW);
-
         $this->add_action_buttons();
     }
 
