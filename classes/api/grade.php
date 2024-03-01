@@ -383,7 +383,7 @@ class grade {
                 $result = 'incorrect';
                 break;
             case questions::SUCCESS:
-                $result = 'correct';
+                $result = 'success';
                 break;
             case questions::PARTIALLY:
                 $result = 'partially';
