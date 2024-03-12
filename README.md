@@ -1,9 +1,16 @@
 # Kuet - Gamified Quizzes for Moodle
 
-Welcome to the Kuet repository, a Moodle module developed by a consortium of 16 Spanish universities. Kuet introduces an innovative way to conduct interactive, engaging, and competitive voting sessions, quick responses, and gamified quizzes directly within your Moodle platform. It is an innovative gamified questionnaire module developed collaboratively by a consortium of 16 universities in Spain. This module is designed to make learning interactive, engaging, and competitive by incorporating various gamification elements into Moodle activities.
+<img src="pix/kuet-horizontal-color-tagline.png" WITH="400px" />
+
+Welcome to the Kuet repository, a Moodle module developed by a consortium of 16 Spanish universities (Valladolid, Complutense de Madrid, País Vasco/EHU, León, Salamanca, Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga, Córdoba, Extremadura, Vigo, Las Palmas y Burgos). Kuet introduces an innovative way to conduct interactive, engaging, and competitive voting sessions, quick responses, and gamified quizzes directly within your Moodle platform. It is an innovative gamified questionnaire module developed collaboratively by a consortium of 16 universities in Spain. This module is designed to make learning interactive, engaging, and competitive by incorporating various gamification elements into Moodle activities.
+
+## Documentation and Tutorials
+
+Website: (https://unimoodle.github.io/moodle-mod_kuet/)
+
+Moodle Docs: (https://docs.moodle.org/all/es/mod/kuet)
 
 ## Features
-
 
 ### Participation Modes
 
@@ -97,6 +104,9 @@ Kuet is released under the GPL v3 license.
 
 Thank you for considering Kuet for your Moodle platform. We believe it will significantly enhance the engagement and learning experience for your students.
 
+# Funded
+This project was funded by the European Union Next Generation Program.
+<img src="https://unimoodle.github.io/assets/images/unidigital.png" height="100px">
 
 # Development
 
