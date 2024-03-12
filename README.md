@@ -104,9 +104,19 @@ Kuet is released under the GPL v3 license.
 
 Thank you for considering Kuet for your Moodle platform. We believe it will significantly enhance the engagement and learning experience for your students.
 
-# Funded
+# Credits and funding
+
+KUET was designed by [UNIMOODLE Universities Group](https://unimoodle.github.io/) 
+
+<img src="https://unimoodle.github.io/assets/images/allunimoodle-2383x376.png" height="120px" />
+
+KUET was implemented by Moodle's Partner [3iPunt](https://tresipunt.com/)
+
+<img src="https://unimoodle.github.io/assets/images/logo3ip.svg" height="70px" />
+
 This project was funded by the European Union Next Generation Program.
-<img src="https://unimoodle.github.io/assets/images/unidigital.png" height="100px">
+
+<img src="https://unimoodle.github.io/assets/images/unidigital.png" height="70px" />
 
 # Development
 
