@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Progress helper
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -43,9 +44,14 @@ use mod_kuet\persistents\kuet_user_progress;
 use moodle_exception;
 use stdClass;
 
+/**
+ * Progress helper class
+ */
 class progress {
 
     /**
+     * Set progress
+     *
      * @param int $kuetid
      * @param int $sessionid
      * @param int $userid
@@ -125,6 +131,8 @@ class progress {
     }
 
     /**
+     * Shuffle question order
+     *
      * @param int $kuetid
      * @param int $cmid
      * @param int $sessionid

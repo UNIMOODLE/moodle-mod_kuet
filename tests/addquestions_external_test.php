@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Add questions test
  *
  * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
@@ -22,8 +23,20 @@
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class addquestions_external_test extends advanced_testcase {
 
+/**
+ * Add questions test class
+ */
+class addquestions_external_test extends advanced_testcase {
+    /**
+     * Add questions test
+     *
+     * @return void
+     * @throws \core\invalid_persistent_exception
+     * @throws coding_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
     public function test_add_questions() :void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();

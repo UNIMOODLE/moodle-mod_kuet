@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Reports helper
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -53,16 +54,43 @@ use question_bank;
 use stdClass;
 use user_picture;
 
+/**
+ * Reports helper class
+ */
 class reports {
 
+    /**
+     * @const string question report
+     */
     public const QUESTION_REPORT = 'questionreport';
+    /**
+     * @const string session question report
+     */
     public const SESSION_QUESTIONS_REPORT = 'sessionquestionsreport';
+    /**
+     * @const string sesion ranking report
+     */
     public const SESSION_RANKING_REPORT = 'sessionrankingreport';
+    /**
+     * @const string group sesion ranking report
+     */
     public const GROUP_SESSION_RANKING_REPORT = 'groupsessionrankingreport';
+    /**
+     * @const string userreport
+     */
     public const USER_REPORT = 'userreport';
+    /**
+     * @const string group question report
+     */
     public const GROUP_QUESTION_REPORT = 'groupquestionreport';
+    /**
+     * @const string group report
+     */
+
     public const GROUP_REPORT = 'groupreport';
     /**
+     * Get question data for teacher report
+     *
      * @param int $kuetid
      * @param int $cmid
      * @param int $sid
@@ -89,6 +117,8 @@ class reports {
     }
 
     /**
+     * Get question data for teacher report in group mode
+     *
      * @param kuet_questions $question
      * @param int $kuetid
      * @param int $cmid
@@ -154,6 +184,8 @@ class reports {
     }
 
     /**
+     * Get question data for teacher report individual mode
+     *
      * @param kuet_questions $question
      * @param int $kuetid
      * @param int $cmid
@@ -216,7 +248,10 @@ class reports {
         ))->out(false);
         return $data;
     }
+
     /**
+     * Get user ranking for teacher report
+     *
      * @param int $cmid
      * @param int $sid
      * @return array
@@ -235,6 +270,8 @@ class reports {
     }
 
     /**
+     * Get individual ranking for teacher report
+     *
      * @param int $cmid
      * @param int $sid
      * @return array
@@ -266,6 +303,8 @@ class reports {
     }
 
     /**
+     * Get groups ranking for teacher report
+     *
      * @param int $cmid
      * @param int $sid
      * @return array
@@ -296,6 +335,8 @@ class reports {
     }
 
     /**
+     * Get question data for user report
+     *
      * @param int $kuetid
      * @param int $cmid
      * @param int $sid
@@ -351,6 +392,8 @@ class reports {
     }
 
     /**
+     * Get time spent by user in question
+     *
      * @param kuet_sessions $session
      * @param kuet_questions $question
      * @param kuet_questions_responses $response
@@ -386,6 +429,8 @@ class reports {
     }
 
     /**
+     * Get time string data
+     *
      * @param kuet_sessions $session
      * @param kuet_questions $question
      * @return string
@@ -408,6 +453,8 @@ class reports {
     }
 
     /**
+     * Get session report
+     *
      * @param int $kuetid
      * @param int $cmid
      * @param int $sid
@@ -468,6 +515,8 @@ class reports {
     }
 
     /**
+     * Get HTML data for downloading
+     *
      * @param array $urlparams
      * @return string
      * @throws coding_exception
@@ -481,6 +530,8 @@ class reports {
     }
 
     /**
+     * Get question report
+     *
      * @param int $cmid
      * @param int $sid
      * @param int $kid
@@ -502,6 +553,8 @@ class reports {
     }
 
     /**
+     * Get individual question report
+     *
      * @param int $cmid
      * @param int $sid
      * @param int $kid
@@ -579,6 +632,8 @@ class reports {
     }
 
     /**
+     * Get group question report
+     *
      * @param int $cmid
      * @param int $sid
      * @param int $kid
@@ -665,6 +720,8 @@ class reports {
     }
 
     /**
+     * Get user report
+     *
      * @param int $cmid
      * @param int $sid
      * @param int $userid
@@ -727,6 +784,8 @@ class reports {
     }
 
     /**
+     * Get group report
+     *
      * @param int $cmid
      * @param int $sid
      * @param int $groupid
@@ -794,6 +853,8 @@ class reports {
     }
 
     /**
+     * Get student report
+     *
      * @param int $cmid
      * @param int $sid
      * @return stdClass
@@ -851,6 +912,8 @@ class reports {
     }
 
     /**
+     * Add userdata to data structure
+     *
      * @param stdClass $userdata
      * @param stdClass $data
      * @param int $userid
@@ -870,6 +933,8 @@ class reports {
     }
 
     /**
+     * Add group data to data structure
+     *
      * @param stdClass $groupdata
      * @param stdClass $data
      * @param int $imagesize
@@ -885,6 +950,8 @@ class reports {
     }
 
     /**
+     * Get the ranking for a question
+     *
      * @param array $users
      * @param array $answers
      * @param kuet_sessions $session
@@ -939,6 +1006,8 @@ class reports {
     }
 
     /**
+     * Get de group ranking for a question
+     *
      * @param array $groups
      * @param array $answers
      * @param kuet_sessions $session

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Teacher model
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -46,9 +47,14 @@ use moodle_exception;
 use moodle_url;
 use stdClass;
 
+/**
+ * teacher model class
+ */
 class teacher extends user {
 
     /**
+     * Export
+     *
      * @param int $cmid
      * @return Object
      * @throws coding_exception
@@ -59,6 +65,8 @@ class teacher extends user {
     }
 
     /**
+     * Export session
+     *
      * @param int $cmid
      * @return Object|stdClass
      * @throws coding_exception
@@ -97,6 +105,8 @@ class teacher extends user {
     }
 
     /**
+     * Get sessions conflicts
+     *
      * @param array $sessions
      * @return array
      */

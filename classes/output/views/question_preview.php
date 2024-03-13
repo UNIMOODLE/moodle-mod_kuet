@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Question preview renderer
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -46,15 +47,39 @@ use stdClass;
 use templatable;
 use renderer_base;
 
+/**
+ * Question preview renderable class
+ */
 class question_preview implements renderable, templatable {
 
+    /**
+     * @var int question id
+     */
     protected int $qid;
+
+    /**
+     * @var int kuet question id
+     */
     protected int $kid;
+
+    /**
+     * @var int course module id
+     */
     protected int $cmid;
+
+    /**
+     * @var int kuet session id
+     */
     protected int $sessionid;
+
+    /**
+     * @var int kuet module id
+     */
     protected int $kuetid;
 
     /**
+     * Constructor
+     *
      * @param int $qid
      * @param int $kid
      * @param int $cmid
@@ -70,13 +95,11 @@ class question_preview implements renderable, templatable {
     }
 
     /**
+     * Template exporter
+     *
      * @param renderer_base $output
      * @return stdClass
-     * @throws JsonException
-     * @throws ReflectionException
      * @throws coding_exception
-     * @throws dml_transaction_exception
-     * @throws dml_exception
      * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {

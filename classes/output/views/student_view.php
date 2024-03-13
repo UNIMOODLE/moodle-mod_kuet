@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Student view renderer
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -41,18 +42,37 @@ use stdClass;
 use templatable;
 use renderer_base;
 
+/**
+ * Student view renderable class
+ */
 class student_view implements renderable, templatable {
 
+    /**
+     * @var int kuet module
+     */
     public int $kuetid;
+    /**
+     * @var int course module
+     */
     public int $cmid;
+
+    /**
+     * Constructor
+     *
+     * @param int $kuetid
+     * @param int $cmid
+     */
     public function __construct(int $kuetid, int $cmid) {
         $this->kuetid = $kuetid;
         $this->cmid = $cmid;
     }
 
     /**
+     * Export for template
+     *
      * @param renderer_base $output
      * @return stdClass
+     * @throws \coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */

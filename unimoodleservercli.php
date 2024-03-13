@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * CLI version of websocket server
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,16 +33,38 @@
  */
 declare(strict_types=1);
 
+/**
+ * CLI version of websocket server
+ */
 class unimoodleservercli extends websockets {
-
+    /**
+     * @var array students
+     */
     protected $students = [];
+    /**
+     * @var array teacher
+     */
     protected $teacher = [];
+    /**
+     * @var array session id users
+     */
     protected $sidusers = [];
+    /**
+     * @var array session id groups
+     */
     protected $sidgroups = [];
+    /**
+     * @var array session id users by group
+     */
     protected $sidgroupusers = [];
+    /**
+     * @var string password
+     */
     protected $password = 'elktkktagqes';
 
     /**
+     * Process message
+     *
      * @param $user
      * @param $message
      * @return void
@@ -101,6 +124,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Check connected user
+     *
      * @param $user
      * @return void
      */
@@ -109,6 +134,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Connect socket
+     *
      * @param $socket
      * @param $ip
      * @return void
@@ -134,6 +161,8 @@ class unimoodleservercli extends websockets {
         $this->connecting($user);
     }
     /**
+     * Close group member connection to socket
+     *
      * @param $user
      * @return void
      * @throws JsonException
@@ -193,6 +222,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Closed connection routine
+     *
      * @param $user
      * @return void
      * @throws JsonException
@@ -229,6 +260,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Get response from action for teacher
+     *
      * @param websocketuser $user
      * @param string $useraction
      * @param array $data
@@ -271,6 +304,8 @@ class unimoodleservercli extends websockets {
         }
     }
     /**
+     * Get group id for a member
+     *
      * @param int $sid
      * @param int $userid
      * @return int
@@ -291,6 +326,8 @@ class unimoodleservercli extends websockets {
         return $groupid;
     }
     /**
+     * Get response from action for a group
+     *
      * @param array $data
      * @return string
      * @throws JsonException
@@ -311,6 +348,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Get response from action for student user
+     *
      * @param websocketuser $user
      * @param string $useraction
      * @param array $data
@@ -332,6 +371,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Get response from action
+     *
      * @param websocketuser $user // The user who sent the message.
      * @param string $useraction // The action it requires.
      * @param array $data // Body of the message.
@@ -486,6 +527,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Set new user for the websocket
+     *
      * @param websocketuser $user
      * @param array $data
      * @return void
@@ -501,6 +544,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Set new group for websocket
+     *
      * @param websocketuser $user
      * @param array $data
      * @return void
@@ -527,6 +572,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Manage new teacher user for session id
+     *
      * @param websocketuser $user
      * @param array $data
      * @return string
@@ -564,6 +611,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Manage new student user for session id
+     *
      * @param websocketuser $user
      * @param array $data
      * @return string
@@ -610,6 +659,8 @@ class unimoodleservercli extends websockets {
     }
 
     /**
+     * Manage new users group for session id
+     *
      * @param websocketuser $user
      * @param array $data
      * @return string
@@ -639,17 +690,46 @@ class unimoodleservercli extends websockets {
     }
 }
 
+/**
+ * Websocket class
+ */
 abstract class websockets {
+    /**
+     * @var int max buffer size
+     */
     protected $maxbuffersize;
+    /**
+     * @var false|resource master
+     */
     protected $master;
+    /**
+     * @var array sockets
+     */
     protected $sockets = [];
+    /**
+     * @var array users
+     */
     protected $users = [];
+    /**
+     * @var array held message
+     */
     protected $heldmessages = [];
+    /**
+     * @var bool interactive
+     */
     protected $interactive = true;
+    /**
+     * @var address
+     */
     protected $addr;
+    /**
+     * @var int port
+     */
     protected $port;
 
     /**
+     * Constructor
+     *
      * @param $addr
      * @param int $bufferlength
      * @throws Exception
@@ -700,6 +780,8 @@ abstract class websockets {
     }
 
     /**
+     * Execute config form
+     *
      * @return void
      */
     private function executeform() {
@@ -757,6 +839,8 @@ abstract class websockets {
     }
 
     /**
+     * Process user message received
+     *
      * @param $user
      * @param $message
      * @return mixed
@@ -764,18 +848,24 @@ abstract class websockets {
     abstract protected function process($user, $message); // Called immediately when the data is recieved.
 
     /**
+     * Connect user to socket
+     *
      * @param $user
      * @return mixed
      */
     abstract protected function connected($user); // Called after the handshake response is sent to the client.
 
     /**
+     * Close user connection to socket
+     *
      * @param $user
      * @return mixed
      */
     abstract protected function closed($user); // Called after the connection is closed.
 
     /**
+     * Connect user to socket
+     *
      * @param $user
      * @return void
      */
@@ -785,6 +875,8 @@ abstract class websockets {
     }
 
     /**
+     * Send message to user through socket
+     *
      * @param $user
      * @param $message
      * @return void
@@ -801,6 +893,8 @@ abstract class websockets {
     }
 
     /**
+     * Send message to socket
+     *
      * @param $msg
      * @return void
      */
@@ -813,6 +907,8 @@ abstract class websockets {
     }
 
     /**
+     * Sentinel
+     *
      * @return void
      */
     protected function tick() {
@@ -821,6 +917,8 @@ abstract class websockets {
     }
 
     /**
+     * Core sentinel
+     *
      * @return void
      */
     protected function tick_core() {
@@ -844,6 +942,8 @@ abstract class websockets {
     }
 
     /**
+     * Masking data algorithm
+     *
      * @param $text
      * @return string
      */
@@ -861,6 +961,8 @@ abstract class websockets {
     }
 
     /**
+     * Unmasking data algorithm
+     *
      * @param $text
      * @return string
      */
@@ -887,6 +989,8 @@ abstract class websockets {
     }
 
     /**
+     * Run websocket process
+     *
      * @return mixed
      */
     public function run() {
@@ -959,6 +1063,8 @@ abstract class websockets {
     }
 
     /**
+     * Disconnect from socket
+     *
      * @param $socket
      * @param $triggerclosed
      * @param $sockerrno
@@ -986,6 +1092,8 @@ abstract class websockets {
     }
 
     /**
+     * Handshake process
+     *
      * @param $client
      * @param $rcvd
      * @return void
@@ -1016,6 +1124,8 @@ abstract class websockets {
     }
 
     /**
+     * check hostname
+     *
      * @param $hostname
      * @return true
      */
@@ -1027,6 +1137,8 @@ abstract class websockets {
     }
 
     /**
+     * Check origin
+     *
      * @param $origin
      * @return true
      */
@@ -1035,6 +1147,8 @@ abstract class websockets {
     }
 
     /**
+     * Check websocket protocol
+     *
      * @param $protocol
      * @return true
      */
@@ -1043,6 +1157,8 @@ abstract class websockets {
     }
 
     /**
+     * Check websocket extensions
+     *
      * @param $extensions
      * @return true
      */
@@ -1051,6 +1167,8 @@ abstract class websockets {
     }
 
     /**
+     * Check process protocol
+     *
      * @param $protocol
      * @return string
      */
@@ -1063,6 +1181,8 @@ abstract class websockets {
     }
 
     /**
+     * Check process extensions
+     *
      * @param $extensions
      * @return string
      */
@@ -1071,6 +1191,8 @@ abstract class websockets {
     }
 
     /**
+     * Get user by socket instance
+     *
      * @param $socket
      * @return mixed|null
      */
@@ -1084,6 +1206,8 @@ abstract class websockets {
     }
 
     /**
+     * Get socket by user instance
+     *
      * @param $user
      * @return mixed|null
      */
@@ -1097,6 +1221,8 @@ abstract class websockets {
     }
 
     /**
+     * Standard out
+     *
      * @param $message
      * @return void
      */
@@ -1107,6 +1233,8 @@ abstract class websockets {
     }
 
     /**
+     * Standard error
+     *
      * @param $message
      * @return void
      */
@@ -1117,6 +1245,8 @@ abstract class websockets {
     }
 
     /**
+     * Frame
+     *
      * @param $message
      * @param $user
      * @param $messagetype
@@ -1189,6 +1319,8 @@ abstract class websockets {
     }
 
     /**
+     * Extract message headers
+     *
      * @param $message
      * @return array
      */
@@ -1228,6 +1360,8 @@ abstract class websockets {
     }
 
     /**
+     * Extract payload
+     *
      * @param $message
      * @param $headers
      * @return false|string
@@ -1246,6 +1380,8 @@ abstract class websockets {
     }
 
     /**
+     * Apply mask
+     *
      * @param $headers
      * @param $payload
      * @return int|mixed
@@ -1268,6 +1404,8 @@ abstract class websockets {
     }
 
     /**
+     * Check RSV bits
+     *
      * @param $headers
      * @param $user
      * @return bool
@@ -1278,6 +1416,8 @@ abstract class websockets {
     }
 
     /**
+     * String to hexadecimal
+     *
      * @param $str
      * @return string
      */
@@ -1303,6 +1443,8 @@ abstract class websockets {
     }
 
     /**
+     * Print headers
+     *
      * @param $headers
      * @return void
      */
@@ -1319,20 +1461,54 @@ abstract class websockets {
     }
 }
 
+/**
+ * Websocket user class
+ */
 class websocketuser {
-
+    /**
+     * @var socket
+     */
     public $socket;
+    /**
+     * @var socket user id
+     */
     public $usersocketid;
+    /**
+     * @var ip
+     */
     public $ip;
+    /**
+     * @var array headers
+     */
     public $headers = [];
+    /**
+     * @var moodle username
+     */
     public $dataname; // Moodle Username.
+    /**
+     * @var is teacher flag
+     */
     public $isteacher;
+    /**
+     * @var bool handshake flag
+     */
     public $handshake = false;
+    /**
+     * @var int course module id
+     */
     public $cmid;
+    /**
+     * @var int session id
+     */
     public $sid;
+    /**
+     * @var int user id
+     */
     public $userid;
 
     /**
+     * Constructor
+     *
      * @param $id
      * @param $socket
      * @param $ip
@@ -1344,6 +1520,12 @@ class websocketuser {
         $this->handshake = true;
     }
 
+    /**
+     * Update user
+     *
+     * @param $data
+     * @return void
+     */
     public function update_user($data) {
         $this->cmid = $data['cmid'];
         $this->sid = $data['sid'];
@@ -1351,6 +1533,8 @@ class websocketuser {
 }
 
 /**
+ * Kuet encrypt algorithm
+ *
  * @param $password
  * @param $text
  * @return string|null
@@ -1380,6 +1564,8 @@ function kuet_encrypt($password, $text) {
 }
 
 /**
+ * Kuet encrypt aux function
+ *
  * @param $letter
  * @param $lettertochange
  * @return mixed|null

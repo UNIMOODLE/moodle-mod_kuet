@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Group mode routines
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -45,9 +46,15 @@ use moodle_exception;
 use stdClass;
 global $CFG;
 require_once("$CFG->dirroot/group/lib.php");
+
+/**
+ * Group mode class
+ */
 class groupmode {
 
     /**
+     * Get group image
+     *
      * @param stdClass $groupdata
      * @param int $sid
      * @param int $imagesize
@@ -79,6 +86,8 @@ class groupmode {
     }
 
     /**
+     * Set group image for the session
+     *
      * @param int $sid
      * @param cache_application $cache
      * @return string
@@ -114,7 +123,10 @@ class groupmode {
 
         return $name;
     }
+
     /**
+     * Get one member of each groups grouping
+     *
      * @param int $grouping
      * @return array
      * @throws dml_exception
@@ -132,6 +144,8 @@ class groupmode {
     }
 
     /**
+     * Get group members
+     *
      * @param int $groupid
      * @return array
      */
@@ -144,6 +158,8 @@ class groupmode {
     }
 
     /**
+     * Get the name of each groupings group
+     *
      * @param int $groupingid
      * @return array
      * @throws dml_exception
@@ -163,6 +179,8 @@ class groupmode {
     }
 
     /**
+     * Get the groupings groups
+     *
      * @param int $groupingid
      * @return array
      * @throws dml_exception
@@ -185,6 +203,8 @@ class groupmode {
     }
 
     /**
+     * Get the user ids from the grouping
+     *
      * @param int $groupingid
      * @return array
      */
@@ -194,7 +214,10 @@ class groupmode {
             return $user->id;
         }, $groupmembers);
     }
+
     /**
+     * Get the users from the grouping
+     *
      * @param int $groupingid
      * @return array
      */
@@ -203,6 +226,8 @@ class groupmode {
     }
 
     /**
+     * Get the members of a group from a grouping by user id
+     *
      * @param int $groupingid
      * @param int $userid
      * @return array
@@ -226,6 +251,8 @@ class groupmode {
     }
 
     /**
+     * Check if all users are in a group
+     *
      * @param int $cmid
      * @param int $groupingid
      * @return void
@@ -253,13 +280,15 @@ class groupmode {
     }
 
     /**
+     * Get the group of a user in a session
+     *
      * @param int $userid
      * @param kuet_sessions $sessions
      * @return stdClass
-     * @throws invalid_persistent_exception
-     * @throws invalid_parameter_exception
      * @throws coding_exception
      * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
     public static function get_user_group(int $userid, kuet_sessions $sessions) : stdClass {
@@ -281,7 +310,8 @@ class groupmode {
     }
 
     /**
-     * this function shows if a user is in more than one grouping group.
+     * Get the members of a group from a grouping
+     *
      * @param int $groupingid
      * @return array
      * @throws dml_exception

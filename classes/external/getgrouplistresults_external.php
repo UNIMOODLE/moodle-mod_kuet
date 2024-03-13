@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Get group list results API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -47,8 +48,13 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Get group list results class
+ */
 class getgrouplistresults_external extends external_api {
     /**
+     * Get group list results parameters validation
+     *
      * @return external_function_parameters
      */
     public static function getgrouplistresults_parameters(): external_function_parameters {
@@ -61,6 +67,8 @@ class getgrouplistresults_external extends external_api {
     }
 
     /**
+     * Get group list results
+     *
      * @param int $sid
      * @param int $cmid
      * @return true[]
@@ -81,6 +89,8 @@ class getgrouplistresults_external extends external_api {
     }
 
     /**
+     * Get group list results returns
+     *
      * @return external_single_structure
      */
     public static function getgrouplistresults_returns(): external_single_structure {

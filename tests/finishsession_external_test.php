@@ -15,14 +15,27 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Finish session test
  *
  * @package     XXXX
  * @author      202X Elena Barrios Galán <elena@tresipunt.com>
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+/**
+ * Finish session test class
+ */
 class finishsession_external_test extends advanced_testcase {
 
+    /**
+     * Finish session test
+     *
+     * @return void
+     * @throws \core\invalid_persistent_exception
+     * @throws coding_exception
+     * @throws invalid_parameter_exception
+     */
     public function test_finishsession() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();

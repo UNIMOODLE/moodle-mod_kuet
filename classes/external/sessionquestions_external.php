@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Session questions API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -55,8 +56,16 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Session questions class
+ */
 class sessionquestions_external extends external_api {
 
+    /**
+     * Session questions parameters validation
+     *
+     * @return external_function_parameters
+     */
     public static function sessionquestions_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
@@ -68,6 +77,8 @@ class sessionquestions_external extends external_api {
     }
 
     /**
+     * Session questions
+     *
      * @param int $kuetid
      * @param int $cmid
      * @param int $sid
@@ -91,6 +102,8 @@ class sessionquestions_external extends external_api {
     }
 
     /**
+     * Export question
+     *
      * @param kuet_questions $question
      * @param int $cmid
      * @return stdClass
@@ -149,6 +162,11 @@ class sessionquestions_external extends external_api {
         return $data;
     }
 
+    /**
+     * Session questions returns
+     *
+     * @return external_single_structure
+     */
     public static function sessionquestions_returns(): external_single_structure {
         return new external_single_structure([
             'sid' => new external_value(PARAM_INT, 'Session id'),

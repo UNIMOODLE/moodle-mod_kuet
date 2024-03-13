@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Multichoice question model
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -60,9 +61,14 @@ global $CFG;
 
 require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
 
+/**
+ * Multichoice question model class
+ */
 class multichoice extends questions implements questionType {
 
     /**
+     * Constructor
+     *
      * @param int $kuetid
      * @param int $cmid
      * @param int $sid
@@ -73,6 +79,8 @@ class multichoice extends questions implements questionType {
     }
 
     /**
+     * Export question
+     *
      * @param int $kid // kuet_question id
      * @param int $cmid
      * @param int $sessionid
@@ -126,6 +134,8 @@ class multichoice extends questions implements questionType {
     }
 
     /**
+     * Export question response
+     *
      * @param stdClass $data
      * @param string $response
      * @param int $result
@@ -169,6 +179,8 @@ class multichoice extends questions implements questionType {
     }
 
     /**
+     * Get question report
+     *
      * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
@@ -255,6 +267,8 @@ class multichoice extends questions implements questionType {
     }
 
     /**
+     * Get ranking for the question
+     *
      * @param stdClass $participant
      * @param kuet_questions_responses $response
      * @param array $answers
@@ -322,6 +336,8 @@ class multichoice extends questions implements questionType {
     }
 
     /**
+     * Get question response
+     *
      * @param int $cmid
      * @param int $kid
      * @param int $questionid
@@ -362,6 +378,8 @@ class multichoice extends questions implements questionType {
     }
 
     /**
+     * Manage responses
+     *
      * @param int $kid
      * @param string $answerids
      * @param string $answertexts
@@ -414,6 +432,8 @@ class multichoice extends questions implements questionType {
     }
 
     /**
+     * Get response status
+     *
      * @param string $answerids
      * @param string $correctanswers
      * @param int $questionid
@@ -438,6 +458,8 @@ class multichoice extends questions implements questionType {
     }
 
     /**
+     * Get simple mark
+     *
      * @param stdClass $useranswer
      * @param kuet_questions_responses $response
      * @return float
@@ -461,6 +483,8 @@ class multichoice extends questions implements questionType {
     }
 
     /**
+     * Get question statistics
+     *
      * @param question_definition $question
      * @param kuet_questions_responses[] $responses
      * @return array
@@ -485,6 +509,8 @@ class multichoice extends questions implements questionType {
         return $statistics;
     }
     /**
+     * Always show stats for multichoice question type
+     *
      * @return bool
      */
     public static function show_statistics() : bool {

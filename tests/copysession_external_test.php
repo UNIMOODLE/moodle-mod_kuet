@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Copy session test
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -37,9 +38,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
 
+/**
+ * Copy session test class
+ */
 class copysession_external_test extends advanced_testcase {
 
     /**
+     * Copy session test
+     *
      * @return true
      * @throws invalid_persistent_exception
      * @throws coding_exception

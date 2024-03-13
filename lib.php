@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet library
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -42,6 +43,8 @@ global $CFG;
 require_once($CFG->dirroot . '/lib/gradelib.php');
 
 /**
+ * Kuet supports
+ *
  * @uses FEATURE_GROUPS
  * @uses FEATURE_GROUPINGS
  * @uses FEATURE_MOD_INTRO
@@ -70,6 +73,7 @@ function kuet_supports(string $feature): ?bool {
     }
 }
 /**
+ * Add kuet instance
  *
  * @param stdClass $data An object from the form in mod.html.
  * @return int The id of the newly inserted kuet record.
@@ -106,6 +110,8 @@ function kuet_add_instance(stdClass $data): int {
 }
 
 /**
+ * Update kuet instance
+ *
  * @param stdClass $data An object from the form in mod.html
  * @return bool Success/Fail
  * @throws invalid_persistent_exception
@@ -136,6 +142,7 @@ function kuet_update_instance(stdClass $data): bool {
 }
 
 /**
+ * Delete kuet instance
  *
  * @param int $id Id of the module instance
  * @return boolean Success/Failure
@@ -169,6 +176,7 @@ function kuet_delete_instance(int $id): bool {
 }
 
 /**
+ * Get course module information
  *
  * @param stdClass $coursemodule The coursemodule object (record).
  * @return cached_cm_info|bool
@@ -200,6 +208,8 @@ function kuet_get_coursemodule_info(stdClass $coursemodule): ?cached_cm_info {
 }
 
 /**
+ * Get completion active rule descriptions
+ *
  * @param cm_info|stdClass $cm
  * @return array $descriptions the array of descriptions for the custom rules.
  * @throws coding_exception
@@ -227,6 +237,8 @@ function mod_kuet_get_completion_active_rule_descriptions($cm): array {
 }
 
 /**
+ * Run websocket server on background
+ *
  * @param $server
  * @return void
  */
@@ -245,8 +257,14 @@ function mod_kuet_run_server_background($server) {
 }
 
 /**
- * @throws moodle_exception
+ * Kuet provide event action
+ *
+ * @param calendar_event $event
+ * @param action_factory $factory
+ * @param int $userid
+ * @return action|null
  * @throws coding_exception
+ * @throws moodle_exception
  */
 function mod_kuet_core_calendar_provide_event_action(
     calendar_event $event,
@@ -277,6 +295,8 @@ function mod_kuet_core_calendar_provide_event_action(
 }
 
 /**
+ * Extend navigatio settings
+ *
  * @param settings_navigation $settings
  * @param navigation_node $navref
  * @return void
@@ -300,6 +320,8 @@ function kuet_extend_settings_navigation(settings_navigation $settings, navigati
 }
 
 /**
+ * Kuet encryption algorithm
+ *
  * @param $password
  * @param $text
  * @return string|null
@@ -330,6 +352,8 @@ function kuet_encrypt($password, $text) {
 
 
 /**
+ * Kuet aux encryption function
+ *
  * @param $letter
  * @param $lettertochange
  * @return mixed|null
@@ -351,6 +375,20 @@ function kuet_get_letter_from_alphabet_for_letter($letter, $lettertochange) {
     return $temp[$poslettertochange];
 }
 
+/**
+ * Plugin file definition
+ *
+ * @param $course
+ * @param $cm
+ * @param $context
+ * @param $filearea
+ * @param $args
+ * @param $forcedownload
+ * @param $options
+ * @return false
+ * @throws coding_exception
+ * @throws dml_exception
+ */
 function kuet_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
     global $DB;
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -384,6 +422,22 @@ function kuet_pluginfile($course, $cm, $context, $filearea, $args, $forcedownloa
     return false;
 }
 
+/**
+ * Plugin file associated to kuet question
+ *
+ * @param $course
+ * @param $context
+ * @param $component
+ * @param $filearea
+ * @param $qubaid
+ * @param $slot
+ * @param $args
+ * @param $forcedownload
+ * @param $options
+ * @return void
+ * @throws coding_exception
+ * @throws moodle_exception
+ */
 function mod_kuet_question_pluginfile($course, $context, $component, $filearea, $qubaid, $slot,
                                           $args, $forcedownload, $options = []) {
     $fs = get_file_storage();
@@ -397,6 +451,8 @@ function mod_kuet_question_pluginfile($course, $context, $component, $filearea, 
 }
 
 /**
+ * Get grading options
+ *
  * @return array
  * @throws coding_exception
  */
@@ -412,6 +468,7 @@ function mod_kuet_get_grading_options() : array {
 
 /**
  * Update/create grade item for given data
+ *
  * @param stdClass $data A kuet instance
  * @param $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
  * @return int|null
@@ -446,6 +503,8 @@ function mod_kuet_grade_item_update(stdClass $data, $grades = null) {
 }
 
 /**
+ * Questions in use by Kuet or other modules
+ *
  * @param $questionids
  * @return bool
  * @throws coding_exception
@@ -463,6 +522,8 @@ function kuet_questions_in_use($questionids) : bool {
 }
 
 /**
+ * QR code generator
+ *
  * @param string $url
  * @return string
  */

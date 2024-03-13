@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Short question type model
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -57,9 +58,14 @@ use mod_kuet\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Short question type model class
+ */
 class shortanswer extends questions implements questionType {
 
     /**
+     * Constructor
+     *
      * @param int $kuetid
      * @param int $cmid
      * @param int $sid
@@ -70,6 +76,8 @@ class shortanswer extends questions implements questionType {
     }
 
     /**
+     * Export question
+     *
      * @param int $kid
      * @param int $cmid
      * @param int $sessionid
@@ -103,6 +111,8 @@ class shortanswer extends questions implements questionType {
 
 
     /**
+     * Export question response
+     *
      * @param stdClass $data
      * @param string $response
      * @param int $result
@@ -143,6 +153,8 @@ class shortanswer extends questions implements questionType {
     }
 
     /**
+     * Get question report
+     *
      * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
@@ -235,6 +247,8 @@ class shortanswer extends questions implements questionType {
     }
 
     /**
+     * Get ranking for question
+     *
      * @param stdClass $participant
      * @param kuet_questions_responses $response
      * @param array $answers
@@ -269,6 +283,8 @@ class shortanswer extends questions implements questionType {
     }
 
     /**
+     * Get question response
+     *
      * @param int $cmid
      * @param int $kid
      * @param int $questionid
@@ -319,6 +335,8 @@ class shortanswer extends questions implements questionType {
     }
 
     /**
+     * Get simple mark
+     *
      * @param stdClass $useranswer
      * @param kuet_questions_responses $response
      * @return float
@@ -343,6 +361,8 @@ class shortanswer extends questions implements questionType {
     }
 
     /**
+     * Get question statistics
+     *
      * @param question_definition $question
      * @param kuet_questions_responses[] $responses
      * @return array

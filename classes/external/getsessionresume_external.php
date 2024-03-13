@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Get session resume API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -48,8 +49,13 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Get session resume class
+ */
 class getsessionresume_external extends external_api {
     /**
+     * Get session resume parameter validation
+     *
      * @return external_function_parameters
      */
     public static function getsessionresume_parameters(): external_function_parameters {
@@ -62,6 +68,8 @@ class getsessionresume_external extends external_api {
     }
 
     /**
+     * Get session resume
+     *
      * @param int $sid
      * @param int $cmid
      * @return array
@@ -79,6 +87,8 @@ class getsessionresume_external extends external_api {
     }
 
     /**
+     * Get session resume return
+     *
      * @return external_single_structure
      */
     public static function getsessionresume_returns(): external_single_structure {

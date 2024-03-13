@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet external API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -37,9 +38,13 @@ defined('MOODLE_INTERNAL') || die;
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * External API class
+ */
 class mod_kuet_external extends external_api {
 
     /**
+     * get_kuets_by_courses parameters provided check
      *
      * @return external_function_parameters
      * @since Moodle 3.3
@@ -55,6 +60,7 @@ class mod_kuet_external extends external_api {
     }
 
     /**
+     * Get kuet mod by course
      *
      * @param array $courseids course ids
      * @return array of warnings and kuets
@@ -96,6 +102,8 @@ class mod_kuet_external extends external_api {
     }
 
     /**
+     * get_kuets_by_courses parameters return check
+     *
      * @return external_single_structure
      */
     public static function get_kuets_by_courses_returns() : external_single_structure {

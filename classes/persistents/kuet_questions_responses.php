@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Kuet question responses persistent
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -41,7 +42,13 @@ use mod_kuet\models\sessions;
 use moodle_exception;
 use stdClass;
 
+/**
+ * Kuet question responses persistent class
+ */
 class kuet_questions_responses extends persistent {
+    /**
+     * @const string kuet question responses table
+     */
     public const TABLE = 'kuet_questions_responses';
     /**
      * Return the definition of the properties of this model.
@@ -78,6 +85,8 @@ class kuet_questions_responses extends persistent {
     }
 
     /**
+     * Get sessions responses from a user
+     *
      * @param int $userid
      * @param int $kuetid
      * @param int $sessionid
@@ -88,6 +97,8 @@ class kuet_questions_responses extends persistent {
     }
 
     /**
+     * Get question responses
+     *
      * @param int $sessionid
      * @param int $kuetid
      * @param int $kid
@@ -98,6 +109,8 @@ class kuet_questions_responses extends persistent {
     }
 
     /**
+     * Get user grade from a session
+     *
      * @param int $session
      * @param int $userid
      * @return false|static
@@ -107,6 +120,8 @@ class kuet_questions_responses extends persistent {
     }
 
     /**
+     * Get user question responses
+     *
      * @param int $userid
      * @param int $session
      * @param int $kid
@@ -117,6 +132,8 @@ class kuet_questions_responses extends persistent {
     }
 
     /**
+     * Add response
+     *
      * @param int $kuet
      * @param int $session
      * @param int $kid
@@ -156,6 +173,8 @@ class kuet_questions_responses extends persistent {
     }
 
     /**
+     * Delete question responses
+     *
      * @param int $kuet
      * @param int $sid
      * @param int $kid
@@ -168,6 +187,8 @@ class kuet_questions_responses extends persistent {
     }
 
     /**
+     * Delete questions responses
+     *
      * @param int $sid
      * @return bool
      * @throws dml_exception

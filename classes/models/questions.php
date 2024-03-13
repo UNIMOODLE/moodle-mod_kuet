@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- *
+ * Question model
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
@@ -59,16 +59,46 @@ require_once($CFG->dirroot. '/question/type/truefalse/questiontype.php');
 require_once($CFG->dirroot. '/question/engine/lib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
+/**
+ * Question model class
+ */
 class questions {
+    /**
+     * @const string multichoice
+     */
     public const MULTICHOICE = 'multichoice';
+    /**
+     * @const string match
+     */
     public const MATCH = 'match';
+    /**
+     * @const string truefalse
+     */
     public const TRUE_FALSE = 'truefalse';
+    /**
+     * @const string shortanswer
+     */
     public const SHORTANSWER = 'shortanswer';
+    /**
+     * @const string numerical
+     */
     public const NUMERICAL = 'numerical';
+    /**
+     * @const string calculated
+     */
     public const CALCULATED = 'calculated';
+    /**
+     * @const string description
+     */
     public const DESCRIPTION = 'description';
+    /**
+     * @const string ddwtos
+     */
     public const DDWTOS = 'ddwtos';
 
+    /**
+     * @const array types
+     */
     public const TYPES = [
         self::MULTICHOICE,
         self::MATCH,
@@ -80,20 +110,53 @@ class questions {
         self::DDWTOS
     ];
 
+    /**
+     * @const int failure
+     */
     public const FAILURE = 0;
+    /**
+     * @const int sucess
+     */
     public const SUCCESS = 1;
+
+    /**
+     * @const int partially
+     */
     public const PARTIALLY = 2;
+    /**
+     * @const int noresponse
+     */
     public const NORESPONSE = 3;
+    /**
+     * @const int not evaluable
+     */
     public const NOTEVALUABLE = 4;
+    /**
+     * @const int invalid
+     */
     public const INVALID = 5;
+    /**
+     * @const string characters to be stripped
+     */
     public const CHARACTERS_TO_BE_STRIPPED = " \t\n\r\0\x0B\xC2\xA0";
+    /*
+     * @var int kuet instance id
+     */
     protected int $kuetid;
+    /**
+     * @var int course module id
+     */
     protected int $cmid;
+    /**
+     * @var int session id
+     */
     protected int $sid;
     /** @var kuet_questions[] list */
     protected array $list;
 
     /**
+     * Constructor
+     *
      * @param int $kuetid
      * @param int $cmid
      * @param int $sid
@@ -105,6 +168,8 @@ class questions {
     }
 
     /**
+     * Set list of questions
+     *
      * @return void
      */
     public function set_list() : void {
@@ -112,6 +177,8 @@ class questions {
     }
 
     /**
+     * Get list of questions
+     *
      * @return kuet_questions[]
      */
     public function get_list(): array {
@@ -122,6 +189,8 @@ class questions {
     }
 
     /**
+     * Get number of questions
+     *
      * @return int
      */
     public function get_num_questions(): int {
@@ -129,6 +198,8 @@ class questions {
     }
 
     /**
+     * Get the total time for a set of questions
+     *
      * @return int
      * @throws coding_exception
      */
@@ -147,6 +218,8 @@ class questions {
     }
 
     /**
+     * Get common data for questions
+     *
      * @param kuet_sessions $session
      * @param int $cmid
      * @param int $sessionid
@@ -254,6 +327,8 @@ class questions {
     }
 
     /**
+     * Get question text
+     *
      * @param int $cmid
      * @param string $text
      * @param int $textformat
@@ -310,6 +385,8 @@ class questions {
     }
 
     /**
+     * Escape characters
+     *
      * @param string $text
      * @return string
      */
@@ -321,6 +398,8 @@ class questions {
     }
 
     /**
+     * Add a group response to a question
+     *
      * @param int $kuetid
      * @param kuet_sessions $session
      * @param int $kid
@@ -353,6 +432,8 @@ class questions {
     }
 
     /**
+     * Questions are evaluable by default
+     *
      * @return bool
      */
     public static function is_evaluable() : bool {
@@ -360,6 +441,8 @@ class questions {
     }
 
     /**
+     * Get the question class type in string format
+     *
      * @param string $type
      * @return string
      * @throws moodle_exception
@@ -377,6 +460,8 @@ class questions {
     }
 
     /**
+     * Questions do not show statistics by default
+     *
      * @return bool
      */
     public static function show_statistics() : bool {

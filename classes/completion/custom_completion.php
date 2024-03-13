@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Custom completion routines
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -39,13 +40,16 @@ use mod_kuet\persistents\kuet_questions_responses;
 use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 
+/**
+ * Kuet Custom completion class
+ */
 class custom_completion extends activity_custom_completion {
 
     /**
      * Fetches the completion state for a given completion rule.
      *
-     * @param string $rule The completion rule.
-     * @return int The completion state.
+     * @param string $rule
+     * @return int
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
@@ -76,7 +80,7 @@ class custom_completion extends activity_custom_completion {
     /**
      * Fetch the list of custom completion rules that this module defines.
      *
-     * @return array
+     * @return string[]
      */
     public static function get_defined_custom_rules(): array {
         return [
@@ -100,7 +104,7 @@ class custom_completion extends activity_custom_completion {
     /**
      * Returns an array of all completion rules, in the order they should be displayed to users.
      *
-     * @return array
+     * @return string[]
      */
     public function get_sort_order(): array {
         return [

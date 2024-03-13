@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Question type interface
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -39,9 +40,15 @@ use question_definition;
 use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
+
+/**
+ * Question type interface
+ */
 interface questionType {
 
     /**
+     * Get simple makr
+     *
      * @param stdClass $useranswer
      * @param kuet_questions_responses $response
      * @return float
@@ -50,6 +57,8 @@ interface questionType {
 
 
     /**
+     * Get ranking for a question
+     *
      * @param stdClass $participant
      * @param kuet_questions_responses $response
      * @param array $answers
@@ -64,6 +73,8 @@ interface questionType {
                                                     kuet_questions $question) : stdClass;
 
     /**
+     * Get question statistics
+     *
      * @param question_definition $question
      * @param kuet_questions_responses[] $responses
      * @return mixed
@@ -71,6 +82,8 @@ interface questionType {
     public static function get_question_statistics( question_definition $question, array $responses) : array ;
 
     /**
+     * Get question report
+     *
      * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
@@ -83,6 +96,8 @@ interface questionType {
                                                int $kid) : stdClass;
 
     /**
+     * Export question
+     *
      * @param int $kid
      * @param int $cmid
      * @param int $sessionid
@@ -93,6 +108,8 @@ interface questionType {
     public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview) : object ;
 
     /**
+     * Export question response
+     *
      * @param stdClass $data
      * @param string $response
      * @param int $result
@@ -101,6 +118,8 @@ interface questionType {
     public static function export_question_response(stdClass $data, string $response, int $result) : stdClass;
 
     /**
+     * Question response
+     *
      * @param int $cmid
      * @param int $kid
      * @param int $questionid

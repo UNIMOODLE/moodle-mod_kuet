@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Teacher sesion view renderer
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -47,14 +48,19 @@ use templatable;
 use renderer_base;
 use user_picture;
 
+/**
+ * Teacher session view renderable class
+ */
 class teacher_session_view implements renderable, templatable {
     /**
+     * Export for template
+     *
      * @param renderer_base $output
      * @return stdClass
-     * @throws invalid_persistent_exception
-     * @throws moodle_exception
      * @throws coding_exception
      * @throws dml_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         global $USER, $DB, $PAGE, $COURSE;

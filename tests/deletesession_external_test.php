@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Delete session test
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -45,7 +46,13 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
 
+/**
+ * Delete session test class
+ */
 class deletesession_external_test extends advanced_testcase {
+    /**
+     * @var array session mockup
+     */
     public array $sessionmock = [
         'name' => 'Session Test - DELETE',
         'anonymousanswer' => 0,
@@ -67,7 +74,10 @@ class deletesession_external_test extends advanced_testcase {
         'submitbutton' => 0,
         'showgraderanking' => 0,
     ];
+
     /**
+     * Delete session test
+     *
      * @return true
      * @throws invalid_persistent_exception
      * @throws coding_exception

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Get final ranking API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -51,8 +52,13 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Get final ranking class
+ */
 class getfinalranking_external extends external_api {
     /**
+     * Get final ranking parameters validation
+     *
      * @return external_function_parameters
      */
     public static function getfinalranking_parameters(): external_function_parameters {
@@ -65,6 +71,8 @@ class getfinalranking_external extends external_api {
     }
 
     /**
+     * Get final ranking
+     *
      * @param int $sid
      * @param int $cmid
      * @return true[]
@@ -107,6 +115,8 @@ class getfinalranking_external extends external_api {
     }
 
     /**
+     * Get final ranking returns
+     *
      * @return external_single_structure
      */
     public static function getfinalranking_returns(): external_single_structure {

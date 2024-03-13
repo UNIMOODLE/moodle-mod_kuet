@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Drag and drop question API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -57,8 +58,16 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
+/**
+ * Drag and drop question class
+ */
 class ddwtos_external extends external_api {
 
+    /**
+     * Drag and drop question parameter validation
+     *
+     * @return external_function_parameters
+     */
     public static function ddwtos_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
@@ -75,6 +84,8 @@ class ddwtos_external extends external_api {
     }
 
     /**
+     * Drag and drop question
+     *
      * @param int $sessionid
      * @param int $kuetid
      * @param int $cmid
@@ -220,6 +231,8 @@ class ddwtos_external extends external_api {
     }
 
     /**
+     * Drag and drop question returns
+     *
      * @return external_single_structure
      */
     public static function ddwtos_returns(): external_single_structure {

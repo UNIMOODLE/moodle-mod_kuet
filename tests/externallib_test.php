@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * External library test
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -49,9 +50,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 
+/**
+ * External library test class
+ */
 class externallib_test extends externallib_advanced_testcase {
 
     /**
+     * Get kuet instances by courses
+     *
      * @return void
      * @throws invalid_parameter_exception
      * @throws coding_exception

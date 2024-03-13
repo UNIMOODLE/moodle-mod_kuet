@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Sessions panel API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -47,9 +48,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Sessions panel class
+ */
 class sessionspanel_external extends external_api {
 
     /**
+     * Sessions panel parameters validation
+     *
      * @return external_function_parameters
      */
     public static function sessionspanel_parameters(): external_function_parameters {
@@ -61,6 +67,8 @@ class sessionspanel_external extends external_api {
     }
 
     /**
+     * Sessions panel
+     *
      * @param int $cmid
      * @return array
      * @throws coding_exception
@@ -78,6 +86,8 @@ class sessionspanel_external extends external_api {
     }
 
     /**
+     * Sessions panel returns
+     *
      * @return external_single_structure
      */
     public static function sessionspanel_returns(): external_single_structure {
@@ -94,6 +104,8 @@ class sessionspanel_external extends external_api {
     }
 
     /**
+     * Get session data structure
+     *
      * @return external_multiple_structure
      */
     private static function get_session_structure(): external_multiple_structure {

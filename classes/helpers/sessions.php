@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Sessions helper
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -43,9 +44,14 @@ use moodle_exception;
 use moodle_url;
 use stdClass;
 
+/**
+ * Sessions helper class
+ */
 class sessions {
 
     /**
+     * Get session data
+     *
      * @param kuet_sessions $session
      * @param int $cmid
      * @param bool $managesessions

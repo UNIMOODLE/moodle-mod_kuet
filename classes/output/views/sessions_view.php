@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Sessions view
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -41,16 +42,24 @@ use stdClass;
 use templatable;
 use renderer_base;
 
+/**
+ * Sessions view renderable class
+ */
 class sessions_view implements renderable, templatable {
 
-    /** @var stdClass kuet */
+    /**
+     * @var stdClass kuet module
+     */
     protected stdClass $kuet;
 
-    /** @var int cmid */
+    /**
+     * @var int course module id
+     */
     protected int $cmid;
 
     /**
-     * sessions_view constructor.
+     * Constructor
+     *
      * @param stdClass $kuet
      * @param int $cmid
      */
@@ -60,11 +69,13 @@ class sessions_view implements renderable, templatable {
     }
 
     /**
+     * Template exporter
+     *
      * @param renderer_base $output
      * @return stdClass
+     * @throws coding_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
-     * @throws coding_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         return (new sessions($this->kuet, $this->cmid))->export();

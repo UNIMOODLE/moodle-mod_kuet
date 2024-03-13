@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Delete responses API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -47,8 +48,16 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Delete responses class
+ */
 class deleteresponses_external extends external_api {
 
+    /**
+     * Delete responses parameters validation
+     *
+     * @return external_function_parameters
+     */
     public static function deleteresponses_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
@@ -60,6 +69,8 @@ class deleteresponses_external extends external_api {
     }
 
     /**
+     * Delete responses
+     *
      * @param int $cmid
      * @param int $sessionid
      * @param int $kid
@@ -85,6 +96,8 @@ class deleteresponses_external extends external_api {
     }
 
     /**
+     * Delete responses returns
+     *
      * @return external_single_structure
      */
     public static function deleteresponses_returns(): external_single_structure {

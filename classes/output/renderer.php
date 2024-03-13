@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet renderer
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -49,11 +50,18 @@ use mod_kuet\output\views\student_view;
 use mod_kuet\output\views\teacher_view;
 use ReflectionException;
 
+/**
+ * Kuet module renderer class
+ *
+ */
 class renderer extends plugin_renderer_base {
 
     /**
+     * Student view renderer
+     *
      * @param student_view $view
      * @return string
+     * @throws dml_exception
      * @throws moodle_exception
      */
     public function render_student_view(student_view $view): string {
@@ -63,15 +71,17 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Student session view renderer
+     *
      * @param student_session_view $view
      * @return string
      * @throws JsonException
      * @throws ReflectionException
-     * @throws invalid_persistent_exception
+     * @throws coding_exception
      * @throws dml_exception
      * @throws dml_transaction_exception
      * @throws invalid_parameter_exception
-     * @throws coding_exception
+     * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
     public function render_student_session_view(student_session_view $view): string {
@@ -81,8 +91,11 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Teacher view renderer
+     *
      * @param teacher_view $view
      * @return string
+     * @throws coding_exception
      * @throws moodle_exception
      */
     public function render_teacher_view(teacher_view $view): string {
@@ -91,9 +104,13 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Teacher session view renderer
+     *
+     * @param teacher_session_view $view
+     * @return string
      * @throws coding_exception
-     * @throws invalid_persistent_exception
      * @throws dml_exception
+     * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
     public function render_teacher_session_view(teacher_session_view $view): string {
@@ -102,8 +119,12 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Session view renderer
+     *
      * @param sessions_view $view
      * @return string
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
     public function render_sessions_view(sessions_view $view): string {
@@ -112,6 +133,8 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Question view renderer
+     *
      * @param question_preview $view
      * @return string
      * @throws JsonException
@@ -127,6 +150,8 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Teacher report renderer
+     *
      * @param teacher_reports $view
      * @return string
      * @throws JsonException
@@ -140,6 +165,8 @@ class renderer extends plugin_renderer_base {
     }
 
     /**
+     * Student report renderer
+     *
      * @param student_reports $view
      * @return string
      * @throws JsonException

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Kuet user progress persistent
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -40,10 +41,18 @@ use dml_exception;
 use moodle_exception;
 use stdClass;
 
+/**
+ * Kuet user progress persistent class
+ */
 class kuet_user_progress extends persistent {
+    /**
+     * @const string kuet user progress table
+     */
     public const TABLE = 'kuet_user_progress';
 
     /**
+     * Define properties
+     *
      * @return array[]
      */
     protected static function define_properties(): array {
@@ -67,6 +76,8 @@ class kuet_user_progress extends persistent {
     }
 
     /**
+     * Get the session progress from the user
+     *
      * @param int $userid
      * @param int $sessionid
      * @param int $kuetid
@@ -77,6 +88,8 @@ class kuet_user_progress extends persistent {
     }
 
     /**
+     * Add user progress to a session
+     *
      * @param int $kuetid
      * @param int $session
      * @param int $userid
@@ -110,6 +123,8 @@ class kuet_user_progress extends persistent {
     }
 
     /**
+     * Delete user progress in a session
+     *
      * @param int $sid
      * @return bool
      * @throws dml_exception

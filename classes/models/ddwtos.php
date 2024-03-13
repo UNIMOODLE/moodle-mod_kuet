@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Drag and drop model
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -59,9 +60,14 @@ use mod_kuet\interfaces\questionType;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Drag and drop class
+ */
 class ddwtos extends questions implements questionType {
 
     /**
+     * Constructor
+     *
      * @param int $kuetid
      * @param int $cmid
      * @param int $sid
@@ -72,6 +78,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Export question
+     *
      * @param int $kid
      * @param int $cmid
      * @param int $sessionid
@@ -105,6 +113,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Export question response
+     *
      * @param stdClass $data
      * @param string $response
      * @param int $result
@@ -155,6 +165,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Get question text
+     *
      * @param int $cmid
      * @param qtype_ddwtos_question $question
      * @param array $response
@@ -190,6 +202,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Get fragments and glue placeholders
+     *
      * @param array $fragments
      * @return array
      */
@@ -212,6 +226,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Provide the correct response
+     *
      * @param qtype_ddwtos_question $question
      * @param int $cmid
      * @return string
@@ -237,6 +253,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Embedded element
+     *
      * @param qtype_ddwtos_question $question
      * @param int $place
      * @param question_display_options $options
@@ -273,6 +291,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Get the right choice for
+     *
      * @param qtype_ddwtos_question $question
      * @param int $place
      * @return int|string|null
@@ -295,6 +315,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Provide feedback image
+     *
      * @param int $fraction
      * @param bool $selected
      * @return string
@@ -308,6 +330,8 @@ class ddwtos extends questions implements questionType {
 
 
     /**
+     * Post question text elements
+     *
      * @param qtype_ddwtos_question $question
      * @param question_display_options $options
      * @param array $response
@@ -335,6 +359,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Clear wrong answer
+     *
      * @param qtype_ddwtos_question $question
      * @param array $response
      * @return string
@@ -376,6 +402,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Drag boxex
+     *
      * @param array $choices
      * @return string
      */
@@ -396,6 +424,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Get question report
+     *
      * @param kuet_sessions $session
      * @param question_definition $questiondata
      * @param stdClass $data
@@ -420,6 +450,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Get ranking for the question
+     *
      * @param stdClass $participant
      * @param kuet_questions_responses $response
      * @param array $answers
@@ -452,6 +484,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Question response
+     *
      * @param int $cmid
      * @param int $kid
      * @param int $questionid
@@ -502,6 +536,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Get simple mark for the question
+     *
      * @param stdClass $useranswer
      * @param kuet_questions_responses $response
      * @return float
@@ -532,6 +568,8 @@ class ddwtos extends questions implements questionType {
     }
 
     /**
+     * Get question statistics
+     *
      * @param question_definition $question
      * @param kuet_questions_responses[] $responses
      * @return array

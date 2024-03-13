@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Finish session API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -47,8 +48,16 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Finish session class
+ */
 class finishsession_external extends external_api {
 
+    /**
+     * Finish session parameters valdation
+     *
+     * @return external_function_parameters
+     */
     public static function finishsession_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
@@ -59,6 +68,8 @@ class finishsession_external extends external_api {
     }
 
     /**
+     * Finish session
+     *
      * @param int $cmid
      * @param int $sessionid
      * @return array
@@ -84,6 +95,8 @@ class finishsession_external extends external_api {
     }
 
     /**
+     * Finish session returns
+     *
      * @return external_single_structure
      */
     public static function finishsession_returns(): external_single_structure {

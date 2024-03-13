@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Numerical question type API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -57,8 +58,16 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
+/**
+ * Numerical question type class
+ */
 class numerical_external extends external_api {
 
+    /**
+     * Numerical question type parameters validation
+     *
+     * @return external_function_parameters
+     */
     public static function numerical_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
@@ -77,6 +86,8 @@ class numerical_external extends external_api {
     }
 
     /**
+     * Numerical question type
+     *
      * @param string $responsenum
      * @param string $unit
      * @param string $multiplier
@@ -213,6 +224,8 @@ class numerical_external extends external_api {
     }
 
     /**
+     * Numerical question type return
+     *
      * @return external_single_structure
      */
     public static function numerical_returns(): external_single_structure {

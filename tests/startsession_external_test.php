@@ -17,6 +17,7 @@
 use mod_kuet\models\questions;
 use mod_kuet\models\sessions;
 /**
+ * Session start test
  *
  * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
@@ -24,8 +25,21 @@ use mod_kuet\models\sessions;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class startsession_external_test extends advanced_testcase {
 
+/**
+ * Session start test class
+ */
+class startsession_external_test extends advanced_testcase {
+    /**
+     * Session start test
+     *
+     * @return void
+     * @throws \core\invalid_persistent_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
     public function test_startsession() {
 
         $this->resetAfterTest(true);

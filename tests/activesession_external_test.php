@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Active session test
  *
  * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
@@ -22,7 +23,19 @@
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+/***
+ * Active session test class
+ */
 class activesession_external_test extends advanced_testcase {
+    /**
+     * Test active session
+     *
+     * @return void
+     * @throws \core\invalid_persistent_exception
+     * @throws coding_exception
+     * @throws invalid_parameter_exception
+     */
     public function test_activesession(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();

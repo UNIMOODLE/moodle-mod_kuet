@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Student session view renderer
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -55,17 +56,20 @@ use templatable;
 use renderer_base;
 use user_picture;
 
+/**
+ * Student session view renderable class
+ */
 class student_session_view implements renderable, templatable {
 
     /**
+     * Export for template
+     *
      * @param renderer_base $output
      * @return stdClass
      * @throws JsonException
-     * @throws ReflectionException
-     * @throws invalid_parameter_exception
      * @throws coding_exception
      * @throws dml_exception
-     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
