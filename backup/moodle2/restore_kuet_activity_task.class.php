@@ -37,8 +37,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/kuet/backup/moodle2/restore_kuet_stepslib.php');
 
 /**
- * Kuet restore task that provides all the settings and steps to perform one
- * complete restore of the activity
+ * Kuet restore task that provides all the settings and steps to perform one complete restore of the activity
  */
 class restore_kuet_activity_task extends restore_activity_task {
 

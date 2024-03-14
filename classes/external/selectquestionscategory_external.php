@@ -48,6 +48,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Select questions from category API class
+ */
 class selectquestionscategory_external extends external_api {
 
     /**

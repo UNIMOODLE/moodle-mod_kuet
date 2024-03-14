@@ -51,24 +51,24 @@ use moodle_exception;
 class grade {
 
     /**
-     * @const int no grade
+     * @var int no grade
      */
     public const MOD_OPTION_NO_GRADE = 0;
 
     /**
-     * @const int highest grade
+     * @var int highest grade
      */
     public const MOD_OPTION_GRADE_HIGHEST = 1;
     /**
-     * @const int average grade
+     * @var int average grade
      */
     public const MOD_OPTION_GRADE_AVERAGE = 2;
     /**
-     * @const int first session grade
+     * @var int first session grade
      */
     public const MOD_OPTION_GRADE_FIRST_SESSION = 3;
     /**
-     * @const int last session grade
+     * @var int last session grade
      */
     public const MOD_OPTION_GRADE_LAST_SESSION = 4;
 

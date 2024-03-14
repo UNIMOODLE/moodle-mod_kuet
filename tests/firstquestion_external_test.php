@@ -25,8 +25,8 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/*
- * First question service test class
+/**
+ *  First question service test class
  */
 class firstquestion_external_test extends advanced_testcase {
     /**

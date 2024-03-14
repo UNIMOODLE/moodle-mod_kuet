@@ -47,7 +47,7 @@ use mod_kuet\models\sessions as sessionsmodel;
  */
 class kuet_sessions extends persistent {
     /**
-     * @const string kuet sessions table
+     * @var string kuet sessions table
      */
     public const TABLE = 'kuet_sessions';
 
@@ -345,7 +345,7 @@ class kuet_sessions extends persistent {
     }
 
     /**
-     * For PHPUnit
+     *  For PHPUnit
      *
      * @param kuet_sessions $other
      * @return bool

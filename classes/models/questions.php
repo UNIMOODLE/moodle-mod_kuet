@@ -64,40 +64,40 @@ require_once($CFG->dirroot. '/question/engine/bank.php');
  */
 class questions {
     /**
-     * @const string multichoice
+     * @var string multichoice
      */
     public const MULTICHOICE = 'multichoice';
     /**
-     * @const string match
+     * @var string match
      */
     public const MATCH = 'match';
     /**
-     * @const string truefalse
+     * @var string truefalse
      */
     public const TRUE_FALSE = 'truefalse';
     /**
-     * @const string shortanswer
+     * @var string shortanswer
      */
     public const SHORTANSWER = 'shortanswer';
     /**
-     * @const string numerical
+     * @var string numerical
      */
     public const NUMERICAL = 'numerical';
     /**
-     * @const string calculated
+     * @var string calculated
      */
     public const CALCULATED = 'calculated';
     /**
-     * @const string description
+     * @var string description
      */
     public const DESCRIPTION = 'description';
     /**
-     * @const string ddwtos
+     * @var string ddwtos
      */
     public const DDWTOS = 'ddwtos';
 
     /**
-     * @const array types
+     * @var array types
      */
     public const TYPES = [
         self::MULTICHOICE,
@@ -111,35 +111,36 @@ class questions {
     ];
 
     /**
-     * @const int failure
+     * @var int failure
      */
     public const FAILURE = 0;
     /**
-     * @const int sucess
+     * @var int sucess
      */
     public const SUCCESS = 1;
 
     /**
-     * @const int partially
+     * @var int partially
      */
     public const PARTIALLY = 2;
     /**
-     * @const int noresponse
+     * @var int noresponse
      */
     public const NORESPONSE = 3;
     /**
-     * @const int not evaluable
+     * @var int not evaluable
      */
     public const NOTEVALUABLE = 4;
     /**
-     * @const int invalid
+     * @var int invalid
      */
     public const INVALID = 5;
     /**
-     * @const string characters to be stripped
+     * @var string characters to be stripped
      */
     public const CHARACTERS_TO_BE_STRIPPED = " \t\n\r\0\x0B\xC2\xA0";
-    /*
+
+    /**
      * @var int kuet instance id
      */
     protected int $kuetid;

@@ -47,7 +47,7 @@ use stdClass;
  */
 class kuet_questions_responses extends persistent {
     /**
-     * @const string kuet question responses table
+     * @var string kuet question responses table
      */
     public const TABLE = 'kuet_questions_responses';
     /**
@@ -88,9 +88,9 @@ class kuet_questions_responses extends persistent {
      * Get sessions responses from a user
      *
      * @param int $userid
-     * @param int $kuetid
      * @param int $sessionid
-     * @return kuet_questions_responses[]
+     * @param int $kuetid
+     * @return array
      */
     public static function get_session_responses_for_user(int $userid, int $sessionid, int $kuetid): array {
         return self::get_records(['userid' => $userid, 'session' => $sessionid, 'kuet' => $kuetid]);

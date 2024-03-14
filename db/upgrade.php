@@ -33,7 +33,7 @@
  */
 
 /**
- *  Database tables upgrade
+ *   Database tables upgrade
  *
  * @param $oldversion
  * @return true

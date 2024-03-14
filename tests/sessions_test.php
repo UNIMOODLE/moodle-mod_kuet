@@ -141,10 +141,8 @@ class sessions_test extends advanced_testcase {
     /**
      * Test session
      *
-     * @param stdClass $kuet
      * @return void
      * @throws coding_exception
-     * @throws invalid_persistent_exception
      */
     public function test_session() {
         $this->resetAfterTest(true);

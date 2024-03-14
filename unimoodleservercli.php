@@ -69,7 +69,6 @@ class unimoodleservercli extends websockets {
      * @param $message
      * @return void
      * @throws JsonException
-     * @throws coding_exception
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
@@ -140,7 +139,6 @@ class unimoodleservercli extends websockets {
      * @param $ip
      * @return void
      * @throws JsonException
-     * This function is called after handshake, by websockets.php.
      */
     protected function connect($socket, $ip) {
         $user = new websocketuser(uniqid('u', true), $socket, $ip);
@@ -160,13 +158,13 @@ class unimoodleservercli extends websockets {
         fwrite($user->socket, $response, strlen($response));
         $this->connecting($user);
     }
+
     /**
      * Close group member connection to socket
      *
      * @param $user
      * @return void
      * @throws JsonException
-     * @throws coding_exception
      */
     protected function close_groupmember($user) {
         $groupmemberdisconected = false;
@@ -227,7 +225,6 @@ class unimoodleservercli extends websockets {
      * @param $user
      * @return void
      * @throws JsonException
-     * @throws coding_exception
      */
     protected function closed($user) {
         unset($this->sidusers[$user->sid][$user->usersocketid],
@@ -303,6 +300,7 @@ class unimoodleservercli extends websockets {
                 return '';
         }
     }
+
     /**
      * Get group id for a member
      *
@@ -325,6 +323,7 @@ class unimoodleservercli extends websockets {
         }
         return $groupid;
     }
+
     /**
      * Get response from action for a group
      *
@@ -373,10 +372,10 @@ class unimoodleservercli extends websockets {
     /**
      * Get response from action
      *
-     * @param websocketuser $user // The user who sent the message.
-     * @param string $useraction // The action it requires.
-     * @param array $data // Body of the message.
-     * @return string // Json enconde.
+     * @param websocketuser $user
+     * @param string $useraction
+     * @param array $data
+     * @return string
      * @throws JsonException
      */
     protected function get_response_from_action(websocketuser $user, string $useraction, array $data): string {
@@ -731,7 +730,7 @@ abstract class websockets {
      * Constructor
      *
      * @param $addr
-     * @param int $bufferlength
+     * @param $bufferlength
      * @throws Exception
      */
     public function __construct($addr, $bufferlength = 2048) {
@@ -1322,7 +1321,7 @@ abstract class websockets {
      * Extract message headers
      *
      * @param $message
-     * @return array
+     * @return int[]
      */
     protected function extract_headers($message) {
         $header = ['fin'     => $message[0] & chr(128),

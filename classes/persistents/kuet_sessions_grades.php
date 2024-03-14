@@ -42,7 +42,7 @@ use dml_exception;
  */
 class kuet_sessions_grades extends persistent {
     /**
-     * @const string kuet sessions grades table
+     * @var string kuet sessions grades table
      */
     const TABLE = 'kuet_sessions_grades';
     /**

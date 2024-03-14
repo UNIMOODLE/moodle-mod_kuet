@@ -41,7 +41,7 @@ use moodle_exception;
  */
 class kuet extends persistent {
     /**
-     * @const string table
+     * @var string table
      */
     public const TABLE = 'kuet';
 

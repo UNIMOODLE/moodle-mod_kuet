@@ -46,7 +46,7 @@ use stdClass;
  */
 class kuet_user_progress extends persistent {
     /**
-     * @const string kuet user progress table
+     * @var string kuet user progress table
      */
     public const TABLE = 'kuet_user_progress';
 

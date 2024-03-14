@@ -99,7 +99,7 @@ class websocketuser {
     }
 
     /**
-     * Update user data
+     *  Update user data
      *
      * @param $data
      * @return void

@@ -46,7 +46,7 @@ require_once(__DIR__ . '/websockets.php');
 class testserver extends websockets {
 
     /**
-     * Process message request
+     *  Process message request
      *
      * @param $user
      * @param $message
@@ -62,7 +62,7 @@ class testserver extends websockets {
     }
 
     /**
-     * Test user connected
+     *  Test user connected
      *
      * @param $user
      * @return void
@@ -80,7 +80,7 @@ class testserver extends websockets {
     }
 
     /**
-     * Test user closed connection
+     *  Test user closed connection
      *
      * @param $user
      * @return void

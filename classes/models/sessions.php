@@ -81,80 +81,80 @@ class sessions {
     // Session modes.
 
     /**
-     * @const string inactive manual
+     * @var string inactive manual
      */
      public const INACTIVE_MANUAL = 'inactive_manual';
     /**
-     * @const string inactive programmed
+     * @var string inactive programmed
      */
     public const INACTIVE_PROGRAMMED = 'inactive_programmed';
     /**
-     * @const string podium manual
+     * @var string podium manual
      */
     public const PODIUM_MANUAL = 'podium_manual';
     /**
-     * @const string podium programmed
+     * @var string podium programmed
      */
     public const PODIUM_PROGRAMMED = 'podium_programmed';
     /**
-     * @const string race manual
+     * @var string race manual
      */
     public const RACE_MANUAL = 'race_manual';
 
     /**
-     * @const string race programmed
+     * @var string race programmed
      */
     public const RACE_PROGRAMMED = 'race_programmed';
 
     // Anonymous response.
     /**
-     * @const int not anonymous answed
+     * @var int not anonymous answed
      */
     public const ANONYMOUS_ANSWERS_NO = 0;
     /**
-     * @const int anonymous answed
+     * @var int anonymous answed
      */
     public const ANONYMOUS_ANSWERS = 1;
 
     // Time mode.
     /**
-     * @const int no time
+     * @var int no time
      */
     public const NO_TIME = 0;
     /**
-     * @const int session time
+     * @var int session time
      */
     public const SESSION_TIME = 1;
     /**
-     * @const int question time
+     * @var int question time
      */
     public const QUESTION_TIME = 2;
 
     // Grade methods.
     /**
-     * @const int grade method disabled
+     * @var int grade method disabled
      */
     public const GM_DISABLED = 0;
 
     // Status.
     /**
-     * @const int session finished
+     * @var int session finished
      */
     public const SESSION_FINISHED = 0;
     /**
-     * @const int session active
+     * @var int session active
      */
     public const SESSION_ACTIVE = 1;
     /**
-     * @const int session started
+     * @var int session started
      */
     public const SESSION_STARTED = 2;
     /**
-     * @const int session creating
+     * @var int session creating
      */
     public const SESSION_CREATING = 3;
     /**
-     * @const int session error
+     * @var int session error
      */
     public const SESSION_ERROR = 4;
 

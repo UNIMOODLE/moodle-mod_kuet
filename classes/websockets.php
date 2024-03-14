@@ -40,8 +40,8 @@ require_once($CFG->dirroot . '/lib/weblib.php');
 
 /**
  * websocket class
+ * @abstract
  */
-
 abstract class websockets {
     /**
      * @var int max buffer size
@@ -77,11 +77,11 @@ abstract class websockets {
     protected $port;
 
     /**
-     * Constructor
+     *  Constructor
      *
      * @param $addr
      * @param $port
-     * @param int $bufferlength
+     * @param $bufferlength
      * @throws coding_exception
      * @throws dml_exception
      */
@@ -157,8 +157,10 @@ abstract class websockets {
      * @param $user
      * @param $message
      * @return mixed
+     *
      */
     abstract protected function process($user, $message); // Called immediately when the data is recieved.
+
 
     /**
      * Check user connection
@@ -657,9 +659,10 @@ abstract class websockets {
     }
 
     /**
-     * Deframe
+     *  Deframe
      *
-     * TODO Review logic of this method to take advantage of what can, and eliminate, no longer used.
+     *  Review logic of this method to take advantage of what can, and eliminate, no longer used.
+     *
      * @param $message
      * @param $user
      * @return false|int|mixed|string
@@ -722,7 +725,7 @@ abstract class websockets {
      * Extract headers from message
      *
      * @param $message
-     * @return array
+     * @return int[]
      */
     protected function extract_headers($message) {
         $header = ['fin'     => $message[0] & chr(128),

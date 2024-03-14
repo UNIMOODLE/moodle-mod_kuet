@@ -77,6 +77,7 @@ class server extends websockets {
      * @param $message
      * @return void
      * @throws JsonException
+     * @throws coding_exception
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
@@ -131,7 +132,7 @@ class server extends websockets {
     }
 
     /**
-     * Check if user is connected
+     *  Check if user is connected
      *
      * @param $user
      * @return void
@@ -142,7 +143,7 @@ class server extends websockets {
 
     /**
      * Set socket connection
-     *  This function is called after handshake, by websockets.php.
+     * This function is called after handshake, by websockets.php
      *
      * @param $socket
      * @param $ip
@@ -175,7 +176,6 @@ class server extends websockets {
      * @param $user
      * @return void
      * @throws JsonException
-     * @throws coding_exception
      */
     protected function close_groupmember($user) {
         $groupmemberdisconected = false;
@@ -231,7 +231,7 @@ class server extends websockets {
     }
 
     /**
-     * Close user connection
+     *  Close user connection
      *
      * @param $user
      * @return void

@@ -469,8 +469,8 @@ function mod_kuet_get_grading_options() : array {
 /**
  * Update/create grade item for given data
  *
- * @param stdClass $data A kuet instance
- * @param $grades Optional array/object of grade(s); 'reset' means reset grades in gradebook
+ * @param stdClass $data
+ * @param $grades
  * @return int|null
  * @throws dml_exception
  */

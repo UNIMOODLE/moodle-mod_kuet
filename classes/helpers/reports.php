@@ -60,33 +60,32 @@ use user_picture;
 class reports {
 
     /**
-     * @const string question report
+     * @var string question report
      */
     public const QUESTION_REPORT = 'questionreport';
     /**
-     * @const string session question report
+     * @var string session question report
      */
     public const SESSION_QUESTIONS_REPORT = 'sessionquestionsreport';
     /**
-     * @const string sesion ranking report
+     * @var string sesion ranking report
      */
     public const SESSION_RANKING_REPORT = 'sessionrankingreport';
     /**
-     * @const string group sesion ranking report
+     * @var string group sesion ranking report
      */
     public const GROUP_SESSION_RANKING_REPORT = 'groupsessionrankingreport';
     /**
-     * @const string userreport
+     * @var string userreport
      */
     public const USER_REPORT = 'userreport';
     /**
-     * @const string group question report
+     * @var string group question report
      */
     public const GROUP_QUESTION_REPORT = 'groupquestionreport';
     /**
-     * @const string group report
+     * @var string group report
      */
-
     public const GROUP_REPORT = 'groupreport';
     /**
      * Get question data for teacher report

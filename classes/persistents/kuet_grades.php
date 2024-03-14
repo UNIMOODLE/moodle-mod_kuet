@@ -41,7 +41,7 @@ use core\persistent;
  */
 class kuet_grades extends persistent {
     /**
-     * @const string grades table
+     * @var string grades table
      */
     const TABLE = 'kuet_grades';
     /**

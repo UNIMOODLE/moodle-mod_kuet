@@ -58,6 +58,7 @@ class mod_kuet_generator extends testing_module_generator {
      * Create session
      *
      * @param stdClass $kuet
+     * @param stdClass $sessionmock
      * @return int
      * @throws \core\invalid_persistent_exception
      * @throws coding_exception

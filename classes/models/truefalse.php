@@ -492,7 +492,10 @@ class truefalse extends questions implements questionType {
         }
         return $statistics;
     }
+
     /**
+     * Always show stats for this type of question
+     *
      * @return bool
      */
     public static function show_statistics() : bool {

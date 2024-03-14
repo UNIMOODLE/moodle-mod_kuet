@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
- * Rstore kuet steps
+ * Restore kuet steps
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -36,7 +36,6 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * Kuet activity structure steps class
- *
  */
 class restore_kuet_activity_structure_step extends restore_questions_activity_structure_step {
 
@@ -120,7 +119,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
     }
 
     /**
-     * PRocess kuet question responses
+     * Process kuet question responses
      *
      * @param $data
      * @return void

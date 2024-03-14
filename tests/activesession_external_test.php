@@ -24,7 +24,7 @@
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/***
+/**
  * Active session test class
  */
 class activesession_external_test extends advanced_testcase {

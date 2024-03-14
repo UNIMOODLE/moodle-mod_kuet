@@ -47,7 +47,7 @@ use stdClass;
  */
 class kuet_questions extends persistent {
     /**
-     * @const string questions table
+     * @var string questions table
      */
     public const TABLE = 'kuet_questions';
     /**
