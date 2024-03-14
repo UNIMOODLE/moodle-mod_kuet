@@ -345,7 +345,7 @@ class kuet_sessions extends persistent {
     }
 
     /**
-     *  For PHPUnit
+     * Used by PHP Unit
      *
      * @param kuet_sessions $other
      * @return bool

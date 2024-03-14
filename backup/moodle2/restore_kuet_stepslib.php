@@ -214,6 +214,15 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
     protected function after_execute() {
         $this->add_related_files('mod_kuet', 'intro', null);
     }
+
+    /**
+     * Replace answer ids
+     *
+     * @param string $responsejson
+     * @param int $newquestionid
+     * @return string
+     */
+
     private function replace_answerids(string $responsejson, int $newquestionid) : string {
         if (!$newquestionid) {
             return $responsejson;

@@ -40,7 +40,6 @@ require_once($CFG->dirroot . '/lib/weblib.php');
 
 /**
  * websocket class
- * @abstract
  */
 abstract class websockets {
     /**
