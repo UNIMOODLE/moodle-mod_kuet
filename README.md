@@ -1,6 +1,6 @@
 # Kuet - Gamified Quizzes for Moodle
 
-<img src="pix/icon.png" WITH="400px" />
+<img src="pix/kuet-horizontal-color-tagline.png" WITH="400px" />
 
 Welcome to the Kuet repository, a Moodle module developed by a consortium of 16 Spanish universities (Valladolid, Complutense de Madrid, País Vasco/EHU, León, Salamanca, Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga, Córdoba, Extremadura, Vigo, Las Palmas y Burgos). Kuet introduces an innovative way to conduct interactive, engaging, and competitive voting sessions, quick responses, and gamified quizzes directly within your Moodle platform. It is an innovative gamified questionnaire module developed collaboratively by a consortium of 16 universities in Spain. This module is designed to make learning interactive, engaging, and competitive by incorporating various gamification elements into Moodle activities.
 
@@ -78,7 +78,7 @@ To take full advantage of WebSockets in Kuet, you'll need to configure your serv
 
 3. **Server Configuration**: On your server, configure the WebSocket server to listen on the specified ports. This may involve setting up a reverse proxy if you're using a web server like Nginx or Apache, to forward WebSocket requests to the correct port.
 
-   Example Nginx configuration snippet for WebSocket forwarding:
+    Example Nginx configuration snippet for WebSocket forwarding:
 
     ```nginx
     location /kuet/ws {
@@ -106,7 +106,7 @@ Thank you for considering Kuet for your Moodle platform. We believe it will sign
 
 # Credits and funding
 
-KUET was designed by [UNIMOODLE Universities Group](https://unimoodle.github.io/)
+KUET was designed by [UNIMOODLE Universities Group](https://unimoodle.github.io/) 
 
 <img src="https://unimoodle.github.io/assets/images/allunimoodle-2383x376.png" height="120px" />
 
