@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Update routines
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,6 +33,8 @@
  */
 
 /**
+ * Database tables upgrade
+ *
  * @param $oldversion
  * @return true
  * @throws ddl_exception

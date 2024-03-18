@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Kuet session grades persistent
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -36,7 +37,13 @@ namespace mod_kuet\persistents;
 use core\persistent;
 use dml_exception;
 
+/**
+ * Kuet session grades persistent class
+ */
 class kuet_sessions_grades extends persistent {
+    /**
+     * @var string kuet sessions grades table
+     */
     const TABLE = 'kuet_sessions_grades';
     /**
      * Return the definition of the properties of this model.
@@ -61,6 +68,8 @@ class kuet_sessions_grades extends persistent {
     }
 
     /**
+     * Get user grades
+     *
      * @param int $kuetid
      * @param int $userid
      * @return kuet_sessions_grades[]
@@ -70,6 +79,8 @@ class kuet_sessions_grades extends persistent {
     }
 
     /**
+     * Get user grades from a session
+     *
      * @param int $session
      * @param int $userid
      * @return kuet_sessions_grades
@@ -79,6 +90,8 @@ class kuet_sessions_grades extends persistent {
     }
 
     /**
+     * Delete session grades
+     *
      * @param int $sid
      * @return bool
      * @throws dml_exception

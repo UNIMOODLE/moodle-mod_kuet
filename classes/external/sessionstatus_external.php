@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Session status API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -42,7 +43,15 @@ use invalid_parameter_exception;
 use mod_assign\external\external_api;
 use mod_kuet\persistents\kuet_sessions;
 
+/**
+ * Session status class
+ */
 class sessionstatus_external extends external_api {
+    /**
+     * Session status parameters validation
+     *
+     * @return external_function_parameters
+     */
     public static function sessionstatus_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
@@ -53,9 +62,14 @@ class sessionstatus_external extends external_api {
     }
 
     /**
+     * Session status
+     *
+     * @param int $sid
+     * @param int $status
+     * @return array
      * @throws coding_exception
-     * @throws invalid_persistent_exception
      * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
      */
     public static function sessionstatus(int $sid, int $status) : array {
         self::validate_parameters(
@@ -72,6 +86,8 @@ class sessionstatus_external extends external_api {
     }
 
     /**
+     * Session status return
+     *
      * @return external_single_structure
      */
     public static function sessionstatus_returns(): external_single_structure {

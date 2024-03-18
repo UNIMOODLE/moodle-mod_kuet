@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Copy question API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -46,9 +47,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Copy question class
+ */
 class copyquestion_external extends external_api {
 
     /**
+     * Copy question parameters validation
+     *
      * @return external_function_parameters
      */
     public static function copyquestion_parameters(): external_function_parameters {
@@ -60,6 +66,8 @@ class copyquestion_external extends external_api {
     }
 
     /**
+     * Copy question
+     *
      * @param int $qid
      * @return array
      * @throws invalid_parameter_exception
@@ -95,6 +103,8 @@ class copyquestion_external extends external_api {
     }
 
     /**
+     * Copy question returns
+     *
      * @return external_single_structure
      */
     public static function copyquestion_returns(): external_single_structure {

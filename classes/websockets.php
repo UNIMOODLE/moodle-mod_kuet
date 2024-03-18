@@ -23,7 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
- *
+ * Websocket
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
@@ -38,20 +38,49 @@ global $CFG;
 require_once(__DIR__ . '/websocketuser.php');
 require_once($CFG->dirroot . '/lib/weblib.php');
 
+/**
+ * websocket class
+ */
 abstract class websockets {
+    /**
+     * @var int max buffer size
+     */
     protected $maxbuffersize;
+    /**
+     * @var false|resource master
+     */
     protected $master;
+    /**
+     * @var array sockets
+     */
     protected $sockets = [];
+    /**
+     * @var array users
+     */
     protected $users = [];
+    /**
+     * @var array held messaged
+     */
     protected $heldmessages = [];
+    /**
+     * @var bool $interactive
+     */
     protected $interactive = true;
+    /**
+     * @var string address
+     */
     protected $addr;
+    /**
+     * @var int port
+     */
     protected $port;
 
     /**
+     *  Constructor
+     *
      * @param $addr
      * @param $port
-     * @param int $bufferlength
+     * @param $bufferlength
      * @throws coding_exception
      * @throws dml_exception
      */
@@ -106,6 +135,8 @@ abstract class websockets {
     }
 
     /**
+     * Get filepath of a stored file
+     *
      * @param stored_file $file
      * @return string
      */
@@ -120,25 +151,35 @@ abstract class websockets {
     }
 
     /**
+     * Process message request
+     *
      * @param $user
      * @param $message
      * @return mixed
+     *
      */
     abstract protected function process($user, $message); // Called immediately when the data is recieved.
 
+
     /**
+     * Check user connection
+     *
      * @param $user
      * @return mixed
      */
     abstract protected function connected($user); // Called after the handshake response is sent to the client.
 
     /**
+     * Check closed connection
+     *
      * @param $user
      * @return mixed
      */
     abstract protected function closed($user); // Called after the connection is closed.
 
     /**
+     * Connect user to websocket
+     *
      * @param $user
      * @return void
      */
@@ -148,6 +189,8 @@ abstract class websockets {
     }
 
     /**
+     * Send message to user through websocket
+     *
      * @param $user
      * @param $message
      * @return void
@@ -164,6 +207,8 @@ abstract class websockets {
     }
 
     /**
+     * Send message to websocket
+     *
      * @param $msg
      * @return void
      */
@@ -176,6 +221,8 @@ abstract class websockets {
     }
 
     /**
+     * Sentinel
+     *
      * @return void
      */
     protected function tick() {
@@ -184,6 +231,8 @@ abstract class websockets {
     }
 
     /**
+     * Core sentinel
+     *
      * @return void
      */
     protected function tick_core() {
@@ -207,6 +256,8 @@ abstract class websockets {
     }
 
     /**
+     * Message masking process
+     *
      * @param $text
      * @return string
      */
@@ -224,6 +275,8 @@ abstract class websockets {
     }
 
     /**
+     * Message unmasking process
+     *
      * @param $text
      * @return string
      */
@@ -250,6 +303,8 @@ abstract class websockets {
     }
 
     /**
+     * Run websocket process
+     *
      * @return mixed
      */
     public function run() {
@@ -328,6 +383,8 @@ abstract class websockets {
     }
 
     /**
+     * Disconnect user from socket
+     *
      * @param $socket
      * @param $triggerclosed
      * @param $sockerrno
@@ -355,6 +412,8 @@ abstract class websockets {
     }
 
     /**
+     * Handshake process
+     *
      * @param $client
      * @param $rcvd
      * @return void
@@ -385,6 +444,8 @@ abstract class websockets {
     }
 
     /**
+     * Check host for websocket connection
+     *
      * @param $hostname
      * @return true
      */
@@ -396,6 +457,8 @@ abstract class websockets {
     }
 
     /**
+     * Check origin request
+     *
      * @param $origin
      * @return true
      */
@@ -404,6 +467,8 @@ abstract class websockets {
     }
 
     /**
+     * Checl for websocket protocol
+     *
      * @param $protocol
      * @return true
      */
@@ -412,6 +477,8 @@ abstract class websockets {
     }
 
     /**
+     * Check for websocket extensions
+     *
      * @param $extensions
      * @return true
      */
@@ -420,6 +487,8 @@ abstract class websockets {
     }
 
     /**
+     * Check for process protocol
+     *
      * @param $protocol
      * @return string
      */
@@ -432,6 +501,8 @@ abstract class websockets {
     }
 
     /**
+     * Check for process extensions
+     *
      * @param $extensions
      * @return string
      */
@@ -440,6 +511,8 @@ abstract class websockets {
     }
 
     /**
+     * Get user by socket instance
+     *
      * @param $socket
      * @return mixed|null
      */
@@ -453,6 +526,8 @@ abstract class websockets {
     }
 
     /**
+     * Get socket id from user instance
+     *
      * @param $user
      * @return mixed|null
      */
@@ -466,6 +541,8 @@ abstract class websockets {
     }
 
     /**
+     * Standard out
+     *
      * @param $message
      * @return void
      */
@@ -476,6 +553,8 @@ abstract class websockets {
     }
 
     /**
+     * Standard error
+     *
      * @param $message
      * @return void
      */
@@ -486,6 +565,8 @@ abstract class websockets {
     }
 
     /**
+     * Frame
+     *
      * @param $message
      * @param $user
      * @param $messagetype
@@ -558,6 +639,8 @@ abstract class websockets {
     }
 
     /**
+     * Calculate offset
+     *
      * @param $headers
      * @return int
      */
@@ -575,7 +658,10 @@ abstract class websockets {
     }
 
     /**
-     * TODO Review logic of this method to take advantage of what can, and eliminate, no longer used.
+     *  Deframe
+     *
+     *  Review logic of this method to take advantage of what can, and eliminate, no longer used.
+     *
      * @param $message
      * @param $user
      * @return false|int|mixed|string
@@ -635,8 +721,10 @@ abstract class websockets {
     }
 
     /**
+     * Extract headers from message
+     *
      * @param $message
-     * @return array
+     * @return int[]
      */
     protected function extract_headers($message) {
         $header = ['fin'     => $message[0] & chr(128),
@@ -674,6 +762,8 @@ abstract class websockets {
     }
 
     /**
+     * Extract payload from message headers
+     *
      * @param $message
      * @param $headers
      * @return false|string
@@ -692,6 +782,8 @@ abstract class websockets {
     }
 
     /**
+     * Apply mask from headers and payload
+     *
      * @param $headers
      * @param $payload
      * @return int|mixed
@@ -714,6 +806,8 @@ abstract class websockets {
     }
 
     /**
+     * Check RSV bits
+     *
      * @param $headers
      * @param $user
      * @return bool
@@ -724,6 +818,8 @@ abstract class websockets {
     }
 
     /**
+     * String to hexadecimal
+     *
      * @param $str
      * @return string
      */
@@ -749,6 +845,8 @@ abstract class websockets {
     }
 
     /**
+     * Print headers
+     *
      * @param $headers
      * @return void
      */

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Student reports rendered
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -46,11 +47,31 @@ use renderer_base;
 use stdClass;
 use templatable;
 
+/**
+ *  Student reports renderable class
+ */
 class student_reports implements renderable, templatable {
 
+    /**
+     * @var int kuet module
+     */
     public int $kuetid;
+    /**
+     * @var int course module id
+     */
     public int $cmid;
+    /**
+     * @var int sessionid
+     */
     public int $sid;
+
+    /**
+     * Contructor
+     *
+     * @param int $cmid
+     * @param int $kuetid
+     * @param int $sid
+     */
     public function __construct(int $cmid, int $kuetid, int $sid) {
         $this->kuetid = $kuetid;
         $this->cmid = $cmid;
@@ -58,6 +79,8 @@ class student_reports implements renderable, templatable {
     }
 
     /**
+     * Export for template
+     *
      * @param renderer_base $output
      * @return stdClass
      * @throws JsonException

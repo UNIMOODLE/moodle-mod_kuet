@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * True-false question type API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -56,9 +57,14 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot. '/question/engine/bank.php');
 
+/**
+ * True-false question type class
+ */
 class truefalse_external extends external_api {
 
     /**
+     * True-false question type parameters validation
+     *
      * @return external_function_parameters
      */
     public static function truefalse_parameters(): external_function_parameters {
@@ -77,6 +83,8 @@ class truefalse_external extends external_api {
     }
 
     /**
+     * True-false question type
+     *
      * @param int $answerid
      * @param int $sessionid
      * @param int $kuetid
@@ -164,6 +172,8 @@ class truefalse_external extends external_api {
     }
 
     /**
+     * True-false question type return
+     *
      * @return external_single_structure
      */
     public static function truefalse_returns(): external_single_structure {

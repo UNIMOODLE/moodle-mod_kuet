@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet sessions persistent
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -41,8 +42,13 @@ use mod_kuet\event\session_ended;
 use mod_kuet\models\sessions;
 use mod_kuet\models\sessions as sessionsmodel;
 
+/**
+ * Kuet sessions persistent class
+ */
 class kuet_sessions extends persistent {
-
+    /**
+     * @var string kuet sessions table
+     */
     public const TABLE = 'kuet_sessions';
 
     /**
@@ -149,6 +155,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Check the group mode of a session
+     *
      * @return bool
      * @throws coding_exception
      */
@@ -158,6 +166,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Duplicate existing session
+     *
      * @param int $sessionid
      * @return int
      * @throws coding_exception
@@ -176,6 +186,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Edit session setting
+     *
      * @param int $sessionid
      * @param string $name
      * @param string $value
@@ -190,6 +202,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Delete session
+     *
      * @param int $sessionid
      * @return bool
      * @throws dml_exception
@@ -200,6 +214,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Get the id of an active session
+     *
      * @param int $kuetid
      * @return int
      * @throws coding_exception
@@ -210,6 +226,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Get the name of a session
+     *
      * @param int $kuetid
      * @param int $sessionid
      * @return string
@@ -221,6 +239,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Get the next session id
+     *
      * @param int $kuetid
      * @return int
      * @throws dml_exception
@@ -242,6 +262,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Find the closest session from a date
+     *
      * @param array $array
      * @param int $date
      * @return mixed
@@ -256,6 +278,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Mark the session as started
+     *
      * @param int $sid
      * @return void
      * @throws coding_exception
@@ -281,6 +305,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Mark the session as active
+     *
      * @param int $sid
      * @return void
      * @throws coding_exception
@@ -293,6 +319,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Mark the session as finished
+     *
      * @param int $sid
      * @return void
      * @throws coding_exception
@@ -317,7 +345,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
-     * For PHPUnit
+     * Used by PHP Unit
+     *
      * @param kuet_sessions $other
      * @return bool
      * @throws coding_exception
@@ -327,6 +356,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Get sessions by name
+     *
      * Error code: textconditionsnotallowed: https://tracker.moodle.org/browse/MDL-27629
      * @param string $name
      * @param int $jsqhowid
@@ -343,6 +374,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Get the active sessions
+     *
      * @param int $kuetid
      * @return array
      * @throws dml_exception
@@ -357,6 +390,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Get sessions with automatic start feature
+     *
      * @param int $kuetid
      * @return array
      * @throws dml_exception
@@ -373,6 +408,8 @@ class kuet_sessions extends persistent {
     }
 
     /**
+     * Check if the mode is programmed or not
+     *
      * @return bool
      * @throws coding_exception
      */

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet user model
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -35,12 +36,17 @@ use core_user;
 use dml_exception;
 use stdClass;
 
+/**
+ * Kuet user model class
+ */
 abstract class user {
 
     /** @var stdClass User */
     protected $user;
 
     /**
+     * Constructor
+     *
      * @param int $userid
      * @throws dml_exception
      */

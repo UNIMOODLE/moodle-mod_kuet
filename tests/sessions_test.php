@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Sessions test
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -34,8 +35,13 @@ use core\invalid_persistent_exception;
 use mod_kuet\models\sessions;
 use mod_kuet\persistents\kuet_sessions;
 
+/**
+ * Sessions test class
+ */
 class sessions_test extends advanced_testcase {
-
+    /**
+     * @var array session mockup
+     */
     public array $sessionmock = [
         'name' => 'Session Test',
         'kuetid' => 0,
@@ -60,9 +66,14 @@ class sessions_test extends advanced_testcase {
         'submitbutton' => 0,
         'showgraderanking' => 0,
     ];
+    /**
+     * @var sessions
+     */
     public sessions $sessions;
 
     /**
+     * Save session test
+     *
      * @return bool
      * @throws invalid_persistent_exception
      * @throws coding_exception
@@ -80,6 +91,8 @@ class sessions_test extends advanced_testcase {
     }
 
     /**
+     * Delete session test
+     *
      * @return bool
      * @throws coding_exception
      * @throws dml_exception
@@ -102,6 +115,8 @@ class sessions_test extends advanced_testcase {
     }
 
     /**
+     * Duplicate session test
+     *
      * @return bool
      * @throws coding_exception
      * @throws dml_exception
@@ -124,10 +139,10 @@ class sessions_test extends advanced_testcase {
     }
 
     /**
-     * @param stdClass $kuet
+     * Test session
+     *
      * @return void
      * @throws coding_exception
-     * @throws invalid_persistent_exception
      */
     public function test_session() {
         $this->resetAfterTest(true);
@@ -148,12 +163,30 @@ class sessions_test extends advanced_testcase {
         $session = new kuet_sessions($list[0]->get('id'));
         $this->assertObjectEquals($session, $list[0]);
     }
+
+    /**
+     * Breakdown responses for race test
+     *
+     * @return void
+     */
     public function test_breakdown_responses_for_race() {
         //TODO.
     }
+
+    /**
+     * Breakdown responses for race on group mode test
+     *
+     * @return void
+     */
     public function test_breakdown_responses_for_race_groups() {
         //TODO.
     }
+
+    /**
+     * Get provisional rankings test
+     *
+     * @return void
+     */
     public function test_get_provisional_ranking() {
         $this->resetAfterTest(true);
         // Create session.
@@ -165,15 +198,41 @@ class sessions_test extends advanced_testcase {
         $student3 = self::getDataGenerator()->create_and_enrol($course);
         $student4 = self::getDataGenerator()->create_and_enrol($course);
     }
+
+    /**
+     * Get individual provisional ranking test
+     *
+     * @return void
+     */
     public function test_get_provisional_ranking_individual() {
         //TODO.
     }
+
+    /**
+     *  Get group provisional ranking test
+     *
+     * @return void
+     */
     public function test_get_provisional_ranking_group() {
         //TODO.
     }
+
+    /**
+     * Get final ranking test
+     *
+     * @return void
+     */
     public function test_get_final_ranking() {
         //TODO.
     }
+
+    /**
+     * End session test
+     *
+     * @return void
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
     public function test_export_endsession() {
         $this->resetAfterTest(true);
         // Create session.

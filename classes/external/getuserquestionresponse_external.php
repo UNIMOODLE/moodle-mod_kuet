@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Get user response to question API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -65,9 +66,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Get user response to question class
+ */
 class getuserquestionresponse_external extends external_api {
 
     /**
+     * Get user response to question parameters validation
+     *
      * @return external_function_parameters
      */
     public static function getuserquestionresponse_parameters(): external_function_parameters {
@@ -83,6 +89,8 @@ class getuserquestionresponse_external extends external_api {
     }
 
     /**
+     * Get user response to question
+     *
      * @param int $kid
      * @param int $cmid
      * @param int $sid
@@ -188,6 +196,8 @@ class getuserquestionresponse_external extends external_api {
     }
 
     /**
+     * Get user response to question return
+     *
      * @return external_single_structure
      */
     public static function getuserquestionresponse_returns() : external_single_structure {

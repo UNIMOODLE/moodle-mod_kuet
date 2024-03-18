@@ -18,6 +18,7 @@ use mod_kuet\models\sessions;
 use mod_kuet\models\questions;
 
 /**
+ * Multichoice question type test
  *
  * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
@@ -25,7 +26,23 @@ use mod_kuet\models\questions;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+/**
+ * Multichoice question type test class
+ */
 class multichoice_external_test extends advanced_testcase {
+    /**
+     * Multichoice question type test
+     *
+     * @return void
+     * @throws JsonException
+     * @throws \core\invalid_persistent_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
     public function test_multichoice() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();

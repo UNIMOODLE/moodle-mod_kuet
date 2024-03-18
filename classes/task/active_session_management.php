@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Active session management task
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -42,9 +43,14 @@ use mod_kuet\persistents\kuet;
 use mod_kuet\persistents\kuet_sessions;
 use stdClass;
 
+/**
+ * active session management task class
+ */
 class active_session_management extends scheduled_task {
 
     /**
+     * Get name
+     *
      * @return lang_string|string
      * @throws coding_exception
      */
@@ -53,6 +59,8 @@ class active_session_management extends scheduled_task {
     }
 
     /**
+     * Execute task
+     *
      * @return void
      * @throws invalid_persistent_exception
      * @throws coding_exception

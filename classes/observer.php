@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet Observers
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -43,6 +44,9 @@ use mod_kuet\persistents\kuet_sessions;
 use mod_kuet\persistents\kuet_sessions_grades;
 use moodle_exception;
 
+/**
+ * Kuet observers class
+ */
 class observer {
 
     /**
@@ -101,6 +105,8 @@ class observer {
     }
 
     /**
+     * Get course students
+     *
      * @param array $data
      * @param int $grouping
      * @return array

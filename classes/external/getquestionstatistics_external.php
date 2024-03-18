@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Get question statistics API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -55,9 +56,14 @@ global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->dirroot . '/question/engine/bank.php');
 
+/**
+ * Get question statistics class
+ */
 class getquestionstatistics_external extends external_api {
 
     /**
+     * Get question statistics parameter validation
+     *
      * @return external_function_parameters
      */
     public static function getquestionstatistics_parameters(): external_function_parameters {
@@ -70,6 +76,8 @@ class getquestionstatistics_external extends external_api {
     }
 
     /**
+     * Get question statistics
+     *
      * @param int $sid
      * @param int $kid
      * @return array|array[]
@@ -110,6 +118,8 @@ class getquestionstatistics_external extends external_api {
     }
 
     /**
+     * Get question statistics return
+     *
      * @return external_single_structure
      */
     public static function getquestionstatistics_returns(): external_single_structure {

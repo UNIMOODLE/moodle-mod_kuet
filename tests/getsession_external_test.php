@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Get session service test
  *
  * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
@@ -31,8 +32,17 @@ namespace mod_kuet;
 use mod_kuet\external\getsession_external;
 use mod_kuet\models\sessions;
 
+/**
+ * Get session service test class
+ */
 class getsession_external_test extends \advanced_testcase {
-
+    /**
+     * Get session service test
+     *
+     * @return void
+     * @throws \coding_exception
+     * @throws \invalid_parameter_exception
+     */
     public function test_getsession() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();

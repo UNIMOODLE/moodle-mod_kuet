@@ -16,6 +16,7 @@
 use mod_kuet\models\questions;
 
 /**
+ * Jump to question service test
  *
  * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
@@ -24,8 +25,24 @@ use mod_kuet\models\questions;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class jumptoquestion_external_test extends  advanced_testcase {
 
+/**
+ * Jump to question service test class
+ */
+class jumptoquestion_external_test extends  advanced_testcase {
+    /**
+     * Jump to question service test
+     *
+     * @return void
+     * @throws JsonException
+     * @throws ReflectionException
+     * @throws \core\invalid_persistent_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
     public function test_jumptoquestion() : void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();

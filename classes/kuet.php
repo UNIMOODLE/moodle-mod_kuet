@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet services and API definition
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -45,6 +46,9 @@ use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use stdClass;
 
+/**
+ * kuet external services and API class
+ */
 class kuet {
     /** @var cm_info cm */
     public $cm;
@@ -56,6 +60,8 @@ class kuet {
     protected $kuet;
 
     /**
+     * Constructor
+     *
      * @param int $cmid
      * @throws moodle_exception
      */
@@ -66,6 +72,8 @@ class kuet {
     }
 
     /**
+     * Set kuet instance
+     *
      * @return void
      * @throws dml_exception
      */
@@ -75,6 +83,8 @@ class kuet {
     }
 
     /**
+     * Get kuet instance
+     *
      * @return stdClass
      * @throws dml_exception
      */
@@ -86,6 +96,8 @@ class kuet {
     }
 
     /**
+     * Set kuet session
+     *
      * @return void
      * @throws dml_exception
      */
@@ -97,6 +109,8 @@ class kuet {
     }
 
     /**
+     * Get kuet sessions
+     *
      * @return kuet_sessions[] array
      * @throws dml_exception
      */
@@ -108,6 +122,8 @@ class kuet {
     }
 
     /**
+     * Get kuet completed sessions
+     *
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -128,6 +144,8 @@ class kuet {
     }
 
     /**
+     * Get students from a kuet instance
+     *
      * @param int $cmid
      * @param int $groupingid
      * @return array
@@ -151,6 +169,8 @@ class kuet {
     }
 
     /**
+     * Get participants from a kuet instance
+     *
      * @param int $cmid
      * @param context_module $context
      * @param int $groupingid
@@ -169,6 +189,8 @@ class kuet {
     }
 
     /**
+     * Get participants from a kuet instance on group mode
+     *
      * @param int $groupingid
      * @return array
      */
@@ -177,6 +199,8 @@ class kuet {
     }
 
     /**
+     * Get participants from a kuet instance on individual mode
+     *
      * @param context_module $context
      * @return array
      */
@@ -185,6 +209,8 @@ class kuet {
     }
 
     /**
+     * Get enrolled users with student tole assigned in course
+     *
      * @param int $courseid
      * @param int $cmid
      * @return array

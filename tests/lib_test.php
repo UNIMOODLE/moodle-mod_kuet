@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Library test
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -42,9 +43,14 @@ use core_calendar\local\event\value_objects\action;
 use moodle_exception;
 use stdClass;
 
+/**
+ * Library test class
+ */
 class lib_test extends advanced_testcase {
 
     /**
+     * Set up
+     *
      * @return void
      */
     public function setUp(): void {
@@ -53,6 +59,8 @@ class lib_test extends advanced_testcase {
     }
 
     /**
+     * Test calendar provide event action
+     *
      * @return void
      * @throws coding_exception
      * @throws moodle_exception
@@ -81,6 +89,8 @@ class lib_test extends advanced_testcase {
     }
 
     /**
+     * Provide event action as non user
+     *
      * @return void
      * @throws coding_exception
      * @throws moodle_exception
@@ -111,6 +121,8 @@ class lib_test extends advanced_testcase {
     }
 
     /**
+     * Calendar provide event action in hidden section
+     *
      * @return void
      * @throws coding_exception
      * @throws moodle_exception
@@ -141,6 +153,8 @@ class lib_test extends advanced_testcase {
     }
 
     /**
+     * Calendar provide event action for user
+     *
      * @return void
      * @throws coding_exception
      * @throws moodle_exception
@@ -178,6 +192,8 @@ class lib_test extends advanced_testcase {
     }
 
     /**
+     * Calendar provide event action already completed
+     *
      * @return void
      * @throws moodle_exception
      * @throws coding_exception
@@ -214,6 +230,8 @@ class lib_test extends advanced_testcase {
     }
 
     /**
+     * Calendar provide event action already completed for user
+     *
      * @return void
      * @throws coding_exception
      * @throws moodle_exception

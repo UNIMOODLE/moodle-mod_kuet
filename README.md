@@ -134,7 +134,7 @@ More information at <https://docs.moodle.org/dev/Linting>
 ## CodeChecker
 
 - Download the Moodle plugin:
-    <https://moodle.org/plugins/local_codechecker/versions>
+  <https://moodle.org/plugins/local_codechecker/versions>
 - Unzip the folder in a place visible to all projects.
 - Go to PHP Storm Preferences and look for 'Quality Tools' in PHP.
 - Give the ... Configuration 'Local' (or create a new one).

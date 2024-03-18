@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Edit session settings API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -47,8 +48,16 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Edit session settings class
+ */
 class editsessionsettings_external extends external_api {
 
+    /**
+     * Edit session settings parameters validation
+     *
+     * @return external_function_parameters
+     */
     public static function editsession_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
@@ -61,6 +70,8 @@ class editsessionsettings_external extends external_api {
     }
 
     /**
+     * Edit session settings
+     *
      * @param int $courseid
      * @param int $sessionid
      * @param string $name
@@ -88,6 +99,8 @@ class editsessionsettings_external extends external_api {
     }
 
     /**
+     * Edit session settings returns
+     *
      * @return external_single_structure
      */
     public static function editsession_returns(): external_single_structure {

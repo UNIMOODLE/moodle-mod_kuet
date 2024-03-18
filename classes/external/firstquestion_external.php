@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * First question API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -55,9 +56,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * First question class
+ */
 class firstquestion_external extends external_api {
 
     /**
+     * First question parameters validation
+     *
      * @return external_function_parameters
      */
     public static function firstquestion_parameters(): external_function_parameters {
@@ -71,6 +77,8 @@ class firstquestion_external extends external_api {
 
 
     /**
+     * First question
+     *
      * @param int $cmid
      * @param int $sessionid
      * @return array
@@ -111,6 +119,8 @@ class firstquestion_external extends external_api {
     }
 
     /**
+     * First question returns
+     *
      * @return external_single_structure
      */
     public static function firstquestion_returns(): external_single_structure {

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Get race mode results API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -48,8 +49,13 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Get race mode results class
+ */
 class getraceresults_external extends external_api {
     /**
+     * Get race mode results parameters validation
+     *
      * @return external_function_parameters
      */
     public static function getraceresults_parameters(): external_function_parameters {
@@ -62,6 +68,8 @@ class getraceresults_external extends external_api {
     }
 
     /**
+     * Get race mode results
+     *
      * @param int $sid
      * @param int $cmid
      * @return true[]
@@ -90,6 +98,8 @@ class getraceresults_external extends external_api {
     }
 
     /**
+     * Get race mode results returns
+     *
      * @return external_single_structure
      */
     public static function getraceresults_returns(): external_single_structure {

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Backup kuet activity task
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -42,6 +43,8 @@ class backup_kuet_activity_task extends backup_activity_task {
 
     /**
      * This should define settings. Not used at the moment.
+     *
+     * @return void
      */
     protected function define_my_settings() {
 
@@ -49,6 +52,9 @@ class backup_kuet_activity_task extends backup_activity_task {
 
     /**
      * Define (add) particular steps this activity can have.
+     *
+     * @return void
+     * @throws base_task_exception
      */
     protected function define_my_steps() {
         $this->add_step(new backup_kuet_activity_structure_step('kuet_structure', 'kuet.xml'));
@@ -58,8 +64,9 @@ class backup_kuet_activity_task extends backup_activity_task {
 
     /**
      * Code the transformations to perform in the activity in order to get transportable (encoded) links.
-     * @param string $content
-     * @return string of content with the URLs encoded
+     *
+     * @param $content
+     * @return array|string|string[]|null
      */
     public static function encode_content_links($content) {
         global $CFG;

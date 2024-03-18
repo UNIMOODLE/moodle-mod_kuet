@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Sessions model
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -63,6 +64,9 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/question/editlib.php');
 
+/**
+ * Sessions model class
+ */
 class sessions {
 
     /** @var stdClass $kuet */
@@ -75,34 +79,88 @@ class sessions {
     protected array $list;
 
     // Session modes.
-    public const INACTIVE_MANUAL = 'inactive_manual';
+
+    /**
+     * @var string inactive manual
+     */
+     public const INACTIVE_MANUAL = 'inactive_manual';
+    /**
+     * @var string inactive programmed
+     */
     public const INACTIVE_PROGRAMMED = 'inactive_programmed';
+    /**
+     * @var string podium manual
+     */
     public const PODIUM_MANUAL = 'podium_manual';
+    /**
+     * @var string podium programmed
+     */
     public const PODIUM_PROGRAMMED = 'podium_programmed';
+    /**
+     * @var string race manual
+     */
     public const RACE_MANUAL = 'race_manual';
+
+    /**
+     * @var string race programmed
+     */
     public const RACE_PROGRAMMED = 'race_programmed';
 
     // Anonymous response.
+    /**
+     * @var int not anonymous answed
+     */
     public const ANONYMOUS_ANSWERS_NO = 0;
+    /**
+     * @var int anonymous answed
+     */
     public const ANONYMOUS_ANSWERS = 1;
 
     // Time mode.
+    /**
+     * @var int no time
+     */
     public const NO_TIME = 0;
+    /**
+     * @var int session time
+     */
     public const SESSION_TIME = 1;
+    /**
+     * @var int question time
+     */
     public const QUESTION_TIME = 2;
 
     // Grade methods.
+    /**
+     * @var int grade method disabled
+     */
     public const GM_DISABLED = 0;
 
     // Status.
+    /**
+     * @var int session finished
+     */
     public const SESSION_FINISHED = 0;
+    /**
+     * @var int session active
+     */
     public const SESSION_ACTIVE = 1;
+    /**
+     * @var int session started
+     */
     public const SESSION_STARTED = 2;
+    /**
+     * @var int session creating
+     */
     public const SESSION_CREATING = 3;
+    /**
+     * @var int session error
+     */
     public const SESSION_ERROR = 4;
 
     /**
      * sessions constructor.
+     *
      * @param stdClass $kuet
      * @param int $cmid
      */
@@ -112,6 +170,8 @@ class sessions {
     }
 
     /**
+     * Set sessions lisst
+     *
      * @return void
      */
     public function set_list() : void {
@@ -119,6 +179,8 @@ class sessions {
     }
 
     /**
+     * get sessions list
+     *
      * @return kuet_sessions[]
      */
     public function get_list(): array {
@@ -128,6 +190,8 @@ class sessions {
         return $this->list;
     }
     /**
+     * Export form
+     *
      * @return Object
      * @throws moodle_exception
      * @throws coding_exception
@@ -210,6 +274,8 @@ class sessions {
     }
 
     /**
+     * Get form data
+     *
      * @param int $sid
      * @return array
      * @throws coding_exception
@@ -239,6 +305,8 @@ class sessions {
     }
 
     /**
+     * Export session questions
+     *
      * @return Object
      * @throws coding_exception
      * @throws dml_exception
@@ -273,6 +341,8 @@ class sessions {
     }
 
     /**
+     * Get questions for a category
+     *
      * @param string $category
      * @return array
      * @throws coding_exception
@@ -363,6 +433,8 @@ class sessions {
     }
 
     /**
+     * Select questions from question bank
+     *
      * @return array
      * @throws coding_exception
      * @throws dml_exception
@@ -386,6 +458,8 @@ class sessions {
     }
 
     /**
+     * Expor session resume
+     *
      * @return Object
      * @throws coding_exception
      * @throws dml_exception
@@ -412,6 +486,8 @@ class sessions {
     }
 
     /**
+     * Get session configuration
+     *
      * @param int $sid
      * @param int $cmid
      * @return array
@@ -546,6 +622,8 @@ class sessions {
     }
 
     /**
+     * Get session results
+     *
      * @param int $sid
      * @param int $cmid
      * @return array
@@ -601,6 +679,8 @@ class sessions {
     }
 
     /**
+     * Get session group results
+     *
      * @param int $sid
      * @param int $cmid
      * @return array
@@ -651,6 +731,8 @@ class sessions {
     }
 
     /**
+     * Breakdown responses for race mode
+     *
      * @param array $userresults
      * @param int $sid
      * @param int $cmid
@@ -709,6 +791,8 @@ class sessions {
     }
 
     /**
+     * Breakdown responses for race group mode
+     *
      * @param array $groupresults
      * @param int $sid
      * @param int $cmid
@@ -762,6 +846,8 @@ class sessions {
     }
 
     /**
+     * Export object
+     *
      * @return Object
      * @throws coding_exception
      * @throws invalid_persistent_exception
@@ -781,6 +867,8 @@ class sessions {
     }
 
     /**
+     * Save session
+     *
      * @param object $data
      * @return int
      * @throws coding_exception
@@ -832,6 +920,8 @@ class sessions {
     }
 
     /**
+     * Get session
+     *
      * @param $params
      * @return kuet_sessions
      */
@@ -840,6 +930,8 @@ class sessions {
     }
 
     /**
+     * Get provisional ranking
+     *
      * @param int $sid
      * @param int $cmid
      * @param int $kid
@@ -863,6 +955,8 @@ class sessions {
     }
 
     /**
+     * Get individual provisional ranking
+     *
      * @param kuet_sessions $session
      * @param int $cmid
      * @param int $kid
@@ -910,6 +1004,8 @@ class sessions {
 
 
     /**
+     * Get group provisional ranking
+     *
      * @param kuet_sessions $session
      * @param int $kid
      * @return array
@@ -950,6 +1046,8 @@ class sessions {
     }
 
     /**
+     * Get final ranking
+     *
      * @param int $sid
      * @param int $cmid
      * @return array
@@ -972,6 +1070,8 @@ class sessions {
     }
 
     /**
+     * Get individual final ranking
+     *
      * @param kuet_sessions $session
      * @param cm_info $cm
      * @param int $courseid
@@ -1012,6 +1112,8 @@ class sessions {
     }
 
     /**
+     * Get group final ranking
+     *
      * @param kuet_sessions $session
      * @return array
      * @throws coding_exception
@@ -1045,6 +1147,8 @@ class sessions {
     }
 
     /**
+     * Export end session
+     *
      * @param int $cmid
      * @param int $sessionid
      * @return stdClass
@@ -1098,6 +1202,8 @@ class sessions {
     }
 
     /**
+     * Get normal end session
+     *
      * @param stdClass $data
      * @return stdClass
      * @throws coding_exception
@@ -1116,6 +1222,8 @@ class sessions {
     }
 
     /**
+     * Set session error status
+     *
      * @param kuet_sessions $sessions
      * @param string $errorcode
      * @return mixed

@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Delete question test
  *
  * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
@@ -23,8 +24,20 @@
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class deletequestion_external_test extends advanced_testcase {
 
+/**
+ * Delete question test class
+ */
+class deletequestion_external_test extends advanced_testcase {
+    /**
+     * Delete question test
+     *
+     * @return void
+     * @throws \core\invalid_persistent_exception
+     * @throws coding_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
     public function test_deletequestion() {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();

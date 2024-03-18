@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Restore kuet steps
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -33,8 +34,18 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Kuet activity structure steps class
+ */
 class restore_kuet_activity_structure_step extends restore_questions_activity_structure_step {
 
+    /**
+     * Define structure
+     *
+     * @return mixed
+     * @throws base_step_exception
+     * @throws restore_step_exception
+     */
     protected function define_structure() {
         $userinfo = $this->get_setting_value('userinfo');
         $paths = [];
@@ -52,6 +63,14 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         return $this->prepare_activity_structure($paths);
     }
 
+    /**
+     * Process kuet data
+     *
+     * @param $data
+     * @return void
+     * @throws base_step_exception
+     * @throws dml_exception
+     */
     protected function process_kuet($data) {
         global $DB;
         $data = (object)$data;
@@ -62,6 +81,13 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $this->apply_activity_instance($newitemid);
     }
 
+    /**
+     * Process kuet grade
+     *
+     * @param $data
+     * @return void
+     * @throws dml_exception
+     */
     protected function process_kuet_grade($data) {
         global $DB;
         $data = (object)$data;
@@ -70,6 +96,14 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $DB->insert_record('kuet_grades', $data);
     }
 
+    /**
+     * Process kuet questions
+     *
+     * @param $data
+     * @return void
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_kuet_question($data) {
         global $DB;
         $data = (object)$data;
@@ -84,6 +118,13 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $this->set_mapping('kuet_questions', $oldid, $newitemid);
     }
 
+    /**
+     * Process kuet question responses
+     *
+     * @param $data
+     * @return void
+     * @throws dml_exception
+     */
     protected function process_kuet_questions_response($data) {
         global $DB;
         $data = (object)$data;
@@ -99,6 +140,14 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $DB->insert_record('kuet_questions_responses', $data);
     }
 
+    /**
+     * Process kuet sessions
+     *
+     * @param $data
+     * @return void
+     * @throws dml_exception
+     * @throws restore_step_exception
+     */
     protected function process_kuet_session($data) {
         global $DB;
         $data = (object)$data;
@@ -111,6 +160,13 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $this->set_mapping('kuet_sessions', $oldid, $newitemid);
     }
 
+    /**
+     * Process kuet session grades
+     *
+     * @param $data
+     * @return void
+     * @throws dml_exception
+     */
     protected function process_kuet_session_grade($data) {
         global $DB;
         $data = (object)$data;
@@ -122,6 +178,13 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $DB->insert_record('kuet_sessions_grades', $data);
     }
 
+    /**
+     * Process kuet user progress
+     *
+     * @param $data
+     * @return void
+     * @throws dml_exception
+     */
     protected function process_kuet_user_progres($data) {
         global $DB;
         $data = (object)$data;
@@ -132,15 +195,34 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $data->userid = $this->get_mappingid('user', $data->userid);
         $DB->insert_record('kuet_user_progress', $data);
     }
+
+    /**
+     * Inform the new usage id - not used
+     *
+     * @param $newusageid
+     * @return void
+     */
     protected function inform_new_usage_id($newusageid) {
         // Not used in this activity module.
     }
 
-
-
+    /**
+     * After execute restore actions
+     *
+     * @return void
+     */
     protected function after_execute() {
         $this->add_related_files('mod_kuet', 'intro', null);
     }
+
+    /**
+     * Replace answer ids
+     *
+     * @param string $responsejson
+     * @param int $newquestionid
+     * @return string
+     */
+
     private function replace_answerids(string $responsejson, int $newquestionid) : string {
         if (!$newquestionid) {
             return $responsejson;
@@ -154,6 +236,14 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         return $responsejson;
 
     }
+
+    /**
+     * Replace answer ids for multichoice questions
+     *
+     * @param stdClass $response
+     * @param $newquestionid
+     * @return string
+     */
     private function replace_answerids_multichoice(stdClass $response, $newquestionid) : string {
         $answertexts = $response->{'answertexts'};
         $answerids = explode(',', $response->{'answerids'});
@@ -173,6 +263,14 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
 
         return json_encode($response);
     }
+
+    /**
+     * Replace answer ids for true-false questions
+     *
+     * @param stdClass $response
+     * @param $newquestionid
+     * @return string
+     */
     private function replace_answerids_truefalse(stdClass $response, $newquestionid) : string {
         $question = question_bank::load_question($newquestionid);
         $answertext = $response->{'answertexts'};

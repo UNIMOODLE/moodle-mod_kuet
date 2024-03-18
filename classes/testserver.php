@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Websocket server test
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -39,9 +40,14 @@ define('CLI_SCRIPT', true);
 require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/websockets.php');
 
+/**
+ * Websocket server test class
+ */
 class testserver extends websockets {
 
     /**
+     *  Process message request
+     *
      * @param $user
      * @param $message
      * @return void
@@ -56,6 +62,8 @@ class testserver extends websockets {
     }
 
     /**
+     *  Test user connected
+     *
      * @param $user
      * @return void
      * @throws JsonException
@@ -72,6 +80,8 @@ class testserver extends websockets {
     }
 
     /**
+     *  Test user closed connection
+     *
      * @param $user
      * @return void
      * @throws JsonException
@@ -87,11 +97,12 @@ class testserver extends websockets {
     }
 
     /**
+     * Get response for action
+     *
      * @param websocketuser $user
      * @param string $useraction
      * @param array $data
      * @return string
-     * @throws JsonException
      */
     protected function get_response_from_action(websocketuser $user, string $useraction, array $data): string {
         if ($useraction === 'shutdownTest') {

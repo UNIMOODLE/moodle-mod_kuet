@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Module form
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -37,9 +38,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
 
+/**
+ *  This class adds extra methods to form wrapper specific to be used for module add / update forms
+ */
 class mod_kuet_mod_form extends moodleform_mod {
 
     /**
+     * Definition
+     *
      * @return void
      * @throws coding_exception
      * @throws dml_exception
@@ -51,7 +57,7 @@ class mod_kuet_mod_form extends moodleform_mod {
 
         $this->standard_intro_elements(get_string('introduction', 'kuet'));
 
-        // Grade settings.
+        //Grade settings.
         $this->standard_grading_coursemodule_elements();
         $mform->removeElement('grade');
         if (property_exists($this->current, 'grade')) {
@@ -69,19 +75,8 @@ class mod_kuet_mod_form extends moodleform_mod {
         $mform->insertElementBefore($grademethodelement, 'gradecat');
         $mform->addHelpButton('grademethod', 'grademethod', 'kuet');
 
-        // Course module elements.
+        //Course module elements.
         $this->standard_coursemodule_elements();
-
-        // Teams grade.
-//        $mform->addElement('header', 'teamsgrade', get_string('teamsgradeheader', 'kuet'));
-//        $options = [groupmode::TEAM_GRADE_FIRST => get_string('team_grade_first', 'mod_kuet'),
-////            groupmode::TEAM_GRADE_LAST => 'last',
-////            groupmode::TEAM_GRADE_AVERAGE => 'average'
-//        ];
-//        $mform->addElement('select', 'teamgrade', get_string('teamgrade', 'kuet'), $options);
-//        $mform->disabledIf('teamgrade', 'groupmode', 'eq', 0);
-//        $mform->addHelpButton('teamgrade', 'teamgrade', 'kuet');
-//        $mform->setType('teamgrade', PARAM_RAW);
 
         $this->add_action_buttons();
     }
@@ -101,7 +96,7 @@ class mod_kuet_mod_form extends moodleform_mod {
             get_string('completionansweralllabel', 'kuet'),
             get_string('completionansweralldesc', 'kuet')
         );
-        // Enable this completion rule by default.
+        //Enable this completion rule by default.
         $mform->setDefault('completionanswerall', 0);
         $mform->setType('completionanswerall', PARAM_INT);
         return ['completionanswerall'];

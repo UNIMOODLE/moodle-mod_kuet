@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet test generator library
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,9 +33,14 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Kuet test generator library class
+ */
 class mod_kuet_generator extends testing_module_generator {
 
     /**
+     * Create instance
+     *
      * @param $record
      * @param array|null $options
      * @return stdClass
@@ -49,7 +55,10 @@ class mod_kuet_generator extends testing_module_generator {
     }
 
     /**
+     * Create session
+     *
      * @param stdClass $kuet
+     * @param stdClass $sessionmock
      * @return int
      * @throws \core\invalid_persistent_exception
      * @throws coding_exception
@@ -60,6 +69,8 @@ class mod_kuet_generator extends testing_module_generator {
     }
 
     /**
+     * Add questions to a session
+     *
      * @param array $questions
      * @return bool[]
      * @throws \core\invalid_persistent_exception

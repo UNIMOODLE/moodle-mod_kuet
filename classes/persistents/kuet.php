@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Kuet module persistent
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -35,10 +36,18 @@ namespace mod_kuet\persistents;
 use core\persistent;
 use moodle_exception;
 
+/**
+ * Kuet module persistent class
+ */
 class kuet extends persistent {
+    /**
+     * @var string table
+     */
     public const TABLE = 'kuet';
 
     /**
+     * Define properties
+     *
      * @return array[]
      */
     protected static function define_properties() : array {
@@ -71,6 +80,8 @@ class kuet extends persistent {
     }
 
     /**
+     * Get kuet instances from cmid
+     *
      * Get persisten from course module id.
      * @param int $cmid
      * @return false|kuet

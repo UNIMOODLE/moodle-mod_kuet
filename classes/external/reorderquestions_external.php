@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Reorder questions API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -48,9 +49,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Reorder questions class
+ */
 class reorderquestions_external extends external_api {
 
     /**
+     * Reorder questions parameters validation
+     *
      * @return external_function_parameters
      */
     public static function reorderquestions_parameters(): external_function_parameters {
@@ -67,6 +73,8 @@ class reorderquestions_external extends external_api {
     }
 
     /**
+     * Reorder questions
+     *
      * @param array $questions
      * @return array
      * @throws moodle_exception
@@ -94,6 +102,8 @@ class reorderquestions_external extends external_api {
     }
 
     /**
+     * Reorder questions return
+     *
      * @return external_single_structure
      */
     public static function reorderquestions_returns(): external_single_structure {

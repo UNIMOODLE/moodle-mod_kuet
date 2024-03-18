@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Common data exporter
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -33,9 +34,14 @@
 namespace mod_kuet\exporter;
 use context;
 
+/**
+ *   Exporter to take a stdClass and prepare it for return by webservice, or as the context for a template.
+ */
 class commondata_exporter extends question_exporter {
 
     /**
+     * Properties definition
+     *
      * @return array[]
      */
     public static function define_properties(): array {
@@ -143,6 +149,8 @@ class commondata_exporter extends question_exporter {
     }
 
     /**
+     * Related context definition
+     *
      * @return string[]
      */
     protected static function define_related() : array {

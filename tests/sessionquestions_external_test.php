@@ -17,6 +17,7 @@ use mod_kuet\models\questions;
 use mod_kuet\models\sessions;
 
 /**
+ * Session questions test
  *
  * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
@@ -25,8 +26,20 @@ use mod_kuet\models\sessions;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sessionquestions_external_test extends advanced_testcase {
 
+/**
+ * Session questions test class
+ */
+class sessionquestions_external_test extends advanced_testcase {
+    /**
+     * Session questions test
+     *
+     * @return void
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
     public function test_sessionquestions() {
         global $DB;
         $this->resetAfterTest(true);
@@ -336,6 +349,15 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
             $data['sessionquestions'][5]->{'editquestionurl'});
     }
+
+    /**
+     * Export question test
+     *
+     * @return void
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
     public function test_export_question() {
         global $DB;
         $this->resetAfterTest(true);

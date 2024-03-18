@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * True and false question exporter
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,10 +33,16 @@
  */
 
 namespace mod_kuet\exporter;
+
+/**
+ *   Exporter to take a stdClass and prepare it for return by webservice, or as the context for a template.
+ */
 class truefalse_exporter extends commondata_exporter {
 
     /**
-     * @return array
+     * Properties defnition
+     *
+     * @return array[]
      */
     public static function define_properties(): array {
         return [

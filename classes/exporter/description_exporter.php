@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Description question exporter
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -31,10 +32,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_kuet\exporter;
+
+/**
+ *   Exporter to take a stdClass and prepare it for return by webservice, or as the context for a template.
+ */
 class description_exporter extends commondata_exporter {
 
     /**
-     * @return array
+     * Properties definition
+     *
+     * @return array[]
      */
     public static function define_properties(): array {
         return [

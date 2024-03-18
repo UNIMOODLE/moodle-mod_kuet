@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Delete question API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -45,9 +46,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Delete question class
+ */
 class deletequestion_external extends external_api {
 
     /**
+     * Delete question paremeters validation
+     *
      * @return external_function_parameters
      */
     public static function deletequestion_parameters(): external_function_parameters {
@@ -60,6 +66,8 @@ class deletequestion_external extends external_api {
     }
 
     /**
+     * Delete questio
+     *
      * @param int $sid
      * @param int $qid
      * @return array
@@ -95,6 +103,8 @@ class deletequestion_external extends external_api {
     }
 
     /**
+     * Delete question returns
+     *
      * @return external_single_structure
      */
     public static function deletequestion_returns(): external_single_structure {

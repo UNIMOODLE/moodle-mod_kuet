@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Jump to question API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -58,9 +59,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Jump to question class
+ */
 class jumptoquestion_external extends external_api {
 
     /**
+     * Jump to question parameters validation
+     *
      * @return external_function_parameters
      */
     public static function jumptoquestion_parameters(): external_function_parameters {
@@ -75,6 +81,8 @@ class jumptoquestion_external extends external_api {
     }
 
     /**
+     * Jump to question
+     *
      * @param int $cmid
      * @param int $sessionid
      * @param int $position
@@ -126,6 +134,8 @@ class jumptoquestion_external extends external_api {
     }
 
     /**
+     * Jump to question returns
+     *
      * @return external_single_structure
      */
     public static function jumptoquestion_returns(): external_single_structure {

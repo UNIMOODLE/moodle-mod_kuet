@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Websocket user
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -33,21 +34,59 @@
 declare(strict_types=1);
 namespace mod_kuet;
 
+/**
+ * Websocket user class
+ */
 class websocketuser {
 
+    /**
+     * @var socket
+     */
     public $socket;
+    /**
+     * @var int user socket id
+     */
     public $usersocketid;
+    /**
+     * @var string ip
+     */
     public $ip;
+    /**
+     * @var array headers
+     */
     public $headers = [];
+    /**
+     * @var string moodle username
+     */
     public $dataname; // Moodle Username.
+    /**
+     * @var string user picture
+     */
     public $picture;
+    /**
+     * @var bool is teacher flag
+     */
     public $isteacher;
+    /**
+     * @var bool handshake
+     */
     public $handshake = false;
+    /**
+     * @var int course module id
+     */
     public $cmid;
+    /**
+     * @var int session id
+     */
     public $sid;
+    /**
+     * @var int user id
+     */
     public $userid;
 
     /**
+     * Constructor
+     *
      * @param $id
      * @param $socket
      * @param $ip
@@ -59,6 +98,12 @@ class websocketuser {
         $this->handshake = true;
     }
 
+    /**
+     *  Update user data
+     *
+     * @param $data
+     * @return void
+     */
     public function update_user($data) {
         $this->cmid = $data['cmid'];
         $this->sid = $data['sid'];

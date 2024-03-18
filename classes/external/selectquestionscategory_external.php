@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Select questions from category API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -47,9 +48,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir . '/externallib.php');
 
+/**
+ * Select questions from category API class
+ */
 class selectquestionscategory_external extends external_api {
 
     /**
+     * Select questions from category parameters validation
+     *
      * @return external_function_parameters
      */
     public static function selectquestionscategory_parameters(): external_function_parameters {
@@ -62,6 +68,8 @@ class selectquestionscategory_external extends external_api {
     }
 
     /**
+     * Select questions from category
+     *
      * @param string $categorykey
      * @param int $cmid
      * @return array
@@ -81,6 +89,8 @@ class selectquestionscategory_external extends external_api {
     }
 
     /**
+     * Select questions from category returns
+     *
      * @return external_single_structure
      */
     public static function selectquestionscategory_returns(): external_single_structure {

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Test generator
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -37,8 +38,13 @@ use coding_exception;
 use context_module;
 use dml_exception;
 
+/**
+ * Test generator class
+ */
 class generator_test extends advanced_testcase {
     /**
+     * Test generator
+     *
      * @return void
      * @throws coding_exception
      * @throws dml_exception

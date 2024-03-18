@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Kuet grades persistent
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -35,7 +36,13 @@ namespace mod_kuet\persistents;
 
 use core\persistent;
 
+/**
+ * Kuet grades persistent class
+ */
 class kuet_grades extends persistent {
+    /**
+     * @var string grades table
+     */
     const TABLE = 'kuet_grades';
     /**
      * Return the definition of the properties of this model.

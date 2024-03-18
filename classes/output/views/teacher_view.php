@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * Teacher view renderer
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -40,11 +41,17 @@ use stdClass;
 use templatable;
 use renderer_base;
 
+/**
+ * Teacher view renderable class
+ */
 class teacher_view implements renderable, templatable {
 
     /**
+     * Export for template
+     *
      * @param renderer_base $output
      * @return stdClass
+     * @throws \dml_exception
      * @throws coding_exception
      * @throws moodle_exception
      */

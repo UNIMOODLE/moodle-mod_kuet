@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Session form
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -43,9 +44,15 @@ use moodleform;
 
 global $CFG;
 require_once($CFG->libdir.'/formslib.php');
+
+/**
+ * Session form class
+ */
 class sessionform extends moodleform {
 
     /**
+     * Definition
+     *
      * @return void
      * @throws coding_exception
      */
@@ -264,6 +271,8 @@ class sessionform extends moodleform {
     }
 
     /**
+     * Form validation
+     *
      * @param array $data
      * @param array $files
      * @return array

@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Uninstall routines
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -33,6 +34,8 @@
 
 
 /**
+ * Uninstall routine
+ *
  * @return bool
  */
 function xmldb_kuet_uninstall(): bool {

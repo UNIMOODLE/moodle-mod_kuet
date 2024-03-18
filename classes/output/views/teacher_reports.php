@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Teacher reports renderer
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -46,20 +47,42 @@ use renderer_base;
 use stdClass;
 use templatable;
 
+/**
+ * Teacher reports renderable class
+ */
 class teacher_reports implements renderable, templatable {
-
+    /**
+     * @var int kuet module
+     */
     public int $kuetid;
+    /**
+     * @var int course module
+     */
     public int $cmid;
+    /**
+     * @var int session id
+     */
     public int $sid;
+    /**
+     * @var int user id
+     */
     public int $userid = 0;
+    /**
+     * @var int group id
+     */
     public int $groupid = 0;
+    /**
+     * @var int kuet question id
+     */
     public int $kid;
 
     /**
+     * Constructor
+     *
      * @param int $cmid
      * @param int $kuetid
      * @param int $sid
-     * @param int $partipantid could be userid or groupid
+     * @param int $partipantid
      * @param int $kid
      * @throws coding_exception
      */
@@ -77,6 +100,8 @@ class teacher_reports implements renderable, templatable {
     }
 
     /**
+     * Export for template
+     *
      * @param renderer_base $output
      * @return stdClass
      * @throws JsonException

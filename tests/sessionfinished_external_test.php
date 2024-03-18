@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 use mod_kuet\models\questions;
 /**
+ * Session finished service test
  *
  * @package     mod_kuet
  * @author      3&Punt <tresipunt.com>
@@ -23,8 +24,20 @@ use mod_kuet\models\questions;
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sessionfinished_external_test extends advanced_testcase {
 
+/**
+ * Session finished service test
+ */
+class sessionfinished_external_test extends advanced_testcase {
+    /**
+     * Session finished service test
+     *
+     * @return void
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
+     * @throws moodle_exception
+     */
     public function test_sessionfinished() {
         global $OUTPUT;
         $this->resetAfterTest(true);

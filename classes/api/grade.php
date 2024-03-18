@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet grade API
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -43,14 +44,37 @@ use mod_kuet\persistents\kuet_questions_responses;
 use mod_kuet\persistents\kuet_sessions;
 use mod_kuet\persistents\kuet_sessions_grades;
 use moodle_exception;
+
+/**
+ * Grade class
+ */
 class grade {
+
+    /**
+     * @var int no grade
+     */
     public const MOD_OPTION_NO_GRADE = 0;
+
+    /**
+     * @var int highest grade
+     */
     public const MOD_OPTION_GRADE_HIGHEST = 1;
+    /**
+     * @var int average grade
+     */
     public const MOD_OPTION_GRADE_AVERAGE = 2;
+    /**
+     * @var int first session grade
+     */
     public const MOD_OPTION_GRADE_FIRST_SESSION = 3;
+    /**
+     * @var int last session grade
+     */
     public const MOD_OPTION_GRADE_LAST_SESSION = 4;
 
     /**
+     * Get rounded mark
+     *
      * @param float $mark
      * @return float
      * @throws dml_exception
@@ -61,6 +85,8 @@ class grade {
     }
 
     /**
+     * Get status response for multiple answers
+     *
      * @param int $questionid
      * @param string $answerids
      * @return int
@@ -93,11 +119,11 @@ class grade {
     }
 
     /**
-     * Get the answer mark without considering session mode.
+     *  Get the answer mark without considering session mode.
      * @param kuet_questions_responses $response
      * @return float
-     * @throws moodle_exception
      * @throws coding_exception
+     * @throws moodle_exception
      */
     public static function get_simple_mark(kuet_questions_responses $response): float {
         $mark = 0;
@@ -121,6 +147,8 @@ class grade {
     }
 
     /**
+     * Get session grade
+     *
      * @param int $userid
      * @param int $sessionid
      * @param int $kuetid
@@ -154,7 +182,9 @@ class grade {
     }
 
     /**
-     * @param kuet_questions_responses[] $responses
+     * Get manual podium session type grade
+     *
+     * @param array $responses
      * @return float
      * @throws coding_exception
      * @throws moodle_exception
@@ -183,7 +213,9 @@ class grade {
     }
 
     /**
-     * @param kuet_questions_responses[] $responses
+     * Get programmed podium session type grade
+     *
+     * @param array $responses
      * @param kuet_sessions $session
      * @return float
      * @throws coding_exception
@@ -210,10 +242,11 @@ class grade {
     }
 
     /**
-     * @param kuet_questions_responses[] $responses
+     * Get session default grade
+     *
+     * @param array $responses
      * @return float
      * @throws coding_exception
-     * @throws dml_exception
      * @throws moodle_exception
      */
     private static function get_session_default_grade(array $responses) : float {
@@ -229,12 +262,14 @@ class grade {
     }
 
     /**
+     * Recalculate module mark by user id
+     *
      * @param int $userid
      * @param int $kuetid
      * @return void
-     * @throws invalid_persistent_exception
      * @throws coding_exception
      * @throws dml_exception
+     * @throws invalid_persistent_exception
      */
     public static function recalculate_mod_mark_by_userid(int $userid, int $kuetid) :void {
         $params = ['userid' => $userid, 'kuet' => $kuetid];
@@ -267,9 +302,11 @@ class grade {
     }
 
     /**
-     * For all the course students.
+     * Recalculate module mark
+     *
      * @param int $cmid
      * @param int $kuetid
+     * @return void
      * @throws coding_exception
      * @throws dml_exception
      * @throws invalid_persistent_exception
@@ -299,6 +336,8 @@ class grade {
     }
 
     /**
+     * Get final module grade
+     *
      * @param array $allgrades
      * @param string $grademethod
      * @return float
@@ -326,9 +365,10 @@ class grade {
     }
 
     /**
-     * @param kuet_sessions_grades[] $allgrades
+     * Get highest  grade
+     *
+     * @param array $allgrades
      * @return float
-     * @throws coding_exception
      */
     private static function get_highest_grade(array $allgrades) : float {
         $finalmark = 0;
@@ -341,9 +381,10 @@ class grade {
     }
 
     /**
-     * @param kuet_sessions_grades[] $allgrades
+     * Get average grade
+     *
+     * @param array $allgrades
      * @return float
-     * @throws coding_exception
      */
     private static function get_average_grade(array $allgrades) : float {
         $finalmark = 0;
@@ -355,24 +396,28 @@ class grade {
     }
 
     /**
-     * @param kuet_sessions_grades[] $allgrades
+     * Get first grade
+     *
+     * @param array $allgrades
      * @return float
-     * @throws coding_exception
      */
     private static function get_first_grade(array $allgrades) : float {
         return reset($allgrades)->get('grade');
     }
 
     /**
-     * @param kuet_sessions_grades[] $allgrades
+     * Get last grade
+     *
+     * @param array $allgrades
      * @return float
-     * @throws coding_exception
      */
     private static function get_last_grade(array $allgrades) : float {
         return end($allgrades)->get('grade');
     }
 
     /**
+     * Get result mark by question type
+     *
      * @param kuet_questions_responses $response
      * @return string
      * @throws coding_exception
@@ -383,7 +428,7 @@ class grade {
                 $result = 'incorrect';
                 break;
             case questions::SUCCESS:
-                $result = 'correct';
+                $result = 'success';
                 break;
             case questions::PARTIALLY:
                 $result = 'partially';
@@ -403,9 +448,10 @@ class grade {
     }
 
     /**
-     * @param kuet_questions_responses[] $responses
-     * @return array
-     * @throws coding_exception
+     * Count mark results by question result
+     *
+     * @param array $responses
+     * @return int[]
      */
     public static function count_result_mark_types(array $responses) : array {
         $correct = 0;

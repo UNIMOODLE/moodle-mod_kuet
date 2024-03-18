@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet websocket server
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -40,20 +41,43 @@ require_once(__DIR__ . '/../../../config.php');
 require_once(__DIR__ . '/websockets.php');
 require_once(__DIR__ . '/../lib.php');
 
+/**
+ * Kuet websocket server class
+ */
 class server extends websockets {
-
+    /**
+     * @var array students
+     */
     protected $students = [];
+    /**
+     * @var array teacher
+     */
     protected $teacher = [];
+    /**
+     * @var array session id users
+     */
     protected $sidusers = [];
+    /**
+     * @var array session id groups
+     */
     protected $sidgroups = [];
+    /**
+     * @var array session id group users
+     */
     protected $sidgroupusers = [];
+    /**
+     * @var string password
+     */
     protected $password = 'elktkktagqes';
 
     /**
+     * Process message
+     *
      * @param $user
      * @param $message
      * @return void
      * @throws JsonException
+     * @throws coding_exception
      */
     protected function process($user, $message) {
         // Sends a message to all users on the socket belonging to the same "sid" session.
@@ -108,6 +132,8 @@ class server extends websockets {
     }
 
     /**
+     *  Check if user is connected
+     *
      * @param $user
      * @return void
      */
@@ -116,11 +142,13 @@ class server extends websockets {
     }
 
     /**
+     * Set socket connection
+     * This function is called after handshake, by websockets.php
+     *
      * @param $socket
      * @param $ip
      * @return void
      * @throws JsonException
-     * This function is called after handshake, by websockets.php.
      */
     protected function connect($socket, $ip) {
         $user = new websocketuser(uniqid('u', true), $socket, $ip);
@@ -143,10 +171,11 @@ class server extends websockets {
     }
 
     /**
+     * Close group member connection
+     *
      * @param $user
      * @return void
      * @throws JsonException
-     * @throws coding_exception
      */
     protected function close_groupmember($user) {
         $groupmemberdisconected = false;
@@ -202,6 +231,8 @@ class server extends websockets {
     }
 
     /**
+     *  Close user connection
+     *
      * @param $user
      * @return void
      * @throws JsonException
@@ -241,6 +272,8 @@ class server extends websockets {
     }
 
     /**
+     * Get response from action for teacher user
+     *
      * @param websocketuser $user
      * @param string $useraction
      * @param array $data
@@ -284,6 +317,8 @@ class server extends websockets {
     }
 
     /**
+     * Get group id from a user
+     *
      * @param int $sid
      * @param int $userid
      * @return int
@@ -305,6 +340,8 @@ class server extends websockets {
     }
 
     /**
+     * Get the response from an action for a group of users
+     *
      * @param array $data
      * @return string
      * @throws JsonException
@@ -325,6 +362,8 @@ class server extends websockets {
     }
 
     /**
+     * Get the response from an action for a student user
+     *
      * @param websocketuser $user
      * @param string $useraction
      * @param array $data
@@ -346,6 +385,8 @@ class server extends websockets {
     }
 
     /**
+     * Get the response from and action
+     *
      * @param websocketuser $user // The user who sent the message.
      * @param string $useraction // The action it requires.
      * @param array $data // Body of the message.
@@ -500,6 +541,8 @@ class server extends websockets {
     }
 
     /**
+     * Set new user for the socket
+     *
      * @param websocketuser $user
      * @param array $data
      * @return void
@@ -515,6 +558,8 @@ class server extends websockets {
     }
 
     /**
+     * Set new user group for the socket
+     *
      * @param websocketuser $user
      * @param array $data
      * @return void
@@ -540,6 +585,8 @@ class server extends websockets {
         }
     }
     /**
+     * Manage new teacher of the session id
+     *
      * @param websocketuser $user
      * @param array $data
      * @return string
@@ -578,6 +625,8 @@ class server extends websockets {
     }
 
     /**
+     * Manage new student for the session id
+     *
      * @param websocketuser $user
      * @param array $data
      * @return string
@@ -624,6 +673,8 @@ class server extends websockets {
     }
 
     /**
+     * Manage new group for session id
+     *
      * @param websocketuser $user
      * @param array $data
      * @return string

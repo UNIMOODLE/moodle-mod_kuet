@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
 
 /**
+ * End session exporting routines
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -32,10 +33,15 @@
  */
 namespace mod_kuet\exporter;
 
+/**
+ *   Exporter to take a stdClass and prepare it for return by webservice, or as the context for a template.
+ */
 class endsession_exporter extends commondata_exporter {
 
     /**
-     * @return array
+     * Properties definition
+     *
+     * @return array[]
      */
     public static function define_properties(): array {
         return [

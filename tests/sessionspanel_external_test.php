@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Sessions panel test
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -46,8 +47,14 @@ defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
 
+/**
+ * Sessions panel test class
+ */
 class sessionspanel_external_test extends advanced_testcase {
 
+    /**
+     * @var array session mockup
+     */
     public array $sessionmock = [
         'name' => 'Session Test External',
         'anonymousanswer' => sessions::ANONYMOUS_ANSWERS,
@@ -72,6 +79,8 @@ class sessionspanel_external_test extends advanced_testcase {
     ];
 
     /**
+     * Sessions panel test
+     *
      * @return true
      * @throws moodle_exception
      * @throws coding_exception

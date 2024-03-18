@@ -23,6 +23,7 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
+ * Kuet questions persistent
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE
@@ -41,7 +42,13 @@ use mod_kuet\models\sessions;
 use moodle_exception;
 use stdClass;
 
+/**
+ * uet questions persistent class
+ */
 class kuet_questions extends persistent {
+    /**
+     * @var string questions table
+     */
     public const TABLE = 'kuet_questions';
     /**
      * Return the definition of the properties of this model.
@@ -92,6 +99,8 @@ class kuet_questions extends persistent {
     }
 
     /**
+     * Add question
+     *
      * @param int $questionid
      * @param int $sessionid
      * @param int $kuetid
@@ -126,6 +135,8 @@ class kuet_questions extends persistent {
     }
 
     /**
+     * Get the first question of a session
+     *
      * @param int $sessionid
      * @return kuet_questions
      */
@@ -134,6 +145,8 @@ class kuet_questions extends persistent {
     }
 
     /**
+     * Get the next question of a session
+     *
      * @param int $sessionid
      * @param int $questionid
      * @return false|kuet_questions
@@ -180,6 +193,8 @@ class kuet_questions extends persistent {
     }
 
     /**
+     * Get a question based on the position provided
+     *
      * @param int $sid
      * @param int $order
      * @return false|kuet_questions
@@ -189,6 +204,9 @@ class kuet_questions extends persistent {
     }
 
     /**
+     *
+     * Get question by kuet question id
+     *
      * @param int $kid
      * @return false|kuet_questions
      */
@@ -197,6 +215,8 @@ class kuet_questions extends persistent {
     }
 
     /**
+     * Reorder the questions
+     *
      * @param int $questionid
      * @param int $qorder
      * @return bool
@@ -216,6 +236,8 @@ class kuet_questions extends persistent {
     }
 
     /**
+     * Get session questions to be reordered
+     *
      * @param int $sid
      * @param int $qorder
      * @return array array
@@ -237,6 +259,8 @@ class kuet_questions extends persistent {
     }
 
     /**
+     * Delete session questions
+     *
      * @param int $sid
      * @return bool
      * @throws dml_exception
@@ -247,6 +271,8 @@ class kuet_questions extends persistent {
     }
 
     /**
+     * Copy session questions
+     *
      * @param int $oldsid
      * @param int $newsid
      * @return bool
@@ -266,6 +292,8 @@ class kuet_questions extends persistent {
     }
 
     /**
+     * Get the question time setting
+     *
      * @param int $kid
      * @param int $sid
      * @return float
