@@ -534,3 +534,11 @@ function generate_kuet_qrcode(string $url): string {
     }
     return '';
 }
+function mod_kuet_get_user_grades(int $kuetid, int $userid) : float {
+    $kuetgrade = new \mod_kuet\persistents\kuet_grades();
+    $pgrade = $kuetgrade::get_record(['kuet' => $kuetid, 'userid' => $userid]);
+    if (!$pgrade) {
+        return 0;
+    }
+    return $pgrade->get('grade');
+}
