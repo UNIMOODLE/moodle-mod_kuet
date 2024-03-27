@@ -223,7 +223,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
      * @return string
      */
 
-    private function replace_answerids(string $responsejson, int $newquestionid) : string {
+    private function replace_answerids(string $responsejson, int $newquestionid): string {
         if (!$newquestionid) {
             return $responsejson;
         }
@@ -244,7 +244,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
      * @param $newquestionid
      * @return string
      */
-    private function replace_answerids_multichoice(stdClass $response, $newquestionid) : string {
+    private function replace_answerids_multichoice(stdClass $response, $newquestionid): string {
         $answertexts = $response->{'answertexts'};
         $answerids = explode(',', $response->{'answerids'});
         $newanswerids = [];
@@ -271,7 +271,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
      * @param $newquestionid
      * @return string
      */
-    private function replace_answerids_truefalse(stdClass $response, $newquestionid) : string {
+    private function replace_answerids_truefalse(stdClass $response, $newquestionid): string {
         $question = question_bank::load_question($newquestionid);
         $answertext = $response->{'answertexts'};
         $newanswerids = $question->falseanswerid;
