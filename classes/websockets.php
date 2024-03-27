@@ -374,12 +374,30 @@ abstract class websockets {
                             }
                             $this->handshake($user, $buffer);
                         } else {
-                            $this->process($user, $unmasked);
+                            $isjson = $this->check_json($unmasked);
+                            if ($isjson === true) {
+                                $this->process($user, $unmasked);
+                            }
                         }
                     }
                 }
             }
         }
+    }
+
+    /**
+     * @param string $string
+     * @return bool
+     */
+    protected function check_json(string $string): bool {
+        if (strpos($string, '{') !== 0) {
+            return false;
+        }
+        if (substr($string, -1) !== '}') {
+            return false;
+        }
+        json_decode($string);
+        return json_last_error() === JSON_ERROR_NONE;
     }
 
     /**
