@@ -79,7 +79,7 @@ class grade {
      * @return float
      * @throws dml_exception
      */
-    public static function get_rounded_mark(float $mark) : float {
+    public static function get_rounded_mark(float $mark): float {
         $num = (int) get_config('core', 'grade_export_decimalpoints');
         return round($mark, $num);
     }
@@ -92,7 +92,7 @@ class grade {
      * @return int
      * @throws dml_exception
      */
-    public static function get_status_response_for_multiple_answers(int $questionid, string $answerids) : int {
+    public static function get_status_response_for_multiple_answers(int $questionid, string $answerids): int {
         global $DB;
 
         if (empty($answerids)) {
@@ -157,7 +157,7 @@ class grade {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_session_grade(int $userid, int $sessionid, int $kuetid) : float {
+    public static function get_session_grade(int $userid, int $sessionid, int $kuetid): float {
         $responses = kuet_questions_responses::get_session_responses_for_user($userid, $sessionid, $kuetid);
         if (count($responses) === 0) {
             return 0;
@@ -189,7 +189,7 @@ class grade {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    private static function get_session_podium_manual_grade(array $responses) : float {
+    private static function get_session_podium_manual_grade(array $responses): float {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
@@ -221,7 +221,7 @@ class grade {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    private static function get_session_podium_programmed_grade(array $responses, kuet_sessions $session) : float {
+    private static function get_session_podium_programmed_grade(array $responses, kuet_sessions $session): float {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
@@ -249,7 +249,7 @@ class grade {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    private static function get_session_default_grade(array $responses) : float {
+    private static function get_session_default_grade(array $responses): float {
         $mark = 0;
         foreach ($responses as $response) {
             $usermark = self::get_simple_mark($response);
@@ -271,7 +271,7 @@ class grade {
      * @throws dml_exception
      * @throws invalid_persistent_exception
      */
-    public static function recalculate_mod_mark_by_userid(int $userid, int $kuetid) :void {
+    public static function recalculate_mod_mark_by_userid(int $userid, int $kuetid): void {
         $params = ['userid' => $userid, 'kuet' => $kuetid];
         $allgrades = kuet_sessions_grades::get_records($params);
 
@@ -312,7 +312,7 @@ class grade {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function recalculate_mod_mark(int $cmid, int $kuetid) : void {
+    public static function recalculate_mod_mark(int $cmid, int $kuetid): void {
         $students = \mod_kuet\kuet::get_students($cmid);
         if (empty($students)) {
             return;
@@ -343,7 +343,7 @@ class grade {
      * @return float
      * @throws coding_exception
      */
-    private static function get_final_mod_grade(array $allgrades, string $grademethod) : float {
+    private static function get_final_mod_grade(array $allgrades, string $grademethod): float {
 
         // Only one session.
         if (count($allgrades) === 1) {
@@ -370,7 +370,7 @@ class grade {
      * @param array $allgrades
      * @return float
      */
-    private static function get_highest_grade(array $allgrades) : float {
+    private static function get_highest_grade(array $allgrades): float {
         $finalmark = 0;
         foreach ($allgrades as $grade) {
             if ($grade->get('grade') > $finalmark) {
@@ -386,7 +386,7 @@ class grade {
      * @param array $allgrades
      * @return float
      */
-    private static function get_average_grade(array $allgrades) : float {
+    private static function get_average_grade(array $allgrades): float {
         $finalmark = 0;
         $total = count($allgrades);
         foreach ($allgrades as $grade) {
@@ -401,7 +401,7 @@ class grade {
      * @param array $allgrades
      * @return float
      */
-    private static function get_first_grade(array $allgrades) : float {
+    private static function get_first_grade(array $allgrades): float {
         return reset($allgrades)->get('grade');
     }
 
@@ -411,7 +411,7 @@ class grade {
      * @param array $allgrades
      * @return float
      */
-    private static function get_last_grade(array $allgrades) : float {
+    private static function get_last_grade(array $allgrades): float {
         return end($allgrades)->get('grade');
     }
 
@@ -422,7 +422,7 @@ class grade {
      * @return string
      * @throws coding_exception
      */
-    public static function get_result_mark_type(kuet_questions_responses $response) : string {
+    public static function get_result_mark_type(kuet_questions_responses $response): string {
         switch ($response->get('result')) {
             case questions::FAILURE:
                 $result = 'incorrect';
@@ -453,7 +453,7 @@ class grade {
      * @param array $responses
      * @return int[]
      */
-    public static function count_result_mark_types(array $responses) : array {
+    public static function count_result_mark_types(array $responses): array {
         $correct = 0;
         $incorrect = 0;
         $partially = 0;
