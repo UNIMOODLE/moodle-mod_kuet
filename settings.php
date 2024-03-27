@@ -36,16 +36,6 @@ global $PAGE, $CFG, $ADMIN;
 
 if ($ADMIN->fulltree) {
     $settings = new theme_boost_admin_settingspage_tabs('modsettingkuet', get_string('configtitle', 'mod_kuet'));
-    /*$page = new admin_settingpage('mod_kuet_general', get_string('generalsettings', 'mod_kuet'));
-
-    // Modedit defaults.
-    $setting = new admin_setting_heading('kuet_header',
-        get_string('kuet_header', 'mod_kuet'), '');
-    $page->add($setting);
-
-
-    $settings->add($page);*/
-
     $page = new admin_settingpage('mod_kuet_socket', get_string('socket', 'mod_kuet'));
     $maxbytes = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes);
 
@@ -57,7 +47,7 @@ if ($ADMIN->fulltree) {
         [
             'nosocket' => get_string('nosocket', 'mod_kuet'),
             'local' => get_string('local', 'mod_kuet'),
-            'external' => get_string('external', 'mod_kuet')
+            'external' => get_string('external', 'mod_kuet'),
         ]
     );
     $page->add($setting);

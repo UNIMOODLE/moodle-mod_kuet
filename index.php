@@ -35,14 +35,14 @@ $id = required_param('id', PARAM_INT);
 $PAGE->set_url('/mod/kuet/index.php', ['id' => $id]);
 
 // Fetch the requested course.
-$course = $DB->get_record('course', ['id'=> $id], '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 
 // Require that the user is logged into the course.
 require_course_login($course);
 $PAGE->set_pagelayout('incourse');
 $modinfo = get_fast_modinfo($course);
 $strkuets = get_string("modulenameplural", "kuet");
-/// Print the header
+// Print the header.
 $PAGE->navbar->add($strkuets);
 $PAGE->set_title("$course->shortname: $strkuets");
 $PAGE->set_heading($course->fullname);
@@ -65,14 +65,14 @@ foreach ($kuets as $instanceid => $kuet) {
     $context = context_module::instance($cm->id);
     $class = $kuet->visible ? null : ['class' => 'dimmed']; // Hidden modules are dimmed.
     $link = html_writer::link(new moodle_url('view.php', ['id' => $cm->id]), format_string($kuet->name), $class);
-    $grade_value = $gradeoptions[$kuet->grademethod];
+    $gradevalue = $gradeoptions[$kuet->grademethod];
     if (!has_capability('mod/kuet:managesessions', $context)) {
-        // it's a student, show their grade
-        $grade_value = mod_kuet_get_user_grades($kuet->id, $USER->id);
+        // It's a student, show their grade.
+        $gradevalue = mod_kuet_get_user_grades($kuet->id, $USER->id);
     }
     $sessions = new kuet_sessions();
     $numsessions = $sessions::count_records(['kuetid' => $kuet->id]);
-    $table->data[] = [$link, $numsessions, $grade_value];
+    $table->data[] = [$link, $numsessions, $gradevalue];
 }
 echo html_writer::table($table);
 echo $OUTPUT->footer();

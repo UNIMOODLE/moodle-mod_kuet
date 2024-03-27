@@ -57,7 +57,7 @@ class mod_kuet_mod_form extends moodleform_mod {
 
         $this->standard_intro_elements(get_string('introduction', 'kuet'));
 
-        //Grade settings.
+        // Grade settings.
         $this->standard_grading_coursemodule_elements();
         $mform->removeElement('grade');
         if (property_exists($this->current, 'grade')) {
@@ -75,7 +75,7 @@ class mod_kuet_mod_form extends moodleform_mod {
         $mform->insertElementBefore($grademethodelement, 'gradecat');
         $mform->addHelpButton('grademethod', 'grademethod', 'kuet');
 
-        //Course module elements.
+        // Course module elements.
         $this->standard_coursemodule_elements();
 
         $this->add_action_buttons();
@@ -96,7 +96,7 @@ class mod_kuet_mod_form extends moodleform_mod {
             get_string('completionansweralllabel', 'kuet'),
             get_string('completionansweralldesc', 'kuet')
         );
-        //Enable this completion rule by default.
+        // Enable this completion rule by default.
         $mform->setDefault('completionanswerall', 0);
         $mform->setType('completionanswerall', PARAM_INT);
         return ['completionanswerall'];
@@ -108,7 +108,7 @@ class mod_kuet_mod_form extends moodleform_mod {
      * @param array $data
      * @return bool
      */
-    public function completion_rule_enabled($data) : bool {
+    public function completion_rule_enabled($data): bool {
         return !empty($data['completionanswerall']);
     }
 }

@@ -38,7 +38,7 @@ use core_calendar\local\event\value_objects\action;
 use core_completion\api;
 use mod_kuet\api\grade;
 use mod_kuet\persistents\kuet;
-
+defined('MOODLE_INTERNAL') || die;
 global $CFG;
 require_once($CFG->dirroot . '/lib/gradelib.php');
 
@@ -99,7 +99,7 @@ function kuet_add_instance(stdClass $data): int {
     $data->id  = $kuet->get('id');
 
     // Update course module record - from now on this instance properly exists and all function may be used.
-    $DB->set_field('course_modules', 'instance', $data->id, array('id' => $cmid));
+    $DB->set_field('course_modules', 'instance', $data->id, ['id' => $cmid]);
 
     if (!empty($data->completionexpected)) {
         api::update_completion_date_event($cmid, 'kuet', $kuet->to_record(), $data->completionexpected);
@@ -406,7 +406,7 @@ function kuet_pluginfile($course, $cm, $context, $filearea, $args, $forcedownloa
     }
     $question = $DB->get_record('kuet_questions', [
         'questionid' => $questionid,
-        'kuetid' => $cm->instance
+        'kuetid' => $cm->instance,
     ]);
     if (!$question) {
         return false;
@@ -462,7 +462,7 @@ function mod_kuet_get_grading_options(): array {
         grade::MOD_OPTION_GRADE_HIGHEST => get_string('gradehighest', 'mod_kuet'),
         grade::MOD_OPTION_GRADE_AVERAGE => get_string('gradeaverage', 'mod_kuet'),
         grade::MOD_OPTION_GRADE_FIRST_SESSION => get_string('firstsession', 'mod_kuet'),
-        grade::MOD_OPTION_GRADE_LAST_SESSION => get_string('lastsession', 'mod_kuet')
+        grade::MOD_OPTION_GRADE_LAST_SESSION => get_string('lastsession', 'mod_kuet'),
     ];
 }
 
@@ -494,7 +494,7 @@ function mod_kuet_grade_item_update(stdClass $data, $grades = null) {
         $params['grademin'] = 0;
     }
 
-    if ($grades  === 'reset') {
+    if ($grades === 'reset') {
         $params['reset'] = true;
         $grades = null;
     }

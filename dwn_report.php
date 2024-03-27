@@ -67,8 +67,8 @@ if ($sid) {
 } else {
     $participantid = $userid;
 }
-$params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => $reportname];
-$url = new moodle_url('/mod/kuet/dwn_report.php',$params);
+$params = ['cmid' => $cmid, 'sid' => $sid, 'name' => $reportname];
+$url = new moodle_url('/mod/kuet/dwn_report.php', $params);
 $PAGE->set_url($url);
 if ($isteacher) {
     $view = new teacher_reports($cmid, $kuet->get('id'), $sid, $participantid, $kid);
@@ -85,7 +85,7 @@ $output = $PAGE->get_renderer('mod_kuet');
 $data = $view->export_for_template($output);
 $columnames = [];
 $reportvalues = [];
-$filename = 'report_mod_kuet_courseid_' . $course->id . '_sid_' . $sid ;
+$filename = 'report_mod_kuet_courseid_' . $course->id . '_sid_' . $sid;
 $tabletitle = $reportname;
 switch ($reportname) {
     case reports::GROUP_QUESTION_REPORT:
@@ -96,10 +96,10 @@ switch ($reportname) {
             get_string('score_moment', 'mod_kuet'),
             get_string('time', 'mod_kuet'),
             get_string('reportlink', 'mod_kuet')];
-        $filename .= '_questionid_' . $kid  ;
+        $filename .= '_questionid_' . $kid;
         $reportvalues = $data->questiongroupranking;
         $tabletitle = get_string('questionreport', 'mod_kuet');
-        $params =  array_merge($params, ['kid' => $kid]);
+        $params = array_merge($params, ['kid' => $kid]);
         $url->params($params);
         break;
     case reports::QUESTION_REPORT:
@@ -114,11 +114,12 @@ switch ($reportname) {
         $filename .= '_questionid_' . $kid;
         $reportvalues = $data->questionranking;
         $tabletitle = get_string('questionreport', 'mod_kuet');
-        $params =  array_merge($params, ['kid' => $kid]);
+        $params = array_merge($params, ['kid' => $kid]);
         $url->params($params);
         break;
     case reports::SESSION_QUESTIONS_REPORT:
-        $columnames = [ 'questionnid', 'position', 'name', 'type', 'success', 'failures', 'partyally', 'noresponse', 'time', 'isevaluable', 'questionreporturl'];
+        $columnames = [ 'questionnid', 'position', 'name', 'type', 'success', 'failures', 'partyally', 'noresponse',
+            'time', 'isevaluable', 'questionreporturl'];
         $headers = [
             get_string('questionid', 'mod_kuet'),
             get_string('question_position', 'mod_kuet'),
@@ -135,7 +136,8 @@ switch ($reportname) {
         $tabletitle = get_string('sessionquestionsreport', 'mod_kuet');
         break;
     case reports::GROUP_SESSION_RANKING_REPORT:
-        $columnames = [ 'groupposition', 'groupname', 'grouppoints', 'correctanswers', 'incorrectanswers', 'partially', 'notanswers', 'viewreporturl'];
+        $columnames = [ 'groupposition', 'groupname', 'grouppoints', 'correctanswers', 'incorrectanswers', 'partially',
+            'notanswers', 'viewreporturl'];
         $headers = [
             get_string('question_position', 'mod_kuet'),
             get_string('groupname', 'group'),
@@ -150,7 +152,8 @@ switch ($reportname) {
         $tabletitle = get_string('groupsessionrankingreport', 'mod_kuet');
         break;
     case reports::SESSION_RANKING_REPORT:
-        $columnames = [ 'userposition', 'userfullname', 'userpoints', 'correctanswers', 'incorrectanswers', 'partially', 'notanswers', 'viewreporturl'];
+        $columnames = [ 'userposition', 'userfullname', 'userpoints', 'correctanswers', 'incorrectanswers', 'partially',
+            'notanswers', 'viewreporturl'];
         $headers = [
             get_string('question_position', 'mod_kuet'),
             get_string('fullname'),
@@ -176,7 +179,7 @@ switch ($reportname) {
         $filename .= '_userid_' . $userid. '_'.trim($data->userfullname);
         $reportvalues = $data->sessionquestions;
         $tabletitle = get_string('userreport', 'mod_kuet');
-        $params =  array_merge($params, ['userid' => $userid]);
+        $params = array_merge($params, ['userid' => $userid]);
         $url->params($params);
         break;
     case reports::GROUP_REPORT:
@@ -191,7 +194,7 @@ switch ($reportname) {
         $filename .= '_groupid_' . $groupid. '_'.trim($data->groupname);
         $reportvalues = $data->sessionquestions;
         $tabletitle = get_string('userreport', 'mod_kuet');
-        $params =  array_merge($params, ['groupid' => $groupid]);
+        $params = array_merge($params, ['groupid' => $groupid]);
         $url->params($params);
         break;
 }
@@ -211,7 +214,7 @@ $table->define_baseurl($url->out());
 $table->define_columns($columnames);
 $table->define_headers($headers);
 $table->set_attribute('id', $tabletitle);
-$table->show_download_buttons_at(array(TABLE_P_BOTTOM));
+$table->show_download_buttons_at([TABLE_P_BOTTOM]);
 $table->setup();
 
 foreach ($reportvalues as $d) {
