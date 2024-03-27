@@ -57,7 +57,7 @@ class answer_exporter extends exporter {
             ],
             'fraction' => [
                 'type' => PARAM_RAW,
-            ]
+            ],
         ];
     }
 }
