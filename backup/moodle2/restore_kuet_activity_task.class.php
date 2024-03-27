@@ -67,7 +67,7 @@ class restore_kuet_activity_task extends restore_activity_task {
      */
     public static function define_decode_contents() {
         return [
-            new restore_decode_content('kuet', ['intro'])
+            new restore_decode_content('kuet', ['intro']),
         ];
     }
 
@@ -79,7 +79,7 @@ class restore_kuet_activity_task extends restore_activity_task {
     public static function define_decode_rules() {
         return [
             new restore_decode_rule('KUETVIEWBYID', '/mod/kuet/view.php?id=$1', 'course_module'),
-            new restore_decode_rule('KUETINDEX', '/mod/kuet/index.php?id=$1', 'course')
+            new restore_decode_rule('KUETINDEX', '/mod/kuet/index.php?id=$1', 'course'),
         ];
     }
 
