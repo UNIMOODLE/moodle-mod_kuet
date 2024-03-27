@@ -38,3 +38,5 @@ $plugin->version = 2023120100;
 $plugin->requires = 2022112802; // Moodle 4.1.2+
 $plugin->component = 'mod_kuet';
 $plugin->cron = 0;
+$plugin->maturity = MATURITY_STABLE;
+$plugin->release = 'v0.0.1';
