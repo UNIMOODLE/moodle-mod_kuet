@@ -52,8 +52,8 @@ class shortanswer_exporter extends commondata_exporter {
             ],
             'shortanswer' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
-            ]
+                'optional' => true,
+            ],
         ];
     }
 }

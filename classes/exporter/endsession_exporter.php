@@ -47,19 +47,19 @@ class endsession_exporter extends commondata_exporter {
         return [
             'endsession' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
             'endsessionimage' => [
                 'type' => PARAM_RAW,
-                'optional' => true
+                'optional' => true,
             ],
             'courselink' => [
                 'type' => PARAM_URL,
-                'optional' => true
+                'optional' => true,
             ],
             'reportlink' => [
                 'type' => PARAM_URL,
-                'optional' => true
+                'optional' => true,
             ],
         ];
     }

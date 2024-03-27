@@ -49,16 +49,16 @@ class matchquestion_exporter extends commondata_exporter {
             'leftoptions' => [
                 'type' => matchoption_exporter::read_properties_definition(),
                 'multiple' => true,
-                'optional' => true
+                'optional' => true,
             ],
             'rightoptions' => [
                 'type' => matchoption_exporter::read_properties_definition(),
                 'multiple' => true,
-                'optional' => true
+                'optional' => true,
             ],
             'match' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
         ];
     }

@@ -48,16 +48,16 @@ class truefalse_exporter extends commondata_exporter {
         return [
             'name' => [
                 'type' => PARAM_RAW,
-                'optional' => true
+                'optional' => true,
             ],
             'answers' => [
                 'type' => answer_exporter::read_properties_definition(),
                 'multiple' => true,
-                'optional' => true
+                'optional' => true,
             ],
             'truefalse' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
         ];
     }

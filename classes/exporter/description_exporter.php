@@ -47,8 +47,8 @@ class description_exporter extends commondata_exporter {
         return [
             'description' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
-            ]
+                'optional' => true,
+            ],
         ];
     }
 }

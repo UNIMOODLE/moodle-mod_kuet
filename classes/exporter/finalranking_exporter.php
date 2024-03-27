@@ -54,7 +54,7 @@ class finalranking_exporter extends exporter {
             ],
             'userpoints' => [
                 'type' => PARAM_INT,
-            ]
+            ],
         ];
     }
 }

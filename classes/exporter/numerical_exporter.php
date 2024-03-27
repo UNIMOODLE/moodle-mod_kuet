@@ -52,7 +52,7 @@ class numerical_exporter extends commondata_exporter {
             'units' => [
                 'type' => numericalunit_exporter::read_properties_definition(),
                 'multiple' => true,
-                'optional' => true
+                'optional' => true,
             ],
             'unitdisplay' => [
                 'type' => PARAM_BOOL,
@@ -68,7 +68,7 @@ class numerical_exporter extends commondata_exporter {
             ],
             'numerical' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
         ];
     }

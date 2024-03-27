@@ -48,24 +48,24 @@ class multichoice_exporter extends commondata_exporter {
         return [
             'numanswers' => [
                 'type' => PARAM_INT,
-                'optional' => true
+                'optional' => true,
             ],
             'name' => [
                 'type' => PARAM_RAW,
-                'optional' => true
+                'optional' => true,
             ],
             'answers' => [
                 'type' => answer_exporter::read_properties_definition(),
                 'multiple' => true,
-                'optional' => true
+                'optional' => true,
             ],
             'multianswers' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
             'multichoice' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
         ];
     }

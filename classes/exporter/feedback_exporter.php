@@ -54,7 +54,7 @@ class feedback_exporter extends exporter {
             ],
             'feedbackformat' => [
                 'type' => PARAM_INT,
-            ]
+            ],
         ];
     }
 }

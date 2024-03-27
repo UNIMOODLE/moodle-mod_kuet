@@ -54,7 +54,7 @@ class matchoption_exporter extends exporter {
             ],
             'optiontext' => [
                 'type' => PARAM_RAW,
-            ]
+            ],
         ];
     }
 }
