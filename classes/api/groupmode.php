@@ -44,9 +44,10 @@ use mod_kuet\models\sessions;
 use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use stdClass;
+defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->dirroot/group/lib.php");
-defined('MOODLE_INTERNAL') || die();
+
 /**
  * Group mode class
  */
@@ -113,7 +114,7 @@ class groupmode {
         if (count($images) >= 7) {
             $name = '';
         } else {
-            for($i = 1; $i<8; $i++) {
+            for ($i = 1; $i < 8; $i++) {
                 $name   = '/mod/kuet/pix/pattern_0' . $i . '.png';
                 if (!in_array($name, $images)) {
                     break;
