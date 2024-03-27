@@ -50,15 +50,15 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $userinfo = $this->get_setting_value('userinfo');
         $paths = [];
         $paths[] = new restore_path_element('kuet', '/activity/kuet');
-        $paths[] = new restore_path_element('kuet_session','/activity/kuet/sessions/session');
+        $paths[] = new restore_path_element('kuet_session', '/activity/kuet/sessions/session');
         $question = new restore_path_element('kuet_question', '/activity/kuet/questions/question');
         $paths[] = $question;
         $this->add_question_usages($question, $paths);
         if ($userinfo) {
-            $paths[] = new restore_path_element('kuet_grade','/activity/kuet/grades/grade');
-            $paths[] = new restore_path_element('kuet_session_grade','/activity/kuet/sessions_grades/session_grade');
+            $paths[] = new restore_path_element('kuet_grade', '/activity/kuet/grades/grade');
+            $paths[] = new restore_path_element('kuet_session_grade', '/activity/kuet/sessions_grades/session_grade');
             $paths[] = new restore_path_element('kuet_user_progres', '/activity/kuet/user_progress/user_progres');
-            $paths[] = new restore_path_element('kuet_questions_response','/activity/kuet/questions_responses/questions_response');
+            $paths[] = new restore_path_element('kuet_questions_response', '/activity/kuet/questions_responses/questions_response');
         }
         return $this->prepare_activity_structure($paths);
     }
