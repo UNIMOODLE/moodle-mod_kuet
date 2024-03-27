@@ -32,8 +32,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
 namespace mod_kuet\api;
 use cache;
 use cache_application;
@@ -48,7 +46,7 @@ use moodle_exception;
 use stdClass;
 global $CFG;
 require_once("$CFG->dirroot/group/lib.php");
-
+defined('MOODLE_INTERNAL') || die();
 /**
  * Group mode class
  */
@@ -96,7 +94,7 @@ class groupmode {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function set_group_image_for_session(int $sid, cache_application $cache) : string {
+    public static function set_group_image_for_session(int $sid, cache_application $cache): string {
 
         $session = new kuet_sessions($sid);
         $groupingid = $session->get('groupings');
@@ -151,7 +149,7 @@ class groupmode {
      * @param int $groupid
      * @return array
      */
-    public static function get_group_members(int $groupid) : array {
+    public static function get_group_members(int $groupid): array {
         $members = groups_get_members($groupid, 'u.id');
         if (!$members) {
             return [];
@@ -166,7 +164,7 @@ class groupmode {
      * @return array
      * @throws dml_exception
      */
-    public static function get_grouping_groups_name(int $groupingid) : array {
+    public static function get_grouping_groups_name(int $groupingid): array {
         $groups = groups_get_grouping_members($groupingid, 'u.id,gg.groupid');
         $names = [];
         $groupids = [];
@@ -187,7 +185,7 @@ class groupmode {
      * @return array
      * @throws dml_exception
      */
-    public static function get_grouping_groups(int $groupingid) : array {
+    public static function get_grouping_groups(int $groupingid): array {
         $groups = groups_get_grouping_members($groupingid, 'u.id,gg.groupid');
         $data = [];
         if (!$groups) {
@@ -210,7 +208,7 @@ class groupmode {
      * @param int $groupingid
      * @return array
      */
-    public static function get_grouping_userids(int $groupingid) : array {
+    public static function get_grouping_userids(int $groupingid): array {
         $groupmembers = groups_get_grouping_members($groupingid, 'u.id');
         return array_map(static function($user) {
             return $user->id;
@@ -223,7 +221,7 @@ class groupmode {
      * @param int $groupingid
      * @return array
      */
-    public static function get_grouping_users(int $groupingid) : array {
+    public static function get_grouping_users(int $groupingid): array {
         return groups_get_grouping_members($groupingid, 'u.id');
     }
 
@@ -234,7 +232,7 @@ class groupmode {
      * @param int $userid
      * @return array
      */
-    public static function get_grouping_group_members_by_userid(int $groupingid, int $userid) : array {
+    public static function get_grouping_group_members_by_userid(int $groupingid, int $userid): array {
         $allmembers = groups_get_grouping_members($groupingid, 'u.id, gg.groupid');
         $groupid = 0;
         foreach ($allmembers as $gmember) {
@@ -261,7 +259,7 @@ class groupmode {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function check_all_users_in_groups(int $cmid, int $groupingid) : void {
+    public static function check_all_users_in_groups(int $cmid, int $groupingid): void {
 
         $students = kuet::get_enrolled_students_in_course(0, $cmid);
         $studentsids = array_keys($students);
@@ -293,7 +291,7 @@ class groupmode {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function get_user_group(int $userid, kuet_sessions $sessions) : stdClass {
+    public static function get_user_group(int $userid, kuet_sessions $sessions): stdClass {
         $groups = self::get_grouping_groups($sessions->get('groupings'));
         if (empty($groups)) {
             sessions::set_session_status_error($sessions, 'groupingremoved');
@@ -318,7 +316,7 @@ class groupmode {
      * @return array
      * @throws dml_exception
      */
-    public static function get_grouping_group_members(int $groupingid) : array {
+    public static function get_grouping_group_members(int $groupingid): array {
         $members = [];
         $groups = self::get_grouping_groups($groupingid);
         foreach ($groups as $group) {
