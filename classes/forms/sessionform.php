@@ -41,7 +41,7 @@ use mod_kuet\api\groupmode;
 use mod_kuet\models\sessions;
 use mod_kuet\persistents\kuet_sessions;
 use moodleform;
-
+defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir.'/formslib.php');
 
