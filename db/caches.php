@@ -36,6 +36,6 @@ defined('MOODLE_INTERNAL') || die();
 $definitions = [
     'groupimages' => [
         'mode' => cache_store::MODE_APPLICATION,
-    ]
+    ],
 ];
 

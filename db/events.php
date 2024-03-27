@@ -34,10 +34,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$observers = array(
-
-    array(
+$observers = [
+    [
         'eventname' => '\mod_kuet\event\session_ended',
         'callback' => '\mod_kuet\observer::session_ended',
-    ),
-);
+    ],
+];
