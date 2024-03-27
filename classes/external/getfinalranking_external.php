@@ -65,7 +65,7 @@ class getfinalranking_external extends external_api {
         return new external_function_parameters(
             [
                 'sid' => new external_value(PARAM_INT, 'sessionid id'),
-                'cmid' => new external_value(PARAM_INT, 'course module id')
+                'cmid' => new external_value(PARAM_INT, 'course module id'),
             ]
         );
     }
@@ -110,7 +110,7 @@ class getfinalranking_external extends external_api {
             'ranking' => true,
             'endsession' => true,
             'reporturl' => (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false),
-            'isteacher' => has_capability('mod/kuet:startsession', $contextmodule)
+            'isteacher' => has_capability('mod/kuet:startsession', $contextmodule),
         ];
     }
 
@@ -127,7 +127,7 @@ class getfinalranking_external extends external_api {
                         'userimageurl' => new external_value(PARAM_RAW, 'Url for user image'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
                         'userfullname' => new external_value(PARAM_RAW, 'Name of user'),
-                        'userpoints' => new external_value(PARAM_FLOAT, 'Total points of user')
+                        'userpoints' => new external_value(PARAM_FLOAT, 'Total points of user'),
                     ], ''
                 ), ''
             ),

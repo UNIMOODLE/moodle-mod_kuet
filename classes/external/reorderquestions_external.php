@@ -97,7 +97,7 @@ class reorderquestions_external extends external_api {
         }
 
         return [
-            'added' => $added
+            'added' => $added,
         ];
     }
 

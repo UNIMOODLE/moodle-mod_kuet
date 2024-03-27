@@ -66,7 +66,7 @@ class deletesession_external extends external_api {
             [
                 'courseid' => new external_value(PARAM_INT, 'course id'),
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
-                'sessionid' => new external_value(PARAM_INT, 'id of session to copy')
+                'sessionid' => new external_value(PARAM_INT, 'id of session to copy'),
             ]
         );
     }
@@ -99,7 +99,7 @@ class deletesession_external extends external_api {
             $deleted = $dq && $ds && $dresponses && $dsgrades && $duprogress;
         }
         return [
-            'deleted' => $deleted
+            'deleted' => $deleted,
         ];
     }
 

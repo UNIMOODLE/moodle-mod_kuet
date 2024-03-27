@@ -62,7 +62,7 @@ class selectquestionscategory_external extends external_api {
         return new external_function_parameters(
             [
                 'categorykey' => new external_value(PARAM_RAW, 'key for category selected'),
-                'cmid' => new external_value(PARAM_INT, 'cmid for course module')
+                'cmid' => new external_value(PARAM_INT, 'cmid for course module'),
             ]
         );
     }
@@ -118,7 +118,7 @@ class selectquestionscategory_external extends external_api {
                         ]),
                     ], ''
                 ), ''
-            )
+            ),
         ]);
     }
 }

@@ -87,11 +87,11 @@ class deleteresponses_external extends external_api {
         if (has_capability('mod/kuet:startsession', $cmcontext)) {
             $kuet = new kuet($cmid);
             return [
-                'deleted' => kuet_questions_responses::delete_question_responses($kuet->get_kuet()->id, $sessionid, $kid)
+                'deleted' => kuet_questions_responses::delete_question_responses($kuet->get_kuet()->id, $sessionid, $kid),
             ];
         }
         return [
-            'deleted' => false
+            'deleted' => false,
         ];
     }
 

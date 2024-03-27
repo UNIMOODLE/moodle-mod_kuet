@@ -76,7 +76,7 @@ class nextquestion_external extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
                 'kid' => new external_value(PARAM_INT, 'question id of kuet_questions'),
-                'manual' => new external_value(PARAM_BOOL, 'Mode of session')
+                'manual' => new external_value(PARAM_BOOL, 'Mode of session'),
             ]
         );
     }

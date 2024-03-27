@@ -69,10 +69,10 @@ class addquestions_external extends external_api {
                         'questionid' => new external_value(PARAM_INT, 'question id'),
                         'sessionid' => new external_value(PARAM_INT, 'sessionid'),
                         'kuetid' => new external_value(PARAM_INT, 'kuetid'),
-                        'qtype' => new external_value(PARAM_RAW, 'sessionid')
+                        'qtype' => new external_value(PARAM_RAW, 'sessionid'),
                     ]
                 ), 'List of session questions', VALUE_DEFAULT, []
-            )
+            ),
         ]);
     }
 
@@ -104,7 +104,7 @@ class addquestions_external extends external_api {
             }
         }
         return [
-            'added' => $added
+            'added' => $added,
         ];
     }
 

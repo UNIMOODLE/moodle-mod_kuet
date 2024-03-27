@@ -81,7 +81,7 @@ class getactivesession_external extends external_api {
         );
         $activessesion = kuet_sessions::get_active_session_id($kuetid);
         return [
-            'active' => $activessesion
+            'active' => $activessesion,
         ];
     }
 

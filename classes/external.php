@@ -97,7 +97,7 @@ class mod_kuet_external extends external_api {
 
         return [
             'kuets' => $returnedkuets,
-            'warnings' => $warnings
+            'warnings' => $warnings,
         ];
     }
 
@@ -106,9 +106,9 @@ class mod_kuet_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function get_kuets_by_courses_returns() : external_single_structure {
+    public static function get_kuets_by_courses_returns(): external_single_structure {
         return new external_single_structure(
-            array(
+            [
                 'kuets' => new external_multiple_structure(
                     new external_single_structure(array_merge(
                         helper_for_get_mods_by_courses::standard_coursemodule_elements_returns(),
@@ -118,7 +118,7 @@ class mod_kuet_external extends external_api {
                     ))
                 ),
                 'warnings' => new external_warnings(),
-            )
+            ]
         );
     }
 }

@@ -70,7 +70,7 @@ class getquestionstatistics_external extends external_api {
         return new external_function_parameters(
             [
                 'sid' => new external_value(PARAM_INT, 'session id'),
-                'kid' => new external_value(PARAM_INT, 'Id for kuet_questions')
+                'kid' => new external_value(PARAM_INT, 'Id for kuet_questions'),
             ]
         );
     }
@@ -111,7 +111,7 @@ class getquestionstatistics_external extends external_api {
             /** @var questions $type */
             $type = questions::get_question_class_by_string_type($kuetquestion->get('qtype'));
             $statistics = $type::get_question_statistics($question, $responses);
-        } catch(moodle_exception $exception) {
+        } catch (moodle_exception $exception) {
             return ['statistics' => $statistics];
         }
         return ['statistics' => $statistics];

@@ -60,7 +60,7 @@ class copyquestion_external extends external_api {
     public static function copyquestion_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'qid' => new external_value(PARAM_INT, 'question id')
+                'qid' => new external_value(PARAM_INT, 'question id'),
             ]
         );
     }
@@ -98,7 +98,7 @@ class copyquestion_external extends external_api {
         }
 
         return [
-            'copied' => $copied
+            'copied' => $copied,
         ];
     }
 

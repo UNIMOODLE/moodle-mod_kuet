@@ -98,10 +98,10 @@ class getsessionresume_external extends external_api {
                     [
                         'iconconfig'   => new external_value(PARAM_RAW, 'Name of icon'),
                         'configname' => new external_value(PARAM_RAW, 'Num of config'),
-                        'configvalue' => new external_value(PARAM_RAW, 'HTML for config value')
+                        'configvalue' => new external_value(PARAM_RAW, 'HTML for config value'),
                     ], ''
                 ), ''
-            )
+            ),
         ]);
     }
 }

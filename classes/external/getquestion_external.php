@@ -71,7 +71,7 @@ class getquestion_external extends external_api {
             [
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sid' => new external_value(PARAM_INT, 'session id'),
-                'kid' => new external_value(PARAM_INT, 'kuet id')
+                'kid' => new external_value(PARAM_INT, 'kuet id'),
             ]
         );
     }

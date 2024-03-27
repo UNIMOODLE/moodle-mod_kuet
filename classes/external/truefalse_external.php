@@ -116,7 +116,7 @@ class truefalse_external extends external_api {
                 'questionid' => $questionid,
                 'kid' => $kid,
                 'timeleft' => $timeleft,
-                'preview' => $preview
+                'preview' => $preview,
             ]
         );
         $contextmodule = context_module::instance($cmid);

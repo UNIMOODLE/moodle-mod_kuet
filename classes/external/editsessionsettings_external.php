@@ -64,7 +64,7 @@ class editsessionsettings_external extends external_api {
                 'courseid' => new external_value(PARAM_INT, 'course id'),
                 'sessionid' => new external_value(PARAM_INT, 'id of session to copy'),
                 'name' => new external_value(PARAM_RAW, 'element to edit'),
-                'value' => new external_value(PARAM_RAW, 'new value')
+                'value' => new external_value(PARAM_RAW, 'new value'),
             ]
         );
     }
@@ -90,11 +90,11 @@ class editsessionsettings_external extends external_api {
         $coursecontext = context_course::instance($courseid);
         if ($coursecontext !== null && has_capability('mod/kuet:managesessions', $coursecontext, $USER)) {
             return [
-                'updated' => kuet_sessions::duplicate_session($sessionid)
+                'updated' => kuet_sessions::duplicate_session($sessionid),
             ];
         }
         return [
-            'updated' => false
+            'updated' => false,
         ];
     }
 

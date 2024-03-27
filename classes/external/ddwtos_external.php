@@ -124,7 +124,7 @@ class ddwtos_external extends external_api {
                 'kid' => $kid,
                 'timeleft' => $timeleft,
                 'preview' => $preview,
-                'response' => $response
+                'response' => $response,
             ]
         );
         $contextmodule = context_module::instance($cmid);

@@ -61,7 +61,7 @@ class sessionspanel_external extends external_api {
     public static function sessionspanel_parameters(): external_function_parameters {
         return new external_function_parameters(
             [
-                'cmid' => new external_value(PARAM_INT, 'id of cm')
+                'cmid' => new external_value(PARAM_INT, 'id of cm'),
             ]
         );
     }
@@ -132,7 +132,7 @@ class sessionspanel_external extends external_api {
                     'status' => new external_value(PARAM_INT, 'Session status: active 1, initi 2 or finished 0'),
                     'issessionstarted' => new external_value(PARAM_BOOL, 'Session status: active 1, initi 2 or finished 0'),
                     'startedssionurl' => new external_value(PARAM_RAW, 'Session url', VALUE_OPTIONAL),
-                    'stringsession' => new external_value(PARAM_RAW, 'String for button')
+                    'stringsession' => new external_value(PARAM_RAW, 'String for button'),
                 ], ''
             ), ''
         );

@@ -94,7 +94,7 @@ class getprovisionalranking_external extends external_api {
             'cmid' => $cmid,
             'kuetid' => $session->get('kuetid'),
             'numquestions' => $questions->get_num_questions(),
-            'ranking' => true
+            'ranking' => true,
         ];
     }
 
@@ -112,7 +112,7 @@ class getprovisionalranking_external extends external_api {
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
                         'userfullname'   => new external_value(PARAM_RAW, 'Name of user'),
                         'questionscore' => new external_value(PARAM_FLOAT, 'Num of partially correct answers'),
-                        'userpoints' => new external_value(PARAM_FLOAT, 'Total points of user')
+                        'userpoints' => new external_value(PARAM_FLOAT, 'Total points of user'),
                     ], ''
                 ), ''
             ),

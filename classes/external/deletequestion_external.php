@@ -60,7 +60,7 @@ class deletequestion_external extends external_api {
         return new external_function_parameters(
             [
                 'sid' => new external_value(PARAM_INT, 'session id'),
-                'qid' => new external_value(PARAM_INT, 'question id')
+                'qid' => new external_value(PARAM_INT, 'question id'),
             ]
         );
     }
@@ -98,7 +98,7 @@ class deletequestion_external extends external_api {
         }
 
         return [
-            'deleted' => $deleted
+            'deleted' => $deleted,
         ];
     }
 

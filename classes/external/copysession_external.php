@@ -65,7 +65,7 @@ class copysession_external extends external_api {
             [
                 'courseid' => new external_value(PARAM_INT, 'course id'),
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
-                'sessionid' => new external_value(PARAM_INT, 'id of session to copy')
+                'sessionid' => new external_value(PARAM_INT, 'id of session to copy'),
             ]
         );
     }
@@ -95,7 +95,7 @@ class copysession_external extends external_api {
             $copied = kuet_questions::copy_session_questions($sessionid, $newsessionid);
         }
         return [
-            'copied' => $copied
+            'copied' => $copied,
         ];
     }
 

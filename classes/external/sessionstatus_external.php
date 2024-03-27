@@ -93,7 +93,7 @@ class sessionstatus_external extends external_api {
     public static function sessionstatus_returns(): external_single_structure {
         return new external_single_structure(
             [
-                'statuschanged' => new external_value(PARAM_BOOL, 'Session status has changed')
+                'statuschanged' => new external_value(PARAM_BOOL, 'Session status has changed'),
             ]
         );
     }

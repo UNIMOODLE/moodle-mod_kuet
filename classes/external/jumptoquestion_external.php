@@ -75,7 +75,7 @@ class jumptoquestion_external extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
                 'position' => new external_value(PARAM_INT, 'Order of question'),
-                'manual' => new external_value(PARAM_BOOL, 'Mode of session')
+                'manual' => new external_value(PARAM_BOOL, 'Mode of session'),
             ]
         );
     }
