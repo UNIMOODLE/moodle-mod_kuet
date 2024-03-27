@@ -514,7 +514,7 @@ Sockets.prototype.initListeners = function() {
                 that.manageNext();
                 break;
         }
-        // TODO send tag cloud to a service to persist it in DB for retrieval in reports..
+        // 3IP send tag cloud to a service to persist it in DB for retrieval in reports..
         cloudTags = [];
         voting = false;
     }, false);

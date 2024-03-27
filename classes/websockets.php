@@ -325,12 +325,6 @@ abstract class websockets {
                 $ip = stream_socket_get_name( $client, true );
                 $this->stdout("Connection attempt from $ip");
                 stream_set_blocking($client, true);
-                /* if (!stream_socket_enable_crypto($client, true, STREAM_CRYPTO_METHOD_TLSv1_2_SERVER)) {
-                    $this->stderr('Error enabling TLS encryption on the connection.');
-                    fclose($client);
-                    continue;
-                }
-                $this->stderr('Enabled TLS encryption.');*/
                 $headers = fread($client, 1500);
                 $this->handshake($client, $headers);
                 stream_set_blocking($client, false);
@@ -352,7 +346,7 @@ abstract class websockets {
             foreach ($read as $socket) {
                 $ip = stream_socket_get_name( $socket, true );
                 $buffer = stream_get_contents($socket);
-                // TODO review detect disconnect for min buffer lenght.
+                // 3IP review detect disconnect for min buffer lenght.
                 if ($buffer === false || strlen($buffer) <= 8) {
                     if ($this->unmask($buffer) !== '') { // Necessary to stabilise connections, review.
                         $this->disconnect($socket);
@@ -677,7 +671,7 @@ abstract class websockets {
             case 2:
                 break;
             case 8:
-                // TODO: close the connection.
+                // 3IP: close the connection.
                 $user->hasSentClose = true;
                 return "";
             case 9:
@@ -693,7 +687,7 @@ abstract class websockets {
         }
 
         if ($willclose) {
-            // TODO: fail the connection.
+            // 3IP: fail the connection.
             return false;
         }
 

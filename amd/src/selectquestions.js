@@ -280,7 +280,7 @@ SelectQuestions.prototype.addQuestion = function(e) {
                 }).fail(Notification.exception);
             });
         } else {
-            // TODO modal or notification error.
+            // 3IP modal or notification error.
             alert('error');
             jQuery(REGION.LOADING).remove();
         }

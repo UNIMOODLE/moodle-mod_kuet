@@ -66,7 +66,7 @@ class active_session_management extends scheduled_task {
      * @throws coding_exception
      */
     public function execute(): void {
-        // TODO provide for time zones for each user, and activate them if they are met, for each user. Great implementation.
+        // 3IP provide for time zones for each user, and activate them if they are met, for each user. Great implementation.
         $kuets = kuet::get_records();
         $date = time();
         $a = new stdClass();

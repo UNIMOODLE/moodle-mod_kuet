@@ -55,7 +55,7 @@ class kuet_questions extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() :array {
+    protected static function define_properties(): array {
         return [
             'questionid' => [
                 'type' => PARAM_INT,
@@ -110,7 +110,7 @@ class kuet_questions extends persistent {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function add_question(int $questionid, int $sessionid, int $kuetid, string $qtype) : bool {
+    public static function add_question(int $questionid, int $sessionid, int $kuetid, string $qtype): bool {
         global $USER;
         $order = parent::count_records(['sessionid' => $sessionid]) + 1;
         $isvalid = 0; // Teacher must configure the question for this session.
@@ -224,7 +224,7 @@ class kuet_questions extends persistent {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function reorder_question(int $questionid, int $qorder) : bool {
+    public static function reorder_question(int $questionid, int $qorder): bool {
         try {
             $a = new self($questionid);
             $a->set('qorder', $qorder);
@@ -265,7 +265,7 @@ class kuet_questions extends persistent {
      * @return bool
      * @throws dml_exception
      */
-    public static function delete_session_questions(int $sid) : bool {
+    public static function delete_session_questions(int $sid): bool {
         global $DB;
         return  $DB->delete_records(self::TABLE, ['sessionid' => $sid]);
     }
@@ -279,7 +279,7 @@ class kuet_questions extends persistent {
      * @throws coding_exception
      * @throws invalid_persistent_exception
      */
-    public static function copy_session_questions(int $oldsid, int $newsid) : bool {
+    public static function copy_session_questions(int $oldsid, int $newsid): bool {
         $oldquestions = self::get_records(['sessionid' => $oldsid]);
         foreach ($oldquestions as $oldquestion) {
             $data = $oldquestion->to_record();
@@ -305,11 +305,11 @@ class kuet_questions extends persistent {
         if ($qtime === 0) {
             $session = new kuet_sessions($sid);
             if ((int)$session->get('timemode') === sessions::QUESTION_TIME) {
-                $qtime =  $session->get('questiontime');
+                $qtime = $session->get('questiontime');
             } else if ((int)$session->get('timemode') === sessions::SESSION_TIME) {
                 $numquestions = self::count_records(['sessionid' => $sid]);
                 if ($numquestions > 0) {
-                    $qtime =  $session->get('sessiontime') / $numquestions;
+                    $qtime = $session->get('sessiontime') / $numquestions;
                 }
             }
         }

@@ -71,7 +71,7 @@ class kuet_user_progress extends persistent {
             ],
             'other' => [
                 'type' => PARAM_RAW,
-            ]
+            ],
         ];
     }
 

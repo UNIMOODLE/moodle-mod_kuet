@@ -50,7 +50,7 @@ class kuet_sessions_grades extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() :array {
+    protected static function define_properties(): array {
         return [
             'kuet' => [
                 'type' => PARAM_INT,
@@ -63,7 +63,7 @@ class kuet_sessions_grades extends persistent {
             ],
             'grade' => [
                 'type' => PARAM_FLOAT,
-            ]
+            ],
         ];
     }
 

@@ -141,7 +141,7 @@ class multichoice_external_test extends advanced_testcase {
         $this->assertTrue($data1['reply_status']);
         $this->assertEquals($hasfeedback, $data1['hasfeedbacks']);
         $this->assertEquals($statmentfeedback, $data1['statment_feedback']);
-//        $this->assertEquals($correctanswersfeedback, $data1['answer_feedback']); // TODO: it is not correct!
+//        $this->assertEquals($correctanswersfeedback, $data1['answer_feedback']); // 3IP: it is not correct!
         $this->assertEquals(implode(',', $correctanswers), $data1['correct_answers']);
         $this->assertFalse($data1['programmedmode']);
         $this->assertFalse($data1['preview']);
@@ -162,7 +162,7 @@ class multichoice_external_test extends advanced_testcase {
         $this->assertTrue($data2['reply_status']);
         $this->assertEquals($hasfeedback, $data2['hasfeedbacks']);
         $this->assertEquals($statmentfeedback, $data2['statment_feedback']);
-//        $this->assertEquals($incorrectanswersfeedback, $data2['answer_feedback']); // TODO: it is not correct!
+//        $this->assertEquals($incorrectanswersfeedback, $data2['answer_feedback']); // 3IP: it is not correct!
         $this->assertEquals(implode(',', $correctanswers), $data2['correct_answers']);
         $this->assertFalse($data2['programmedmode']);
         $this->assertFalse($data2['preview']);

@@ -75,7 +75,7 @@ class kuet extends persistent {
             ],
             'usermodified' => [
                 'type' => PARAM_INT,
-            ]
+            ],
         ];
     }
 

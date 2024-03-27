@@ -59,7 +59,7 @@ class kuet_grades extends persistent {
             ],
             'grade' => [
                 'type' => PARAM_FLOAT,
-            ]
+            ],
         ];
     }
 

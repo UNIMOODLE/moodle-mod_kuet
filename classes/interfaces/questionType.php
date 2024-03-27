@@ -77,7 +77,7 @@ interface questionType {
      * @param kuet_questions_responses[] $responses
      * @return mixed
      */
-    public static function get_question_statistics( question_definition $question, array $responses): array;
+    public static function get_question_statistics(question_definition $question, array $responses): array;
 
     /**
      * Get question report

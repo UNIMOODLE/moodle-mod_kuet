@@ -55,7 +55,7 @@ use question_state;
 use stdClass;
 use mod_kuet\interfaces\questionType;
 
-defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * Match question class
@@ -109,7 +109,7 @@ class matchquestion extends questions implements questionType {
                 'key' => $key,
                 'optionkey' => base_convert($key, 16, 2),
                 'optiontext' =>
-                    self::get_text($cmid, $leftside, $question->stemformat[$key] ?? 1, $question->id, $question, 'questiontext')
+                    self::get_text($cmid, $leftside, $question->stemformat[$key] ?? 1, $question->id, $question, 'questiontext'),
             ];
         }
         $rightoptions = [];
@@ -119,7 +119,7 @@ class matchquestion extends questions implements questionType {
                 'key' => $key,
                 'optionkey' => base_convert($key, 10, 26),
                 'optiontext' =>
-                    self::get_text($cmid, $rightside, $question->stemformat[$key] ?? 1, $question->id, $question, 'questiontext')
+                    self::get_text($cmid, $rightside, $question->stemformat[$key] ?? 1, $question->id, $question, 'questiontext'),
             ];
         }
         $data->name = $question->name;
@@ -145,7 +145,7 @@ class matchquestion extends questions implements questionType {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function export_question_response(stdClass $data, string $response, int $result):stdClass {
+    public static function export_question_response(stdClass $data, string $response, int $result): stdClass {
         $responsedata = json_decode($response, false);
         $data->answered = true;
         $jsonresponse = json_encode($responsedata->response, JSON_THROW_ON_ERROR);
@@ -268,7 +268,7 @@ class matchquestion extends questions implements questionType {
         int $userid,
         int $timeleft,
         array $custom
-    ): void {
+    ):void {
 
         $jsonresponse = $custom['jsonresponse'];
         $result = $custom['result'];
@@ -367,7 +367,7 @@ class matchquestion extends questions implements questionType {
      * @return array
      * @throws coding_exception
      */
-    public static function get_question_statistics( question_definition $question, array $responses): array {
+    public static function get_question_statistics(question_definition $question, array $responses): array {
         $statistics = [];
         $total = count($responses);
         [$correct, $incorrect, $invalid, $partially, $noresponse] = grade::count_result_mark_types($responses);

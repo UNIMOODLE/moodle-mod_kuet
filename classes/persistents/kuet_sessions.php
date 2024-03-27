@@ -56,7 +56,7 @@ class kuet_sessions extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() :array {
+    protected static function define_properties(): array {
         return [
             'name' => [
                 'type' => PARAM_RAW,
@@ -76,7 +76,8 @@ class kuet_sessions extends persistent {
                     sessions::PODIUM_MANUAL,
                     sessions::PODIUM_PROGRAMMED,
                     sessions::RACE_MANUAL,
-                    sessions::RACE_PROGRAMMED]
+                    sessions::RACE_PROGRAMMED,
+                    ],
             ],
             'sgrade' => [
                 'type' => PARAM_INT,
@@ -117,14 +118,15 @@ class kuet_sessions extends persistent {
             ],
             'automaticstart' => [
                 'type' => PARAM_INT,
-                'default' => 0
+                'default' => 0,
             ],
             'timemode' => [
                 'type' => PARAM_INT,
                 'default' => sessions::NO_TIME,
                 'choices' => [sessions::NO_TIME,
                     sessions::SESSION_TIME,
-                    sessions::QUESTION_TIME]
+                    sessions::QUESTION_TIME,
+                ],
             ],
             'sessiontime' => [
                 'type' => PARAM_INT,
@@ -150,7 +152,7 @@ class kuet_sessions extends persistent {
             ],
             'timemodified' => [
                 'type' => PARAM_INT,
-            ]
+            ],
         ];
     }
 
@@ -334,11 +336,11 @@ class kuet_sessions extends persistent {
 
         $cm = get_coursemodule_from_instance('kuet', $session->get('kuetid'));
         $kuet = new kuet($session->get('kuetid'));
-        $params = array(
+        $params = [
             'objectid' => $sid,
             'courseid' => $kuet->get('course'),
-            'context' => context_module::instance($cm->id)
-        );
+            'context' => context_module::instance($cm->id),
+        ];
         $event = session_ended::create($params);
         $event->add_record_snapshot('kuet_sessions', $session->to_record());
         $event->trigger();
@@ -384,7 +386,7 @@ class kuet_sessions extends persistent {
         global $DB;
         $select = "kuetid = :kuetid AND sessionmode = :sessionmode AND automaticstart = :automaticstart AND status != 0";
         $params = [
-            'kuetid' => $kuetid
+            'kuetid' => $kuetid,
         ];
         return $DB->get_records_select('kuet_sessions', $select, $params);
     }
@@ -402,7 +404,7 @@ class kuet_sessions extends persistent {
         $params = [
             'kuetid' => $kuetid,
             'sessionmode' => sessions::PODIUM_PROGRAMMED,
-            'automaticstart' => 1
+            'automaticstart' => 1,
         ];
         return $DB->get_records_select('kuet_sessions', $select, $params, 'timecreated ASC');
     }
@@ -413,7 +415,7 @@ class kuet_sessions extends persistent {
      * @return bool
      * @throws coding_exception
      */
-    public function is_programmed_mode() : bool {
+    public function is_programmed_mode(): bool {
         return ($this->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
             $this->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
             $this->get('sessionmode') === sessions::RACE_PROGRAMMED);

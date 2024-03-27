@@ -74,6 +74,6 @@ class generator_test extends advanced_testcase {
     }
 
     public function test_create_session() {
-        // TODO.
+        // 3IP.
     }
 }

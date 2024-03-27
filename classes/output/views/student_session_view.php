@@ -80,7 +80,7 @@ class student_session_view implements renderable, templatable {
         $session = new kuet_sessions($sid);
         $PAGE->set_title(get_string('session', 'kuet') . ' ' . $session->get('name'));
         if ($session->get('status') !== sessionsmodel::SESSION_STARTED) {
-            // TODO session layaout not active or redirect to cmid view.
+            // 3IP session layaout not active or redirect to cmid view.
             throw new moodle_exception('notactivesession', 'mod_kuet', '',
                 [], get_string('notactivesession', 'mod_kuet'));
         }

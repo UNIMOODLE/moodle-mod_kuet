@@ -53,7 +53,7 @@ use question_definition;
 use stdClass;
 use mod_kuet\interfaces\questionType;
 
-defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * Description question model class
@@ -264,7 +264,7 @@ class description extends questions implements questionType {
      *
      * @return bool
      */
-    public static function is_evaluable() : bool {
+    public static function is_evaluable(): bool {
         return false;
     }
     /**
@@ -274,7 +274,7 @@ class description extends questions implements questionType {
      * @param kuet_questions_responses[] $responses
      * @return array
      */
-    public static function get_question_statistics( question_definition $question, array $responses): array {
+    public static function get_question_statistics(question_definition $question, array $responses): array {
         return [];
     }
 }

@@ -88,7 +88,7 @@ class observer {
             $params = [
                 'kuet' => $kuet->get('id'),
                 'session' => $data['objectid'],
-                'userid' => $participant->{'id'}
+                'userid' => $participant->{'id'},
             ];
              // Save grade on db.
             $jgrade = kuet_sessions_grades::get_record($params);

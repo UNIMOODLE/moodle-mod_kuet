@@ -88,7 +88,7 @@ class kuet {
      * @return stdClass
      * @throws dml_exception
      */
-    public function get_kuet() : stdClass {
+    public function get_kuet(): stdClass {
         if (is_null($this->kuet)) {
             $this->set_kuet();
         }

@@ -83,7 +83,7 @@ class sessions {
     /**
      * @var string inactive manual
      */
-     public const INACTIVE_MANUAL = 'inactive_manual';
+    public const INACTIVE_MANUAL = 'inactive_manual';
     /**
      * @var string inactive programmed
      */
@@ -201,7 +201,7 @@ class sessions {
         $sid = optional_param('sid', 0, PARAM_INT);    // Session id.
         $anonymousanswerchoices = [
             self::ANONYMOUS_ANSWERS_NO => get_string('noanonymiseresponses', 'mod_kuet'),
-            self::ANONYMOUS_ANSWERS => get_string('anonymiseresponses', 'mod_kuet')
+            self::ANONYMOUS_ANSWERS => get_string('anonymiseresponses', 'mod_kuet'),
         ];
         if (get_config('kuet', 'sockettype') !== 'nosocket') {
             $sessionmodechoices = [
@@ -419,7 +419,7 @@ class sessions {
         foreach ($questions as $key => $question) {
             $icon = new pix_icon('icon', '', 'qtype_' . $question->qtype, [
                 'class' => 'icon',
-                'title' => $question->qtype
+                'title' => $question->qtype,
             ]);
             $question->icon = $icon->export_for_pix();
             $question->issuitable = in_array($question->qtype, questions::TYPES, true);
@@ -501,19 +501,19 @@ class sessions {
         $data[] = [
             'iconconfig' => 'name',
             'configname' => get_string('session_name', 'mod_kuet'),
-            'configvalue' => $sessiondata->get('name')
+            'configvalue' => $sessiondata->get('name'),
         ];
 
         $data[] = [
             'iconconfig' => 'anonymise',
             'configname' => get_string('anonymousanswer', 'mod_kuet'),
-            'configvalue' => $sessiondata->get('anonymousanswer') === 1 ? get_string('yes') : get_string('no')
+            'configvalue' => $sessiondata->get('anonymousanswer') === 1 ? get_string('yes') : get_string('no'),
         ];
 
         $data[] = [
             'iconconfig' => 'sessionmode',
             'configname' => get_string('sessionmode', 'mod_kuet'),
-            'configvalue' => get_string($sessiondata->get('sessionmode'), 'mod_kuet')
+            'configvalue' => get_string($sessiondata->get('sessionmode'), 'mod_kuet'),
         ];
 
         if ($sessiondata->is_group_mode()) {
@@ -522,53 +522,53 @@ class sessions {
             $data[] = [
                 'iconconfig' => 'groups',
                 'configname' => get_string('groupmode', 'mod_kuet'),
-                'configvalue' => implode(',', $names)
+                'configvalue' => implode(',', $names),
             ];
         }
 
         $data[] = [
             'iconconfig' => 'countdown',
             'configname' => get_string('countdown', 'mod_kuet'),
-            'configvalue' => $sessiondata->get('countdown') === 1 ? get_string('yes') : get_string('no')
+            'configvalue' => $sessiondata->get('countdown') === 1 ? get_string('yes') : get_string('no'),
         ];
 
         if (in_array($sessiondata->get('sessionmode'), [self::PODIUM_MANUAL, self::PODIUM_PROGRAMMED], true)) {
             $data[] = [
                 'iconconfig' => 'showgraderanking',
                 'configname' => get_string('showgraderanking', 'mod_kuet'),
-                'configvalue' => $sessiondata->get('showgraderanking') === 1 ? get_string('yes') : get_string('no')
+                'configvalue' => $sessiondata->get('showgraderanking') === 1 ? get_string('yes') : get_string('no'),
             ];
         }
 
         $data[] = [
             'iconconfig' => 'randomquestions',
             'configname' => get_string('randomquestions', 'mod_kuet'),
-            'configvalue' => $sessiondata->get('randomquestions') === 1 ? get_string('yes') : get_string('no')
+            'configvalue' => $sessiondata->get('randomquestions') === 1 ? get_string('yes') : get_string('no'),
         ];
 
         $data[] = [
             'iconconfig' => 'randomanswers',
             'configname' => get_string('randomanswers', 'mod_kuet'),
-            'configvalue' => $sessiondata->get('randomanswers') === 1 ? get_string('yes') : get_string('no')
+            'configvalue' => $sessiondata->get('randomanswers') === 1 ? get_string('yes') : get_string('no'),
         ];
 
         $data[] = [
             'iconconfig' => 'showfeedback',
             'configname' => get_string('showfeedback', 'mod_kuet'),
-            'configvalue' => $sessiondata->get('showfeedback') === 1 ? get_string('yes') : get_string('no')
+            'configvalue' => $sessiondata->get('showfeedback') === 1 ? get_string('yes') : get_string('no'),
         ];
 
         $data[] = [
             'iconconfig' => 'showfinalgrade',
             'configname' => get_string('showfinalgrade', 'mod_kuet'),
-            'configvalue' => $sessiondata->get('showfinalgrade') === 1 ? get_string('yes') : get_string('no')
+            'configvalue' => $sessiondata->get('showfinalgrade') === 1 ? get_string('yes') : get_string('no'),
         ];
 
         if ($sessiondata->get('startdate') !== 0) {
             $data[] = [
                 'iconconfig' => 'startdate',
                 'configname' => get_string('startdate', 'mod_kuet'),
-                'configvalue' => userdate($sessiondata->get('startdate'), get_string('strftimedatetimeshort', 'core_langconfig'))
+                'configvalue' => userdate($sessiondata->get('startdate'), get_string('strftimedatetimeshort', 'core_langconfig')),
             ];
         }
 
@@ -576,14 +576,14 @@ class sessions {
             $data[] = [
                 'iconconfig' => 'enddate',
                 'configname' => get_string('enddate', 'mod_kuet'),
-                'configvalue' => userdate($sessiondata->get('enddate'), get_string('strftimedatetimeshort', 'core_langconfig'))
+                'configvalue' => userdate($sessiondata->get('enddate'), get_string('strftimedatetimeshort', 'core_langconfig')),
             ];
         }
 
         $data[] = [
             'iconconfig' => 'automaticstart',
             'configname' => get_string('automaticstart', 'mod_kuet'),
-            'configvalue' => $sessiondata->get('automaticstart') === 1 ? get_string('yes') : get_string('no')
+            'configvalue' => $sessiondata->get('automaticstart') === 1 ? get_string('yes') : get_string('no'),
         ];
 
         switch ($sessiondata->get('timemode')) {
@@ -615,7 +615,7 @@ class sessions {
         $data[] = [
             'iconconfig' => 'timelimit',
             'configname' => get_string('timemode', 'mod_kuet'),
-            'configvalue' => $timemodestring
+            'configvalue' => $timemodestring,
         ];
 
         return $data;
@@ -853,7 +853,7 @@ class sessions {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public function export() : Object {
+    public function export(): Object {
         $page = optional_param('page', 1, PARAM_INT);
         switch ($page) {
             case 1:
@@ -1238,7 +1238,8 @@ class sessions {
         // Remove all the answers of this session.
         $kquestions = kuet_questions::get_records(['sessionid' => $sessions->get('id')]);
         foreach ($kquestions as $kquestion) {
-            kuet_questions_responses::delete_question_responses($sessions->get('kuetid'), $sessions->get('id'), $kquestion->get('id'));
+            kuet_questions_responses::delete_question_responses($sessions->get('kuetid'), $sessions->get('id'),
+                $kquestion->get('id'));
         }
         kuet_user_progress::delete_session_user_progress($sessions->get('id'));
         $kuetinfo = get_course_and_cm_from_instance($sessions->get('kuetid'), 'kuet');

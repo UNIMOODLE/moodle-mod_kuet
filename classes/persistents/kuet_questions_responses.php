@@ -80,7 +80,7 @@ class kuet_questions_responses extends persistent {
             ],
             'response' => [
                 'type' => PARAM_RAW,
-            ]
+            ],
         ];
     }
 

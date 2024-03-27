@@ -293,15 +293,15 @@ class truefalse extends questions implements questionType {
         $statustrue = $questiondata->rightanswer ? 'correct' : 'incorrect';
         $answers[$questiondata->trueanswerid]['result'] = $statustrue;
         $answers[$questiondata->trueanswerid]['resultstr'] = get_string($statustrue, 'mod_kuet');
-//            $answers[$key]['fraction'] = round(1, 2); // en las trufalse no existe.
+
         $icon = new pix_icon('i/' . $statustrue,
             get_string($statustrue, 'mod_kuet'), 'mod_kuet', [
                 'class' => 'icon',
-                'title' => get_string($statustrue, 'mod_kuet')
+                'title' => get_string($statustrue, 'mod_kuet'),
             ]);
         $usersicon = new pix_icon('i/'. $statustrue .'_users', '', 'mod_kuet', [
             'class' => 'icon',
-            'title' => ''
+            'title' => '',
         ]);
         $answers[$questiondata->trueanswerid]['resulticon'] = $icon->export_for_pix();
         $answers[$questiondata->trueanswerid]['usersicon'] = $usersicon->export_for_pix();
@@ -313,15 +313,15 @@ class truefalse extends questions implements questionType {
         $statusfalse = $questiondata->rightanswer ? 'incorrect' : 'correct';
         $answers[$questiondata->falseanswerid]['result'] = $statusfalse;
         $answers[$questiondata->falseanswerid]['resultstr'] = get_string($statusfalse, 'mod_kuet');
-//            $answers[$questiondata->falseanswerid]['fraction'] = round(1, 2); // en las trufalse no existe.
+
         $icon = new pix_icon('i/' . $statusfalse,
             get_string($statusfalse, 'mod_kuet'), 'mod_kuet', [
                 'class' => 'icon',
-                'title' => get_string($statusfalse, 'mod_kuet')
+                'title' => get_string($statusfalse, 'mod_kuet'),
             ]);
         $usersicon = new pix_icon('i/'. $statusfalse .'_users', '', 'mod_kuet', [
             'class' => 'icon',
-            'title' => ''
+            'title' => '',
         ]);
         $answers[$questiondata->falseanswerid]['resulticon'] = $icon->export_for_pix();
         $answers[$questiondata->falseanswerid]['usersicon'] = $usersicon->export_for_pix();
@@ -376,7 +376,7 @@ class truefalse extends questions implements questionType {
         kuet_questions_responses $response,
         array $answers,
         kuet_sessions $session,
-        kuet_questions $question) : stdClass {
+        kuet_questions $question): stdClass {
 
         $other = json_decode(base64_decode($response->get('response')), false);
         $arrayresponses = explode(',', $other->answerids);
@@ -456,7 +456,7 @@ class truefalse extends questions implements questionType {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response) :float {
+    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response): float {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
@@ -480,7 +480,7 @@ class truefalse extends questions implements questionType {
      * @return array
      * @throws coding_exception
      */
-    public static function get_question_statistics( question_definition $question, array $responses): array {
+    public static function get_question_statistics(question_definition $question, array $responses): array {
         $statistics = [];
         $statistics[$question->trueanswerid] = ['answerid' => $question->trueanswerid, 'numberofreplies' => 0];
         $statistics[$question->falseanswerid] = ['answerid' => $question->falseanswerid, 'numberofreplies' => 0];
@@ -498,7 +498,7 @@ class truefalse extends questions implements questionType {
      *
      * @return bool
      */
-    public static function show_statistics() : bool {
+    public static function show_statistics(): bool {
         return true;
     }
 }

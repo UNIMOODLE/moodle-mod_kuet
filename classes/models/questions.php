@@ -107,7 +107,7 @@ class questions {
         self::NUMERICAL,
         self::CALCULATED,
         self::DESCRIPTION,
-        self::DDWTOS
+        self::DDWTOS,
     ];
 
     /**
@@ -392,7 +392,7 @@ class questions {
      * @return string
      */
     protected static function escape_characters(string $text): string {
-        // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
+        // 3IP check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
         $text = trim(html_entity_decode($text), self::CHARACTERS_TO_BE_STRIPPED);
         $replace = preg_replace('/[\x00-\x1F\x7F]/u', '', $text);
         return $replace ?? $text;
@@ -437,7 +437,7 @@ class questions {
      *
      * @return bool
      */
-    public static function is_evaluable() : bool {
+    public static function is_evaluable(): bool {
         return true;
     }
 
@@ -465,7 +465,7 @@ class questions {
      *
      * @return bool
      */
-    public static function show_statistics() : bool {
+    public static function show_statistics(): bool {
         return false;
     }
 }

@@ -134,7 +134,8 @@ class sessions {
             }
         }
         $ds->noquestions = $ds->questions_number === 0;
-        if ($ds->date !== '' || $ds->issessionstarted === true || $ds->sessioncreating === true || $ds->noquestions === true || $ds->haserror === true) {
+        if ($ds->date !== '' || $ds->issessionstarted === true || $ds->sessioncreating === true
+            || $ds->noquestions === true || $ds->haserror === true) {
             $ds->initsession = false;
         }
         if ($ds->status === sessionsmodel::SESSION_FINISHED) {
