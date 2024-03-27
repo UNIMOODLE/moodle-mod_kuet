@@ -462,11 +462,16 @@ class grade {
         foreach ($responses as $response) {
             $result = $response->get('result');
             switch ($result) {
-                case questions::SUCCESS: $correct++; break;
-                case questions::FAILURE: $incorrect++; break;
-                case questions::INVALID: $invalid++; break;
-                case questions::PARTIALLY: $partially++; break;
-                case questions::NORESPONSE: $noresponse++; break;
+                case questions::SUCCESS: $correct++;
+                break;
+                case questions::FAILURE: $incorrect++;
+                break;
+                case questions::INVALID: $invalid++;
+                break;
+                case questions::PARTIALLY: $partially++;
+                break;
+                case questions::NORESPONSE: $noresponse++;
+                break;
             }
         }
         return [$correct, $incorrect, $invalid, $partially, $noresponse];
