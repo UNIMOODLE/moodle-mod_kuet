@@ -323,7 +323,7 @@ class server extends websockets {
      * @param int $userid
      * @return int
      */
-    protected function get_groupid_from_a_member(int $sid, int $userid) : int {
+    protected function get_groupid_from_a_member(int $sid, int $userid): int {
         $groupid = 0;
         if (!array_key_exists($sid, $this->sidgroups)) {
             return $groupid;
@@ -346,7 +346,7 @@ class server extends websockets {
      * @return string
      * @throws JsonException
      */
-    protected function get_response_from_action_for_group(array $data) : string {
+    protected function get_response_from_action_for_group(array $data): string {
         switch ($data['action']) {
             case 'alreadyAnswered':
                 return $this->mask(

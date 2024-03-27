@@ -456,7 +456,7 @@ function mod_kuet_question_pluginfile($course, $context, $component, $filearea, 
  * @return array
  * @throws coding_exception
  */
-function mod_kuet_get_grading_options() : array {
+function mod_kuet_get_grading_options(): array {
     return [
         grade::MOD_OPTION_NO_GRADE => get_string('nograde', 'mod_kuet'),
         grade::MOD_OPTION_GRADE_HIGHEST => get_string('gradehighest', 'mod_kuet'),
@@ -534,7 +534,7 @@ function generate_kuet_qrcode(string $url): string {
     }
     return '';
 }
-function mod_kuet_get_user_grades(int $kuetid, int $userid) : float {
+function mod_kuet_get_user_grades(int $kuetid, int $userid): float {
     $kuetgrade = new \mod_kuet\persistents\kuet_grades();
     $pgrade = $kuetgrade::get_record(['kuet' => $kuetid, 'userid' => $userid]);
     if (!$pgrade) {

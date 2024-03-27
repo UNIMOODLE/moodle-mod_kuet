@@ -520,7 +520,7 @@ class reports {
      * @return string
      * @throws coding_exception
      */
-    private static function  get_downloadhtml(array $urlparams) : string {
+    private static function  get_downloadhtml(array $urlparams): string {
         global $OUTPUT;
 
         $urlbase = new moodle_url('/mod/kuet/dwn_report.php');

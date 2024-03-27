@@ -75,7 +75,7 @@ class numerical extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $kuetid, int $cmid, int $sid) : void {
+    public function construct(int $kuetid, int $cmid, int $sid): void {
         parent::__construct($kuetid, $cmid, $sid);
     }
 
@@ -398,7 +398,7 @@ class numerical extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
         $kuet = new kuet($response->get('kuet'));
@@ -424,7 +424,7 @@ class numerical extends questions implements questionType {
      * @return array
      * @throws coding_exception
      */
-    public static function get_question_statistics( question_definition $question, array $responses) : array {
+    public static function get_question_statistics( question_definition $question, array $responses): array {
         $statistics = [];
         $total = count($responses);
         list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);

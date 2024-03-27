@@ -50,7 +50,7 @@ class mod_kuet_mod_form extends moodleform_mod {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function definition() : void {
+    public function definition(): void {
         $mform =& $this->_form;
         $mform->addElement('text', 'name', get_string('name', 'kuet'), ['size' => '64']);
         $mform->setType('name', PARAM_TEXT);
@@ -87,7 +87,7 @@ class mod_kuet_mod_form extends moodleform_mod {
      * @return array Array of string IDs of added items, empty array if none
      * @throws coding_exception
      */
-    public function add_completion_rules() : array {
+    public function add_completion_rules(): array {
         $mform =& $this->_form;
 
         $mform->addElement(

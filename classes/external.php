@@ -68,7 +68,7 @@ class mod_kuet_external extends external_api {
      * @throws invalid_parameter_exception
      * @since Moodle 3.3
      */
-    public static function get_kuets_by_courses(array $courseids = []) : array {
+    public static function get_kuets_by_courses(array $courseids = []): array {
         $warnings = [];
         $returnedkuets = [];
         $params = [

@@ -308,7 +308,7 @@ class unimoodleservercli extends websockets {
      * @param int $userid
      * @return int
      */
-    protected function get_groupid_from_a_member(int $sid, int $userid) : int {
+    protected function get_groupid_from_a_member(int $sid, int $userid): int {
         $groupid = 0;
         if (!array_key_exists($sid, $this->sidgroups)) {
             return $groupid;

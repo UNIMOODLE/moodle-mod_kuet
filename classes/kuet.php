@@ -77,7 +77,7 @@ class kuet {
      * @return void
      * @throws dml_exception
      */
-    protected function set_kuet() : void {
+    protected function set_kuet(): void {
         global $DB;
         $this->kuet = $DB->get_record('kuet', ['id' => $this->cm->instance], '*', MUST_EXIST);
     }
@@ -101,7 +101,7 @@ class kuet {
      * @return void
      * @throws dml_exception
      */
-    protected function set_sessions() : void {
+    protected function set_sessions(): void {
         if (is_null($this->kuet)) {
             $this->set_kuet();
         }
@@ -152,7 +152,7 @@ class kuet {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function get_students(int $cmid, int $groupingid = 0) : array {
+    public static function get_students(int $cmid, int $groupingid = 0): array {
         $context = context_module::instance($cmid);
         $participants = self::get_participants($cmid, $context, $groupingid);
         $students = [];
@@ -177,7 +177,7 @@ class kuet {
      * @return array
      * @throws moodle_exception
      */
-    private static function get_participants(int $cmid, context_module $context, int $groupingid = 0) : array {
+    private static function get_participants(int $cmid, context_module $context, int $groupingid = 0): array {
         $data = get_course_and_cm_from_cmid($cmid, 'kuet');
         /** @var cm_info $cm */
         $cm = $data[1];
@@ -194,7 +194,7 @@ class kuet {
      * @param int $groupingid
      * @return array
      */
-    private static function get_participants_group_mode(int $groupingid) : array {
+    private static function get_participants_group_mode(int $groupingid): array {
         return groupmode::get_grouping_users($groupingid);
     }
 
@@ -204,7 +204,7 @@ class kuet {
      * @param context_module $context
      * @return array
      */
-    private static function get_participants_individual_mode(context_module $context) : array {
+    private static function get_participants_individual_mode(context_module $context): array {
         return get_enrolled_users($context, '', 0, 'u.id', null, 0, 0, true);
     }
 
@@ -217,7 +217,7 @@ class kuet {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function get_enrolled_students_in_course(int $courseid = 0, int $cmid = 0) : array {
+    public static function get_enrolled_students_in_course(int $courseid = 0, int $cmid = 0): array {
         if ($cmid) {
             $module = get_module_from_cmid($cmid);
             $courseid = $module[0]->course;

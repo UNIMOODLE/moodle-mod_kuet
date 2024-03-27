@@ -173,7 +173,7 @@ class questions {
      *
      * @return void
      */
-    public function set_list() : void {
+    public function set_list(): void {
         $this->list = kuet_questions::get_records(['sessionid' => $this->sid, 'kuetid' => $this->kuetid], 'qorder', 'ASC');
     }
 
@@ -416,7 +416,7 @@ class questions {
      */
     protected static function add_group_response(
         int $kuetid, kuet_sessions $session, int $kid, int $questionid, int $userid, int $result, stdClass $response
-    ) : void {
+    ): void {
         // All groupmembers has the same response saved on db.
         $num = kuet_questions_responses::count_records(
             ['kuet' => $kuetid, 'session' => $session->get('id'), 'kid' => $kid, 'userid' => $userid]);
@@ -448,7 +448,7 @@ class questions {
      * @return string
      * @throws moodle_exception
      */
-    public static function get_question_class_by_string_type(string $type) : string {
+    public static function get_question_class_by_string_type(string $type): string {
         if ($type === 'match') {
             $type = 'matchquestion';
         }

@@ -50,7 +50,7 @@ class kuet extends persistent {
      *
      * @return array[]
      */
-    protected static function define_properties() : array {
+    protected static function define_properties(): array {
         return [
             'course' => [
                 'type' => PARAM_INT,

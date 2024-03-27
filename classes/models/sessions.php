@@ -174,7 +174,7 @@ class sessions {
      *
      * @return void
      */
-    public function set_list() : void {
+    public function set_list(): void {
         $this->list = kuet_sessions::get_records(['kuetid' => $this->kuet->id]);
     }
 

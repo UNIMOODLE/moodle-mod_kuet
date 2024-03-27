@@ -175,7 +175,7 @@ class ddwtos extends questions implements questionType {
      * @throws dml_exception
      * @throws dml_transaction_exception
      */
-    public static function get_question_text(int $cmid, qtype_ddwtos_question $question, array $response = []) : string {
+    public static function get_question_text(int $cmid, qtype_ddwtos_question $question, array $response = []): string {
         $questiontext = '';
         $embeddedelements = [];
         $placeholders = self::get_fragments_glue_placeholders($question->textfragments);
@@ -322,7 +322,7 @@ class ddwtos extends questions implements questionType {
      * @return string
      * @throws coding_exception
      */
-    private static function feedback_image(int $fraction, bool $selected = true) : string {
+    private static function feedback_image(int $fraction, bool $selected = true): string {
         global $OUTPUT;
         $feedbackclass = question_state::graded_state_for_fraction($fraction)->get_feedback_class();
         return $OUTPUT->pix_icon('i/grade_' . $feedbackclass, get_string($feedbackclass, 'question'));
@@ -547,7 +547,7 @@ class ddwtos extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
         $mark = 0;
         $kuet = new kuet($response->get('kuet'));
         [$course, $cm] = get_course_and_cm_from_instance($response->get('kuet'), 'kuet', $kuet->get('course'));
@@ -575,7 +575,7 @@ class ddwtos extends questions implements questionType {
      * @return array
      * @throws coding_exception
      */
-    public static function get_question_statistics( question_definition $question, array $responses) : array {
+    public static function get_question_statistics( question_definition $question, array $responses): array {
         $statistics = [];
         $total = count($responses);
         list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);

@@ -153,7 +153,7 @@ class commondata_exporter extends question_exporter {
      *
      * @return string[]
      */
-    protected static function define_related() : array {
+    protected static function define_related(): array {
         return array('context' => context::class);
     }
 }

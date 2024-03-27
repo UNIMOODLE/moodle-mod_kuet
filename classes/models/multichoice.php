@@ -74,7 +74,7 @@ class multichoice extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $kuetid, int $cmid, int $sid) : void {
+    public function construct(int $kuetid, int $cmid, int $sid): void {
         parent::__construct($kuetid, $cmid, $sid);
     }
 
@@ -411,7 +411,7 @@ class multichoice extends questions implements questionType {
         int $userid,
         int $timeleft,
         string $qtype
-    ) : void {
+    ): void {
         $result = self::get_status_response($answerids, $correctanswers, $questionid);
         $response = new stdClass(); // For snapshot.
         $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
@@ -440,7 +440,7 @@ class multichoice extends questions implements questionType {
      * @return string
      * @throws dml_exception
      */
-    private static function get_status_response(string $answerids, string $correctanswers, int $questionid) : string {
+    private static function get_status_response(string $answerids, string $correctanswers, int $questionid): string {
         $result = questions::INVALID; // Invalid response.
         if ($answerids === '0' || $answerids === '') {
             $result = questions::NORESPONSE; // No response.
@@ -466,7 +466,7 @@ class multichoice extends questions implements questionType {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response): float {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
@@ -490,7 +490,7 @@ class multichoice extends questions implements questionType {
      * @return array
      * @throws coding_exception
      */
-    public static function get_question_statistics( question_definition $question, array $responses) : array {
+    public static function get_question_statistics( question_definition $question, array $responses): array {
         $statistics = [];
         foreach ($question->answers as $answer) {
             $statistics[$answer->id] = ['answerid' => $answer->id, 'numberofreplies' => 0];

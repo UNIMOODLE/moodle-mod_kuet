@@ -55,7 +55,7 @@ class kuet_questions_responses extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() : array {
+    protected static function define_properties(): array {
         return [
             'kuet' => [
                 'type' => PARAM_INT,

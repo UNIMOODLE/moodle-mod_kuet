@@ -68,7 +68,7 @@ class description extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $kuetid, int $cmid, int $sid) : void {
+    public function construct(int $kuetid, int $cmid, int $sid): void {
         parent::__construct($kuetid, $cmid, $sid);
     }
 
@@ -255,7 +255,7 @@ class description extends questions implements questionType {
      * @param kuet_questions_responses $response
      * @return float
      */
-    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response): float {
         return 0;
     }
 
@@ -274,7 +274,7 @@ class description extends questions implements questionType {
      * @param kuet_questions_responses[] $responses
      * @return array
      */
-    public static function get_question_statistics( question_definition $question, array $responses) : array {
+    public static function get_question_statistics( question_definition $question, array $responses): array {
         return [];
     }
 }

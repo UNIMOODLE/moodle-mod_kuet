@@ -70,7 +70,7 @@ class matchquestion extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $kuetid, int $cmid, int $sid) : void {
+    public function construct(int $kuetid, int $cmid, int $sid): void {
         parent::__construct($kuetid, $cmid, $sid);
     }
 
@@ -268,7 +268,7 @@ class matchquestion extends questions implements questionType {
         int $userid,
         int $timeleft,
         array $custom
-    ) : void {
+    ): void {
 
         $jsonresponse = $custom['jsonresponse'];
         $result = $custom['result'];
@@ -367,7 +367,7 @@ class matchquestion extends questions implements questionType {
      * @return array
      * @throws coding_exception
      */
-    public static function get_question_statistics( question_definition $question, array $responses) : array {
+    public static function get_question_statistics( question_definition $question, array $responses): array {
         $statistics = [];
         $total = count($responses);
         [$correct, $incorrect, $invalid, $partially, $noresponse] = grade::count_result_mark_types($responses);

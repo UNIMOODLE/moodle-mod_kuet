@@ -71,7 +71,7 @@ class sessionstatus_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      */
-    public static function sessionstatus(int $sid, int $status) : array {
+    public static function sessionstatus(int $sid, int $status): array {
         self::validate_parameters(
             self::sessionstatus_parameters(),
             ['sid' => $sid, 'status' => $status]

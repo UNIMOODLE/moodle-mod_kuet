@@ -243,7 +243,7 @@ class kuet_questions extends persistent {
      * @return array array
      * @throws dml_exception
      */
-    public static function get_session_questions_to_reorder(int $sid, int $qorder) : array {
+    public static function get_session_questions_to_reorder(int $sid, int $qorder): array {
         global $DB;
         $sql = 'SELECT sq.*
               FROM {' . static::TABLE . '} sq
@@ -299,7 +299,7 @@ class kuet_questions extends persistent {
      * @return float
      * @throws coding_exception
      */
-    public static function get_question_time(int $kid, int $sid) : float {
+    public static function get_question_time(int $kid, int $sid): float {
         $kquestion = new kuet_questions($kid);
         $qtime = $kquestion->get('timelimit');
         if ($qtime === 0) {

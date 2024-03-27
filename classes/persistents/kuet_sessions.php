@@ -364,7 +364,7 @@ class kuet_sessions extends persistent {
      * @return array
      * @throws dml_exception
      */
-    public static function get_sessions_by_name(string $name, int $jsqhowid) : array {
+    public static function get_sessions_by_name(string $name, int $jsqhowid): array {
         global $DB;
         $comparescaleclause = $DB->sql_compare_text('name')  . ' =  ' . $DB->sql_compare_text(':name');
         $comparescaleclause .= ' AND kuetid = :kuetid';
