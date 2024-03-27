@@ -222,7 +222,6 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
      * @param int $newquestionid
      * @return string
      */
-
     private function replace_answerids(string $responsejson, int $newquestionid): string {
         if (!$newquestionid) {
             return $responsejson;
