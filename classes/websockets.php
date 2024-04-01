@@ -814,10 +814,10 @@ abstract class websockets {
     /**
      * String to hexadecimal
      *
-     * @param $str
+     * @param string $str
      * @return string
      */
-    protected function str_to_hex($str) {
+    protected function str_to_hex(string $str) {
         $strout = "";
         for ($i = 0, $imax = strlen($str); $i < $imax; $i++) {
             $strout .= (ord($str[$i]) < 16) ? "0" . dechex(ord($str[$i])) : dechex(ord($str[$i]));
