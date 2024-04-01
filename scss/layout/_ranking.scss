@@ -71,7 +71,6 @@
         justify-content: center;
         height: 70vh;
         overflow-y: auto;
-
         &::-webkit-scrollbar {
             width: 8px;
             height: 8px;
@@ -80,12 +79,12 @@
         &::-webkit-scrollbar-track {
             background: rgba(255, 255, 255, 0.20);
         }
-
         &::-webkit-scrollbar-thumb {
             background-color: #fff;
             border-radius: 4px;
         }
-
+        scrollbar-width: thin;
+        scrollbar-color: #6a737b #e0e0e0;
         .ranking-users-body {
             .ranking-users-data {
                 &:nth-child(2),
@@ -195,6 +194,8 @@
                         background-color: #fff;
                         border-radius: 4px;
                     }
+                    scrollbar-width: thin;
+                    scrollbar-color: #6a737b #e0e0e0;
 
                     .d-table {
                         width: 100%;

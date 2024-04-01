@@ -137,6 +137,8 @@ body#page-mod-kuet-view {
                     background-color: #6a737b;
                     border-radius: 4px;
                 }
+                scrollbar-width: thin;
+                scrollbar-color: #6a737b #e0e0e0;
 
                 .questions-list-body {
                     width: 100%;
@@ -282,6 +284,8 @@ body#page-mod-kuet-view {
                 background-color: #6a737b;
                 border-radius: 4px;
             }
+            scrollbar-width: thin;
+            scrollbar-color: #6a737b #e0e0e0;
         }
 
         .participant {

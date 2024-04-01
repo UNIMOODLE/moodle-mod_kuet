@@ -32,6 +32,8 @@
                 background-color: #6a737b;
                 border-radius: 4px;
             }
+            scrollbar-width: thin;
+            scrollbar-color: #6a737b #e0e0e0;
 
             .race-student {
                 display: flex;
@@ -73,6 +75,8 @@
             background-color: #6a737b;
             border-radius: 4px;
         }
+        scrollbar-width: thin;
+        scrollbar-color: #6a737b #e0e0e0;
 
         .content-question {
             border-right: 1px solid #d0d0d0;
