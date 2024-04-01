@@ -75,7 +75,6 @@ class firstquestion_external_test extends advanced_testcase {
             'status' => 1,
             'sessionid' => 0,
             'submitbutton' => 0,
-            'showgraderanking' => 0,
         ];
         $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
@@ -83,8 +82,8 @@ class firstquestion_external_test extends advanced_testcase {
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $questiongenerator->create_question_category();
         /** @var qtype_shortanswer $saq */
-        $saq = $questiongenerator->create_question('shortanswer', null, array('category' => $cat->id));
-        $numq = $questiongenerator->create_question('numerical', null, array('category' => $cat->id));
+        $saq = $questiongenerator->create_question('shortanswer', null, ['category' => $cat->id]);
+        $numq = $questiongenerator->create_question('numerical', null, ['category' => $cat->id]);
 
         // Add questions.
         \mod_kuet\external\addquestions_external::add_questions([

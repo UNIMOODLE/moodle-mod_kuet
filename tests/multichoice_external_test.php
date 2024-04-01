@@ -78,18 +78,17 @@ class multichoice_external_test extends advanced_testcase {
             'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
-            'showgraderanking' => 0,
         ];
         $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $questiongenerator->create_question_category();
-        $mcq = $questiongenerator->create_question(questions::MULTICHOICE, null, array('category' => $cat->id));
+        $mcq = $questiongenerator->create_question(questions::MULTICHOICE, null, ['category' => $cat->id]);
 
         // Add questions to a session.
         $questions = [
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE],
         ];
         $generator->add_questions_to_session($questions);
         \mod_kuet\external\startsession_external::startsession($kuet->cmid, $createdsid);
@@ -141,7 +140,6 @@ class multichoice_external_test extends advanced_testcase {
         $this->assertTrue($data1['reply_status']);
         $this->assertEquals($hasfeedback, $data1['hasfeedbacks']);
         $this->assertEquals($statmentfeedback, $data1['statment_feedback']);
-//        $this->assertEquals($correctanswersfeedback, $data1['answer_feedback']); // 3IP: it is not correct!
         $this->assertEquals(implode(',', $correctanswers), $data1['correct_answers']);
         $this->assertFalse($data1['programmedmode']);
         $this->assertFalse($data1['preview']);
@@ -162,7 +160,6 @@ class multichoice_external_test extends advanced_testcase {
         $this->assertTrue($data2['reply_status']);
         $this->assertEquals($hasfeedback, $data2['hasfeedbacks']);
         $this->assertEquals($statmentfeedback, $data2['statment_feedback']);
-//        $this->assertEquals($incorrectanswersfeedback, $data2['answer_feedback']); // 3IP: it is not correct!
         $this->assertEquals(implode(',', $correctanswers), $data2['correct_answers']);
         $this->assertFalse($data2['programmedmode']);
         $this->assertFalse($data2['preview']);

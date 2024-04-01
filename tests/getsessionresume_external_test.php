@@ -70,7 +70,6 @@ class getsessionresume_external_test extends advanced_testcase {
             'groupings' => 0,
             'status' => sessions::SESSION_ACTIVE,
             'sessionid' => 0,
-            'showgraderanking' => 0,
         ];
         $sessionmock2 = $sessionmock1;
         $sessionmock2['name'] = 'Session Test 2';
@@ -87,17 +86,17 @@ class getsessionresume_external_test extends advanced_testcase {
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $questiongenerator->create_question_category();
-        $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, array('category' => $cat->id));
-        $nq = $questiongenerator->create_question(questions::NUMERICAL, null, array('category' => $cat->id));
+        $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, ['category' => $cat->id]);
+        $nq = $questiongenerator->create_question(questions::NUMERICAL, null, ['category' => $cat->id]);
 
         // Add questions.
         \mod_kuet\external\addquestions_external::add_questions([
             ['questionid' => $saq->id, 'sessionid' => $session1id, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER],
-            ['questionid' => $nq->id, 'sessionid' => $session1id, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]
+            ['questionid' => $nq->id, 'sessionid' => $session1id, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL],
         ]);
         \mod_kuet\external\addquestions_external::add_questions([
             ['questionid' => $saq->id, 'sessionid' => $session2id, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER],
-            ['questionid' => $nq->id, 'sessionid' => $session2id, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]
+            ['questionid' => $nq->id, 'sessionid' => $session2id, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL],
         ]);
 
         $data1 = \mod_kuet\external\getsessionresume_external::getsessionresume($sessionmock1['sessionid'], $kuet->cmid);

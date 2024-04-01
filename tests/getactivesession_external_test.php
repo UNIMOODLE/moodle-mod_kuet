@@ -69,7 +69,6 @@ class getactivesession_external_test extends advanced_testcase {
             'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
-            'showgraderanking' => 0,
         ];
         $activesessionid = $generator->create_session($kuet, (object) $activesession);
 
@@ -95,7 +94,6 @@ class getactivesession_external_test extends advanced_testcase {
             'status' => \mod_kuet\models\sessions::SESSION_STARTED,
             'sessionid' => 0,
             'submitbutton' => 0,
-            'showgraderanking' => 0,
         ];
         $startedsessionid = $generator->create_session($kuet, (object) $startedsession);
 

@@ -66,7 +66,6 @@ class activesession_external_test extends advanced_testcase {
             'status' => 1,
             'sessionid' => 0,
             'submitbutton' => 0,
-            'showgraderanking' => 0,
         ];
         $createdsid = $generator->create_session($kuet, (object) $sessionmock);
         $data = \mod_kuet\external\activesession_external::activesession($kuet->cmid, $createdsid);

@@ -71,18 +71,17 @@ class copyquestion_external_test extends advanced_testcase {
             'status' => 1,
             'sessionid' => 0,
             'submitbutton' => 0,
-            'showgraderanking' => 0,
         ];
         $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $questiongenerator->create_question_category();
-        $saq = $questiongenerator->create_question('shortanswer', null, array('category' => $cat->id));
+        $saq = $questiongenerator->create_question('shortanswer', null, ['category' => $cat->id]);
 
         // Add question.
         \mod_kuet\external\addquestions_external::add_questions([
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'shortanswer']
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'shortanswer'],
         ]);
         $kquestion = mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id]);

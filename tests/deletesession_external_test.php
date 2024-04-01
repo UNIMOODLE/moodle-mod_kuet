@@ -90,10 +90,8 @@ class deletesession_external_test extends advanced_testcase {
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
-//        $sessiontest = new sessions_test();
         $sessiontest = new sessions($kuet, $kuet->cmid);
         $this->sessionmock['kuetid'] = $kuet->id;
-//        $sessiontest->test_session($kuet);
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $sessionid = $generator->create_session($kuet, (object) $this->sessionmock);
         $list = $sessiontest->get_list();
@@ -106,9 +104,8 @@ class deletesession_external_test extends advanced_testcase {
 
         $student = self::getDataGenerator()->create_and_enrol($course);
         self::setUser($student);
-//        $sessiontest->test_session($kuet);
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
-        $sessionid = $generator->create_session($kuet, (object) $this->sessionmock);
+        $generator->create_session($kuet, (object) $this->sessionmock);
 
         $newlist = $sessiontest->get_list();
         $result = deletesession_external::deletesession($course->id, $kuet->cmid, $newlist[0]->get('id'));
