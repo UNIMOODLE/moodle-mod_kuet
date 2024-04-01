@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Question type interface
@@ -39,8 +39,6 @@ use mod_kuet\persistents\kuet_sessions;
 use question_definition;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Question type interface
  */
@@ -53,7 +51,7 @@ interface questionType {
      * @param kuet_questions_responses $response
      * @return float
      */
-    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response) : float;
+    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response): float;
 
 
     /**
@@ -70,7 +68,7 @@ interface questionType {
                                                     kuet_questions_responses $response,
                                                     array $answers,
                                                     kuet_sessions $session,
-                                                    kuet_questions $question) : stdClass;
+                                                    kuet_questions $question): stdClass;
 
     /**
      * Get question statistics
@@ -79,7 +77,7 @@ interface questionType {
      * @param kuet_questions_responses[] $responses
      * @return mixed
      */
-    public static function get_question_statistics( question_definition $question, array $responses) : array ;
+    public static function get_question_statistics(question_definition $question, array $responses): array;
 
     /**
      * Get question report
@@ -93,7 +91,7 @@ interface questionType {
     public static function get_question_report(kuet_sessions $session,
                                                question_definition $questiondata,
                                                stdClass $data,
-                                               int $kid) : stdClass;
+                                               int $kid): stdClass;
 
     /**
      * Export question
@@ -105,7 +103,7 @@ interface questionType {
      * @param bool $preview
      * @return mixed
      */
-    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview) : object ;
+    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview): object;
 
     /**
      * Export question response
@@ -115,7 +113,7 @@ interface questionType {
      * @param int $result
      * @return mixed
      */
-    public static function export_question_response(stdClass $data, string $response, int $result) : stdClass;
+    public static function export_question_response(stdClass $data, string $response, int $result): stdClass;
 
     /**
      * Question response

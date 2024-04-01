@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Module services
@@ -89,7 +89,7 @@ $functions = [
         'description' => 'Get Sessions Panel for cmid',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_copysession' => [
         'classname' => copysession_external::class,
@@ -97,7 +97,7 @@ $functions = [
         'description' => 'Copy session',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_deletesession' => [
         'classname' => deletesession_external::class,
@@ -105,7 +105,7 @@ $functions = [
         'description' => 'Delete session',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_selectquestionscategory' => [
         'classname' => selectquestionscategory_external::class,
@@ -113,7 +113,7 @@ $functions = [
         'description' => 'Get questions for a determinate category',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_addquestions' => [
         'classname' => addquestions_external::class,
@@ -121,7 +121,7 @@ $functions = [
         'description' => 'Add questions to a session',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_reorderquestions' => [
         'classname' => reorderquestions_external::class,
@@ -129,7 +129,7 @@ $functions = [
         'description' => 'Reorder session questions',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_deletequestion' => [
         'classname' => deletequestion_external::class,
@@ -137,7 +137,7 @@ $functions = [
         'description' => 'Removes a question from the session.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_sessionquestions' => [
         'classname' => sessionquestions_external::class,
@@ -145,7 +145,7 @@ $functions = [
         'description' => 'Get questions for session',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_copyquestion' => [
         'classname' => copyquestion_external::class,
@@ -153,7 +153,7 @@ $functions = [
         'description' => 'Copies a question in a session.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_editsessionsettings' => [
         'classname' => editsessionsettings_external::class,
@@ -161,7 +161,7 @@ $functions = [
         'description' => 'Updatea session settings.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_multichoice' => [
         'classname' => multichoice_external::class,
@@ -169,7 +169,7 @@ $functions = [
         'description' => 'Multichoice reply.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_match' => [
         'classname' => match_external::class,
@@ -177,7 +177,7 @@ $functions = [
         'description' => 'Match reply.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_truefalse' => [
         'classname' => truefalse_external::class,
@@ -185,7 +185,7 @@ $functions = [
         'description' => 'Truefalse reply.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_shortanswer' => [
         'classname' => shortanswer_external::class,
@@ -193,7 +193,7 @@ $functions = [
         'description' => 'Shortanswer reply.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_numerical' => [
         'classname' => numerical_external::class,
@@ -201,7 +201,7 @@ $functions = [
         'description' => 'Numerical reply.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_calculated' => [
         'classname' => calculated_external::class,
@@ -209,7 +209,7 @@ $functions = [
         'description' => 'Calculated reply.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_description' => [
         'classname' => description_external::class,
@@ -217,7 +217,7 @@ $functions = [
         'description' => 'Description reply.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_ddwtos' => [
         'classname' => ddwtos_external::class,
@@ -225,7 +225,7 @@ $functions = [
         'description' => 'Ddwtos reply.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_nextquestion' => [
         'classname' => nextquestion_external::class,
@@ -233,7 +233,7 @@ $functions = [
         'description' => 'Next question of a session',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_firstquestion' => [
         'classname' => firstquestion_external::class,
@@ -241,7 +241,7 @@ $functions = [
         'description' => 'First question of a session',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getlistresults' => [
         'classname' => getlistresults_external::class,
@@ -249,7 +249,7 @@ $functions = [
         'description' => 'Get list results of one session',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getgrouplistresults' => [
         'classname' => getgrouplistresults_external::class,
@@ -257,7 +257,7 @@ $functions = [
         'description' => 'Get group list results of one session',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_finishsession' => [
         'classname' => finishsession_external::class,
@@ -265,7 +265,7 @@ $functions = [
         'description' => 'Finish session',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_startsession' => [
         'classname' => startsession_external::class,
@@ -273,7 +273,7 @@ $functions = [
         'description' => 'Start session',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_sessionfinished' => [
         'classname' => sessionfinished_external::class,
@@ -281,7 +281,7 @@ $functions = [
         'description' => 'Session closed',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_activesession' => [
         'classname' => activesession_external::class,
@@ -289,7 +289,7 @@ $functions = [
         'description' => 'Active session',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getactivesession' => [
         'classname' => getactivesession_external::class,
@@ -297,7 +297,7 @@ $functions = [
         'description' => 'Get Active session of Kuet id',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getuserquestionresponse' => [
         'classname' => getuserquestionresponse_external::class,
@@ -305,7 +305,7 @@ $functions = [
         'description' => 'Get context or response for one user.',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getquestion' => [
         'classname' => getquestion_external::class,
@@ -313,7 +313,7 @@ $functions = [
         'description' => 'Get question.',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_deleteresponses' => [
         'classname' => deleteresponses_external::class,
@@ -321,7 +321,7 @@ $functions = [
         'description' => 'Delete all responses for one question',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_jumptoquestion' => [
         'classname' => jumptoquestion_external::class,
@@ -329,7 +329,7 @@ $functions = [
         'description' => 'Get question from order in session.',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getsessionresume' => [
         'classname' => getsessionresume_external::class,
@@ -337,7 +337,7 @@ $functions = [
         'description' => 'Get resume for one session.',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getquestionstatistics' => [
         'classname' => getquestionstatistics_external::class,
@@ -345,7 +345,7 @@ $functions = [
         'description' => 'Get response statistics for a question',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getsession' => [
         'classname' => getsession_external::class,
@@ -353,7 +353,7 @@ $functions = [
         'description' => 'Get all data of session',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getprovisionalranking' => [
         'classname' => getprovisionalranking_external::class,
@@ -361,7 +361,7 @@ $functions = [
         'description' => 'Get ranking for a session and question',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getfinalranking' => [
         'classname' => getfinalranking_external::class,
@@ -369,7 +369,7 @@ $functions = [
         'description' => 'Get final ranking for a session',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_getraceresults' => [
         'classname' => getraceresults_external::class,
@@ -377,7 +377,7 @@ $functions = [
         'description' => 'Get race results',
         'type' => 'read',
         'ajax' => true,
-        'loginrequired' => true
+        'loginrequired' => true,
     ],
     'mod_kuet_sessionstatus' => [
         'classname' => sessionstatus_external::class,
@@ -385,8 +385,8 @@ $functions = [
         'description' => 'Change session status',
         'type' => 'write',
         'ajax' => true,
-        'loginrequired' => true
-    ]
+        'loginrequired' => true,
+    ],
 ];
 $services = [
     'Kuet' => [
@@ -429,10 +429,10 @@ $services = [
             'mod_kuet_getprovisionalranking',
             'mod_kuet_getfinalranking',
             'mod_kuet_getraceresults',
-            'mod_kuet_sessionstatus'
+            'mod_kuet_sessionstatus',
         ],
         'restrictedusers' => 0,
         'enabled' => 1,
-        'shortname' => 'mod_kuet'
-    ]
+        'shortname' => 'mod_kuet',
+    ],
 ];

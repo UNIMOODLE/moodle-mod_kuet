@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Multichoice question model
@@ -74,7 +74,7 @@ class multichoice extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $kuetid, int $cmid, int $sid) : void {
+    public function construct(int $kuetid, int $cmid, int $sid): void {
         parent::__construct($kuetid, $cmid, $sid);
     }
 
@@ -93,7 +93,7 @@ class multichoice extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false) : object {
+    public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false): object {
         $session = kuet_sessions::get_record(['id' => $sessionid]);
         $kuetquestion = kuet_questions::get_record(['id' => $kid]);
         $question = question_bank::load_question($kuetquestion->get('questionid'));
@@ -167,7 +167,8 @@ class multichoice extends questions implements questionType {
         $data->correct_answers = $dataanswer['correct_answers'];
         $data->programmedmode = $dataanswer['programmedmode'];
         if ($data->hasfeedbacks) {
-            // TODO breaks images in report feedbacks. Services do not pass feedback through escape_characters, and they work. Consider removing.
+            // 3IP breaks images in report feedbacks. Services do not pass feedback through escape_characters,
+            // and they work. Consider removing.
             $dataanswer['statment_feedback'] = self::escape_characters($dataanswer['statment_feedback']);
             $dataanswer['answer_feedback'] = self::escape_characters($dataanswer['answer_feedback']);
         }
@@ -197,7 +198,7 @@ class multichoice extends questions implements questionType {
         $answers = [];
         $correctanswers = [];
         foreach ($questiondata->answers as $key => $answer) {
-            $answers[$key]['answertext'] = $answer->answer; // TODO get text with images questions::get_text.
+            $answers[$key]['answertext'] = $answer->answer; // 3IP get text with images questions::get_text.
             $answers[$key]['answerid'] = $key;
             if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
                 $answers[$key]['result'] = 'incorrect';
@@ -205,11 +206,11 @@ class multichoice extends questions implements questionType {
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
                 $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('incorrect', 'mod_kuet')
+                    'title' => get_string('incorrect', 'mod_kuet'),
                 ]);
                 $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => ''
+                    'title' => '',
                 ]);
             } else if ($answer->fraction === '1.0000000') {
                 $answers[$key]['result'] = 'correct';
@@ -217,11 +218,11 @@ class multichoice extends questions implements questionType {
                 $answers[$key]['fraction'] = '1';
                 $icon = new pix_icon('i/correct', get_string('correct', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('correct', 'mod_kuet')
+                    'title' => get_string('correct', 'mod_kuet'),
                 ]);
                 $usersicon = new pix_icon('i/correct_users', '', 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => ''
+                    'title' => '',
                 ]);
             } else {
                 $answers[$key]['result'] = 'partially';
@@ -229,11 +230,11 @@ class multichoice extends questions implements questionType {
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
                 $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('partially_correct', 'mod_kuet')
+                    'title' => get_string('partially_correct', 'mod_kuet'),
                 ]);
                 $usersicon = new pix_icon('i/partially_users', '', 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => ''
+                    'title' => '',
                 ]);
             }
             $answers[$key]['resulticon'] = $icon->export_for_pix();
@@ -411,7 +412,7 @@ class multichoice extends questions implements questionType {
         int $userid,
         int $timeleft,
         string $qtype
-    ) : void {
+    ): void {
         $result = self::get_status_response($answerids, $correctanswers, $questionid);
         $response = new stdClass(); // For snapshot.
         $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
@@ -440,7 +441,7 @@ class multichoice extends questions implements questionType {
      * @return string
      * @throws dml_exception
      */
-    private static function get_status_response(string $answerids, string $correctanswers, int $questionid) : string {
+    private static function get_status_response(string $answerids, string $correctanswers, int $questionid): string {
         $result = questions::INVALID; // Invalid response.
         if ($answerids === '0' || $answerids === '') {
             $result = questions::NORESPONSE; // No response.
@@ -466,7 +467,7 @@ class multichoice extends questions implements questionType {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response): float {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);
@@ -490,7 +491,7 @@ class multichoice extends questions implements questionType {
      * @return array
      * @throws coding_exception
      */
-    public static function get_question_statistics( question_definition $question, array $responses) : array {
+    public static function get_question_statistics(question_definition $question, array $responses): array {
         $statistics = [];
         foreach ($question->answers as $answer) {
             $statistics[$answer->id] = ['answerid' => $answer->id, 'numberofreplies' => 0];
@@ -513,7 +514,7 @@ class multichoice extends questions implements questionType {
      *
      * @return bool
      */
-    public static function show_statistics() : bool {
+    public static function show_statistics(): bool {
         return true;
     }
 }

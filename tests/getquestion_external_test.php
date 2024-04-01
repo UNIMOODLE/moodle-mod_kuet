@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 namespace mod_kuet;
-use \mod_kuet\models\questions;
+use mod_kuet\models\questions;
 /**
  * Get question service test
  *
@@ -76,21 +76,19 @@ class getquestion_external_test extends \advanced_testcase {
             'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
-            'showgraderanking' => 0,
         ];
         $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $questiongenerator->create_question_category();
-        $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, array('category' => $cat->id));
-        $nq = $questiongenerator->create_question(questions::NUMERICAL, null, array('category' => $cat->id));
-        $tfq = $questiongenerator->create_question(questions::TRUE_FALSE, null, array('category' => $cat->id));
-        $mcq = $questiongenerator->create_question(questions::MULTICHOICE, null, array('category' => $cat->id));
-//        $mq = $questiongenerator->create_question(questions::MATCH, null, array('category' => $cat->id));
-        $cq = $questiongenerator->create_question(questions::CALCULATED, null, array('category' => $cat->id));
-        $ddwtosq = $questiongenerator->create_question(questions::DDWTOS, null, array('category' => $cat->id));
-        $dq = $questiongenerator->create_question(questions::DESCRIPTION, null, array('category' => $cat->id));
+        $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, ['category' => $cat->id]);
+        $nq = $questiongenerator->create_question(questions::NUMERICAL, null, ['category' => $cat->id]);
+        $tfq = $questiongenerator->create_question(questions::TRUE_FALSE, null, ['category' => $cat->id]);
+        $mcq = $questiongenerator->create_question(questions::MULTICHOICE, null, ['category' => $cat->id]);
+        $cq = $questiongenerator->create_question(questions::CALCULATED, null, ['category' => $cat->id]);
+        $ddwtosq = $questiongenerator->create_question(questions::DDWTOS, null, ['category' => $cat->id]);
+        $dq = $questiongenerator->create_question(questions::DESCRIPTION, null, ['category' => $cat->id]);
 
         // Add question.
         \mod_kuet\external\addquestions_external::add_questions([
@@ -98,7 +96,6 @@ class getquestion_external_test extends \advanced_testcase {
             ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL],
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE],
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE],
-//            ['questionid' => $mq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MATCH],
             ['questionid' => $cq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::CALCULATED],
             ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS],
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION],
@@ -123,11 +120,6 @@ class getquestion_external_test extends \advanced_testcase {
         $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]);
         $multichoice = \mod_kuet\external\getquestion_external::getquestion($kuet->cmid, $createdsid, $jmcq->get('id'));
-
-//        // Match.
-//        $jmq = \mod_kuet\persistents\kuet_questions::get_record(
-//            ['questionid' => $mq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MATCH]);
-//        $match = \mod_kuet\external\getquestion_external::getquestion($kuet->cmid, $createdsid, $jmq->get('id'));
 
         // Drag and drop text.
         $jddwtosq = \mod_kuet\persistents\kuet_questions::get_record(
@@ -178,16 +170,6 @@ class getquestion_external_test extends \advanced_testcase {
         $this->assertEquals($jmcq->get('id'), $multichoice['kid']);
         $this->assertArrayHasKey('qtype', $multichoice);
         $this->assertEquals(questions::MULTICHOICE, $multichoice['qtype']);
-
-//        $this->assertIsArray($match);
-//        $this->assertArrayHasKey('cmid', $match);
-//        $this->assertEquals($kuet->cmid, $match['cmid']);
-//        $this->assertArrayHasKey('questionid', $match);
-//        $this->assertEquals($mq->id, $match['questionid']);
-//        $this->assertArrayHasKey('kid', $match);
-//        $this->assertEquals($jmq->get('id'), $match['kid']);
-//        $this->assertArrayHasKey('qtype', $match);
-//        $this->assertEquals(questions::MATCH, $multichoice['qtype']);
 
         $this->assertIsArray($ddwto);
         $this->assertArrayHasKey('cmid', $ddwto);

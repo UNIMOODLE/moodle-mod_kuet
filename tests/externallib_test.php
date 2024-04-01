@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * External library test
@@ -159,7 +159,7 @@ class externallib_test extends externallib_advanced_testcase {
         $fs = get_file_storage();
         $fs->create_file_from_string($filerecordinline, 'image contents (not really)');
 
-        $result = mod_kuet_external::get_kuets_by_courses(array($course2->id, $course1->id));
+        $result = mod_kuet_external::get_kuets_by_courses([$course2->id, $course1->id]);
         $result = external_api::clean_returnvalue($returndescription, $result);
 
         $this->assertCount(1, $result['kuets'][0]['introfiles']);
@@ -175,7 +175,7 @@ class externallib_test extends externallib_advanced_testcase {
         $this->assertEquals($expectedkuets, $result['kuets']);
 
         // Call for the second course we unenrolled the user from, expected warning.
-        $result = mod_kuet_external::get_kuets_by_courses(array($course2->id));
+        $result = mod_kuet_external::get_kuets_by_courses([$course2->id]);
         $this->assertCount(1, $result['warnings']);
         $this->assertEquals('1', $result['warnings'][0]['warningcode']);
         $this->assertEquals($course2->id, $result['warnings'][0]['itemid']);

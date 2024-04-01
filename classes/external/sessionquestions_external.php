@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Session questions API
@@ -71,7 +71,7 @@ class sessionquestions_external extends external_api {
             [
                 'kuetid' => new external_value(PARAM_INT, 'kuetid'),
                 'cmid' => new external_value(PARAM_INT, 'cmid for course module'),
-                'sid' => new external_value(PARAM_INT, 'sid for session kuet')
+                'sid' => new external_value(PARAM_INT, 'sid for session kuet'),
             ]
         );
     }
@@ -121,7 +121,7 @@ class sessionquestions_external extends external_api {
         $data->type = $question->get('qtype');
         $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
             'class' => 'icon',
-            'title' => $question->get('qtype')
+            'title' => $question->get('qtype'),
         ]);
         $data->icon = $icon->export_for_pix();
         $data->sid = $question->get('sessionid');
@@ -192,10 +192,10 @@ class sessionquestions_external extends external_api {
                         'version' => new external_value(PARAM_RAW, 'Question version'),
                         'managesessions' => new external_value(PARAM_BOOL, 'Capability'),
                         'question_preview_url' => new external_value(PARAM_URL, 'Url for preview'),
-                        'editquestionurl' => new external_value(PARAM_URL, 'Url for edit question')
+                        'editquestionurl' => new external_value(PARAM_URL, 'Url for edit question'),
                     ], ''
                 ), ''
-            )
+            ),
         ]);
     }
 }

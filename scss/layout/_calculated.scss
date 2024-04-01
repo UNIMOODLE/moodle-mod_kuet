@@ -1,26 +1,30 @@
 .container-fluid.calculated.question {
-	.containt-answers {
-		.input-content {
-			label#userCalculatedLabel {
-				display: none;
-			}
-			input#userCalculated {
-				margin: 0 .5em;
-			}
-			.btn-group,
-			.custom-select {
-				margin: 0 0 0 .5em !important;
-			}
-			.units_title {
-				font-weight: bold;
-				margin: 0 .5em 0 0 !important;
-			}
-			.btn-group {
-				display: flex;
-				flex-flow: row nowrap;
-				justify-content: center;
-				align-items: center;
-			}
-		}
-	}
+    .containt-answers {
+        .input-content {
+            label#userCalculatedLabel {
+                display: none;
+            }
+
+            input#userCalculated {
+                margin: 0 .5em;
+            }
+
+            .btn-group,
+            .custom-select {
+                margin: 0 0 0 .5em !important;
+            }
+
+            .units_title {
+                font-weight: bold;
+                margin: 0 .5em 0 0 !important;
+            }
+
+            .btn-group {
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+    }
 }

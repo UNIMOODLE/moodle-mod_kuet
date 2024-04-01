@@ -5,12 +5,14 @@ body#page-mod-kuet-view {
                 .sessionname {
                     width: 75%;
                 }
+
                 .numusers {
                     width: 25%;
                 }
             }
         }
     }
+
     .student-improvising {
         position: relative;
         width: 100%;
@@ -22,11 +24,13 @@ body#page-mod-kuet-view {
         align-items: center;
         padding: 2em;
         z-index: 100;
-        box-shadow: 0 0 10px rgba(0,0,0,.06);
+        box-shadow: 0 0 10px rgba(0, 0, 0, .06);
         border-radius: 25px;
         min-height: 55vh;
+
         .improvising-image {
             margin: 0;
+
             img {
                 width: 60%;
                 height: auto !important;
@@ -34,6 +38,7 @@ body#page-mod-kuet-view {
                 margin: 0 auto;
             }
         }
+
         .improvising-text {
             margin-top: 1em;
             width: 70%;
@@ -44,6 +49,7 @@ body#page-mod-kuet-view {
             align-items: center;
         }
     }
+
     .improvise-response-content {
         position: relative;
         display: flex;
@@ -52,9 +58,11 @@ body#page-mod-kuet-view {
         align-items: center;
         min-height: 50vh;
         width: 80%;
+
         .improvise-student-form {
             min-width: 80%;
         }
+
         #reply_student_improvise {
             width: 30% !important;
         }

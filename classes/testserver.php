@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Websocket server test
@@ -71,7 +71,7 @@ class testserver extends websockets {
     protected function connected($user) {
         $response = $this->mask(
             json_encode([
-                'action' => 'newuser'
+                'action' => 'newuser',
             ], JSON_THROW_ON_ERROR)
         );
         foreach ($this->users as $usersaved) {
@@ -89,7 +89,7 @@ class testserver extends websockets {
     protected function closed($user) {
         $response = $this->mask(
             json_encode([
-                'action' => 'userdisconnected'
+                'action' => 'userdisconnected',
             ], JSON_THROW_ON_ERROR));
         foreach ($this->users as $usersaved) {
             fwrite($usersaved->socket, $response, strlen($response));

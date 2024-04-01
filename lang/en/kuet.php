@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * English language strings
@@ -413,3 +413,4 @@ $string['groupremoved'] = 'Your group has been removed or it is not a member of 
 $string['gocourse'] = 'Go back to your course';
 $string['sessionerror'] = 'This session is not correctly configured';
 $string['httpsrequired'] = 'It is mandatory to use https protocol on the platform to use Kuet.';
+$string['sessionsnum'] = 'Number of sessions';

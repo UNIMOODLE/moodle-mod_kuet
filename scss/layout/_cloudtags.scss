@@ -1,124 +1,143 @@
 .container-fluid.cloudtags.question {
-	.tags-content {
-		display: block;
-		max-width: 60%;
-		margin: 2em auto 0;
-		ul.cloud {
-			list-style: none;
-			padding-left: 0;
-			display: flex;
-			flex-wrap: wrap;
-			align-items: center;
-			justify-content: center;
-			line-height: 2.5rem;
-			li {
-				span.tag {
-					color: nth($answercolors, 1);
-					display: block;
-					padding: 2px 0.25rem 2px 20px;
-					text-decoration: none;
-					position: relative;
-					&[data-size="0"],
-					&[data-size="1"] {
-						--size: 1;
-					}
-					&[data-size="2"] {
-						--size: 2;
-					}
-					&[data-size="3"] {
-						--size: 3;
-					}
-					&[data-size="4"] {
-						--size: 4;
-					}
-					&[data-size="5"] {
-						--size: 5;
-					}
-					&[data-size="6"] {
-						--size: 6;
-					}
-					&[data-size="7"] {
-						--size: 7;
-					}
-					&[data-size="8"] {
-						--size: 8;
-					}
-					&[data-size="9"] {
-						--size: 9;
-					}
-					&[data-size="10"] {
-						--size: 10;
-					}
-					--size: 10;
-					font-size: calc(var(--size) * 0.25rem + 0.5rem);
+    .tags-content {
+        display: block;
+        max-width: 60%;
+        margin: 2em auto 0;
 
-					&:focus {
-						outline: 1px dashed;
-					}
-					div.delete-tag,
-					div.vote-tag {
-						cursor: pointer;
-						position: absolute;
-						top: 0;
-						left: 0;
-						background-color: red;
-						width: 18px;
-						height: 18px;
-						border-radius: 6px;
-						display: flex;
-						flex-flow: row nowrap;
-						justify-content: center;
-						align-items: center;
-						font-size: 14px;
-						color: #fff;
-						text-align: center;
-						vertical-align: middle;
-					}
-					div.vote-tag {
-						top: 0;
-						right: 0;
-						background-color: transparent;
-						cursor: pointer;
-						left: unset;
-						height: 20px;
-						align-items: flex-end;
-						svg {
-							pointer-events: none !important;
-						}
-					}
-				}
-				$repeat: 14;
-				@for $i from 1 through $repeat {
-					&:nth-child(#{length($answercolors)}n+#{$i}) span.tag {
-						color: nth($answercolors, $i);
-					}
-				}
-			}
-			&[data-show-value="true"] {
-				li {
-					span.tag {
-						&:after {
-							content: " (" attr(data-count) ")";
-							font-size: 1rem;
-						}
-					}
-				}
-			}
-			&[data-show-votes="true"] {
-				li {
-					span.tag {
-						&:after {
-							content: " " attr(data-vote) "";
-							font-size: 1rem;
-							font-weight: bold;
-							/*position: absolute;
-							top: 0;
-							right: 8px;*/
-							color: black;
-						}
-					}
-				}
-			}
-		}
-	}
+        ul.cloud {
+            list-style: none;
+            padding-left: 0;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            line-height: 2.5rem;
+
+            li {
+                span.tag {
+                    color: nth($answercolors, 1);
+                    display: block;
+                    padding: 2px 0.25rem 2px 20px;
+                    text-decoration: none;
+                    position: relative;
+
+                    &[data-size="0"],
+                    &[data-size="1"] {
+                        --size: 1;
+                    }
+
+                    &[data-size="2"] {
+                        --size: 2;
+                    }
+
+                    &[data-size="3"] {
+                        --size: 3;
+                    }
+
+                    &[data-size="4"] {
+                        --size: 4;
+                    }
+
+                    &[data-size="5"] {
+                        --size: 5;
+                    }
+
+                    &[data-size="6"] {
+                        --size: 6;
+                    }
+
+                    &[data-size="7"] {
+                        --size: 7;
+                    }
+
+                    &[data-size="8"] {
+                        --size: 8;
+                    }
+
+                    &[data-size="9"] {
+                        --size: 9;
+                    }
+
+                    &[data-size="10"] {
+                        --size: 10;
+                    }
+
+                    --size: 10;
+                    font-size: calc(var(--size) * 0.25rem + 0.5rem);
+
+                    &:focus {
+                        outline: 1px dashed;
+                    }
+
+                    div.delete-tag,
+                    div.vote-tag {
+                        cursor: pointer;
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        background-color: red;
+                        width: 18px;
+                        height: 18px;
+                        border-radius: 6px;
+                        display: flex;
+                        flex-flow: row nowrap;
+                        justify-content: center;
+                        align-items: center;
+                        font-size: 14px;
+                        color: #fff;
+                        text-align: center;
+                        vertical-align: middle;
+                    }
+
+                    div.vote-tag {
+                        top: 0;
+                        right: 0;
+                        background-color: transparent;
+                        cursor: pointer;
+                        left: unset;
+                        height: 20px;
+                        align-items: flex-end;
+
+                        svg {
+                            pointer-events: none !important;
+                        }
+                    }
+                }
+
+                $repeat: 14;
+                @for $i from 1 through $repeat {
+                    &:nth-child(#{length($answercolors)}n+#{$i}) span.tag {
+                        color: nth($answercolors, $i);
+                    }
+                }
+            }
+
+            &[data-show-value="true"] {
+                li {
+                    span.tag {
+                        &:after {
+                            content: " (" attr(data-count) ")";
+                            font-size: 1rem;
+                        }
+                    }
+                }
+            }
+
+            &[data-show-votes="true"] {
+                li {
+                    span.tag {
+                        &:after {
+                            content: " " attr(data-vote) "";
+                            font-size: 1rem;
+                            font-weight: bold;
+                            /*position: absolute;
+                            top: 0;
+                            right: 8px;*/
+                            color: black;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

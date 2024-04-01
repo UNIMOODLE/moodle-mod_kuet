@@ -8,15 +8,17 @@
             display: flex;
             flex-direction: column;
             flex-basis: 43%;
-            background-color: #00B0E8;
+            background-color: #00b0e8;
             text-align: center;
             z-index: 1;
             position: relative;
+
             &:hover {
                 cursor: pointer;
                 transform: scale(1.03);
                 transition: transform .5s;
             }
+
             .feedback-icons,
             .statistics-icons {
                 .feedback-icon,
@@ -30,6 +32,7 @@
                     justify-content: center;
                     align-items: center;
                     position: absolute;
+
                     .icon {
                         margin: 0;
                         height: 15px;
@@ -37,35 +40,43 @@
                     }
                 }
             }
+
             .feedback-icons {
                 position: absolute;
                 top: 10px;
                 left: 10px;
             }
+
             .statistics-icons {
                 position: absolute;
                 top: 10px;
                 right: 80px;
+
                 .statistics-icon {
                     width: 70px;
                     height: 40px;
+
                     svg {
                         margin-right: 5px;
                     }
+
                     .numberofreplies {
                         font-size: 18px;
                     }
                 }
             }
         }
+
         @for $i from 1 through length($answercolors) {
             .multichoice-answer:nth-child(#{length($answercolors)}n+#{$i}) {
                 background: nth($answercolors, $i);
+
                 .statistics-icons {
                     .statistics-icon {
                         .statistics-svg {
                             fill: nth($answercolors, $i);
                         }
+
                         .numberofreplies {
                             color: nth($answercolors, $i);
                         }
@@ -81,22 +92,26 @@
             &.answer-checked {
                 transform: scale(1.03);
                 filter: grayscale(.6);
-                box-shadow: 0 0 10px rgba(0,0,0,.06);
+                box-shadow: 0 0 10px rgba(0, 0, 0, .06);
             }
         }
     }
 }
+
 @media (max-width: 991px) {
     .container-fluid.multichoice {
         padding: 15px;
+
         .content-indicators {
             .users,
             .timer {
                 border: none;
+
                 .icon {
                     height: 13px;
                     width: auto;
                 }
+
                 .numusers,
                 .seconds {
                     font-weight: bold;

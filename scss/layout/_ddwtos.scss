@@ -1,141 +1,142 @@
 .container-fluid.ddwtos.question {
-	.statement-text {
-		.icon.text-success,
-		.icon.text-danger {
-			display: none;
-		}
-	}
-	.qtext {
-		margin-bottom: 0.5em;
-		display: block;
-	}
+    .statement-text {
+        .icon.text-success,
+        .icon.text-danger {
+            display: none;
+        }
+    }
 
-	.draghome {
-		margin-bottom: 1em;
-	}
+    .qtext {
+        margin-bottom: 0.5em;
+        display: block;
+    }
 
-	.answertext {
-		margin-bottom: 0.5em;
-	}
+    .draghome {
+        margin-bottom: 1em;
+    }
 
-	.drop.active {
-		display: inline-block;
-		text-align: center;
-		border: none;
-		margin-bottom: 2px;
-	}
+    .answertext {
+        margin-bottom: 0.5em;
+    }
 
-	.drop {
-		display: none;
-	}
+    .drop.active {
+        display: inline-block;
+        text-align: center;
+        border: none;
+        margin-bottom: 2px;
+    }
 
-	.drags {
-		height: 0;
-	}
+    .drop {
+        display: none;
+    }
 
-	.draghome {
-		display: inline-block;
-		text-align: center;
-		background: transparent;
-		border: none;
-		cursor: move;
-		color: white;
-		margin-right: 10px;
-	}
+    .drags {
+        height: 0;
+    }
 
-	.qtype_ddwtos-readonly .draghome {
-		cursor: default;
-	}
+    .draghome {
+        display: inline-block;
+        text-align: center;
+        background: transparent;
+        border: none;
+        cursor: move;
+        color: white;
+        margin-right: 10px;
+    }
 
-	.draghome.beingdragged {
-		z-index: 3;
-		box-shadow: 3px 3px 4px rgba(0,0,0,.08);
-		position: absolute;
-		margin-right: 0;
-	}
+    .qtype_ddwtos-readonly .draghome {
+        cursor: default;
+    }
 
-	.draghome.dragplaceholder {
-		display: none;
-	}
+    .draghome.beingdragged {
+        z-index: 3;
+        box-shadow: 3px 3px 4px rgba(0, 0, 0, .08);
+        position: absolute;
+        margin-right: 0;
+    }
 
-	.draghome.dragplaceholder.active {
-		visibility: hidden;
-		display: inline-block;
-	}
+    .draghome.dragplaceholder {
+        display: none;
+    }
 
-	.draghome.placed {
-		margin-bottom: 2px;
-		margin-right: 0;
-	}
+    .draghome.dragplaceholder.active {
+        visibility: hidden;
+        display: inline-block;
+    }
 
-	.drop:focus,
-	.drop.valid-drag-over-drop,
-	.draghome.placed:focus:not(.beingdragged),
-	.draghome.placed.valid-drag-over-drop {
-		border-color: #0a0;
-		box-shadow: 0 0 5px 5px rgba(255, 255, 150, 1);
-	}
+    .draghome.placed {
+        margin-bottom: 2px;
+        margin-right: 0;
+    }
 
-	span.incorrect {
-		background-color: #faa;
-	}
+    .drop:focus,
+    .drop.valid-drag-over-drop,
+    .draghome.placed:focus:not(.beingdragged),
+    .draghome.placed.valid-drag-over-drop {
+        border-color: #0a0;
+        box-shadow: 0 0 5px 5px rgba(255, 255, 150, 1);
+    }
 
-	span.correct {
-		background-color: #afa;
-	}
+    span.incorrect {
+        background-color: #faa;
+    }
 
-	.group1 {
-		background-color: nth($answercolors, 1);
-	}
+    span.correct {
+        background-color: #afa;
+    }
 
-	.group2 {
-		background-color: nth($answercolors, 2);
-		border-radius: 10px 0 0 0;
-	}
+    .group1 {
+        background-color: nth($answercolors, 1);
+    }
 
-	.group3 {
-		background-color: nth($answercolors, 3);
-		border-radius: 0 10px 0 0;
-	}
+    .group2 {
+        background-color: nth($answercolors, 2);
+        border-radius: 10px 0 0 0;
+    }
 
-	.group4 {
-		background-color: nth($answercolors, 4);
-		border-radius: 0 0 10px 0;
-	}
+    .group3 {
+        background-color: nth($answercolors, 3);
+        border-radius: 0 10px 0 0;
+    }
 
-	.group5 {
-		background-color: nth($answercolors, 5);
-		border-radius: 0 0 0 10px;
-	}
+    .group4 {
+        background-color: nth($answercolors, 4);
+        border-radius: 0 0 10px 0;
+    }
 
-	.group6 {
-		background-color: nth($answercolors, 6);
-		border-radius: 0 10px 10px 0;
-	}
+    .group5 {
+        background-color: nth($answercolors, 5);
+        border-radius: 0 0 0 10px;
+    }
 
-	.group7 {
-		background-color: nth($answercolors, 7);
-		border-radius: 10px 0 0 10px;
-	}
+    .group6 {
+        background-color: nth($answercolors, 6);
+        border-radius: 0 10px 10px 0;
+    }
 
-	.group8 {
-		background-color: nth($answercolors, 8);
-		border-radius: 10px 10px 10px 10px;
-	}
+    .group7 {
+        background-color: nth($answercolors, 7);
+        border-radius: 10px 0 0 10px;
+    }
 
-	sub,
-	sup {
-		font-size: 80%;
-		position: relative;
-		vertical-align: baseline;
-	}
+    .group8 {
+        background-color: nth($answercolors, 8);
+        border-radius: 10px 10px 10px 10px;
+    }
 
-	sup {
-		top: -0.4em;
-	}
+    sub,
+    sup {
+        font-size: 80%;
+        position: relative;
+        vertical-align: baseline;
+    }
 
-	sub {
-		bottom: -0.2em;
-	}
+    sup {
+        top: -0.4em;
+    }
+
+    sub {
+        bottom: -0.2em;
+    }
 
 }

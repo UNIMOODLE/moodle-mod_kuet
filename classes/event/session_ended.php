@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Kuet Session ended event
@@ -48,7 +48,7 @@ class session_ended extends base {
      *
      * @return void
      */
-    protected function init() : void {
+    protected function init(): void {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_TEACHING;
         $this->data['objecttable'] = 'kuet_sessions';
@@ -60,7 +60,7 @@ class session_ended extends base {
      * @return string
      * @throws coding_exception
      */
-    public static function get_name() : string {
+    public static function get_name(): string {
         return get_string('sessionended', 'mod_kuet');
     }
 
@@ -70,7 +70,7 @@ class session_ended extends base {
      * @return string
      * @throws coding_exception
      */
-    public function get_description() : string {
+    public function get_description(): string {
         return get_string('sessionended_desc', 'mod_kuet');
     }
 
@@ -80,7 +80,7 @@ class session_ended extends base {
      * @return moodle_url
      * @throws moodle_exception
      */
-    public function get_url() : moodle_url {
+    public function get_url(): moodle_url {
         $cmcontext = context_module::instance($this->contextinstanceid);
         return new moodle_url('mod/kuet/sessions.php', ['sid' => $this->objectid,
             'cmid' => $cmcontext->instanceid]);
@@ -90,7 +90,7 @@ class session_ended extends base {
      * Used for maping events on restore
      * @return array
      */
-    public static function get_objectid_mapping() : array {
+    public static function get_objectid_mapping(): array {
         return ['db' => 'kuet_sessions', 'restore' => 'kuet_sessions'];
     }
 }

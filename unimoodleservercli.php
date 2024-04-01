@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * CLI version of websocket server
@@ -129,7 +129,7 @@ class unimoodleservercli extends websockets {
      * @return void
      */
     protected function connected($user) {
-        // TODO log user connected. This function is called by handshake.
+        // 3IP log user connected. This function is called by handshake.
     }
 
     /**
@@ -273,7 +273,7 @@ class unimoodleservercli extends websockets {
                             'action' => 'studentQuestionEnd',
                             'onlyforteacher' => true,
                             'context' => $data,
-                            'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta' // TODO delete.
+                            'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta' // 3IP delete.
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'ImproviseStudentTag':
@@ -308,7 +308,7 @@ class unimoodleservercli extends websockets {
      * @param int $userid
      * @return int
      */
-    protected function get_groupid_from_a_member(int $sid, int $userid) : int {
+    protected function get_groupid_from_a_member(int $sid, int $userid): int {
         $groupid = 0;
         if (!array_key_exists($sid, $this->sidgroups)) {
             return $groupid;
@@ -1031,7 +1031,7 @@ abstract class websockets {
             foreach ($read as $socket) {
                 $ip = stream_socket_get_name( $socket, true );
                 $buffer = stream_get_contents($socket);
-                // TODO review detect disconnect for min buffer lenght.
+                // 3IP review detect disconnect for min buffer lenght.
                 if ($buffer === false || strlen($buffer) <= 8) {
                     if ($this->unmask($buffer) !== '') { // Necessary to stabilise connections, review.
                         $this->disconnect($socket);

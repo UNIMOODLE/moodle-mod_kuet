@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Jump to question API
@@ -75,7 +75,7 @@ class jumptoquestion_external extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sessionid' => new external_value(PARAM_INT, 'session id'),
                 'position' => new external_value(PARAM_INT, 'Order of question'),
-                'manual' => new external_value(PARAM_BOOL, 'Mode of session')
+                'manual' => new external_value(PARAM_BOOL, 'Mode of session'),
             ]
         );
     }

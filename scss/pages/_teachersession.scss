@@ -8,58 +8,74 @@
             }
         }
     }
+
     .summary-session {
         [data-action="end_session"] {
             margin-bottom: 25px;
         }
+
         .resume-config,
         .users-results,
         .race-results {
             padding: 0;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+
             .titlecontainer {
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
                 border-radius: 8px 8px 0 0;
-                color: #FFFFFF;
+                color: #fff;
                 padding: 1em;
             }
         }
+
         .users-results {
             .list-results {
                 max-height: 700px;
                 overflow-y: auto;
+
                 &::-webkit-scrollbar {
                     width: 8px;
                     height: 8px;
                 }
+
                 &::-webkit-scrollbar-track {
                     background: #e0e0e0;
                 }
+
                 &::-webkit-scrollbar-thumb {
                     background-color: #6a737b;
                     border-radius: 4px;
                 }
+                scrollbar-width: thin;
+                scrollbar-color: #6a737b #f8f9fa;
+
                 .list-results-body {
                     width: 100%;
+
                     .d-table-cell {
                         padding: 15px;
                     }
+
                     .list-results-thead {
                         font-weight: bold;
+
                         .d-table-cell {
-                            color: #2B2B2B !important;
+                            color: #2b2b2b !important;
                         }
                     }
+
                     .result-list-data {
                         font-weight: normal;
                         background-color: white;
+
                         .d-table-cell {
-                            border-top: 1px solid #EDEBF4;
+                            border-top: 1px solid #edebf4;
                             color: #929292 !important;
                         }
+
                         &:nth-child(even) {
-                            background-color: rgba(0,0,0,.03);
+                            background-color: rgba(0, 0, 0, .03);
                         }
                     }
                 }

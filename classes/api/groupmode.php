@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Group mode routines
@@ -44,6 +44,7 @@ use mod_kuet\models\sessions;
 use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use stdClass;
+defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once("$CFG->dirroot/group/lib.php");
 
@@ -94,7 +95,7 @@ class groupmode {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function set_group_image_for_session(int $sid, cache_application $cache) : string {
+    public static function set_group_image_for_session(int $sid, cache_application $cache): string {
 
         $session = new kuet_sessions($sid);
         $groupingid = $session->get('groupings');
@@ -113,7 +114,7 @@ class groupmode {
         if (count($images) >= 7) {
             $name = '';
         } else {
-            for($i = 1; $i<8; $i++) {
+            for ($i = 1; $i < 8; $i++) {
                 $name   = '/mod/kuet/pix/pattern_0' . $i . '.png';
                 if (!in_array($name, $images)) {
                     break;
@@ -149,7 +150,7 @@ class groupmode {
      * @param int $groupid
      * @return array
      */
-    public static function get_group_members(int $groupid) : array {
+    public static function get_group_members(int $groupid): array {
         $members = groups_get_members($groupid, 'u.id');
         if (!$members) {
             return [];
@@ -164,7 +165,7 @@ class groupmode {
      * @return array
      * @throws dml_exception
      */
-    public static function get_grouping_groups_name(int $groupingid) : array {
+    public static function get_grouping_groups_name(int $groupingid): array {
         $groups = groups_get_grouping_members($groupingid, 'u.id,gg.groupid');
         $names = [];
         $groupids = [];
@@ -185,7 +186,7 @@ class groupmode {
      * @return array
      * @throws dml_exception
      */
-    public static function get_grouping_groups(int $groupingid) : array {
+    public static function get_grouping_groups(int $groupingid): array {
         $groups = groups_get_grouping_members($groupingid, 'u.id,gg.groupid');
         $data = [];
         if (!$groups) {
@@ -208,7 +209,7 @@ class groupmode {
      * @param int $groupingid
      * @return array
      */
-    public static function get_grouping_userids(int $groupingid) : array {
+    public static function get_grouping_userids(int $groupingid): array {
         $groupmembers = groups_get_grouping_members($groupingid, 'u.id');
         return array_map(static function($user) {
             return $user->id;
@@ -221,7 +222,7 @@ class groupmode {
      * @param int $groupingid
      * @return array
      */
-    public static function get_grouping_users(int $groupingid) : array {
+    public static function get_grouping_users(int $groupingid): array {
         return groups_get_grouping_members($groupingid, 'u.id');
     }
 
@@ -232,7 +233,7 @@ class groupmode {
      * @param int $userid
      * @return array
      */
-    public static function get_grouping_group_members_by_userid(int $groupingid, int $userid) : array {
+    public static function get_grouping_group_members_by_userid(int $groupingid, int $userid): array {
         $allmembers = groups_get_grouping_members($groupingid, 'u.id, gg.groupid');
         $groupid = 0;
         foreach ($allmembers as $gmember) {
@@ -259,7 +260,7 @@ class groupmode {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function check_all_users_in_groups(int $cmid, int $groupingid) : void {
+    public static function check_all_users_in_groups(int $cmid, int $groupingid): void {
 
         $students = kuet::get_enrolled_students_in_course(0, $cmid);
         $studentsids = array_keys($students);
@@ -291,7 +292,7 @@ class groupmode {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function get_user_group(int $userid, kuet_sessions $sessions) : stdClass {
+    public static function get_user_group(int $userid, kuet_sessions $sessions): stdClass {
         $groups = self::get_grouping_groups($sessions->get('groupings'));
         if (empty($groups)) {
             sessions::set_session_status_error($sessions, 'groupingremoved');
@@ -316,7 +317,7 @@ class groupmode {
      * @return array
      * @throws dml_exception
      */
-    public static function get_grouping_group_members(int $groupingid) : array {
+    public static function get_grouping_group_members(int $groupingid): array {
         $members = [];
         $groups = self::get_grouping_groups($groupingid);
         foreach ($groups as $group) {

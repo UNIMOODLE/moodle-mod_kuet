@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Get user response to question API
@@ -83,7 +83,7 @@ class getuserquestionresponse_external extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'course module id'),
                 'sid' => new external_value(PARAM_INT, 'session id'),
                 'uid' => new external_value(PARAM_INT, 'user id'),
-                'preview' => new external_value(PARAM_BOOL, 'preview')
+                'preview' => new external_value(PARAM_BOOL, 'preview'),
             ]
         );
     }
@@ -200,7 +200,7 @@ class getuserquestionresponse_external extends external_api {
      *
      * @return external_single_structure
      */
-    public static function getuserquestionresponse_returns() : external_single_structure {
+    public static function getuserquestionresponse_returns(): external_single_structure {
         return question_exporter::get_read_structure();
     }
 }

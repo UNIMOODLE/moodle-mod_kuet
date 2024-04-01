@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Student session view renderer
@@ -80,7 +80,7 @@ class student_session_view implements renderable, templatable {
         $session = new kuet_sessions($sid);
         $PAGE->set_title(get_string('session', 'kuet') . ' ' . $session->get('name'));
         if ($session->get('status') !== sessionsmodel::SESSION_STARTED) {
-            // TODO session layaout not active or redirect to cmid view.
+            // 3IP session layaout not active or redirect to cmid view.
             throw new moodle_exception('notactivesession', 'mod_kuet', '',
                 [], get_string('notactivesession', 'mod_kuet'));
         }

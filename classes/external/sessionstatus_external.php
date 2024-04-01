@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Session status API
@@ -71,7 +71,7 @@ class sessionstatus_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      */
-    public static function sessionstatus(int $sid, int $status) : array {
+    public static function sessionstatus(int $sid, int $status): array {
         self::validate_parameters(
             self::sessionstatus_parameters(),
             ['sid' => $sid, 'status' => $status]
@@ -93,7 +93,7 @@ class sessionstatus_external extends external_api {
     public static function sessionstatus_returns(): external_single_structure {
         return new external_single_structure(
             [
-                'statuschanged' => new external_value(PARAM_BOOL, 'Session status has changed')
+                'statuschanged' => new external_value(PARAM_BOOL, 'Session status has changed'),
             ]
         );
     }

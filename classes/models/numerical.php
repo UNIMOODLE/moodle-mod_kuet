@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Numerical question type model
@@ -60,7 +60,7 @@ use ReflectionException;
 use stdClass;
 use mod_kuet\interfaces\questionType;
 
-defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * Numerical question type model class
@@ -75,7 +75,7 @@ class numerical extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $kuetid, int $cmid, int $sid) : void {
+    public function construct(int $kuetid, int $cmid, int $sid): void {
         parent::__construct($kuetid, $cmid, $sid);
     }
 
@@ -190,7 +190,7 @@ class numerical extends questions implements questionType {
             $responsedata->timeleft,
             true
         );
-//        $data->cmid = $data->cmid;
+
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $data->numericalresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
@@ -233,11 +233,11 @@ class numerical extends questions implements questionType {
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
                 $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('incorrect', 'mod_kuet')
+                    'title' => get_string('incorrect', 'mod_kuet'),
                 ]);
                 $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => ''
+                    'title' => '',
                 ]);
             } else if ($answer->fraction === '1.0000000') {
                 $answers[$key]['result'] = 'correct';
@@ -245,11 +245,11 @@ class numerical extends questions implements questionType {
                 $answers[$key]['fraction'] = '1';
                 $icon = new pix_icon('i/correct', get_string('correct', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('correct', 'mod_kuet')
+                    'title' => get_string('correct', 'mod_kuet'),
                 ]);
                 $usersicon = new pix_icon('i/correct_users', '', 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => ''
+                    'title' => '',
                 ]);
             } else {
                 $answers[$key]['result'] = 'partially';
@@ -257,11 +257,11 @@ class numerical extends questions implements questionType {
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
                 $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('partially_correct', 'mod_kuet')
+                    'title' => get_string('partially_correct', 'mod_kuet'),
                 ]);
                 $usersicon = new pix_icon('i/partially_users', '', 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => ''
+                    'title' => '',
                 ]);
             }
             $answers[$key]['resulticon'] = $icon->export_for_pix();
@@ -372,7 +372,7 @@ class numerical extends questions implements questionType {
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
             $response->timeleft = $timeleft;
             $response->type = questions::NUMERICAL;
-            $response->response = $responsetext; // TODO validate html and special characters.
+            $response->response = $responsetext; // 3IP validate html and special characters.
             $response->unit = $unit;
             $response->multiplier = $multiplier;
             if ($session->is_group_mode()) {
@@ -398,7 +398,7 @@ class numerical extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
         $kuet = new kuet($response->get('kuet'));
@@ -424,14 +424,14 @@ class numerical extends questions implements questionType {
      * @return array
      * @throws coding_exception
      */
-    public static function get_question_statistics( question_definition $question, array $responses) : array {
+    public static function get_question_statistics(question_definition $question, array $responses): array {
         $statistics = [];
         $total = count($responses);
         list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
         $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
-        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
-        $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
-        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse  * 100 / $total, 2) : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect * 100 / $total, 2) : 0;
+        $statistics[0]['partially'] = $partially !== 0 ? round($partially * 100 / $total, 2) : 0;
+        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse * 100 / $total, 2) : 0;
         return $statistics;
     }
 }

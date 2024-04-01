@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Kuet grades persistent
@@ -49,7 +49,7 @@ class kuet_grades extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() : array {
+    protected static function define_properties(): array {
         return [
             'kuet' => [
                 'type' => PARAM_INT,
@@ -59,7 +59,7 @@ class kuet_grades extends persistent {
             ],
             'grade' => [
                 'type' => PARAM_FLOAT,
-            ]
+            ],
         ];
     }
 

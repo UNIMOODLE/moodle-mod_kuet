@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Teacher model
@@ -60,7 +60,7 @@ class teacher extends user {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function export(int $cmid) : Object {
+    public function export(int $cmid): Object {
         return $this->export_sessions($cmid);
     }
 
@@ -73,7 +73,7 @@ class teacher extends user {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function export_sessions(int $cmid) : Object {
+    public function export_sessions(int $cmid): Object {
         $kuet = new kuet($cmid);
         $actives = [];
         $inactives = [];

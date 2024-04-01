@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Drag and drop question exporter
@@ -47,20 +47,20 @@ class ddwtos_exporter extends commondata_exporter {
         return [
             'ddwtos' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
             'ddwtosresponse' => [
                 'type' => PARAM_RAW,
-                'optional' => true
+                'optional' => true,
             ],
             'correct_response' => [
                 'type' => PARAM_RAW,
-                'optional' => true
+                'optional' => true,
             ],
             'question_text_feedback' => [
                 'type' => PARAM_RAW,
-                'optional' => true
-            ]
+                'optional' => true,
+            ],
         ];
     }
 }

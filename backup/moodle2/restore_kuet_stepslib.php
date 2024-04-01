@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Restore kuet steps
@@ -32,7 +32,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * Kuet activity structure steps class
@@ -50,15 +50,15 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $userinfo = $this->get_setting_value('userinfo');
         $paths = [];
         $paths[] = new restore_path_element('kuet', '/activity/kuet');
-        $paths[] = new restore_path_element('kuet_session','/activity/kuet/sessions/session');
+        $paths[] = new restore_path_element('kuet_session', '/activity/kuet/sessions/session');
         $question = new restore_path_element('kuet_question', '/activity/kuet/questions/question');
         $paths[] = $question;
         $this->add_question_usages($question, $paths);
         if ($userinfo) {
-            $paths[] = new restore_path_element('kuet_grade','/activity/kuet/grades/grade');
-            $paths[] = new restore_path_element('kuet_session_grade','/activity/kuet/sessions_grades/session_grade');
+            $paths[] = new restore_path_element('kuet_grade', '/activity/kuet/grades/grade');
+            $paths[] = new restore_path_element('kuet_session_grade', '/activity/kuet/sessions_grades/session_grade');
             $paths[] = new restore_path_element('kuet_user_progres', '/activity/kuet/user_progress/user_progres');
-            $paths[] = new restore_path_element('kuet_questions_response','/activity/kuet/questions_responses/questions_response');
+            $paths[] = new restore_path_element('kuet_questions_response', '/activity/kuet/questions_responses/questions_response');
         }
         return $this->prepare_activity_structure($paths);
     }
@@ -222,8 +222,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
      * @param int $newquestionid
      * @return string
      */
-
-    private function replace_answerids(string $responsejson, int $newquestionid) : string {
+    private function replace_answerids(string $responsejson, int $newquestionid): string {
         if (!$newquestionid) {
             return $responsejson;
         }
@@ -244,7 +243,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
      * @param $newquestionid
      * @return string
      */
-    private function replace_answerids_multichoice(stdClass $response, $newquestionid) : string {
+    private function replace_answerids_multichoice(stdClass $response, $newquestionid): string {
         $answertexts = $response->{'answertexts'};
         $answerids = explode(',', $response->{'answerids'});
         $newanswerids = [];
@@ -271,7 +270,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
      * @param $newquestionid
      * @return string
      */
-    private function replace_answerids_truefalse(stdClass $response, $newquestionid) : string {
+    private function replace_answerids_truefalse(stdClass $response, $newquestionid): string {
         $question = question_bank::load_question($newquestionid);
         $answertext = $response->{'answertexts'};
         $newanswerids = $question->falseanswerid;

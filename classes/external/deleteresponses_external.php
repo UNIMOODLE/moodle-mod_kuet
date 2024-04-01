@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Delete responses API
@@ -87,11 +87,11 @@ class deleteresponses_external extends external_api {
         if (has_capability('mod/kuet:startsession', $cmcontext)) {
             $kuet = new kuet($cmid);
             return [
-                'deleted' => kuet_questions_responses::delete_question_responses($kuet->get_kuet()->id, $sessionid, $kid)
+                'deleted' => kuet_questions_responses::delete_question_responses($kuet->get_kuet()->id, $sessionid, $kid),
             ];
         }
         return [
-            'deleted' => false
+            'deleted' => false,
         ];
     }
 

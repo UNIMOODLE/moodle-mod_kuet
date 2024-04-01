@@ -1,9 +1,11 @@
 .modal.show {
     .modal_kuet {
         max-width: 95%;
+
         .modal-content {
             border-radius: 15px;
             padding: 20px;
+
             .modal_kuet_header {
                 display: flex;
                 flex-flow: row nowrap;
@@ -12,6 +14,7 @@
                 border-bottom: none;
                 padding: 0;
                 margin-bottom: 1em;
+
                 .modal-title {
                     font-size: 23px;
                     font-weight: normal !important;
@@ -19,6 +22,7 @@
                     flex-flow: row nowrap;
                     justify-content: flex-start;
                     align-items: center;
+
                     .icon {
                         height: 20px;
                         width: auto;
@@ -26,22 +30,30 @@
                     }
                 }
             }
+
             .modal-body {
                 padding: 5px;
+
                 &::-webkit-scrollbar {
                     width: 8px;
                     height: 8px;
                 }
+
                 &::-webkit-scrollbar-track {
                     background: #e0e0e0;
                 }
+
                 &::-webkit-scrollbar-thumb {
                     background-color: #6a737b;
                     border-radius: 4px;
                 }
+                scrollbar-width: thin;
+                scrollbar-color: #6a737b #e0e0e0;
+
                 .question-fullscreen {
                     display: none;
                 }
+
                 /*.question-body {
                     border: 1px solid gray;
                     box-sizing: border-box;

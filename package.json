@@ -2,7 +2,8 @@
   "name": "kuet",
   "version": "1.0.0",
   "scripts": {
-    "scss": "node-sass --watch scss/kuet.scss styles.css --output-style compressed"
+    "scss": "node-sass --watch scss/kuet.scss styles.css --output-style compressed",
+    "scssnocompressed": "node-sass --watch scss/kuet.scss nocompressedstyles.css --output-style expanded"
   },
   "repository": {
     "type": "git",

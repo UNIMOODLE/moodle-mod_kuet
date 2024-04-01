@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Calculated question API
@@ -149,7 +149,8 @@ class calculated_external extends external_api {
         $result = questions::NORESPONSE;
         if (assert($question instanceof qtype_calculated_question)) {
             $statmentfeedback = questions::get_text(
-                $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback', $variant
+                $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question,
+                'generalfeedback', $variant
             );
             $moodleresult = $question->grade_response(['answer' => $responsenum, 'unit' => $unit]);
             if (isset($moodleresult[1])) {
@@ -190,7 +191,7 @@ class calculated_external extends external_api {
                     'unit' => $unit,
                     'multiplier' => $multiplier,
                     'result' => $result,
-                    'answerfeedback' => $answerfeedback
+                    'answerfeedback' => $answerfeedback,
                 ];
                 calculated::question_response(
                     $cmid,

@@ -75,20 +75,19 @@ class nextquestion_external_test extends advanced_testcase {
             'status' => \mod_kuet\models\sessions::SESSION_ACTIVE,
             'sessionid' => 0,
             'submitbutton' => 0,
-            'showgraderanking' => 0,
         ];
         $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $questiongenerator->create_question_category();
-        $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, array('category' => $cat->id));
-        $nq = $questiongenerator->create_question(questions::NUMERICAL, null, array('category' => $cat->id));
-        $tfq = $questiongenerator->create_question(questions::TRUE_FALSE, null, array('category' => $cat->id));
-        $mcq = $questiongenerator->create_question(questions::MULTICHOICE, null, array('category' => $cat->id));
-        $cq = $questiongenerator->create_question(questions::CALCULATED, null, array('category' => $cat->id));
-        $ddwtosq = $questiongenerator->create_question(questions::DDWTOS, null, array('category' => $cat->id));
-        $dq = $questiongenerator->create_question(questions::DESCRIPTION, null, array('category' => $cat->id));
+        $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, ['category' => $cat->id]);
+        $nq = $questiongenerator->create_question(questions::NUMERICAL, null, ['category' => $cat->id]);
+        $tfq = $questiongenerator->create_question(questions::TRUE_FALSE, null, ['category' => $cat->id]);
+        $mcq = $questiongenerator->create_question(questions::MULTICHOICE, null, ['category' => $cat->id]);
+        $cq = $questiongenerator->create_question(questions::CALCULATED, null, ['category' => $cat->id]);
+        $ddwtosq = $questiongenerator->create_question(questions::DDWTOS, null, ['category' => $cat->id]);
+        $dq = $questiongenerator->create_question(questions::DESCRIPTION, null, ['category' => $cat->id]);
 
         // Add question.
         \mod_kuet\external\addquestions_external::add_questions([

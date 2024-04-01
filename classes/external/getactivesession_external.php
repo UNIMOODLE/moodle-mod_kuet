@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Get active session API
@@ -81,7 +81,7 @@ class getactivesession_external extends external_api {
         );
         $activessesion = kuet_sessions::get_active_session_id($kuetid);
         return [
-            'active' => $activessesion
+            'active' => $activessesion,
         ];
     }
 

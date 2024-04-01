@@ -72,7 +72,6 @@ class getsession_external_test extends \advanced_testcase {
             'groupings' => 0,
             'status' => sessions::SESSION_ACTIVE,
             'sessionid' => 0,
-            'showgraderanking' => 0,
         ];
         $createdsid = $generator->create_session($kuet, (object) $sessionmock);
         $data = getsession_external::getsession($createdsid, $kuet->cmid);

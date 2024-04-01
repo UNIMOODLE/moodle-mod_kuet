@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Get race mode results API
@@ -62,7 +62,7 @@ class getraceresults_external extends external_api {
         return new external_function_parameters(
             [
                 'sid' => new external_value(PARAM_INT, 'sessionid id'),
-                'cmid' => new external_value(PARAM_INT, 'course module id')
+                'cmid' => new external_value(PARAM_INT, 'course module id'),
             ]
         );
     }
@@ -115,7 +115,7 @@ class getraceresults_external extends external_api {
                         'notanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
                         'partially' => new external_value(PARAM_INT, 'Num of partially correct answers'),
                         'userpoints' => new external_value(PARAM_RAW, 'Total points of user'),
-                        'userposition' => new external_value(PARAM_INT, 'User position depending on the points')
+                        'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
                     ], ''
                 ), '', VALUE_OPTIONAL
             ),
@@ -130,7 +130,7 @@ class getraceresults_external extends external_api {
                         'notanswers' => new external_value(PARAM_INT, 'Num of incorrect answers'),
                         'partially' => new external_value(PARAM_INT, 'Num of partially correct answers'),
                         'grouppoints' => new external_value(PARAM_RAW, 'Total points of group'),
-                        'groupposition' => new external_value(PARAM_INT, 'Group position depending on the points')
+                        'groupposition' => new external_value(PARAM_INT, 'Group position depending on the points'),
                     ], ''
                 ), '', VALUE_OPTIONAL
             ),
@@ -148,7 +148,7 @@ class getraceresults_external extends external_api {
                         ), ''),
                     ], ''
                 ), ''
-            )
+            ),
         ]);
     }
 }

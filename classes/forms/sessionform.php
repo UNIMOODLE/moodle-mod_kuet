@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Session form
@@ -41,7 +41,7 @@ use mod_kuet\api\groupmode;
 use mod_kuet\models\sessions;
 use mod_kuet\persistents\kuet_sessions;
 use moodleform;
-
+defined('MOODLE_INTERNAL') || die();
 global $CFG;
 require_once($CFG->libdir.'/formslib.php');
 
@@ -56,7 +56,7 @@ class sessionform extends moodleform {
      * @return void
      * @throws coding_exception
      */
-    public function definition() : void {
+    public function definition(): void {
         global $OUTPUT;
         $mform =& $this->_form;
         $customdata = $this->_customdata;

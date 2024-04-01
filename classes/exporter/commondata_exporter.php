@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Common data exporter
@@ -63,63 +63,63 @@ class commondata_exporter extends question_exporter {
             ],
             'questiontext' => [
                 'type' => PARAM_RAW,
-                'optional' => true
+                'optional' => true,
             ],
             'showquestionfeedback' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
             'countdown' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
             'preview' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
             'programmedmode' => [
-                'type' => PARAM_BOOL
+                'type' => PARAM_BOOL,
             ],
             'question_index_string' => [
                 'type' => PARAM_RAW,
-                'optional' => true
+                'optional' => true,
             ],
             'numquestions' => [
                 'type' => PARAM_INT,
-                'optional' => true
+                'optional' => true,
             ],
             'sessionprogress' => [
                 'type' => PARAM_INT,
-                'optional' => true
+                'optional' => true,
             ],
             'hastime' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
             'seconds' => [
                 'type' => PARAM_INT,
-                'optional' => true
+                'optional' => true,
             ],
             'qtype' => [
                 'type' => PARAM_RAW,
-                'optional' => true
+                'optional' => true,
             ],
             'port' => [
                 'type' => PARAM_RAW,
-                'optional' => true
+                'optional' => true,
             ],
             'socketurl' => [
                 'type' => PARAM_URL,
-                'optional' => true
+                'optional' => true,
             ],
             'showstatistics' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
             'feedbacks' => [
                 'type' => feedback_exporter::read_properties_definition(),
                 'optional' => true,
-                'multiple' => true
+                'multiple' => true,
             ],
             'ranking' => [
                 'type' => PARAM_BOOL,
@@ -144,7 +144,7 @@ class commondata_exporter extends question_exporter {
             'jsonresponse' => [
                 'type' => PARAM_RAW,
                 'optional' => true,
-            ]
+            ],
         ];
     }
 
@@ -153,7 +153,7 @@ class commondata_exporter extends question_exporter {
      *
      * @return string[]
      */
-    protected static function define_related() : array {
-        return array('context' => context::class);
+    protected static function define_related(): array {
+        return ['context' => context::class];
     }
 }

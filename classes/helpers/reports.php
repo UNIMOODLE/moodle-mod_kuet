@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Reports helper
@@ -128,7 +128,7 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_questions_data_for_teacher_report_groups(
-        kuet_questions $question, int $kuetid, int $cmid, kuet_sessions $session) : stdClass {
+        kuet_questions $question, int $kuetid, int $cmid, kuet_sessions $session): stdClass {
         global $DB;
         $groupmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
@@ -139,7 +139,7 @@ class reports {
         $data->type = $question->get('qtype');
         $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
             'class' => 'icon',
-            'title' => $question->get('qtype')
+            'title' => $question->get('qtype'),
         ]);
         $data->icon = $icon->export_for_pix();
         $data->success = 0;
@@ -151,21 +151,21 @@ class reports {
                 'session' => $session->get('id'),
                 'kid' => $question->get('id'),
                 'result' => questions::SUCCESS,
-                'userid' => $groupmember
+                'userid' => $groupmember,
             ]);
             $data->failures += kuet_questions_responses::count_records([
                 'kuet' => $kuetid,
                 'session' => $session->get('id'),
                 'kid' => $question->get('id'),
                 'result' => questions::FAILURE,
-                'userid' => $groupmember
+                'userid' => $groupmember,
             ]);
             $data->partyally += kuet_questions_responses::count_records([
                 'kuet' => $kuetid,
                 'session' => $session->get('id'),
                 'kid' => $question->get('id'),
                 'result' => questions::PARTIALLY,
-                'userid' => $groupmember
+                'userid' => $groupmember,
             ]);
         }
 
@@ -196,7 +196,7 @@ class reports {
      */
     public static function get_questions_data_for_teacher_report_individual(
         kuet_questions $question, int $kuetid, int $cmid, kuet_sessions $session
-    ) : stdClass {
+    ): stdClass {
         global $DB;
         $kuet = new kuet($kuetid);
         $users = enrol_get_course_users($kuet->get('course'), true);
@@ -214,26 +214,26 @@ class reports {
         $data->type = $question->get('qtype');
         $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
             'class' => 'icon',
-            'title' => $question->get('qtype')
+            'title' => $question->get('qtype'),
         ]);
         $data->icon = $icon->export_for_pix();
         $data->success = kuet_questions_responses::count_records([
             'kuet' => $kuetid,
             'session' => $session->get('id'),
             'kid' => $question->get('id'),
-            'result' => questions::SUCCESS
+            'result' => questions::SUCCESS,
         ]);
         $data->failures = kuet_questions_responses::count_records([
             'kuet' => $kuetid,
             'session' => $session->get('id'),
             'kid' => $question->get('id'),
-            'result' => questions::FAILURE
+            'result' => questions::FAILURE,
         ]);
         $data->partyally = kuet_questions_responses::count_records([
             'kuet' => $kuetid,
             'session' => $session->get('id'),
             'kid' => $question->get('id'),
-            'result' => questions::PARTIALLY
+            'result' => questions::PARTIALLY,
         ]);
         $data->noresponse = count($users) - ($data->success + $data->failures + $data->partyally);
         $data->time = self::get_time_string($session, $question);
@@ -366,7 +366,7 @@ class reports {
             $data->type = $question->get('qtype');
             $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
                 'class' => 'icon',
-                'title' => $question->get('qtype')
+                'title' => $question->get('qtype'),
             ]);
             $data->icon = $icon->export_for_pix();
             $questiontimestr = self::get_time_string($session, $question);
@@ -501,13 +501,13 @@ class reports {
                 $data->thirduserpoints = $data->rankingusers[2]->userpoints ?? '';
             }
         }
-        $params =  ['cmid' => $cmid, 'sid' => $sid, 'name' => self::SESSION_QUESTIONS_REPORT];
+        $params = ['cmid' => $cmid, 'sid' => $sid, 'name' => self::SESSION_QUESTIONS_REPORT];
         $data->downloadsessionquestionreport = self::get_downloadhtml($params);
         if ($session->is_group_mode()) {
-            $params['name'] =  self::GROUP_SESSION_RANKING_REPORT;
+            $params['name'] = self::GROUP_SESSION_RANKING_REPORT;
             $data->downloadsessionrankingreport = self::get_downloadhtml($params);
         } else {
-            $params['name'] =  self::SESSION_RANKING_REPORT;
+            $params['name'] = self::SESSION_RANKING_REPORT;
         }
         $data->downloadsessionrankingreport = self::get_downloadhtml($params);
         return $data;
@@ -520,7 +520,7 @@ class reports {
      * @return string
      * @throws coding_exception
      */
-    private static function  get_downloadhtml(array $urlparams) : string {
+    private static function get_downloadhtml(array $urlparams): string {
         global $OUTPUT;
 
         $urlbase = new moodle_url('/mod/kuet/dwn_report.php');

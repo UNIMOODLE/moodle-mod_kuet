@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Drag and drop model
@@ -58,7 +58,7 @@ use question_state;
 use stdClass;
 use mod_kuet\interfaces\questionType;
 
-defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * Drag and drop class
@@ -73,7 +73,7 @@ class ddwtos extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $kuetid, int $cmid, int $sid) :void {
+    public function construct(int $kuetid, int $cmid, int $sid): void {
         parent::__construct($kuetid, $cmid, $sid);
     }
 
@@ -175,7 +175,7 @@ class ddwtos extends questions implements questionType {
      * @throws dml_exception
      * @throws dml_transaction_exception
      */
-    public static function get_question_text(int $cmid, qtype_ddwtos_question $question, array $response = []) : string {
+    public static function get_question_text(int $cmid, qtype_ddwtos_question $question, array $response = []):string {
         $questiontext = '';
         $embeddedelements = [];
         $placeholders = self::get_fragments_glue_placeholders($question->textfragments);
@@ -195,7 +195,7 @@ class ddwtos extends questions implements questionType {
                 $embeddedelements[$placeholder], $questiontext);
         }
 
-        $result = html_writer::tag('div', $questiontext, array('class' => 'qtext'));
+        $result = html_writer::tag('div', $questiontext, ['class' => 'qtext']);
         $result .= self::post_qtext_elements($question, $options, $response);
 
         return $result;
@@ -272,7 +272,7 @@ class ddwtos extends questions implements questionType {
         $label = $options->add_question_identifier_to_label(get_string('blanknumber', 'qtype_ddwtos', $place));
         $boxcontents = '&#160;' . html_writer::tag('span', $label, ['class' => 'accesshide']);
         $attributes = [
-            'class' => 'place' . $place . ' drop active group' . $group
+            'class' => 'place' . $place . ' drop active group' . $group,
         ];
         if ($options->readonly || !empty($response)) {
             $attributes['class'] .= ' readonly';
@@ -322,7 +322,7 @@ class ddwtos extends questions implements questionType {
      * @return string
      * @throws coding_exception
      */
-    private static function feedback_image(int $fraction, bool $selected = true) : string {
+    private static function feedback_image(int $fraction, bool $selected = true): string {
         global $OUTPUT;
         $feedbackclass = question_state::graded_state_for_fraction($fraction)->get_feedback_class();
         return $OUTPUT->pix_icon('i/grade_' . $feedbackclass, get_string($feedbackclass, 'question'));
@@ -350,7 +350,7 @@ class ddwtos extends questions implements questionType {
         if ($options->readonly || !empty($response)) {
             $classes[] = 'readonly';
         }
-        $result .= html_writer::tag('div', $dragboxs, array('class' => implode(' ', $classes)));
+        $result .= html_writer::tag('div', $dragboxs, ['class' => implode(' ', $classes)]);
         if (!$options->clearwrong) {
             $result .= self::clear_wrong($question, $response);
         }
@@ -380,22 +380,22 @@ class ddwtos extends questions implements questionType {
                 $cleanvalue = '0';
             }
             if ($cleanvalue === $value) {
-                $output .= html_writer::empty_tag('input', array(
+                $output .= html_writer::empty_tag('input', [
                     'type' => 'hidden',
                     'id' => uniqid('', true),
                     'class' => 'placeinput place' . $place . ' group' . $group,
                     'name' => uniqid('', true),
-                    'value' => s($value)));
+                    'value' => s($value)]);
             } else {
-                $output .= html_writer::empty_tag('input', array(
+                $output .= html_writer::empty_tag('input', [
                         'type' => 'hidden',
                         'id' => uniqid('', true),
                         'class' => 'placeinput place' . $place . ' group' . $group,
-                        'value' => s($value))) .
-                    html_writer::empty_tag('input', array(
+                        'value' => s($value)]) .
+                    html_writer::empty_tag('input', [
                         'type' => 'hidden',
                         'name' => uniqid('', true),
-                        'value' => s($cleanvalue)));
+                        'value' => s($cleanvalue)]);
             }
         }
         return $output;
@@ -547,7 +547,7 @@ class ddwtos extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
         $mark = 0;
         $kuet = new kuet($response->get('kuet'));
         [$course, $cm] = get_course_and_cm_from_instance($response->get('kuet'), 'kuet', $kuet->get('course'));
@@ -575,14 +575,14 @@ class ddwtos extends questions implements questionType {
      * @return array
      * @throws coding_exception
      */
-    public static function get_question_statistics( question_definition $question, array $responses) : array {
+    public static function get_question_statistics(question_definition $question, array $responses): array {
         $statistics = [];
         $total = count($responses);
         list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
         $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
-        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect  * 100 / $total, 2) : 0;
-        $statistics[0]['partially'] = $partially !== 0 ? round($partially  * 100 / $total, 2) : 0;
-        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse  * 100 / $total, 2) : 0;
+        $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect * 100 / $total, 2) : 0;
+        $statistics[0]['partially'] = $partially !== 0 ? round($partially * 100 / $total, 2) : 0;
+        $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse * 100 / $total, 2) : 0;
         return $statistics;
     }
 }

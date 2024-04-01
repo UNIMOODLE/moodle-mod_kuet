@@ -71,21 +71,20 @@ class addquestions_external_test extends advanced_testcase {
             'status' => 1,
             'sessionid' => 0,
             'submitbutton' => 0,
-            'showgraderanking' => 0,
         ];
         $createdsid = $generator->create_session($kuet, (object) $sessionmock);
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $questiongenerator->create_question_category();
-        $saq = $questiongenerator->create_question('shortanswer', null, array('category' => $cat->id));
-        $numq = $questiongenerator->create_question('numerical', null, array('category' => $cat->id));
+        $saq = $questiongenerator->create_question('shortanswer', null, ['category' => $cat->id]);
+        $numq = $questiongenerator->create_question('numerical', null, ['category' => $cat->id]);
         $essayq = $questiongenerator->create_question('essay', null, ['category' => $cat->id]); // Not accepted on kuet.
 
         // Compatible questions.
         $data = \mod_kuet\external\addquestions_external::add_questions([
             ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'shortanswer'],
-            ['questionid' => $numq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'numerical']
+            ['questionid' => $numq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'numerical'],
         ]);
 
         $this->assertIsArray($data);
@@ -94,7 +93,7 @@ class addquestions_external_test extends advanced_testcase {
 
         // Not compatible question.
         $data = \mod_kuet\external\addquestions_external::add_questions([
-            ['questionid' => $essayq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'essay']
+            ['questionid' => $essayq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'essay'],
         ]);
         $total = mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'kuetid' => $kuet->id]);
         $this->assertIsArray($data);

@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Question model
@@ -107,7 +107,7 @@ class questions {
         self::NUMERICAL,
         self::CALCULATED,
         self::DESCRIPTION,
-        self::DDWTOS
+        self::DDWTOS,
     ];
 
     /**
@@ -173,7 +173,7 @@ class questions {
      *
      * @return void
      */
-    public function set_list() : void {
+    public function set_list(): void {
         $this->list = kuet_questions::get_records(['sessionid' => $this->sid, 'kuetid' => $this->kuetid], 'qorder', 'ASC');
     }
 
@@ -392,8 +392,8 @@ class questions {
      * @return string
      */
     protected static function escape_characters(string $text): string {
-        // TODO check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
-        $text = trim(html_entity_decode($text), self::CHARACTERS_TO_BE_STRIPPED);
+        // 3IP check, as the wide variety of possible HTML may result in errors when encoding and decoding the json.
+        $text = trim(html_entity_decode($text, ENT_QUOTES), self::CHARACTERS_TO_BE_STRIPPED);
         $replace = preg_replace('/[\x00-\x1F\x7F]/u', '', $text);
         return $replace ?? $text;
     }
@@ -416,7 +416,7 @@ class questions {
      */
     protected static function add_group_response(
         int $kuetid, kuet_sessions $session, int $kid, int $questionid, int $userid, int $result, stdClass $response
-    ) : void {
+    ): void {
         // All groupmembers has the same response saved on db.
         $num = kuet_questions_responses::count_records(
             ['kuet' => $kuetid, 'session' => $session->get('id'), 'kid' => $kid, 'userid' => $userid]);
@@ -437,7 +437,7 @@ class questions {
      *
      * @return bool
      */
-    public static function is_evaluable() : bool {
+    public static function is_evaluable(): bool {
         return true;
     }
 
@@ -448,7 +448,7 @@ class questions {
      * @return string
      * @throws moodle_exception
      */
-    public static function get_question_class_by_string_type(string $type) : string {
+    public static function get_question_class_by_string_type(string $type): string {
         if ($type === 'match') {
             $type = 'matchquestion';
         }
@@ -465,7 +465,7 @@ class questions {
      *
      * @return bool
      */
-    public static function show_statistics() : bool {
+    public static function show_statistics(): bool {
         return false;
     }
 }

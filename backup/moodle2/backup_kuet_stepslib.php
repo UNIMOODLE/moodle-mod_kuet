@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Kuet backup steps
@@ -32,7 +32,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * Define the complete choice structure for backup, with file and id annotations.
@@ -102,7 +102,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'config',
             'usermodified',
             'timecreated',
-            'timemodified'
+            'timemodified',
         ]);
         $this->add_question_usages($question, 'questionid');
         $questionsresponses = new backup_nested_element('questions_responses');
@@ -115,14 +115,14 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'result',
             'response',
             'timecreated',
-            'timemodified'
+            'timemodified',
         ]);
 
         $grades = new backup_nested_element('grades');
         $grade = new backup_nested_element('grade', ['id'], [
             'userid',
             'grade',
-            'timemodified'
+            'timemodified',
         ]);
 
         $sessionsgrades = new backup_nested_element('sessions_grades');
@@ -131,7 +131,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'userid',
             'grade',
             'timecreated',
-            'timemodified'
+            'timemodified',
         ]);
 
         $userprogress = new backup_nested_element('user_progress');
@@ -141,7 +141,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'randomquestion',
             'other',
             'timecreated',
-            'timemodified'
+            'timemodified',
         ]);
 
         // Build the tree.

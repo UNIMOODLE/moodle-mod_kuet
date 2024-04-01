@@ -1,156 +1,188 @@
 .content-raceresults {
-	display: flex;
-	width: 100%;
-	.users-list {
-		width: 22%;
-		max-width: 430px;
-		min-width: 300px;
-		overflow: hidden;
-		padding: 15px 10px 30px 30px;
-		.race-student-title {
-			font-size: 22px;
-			font-weight: bold;
-			margin-bottom: 15px;
-		}
-		.content-users {
-			max-height: 700px;
-			overflow-y: auto;
-			&::-webkit-scrollbar {
-				width: 8px;
-				height: 8px;
-			}
-			&::-webkit-scrollbar-track {
-				background: #e0e0e0;
-			}
-			&::-webkit-scrollbar-thumb {
-				background-color: #6a737b;
-				border-radius: 4px;
-			}
-			.race-student {
-				display: flex;
-				flex-flow: row nowrap;
-				justify-content: space-between;
-				align-items: center;
-				font-weight: bold;
-				font-size: 15px;
-				padding: 12px 0 12px 0;
-				border-bottom: 1px solid #d0d0d0;
-				height: 75px;
-				img.student-profile {
-					width: 50px;
-					height: 50px;
-					border-radius: 30px;
-				}
-			}
-		}
-	}
-	.questions-list {
-		width: 78%;
-		display: flex;
-		flex-flow: row nowrap;
-		justify-content: flex-start;
-		padding: 15px 10px 30px 0;
-		overflow-x: auto;
-		&::-webkit-scrollbar {
-			height: 8px;
-		}
-		&::-webkit-scrollbar-track {
-			background: #e0e0e0;
-		}
-		&::-webkit-scrollbar-thumb {
-			background-color: #6a737b;
-			border-radius: 4px;
-		}
-		.content-question {
-			border-right: 1px solid #d0d0d0;
-			width: 100%;
-			min-width: 85px;
-			.questionnumber {
-				text-align: center;
-				font-size: 22px;
-				font-weight: bold;
-				margin-bottom: 15px;
-				width: 100%;
-			}
-			.content-responses {
-				overflow-x: hidden;
-				overflow-y: hidden;
-				max-height: 700px;
-				.response {
-					height: 75px;
-					width: 100%;
-					padding: 15px 0;
-					display: flex;
-					justify-content: center;
-					align-items: center;
-					.content-color {
-						height: 45px;
-						width: 100%;
-						border-radius: 8px;
-					}
-					&.noresponse {
-						.content-color {
-							background-color: white;
-						}
-					}
-					&.fail {
-						.content-color {
-							background-color: #f85455;
-						}
-					}
-					&.success {
-						.content-color {
-							background-color: #0fd08c;
-						}
-					}
-					&.partially {
-						.content-color {
-							background-color: gray;
-						}
-					}
-					&.noevaluable {
-						.content-color {
-							background-color: yellow;
-						}
-					}
-					&.invalid {
-						.content-color {
-							background-color: maroon;
-						}
-					}
-				}
-			}
-		}
-	}
+    display: flex;
+    width: 100%;
+
+    .users-list {
+        width: 22%;
+        max-width: 430px;
+        min-width: 300px;
+        overflow: hidden;
+        padding: 15px 10px 30px 30px;
+
+        .race-student-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .content-users {
+            max-height: 700px;
+            overflow-y: auto;
+
+            &::-webkit-scrollbar {
+                width: 8px;
+                height: 8px;
+            }
+
+            &::-webkit-scrollbar-track {
+                background: #e0e0e0;
+            }
+
+            &::-webkit-scrollbar-thumb {
+                background-color: #6a737b;
+                border-radius: 4px;
+            }
+            scrollbar-width: thin;
+            scrollbar-color: #6a737b #e0e0e0;
+
+            .race-student {
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: space-between;
+                align-items: center;
+                font-weight: bold;
+                font-size: 15px;
+                padding: 12px 0 12px 0;
+                border-bottom: 1px solid #d0d0d0;
+                height: 75px;
+
+                img.student-profile {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 30px;
+                }
+            }
+        }
+    }
+
+    .questions-list {
+        width: 78%;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-start;
+        padding: 15px 10px 30px 0;
+        overflow-x: auto;
+
+        &::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: #e0e0e0;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background-color: #6a737b;
+            border-radius: 4px;
+        }
+        scrollbar-width: thin;
+        scrollbar-color: #6a737b #e0e0e0;
+
+        .content-question {
+            border-right: 1px solid #d0d0d0;
+            width: 100%;
+            min-width: 85px;
+
+            .questionnumber {
+                text-align: center;
+                font-size: 22px;
+                font-weight: bold;
+                margin-bottom: 15px;
+                width: 100%;
+            }
+
+            .content-responses {
+                overflow-x: hidden;
+                overflow-y: hidden;
+                max-height: 700px;
+
+                .response {
+                    height: 75px;
+                    width: 100%;
+                    padding: 15px 0;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+
+                    .content-color {
+                        height: 45px;
+                        width: 100%;
+                        border-radius: 8px;
+                    }
+
+                    &.noresponse {
+                        .content-color {
+                            background-color: white;
+                        }
+                    }
+
+                    &.fail {
+                        .content-color {
+                            background-color: #f85455;
+                        }
+                    }
+
+                    &.success {
+                        .content-color {
+                            background-color: #0fd08c;
+                        }
+                    }
+
+                    &.partially {
+                        .content-color {
+                            background-color: gray;
+                        }
+                    }
+
+                    &.noevaluable {
+                        .content-color {
+                            background-color: yellow;
+                        }
+                    }
+
+                    &.invalid {
+                        .content-color {
+                            background-color: maroon;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
+
 .question-body {
-	.content-raceresults {
-		width: 100%;
-		position: relative;
-		padding: 0;
-		overflow: hidden;
-	}
+    .content-raceresults {
+        width: 100%;
+        position: relative;
+        padding: 0;
+        overflow: hidden;
+    }
 }
+
 @media (max-width: 991px) {
 
 }
+
 @media (max-width: 768px) {
 
 }
+
 @media (max-width: 576px) {
-	.question-body {
-		.content-raceresults {
-			.users-list {
-				min-width: unset;
-				width: 150px;
-				.content-users {
-					.race-student {
-						.student-profile {
-							display: none;
-						}
-					}
-				}
-			}
-		}
-	}
+    .question-body {
+        .content-raceresults {
+            .users-list {
+                min-width: unset;
+                width: 150px;
+
+                .content-users {
+                    .race-student {
+                        .student-profile {
+                            display: none;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

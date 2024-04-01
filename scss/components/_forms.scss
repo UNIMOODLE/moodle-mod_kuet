@@ -4,29 +4,35 @@
         flex-flow: row nowrap;
         justify-content: space-between;
         align-items: center;
+
         .session-steps {
             display: flex;
             flex-flow: row nowrap;
             justify-content: flex-start;
             align-items: center;
+
             .step {
                 padding: 0 25px;
                 position: relative;
                 min-height: 35px;
+
                 .timeline {
                     height: 0;
                     width: 50%;
                     position: absolute;
                     top: 45%;
                     z-index: 0;
-                    border: 1px solid #ADB5BD;
+                    border: 1px solid #adb5bd;
+
                     &.timeline-r {
                         right: 0;
                     }
+
                     &.timeline-l {
                         left: 0;
                     }
                 }
+
                 .step-text {
                     background-color: #000;
                     height: 13px;
@@ -37,6 +43,7 @@
                     z-index: 1;
                     margin-top: 11px;
                 }
+
                 &.current {
                     .step-text {
                         border-radius: 50px;
@@ -54,27 +61,33 @@
             }
         }
     }
+
     .formcontainer {
         margin-top: 25px;
         padding: 0;
         border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0,0,0,.06);
+        box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+
         .titlecontainer {
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
             border-radius: 8px 8px 0 0;
-            color: #FFFFFF;
+            color: #fff;
             padding: 1em;
         }
+
         .formconcontent {
             margin-top: 20px;
         }
     }
+
     #fgroup_id_buttonar[data-groupname="buttonar"] {
         margin-top: 20px;
+
         .form-inline {
             .d-flex.flex-wrap.align-items-center {
                 flex-direction: row-reverse;
                 justify-content: flex-end;
+
                 .form-group.fitem {
                     margin-right: 20px;
                 }

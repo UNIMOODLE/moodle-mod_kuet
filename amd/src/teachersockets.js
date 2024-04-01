@@ -19,7 +19,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  *
@@ -514,7 +514,7 @@ Sockets.prototype.initListeners = function() {
                 that.manageNext();
                 break;
         }
-        // TODO send tag cloud to a service to persist it in DB for retrieval in reports..
+        // 3IP send tag cloud to a service to persist it in DB for retrieval in reports..
         cloudTags = [];
         voting = false;
     }, false);

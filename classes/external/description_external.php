@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Description question API
@@ -120,7 +120,7 @@ class description_external extends external_api {
                 'questionid' => $questionid,
                 'kid' => $kid,
                 'timeleft' => $timeleft,
-                'preview' => $preview
+                'preview' => $preview,
             ]
         );
         $contextmodule = context_module::instance($cmid);

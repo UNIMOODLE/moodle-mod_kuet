@@ -69,7 +69,6 @@ class finishsession_external_test extends advanced_testcase {
             'status' => 1,
             'sessionid' => 0,
             'submitbutton' => 0,
-            'showgraderanking' => 0,
         ];
         $createdsid = $generator->create_session($kuet, (object) $sessionmock);
         $data = \mod_kuet\external\finishsession_external::finishsession($kuet->cmid, $createdsid);

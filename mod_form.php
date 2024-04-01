@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Module form
@@ -50,14 +50,14 @@ class mod_kuet_mod_form extends moodleform_mod {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function definition() : void {
+    public function definition(): void {
         $mform =& $this->_form;
         $mform->addElement('text', 'name', get_string('name', 'kuet'), ['size' => '64']);
         $mform->setType('name', PARAM_TEXT);
 
         $this->standard_intro_elements(get_string('introduction', 'kuet'));
 
-        //Grade settings.
+        // Grade settings.
         $this->standard_grading_coursemodule_elements();
         $mform->removeElement('grade');
         if (property_exists($this->current, 'grade')) {
@@ -75,7 +75,7 @@ class mod_kuet_mod_form extends moodleform_mod {
         $mform->insertElementBefore($grademethodelement, 'gradecat');
         $mform->addHelpButton('grademethod', 'grademethod', 'kuet');
 
-        //Course module elements.
+        // Course module elements.
         $this->standard_coursemodule_elements();
 
         $this->add_action_buttons();
@@ -87,7 +87,7 @@ class mod_kuet_mod_form extends moodleform_mod {
      * @return array Array of string IDs of added items, empty array if none
      * @throws coding_exception
      */
-    public function add_completion_rules() : array {
+    public function add_completion_rules(): array {
         $mform =& $this->_form;
 
         $mform->addElement(
@@ -96,7 +96,7 @@ class mod_kuet_mod_form extends moodleform_mod {
             get_string('completionansweralllabel', 'kuet'),
             get_string('completionansweralldesc', 'kuet')
         );
-        //Enable this completion rule by default.
+        // Enable this completion rule by default.
         $mform->setDefault('completionanswerall', 0);
         $mform->setType('completionanswerall', PARAM_INT);
         return ['completionanswerall'];
@@ -108,7 +108,7 @@ class mod_kuet_mod_form extends moodleform_mod {
      * @param array $data
      * @return bool
      */
-    public function completion_rule_enabled($data) : bool {
+    public function completion_rule_enabled($data): bool {
         return !empty($data['completionanswerall']);
     }
 }

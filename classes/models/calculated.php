@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
  * Calculated mode
@@ -60,7 +60,7 @@ use ReflectionException;
 use stdClass;
 use mod_kuet\interfaces\questionType;
 
-defined('MOODLE_INTERNAL') || die();
+
 
 /**
  * Calculated class question
@@ -75,7 +75,7 @@ class calculated extends questions implements questionType {
      * @param int $sid
      * @return void
      */
-    public function construct(int $kuetid, int $cmid, int $sid) :void {
+    public function construct(int $kuetid, int $cmid, int $sid): void {
         parent::__construct($kuetid, $cmid, $sid);
     }
 
@@ -108,7 +108,8 @@ class calculated extends questions implements questionType {
         $data->$type = true;
         $data->qtype = $type;
         self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
-        $data->questiontext = self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $question->variant, true);
+        $data->questiontext = self::get_text($cmid, $question->questiontext, $question->questiontextformat,
+            $question->id, $question, 'questiontext', $question->variant, true);
         $data->questiontextformat = $question->questiontextformat;
         $data->name = $question->name;
         $data->unitsleft = isset($question->unitdisplay) && $question->unitdisplay === 1;
@@ -197,8 +198,10 @@ class calculated extends questions implements questionType {
         );
         $kuetquestion = kuet_questions::get_record(['id' => $data->kid]);
         $question = question_bank::load_question($kuetquestion->get('questionid'));
-        self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $responsedata->variant);
-        $data->questiontext = self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext', $responsedata->variant, true);
+        self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question,
+            'questiontext', $responsedata->variant);
+        $data->questiontext = self::get_text($data->cmid, $question->questiontext, $question->questiontextformat,
+            $question->id, $question, 'questiontext', $responsedata->variant, true);
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $data->calculatedresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
@@ -240,11 +243,11 @@ class calculated extends questions implements questionType {
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
                 $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('incorrect', 'mod_kuet')
+                    'title' => get_string('incorrect', 'mod_kuet'),
                 ]);
                 $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => ''
+                    'title' => '',
                 ]);
             } else if ($answer->fraction === '1.0000000') {
                 $answers[$key]['result'] = 'correct';
@@ -252,11 +255,11 @@ class calculated extends questions implements questionType {
                 $answers[$key]['fraction'] = '1';
                 $icon = new pix_icon('i/correct', get_string('correct', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('correct', 'mod_kuet')
+                    'title' => get_string('correct', 'mod_kuet'),
                 ]);
                 $usersicon = new pix_icon('i/correct_users', '', 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => ''
+                    'title' => '',
                 ]);
             } else {
                 $answers[$key]['result'] = 'partially';
@@ -264,11 +267,11 @@ class calculated extends questions implements questionType {
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
                 $icon = new pix_icon('i/correct', get_string('partially_correct', 'mod_kuet'), 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => get_string('partially_correct', 'mod_kuet')
+                    'title' => get_string('partially_correct', 'mod_kuet'),
                 ]);
                 $usersicon = new pix_icon('i/partially_users', '', 'mod_kuet', [
                     'class' => 'icon',
-                    'title' => ''
+                    'title' => '',
                 ]);
             }
             $answers[$key]['resulticon'] = $icon->export_for_pix();
@@ -384,7 +387,7 @@ class calculated extends questions implements questionType {
             $response->hasfeedbacks = (bool)($statmentfeedback !== '' | $answerfeedback !== '');
             $response->timeleft = $timeleft;
             $response->type = questions::CALCULATED;
-            $response->response = $responsetext; // TODO validate html and special characters.
+            $response->response = $responsetext; // 3IP- validate html and special characters.
             $response->unit = $unit;
             $response->multiplier = $multiplier;
             $response->variant = $variant;
@@ -411,7 +414,7 @@ class calculated extends questions implements questionType {
      * @throws dml_transaction_exception
      * @throws moodle_exception
      */
-    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response) : float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));
         $kuet = new kuet($response->get('kuet'));
@@ -442,7 +445,7 @@ class calculated extends questions implements questionType {
      * @return array
      * @throws coding_exception
      */
-    public static function get_question_statistics( question_definition $question, array $responses) : array {
+    public static function get_question_statistics(question_definition $question, array $responses): array {
         $statistics = [];
         $total = count($responses);
         [$correct, $incorrect, $invalid, $partially, $noresponse] = grade::count_result_mark_types($responses);

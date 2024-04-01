@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * End session exporting routines
@@ -47,19 +47,19 @@ class endsession_exporter extends commondata_exporter {
         return [
             'endsession' => [
                 'type' => PARAM_BOOL,
-                'optional' => true
+                'optional' => true,
             ],
             'endsessionimage' => [
                 'type' => PARAM_RAW,
-                'optional' => true
+                'optional' => true,
             ],
             'courselink' => [
                 'type' => PARAM_URL,
-                'optional' => true
+                'optional' => true,
             ],
             'reportlink' => [
                 'type' => PARAM_URL,
-                'optional' => true
+                'optional' => true,
             ],
         ];
     }

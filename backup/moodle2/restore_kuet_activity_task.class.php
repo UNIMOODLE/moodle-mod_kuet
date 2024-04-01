@@ -20,7 +20,7 @@
 // Produced by the UNIMOODLE University Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
-// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+// Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos.
 
 /**
  * Restore kuet activity
@@ -67,7 +67,7 @@ class restore_kuet_activity_task extends restore_activity_task {
      */
     public static function define_decode_contents() {
         return [
-            new restore_decode_content('kuet', ['intro'])
+            new restore_decode_content('kuet', ['intro']),
         ];
     }
 
@@ -79,7 +79,7 @@ class restore_kuet_activity_task extends restore_activity_task {
     public static function define_decode_rules() {
         return [
             new restore_decode_rule('KUETVIEWBYID', '/mod/kuet/view.php?id=$1', 'course_module'),
-            new restore_decode_rule('KUETINDEX', '/mod/kuet/index.php?id=$1', 'course')
+            new restore_decode_rule('KUETINDEX', '/mod/kuet/index.php?id=$1', 'course'),
         ];
     }
 

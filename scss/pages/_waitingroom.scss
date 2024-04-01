@@ -6,10 +6,12 @@ body#page-mod-kuet-view {
             justify-content: flex-start;
             align-items: center;
             border-radius: 8px;
+
             .icon {
                 height: 18px;
                 width: auto;
             }
+
             .sessionname {
                 display: flex;
                 flex-flow: row nowrap;
@@ -19,6 +21,7 @@ body#page-mod-kuet-view {
                 padding: 18px;
                 margin-right: 1em;
                 box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+
                 .sessionname-text {
                     display: flex;
                     flex-flow: column nowrap;
@@ -27,6 +30,7 @@ body#page-mod-kuet-view {
                     color: #2b2b2b;
                     text-align: left;
                     margin-left: 15px;
+
                     span {
                         font-size: 13px;
                         font-weight: normal;
@@ -34,6 +38,7 @@ body#page-mod-kuet-view {
                     }
                 }
             }
+
             .numusers {
                 display: flex;
                 flex-flow: row nowrap;
@@ -42,8 +47,10 @@ body#page-mod-kuet-view {
                 width: 50%;
                 padding: 10px 18px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+
                 .imageQr {
                     margin-left: auto;
+
                     .item {
                         a {
                             img, svg, g {
@@ -52,6 +59,7 @@ body#page-mod-kuet-view {
                         }
                     }
                 }
+
                 .countusers {
                     display: flex;
                     flex-flow: column nowrap;
@@ -61,6 +69,7 @@ body#page-mod-kuet-view {
                     text-align: left;
                     margin-left: 15px;
                     margin-right: 15px;
+
                     .participants {
                         font-size: 13px;
                         font-weight: normal;
@@ -69,83 +78,106 @@ body#page-mod-kuet-view {
                 }
             }
         }
+
         .session-controller {
             display: flex;
             flex-flow: row nowrap;
             justify-content: flex-end;
             align-items: center;
+
             .disabled {
                 pointer-events: none;
                 cursor: none;
                 opacity: .3;
             }
+
             .hidden {
                 display: none;
             }
+
             .btn {
                 margin-left: 1em;
             }
         }
     }
+
     .teacher-waiting-room {
         width: 100%;
+
         .resume-config,
         .questions-list {
             margin-top: 25px;
             padding: 0;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,.06);
+            box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+
             .titlecontainer {
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
                 border-radius: 8px 8px 0 0;
-                color: #FFFFFF;
+                color: #fff;
                 padding: 1em;
             }
         }
+
         .questions-list {
             .session-questions {
                 max-height: 700px;
                 overflow-y: auto;
+
                 &::-webkit-scrollbar {
                     width: 8px;
                     height: 8px;
                 }
+
                 &::-webkit-scrollbar-track {
                     background: #e0e0e0;
                 }
+
                 &::-webkit-scrollbar-thumb {
                     background-color: #6a737b;
                     border-radius: 4px;
                 }
+                scrollbar-width: thin;
+                scrollbar-color: #6a737b #e0e0e0;
+
                 .questions-list-body {
                     width: 100%;
+
                     .d-table-cell {
                         padding: 15px;
                     }
+
                     .questions-list-thead {
                         font-weight: bold;
+
                         .d-table-cell {
-                            color: #2B2B2B !important;
+                            color: #2b2b2b !important;
                         }
                     }
+
                     .questions-list-data {
                         font-weight: normal;
                         background-color: white;
+
                         &:nth-child(even) {
-                            background-color: rgba(0,0,0,.03);
+                            background-color: rgba(0, 0, 0, .03);
                         }
+
                         .isvalid {
                             text-align: center;
                         }
+
                         .d-table-cell {
-                            border-top: 1px solid #EDEBF4;
+                            border-top: 1px solid #edebf4;
                             color: #929292 !important;
+
                             &.actions {
                                 .content-actions {
                                     display: flex;
                                     flex-flow: row nowrap;
                                     justify-content: center;
                                     align-items: center;
+
                                     .question-action {
                                         background-color: transparent;
                                         height: 32px;
@@ -156,19 +188,23 @@ body#page-mod-kuet-view {
                                         align-items: center;
                                         margin: 0 7px;
                                         transition: background-color .2s ease-in-out;
+
                                         .icon {
                                             margin: 0 !important;
                                         }
+
                                         &:hover {
                                             cursor: pointer;
                                             background-color: #e6e6e6;
                                             transition: background-color .2s ease-in-out;
                                         }
+
                                         &:focus {
                                             background-color: transparent !important;
                                         }
                                     }
                                 }
+
                                 .mobile-content-actions {
                                     display: none;
                                 }
@@ -179,19 +215,24 @@ body#page-mod-kuet-view {
             }
         }
     }
+
     .student-waiting-room {
         margin-top: 20px;
+
         .content-waiting-room {
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,.06);
+            box-shadow: 0 0 10px rgba(0, 0, 0, .06);
             padding: 52px 100px;
+
             .waiting-room-title {
                 h2 {
                     text-align: center;
                 }
             }
+
             .waiting-room-participants {
                 margin-top: 50px;
+
                 .waiting-room-subtitle {
                     h5 {
                         text-align: center;
@@ -201,6 +242,7 @@ body#page-mod-kuet-view {
                         flex-flow: row nowrap;
                         justify-content: center;
                         align-items: center;
+
                         .icon {
                             height: 20px;
                             width: auto;
@@ -210,14 +252,17 @@ body#page-mod-kuet-view {
             }
         }
     }
+
     .participants {
         display: flex;
         flex-flow: row wrap;
         align-items: center;
         justify-content: center;
+
         &[data-region="active-users"] {
             margin-bottom: 1em;
         }
+
         &.forteacher {
             flex-flow: row nowrap;
             width: 100%;
@@ -225,18 +270,24 @@ body#page-mod-kuet-view {
             max-height: 70px;
             overflow-x: auto;
             overflow-y: hidden;
+
             &::-webkit-scrollbar {
                 width: 8px;
                 height: 4px;
             }
+
             &::-webkit-scrollbar-track {
                 background: #e0e0e0;
             }
+
             &::-webkit-scrollbar-thumb {
                 background-color: #6a737b;
                 border-radius: 4px;
             }
+            scrollbar-width: thin;
+            scrollbar-color: #6a737b #e0e0e0;
         }
+
         .participant {
             display: flex;
             flex-flow: row nowrap;
@@ -246,27 +297,32 @@ body#page-mod-kuet-view {
             height: 45px;
             padding: 7px;
             margin: 12px 9px 0 9px;
+
             img {
                 border-radius: 50%;
                 height: 32px;
                 width: auto;
                 margin-right: 8px;
             }
+
             .user-fullname {
                 font-size: 16px;
                 color: white;
                 margin-right: 8px;
                 white-space: nowrap;
             }
+
             .numgroupusers {
                 font-size: 12px;
                 color: white;
             }
         }
     }
+
     [data-region="teacher-canvas"] {
         position: relative;
     }
+
     .resume-config,
     .questions-list {
         margin-top: 0 !important;
@@ -281,15 +337,18 @@ body#page-mod-kuet-view {
                 margin-top: 1em;
             }
         }
+
         .teacher-waiting-room {
             min-width: 100%;
             width: unset !important;
+
             .resume-config {
                 display: none;
             }
         }
     }
 }
+
 @media (max-width: 768px) {
     [data-region="teacher-canvas-content"] {
         .content-header {
