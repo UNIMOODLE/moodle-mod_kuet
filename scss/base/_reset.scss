@@ -7,15 +7,19 @@ body.path-mod-kuet {
         outline-offset: unset !important;
         box-shadow: none !important;
     }
+
     [data-region="mainpage"] {
         overflow-x: hidden !important;
     }
+
     .session-content {
         position: relative;
     }
+
     .overlay-icon-container {
         z-index: 3000;
     }
+
     #page-content {
         #region-main {
             .bg-primary {
@@ -23,6 +27,7 @@ body.path-mod-kuet {
                     color: #fff !important;
                 }
             }
+
             h1, h2, h3, h4, h5 {
                 &.bg-primary {
                     color: #fff !important;

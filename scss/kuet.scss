@@ -1,5 +1,4 @@
 @import 'abstracts/variables';
-@import 'abstracts/mixin';
 @import 'base/reset';
 @import 'components/controlpanel';
 @import 'components/forms';
@@ -9,7 +8,8 @@
 @import 'layout/listresume';
 @import 'layout/match';
 @import 'layout/question';
-@import 'layout/multichoice'; /* Also contains true_false, same design. */
+@import 'layout/multichoice';
+/* Also contains true_false, same design. */
 @import 'layout/shortanswer';
 @import 'layout/numerical';
 @import 'layout/calculated';

@@ -1,66 +1,77 @@
 .question {
-	#statistics {
-		display: none;
-		width: 65%;
-		background-color: #FFFFFF;
-		padding: 1.5em;
-		border-radius: 1em;
-		margin: 1em auto;
-		.onestatistic {
-			margin-bottom: 1em;
-			display: flex;
-			flex-flow: row wrap;
-			justify-content: flex-start;
-			align-items: center;
-			span {
-				width: 25%;
-				display: flex;
-				flex-flow: row nowrap;
-				align-items: center;
-				.icon {
+    #statistics {
+        display: none;
+        width: 65%;
+        background-color: #fff;
+        padding: 1.5em;
+        border-radius: 1em;
+        margin: 1em auto;
 
-				}
-			}
-			.progress {
-				width: 75%;
-				.progress-bar {
-					&.correct {
-						color: #1c3f1a;
-						background-color: #d7e4d6 !important;
-					}
-					&.partially {
-						color: #818182;
-						background-color: #fefefe !important;
-					}
-					&.failure {
-						color: #691911;
-						background-color: #f4d6d2 !important;
-					}
-					&.noresponse {
-						color: #7d5a29;
-						background-color: #fcefdc !important;
-					}
-				}
-			}
-		}
-	}
+        .onestatistic {
+            margin-bottom: 1em;
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: flex-start;
+            align-items: center;
+
+            span {
+                width: 25%;
+                display: flex;
+                flex-flow: row nowrap;
+                align-items: center;
+
+                .icon {
+
+                }
+            }
+
+            .progress {
+                width: 75%;
+
+                .progress-bar {
+                    &.correct {
+                        color: #1c3f1a;
+                        background-color: #d7e4d6 !important;
+                    }
+
+                    &.partially {
+                        color: #818182;
+                        background-color: #fefefe !important;
+                    }
+
+                    &.failure {
+                        color: #691911;
+                        background-color: #f4d6d2 !important;
+                    }
+
+                    &.noresponse {
+                        color: #7d5a29;
+                        background-color: #fcefdc !important;
+                    }
+                }
+            }
+        }
+    }
 }
+
 @media (max-width: 991px) {
 
 }
+
 @media (max-width: 768px) {
-	.question {
-		#statistics {
-			.onestatistic {
-				span {
-					width: 50%;
-				}
-				.progress {
-					width: 100%;
-				}
-			}
-		}
-	}
+    .question {
+        #statistics {
+            .onestatistic {
+                span {
+                    width: 50%;
+                }
+
+                .progress {
+                    width: 100%;
+                }
+            }
+        }
+    }
 }
 
 @media (max-width: 576px) {

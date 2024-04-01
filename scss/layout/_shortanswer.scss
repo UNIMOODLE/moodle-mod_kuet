@@ -1,56 +1,64 @@
 .container-fluid.shortanswer.question,
 .container-fluid.numerical.question,
 .container-fluid.calculated.question, {
-	.contain-statement {
-		.statement-text {
-			text-align: center;
-			p {
-				text-align: center !important;
-			}
-		}
-	}
-	.containt-answers {
-		.input-content {
-			width: 100%;
-			display: flex;
-			flex-flow: row nowrap;
-			justify-content: center;
-			align-items: center;
-			label#userShortAnswerLabel {
-				display: none;
-			}
-			input {
-				display: block;
-				&.form-control  {
-					width: 60%;
-				}
-			}
-			.feedback-icons {
-				.feedback-icon,
-				.statistics-icon {
-					display: flex;
-					background-color: #fff;
-					border-radius: 10px;
-					height: 30px;
-					width: 30px;
-					flex-flow: row nowrap;
-					justify-content: center;
-					align-items: center;
-					margin-right: 15px;
-					margin-left: 5px;
-					.icon {
-						margin: 0;
-						height: 15px;
-						width: auto;
-					}
-				}
-			}
-		}
-		.answer-help {
-			display: block;
-			color: lime !important;
-			margin-top: 0;
-			flex-basis: 60%;
-		}
-	}
+    .contain-statement {
+        .statement-text {
+            text-align: center;
+
+            p {
+                text-align: center !important;
+            }
+        }
+    }
+
+    .containt-answers {
+        .input-content {
+            width: 100%;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
+
+            label#userShortAnswerLabel {
+                display: none;
+            }
+
+            input {
+                display: block;
+
+                &.form-control {
+                    width: 60%;
+                }
+            }
+
+            .feedback-icons {
+                .feedback-icon,
+                .statistics-icon {
+                    display: flex;
+                    background-color: #fff;
+                    border-radius: 10px;
+                    height: 30px;
+                    width: 30px;
+                    flex-flow: row nowrap;
+                    justify-content: center;
+                    align-items: center;
+                    margin-right: 15px;
+                    margin-left: 5px;
+
+                    .icon {
+                        margin: 0;
+                        height: 15px;
+                        width: auto;
+                    }
+                }
+            }
+        }
+
+        .answer-help {
+            display: block;
+            color: lime !important;
+            margin-top: 0;
+            flex-basis: 60%;
+        }
+    }
 }

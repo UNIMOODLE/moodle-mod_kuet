@@ -13,33 +13,39 @@ body#page-mod-kuet-view {
                             margin-top: 40px;
                             padding: 30px;
                             max-width: 945px;
+
                             .containt-desktop,
                             .containt-mobile {
                                 display: flex;
                                 flex-flow: row nowrap;
                                 justify-content: space-around;
                                 align-items: center;
+
                                 .content-image {
                                     img {
                                         max-width: 500px;
                                     }
                                 }
+
                                 .content-text {
                                     text-align: center;
                                     display: flex;
                                     flex-flow: column nowrap;
                                     justify-content: center;
                                     align-items: center;
+
                                     h2 {
                                         text-align: center;
                                         max-width: 350px;
                                     }
+
                                     p {
                                         font-size: 22px;
                                         max-width: 300px;
                                     }
                                 }
                             }
+
                             .containt-mobile {
                                 display: none;
                             }
@@ -50,6 +56,7 @@ body#page-mod-kuet-view {
         }
     }
 }
+
 @media (max-width: 991px) {
     body#page-mod-kuet-view {
         #page-wrapper {
@@ -66,17 +73,21 @@ body#page-mod-kuet-view {
                                     justify-content: center;
                                     align-items: center;
                                     text-align: center;
+
                                     .content-image {
                                         margin: 20px 0;
+
                                         img {
                                             width: 100%;
                                         }
                                     }
+
                                     .btn.btn-primary {
                                         width: 100%;
                                         border-radius: 8px;
                                     }
                                 }
+
                                 .containt-desktop {
                                     display: none;
                                 }

@@ -1,5 +1,6 @@
 .container-fluid.truefalse {
     padding: 40px;
+
     .content-indicators {
         display: flex;
         flex-flow: row nowrap;
@@ -7,6 +8,7 @@
         align-items: center;
         width: 100%;
         margin-bottom: 1em;
+
         .users,
         .timer {
             display: flex;
@@ -18,10 +20,12 @@
             border-radius: 8px;
             border: 2px solid #212529;
             background-color: white;
+
             .icon {
                 height: 20px;
                 width: auto;
             }
+
             .numusers,
             .seconds {
                 font-weight: bold;
@@ -29,6 +33,7 @@
             }
         }
     }
+
     .contain-statement {
         display: flex;
         flex-flow: column nowrap;
@@ -37,17 +42,20 @@
         background-color: white;
         border-radius: 25px;
         z-index: 1;
+
         .statement-text {
             text-align: center;
             width: 100%;
         }
     }
+
     .containt-answers {
         display: flex;
         flex-flow: row wrap;
         justify-content: center;
         align-items: center;
         margin-top: 1em;
+
         .truefalse-answer {
             border-radius: 8px;
             padding: 45px;
@@ -56,15 +64,17 @@
             display: flex;
             flex-direction: column;
             flex-basis: 43%;
-            background-color: #00B0E8;
+            background-color: #00b0e8;
             text-align: center;
             z-index: 1;
             position: relative;
+
             &:hover {
                 cursor: pointer;
                 transform: scale(1.03);
                 transition: transform .5s;
             }
+
             .feedback-icons,
             .statistics-icons {
                 .feedback-icon,
@@ -78,6 +88,7 @@
                     justify-content: center;
                     align-items: center;
                     position: absolute;
+
                     .icon {
                         margin: 0;
                         height: 15px;
@@ -85,35 +96,43 @@
                     }
                 }
             }
+
             .feedback-icons {
                 position: absolute;
                 top: 10px;
                 left: 10px;
             }
+
             .statistics-icons {
                 position: absolute;
                 top: 10px;
                 right: 80px;
+
                 .statistics-icon {
                     width: 70px;
                     height: 40px;
+
                     svg {
                         margin-right: 5px;
                     }
+
                     .numberofreplies {
                         font-size: 18px;
                     }
                 }
             }
         }
+
         @for $i from 1 through length($answercolors) {
             .truefalse-answer:nth-child(#{length($answercolors)}n+#{$i}) {
                 background: nth($answercolors, $i);
+
                 .statistics-icons {
                     .statistics-icon {
                         .statistics-svg {
                             fill: nth($answercolors, $i);
                         }
+
                         .numberofreplies {
                             color: nth($answercolors, $i);
                         }
@@ -122,6 +141,7 @@
             }
         }
     }
+
     .containt-feedbacks {
         display: none;
         margin-top: 1em;
@@ -129,17 +149,21 @@
         color: white;
         padding: 30px;
         text-align: center;
+
         .feedback-title {
             font-size: 30px;
+
             .icon {
                 height: 25px;
                 width: auto;
             }
         }
+
         .content-feedbacks {
             hr {
                 border-color: white;
             }
+
             .content-feedback,
             .content-feedback-answer {
                 img {
@@ -147,14 +171,17 @@
                     max-width: 90% !important;
                 }
             }
+
             .content-feedback {
                 font-size: 20px;
             }
+
             .content-feedback-answer {
                 font-size: 17px;
             }
         }
     }
+
     .feedback-background {
         display: none;
         position: absolute;
@@ -166,6 +193,7 @@
         border-radius: 0 0 25px 25px;
         background-color: rgba(0, 0, 0, .6);
     }
+
     .contain-statement,
     .containt-answers {
         .statement-text,
@@ -175,8 +203,9 @@
                 max-width: 90% !important;
                 height: auto;
             }
+
             pre {
-                font-family: SFMono-Regular,Consolas,Liberation Mono,Menlo,monospace;
+                font-family: SFMono-Regular, Consolas, Liberation Mono, Menlo, monospace;
                 clear: both;
                 color: #fff;
                 background: #262626;
@@ -188,6 +217,7 @@
                 line-height: 28px;
                 border-radius: 8px;
                 overflow: hidden;
+
                 code {
                     text-align: left;
                     background: none;
@@ -201,25 +231,30 @@
                     line-height: 1.75;
                 }
             }
+
             &.answer-checked {
                 transform: scale(1.03);
                 filter: grayscale(.6);
-                box-shadow: 0 0 10px rgba(0,0,0,.06);
+                box-shadow: 0 0 10px rgba(0, 0, 0, .06);
             }
         }
     }
 }
+
 @media (max-width: 991px) {
     .container-fluid.truefalse {
         padding: 15px;
+
         .content-indicators {
             .users,
             .timer {
                 border: none;
+
                 .icon {
                     height: 13px;
                     width: auto;
                 }
+
                 .numusers,
                 .seconds {
                     font-weight: bold;

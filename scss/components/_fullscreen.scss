@@ -2,13 +2,15 @@ body.path-mod-kuet.fullscreen { // 3IP there are some bugs outside the preview.
     transition: all .5s ease;
     margin-left: 0;
     overflow: hidden;
+
     .navbar.fixed-top {
         min-height: 0 !important;
         transition: height .5s ease;
-        height: 0!important;
+        height: 0 !important;
         padding: 0;
         overflow: hidden;
         border: 0;
+
         [data-region="drawer-toggle"],
         [data-action="toggle-drawer"],
         .navbar-brand,
@@ -20,47 +22,57 @@ body.path-mod-kuet.fullscreen { // 3IP there are some bugs outside the preview.
         .dropdown.usermenu {
             min-height: 0 !important;
             transition: height .5s ease;
-            height: 0!important;
+            height: 0 !important;
             padding: 0;
             overflow: hidden;
         }
     }
+
     #page-header,
     .secondary-navigation,
     .drawer-toggles,
     .drawer-left {
         display: none !important;
     }
+
     #nav-drawer {
         width: 0 !important;
     }
+
     #page {
         margin-top: 0;
         padding: 0;
         height: 100vh;
+
         #topofscroll {
             margin: 0 !important;
             padding: 0 !important;
             display: flex;
             justify-content: center;
             align-items: center;
+
             #page-content {
                 height: auto !important;
                 width: 100%;
+
                 #region-main {
                     display: flex;
+
                     .activity-header {
                         display: none;
                     }
+
                     div[role="main"] {
                         display: flex;
                         flex-flow: row nowrap;
                         justify-content: center;
                         align-items: center;
                         width: 100%;
+
                         .session-content {
                             width: 100%;
                         }
+
                         [data-region="teacher-canvas-content"],
                         [data-region="student-canvas"] {
                             width: 100%;
@@ -70,9 +82,11 @@ body.path-mod-kuet.fullscreen { // 3IP there are some bugs outside the preview.
             }
         }
     }
+
     #page-footer {
         display: none;
     }
+
     * {
         transition: all .5s ease !important;
     }
@@ -85,9 +99,11 @@ body.path-mod-kuet.fullscreen { // 3IP there are some bugs outside the preview.
         }
     }
 }
+
 @media (max-width: 768px) {
 
 }
+
 @media (max-width: 576px) {
 
 }
