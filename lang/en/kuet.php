@@ -378,14 +378,12 @@ $string['session_groupings_no_members'] = 'Grouping is empty. Please, select a g
 $string['session_groupings_same_user_in_groups'] = 'Participants must be part of just one group. Check this participants: {$a}';
 $string['groupmode'] = 'Teams mode';
 $string['fakegroup'] = 'Kuet team {$a}';
-$string['fakegroupdescription'] = 'Kuet activity has created this group because there are participants on this course
-that are not part of the grouping selected.';
+$string['fakegroupdescription'] = 'Kuet activity has created this group because there are participants on this course that are not part of the grouping selected.';
 $string['groups'] = 'Teams';
 $string['abbreviationquestion'] = 'Q';
 $string['timemodemustbeset'] = 'Total session time or question time must be set';
 $string['timecannotbezero'] = 'Time can not be zero';
-$string['nogroupingscreated'] = 'This activity is group mode type but no groupings are created on this course.
-It is required that you create firstly a grouping on this course to be able to choose it on this activity.';
+$string['nogroupingscreated'] = 'This activity is group mode type but no groupings are created on this course. It is required that you create firstly a grouping on this course to be able to choose it on this activity.';
 $string['notallowedspecialchars'] = 'No special characters allowed: ?!<>\\';
 $string['notallowedpasting'] = 'Pasting text is not allowed';
 $string['units'] = 'Units';
