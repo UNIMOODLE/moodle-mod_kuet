@@ -26,7 +26,7 @@
  * Kuet version settings
  *
  * @package    mod_kuet
- * @copyright  2023 Proyecto UNIMOODLE
+ * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -34,7 +34,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024041600;
+$plugin->version = 2024043000;
 $plugin->requires = 2022112802; // Moodle 4.1.2+.
 $plugin->component = 'mod_kuet';
 $plugin->cron = 0;

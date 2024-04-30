@@ -17,7 +17,7 @@
 /**
  * Finish session test
  *
- * @package     XXXX
+ * @package mod_kuet
  * @author      202X Elena Barrios Galán <elena@tresipunt.com>
  * @copyright   3iPunt <https://www.tresipunt.com/>
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
