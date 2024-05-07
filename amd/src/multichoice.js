@@ -24,7 +24,7 @@
 /**
  *
  * @module    mod_kuet/multichoice
- * @copyright  2023 Proyecto UNIMOODLE
+ * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

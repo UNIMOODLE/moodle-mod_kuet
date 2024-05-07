@@ -26,7 +26,7 @@
  * Get final ranking API
  *
  * @package    mod_kuet
- * @copyright  2023 Proyecto UNIMOODLE
+ * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -96,13 +96,13 @@ class getfinalranking_external extends external_api {
             'finalranking' => $finalranking,
             'firstuserimageurl' => $ranking[0]->userimageurl ?? '',
             'firstuserfullname' => $ranking[0]->userfullname ?? '',
-            'firstuserpoints' => $ranking[0]->userpoints ?? 0,
+            'firstuserpoints' => $ranking[0]->userpoints ?? '',
             'seconduserimageurl' => $ranking[1]->userimageurl ?? '',
             'seconduserfullname' => $ranking[1]->userfullname ?? '',
-            'seconduserpoints' => $ranking[1]->userpoints ?? 0,
+            'seconduserpoints' => $ranking[1]->userpoints ?? '',
             'thirduserimageurl' => $ranking[2]->userimageurl ?? '',
             'thirduserfullname' => $ranking[2]->userfullname ?? '',
-            'thirduserpoints' => $ranking[2]->userpoints ?? 0,
+            'thirduserpoints' => $ranking[2]->userpoints ?? '',
             'sessionid' => $sid,
             'cmid' => $cmid,
             'kuetid' => $session->get('kuetid'),
@@ -137,7 +137,7 @@ class getfinalranking_external extends external_api {
             'numquestions' => new external_value(PARAM_INT, 'Number of questions for teacher panel'),
             'ranking' => new external_value(PARAM_BOOL, 'Is a ranking, for control panel context'),
             'endsession' => new external_value(PARAM_BOOL, 'Mark end session'),
-            'reporturl' => new external_value(PARAM_RAW, 'Url for session report'),
+            'reporturl' => new external_value(PARAM_URL, 'Url for session report'),
             'firstuserimageurl' => new external_value(PARAM_RAW, ''),
             'firstuserfullname' => new external_value(PARAM_RAW, ''),
             'firstuserpoints' => new external_value(PARAM_FLOAT, ''),
