@@ -229,7 +229,6 @@ $string['finishquestion'] = 'Amaitu galdera';
 $string['showhide'] = 'Erakutsi/ezkutatu';
 $string['responses'] = 'Erantzunak';
 $string['statistics'] = 'Estatistika';
-$string['feedback'] = 'Iritzia';
 $string['questions'] = 'Galderak';
 $string['improvise'] = 'Inprobisatu';
 $string['vote'] = 'Bozkatu';
@@ -325,7 +324,8 @@ $string['qstatus_5'] = 'Baliogabea';
 $string['error_delete_instance'] = 'Errore bat gertatu da Kuet mod ezabatzean.';
 $string['session_groupings_error'] = 'Jarduera hau talde moduan ezarrita dago. Saio bakoitzak taldekatze bat hautatu behar du.';
 $string['session_groupings_no_members'] = 'Taldekatzea hutsik dago. Mesedez, hautatu parte-hartzaileekin taldekatzea.';
-$string['session_groupings_same_user_in_groups'] = 'Parte hartzaileek talde bakarreko parte izan behar dute. Egiaztatu parte-hartzaile hauek: {$a}';
+$string['session_groupings_same_user_in_groups'] = 'Parte hartzaileek talde bakarreko parte izan behar dute.
+Egiaztatu parte-hartzaile hauek: {$a}';
 $string['groupmode'] = 'Taldeen modua';
 $string['fakegroup'] = 'Kuet taldea {$a}';
 $string['fakegroupdescription'] = 'hautatutako taldean ez daudenak.';

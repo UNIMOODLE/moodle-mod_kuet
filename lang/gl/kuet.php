@@ -229,7 +229,6 @@ $string['finishquestion'] = 'Remata a pregunta';
 $string['showhide'] = 'Mostrar/ocultar';
 $string['responses'] = 'Respostas';
 $string['statistics'] = 'Estatísticas';
-$string['feedback'] = 'Comentarios';
 $string['questions'] = 'Preguntas';
 $string['improvise'] = 'Improvisar';
 $string['vote'] = 'Votar';
@@ -328,7 +327,8 @@ $string['session_groupings_no_members'] = 'A agrupación está baleira. Seleccio
 $string['session_groupings_same_user_in_groups'] = 'Os participantes deben formar parte dun só grupo. Consulta estes participantes: {$a}';
 $string['groupmode'] = 'Modo equipos';
 $string['fakegroup'] = 'Equipo Kuet {$a}';
-$string['fakegroupdescription'] = 'A actividade de Kuet creou este grupo porque hai participantes neste curso que non forman parte da agrupación seleccionada.';
+$string['fakegroupdescription'] = 'A actividade de Kuet creou este grupo porque hai participantes neste curso que non
+forman parte da agrupación seleccionada.';
 $string['groups'] = 'Equipos';
 $string['abbreviationquestion'] = 'P';
 $string['timemodemustbeset'] = 'Debe establecerse o tempo total da sesión ou o tempo de preguntas';
