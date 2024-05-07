@@ -26,7 +26,7 @@
  * CLI version of websocket server
  *
  * @package    mod_kuet
- * @copyright  2023 Proyecto UNIMOODLE
+ * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -151,7 +151,7 @@ class unimoodleservercli extends websockets {
         $response = $this->mask(
             kuet_encrypt($this->password, json_encode([
                 'action' => 'connect',
-                'usersocketid' => $user->usersocketid
+                'usersocketid' => $user->usersocketid,
             ], JSON_THROW_ON_ERROR))
         );
         // We return the usersocketid only to the new user so that responds by identifying with newuser.
@@ -194,7 +194,7 @@ class unimoodleservercli extends websockets {
                     'groupid' => $groupid,
                     'message' =>
                         '<span style="color: red">' . $groupname . ' disconnected </span>',
-                    'count' => $numgroups
+                    'count' => $numgroups,
                 ], JSON_THROW_ON_ERROR)));
             if (isset($this->sidusers[$user->sid])) {
                 foreach ($this->sidusers[$user->sid] as $usersaved) {
@@ -209,7 +209,7 @@ class unimoodleservercli extends websockets {
                     'groupid' => $groupid,
                     'message' =>
                         '<span style="color: red"> Group member ' . $user->dataname . ' has been disconnected. </span>',
-                    'count' => $numusers
+                    'count' => $numusers,
                 ], JSON_THROW_ON_ERROR)));
             if (isset($this->sidusers[$user->sid])) {
                 foreach ($this->sidusers[$user->sid] as $usersaved) {
@@ -237,7 +237,7 @@ class unimoodleservercli extends websockets {
                 'usersocketid' => $user->usersocketid,
                 'message' =>
                     '<span style="color: red">' . "User $user->dataname has been disconnected."  . '</span>',
-                'count' => isset($this->students[$user->sid]) ? count($this->students[$user->sid]) : 0
+                'count' => isset($this->students[$user->sid]) ? count($this->students[$user->sid]) : 0,
             ], JSON_THROW_ON_ERROR)));
         if (isset($this->sidusers[$user->sid])) {
             foreach ($this->sidusers[$user->sid] as $usersaved) {
@@ -273,7 +273,7 @@ class unimoodleservercli extends websockets {
                             'action' => 'studentQuestionEnd',
                             'onlyforteacher' => true,
                             'context' => $data,
-                            'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta' // 3IP delete.
+                            'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta', // 3IP delete.
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'ImproviseStudentTag':
@@ -283,7 +283,7 @@ class unimoodleservercli extends websockets {
                             'onlyforteacher' => true,
                             'improvisereply' => $data['improvisereply'],
                             'userid' => $data['userid'],
-                            'message' => ''
+                            'message' => '',
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'StudentVotedTag':
@@ -293,7 +293,7 @@ class unimoodleservercli extends websockets {
                             'onlyforteacher' => true,
                             'votedtag' => $data['votedtag'],
                             'userid' => $data['userid'],
-                            'message' => ''
+                            'message' => '',
                         ], JSON_THROW_ON_ERROR)
                     ));
             default:
@@ -424,70 +424,70 @@ class unimoodleservercli extends websockets {
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'teacherQuestionEnd',
                             'kid' => $data['kid'],
-                            'statistics' => $data['statistics']
+                            'statistics' => $data['statistics'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'pauseQuestion':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'pauseQuestion',
-                            'kid' => $data['kid']
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'playQuestion':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'playQuestion',
-                            'kid' => $data['kid']
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'showAnswers':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'showAnswers',
-                            'kid' => $data['kid']
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'hideAnswers':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'hideAnswers',
-                            'kid' => $data['kid']
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'showStatistics':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'showStatistics',
-                            'kid' => $data['kid']
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'hideStatistics':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'hideStatistics',
-                            'kid' => $data['kid']
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'showFeedback':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'showFeedback',
-                            'kid' => $data['kid']
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'hideFeedback':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'hideFeedback',
-                            'kid' => $data['kid']
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'improvising':
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'improvising',
-                            'kid' => $data['kid']
+                            'kid' => $data['kid'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'closeImprovise':
@@ -510,7 +510,7 @@ class unimoodleservercli extends websockets {
                 return $this->mask(
                     kuet_encrypt($this->password, json_encode([
                             'action' => 'printNewTag',
-                            'tags' => $data['tags']
+                            'tags' => $data['tags'],
                         ], JSON_THROW_ON_ERROR)
                     ));
             case 'initVote':
@@ -584,7 +584,7 @@ class unimoodleservercli extends websockets {
             $response = $this->mask(
                 kuet_encrypt($this->password, json_encode([
                         'action' => 'alreadyteacher',
-                        'message' => 'There is already a teacher imparting this session, so you cannot connect. Please wait for the current session to end before you can enter.'
+                        'message' => 'There is already a teacher imparting this session, so you cannot connect. Please wait for the current session to end before you can enter.',
                     ], JSON_THROW_ON_ERROR)
                 ));
             $usersocket = $this->get_socket_by_user($user);
@@ -652,7 +652,7 @@ class unimoodleservercli extends websockets {
                 'action' => 'newuser',
                 'usersocketid' => $user->usersocketid,
                 'students' => array_values($studentsdata),
-                'count' => count($this->students[$data['sid']])
+                'count' => count($this->students[$data['sid']]),
             ], JSON_THROW_ON_ERROR)
         ));
     }
@@ -683,7 +683,7 @@ class unimoodleservercli extends websockets {
                     'action' => 'newgroup',
                     'usersocketid' => $user->usersocketid,
                     'groups' => array_values($groupsdata),
-                    'count' => count($this->sidgroups[$data['sid']])
+                    'count' => count($this->sidgroups[$data['sid']]),
                 ], JSON_THROW_ON_ERROR)
             ));
     }
@@ -1065,6 +1065,7 @@ abstract class websockets {
     }
 
     /**
+     * Check validity of json string.
      * @param string $string
      * @return bool
      */

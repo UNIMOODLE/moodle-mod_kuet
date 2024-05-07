@@ -26,7 +26,7 @@
  * Kuet library
  *
  * @package    mod_kuet
- * @copyright  2023 Proyecto UNIMOODLE
+ * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -510,7 +510,7 @@ function mod_kuet_grade_item_update(stdClass $data, $grades = null) {
  * @throws coding_exception
  * @throws dml_exception
  */
-function kuet_questions_in_use($questionids) : bool {
+function kuet_questions_in_use($questionids): bool {
     global $DB;
     [$sqlfragment, $params] = $DB->get_in_or_equal($questionids);
     $params['component'] = 'mod_kuet';
