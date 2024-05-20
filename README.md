@@ -93,6 +93,28 @@ To take full advantage of WebSockets in Kuet, you'll need to configure your serv
 
 By properly configuring WebSockets and ports, you can significantly enhance the responsiveness and scalability of the Kuet quizzes, making your Moodle platform more interactive and engaging for users. For detailed setup instructions and best practices for WebSocket security, please consult the documentation provided by your server and network infrastructure providers.
 
+### Executing WebSocket server
+
+Before starting the server, you'll need a valid SSL certificate and key. You can execute the WebSocket server calling the script `unimoodleservercli.php` included in this repository and passing to it the port (that need to be publicly accessible), and the path to the ssl certificate and key.
+
+```bash
+php mod/kuet/unimoodleservercli.php 8080 path/cert.pem path/key.pem
+```
+
+### Local Testing
+
+_(Take in mind that this is only intended for an easy deployment on localhost and a self-signed certificate **won't work on a production site**)_
+
+If you want to try Kuet locally you can generate a self-signed SSL Certificate with the following command:
+
+```bash
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365 -nodes
+```
+
+Then, in your browser, you need to enable insecure connections for localhost (otherwise JavaScript won't be able to connect to the WebSocket server).
+
+- In Chrome: [chrome://flags/#allow-insecure-localhost](chrome://flags/#allow-insecure-localhost)
+- In Edge: [edge://flags/#allow-insecure-localhost](edge://flags/#allow-insecure-localhost)
 
 ## Contributing
 
