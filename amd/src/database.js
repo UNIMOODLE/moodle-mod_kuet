@@ -43,27 +43,30 @@ let dbVersion = 1;
  */
 function Db(sid, userid) {
     dbName = `${sid}_${userid}`;
-    this.openDb();
 }
 
 Db.prototype.openDb = function() {
-    let req = indexedDB.open(dbName, dbVersion);
-    req.onsuccess = function(evt) {
-        indexedDb = evt.target.result;
-    };
-    req.onerror = function(event) {
-        // eslint-disable-next-line no-console
-        console.error(`Database error: ${event.target.errorCode}`);
-    };
-    req.onupgradeneeded = function(evt) {
-        // We create the database with the necessary objects and indexes.
-        let questions = evt.currentTarget.result.createObjectStore(
-            'questions', {keyPath: 'kid'});
-        questions.createIndex('kid', 'kid', {unique: true});
+    return new Promise((resolve, reject) => {
+        let req = indexedDB.open(dbName, dbVersion);
+        req.onsuccess = function(evt) {
+            indexedDb = evt.target.result;
+            resolve();
+        };
+        req.onerror = function(event) {
+            // eslint-disable-next-line no-console
+            console.error(`Database error: ${event.target.errorCode}`);
+            reject();
+        };
+        req.onupgradeneeded = function(evt) {
+            // We create the database with the necessary objects and indexes.
+            let questions = evt.currentTarget.result.createObjectStore(
+                'questions', {keyPath: 'kid'});
+            questions.createIndex('kid', 'kid', {unique: true});
 
-        let statequestions = evt.currentTarget.result.createObjectStore('statequestions', {keyPath: 'state'});
-        statequestions.createIndex('state', 'state', {unique: true});
-    };
+            let statequestions = evt.currentTarget.result.createObjectStore('statequestions', {keyPath: 'state'});
+            statequestions.createIndex('state', 'state', {unique: true});
+        };
+    });
 };
 
 Db.prototype.add = function(storeName, value) {
@@ -109,8 +112,10 @@ Db.prototype.deleteDatabase = function() {
     return window.indexedDB.deleteDatabase(dbName);
 };
 
-export const initDb = (sid, userid) => {
-    return new Db(sid, userid);
+export const initDb = async (sid, userid) => {
+    const db = new Db(sid, userid);
+    await db.openDb();
+    return db;
 };
 
 export default {
