@@ -920,6 +920,30 @@ class sessions {
     }
 
     /**
+     * Get users in a session that have answered at least one question
+     * (it counts empty answers too)
+     * 
+     * @param $sid session's id
+     * @return stdClass[]
+     */
+    public static function get_active_users($sid) {
+        global $DB;
+        $userids = $DB->get_fieldset_sql(
+            "SELECT DISTINCT userid
+            FROM {kuet_questions_responses}
+            WHERE session = ?",
+            [$sid]
+        );
+        if(empty($userids)) {
+            return [];
+        }
+        [$insql, $inparams] = $DB->get_in_or_equal($userids);
+        $sql = "SELECT * FROM {user}
+                WHERE id $insql";
+        return $DB->get_records_sql($sql, $inparams);
+    }
+
+    /**
      * Get session
      *
      * @param $params
@@ -970,7 +994,7 @@ class sessions {
                                                               context_module $context): array {
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
-        $users = enrol_get_course_users($course->id, true);
+        $users = self::get_active_users($session->get('id'));
         $students = [];
         $sid = $session->get('id');
         foreach ($users as $user) {
@@ -1084,7 +1108,7 @@ class sessions {
     private static function get_final_individual_ranking(kuet_sessions $session, cm_info $cm, int $courseid,
                                                          context_module $context): array {
         global $PAGE;
-        $users = enrol_get_course_users($courseid, true);
+        $users = self::get_active_users($session->get('id'));
         $students = [];
         foreach ($users as $user) {
             if (!has_capability('mod/kuet:startsession', $context, $user) &&
