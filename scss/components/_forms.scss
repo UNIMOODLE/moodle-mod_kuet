@@ -82,13 +82,12 @@
 
     #fgroup_id_buttonar[data-groupname="buttonar"] {
         margin-top: 20px;
-
-        .form-inline {
+        .felement {
             .d-flex.flex-wrap.align-items-center {
                 flex-direction: row-reverse;
                 justify-content: flex-end;
 
-                .form-group.fitem {
+                .fitem {
                     margin-right: 20px;
                 }
             }

@@ -37,11 +37,11 @@ namespace mod_kuet\external;
 use coding_exception;
 use context_module;
 use dml_exception;
-use external_api;
-use external_function_parameters;
-use external_multiple_structure;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_multiple_structure;
+use core_external\external_single_structure;
+use core_external\external_value;
 use invalid_parameter_exception;
 use mod_kuet\models\questions;
 use mod_kuet\models\sessions;
@@ -52,9 +52,7 @@ use moodle_url;
 use pix_icon;
 use stdClass;
 
-defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->libdir . '/externallib.php');
+
 
 /**
  * Session questions class

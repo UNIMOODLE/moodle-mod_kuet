@@ -36,7 +36,7 @@ namespace mod_kuet;
 use coding_exception;
 use context_module;
 use dml_exception;
-use external_api;
+use core_external\external_api;
 use externallib_advanced_testcase;
 use file_exception;
 use invalid_parameter_exception;

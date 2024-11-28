@@ -243,7 +243,7 @@ class sessions_test extends advanced_testcase {
 
         $data = sessions::export_endsession($kuet->cmid, $createdsid);
         $this->assertIsObject($data);
-        $this->assertObjectHasAttribute('endsession', $data);
+        $this->assertObjectHasProperty('endsession', $data);
         $this->assertSame($data->endsession, true);
     }
 }

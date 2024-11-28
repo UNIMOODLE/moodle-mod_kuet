@@ -38,18 +38,16 @@ use coding_exception;
 use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 use invalid_parameter_exception;
 use mod_kuet\api\groupmode;
 use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 
-defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->libdir . '/externallib.php');
+
 
 /**
  * Start session class

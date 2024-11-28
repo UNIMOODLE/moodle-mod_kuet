@@ -38,10 +38,10 @@ use coding_exception;
 use context_module;
 use dml_exception;
 use dml_transaction_exception;
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 use invalid_parameter_exception;
 use JsonException;
 use mod_kuet\exporter\question_exporter;
@@ -52,9 +52,7 @@ use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use ReflectionException;
 
-defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->libdir . '/externallib.php');
+
 
 /**
  * Get question class
