@@ -179,9 +179,10 @@ function Sockets(region, socketurl, port, sessionmode, groupmode) {
     }
     this.measuringSpeed();
     this.disableDevTools();
-    this.initSockets();
-    this.cleanMessages();
-    this.initListeners();
+    this.initSockets().then(() => {
+        this.cleanMessages();
+        this.initListeners();
+    });
 }
 
 Sockets.prototype.cleanMessages = function() {
@@ -270,13 +271,13 @@ Sockets.prototype.backSession = function() {
 /** @type {jQuery} The jQuery node for the page region. */
 Sockets.prototype.root = null;
 
-Sockets.prototype.initSockets = function() {
+Sockets.prototype.initSockets = async function() {
     let that = this;
     this.root.find(ACTION.BACKSESSION).on('click', this.backSession);
     this.root.find(ACTION.CLOSEIMPROVISE).on('click', this.closeImprovise);
     this.root.find(ACTION.SUBMITIMPROVISE).on('click', this.submitImprovise);
 
-    db = Database.initDb(sid, userid);
+    db = await Database.initDb(sid, userid);
     let normalizeSocketUrl = Sockets.prototype.normalizeSocketUrl(socketUrl, portUrl);
     let alreadyteacher = false;
     Sockets.prototype.webSocket = new WebSocket(normalizeSocketUrl);
