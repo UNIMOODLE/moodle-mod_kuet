@@ -725,6 +725,30 @@ abstract class websockets {
      * @var int port
      */
     protected $port;
+    /**
+     * @var string network transport protocol
+     */
+    protected $transport;
+    /**
+     * SSL transport protocol
+     */
+    const SECURE_TRANSPORT = 'ssl';
+    /**
+     * No ssl transport protocol
+     */
+    const INSECURE_TRANSPORT = 'tcp';
+    /**
+     * @var array ANSI color codes
+     */
+    private static array $colors = [
+        'red' => '31',
+        'green' => '32',
+        'yellow' => '33',
+        'blue' => '34',
+        'magenta' => '35',
+        'cyan' => '36',
+        'white' => '37',
+    ];
 
     /**
      * Constructor
@@ -735,18 +759,26 @@ abstract class websockets {
      */
     public function __construct($addr, $bufferlength = 2048) {
         global $_SERVER;
+
+        // Check minimal prerequisites for run this server.
+        $this->check_prerequisites();
+
         $this->addr = $addr;
+        $usessl = false;
         if (PHP_SAPI !== 'cli') {
             throw new Exception('This application must be run on the command line.');
         }
 
-        if (isset($_SERVER['argv'][1]) && isset($_SERVER['argv'][2]) && isset($_SERVER['argv'][3])) {
+        // The unimoodleservercli can run with or without ssl protocol. Be careful if you run without ssl.
+        if (isset($_SERVER['argv'][2]) && isset($_SERVER['argv'][3])) {
             [$script, $port, $certificate, $privatekey] = $_SERVER['argv'];
+            $usessl = true;
+        } else if (isset($_SERVER['argv'][1])) {
+            [$script, $port] = $_SERVER['argv'];
         } else {
             $this->executeform();
-            echo "\033[32m". PHP_EOL .
-                'Socket is running in the background. You can see the process running in the process list of your server.' .
-                "\033[0m" . PHP_EOL;
+            echo self::green_text(PHP_EOL .
+                'Socket is running in the background. You can see the process running in the process list of your server.');
             die();
         }
 
@@ -754,16 +786,20 @@ abstract class websockets {
         $this->maxbuffersize = $bufferlength;
         // Certificate data.
         $context = stream_context_create();
-        // Local_cert and local_pk must be in PEM format.
-        stream_context_set_option($context, 'ssl', 'local_cert', $certificate);
-        stream_context_set_option($context, 'ssl', 'local_pk', $privatekey);
-        stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
-        stream_context_set_option($context, 'ssl', 'verify_peer', false);
-        stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
+        $transport = self::INSECURE_TRANSPORT;
+        if ($usessl === true) {
+            // Local_cert and local_pk must be in PEM format.
+            stream_context_set_option($context, 'ssl', 'local_cert', $certificate);
+            stream_context_set_option($context, 'ssl', 'local_pk', $privatekey);
+            stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
+            stream_context_set_option($context, 'ssl', 'verify_peer', false);
+            stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
+            $transport = self::SECURE_TRANSPORT;
+        }
 
         // Create the server socket.
         $this->master = stream_socket_server(
-            "ssl://$addr:$port",
+            "$transport://$addr:$port",
             $errno,
             $errstr,
             STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
@@ -772,10 +808,110 @@ abstract class websockets {
             throw new UnexpectedValueException("Main socket error ($errno): $errstr");
         }
         $this->sockets['m'] = $this->master;
-        $this->stdout(PHP_EOL . "\033[37m" .
-            "Server started" . PHP_EOL . "Listening on: $addr:$port " . PHP_EOL . "Master socket: $this->master" .
-            "\033[0m");
+        $this->stdout(
+            self::white_text(
+                "Server started" . PHP_EOL . "Listening on: $addr:$port " . PHP_EOL .
+                "Master socket: $this->master", false
+            )
+        );
 
+    }
+
+    /**
+     * Set ANSI color to passed text.
+     *
+     * @param string $text  Text.
+     * @param string $color Color name (red, green, yellow, etc.).
+     * @param bool $addeol Add PHP_EOL at the end of the text.
+     * @return string Colored text.
+     */
+    private static function color_text(string $text, string $color, bool $addeol = true): string {
+        $colorcode = self::$colors[$color] ?? '37'; // Default: white.
+        return "\033[{$colorcode}m{$text}\033[0m" . (($addeol === true) ? PHP_EOL : '');
+    }
+
+    /**
+     * Set red color to a passed text.
+     *
+     * @param  string $text Text
+     * @param bool $addeol Add PHP_EOL at the end of the text.
+     * @return string Colored text
+     */
+    protected static function red_text(string $text, bool $addeol = true): string {
+        return self::color_text($text, 'red', $addeol);
+    }
+
+    /**
+     * Set green color to a passed text.
+     *
+     * @param  string $text Text
+     * @param bool $addeol Add PHP_EOL at the end of the text.
+     * @return string Colored text
+     */
+    protected static function green_text(string $text, bool $addeol = true): string {
+        return self::color_text($text, 'green', $addeol);
+    }
+
+    /**
+     * Set yellow color to a passed text.
+     *
+     * @param  string $text Text
+     * @param bool $addeol Add PHP_EOL at the end of the text.
+     * @return string Colored text
+     */
+    protected static function yellow_text(string $text, bool $addeol = true): string {
+        return self::color_text($text, 'yellow', $addeol);
+    }
+
+    /**
+     * Set blue color to a passed text.
+     *
+     * @param  string $text Text
+     * @param bool $addeol Add PHP_EOL at the end of the text.
+     * @return string Colored text
+     */
+    protected static function blue_text(string $text, bool $addeol = true): string {
+        return self::color_text($text, 'blue', $addeol);
+    }
+
+    /**
+     * Set magenta color to a passed text.
+     *
+     * @param  string $text Text
+     * @param bool $addeol Add PHP_EOL at the end of the text.
+     * @return string Colored text
+     */
+    protected static function magenta_text(string $text, bool $addeol = true): string {
+        return self::color_text($text, 'magenta', $addeol);
+    }
+
+    /**
+     * Set white color to a passed text.
+     *
+     * @param  string $text Text
+     * @param bool $addeol Add PHP_EOL at the end of the text.
+     * @return string Colored text
+     */
+    protected static function white_text(string $text, bool $addeol = true): string {
+        return self::color_text($text, 'white', $addeol);
+    }
+
+    /**
+     * Check transport protocols.
+     *
+     * @return void
+     */
+    private function check_prerequisites() : void {
+        $supportedtransports = stream_get_transports();
+        if (!in_array(self::INSECURE_TRANSPORT, $supportedtransports)) {
+            echo self::red_text(strtoupper(self::INSECURE_TRANSPORT) . ' network transport protocol is not supported by your server. Contact with your system administrator');
+            exit();
+        }
+
+        if (!in_array(self::SECURE_TRANSPORT, $supportedtransports)) {
+            echo self::red_text(strtoupper(self::SECURE_TRANSPORT) . ' network transport protocol is not supported by your server. Contact with your system administrator');
+            exit();
+        }
     }
 
     /**
@@ -784,55 +920,70 @@ abstract class websockets {
      * @return void
      */
     private function executeform() {
-        echo "\033[34m". "Enter the port number for external connections." . PHP_EOL .
-            "This port must be open, and must be provided to the Moodle platforms to be connected: " . "\033[0m" . PHP_EOL;
+        echo self::blue_text("Enter the port number for external connections." . PHP_EOL .
+            "This port must be open, and must be provided to the Moodle platforms to be connected: ");
         $port = readline("");
         if (is_numeric($port)) {
             // $connection = @fsockopen('localhost', (int)$port); TODO system to check ports.
             if ($port !== '') {
                 readline_add_history($port);
-                echo "\033[35m". PHP_EOL . "Enter the path where the server certificate is located." . PHP_EOL .
-                    "The file must have .crt or .pem extension file of a valid SSL certificate for the server." . PHP_EOL .
-                    "This file may already be generated on the same server as this script:" . "\033[0m" . PHP_EOL;
-                $certificate = readline("");
-                if (@file_exists($certificate) &&
-                    (pathinfo($certificate)['extension'] === 'crt' || pathinfo($certificate)['extension'] === 'pem')) {
-                    readline_add_history($certificate);
-                    echo "\033[33m". PHP_EOL . "Enter the path where the Private Key file is located." . PHP_EOL .
-                        "The file must have .key or .pem extension file of a valid SSL Private Key for the server." . PHP_EOL .
-                        "This file may already be generated on the same server as this script:" . "\033[0m" . PHP_EOL;
-                    $privatekey = readline( "");
-                    if (@file_exists($privatekey) &&
-                        (pathinfo($privatekey)['extension'] === 'crt' || pathinfo($privatekey)['extension'] === 'pem')) {
-                        readline_add_history($privatekey);
-                        $reference = $port . ' ' . $certificate . ' ' . $privatekey;
-                        switch (strtolower(PHP_OS_FAMILY)) {
-                            case "windows":
-                                pclose(popen("start /B php unimoodleservercli.php $reference", "r"));
-                                break;
-                            case "linux":
-                                exec("php unimoodleservercli.php $reference > /dev/null &");
-                                break;
-                            default:
-                                echo "Unsupported OS" . strtolower(PHP_OS_FAMILY);
-                                die();
+                echo self::yellow_text('Do you want to use SSL certificates? (y/n):');
+                $usessl = readline("");
+                if (in_array(strtolower($usessl), ['s', 'si', 'sí', 'y', 'yes'])) {
+                    readline_add_history($usessl);
+                    echo self::magenta_text(PHP_EOL . "Enter the path where the server certificate is located." . PHP_EOL .
+                        "The file must have .crt or .pem extension file of a valid SSL certificate for the server." . PHP_EOL .
+                        "This file may already be generated on the same server as this script:");
+                    $certificate = readline("");
+                    if (@file_exists($certificate) && array_key_exists('extension', pathinfo($certificate)) &&
+                        (pathinfo($certificate)['extension'] === 'crt' || pathinfo($certificate)['extension'] === 'pem')) {
+                        readline_add_history($certificate);
+                        echo self::yellow_text(PHP_EOL . "Enter the path where the Private Key file is located." . PHP_EOL .
+                            "The file must have .key or .pem extension file of a valid SSL Private Key for the server." . PHP_EOL .
+                            "This file may already be generated on the same server as this script:");
+                        $privatekey = readline( "");
+                        if (@file_exists($privatekey) && array_key_exists('extension', pathinfo($privatekey)) &&
+                            (pathinfo($privatekey)['extension'] === 'crt' || pathinfo($privatekey)['extension'] === 'pem')) {
+                            readline_add_history($privatekey);
+                            $reference = $port . ' ' . $certificate . ' ' . $privatekey;
+                            switch (strtolower(PHP_OS_FAMILY)) {
+                                case "windows":
+                                    pclose(popen("start /B php unimoodleservercli.php $reference", "r"));
+                                    break;
+                                case "linux":
+                                    exec("php unimoodleservercli.php $reference > /dev/null &");
+                                    break;
+                                default:
+                                    echo "Unsupported OS" . strtolower(PHP_OS_FAMILY);
+                                    die();
+                            }
+                        } else {
+                            echo self::red_text($privatekey . ' It is not a valid private key. Rerun the script');
+                            exit();
                         }
                     } else {
-                        echo "\033[31m" . $privatekey . ' It is not a valid private key. Rerun the script' . "\033[0m" . PHP_EOL;
+                        echo self::red_text($certificate . ' It is not a valid certificate. Rerun the script');
                         exit();
                     }
-                } else {
-                    echo "\033[31m" . $certificate . ' It is not a valid certificate. Rerun the script' . "\033[0m" . PHP_EOL;
-                    exit();
+                }
+                $reference = $port;
+                switch (strtolower(PHP_OS_FAMILY)) {
+                    case "windows":
+                        pclose(popen("start /B php unimoodleservercli.php $reference", "r"));
+                        break;
+                    case "linux":
+                        exec("php unimoodleservercli.php $reference > /dev/null &");
+                        break;
+                    default:
+                        echo "Unsupported OS" . strtolower(PHP_OS_FAMILY);
+                        die();
                 }
             } else {
-                echo "\033[31m" . $port .
-                    ' port is not responding, or the fsockopen method could not check it.' .
-                    "\033[0m" . PHP_EOL;
+                echo self::red_text($port . ' port is not responding, or the fsockopen method could not check it.');
                 exit();
             }
         } else {
-            echo "\033[31m" . $port . ' Not a valid port. Rerun the script' . "\033[0m" . PHP_EOL;
+            echo self::red_text($port . ' Not a valid port. Rerun the script');
             exit();
         }
     }
@@ -1008,7 +1159,7 @@ abstract class websockets {
                     continue;
                 }
                 $ip = stream_socket_get_name( $client, true );
-                $this->stdout("\033[34m" . "Connection attempt from $ip" . "\033[0m");
+                $this->stdout(self::blue_text("Connection attempt from $ip", false));
                 stream_set_blocking($client, true);
                 $headers = fread($client, 1500);
                 $this->handshake($client, $headers);
@@ -1017,15 +1168,15 @@ abstract class websockets {
                 $foundsocket = array_search($this->master, $read, true);
                 unset($read[$foundsocket]);
 
-                $this->stdout("\033[33m" . "Handshake $ip" . "\033[0m");
+                $this->stdout(self::yellow_text("Handshake $ip", false));
 
                 if ($client < 0) {
-                    $this->stdout("\033[31m" . "Failed: socket_accept()" . "\033[0m");
+                    $this->stdout(self::red_text("Failed: socket_accept()", false));
                     continue;
                 }
 
                 $this->connect($client, $ip);
-                $this->stdout("\033[32m" . "Client connected. $client" . "\033[0m");
+                $this->stdout(self::green_text("Client connected. $client", false));
             }
 
             foreach ($read as $socket) {
@@ -1096,7 +1247,7 @@ abstract class websockets {
                 unset($this->sockets[$disconnecteduser->usersocketid]);
             }
             if (!is_null($sockerrno)) {
-                $this->stdout("\033[31m" . $sockerrno . "\033[0m");
+                $this->stdout(self::red_text($sockerrno, false));
             }
             if ($triggerclosed) {
                 $this->stdout("\033[1;30m" . "Client disconnected. ".$disconnecteduser->socket . "\033[0m");
