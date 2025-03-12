@@ -30,11 +30,30 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/str', 'core/notification'], function($, str, notification) {
+define(['jquery', 'core/str', 'core/notification', 'mod_kuet/encryptor'], function($, str, notification, Encryptor) {
     "use strict";
 
     let socketUrl = '';
     let portUrl = '8080';
+    let secureProtocol = false;
+
+    /** @type {jQuery} The jQuery node for the page region. */
+    TestSockets.prototype.root = null;
+
+    let protocolCell = null;
+    let protocolExtraInfoCell = null;
+
+    let sslCell = null;
+    let sslExtraInfoCell = null;
+
+    let connectionCell = null;
+    let connectionExtraInfoCell = null;
+
+    let sendmessageCell = null;
+    let sendmessageExtraInfoCell = null;
+
+    let receivemessageCell = null;
+    let receivemessageExtraInfoCell = null;
 
     /**
      * @constructor
@@ -46,70 +65,209 @@ define(['jquery', 'core/str', 'core/notification'], function($, str, notificatio
         this.root = $(region);
         socketUrl = socketurl;
         portUrl = port;
+        protocolCell = this.root.find('#protocol-test-result');
+        protocolExtraInfoCell = this.root.find('#protocol-test-extra-info');
+        sslCell = this.root.find('#ssl-test-result');
+        sslExtraInfoCell = this.root.find('#ssl-test-extra-info');
+        connectionCell = this.root.find('#open-connection-test-result');
+        connectionExtraInfoCell = this.root.find('#open-connection-test-extra-info');
+        sendmessageCell = this.root.find('#send-message-test-result');
+        sendmessageExtraInfoCell = this.root.find('#send-message-test-extra-info');
+        receivemessageCell = this.root.find('#receive-message-test-result');
+        receivemessageExtraInfoCell = this.root.find('#receive-message-test-extra-info');
+
         this.initTestSockets();
     }
 
+    TestSockets.prototype.setValid = function(element, clean = true) {
+        if (clean === true) {
+            TestSockets.prototype.cleanAllChilds(element);
+        }
+        element.append('<i class="icon fa fa-check text-success fa-fw " aria-hidden="true"></i>');
+    };
+
+    TestSockets.prototype.setWarning = function(element, clean = true) {
+        if (clean === true) {
+            TestSockets.prototype.cleanAllChilds(element);
+        }
+        element.append('<i class="icon fa fa-warning text-warning fa-fw " aria-hidden="true"></i>');
+    };
+
+    TestSockets.prototype.setError = function(element, clean = true) {
+        if (clean === true) {
+            TestSockets.prototype.cleanAllChilds(element);
+        }
+        element.append('<i class="icon fa fa-times text-danger fa-fw " aria-hidden="true"></i>');
+    };
+
+    TestSockets.prototype.setExtraInfo = function(element, msg, clean = true) {
+        if (clean === true) {
+            TestSockets.prototype.cleanAllChilds(element);
+        }
+        element.append('<span>' + msg + '</span>');
+    };
+
+    TestSockets.prototype.cleanAllChilds = function(element) {
+        if (element && element.length === 1) {
+            let el = element[0];
+            el.childNodes.forEach(child => {
+                el.removeChild(child);
+            });
+        }
+    };
+
     TestSockets.prototype.normalizeSocketUrl = function(socketUrl, port) {
         let jsUrl = new URL(socketUrl);
+
+        if (jsUrl.pathname === '/') {
+            jsUrl.pathname = jsUrl.pathname + 'testkuet';
+        } else {
+            jsUrl.pathname = jsUrl.pathname + '/testkuet';
+        }
+
+        jsUrl.port = port;
+
         if (jsUrl.protocol === 'https:') {
-            jsUrl.port = port;
             jsUrl.protocol = 'wss:';
-            if (jsUrl.pathname === '/') {
-                jsUrl.pathname = jsUrl.pathname + 'testkuet';
-            } else {
-                jsUrl.pathname = jsUrl.pathname + '/testkuet';
-            }
+            secureProtocol = true;
+            TestSockets.prototype.setValid(protocolCell);
+            return jsUrl.toString();
+        } else if (jsUrl.protocol === 'http:') {
+            jsUrl.protocol = 'ws:';
+            TestSockets.prototype.setWarning(protocolCell);
+            str.get_strings([
+                {key: 'httpsrecommended', component: 'mod_kuet'}
+            ]).done(function(strings) {
+                TestSockets.prototype.setExtraInfo(protocolExtraInfoCell, strings[0]);
+            }).fail(notification.exception);
             return jsUrl.toString();
         }
 
+        TestSockets.prototype.setError(protocolCell);
         str.get_strings([
-            {key: 'httpsrequired', component: 'mod_kuet'}
+            {key: 'protocolnotvalid', component: 'mod_kuet'}
         ]).done(function(strings) {
-            messageBox = this.root.find('#testresult');
-            messageBox.append('<div class="alert alert-danger" role="alert">' + strings[0] + '</div>');
+            TestSockets.prototype.setExtraInfo(protocolExtraInfoCell, strings[0]);
         }).fail(notification.exception);
         return '';
     };
 
-    /** @type {jQuery} The jQuery node for the page region. */
-    TestSockets.prototype.root = null;
-
-    let messageBox = null;
-
     TestSockets.prototype.initTestSockets = function() {
-        messageBox = this.root.find('#testresult');
         let normalizeSocketUrl = TestSockets.prototype.normalizeSocketUrl(socketUrl, portUrl);
         TestSockets.prototype.webSocket = new WebSocket(normalizeSocketUrl);
 
-        TestSockets.prototype.webSocket.onopen = function() {
-            str.get_strings([
-                {key: 'validcertificates', component: 'mod_kuet'}
-            ]).done(function(strings) {
-                messageBox.append('<div class="alert alert-success" role="alert">' + strings[0] + '</div>');
-            }).fail(notification.exception);
-        };
+        if (TestSockets.prototype.webSocket !== null) {
+            TestSockets.prototype.webSocket.onopen = function() {
+                TestSockets.prototype.setValid(connectionCell);
+                if (secureProtocol === true) {
+                    TestSockets.prototype.setValid(sslCell);
+                    str.get_strings([
+                        {key: 'validcertificates', component: 'mod_kuet'},
+                        {key: 'validopenconnection', component: 'mod_kuet'}
+                    ]).done(function(strings) {
+                        TestSockets.prototype.setExtraInfo(sslExtraInfoCell, strings[0]);
+                        TestSockets.prototype.setExtraInfo(connectionExtraInfoCell, strings[1]);
+                    }).fail(notification.exception);
+                } else {
+                    TestSockets.prototype.setWarning(sslCell);
+                    str.get_strings([
+                        {key: 'userconnectionsonrisk', component: 'mod_kuet'},
+                        {key: 'validopenconnection', component: 'mod_kuet'}
+                    ]).done(function(strings) {
+                        TestSockets.prototype.setExtraInfo(sslExtraInfoCell, strings[0]);
+                        TestSockets.prototype.setExtraInfo(connectionExtraInfoCell, strings[1]);
+                    }).fail(notification.exception);
+                }
+                TestSockets.prototype.sendMessageSocket('ping');
+            };
 
-        TestSockets.prototype.webSocket.onerror = function(event) {
-            // eslint-disable-next-line no-console
-            console.error(event);
-            str.get_strings([
-                {key: 'invalidcertificates', component: 'mod_kuet'}
-            ]).done(function(strings) {
-                messageBox.append('<div class="alert alert-danger" role="alert">' + strings[0] + '</div>');
-            }).fail(notification.exception);
-        };
+            TestSockets.prototype.webSocket.onerror = function(event) {
+                TestSockets.prototype.setError(sslCell);
+                // eslint-disable-next-line no-console
+                console.error(event);
+                if (secureProtocol === true) {
+                    str.get_strings([
+                        {key: 'invalidcertificates', component: 'mod_kuet'}
+                    ]).done(function(strings) {
+                        TestSockets.prototype.setExtraInfo(sslExtraInfoCell, strings[0] + ' ' + event.reason);
+                        TestSockets.prototype.setExtraInfo(connectionExtraInfoCell, strings[0]);
+                    }).fail(notification.exception);
+                } else {
+                    str.get_strings([
+                        {key: 'invalidconnection', component: 'mod_kuet'}
+                    ]).done(function(strings) {
+                        TestSockets.prototype.setExtraInfo(sslExtraInfoCell, strings[0] + ' ' + event.reason);
+                        TestSockets.prototype.setExtraInfo(connectionExtraInfoCell, strings[0]);
+                    }).fail(notification.exception);
+                }
+            };
 
-        TestSockets.prototype.webSocket.onclose = function() {
-            str.get_strings([
-                {key: 'connectionclosed', component: 'mod_kuet'}
-            ]).done(function(strings) {
-                messageBox.append('<div class="alert alert-warning" role="alert">' + strings[0] + '</div>');
-            }).fail(notification.exception);
-        };
+            TestSockets.prototype.webSocket.onclose = function(event) {
+                TestSockets.prototype.setError(connectionCell);
+                if (event.wasClean) {
+                    // eslint-disable-next-line no-console
+                    console.log(event.reason);
+                }
+                str.get_strings([
+                    {key: 'connectionclosed', component: 'mod_kuet'}
+                ]).done(function(strings) {
+                    TestSockets.prototype.setExtraInfo(connectionExtraInfoCell, strings[0] + ' ' + event.reason);
+                }).fail(notification.exception);
+            };
+
+            TestSockets.prototype.webSocket.onmessage = function(event) {
+                if (event.data) {
+                    TestSockets.prototype.setValid(receivemessageCell);
+                    let msgDecrypt = Encryptor.decrypt(event.data);
+                    let response = JSON.parse(msgDecrypt); // PHP sends Json data.
+                    let resAction = response.action; // Message type.
+                    let user = response.usersocketid;
+
+                    if (resAction === 'connect' && user !== undefined) {
+                        str.get_strings([
+                            {key: 'validreceivedtest', component: 'mod_kuet'}
+                        ]).done(function(strings) {
+                            TestSockets.prototype.setExtraInfo(receivemessageExtraInfoCell, strings[0]);
+                        }).fail(notification.exception);
+                    } else {
+                        TestSockets.prototype.setWarning(receivemessageCell);
+                        str.get_strings([
+                            {key: 'invalidreceivedtest', component: 'mod_kuet'}
+                        ]).done(function(strings) {
+                            let err = ' Expected: Action => connect; user => value, and we received: ' + ' Action: '
+                            + resAction + ' & user: ' + user;
+                            TestSockets.prototype.setExtraInfo(receivemessageExtraInfoCell, strings[0] + err);
+                        }).fail(notification.exception);
+                    }
+                } else {
+                    TestSockets.prototype.setError(receivemessageCell);
+                    str.get_strings([
+                        {key: 'nodatareceivedtest', component: 'mod_kuet'}
+                    ]).done(function(strings) {
+                        TestSockets.prototype.setExtraInfo(receivemessageExtraInfoCell, strings[0]);
+                    }).fail(notification.exception);
+                }
+            };
+        }
     };
 
     TestSockets.prototype.sendMessageSocket = function(msg) {
-        this.webSocket.send(msg);
+        try {
+            this.webSocket.send(msg);
+            TestSockets.prototype.setValid(sendmessageCell);
+            str.get_strings([
+                {key: 'validsendedtest', component: 'mod_kuet'}
+            ]).done(function(strings) {
+                TestSockets.prototype.setExtraInfo(sendmessageExtraInfoCell, strings[0]);
+            }).fail(notification.exception);
+        } catch(error) {
+            TestSockets.prototype.setError(sendmessageCell);
+            str.get_strings([
+                {key: 'invalidsendedtest', component: 'mod_kuet'}
+            ]).done(function(strings) {
+                TestSockets.prototype.setExtraInfo(sendmessageExtraInfoCell, strings[0]);
+            }).fail(notification.exception);
+        }
     };
 
     return {
