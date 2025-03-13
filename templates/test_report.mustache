@@ -43,46 +43,32 @@
     <div class="row">
         <div class="col-12">
             <h3>{{#str}}test_info, mod_kuet{{/str}}</h3>
+            <div class="info">
+                <ul>
+                    <li>{{#str}} socketurl, mod_kuet {{/str}}{{ socketurl }}</li>
+                    <li>{{#str}} runatport, mod_kuet {{/str}}{{ port }}</li>
+                </ul>
+            </div>
             <table data-region="test-result" class="generaltable">
                 <thead>
                     <tr>
-                        <th class="header c0">{{#str}}tests, mod_kuet{{/str}}</th>
-                        <th class="header c1">{{#str}}test_description, mod_kuet{{/str}}</th>
-                        <th class="header c2">{{#str}}results, mod_kuet{{/str}}</th>
-                        <th class="header c3">{{#str}}extra_info, mod_kuet{{/str}}</th>
+                        <th class="header c0">{{#str}} orderoftestsexecution, mod_kuet {{/str}}</th>
+                        <th class="header c1">{{#str}} tests, mod_kuet {{/str}}</th>
+                        <th class="header c2">{{#str}} test_description, mod_kuet {{/str}}</th>
+                        <th class="header c3">{{#str}} results, mod_kuet {{/str}}</th>
+                        <th class="header c4">{{#str}} extra_info, mod_kuet {{/str}}</th>
                     </tr>
                 </thead>
                 <tbody>
+                {{#tests}}
                     <tr>
-                        <td class="cell c0">{{#str}}protocoltest, mod_kuet{{/str}}</td>
-                        <td class="cell c1">{{#str}}protocoltest_description, mod_kuet{{/str}}</td>
-                        <td id="protocol-test-result" class="cell c2">{{#pix}} s/pending, mod_kuet {{/pix}}</td>
-                        <td id="protocol-test-extra-info" class="cell c3"><span>-<span></td>
+                        <td class="cell c0">{{ order }}</td>
+                        <td class="cell c1">{{ name }}</td>
+                        <td class="cell c2">{{ description }}</td>
+                        <td id="{{ idforresult }}" class="cell c3">{{#pix}} s/pending, mod_kuet, {{#str}} pendingtest, mod_kuet {{/str}} {{/pix}}</td>
+                        <td id="{{ idforextrainfo }}" class="cell c4"><span>{{#str}} pendingexecutiontest, mod_kuet {{/str}}<span></td>
                     </tr>
-                    <tr>
-                        <td class="cell c0">{{#str}}ssltest, mod_kuet{{/str}}</td>
-                        <td class="cell c1">{{#str}}ssltest_description, mod_kuet{{/str}}</td>
-                        <td id="ssl-test-result" class="cell c2">{{#pix}} s/pending, mod_kuet {{/pix}}</td>
-                        <td id="ssl-test-extra-info" class="cell c3"><span>-<span></td>
-                    </tr>
-                    <tr>
-                        <td class="cell c0">{{#str}}openconnectiontest, mod_kuet{{/str}}</td>
-                        <td class="cell c1">{{#str}}openconnectiontest_description, mod_kuet{{/str}}</td>
-                        <td id="open-connection-test-result" class="cell c2">{{#pix}} s/pending, mod_kuet {{/pix}}</td>
-                        <td id="open-connection-test-extra-info" class="cell c3"><span>-<span></td>
-                    </tr>
-                    <tr>
-                        <td class="cell c0">{{#str}}sendmessagetest, mod_kuet{{/str}}</td>
-                        <td class="cell c1">{{#str}}sendmessagetest_description, mod_kuet{{/str}}</td>
-                        <td id="send-message-test-result" class="cell c2">{{#pix}} s/pending, mod_kuet {{/pix}}</td>
-                        <td id="send-message-test-extra-info" class="cell c3"><span>-<span></td>
-                    </tr>
-                    <tr>
-                        <td class="cell c0">{{#str}}receivemessagetest, mod_kuet{{/str}}</td>
-                        <td class="cell c1">{{#str}}receivemessagetest_description, mod_kuet{{/str}}</td>
-                        <td id="receive-message-test-result" class="cell c2">{{#pix}} s/pending, mod_kuet {{/pix}}</td>
-                        <td id="receive-message-test-extra-info" class="cell c3"><span>-<span></td>
-                    </tr>
+                {{/tests}}
                 </tbody>
             </table>
         </div>

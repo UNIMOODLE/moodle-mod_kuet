@@ -54,6 +54,11 @@ class test_report implements renderable, templatable {
     public string $port;
 
     /**
+     * @var array Tests to execute.
+     */
+    public array $tests;
+
+    /**
      * Constructor
      *
      * @param string $socketurl
@@ -63,6 +68,43 @@ class test_report implements renderable, templatable {
     public function __construct(string $socketurl, string $port) {
         $this->socketurl = $socketurl;
         $this->port = $port;
+        $this->tests = [
+            [
+                'order' => 1,
+                'name' => get_string('protocoltest', 'mod_kuet'),
+                'description' => get_string('protocoltest_description', 'mod_kuet'),
+                'idforresult' => 'protocol-test-result', // Needed for JS searches.
+                'idforextrainfo' => 'protocol-test-extra-info', // Needed for JS searches.
+            ],
+            [
+                'order' => 2,
+                'name' => get_string('ssltest', 'mod_kuet'),
+                'description' => get_string('ssltest_description', 'mod_kuet'),
+                'idforresult' => 'ssl-test-result',
+                'idforextrainfo' => 'ssl-test-extra-info',
+            ],
+            [
+                'order' => 3,
+                'name' => get_string('openconnectiontest', 'mod_kuet'),
+                'description' => get_string('openconnectiontest_description', 'mod_kuet'),
+                'idforresult' => 'open-connection-test-result',
+                'idforextrainfo' => 'open-connection-test-extra-info',
+            ],
+            [
+                'order' => 4,
+                'name' => get_string('sendmessagetest', 'mod_kuet'),
+                'description' => get_string('sendmessagetest_description', 'mod_kuet'),
+                'idforresult' => 'send-message-test-result',
+                'idforextrainfo' => 'send-message-test-extra-info',
+            ],
+            [
+                'order' => 5,
+                'name' => get_string('receivemessagetest', 'mod_kuet'),
+                'description' => get_string('receivemessagetest_description', 'mod_kuet'),
+                'idforresult' => 'receive-message-test-result',
+                'idforextrainfo' => 'receive-message-test-extra-info',
+            ],
+        ];
     }
 
     /**
@@ -79,6 +121,7 @@ class test_report implements renderable, templatable {
         $data = new stdClass();
         $data->socketurl = $this->socketurl;
         $data->port = $this->port;
+        $data->tests = $this->tests;
         return $data;
     }
 }

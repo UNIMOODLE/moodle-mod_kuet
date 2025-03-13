@@ -36,6 +36,7 @@ define(['jquery', 'core/str', 'core/notification', 'mod_kuet/encryptor'], functi
     let socketUrl = '';
     let portUrl = '8080';
     let secureProtocol = false;
+    let concatenateOnClose = false;
 
     /** @type {jQuery} The jQuery node for the page region. */
     TestSockets.prototype.root = null;
@@ -182,9 +183,9 @@ define(['jquery', 'core/str', 'core/notification', 'mod_kuet/encryptor'], functi
             };
 
             TestSockets.prototype.webSocket.onerror = function(event) {
-                TestSockets.prototype.setError(sslCell);
                 // eslint-disable-next-line no-console
-                console.error(event);
+                console.log(event);
+                TestSockets.prototype.setError(sslCell);
                 if (secureProtocol === true) {
                     str.get_strings([
                         {key: 'invalidcertificates', component: 'mod_kuet'}
@@ -194,24 +195,42 @@ define(['jquery', 'core/str', 'core/notification', 'mod_kuet/encryptor'], functi
                     }).fail(notification.exception);
                 } else {
                     str.get_strings([
-                        {key: 'invalidconnection', component: 'mod_kuet'}
+                        {key: 'notusecertificates', component: 'mod_kuet'},
+                        {key: 'invalidconnection', component: 'mod_kuet'},
+                        {key: 'notmakeaconnection', component: 'mod_kuet'},
                     ]).done(function(strings) {
-                        TestSockets.prototype.setExtraInfo(sslExtraInfoCell, strings[0] + ' ' + event.reason);
-                        TestSockets.prototype.setExtraInfo(connectionExtraInfoCell, strings[0]);
+                        TestSockets.prototype.setExtraInfo(sslExtraInfoCell, strings[0]);
+                        let messageError = '';
+                        if (event && event.target && event.target.readyState === 3) {
+                            messageError += ' ' + strings[2];
+                            concatenateOnClose = true;
+                        }
+                        TestSockets.prototype.setExtraInfo(connectionExtraInfoCell, strings[1] + messageError);
+                    }).fail(notification.exception);
+                    // Update the rest of tests.
+                    TestSockets.prototype.setError(sendmessageCell);
+                    TestSockets.prototype.setError(receivemessageCell);
+                    str.get_strings([
+                        {key: 'generictesterror', component: 'mod_kuet'}
+                    ]).done(function(strings) {
+                        TestSockets.prototype.setExtraInfo(sendmessageExtraInfoCell, strings[0]);
+                        TestSockets.prototype.setExtraInfo(receivemessageExtraInfoCell, strings[0]);
                     }).fail(notification.exception);
                 }
             };
 
             TestSockets.prototype.webSocket.onclose = function(event) {
                 TestSockets.prototype.setError(connectionCell);
-                if (event.wasClean) {
-                    // eslint-disable-next-line no-console
-                    console.log(event.reason);
-                }
                 str.get_strings([
                     {key: 'connectionclosed', component: 'mod_kuet'}
                 ]).done(function(strings) {
-                    TestSockets.prototype.setExtraInfo(connectionExtraInfoCell, strings[0] + ' ' + event.reason);
+                    TestSockets.prototype.setExtraInfo(
+                        connectionExtraInfoCell,
+                        strings[0] + ' ' + event.reason, concatenateOnClose
+                    );
+                    if (concatenateOnClose === true) {
+                        concatenateOnClose = false;
+                    }
                 }).fail(notification.exception);
             };
 
