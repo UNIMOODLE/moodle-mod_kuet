@@ -106,7 +106,7 @@ class multichoice extends questions implements questionType {
         $feedbacks = [];
         foreach ($question->answers as $response) {
             if (assert($response instanceof question_answer)) {
-                if ($response->fraction !== '0.0000000' && $response->fraction !== '1.0000000') {
+                if ($response->fraction !== 0.0 && $response->fraction !== 1.0) {
                     $data->multianswers = true;
                 }
                 $answertext = self::get_text($cmid, $response->answer, $response->answerformat, $response->id, $question, 'answer');

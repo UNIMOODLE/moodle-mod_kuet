@@ -130,7 +130,7 @@ class multichoice_external extends external_api {
         $answertexts = [];
         foreach ($question->answers as $key => $answer) {
             $answertexts[$answer->id] = $answer->answer;
-            if ($answer->fraction !== '0.0000000' && strpos($answer->fraction, '-') !== 0) {
+            if ($answer->fraction !== 0.0 && strpos($answer->fraction, '-') !== 0) {
                 $correctanswers .= $answer->id . ',';
             }
             if (isset($answerids) && $answerids !== '' && $answerids !== '0') {
