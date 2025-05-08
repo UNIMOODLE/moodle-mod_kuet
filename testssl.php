@@ -31,8 +31,12 @@
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require_once('../../config.php');
 require_once('lib.php');
+
+use mod_kuet\output\views\test_report;
+
 global $OUTPUT, $PAGE, $CFG;
 
 $PAGE->set_url('/mod/kuet/testssl.php');
@@ -41,8 +45,6 @@ $context = context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_heading(get_string('testssl', 'mod_kuet'));
 $PAGE->set_title(get_string('testssl', 'mod_kuet'));
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('testssl', 'mod_kuet'));
 
 if (get_config('kuet', 'sockettype') === 'local') {
     $server = $CFG->dirroot . '/mod/kuet/classes/server.php';
@@ -63,10 +65,17 @@ if ($typesocket === 'nosocket') {
     throw new moodle_exception('nosocket', 'mod_kuet', '',
         [], get_string('nosocket', 'mod_kuet'));
 }
-$PAGE->requires->js_amd_inline("require(['mod_kuet/testssl'], function(TestSockets) {
-    TestSockets.initTestSockets('[data-region=\"mainpage\"]', '" . $socketurl . "', '" . $port . "');
-});");
 
-echo $OUTPUT->footer();
+$view = new test_report($socketurl, $port);
+$output = $PAGE->get_renderer('mod_kuet');
+$viehtml = $output->render($view);
+$context = context_system::instance();
+$PAGE->set_context($context);
+$PAGE->set_heading(get_string('testssl', 'mod_kuet'));
+$PAGE->set_title(get_string('testssl', 'mod_kuet'));
+$PAGE->set_cacheable(false);
 
-
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('testssl', 'mod_kuet'));
+echo $viehtml;
+echo $output->footer();

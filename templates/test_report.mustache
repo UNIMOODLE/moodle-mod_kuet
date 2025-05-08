@@ -1,0 +1,81 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group: Universities of
+    Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
+    Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
+    Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos
+}}
+{{!
+    @template mod_kuet/test
+
+    Test
+
+    Classes required for JS:
+    * None
+
+    Data attibutes required for JS:
+    * None
+
+    Context variables required for this template:
+    * none
+
+    Example context (json):
+    {
+    }
+}}
+<div class="position-relative">
+    <div class="row">
+        <div class="col-12">
+            <h3>{{#str}}test_info, mod_kuet{{/str}}</h3>
+            <div class="info">
+                <ul>
+                    <li>{{#str}} socketurl, mod_kuet {{/str}}{{ socketurl }}</li>
+                    <li>{{#str}} runatport, mod_kuet {{/str}}{{ port }}</li>
+                </ul>
+            </div>
+            <table data-region="test-result" class="generaltable">
+                <thead>
+                    <tr>
+                        <th class="header c0">{{#str}} orderoftestsexecution, mod_kuet {{/str}}</th>
+                        <th class="header c1">{{#str}} tests, mod_kuet {{/str}}</th>
+                        <th class="header c2">{{#str}} test_description, mod_kuet {{/str}}</th>
+                        <th class="header c3">{{#str}} results, mod_kuet {{/str}}</th>
+                        <th class="header c4">{{#str}} extra_info, mod_kuet {{/str}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {{#tests}}
+                    <tr>
+                        <td class="cell c0">{{ order }}</td>
+                        <td class="cell c1">{{ name }}</td>
+                        <td class="cell c2">{{ description }}</td>
+                        <td id="{{ idforresult }}" class="cell c3">{{#pix}} s/pending, mod_kuet, {{#str}} pendingtest, mod_kuet {{/str}} {{/pix}}</td>
+                        <td id="{{ idforextrainfo }}" class="cell c4"><span>{{#str}} pendingexecutiontest, mod_kuet {{/str}}<span></td>
+                    </tr>
+                {{/tests}}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{{#js}}
+    require(['mod_kuet/testssl'], function(TestSockets) {
+        TestSockets.initTestSockets('[data-region="test-result"]', "{{socketurl}}", "{{port}}");
+    });
+{{/js}}
