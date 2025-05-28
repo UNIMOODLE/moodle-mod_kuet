@@ -90,17 +90,20 @@ class getfinalranking_external extends external_api {
         $finalranking = $ranking;
         unset($finalranking[0], $finalranking[1], $finalranking[2]);
         $finalranking = array_values($finalranking);
+        foreach ($finalranking as $key => $userforranking) {
+            $finalranking[$key]->userpoints = $userforranking->userpoints ? (string)$userforranking->userpoints : '';
+        }
         return [
             'finalranking' => $finalranking,
             'firstuserimageurl' => $ranking[0]->userimageurl ?? '',
             'firstuserfullname' => $ranking[0]->userfullname ?? '',
-            'firstuserpoints' => $ranking[0]->userpoints ?? 0,
+            'firstuserpoints' => $ranking[0]->userpoints ? (string)$ranking[0]->userpoints : '',
             'seconduserimageurl' => $ranking[1]->userimageurl ?? '',
             'seconduserfullname' => $ranking[1]->userfullname ?? '',
-            'seconduserpoints' => $ranking[1]->userpoints ?? 0,
+            'seconduserpoints' => $ranking[1]->userpoints ? (string)$ranking[1]->userpoints : '',
             'thirduserimageurl' => $ranking[2]->userimageurl ?? '',
             'thirduserfullname' => $ranking[2]->userfullname ?? '',
-            'thirduserpoints' => $ranking[2]->userpoints ?? 0,
+            'thirduserpoints' => $ranking[2]->userpoints ? (string)$ranking[2]->userpoints : '',
             'sessionid' => $sid,
             'cmid' => $cmid,
             'kuetid' => $session->get('kuetid'),
@@ -125,7 +128,7 @@ class getfinalranking_external extends external_api {
                         'userimageurl' => new external_value(PARAM_RAW, 'Url for user image'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
                         'userfullname' => new external_value(PARAM_RAW, 'Name of user'),
-                        'userpoints' => new external_value(PARAM_FLOAT, 'Total points of user'),
+                        'userpoints' => new external_value(PARAM_RAW, 'Total points of user'),
                     ], ''
                 ), ''
             ),
@@ -138,13 +141,13 @@ class getfinalranking_external extends external_api {
             'reporturl' => new external_value(PARAM_URL, 'Url for session report'),
             'firstuserimageurl' => new external_value(PARAM_RAW, ''),
             'firstuserfullname' => new external_value(PARAM_RAW, ''),
-            'firstuserpoints' => new external_value(PARAM_FLOAT, ''),
+            'firstuserpoints' => new external_value(PARAM_RAW, ''),
             'seconduserimageurl' => new external_value(PARAM_RAW, ''),
             'seconduserfullname' => new external_value(PARAM_RAW, ''),
-            'seconduserpoints' => new external_value(PARAM_FLOAT, ''),
+            'seconduserpoints' => new external_value(PARAM_RAW, ''),
             'thirduserimageurl' => new external_value(PARAM_RAW, ''),
             'thirduserfullname' => new external_value(PARAM_RAW, ''),
-            'thirduserpoints' => new external_value(PARAM_FLOAT, ''),
+            'thirduserpoints' => new external_value(PARAM_RAW, ''),
         ]);
     }
 }

@@ -85,6 +85,11 @@ class getprovisionalranking_external extends external_api {
         );
         $session = kuet_sessions::get_record(['id' => $sid]);
         $questions = new questions($session->get('kuetid'), $cmid, $sid);
+        $provisionalrankings = sessions::get_provisional_ranking($sid, $cmid, $kid);
+        foreach($provisionalrankings as $provisionalranking) {
+            $provisionalranking['questionscore'] = (string)$provisionalranking['questionscore'];
+            $provisionalranking['userpoints'] = (string)$provisionalranking['userpoints'];
+        }
         return [
             'provisionalranking' => sessions::get_provisional_ranking($sid, $cmid, $kid),
             'kid' => $kid,
@@ -109,8 +114,8 @@ class getprovisionalranking_external extends external_api {
                         'userimageurl' => new external_value(PARAM_RAW, 'Url for user image'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
                         'userfullname'   => new external_value(PARAM_RAW, 'Name of user'),
-                        'questionscore' => new external_value(PARAM_FLOAT, 'Num of partially correct answers'),
-                        'userpoints' => new external_value(PARAM_FLOAT, 'Total points of user'),
+                        'questionscore' => new external_value(PARAM_RAW, 'Num of partially correct answers'),
+                        'userpoints' => new external_value(PARAM_RAW, 'Total points of user'),
                     ], ''
                 ), ''
             ),
