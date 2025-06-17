@@ -32,6 +32,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 declare(strict_types=1);
+// Define unimoodleservercli constant.
+define('unimoodleservercli', value: "UNIMOODLEKUET");
 
 /**
  * CLI version of websocket server
@@ -249,7 +251,6 @@ class unimoodleservercli extends websockets {
             if (isset($this->sidusers[$user->sid])) {
                 foreach ($this->sidusers[$user->sid] as $socket) {
                     $this->disconnect($socket->socket);
-                    fclose($socket->socket);
                     unset($this->students[$user->sid], $this->sidusers[$user->sid]);
                 }
             }
@@ -533,6 +534,10 @@ class unimoodleservercli extends websockets {
      * @return void
      */
     private function newuser(websocketuser $user, array $data): void {
+        // If reported usersocketid does not march stored usersocketid, then throw error. Possible attack.
+        if ($data['usersocketid'] !== $user->usersocketid) {
+            throw new Exception('Reported usersocketid does not match stored usersocketid. Possible attack.');
+        }
         $this->users[$user->usersocketid]->dataname = $data['name'];
         $this->users[$user->usersocketid]->picture = $data['pic'];
         $this->users[$user->usersocketid]->userid = $data['userid'];
@@ -589,9 +594,7 @@ class unimoodleservercli extends websockets {
                 ));
             $usersocket = $this->get_socket_by_user($user);
             fwrite($usersocket, $response, strlen($response));
-            $this->disconnect($this->users[$user->usersocketid]->socket);
-            fclose($usersocket);
-            unset($this->users[$user->usersocketid]);
+            $this->disconnect($usersocket);
             return '';
         }
         $user->isteacher = true;
@@ -626,8 +629,6 @@ class unimoodleservercli extends websockets {
                     foreach ($this->sockets as $key => $socket) {
                         if ($key === $usersocketid) {
                             $this->disconnect($socket);
-                            fclose($socket);
-                            unset($this->users[$usersocketid]);
                             $duplicateresolve = true;
                             break;
                         }
@@ -749,7 +750,10 @@ abstract class websockets {
         'cyan' => '36',
         'white' => '37',
     ];
-
+    /**
+     * @var boolean verboselog
+     */
+    protected $verboselog = false;
     /**
      * Constructor
      *
@@ -767,6 +771,17 @@ abstract class websockets {
         $usessl = false;
         if (PHP_SAPI !== 'cli') {
             throw new Exception('This application must be run on the command line.');
+        }
+        // Get from command line arguments:
+        // * Port number.
+        // * Certificate file (optional).
+        // * Private key file (optional).
+        // * Verbose mode (optional).
+        $verbosepos = array_search('-v', $_SERVER['argv'], true);
+        if ($verbosepos !== false) {
+            $this->verboselog = true;
+            unset($_SERVER['argv'][$verbosepos]);
+            $_SERVER['argv'] = array_values($_SERVER['argv']);
         }
 
         // The unimoodleservercli can run with or without ssl protocol. Be careful if you run without ssl.
@@ -811,7 +826,8 @@ abstract class websockets {
         $this->stdout(
             self::white_text(
                 "Server started" . PHP_EOL . "Listening on: $addr:$port " . PHP_EOL .
-                "Master socket: $this->master", false
+                "Master socket: $this->master" . PHP_EOL .
+                "SSL: " . ($transport === self::SECURE_TRANSPORT ? 'enabled' : 'disabled'), false
             )
         );
 
@@ -943,7 +959,7 @@ abstract class websockets {
                             "This file may already be generated on the same server as this script:");
                         $privatekey = readline( "");
                         if (@file_exists($privatekey) && array_key_exists('extension', pathinfo($privatekey)) &&
-                            (pathinfo($privatekey)['extension'] === 'crt' || pathinfo($privatekey)['extension'] === 'pem')) {
+                            (pathinfo($privatekey)['extension'] === 'key' || pathinfo($privatekey)['extension'] === 'pem')) {
                             readline_add_history($privatekey);
                             $reference = $port . ' ' . $certificate . ' ' . $privatekey;
                             switch (strtolower(PHP_OS_FAMILY)) {
@@ -1117,6 +1133,9 @@ abstract class websockets {
      * @return string
      */
     public function unmask($text) {
+        if (empty($text) || strlen($text) < 2) {
+            return '';
+        }
         $length = @ord($text[1]) & 127;
         if ($length === 126) {
             $masks = substr($text, 4, 4);
@@ -1144,7 +1163,8 @@ abstract class websockets {
      * @return mixed
      */
     public function run() {
-        while (true) {
+    while (true) {
+        try {
             if (empty($this->sockets)) {
                 $this->sockets['m'] = $this->master;
             }
@@ -1152,6 +1172,9 @@ abstract class websockets {
             $write = $except = null;
             $this->tick_core();
             $this->tick();
+            if ($this->verboselog) {
+                $this->stdout(self::blue_text("Waiting for messages on $this->addr:$this->port", false));
+            }
             stream_select($read, $write, $except, 10);
             if (in_array($this->master, $read, true)) {
                 $client = @stream_socket_accept($this->master, 20);
@@ -1162,6 +1185,15 @@ abstract class websockets {
                 $this->stdout(self::blue_text("Connection attempt from $ip", false));
                 stream_set_blocking($client, true);
                 $headers = fread($client, 1500);
+                // Check if headers is SSL negotiation.
+                if (strpos($headers, 'HTTP/1.1') === false && strpos($headers, 'HTTP/1.0 101') === false) {
+                    $this->stdout(self::red_text("Bad headers from $ip." .
+                                 ($this->transport !== self::SECURE_TRANSPORT ? 'SSL disabled. Client is attempting WSS connection?' :
+                                 'Headers: ' . $headers), false));
+                    fclose($client);
+                    continue;
+                }
+               
                 $this->handshake($client, $headers);
                 stream_set_blocking($client, false);
 
@@ -1177,19 +1209,21 @@ abstract class websockets {
 
                 $this->connect($client, $ip);
                 $this->stdout(self::green_text("Client connected. $client", false));
+                // Show stats.
+                $this->stdout(self::white_text("Total users: " . count($this->users), false));
+                $this->stdout(self::white_text("Groups: " . count($this->sidgroups), false));
+                $this->stdout(self::white_text("Held messages: " . count($this->heldmessages), false));
             }
 
             foreach ($read as $socket) {
                 $ip = stream_socket_get_name( $socket, true );
-                $buffer = stream_get_contents($socket);
+                // JPC limit messages length to avoid memory issues.
+                $buffer = stream_get_contents($socket, $this->maxbuffersize);
                 // 3IP review detect disconnect for min buffer lenght.
                 if ($buffer === false || strlen($buffer) <= 8) {
                     if ($this->unmask($buffer) !== '') { // Necessary to stabilise connections, review.
                         $this->disconnect($socket);
                         $this->stdout("\033[1;30m" . "Client disconnected. TCP connection lost: " . $socket . "\033[0m");
-                        @fclose($socket);
-                        $foundsocket = array_search($socket, $this->sockets, true);
-                        unset($this->sockets[$foundsocket]);
                     }
                 }
                 $unmasked = $this->unmask($buffer);
@@ -1205,14 +1239,52 @@ abstract class websockets {
                             $this->handshake($user, $buffer);
                         } else {
                             $isjson = $this->check_json($unmasked);
+                            if ($this->verboselog) {
+                                $this->stdout(self::green_text("Message from " . $user->userid . " user. Content: " . $unmasked, false));
+                            }
+                            // Only process the message if it is a valid userid and the message is valid JSON.
                             if ($isjson === true) {
                                 $this->process($user, $unmasked);
+                            } else {
+                                if ($unmasked == 'ping') {
+                                    $mask = $this->mask(
+                                     json_encode([
+                                            'action' => 'connect',
+                                            'user' => $user->userid ?? '',
+                                        ], JSON_THROW_ON_ERROR)
+                                    );
+                                    fwrite($socket, $mask, strlen($mask));
+                                } else {
+                                    $msg = $this->mask(
+                                        json_encode([
+                                            'action' => 'error',
+                                            'user' => $user->userid,
+                                            'message' => mb_convert_encoding('Invalid message received: ' . $unmasked, 'UTF-8', 'auto')
+                                        ], JSON_THROW_ON_ERROR)
+                                    );
+                                    fwrite($socket, $msg, strlen($msg));
+                                    // Disconnect the socket if the message is not valid.
+                                    $this->disconnect($socket, false, 'Invalid message received: ' . $unmasked);
+                                }
                             }
                         }
                     }
                 }
             }
-        }
+        } catch (Exception|Error $e) {
+            $this->stdout(self::red_text("FATAL Error: " . $e->getMessage(), false));
+            // If it is the master socket then continue.
+            if (!is_resource($this->master)) {
+                continue;
+            }
+            // If the socket is not the master, then disconnect it.
+            $this->stdout(self::red_text("Disconnecting socket due to error: " . $e->getMessage(), false));
+            if (isset($socket) && is_resource($socket)) {
+                $this->disconnect($socket, true, $e->getMessage());
+            }
+        } 
+    
+    }
     }
 
     /**
@@ -1242,7 +1314,9 @@ abstract class websockets {
     protected function disconnect($socket, $triggerclosed = true, $sockerrno = null) {
         $disconnecteduser = $this->get_user_by_socket($socket);
         if ($disconnecteduser !== null) {
-            unset($this->users[$disconnecteduser->usersocketid]);
+            unset($this->users[$disconnecteduser->usersocketid]);       
+            unset($this->sockets[$disconnecteduser->usersocketid]);
+
             if (array_key_exists($disconnecteduser->usersocketid, $this->sockets)) {
                 unset($this->sockets[$disconnecteduser->usersocketid]);
             }
@@ -1250,13 +1324,16 @@ abstract class websockets {
                 $this->stdout(self::red_text($sockerrno, false));
             }
             if ($triggerclosed) {
-                $this->stdout("\033[1;30m" . "Client disconnected. ".$disconnecteduser->socket . "\033[0m");
+                $user = $disconnecteduser->id ?? 'unknown';
+                $this->stdout("\033[1;30m" . "Client $user disconnected. ".$disconnecteduser->socket . "\033[0m");
                 $this->closed($disconnecteduser);
                 stream_socket_shutdown($disconnecteduser->socket, STREAM_SHUT_RDWR);
             } else {
-                $message = $this->frame('', $disconnecteduser, 'close');
+                $message = $this->mask('close');
                 fwrite($disconnecteduser->socket, $message, strlen($message));
             }
+            // Close the socket.
+            fclose($disconnecteduser->socket);
         }
     }
 
@@ -1461,7 +1538,7 @@ abstract class websockets {
                 $hexlength = '0' . $hexlength;
             }
             $n = strlen($hexlength) - 2;
-
+            
             for ($i = $n; $i >= 0; $i -= 2) {
                 $lengthfield = unimoodleservercli . phpchr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
             }
@@ -1477,14 +1554,14 @@ abstract class websockets {
             $n = strlen($hexlength) - 2;
 
             for ($i = $n; $i >= 0; $i -= 2) {
-                $lengthfield = unimoodleservercli . phpchr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
+                $lengthfield = unimoodleservercli . chr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
             }
             while (strlen($lengthfield) < 8) {
-                $lengthfield = unimoodleservercli . phpchr(0) . $lengthfield;
+                $lengthfield = unimoodleservercli . chr(0) . $lengthfield;
             }
         }
 
-        return unimoodleservercli . phpchr($b1) . chr($b2) . $lengthfield . $message;
+        return unimoodleservercli . chr($b1) . chr($b2) . $lengthfield . $message;
     }
 
     /**
@@ -1676,6 +1753,11 @@ class websocketuser {
     public $userid;
 
     /**
+     * @var string picture
+     */
+    public $picture = '';
+    public $sendingContinuous = false; // If true, then the next message sent will be a continuous message.
+    /**
      * Constructor
      *
      * @param $id
@@ -1760,6 +1842,6 @@ $server = new unimoodleservercli('0.0.0.0', 2048);
 try {
     $server->run();
 } catch (Exception $e) {
-    $server->stdout("\033[31m" . $e->getMessage() . "\033[0m");
     // throw $e;
+    $server->stdout("\033[31m" . $e->getMessage() . "\033[0m");
 }
