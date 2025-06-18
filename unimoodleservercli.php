@@ -84,20 +84,15 @@ class unimoodleservercli extends websockets {
             // Only for teacher.
             $responsetext = $this->get_response_from_action_for_teacher($user, $data['action'], $data);
             if ($responsetext !== '' && isset($this->sidusers[$data['sid']])) {
-                foreach ($this->teacher[$data['sid']] as $teacher) {
-                    fwrite($teacher->socket, $responsetext, strlen($responsetext));
-                }
+                $this->send_masked($this->sidusers[$data['sid']], $responsetext);
             }
         } else if (isset($data['ofs']) && $data['ofs'] === true) {
             // Only for student.
             $responsetext = $this->get_response_from_action_for_student($user, $data['action'], $data);
             if ($responsetext !== '') {
-                foreach ($this->sockets as $key => $socket) {
-                    if ($key === $data['usersocketid']) {
-                        fwrite($socket, $responsetext, strlen($responsetext));
-                        break;
-                    }
-                }
+                // TODO: Check if this is correct. Believe on reported usersocketid???
+                $usersocket = $this->get_user_by_socket($data['usersocketid']);
+                $this->send_masked([$usersocket], $responsetext);
             }
         } else if (isset($data['ofg']) && $data['ofg'] === true) {
             // Only for groups.
@@ -105,10 +100,11 @@ class unimoodleservercli extends websockets {
             $groupid = $this->get_groupid_from_a_member((int) $data['sid'], (int) $data['userid']);
             if ($responsetext !== '' && $groupid) {
                 $socketgroups = $this->sidgroups[$data['sid']];
+                $sentto = [];
                 foreach ($socketgroups[$groupid]->users as $usergroup) {
                     foreach ($this->sockets as $key => $socket) {
                         if ($key === $usergroup->usersocketid) {
-                            fwrite($socket, $responsetext, strlen($responsetext));
+                            $this->send_masked([$usergroup], $responsetext);
                             break;
                         }
                     }
@@ -117,9 +113,7 @@ class unimoodleservercli extends websockets {
         } else { // All users in this sid.
             $responsetext = $this->get_response_from_action($user, $data['action'], $data);
             if ($responsetext !== '' && isset($this->sidusers[$data['sid']])) {
-                foreach ($this->sidusers[$data['sid']] as $usersaved) {
-                    fwrite($usersaved->socket, $responsetext, strlen($responsetext));
-                }
+                $this->send_masked($this->sidusers[$data['sid']], $responsetext);
             }
         }
     }
@@ -150,14 +144,14 @@ class unimoodleservercli extends websockets {
         /* inactivity time for SSL client https://bugs.php.net/bug.php?id=70939
         $sock = socket_import_stream ($socket);
         socket_set_option($sock, SOL_SOCKET, SO_KEEPALIVE, 1);*/
-        $response = $this->mask(
-            kuet_encrypt($this->password, json_encode([
+
+
+        // We return the usersocketid only to the new user so that responds by identifying with newuser.
+        $this->send_masked([$user], json_encode([
                 'action' => 'connect',
                 'usersocketid' => $user->usersocketid,
-            ], JSON_THROW_ON_ERROR))
-        );
-        // We return the usersocketid only to the new user so that responds by identifying with newuser.
-        fwrite($user->socket, $response, strlen($response));
+            ], JSON_THROW_ON_ERROR));
+        
         $this->connecting($user);
     }
 
@@ -199,9 +193,7 @@ class unimoodleservercli extends websockets {
                     'count' => $numgroups,
                 ], JSON_THROW_ON_ERROR)));
             if (isset($this->sidusers[$user->sid])) {
-                foreach ($this->sidusers[$user->sid] as $usersaved) {
-                    fwrite($usersaved->socket, $groupresponse, strlen($groupresponse));
-                }
+                $this->send_masked($this->sidusers[$user->sid], $groupresponse);
             }
         } else if ($groupmemberdisconected) {
             $groupresponse = $this->mask(
@@ -214,9 +206,7 @@ class unimoodleservercli extends websockets {
                     'count' => $numusers,
                 ], JSON_THROW_ON_ERROR)));
             if (isset($this->sidusers[$user->sid])) {
-                foreach ($this->sidusers[$user->sid] as $usersaved) {
-                    fwrite($usersaved->socket, $groupresponse, strlen($groupresponse));
-                }
+                $this->send_masked($this->sidusers[$user->sid], $groupresponse);
             }
         }
     }
@@ -242,9 +232,7 @@ class unimoodleservercli extends websockets {
                 'count' => isset($this->students[$user->sid]) ? count($this->students[$user->sid]) : 0,
             ], JSON_THROW_ON_ERROR)));
         if (isset($this->sidusers[$user->sid])) {
-            foreach ($this->sidusers[$user->sid] as $usersaved) {
-                fwrite($usersaved->socket, $response, strlen($response));
-            }
+            $this->send_masked($this->sidusers[$user->sid], $response);
         }
         if ($user->isteacher) {
             unset($this->teacher[$user->sid]);
@@ -269,34 +257,28 @@ class unimoodleservercli extends websockets {
     protected function get_response_from_action_for_teacher(websocketuser $user, string $useraction, array $data): string {
         switch ($useraction) {
             case 'studentQuestionEnd':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'studentQuestionEnd',
                             'onlyforteacher' => true,
                             'context' => $data,
                             'message' => 'El alumno ' . $data['userid'] . ' ha contestado una pregunta', // 3IP delete.
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'ImproviseStudentTag':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'ImproviseStudentTag',
                             'onlyforteacher' => true,
                             'improvisereply' => $data['improvisereply'],
                             'userid' => $data['userid'],
                             'message' => '',
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'StudentVotedTag':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'StudentVotedTag',
                             'onlyforteacher' => true,
                             'votedtag' => $data['votedtag'],
                             'userid' => $data['userid'],
                             'message' => '',
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             default:
                 return '';
         }
@@ -335,13 +317,11 @@ class unimoodleservercli extends websockets {
     protected function get_response_from_action_for_group(array $data): string {
         switch ($data['action']) {
             case 'alreadyAnswered':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'alreadyAnswered',
                             'userid' => $data['userid'],
                             'kid' => $data['kid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             default:
                 return '';
         }
@@ -359,12 +339,10 @@ class unimoodleservercli extends websockets {
     protected function get_response_from_action_for_student(websocketuser $user, string $useraction, array $data): string {
         switch ($useraction) {
             case 'normalizeUser':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'question',
                             'context' => $data['context'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             default:
                 return '';
         }
@@ -393,133 +371,97 @@ class unimoodleservercli extends websockets {
                 }
                 return $this->manage_newstudent_for_sid($user, $data);
             case 'countusers':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'countusers',
                             'count' => count($this->students[$data['sid']]),
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'question':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'question',
                             'context' => $data['context'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'ranking':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'ranking',
                             'context' => $data['context'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'endSession':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'endSession',
                             'context' => $data['context'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'teacherQuestionEnd':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'teacherQuestionEnd',
                             'kid' => $data['kid'],
                             'statistics' => $data['statistics'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'pauseQuestion':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'pauseQuestion',
                             'kid' => $data['kid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'playQuestion':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'playQuestion',
                             'kid' => $data['kid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'showAnswers':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'showAnswers',
                             'kid' => $data['kid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'hideAnswers':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'hideAnswers',
                             'kid' => $data['kid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'showStatistics':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'showStatistics',
                             'kid' => $data['kid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'hideStatistics':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'hideStatistics',
                             'kid' => $data['kid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'showFeedback':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'showFeedback',
                             'kid' => $data['kid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'hideFeedback':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return  json_encode([
                             'action' => 'hideFeedback',
                             'kid' => $data['kid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'improvising':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'improvising',
                             'kid' => $data['kid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'closeImprovise':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'closeImprovise',
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'improvised':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'improvised',
                             'improvisestatement' => $data['improvisestatement'],
                             'improvisereply' => $data['improvisereply'],
                             'cmid' => $data['cmid'],
                             'sessionid' => $data['sid'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'printNewTag':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'printNewTag',
                             'tags' => $data['tags'],
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'initVote':
-                return $this->mask(
-                    kuet_encrypt($this->password, json_encode([
+                return json_encode([
                             'action' => 'initVote'
-                        ], JSON_THROW_ON_ERROR)
-                    ));
+                        ], JSON_THROW_ON_ERROR);
             case 'shutdownTest':
             default:
                 return '';
@@ -586,14 +528,12 @@ class unimoodleservercli extends websockets {
     private function manage_newteacher_for_sid(websocketuser $user, array $data): string {
         if (isset($this->teacher[$data['sid']]) && count($this->teacher[$data['sid']]) === 1) {
             // There can only be one teacher in each session to avoid conflicts of functionality.
-            $response = $this->mask(
-                kuet_encrypt($this->password, json_encode([
+            $response = json_encode([
                         'action' => 'alreadyteacher',
                         'message' => 'There is already a teacher imparting this session, so you cannot connect. Please wait for the current session to end before you can enter.',
-                    ], JSON_THROW_ON_ERROR)
-                ));
+                    ], JSON_THROW_ON_ERROR);
             $usersocket = $this->get_socket_by_user($user);
-            fwrite($usersocket, $response, strlen($response));
+            $this->send_masked([$usersocket], $response);
             $this->disconnect($usersocket);
             return '';
         }
@@ -601,15 +541,13 @@ class unimoodleservercli extends websockets {
         $this->users[$user->usersocketid]->isteacher = true;
         $this->teacher[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
         $this->sidusers[$data['sid']][$user->usersocketid] = $this->users[$user->usersocketid];
-        return $this->mask(
-            kuet_encrypt($this->password, json_encode([
+        return json_encode([
                 'action' => 'newteacher',
                 'name' => $data['name'] ?? '',
                 'userid' => $user->id ?? '',
                 'message' => '<span style="color: green">The teacher ' . $user->dataname . ' has connected</span>',
                 'count' => isset($this->sidusers[$data['sid']]) ? count($this->sidusers[$data['sid']]) : 0,
-            ], JSON_THROW_ON_ERROR))
-        );
+            ], JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -648,14 +586,12 @@ class unimoodleservercli extends websockets {
             $studentsdata[$key]['usersocketid'] = $student->usersocketid;
             $studentsdata[$key]['name'] = $student->dataname;
         }
-        return $this->mask(
-            kuet_encrypt($this->password, json_encode([
+        return json_encode([
                 'action' => 'newuser',
                 'usersocketid' => $user->usersocketid,
                 'students' => array_values($studentsdata),
                 'count' => count($this->students[$data['sid']]),
-            ], JSON_THROW_ON_ERROR)
-        ));
+            ], JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -679,14 +615,12 @@ class unimoodleservercli extends websockets {
             $groupsdata[$key]['name'] = $group->groupname;
             $groupsdata[$key]['numgroupusers'] = count($group->users);
         }
-        return $this->mask(
-            kuet_encrypt($this->password, json_encode([
+        return json_encode([
                     'action' => 'newgroup',
                     'usersocketid' => $user->usersocketid,
                     'groups' => array_values($groupsdata),
                     'count' => count($this->sidgroups[$data['sid']]),
-                ], JSON_THROW_ON_ERROR)
-            ));
+                ], JSON_THROW_ON_ERROR);
     }
 }
 
@@ -1039,7 +973,22 @@ abstract class websockets {
         // Override to handle a connecting user, after the instance of the User is created, but before
         // the handshake has completed.
     }
+    /**
+     * Send message using mark function.
+     * @param array[websocketuser] $usersockets
+     * @param string $message 
+     * @param bool $encrypt
+     */
+    protected function send_masked($usersockets, $message, $encrypt = true) {
+        if ($encrypt) {
+            $message = kuet_encrypt($this->password, $message);
+        }
+        $maskedmessage = $this->mask($message);
 
+        foreach ($usersockets as $usersocket) {
+            fwrite($usersocket->socket, $maskedmessage, strlen($maskedmessage));
+        }
+    }
     /**
      * Send message to user through socket
      *
@@ -1228,41 +1177,37 @@ abstract class websockets {
                 }
                 $unmasked = $this->unmask($buffer);
                 if ($unmasked !== "") {
-                    $user = $this->get_user_by_socket($socket);
-                    if ($user !== null) {
-                        if (!$user->handshake) {
+                    $usersocket = $this->get_user_by_socket($socket);
+                    if ($usersocket !== null) {
+                        if (!$usersocket->handshake) {
                             $tmp = str_replace("\r", '', $buffer);
                             if (strpos($tmp, "\n\n") === false ) {
                                 // If the client has not finished sending the header, then wait before sending our upgrade response.
                                 continue;
                             }
-                            $this->handshake($user, $buffer);
+                            $this->handshake($usersocket, $buffer);
                         } else {
                             $isjson = $this->check_json($unmasked);
                             if ($this->verboselog) {
-                                $this->stdout(self::green_text("Message from " . $user->userid . " user. Content: " . $unmasked, false));
+                                $this->stdout(self::green_text("Message from " . $usersocket->userid . " user. Content: " . $unmasked, false));
                             }
                             // Only process the message if it is a valid userid and the message is valid JSON.
                             if ($isjson === true) {
-                                $this->process($user, $unmasked);
+                                $this->process($usersocket, $unmasked);
                             } else {
                                 if ($unmasked == 'ping') {
-                                    $mask = $this->mask(
-                                     json_encode([
+                                    $msg = json_encode([
                                             'action' => 'connect',
-                                            'user' => $user->userid ?? '',
-                                        ], JSON_THROW_ON_ERROR)
-                                    );
-                                    fwrite($socket, $mask, strlen($mask));
+                                            'usersocketid' => $usersocket->userid ?? 'Unknown',
+                                        ], JSON_THROW_ON_ERROR);
+                                    $this->send_masked([$usersocket], $msg);
                                 } else {
-                                    $msg = $this->mask(
-                                        json_encode([
+                                    $msg = json_encode([
                                             'action' => 'error',
-                                            'user' => $user->userid,
+                                            'user' => $usersocket->userid,
                                             'message' => mb_convert_encoding('Invalid message received: ' . $unmasked, 'UTF-8', 'auto')
-                                        ], JSON_THROW_ON_ERROR)
-                                    );
-                                    fwrite($socket, $msg, strlen($msg));
+                                        ], JSON_THROW_ON_ERROR);    
+                                    $this->send_masked([$usersocket], $msg);
                                     // Disconnect the socket if the message is not valid.
                                     $this->disconnect($socket, false, 'Invalid message received: ' . $unmasked);
                                 }
@@ -1329,8 +1274,7 @@ abstract class websockets {
                 $this->closed($disconnecteduser);
                 stream_socket_shutdown($disconnecteduser->socket, STREAM_SHUT_RDWR);
             } else {
-                $message = $this->mask('close');
-                fwrite($disconnecteduser->socket, $message, strlen($message));
+                $this->send_masked([$disconnecteduser],'close');
             }
             // Close the socket.
             fclose($disconnecteduser->socket);
@@ -1444,9 +1388,13 @@ abstract class websockets {
      */
     protected function get_user_by_socket($socket) {
         foreach ($this->users as $user) {
-            if ($user->socket === $socket) {
+            if (is_string($socket) && $user->usersocketid === $socket ) {
+                // If the socket is a string, it is the socket id.
+                return $user;    
+            } elseif (is_resource($socket) && $user->socket === $socket) {
+                // If the socket is a resource, compare it directly.
                 return $user;
-            }
+            } 
         }
         return null;
     }
@@ -1712,7 +1660,7 @@ abstract class websockets {
  */
 class websocketuser {
     /**
-     * @var socket
+     * @var resource socket
      */
     public $socket;
     /**
