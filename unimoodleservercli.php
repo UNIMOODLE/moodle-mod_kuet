@@ -1133,7 +1133,7 @@ abstract class websockets {
                 $ip = stream_socket_get_name( $client, true );
                 $this->stdout(self::blue_text("Connection attempt from $ip", false));
                 stream_set_blocking($client, true);
-                $headers = fread($client, 1500);
+                $headers = fread(stream: $client, length: $this->maxbuffersize);
                 // Check if headers is SSL negotiation.
                 if (strpos($headers, 'HTTP/1.1') === false && strpos($headers, 'HTTP/1.0 101') === false) {
                     $this->stdout(self::red_text("Bad headers from $ip." .
@@ -1143,9 +1143,25 @@ abstract class websockets {
                     continue;
                 }
                
-                $this->handshake($client, $headers);
+                // Set the socket to non-blocking mode.
                 stream_set_blocking($client, false);
 
+                $blocksread = 0;
+                // JPC Check if there are more data to read from the socket and consume them.
+                while ($remaining = fread(stream: $client, length: $this->maxbuffersize)) {
+                    $blocksread++;
+                    if ($blocksread > 5) {
+                        // If we have read more than 10 blocks, then we assume that the headers are too large.
+                        $this->stdout(self::red_text("Too large headers from $ip. Closing connection.", false));
+                        fclose($client);
+                        continue 2; // Continue to the next iteration of the main loop.
+                    }
+                    if ($this->verboselog) {
+                        $this->stdout(self::yellow_text("More data received from $ip after handshake. Too large headers: " . strlen($remaining) . ' bytes', false));
+                    }
+                }
+                $this->handshake($client, $headers);
+                
                 $foundsocket = array_search($this->master, $read, true);
                 unset($read[$foundsocket]);
 
@@ -1168,11 +1184,26 @@ abstract class websockets {
                 $ip = stream_socket_get_name( $socket, true );
                 // JPC limit messages length to avoid memory issues.
                 $buffer = stream_get_contents($socket, $this->maxbuffersize);
+                $blocksread = 0;
+                
                 // 3IP review detect disconnect for min buffer lenght.
                 if ($buffer === false || strlen($buffer) <= 8) {
                     if ($this->unmask($buffer) !== '') { // Necessary to stabilise connections, review.
                         $this->disconnect($socket);
-                        $this->stdout("\033[1;30m" . "Client disconnected. TCP connection lost: " . $socket . "\033[0m");
+                        $this->stdout(self::red_text( "Message too short. Client disconnected. TCP connection lost: " . $socket, false));
+                    }
+                }
+                // JPC Consume the rest of the data in the socket to avoid repeated reads and to mitigate DoS attacks.
+                while ($remaining = stream_get_contents($socket, $this->maxbuffersize)) {
+                    $blocksread++;
+                    if ($blocksread > 3) {
+                        // If we have read more than 3 blocks, then we assume that the message is artificially large.
+                        $this->disconnect($socket);
+                        $this->stdout(self::red_text("Too large message from $ip. Suspected attack. Closing connection.", false));
+                        continue 2; // Continue to the next iteration of the main loop.
+                    }
+                    if ($this->verboselog) {
+                        $this->stdout(self::red_text("More data received from $ip for the message. Possible attack: " . strlen($remaining) . ' bytes', false));
                     }
                 }
                 $unmasked = $this->unmask($buffer);
@@ -1189,7 +1220,10 @@ abstract class websockets {
                         } else {
                             $isjson = $this->check_json($unmasked);
                             if ($this->verboselog) {
-                                $this->stdout(self::green_text("Message from " . $usersocket->userid . " user. Content: " . $unmasked, false));
+                                $this->stdout(self::green_text("Message from " .
+                                     $usersocket->userid . " user. Content: " .
+                                     substr($unmasked, 0, 100) .
+                                     '...[' . strlen($unmasked) . ' bytes]', false));
                             }
                             // Only process the message if it is a valid userid and the message is valid JSON.
                             if ($isjson === true) {
@@ -1201,11 +1235,26 @@ abstract class websockets {
                                             'usersocketid' => $usersocket->userid ?? 'Unknown',
                                         ], JSON_THROW_ON_ERROR);
                                     $this->send_masked([$usersocket], $msg);
+                                } if ($unmasked == 'diag') { 
+                                    // Diagnostic message, send the current status of the server.
+                                    // Number of users connected, groups, held messages, memory usage, etc.
+                                    $memoryusageinmb = round(memory_get_usage() / 1024 / 1024, 2);
+                                    $msg = json_encode([
+                                            'action' => 'diag',
+                                            'usersocketid' => 'Unknown',
+                                            'sockets' => count($this->sockets),
+                                            'users' => count($this->users),
+                                            'groups' => count($this->sidgroups),
+                                            'heldmessages' => count($this->heldmessages),
+                                            'memoryusage' => $memoryusageinmb . ' MB',
+                                        ], JSON_THROW_ON_ERROR);    
+                                    $this->send_masked([$usersocket], $msg, false);
                                 } else {
                                     $msg = json_encode([
                                             'action' => 'error',
                                             'user' => $usersocket->userid,
-                                            'message' => mb_convert_encoding('Invalid message received: ' . $unmasked, 'UTF-8', 'auto')
+                                            'message' => mb_convert_encoding('Invalid message received: ' . $unmasked, 'UTF-8', 'auto'),
+                                            'usersocketid' => $usersocket->userid ?? 'Unknown',
                                         ], JSON_THROW_ON_ERROR);    
                                     $this->send_masked([$usersocket], $msg);
                                     // Disconnect the socket if the message is not valid.
