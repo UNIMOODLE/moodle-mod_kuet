@@ -661,6 +661,18 @@ abstract class websockets {
      */
     protected $port;
     /**
+     * @var string certificate file
+     */
+    protected $certificate;
+    /**
+     * @var string private key file
+     */
+    protected $privatekey;
+    /**
+     * @var bool use ssl
+     */
+    protected $usessl = false;
+    /**
      * @var string network transport protocol
      */
     protected $transport;
@@ -733,22 +745,31 @@ abstract class websockets {
 
         $this->port = (int)$port;
         $this->maxbuffersize = $bufferlength;
-        // Certificate data.
+        $this->certificate = $certificate;
+        $this->privatekey = $privatekey;
+        $this->usessl = $usessl;
+
+        
+        $this->create_master_socket();
+    }
+    /**
+     * Create master socket.
+     */
+    protected function create_master_socket() {
+        // Create the server socket.
         $context = stream_context_create();
         $transport = self::INSECURE_TRANSPORT;
-        if ($usessl === true) {
+        if ($this->usessl === true) {
             // Local_cert and local_pk must be in PEM format.
-            stream_context_set_option($context, 'ssl', 'local_cert', $certificate);
-            stream_context_set_option($context, 'ssl', 'local_pk', $privatekey);
+            stream_context_set_option($context, 'ssl', 'local_cert', $this->certificate);
+            stream_context_set_option($context, 'ssl', 'local_pk', $this->privatekey);
             stream_context_set_option($context, 'ssl', 'allow_self_signed', true);
             stream_context_set_option($context, 'ssl', 'verify_peer', false);
             stream_context_set_option($context, 'ssl', 'verify_peer_name', false);
             $transport = self::SECURE_TRANSPORT;
         }
-
-        // Create the server socket.
         $this->master = stream_socket_server(
-            "$transport://$addr:$port",
+            "$transport://{$this->addr}:{$this->port}",
             $errno,
             $errstr,
             STREAM_SERVER_BIND | STREAM_SERVER_LISTEN,
@@ -759,14 +780,12 @@ abstract class websockets {
         $this->sockets['m'] = $this->master;
         $this->stdout(
             self::white_text(
-                "Server started" . PHP_EOL . "Listening on: $addr:$port " . PHP_EOL .
+                "Server started" . PHP_EOL . "Listening on: $this->addr:$this->port " . PHP_EOL .
                 "Master socket: $this->master" . PHP_EOL .
                 "SSL: " . ($transport === self::SECURE_TRANSPORT ? 'enabled' : 'disabled'), false
             )
-        );
-
+        ); 
     }
-
     /**
      * Set ANSI color to passed text.
      *
@@ -1112,175 +1131,180 @@ abstract class websockets {
      * @return mixed
      */
     public function run() {
-    while (true) {
-        try {
-            if (empty($this->sockets)) {
+        while (true) {
+            try {
+                // Check if the master socket is still valid and purge not valid sockets.
+                if (!is_resource($this->master) || get_resource_type($this->master) !== 'stream') {
+                    $this->stdout(self::red_text("Master socket is not a valid resource. Recreating.", false));
+                    $this->create_master_socket();
+                }
+                // Add the master socket to the list of sockets to read from.
                 $this->sockets['m'] = $this->master;
-            }
-            $read = $this->sockets;
-            $write = $except = null;
-            $this->tick_core();
-            $this->tick();
-            if ($this->verboselog) {
-                $this->stdout(self::blue_text("Waiting for messages on $this->addr:$this->port", false));
-            }
-            stream_select($read, $write, $except, 10);
-            if (in_array($this->master, $read, true)) {
-                $client = @stream_socket_accept($this->master, 20);
-                if (!$client) {
-                    continue;
-                }
-                $ip = stream_socket_get_name( $client, true );
-                $this->stdout(self::blue_text("Connection attempt from $ip", false));
-                stream_set_blocking($client, true);
-                $headers = fread(stream: $client, length: $this->maxbuffersize);
-                // Check if headers is SSL negotiation.
-                if (strpos($headers, 'HTTP/1.1') === false && strpos($headers, 'HTTP/1.0 101') === false) {
-                    $this->stdout(self::red_text("Bad headers from $ip." .
-                                 ($this->transport !== self::SECURE_TRANSPORT ? 'SSL disabled. Client is attempting WSS connection?' :
-                                 'Headers: ' . $headers), false));
-                    fclose($client);
-                    continue;
-                }
-               
-                // Set the socket to non-blocking mode.
-                stream_set_blocking($client, false);
 
-                $blocksread = 0;
-                // JPC Check if there are more data to read from the socket and consume them.
-                while ($remaining = fread(stream: $client, length: $this->maxbuffersize)) {
-                    $blocksread++;
-                    if ($blocksread > 5) {
-                        // If we have read more than 10 blocks, then we assume that the headers are too large.
-                        $this->stdout(self::red_text("Too large headers from $ip. Closing connection.", false));
-                        fclose($client);
-                        continue 2; // Continue to the next iteration of the main loop.
-                    }
-                    if ($this->verboselog) {
-                        $this->stdout(self::yellow_text("More data received from $ip after handshake. Too large headers: " . strlen($remaining) . ' bytes', false));
-                    }
+                $read = $this->sockets;
+                $write = $except = null;
+                $this->tick_core();
+                $this->tick();
+                if ($this->verboselog) {
+                    $this->stdout(self::blue_text("Waiting for messages on $this->addr:$this->port", false));
                 }
-                $this->handshake($client, $headers);
+                stream_select($read, $write, $except, seconds: null);
+                if (in_array($this->master, $read, true)) {
+                    $client = @stream_socket_accept($this->master, 20);
+                    if (!$client) {
+                        continue;
+                    }
+                    $ip = stream_socket_get_name( $client, true );
+                    $this->stdout(self::blue_text("Connection attempt from $ip", false));
                 
-                $foundsocket = array_search($this->master, $read, true);
-                unset($read[$foundsocket]);
+                    if ($this->handshake($client)) {
+                        // Show stats.
+                    $this->stdout(self::white_text("Total users: " . count($this->users), false));
+                    $this->stdout(self::white_text("Groups: " . count($this->sidgroups), false));
+                    $this->stdout(self::white_text("Held messages: " . count($this->heldmessages), false));
+                    } else {
+                        $this->stdout(self::red_text("Handshake failed for $ip", false));
+                        continue;
+                    }
+                    // Delete master socket from the read array to avoid processing messages bellow.
+                    // This is necessary to avoid processing the master socket as a client socket.
+                    $foundsocket = array_search($this->master, $read, true);
+                    unset($read[$foundsocket]);
 
-                $this->stdout(self::yellow_text("Handshake $ip", false));
-
-                if ($client < 0) {
-                    $this->stdout(self::red_text("Failed: socket_accept()", false));
-                    continue;
-                }
-
-                $this->connect($client, $ip);
-                $this->stdout(self::green_text("Client connected. $client", false));
-                // Show stats.
-                $this->stdout(self::white_text("Total users: " . count($this->users), false));
-                $this->stdout(self::white_text("Groups: " . count($this->sidgroups), false));
-                $this->stdout(self::white_text("Held messages: " . count($this->heldmessages), false));
-            }
-
-            foreach ($read as $socket) {
-                $ip = stream_socket_get_name( $socket, true );
-                // JPC limit messages length to avoid memory issues.
-                $buffer = stream_get_contents($socket, $this->maxbuffersize);
-                $blocksread = 0;
+                    if ($client < 0) {
+                        $this->stdout(self::red_text("Failed: socket_accept()", false));
+                        continue;
+                    }
                 
-                // 3IP review detect disconnect for min buffer lenght.
-                if ($buffer === false || strlen($buffer) <= 8) {
-                    if ($this->unmask($buffer) !== '') { // Necessary to stabilise connections, review.
-                        $this->disconnect($socket);
-                        $this->stdout(self::red_text( "Message too short. Client disconnected. TCP connection lost: " . $socket, false));
-                    }
                 }
-                // JPC Consume the rest of the data in the socket to avoid repeated reads and to mitigate DoS attacks.
-                while ($remaining = stream_get_contents($socket, $this->maxbuffersize)) {
-                    $blocksread++;
-                    if ($blocksread > 3) {
-                        // If we have read more than 3 blocks, then we assume that the message is artificially large.
-                        $this->disconnect($socket);
-                        $this->stdout(self::red_text("Too large message from $ip. Suspected attack. Closing connection.", false));
-                        continue 2; // Continue to the next iteration of the main loop.
-                    }
-                    if ($this->verboselog) {
-                        $this->stdout(self::red_text("More data received from $ip for the message. Possible attack: " . strlen($remaining) . ' bytes', false));
-                    }
-                }
-                $unmasked = $this->unmask($buffer);
-                if ($unmasked !== "") {
+
+                foreach ($read as $socket) {
+                    $ip = stream_socket_get_name( $socket, true );
                     $usersocket = $this->get_user_by_socket($socket);
-                    if ($usersocket !== null) {
-                        if (!$usersocket->handshake) {
-                            $tmp = str_replace("\r", '', $buffer);
-                            if (strpos($tmp, "\n\n") === false ) {
-                                // If the client has not finished sending the header, then wait before sending our upgrade response.
-                                continue;
-                            }
-                            $this->handshake($usersocket, $buffer);
-                        } else {
-                            $isjson = $this->check_json($unmasked);
-                            if ($this->verboselog) {
-                                $this->stdout(self::green_text("Message from " .
-                                     $usersocket->userid . " user. Content: " .
-                                     substr($unmasked, 0, 100) .
-                                     '...[' . strlen($unmasked) . ' bytes]', false));
-                            }
-                            // Only process the message if it is a valid userid and the message is valid JSON.
-                            if ($isjson === true) {
-                                $this->process($usersocket, $unmasked);
-                            } else {
-                                if ($unmasked == 'ping') {
-                                    $msg = json_encode([
-                                            'action' => 'connect',
-                                            'usersocketid' => $usersocket->userid ?? 'Unknown',
-                                        ], JSON_THROW_ON_ERROR);
-                                    $this->send_masked([$usersocket], $msg);
-                                } if ($unmasked == 'diag') { 
-                                    // Diagnostic message, send the current status of the server.
-                                    // Number of users connected, groups, held messages, memory usage, etc.
-                                    $memoryusageinmb = round(memory_get_usage() / 1024 / 1024, 2);
-                                    $msg = json_encode([
-                                            'action' => 'diag',
-                                            'usersocketid' => 'Unknown',
-                                            'sockets' => count($this->sockets),
-                                            'users' => count($this->users),
-                                            'groups' => count($this->sidgroups),
-                                            'heldmessages' => count($this->heldmessages),
-                                            'memoryusage' => $memoryusageinmb . ' MB',
-                                        ], JSON_THROW_ON_ERROR);    
-                                    $this->send_masked([$usersocket], $msg, false);
-                                } else {
-                                    $msg = json_encode([
-                                            'action' => 'error',
-                                            'user' => $usersocket->userid,
-                                            'message' => mb_convert_encoding('Invalid message received: ' . $unmasked, 'UTF-8', 'auto'),
-                                            'usersocketid' => $usersocket->userid ?? 'Unknown',
-                                        ], JSON_THROW_ON_ERROR);    
-                                    $this->send_masked([$usersocket], $msg);
-                                    // Disconnect the socket if the message is not valid.
-                                    $this->disconnect($socket, false, 'Invalid message received: ' . $unmasked);
-                                }
-                            }
+                    if ($usersocket === null) {
+                        $this->stdout(self::red_text("Unknown user for socket $socket", false));
+                        $this->disconnect($socket, true, "Unknown user for socket $socket");
+                        continue;
+                    }
+                    if (!$usersocket->handshake) {
+                        // If the user has not yet performed the handshake, then we read the headers from the socket.
+                        $this->handshake($usersocket->socket);
+                    }
+                    // JPC limit messages length to avoid memory issues.
+                    $buffer = stream_get_contents($socket, $this->maxbuffersize);
+                    // 3IP review detect disconnect for min buffer lenght.
+                    if ($buffer === false || strlen($buffer) <= 8) {
+                        $unmasked = $this->unmask($buffer);
+                        // If the unmasked data is 0x03e8 or 0xe9 then it is a disconnect message.
+                        if ($unmasked === "\x03\xe8" || $unmasked === "\x03\xe9") {
+                            $this->disconnect($socket, true, "Disconnect message received from $ip");
+                            continue;
+                        } else if ($unmasked !== '') { // Necessary to stabilise connections, review.
+                            $this->disconnect($socket);
+                            $this->stdout(self::red_text( "Message too short." . bin2hex($unmasked) . " disconnected. TCP connection lost: " . $socket, false));
+                            continue;
                         }
                     }
-                }
-            }
-        } catch (Exception|Error $e) {
-            $this->stdout(self::red_text("FATAL Error: " . $e->getMessage(), false));
-            // If it is the master socket then continue.
-            if (!is_resource($this->master)) {
-                continue;
-            }
-            // If the socket is not the master, then disconnect it.
-            $this->stdout(self::red_text("Disconnecting socket due to error: " . $e->getMessage(), false));
-            if (isset($socket) && is_resource($socket)) {
+                    $blocksread = 0;                
+                    // JPC Consume the rest of the data in the socket to avoid repeated reads and to mitigate DoS attacks.
+                    while ($remaining = stream_get_contents($socket, $this->maxbuffersize)) {
+                        $blocksread++;
+                        if ($blocksread > 3) {
+                            // If we have read more than 3 blocks, then we assume that the message is artificially large.
+                            $this->disconnect($socket);
+                            $this->stdout(self::red_text("Too large message from $ip. Suspected attack. Closing connection.", false));
+                            continue 2; // Continue to the next iteration of the main loop.
+                        }
+                        if ($this->verboselog) {
+                            $this->stdout(self::red_text("More data received from $ip for the message. Possible attack: " . strlen($remaining) . ' bytes', false));
+                        }
+                    }
+                    $unmasked = $this->unmask($buffer);
+                    if ($unmasked !== "") {
+                        $isjson = $this->check_json($unmasked);
+                        if ($this->verboselog) {
+                            $this->stdout(message: self::green_text("Message from " .
+                                    $usersocket->userid . " user. Content: " .
+                                    substr($unmasked, 0, 100) .
+                                    '...[' . strlen($unmasked) . ' bytes]', false));
+                        }
+                        // Only process the message if it is a valid userid and the message is valid JSON.
+                        if ($isjson === true) {
+                            $this->process($usersocket, $unmasked);
+                        } else {
+                            if ($unmasked == 'ping') {
+                                $msg = json_encode([
+                                        'action' => 'connect',
+                                        'usersocketid' => $usersocket->userid ?? 'Unknown',
+                                    ], JSON_THROW_ON_ERROR);
+                                $this->send_masked([$usersocket], $msg);
+                            } else if ($unmasked == 'diag') { 
+                                // Diagnostic message, send the current status of the server.
+                                // Number of users connected, groups, held messages, memory usage, etc.
+                                $memoryusageinmb = round(memory_get_usage() / 1024 / 1024, 2);
+                                $msg = json_encode([
+                                        'action' => 'diag',
+                                        'usersocketid' => 'Unknown',
+                                        'sockets' => count($this->sockets),
+                                        'users' => count($this->users),
+                                        'groups' => count($this->sidgroups),
+                                        'heldmessages' => count($this->heldmessages),
+                                        'memoryusage' => $memoryusageinmb . ' MB',
+                                    ], JSON_THROW_ON_ERROR);    
+                                $this->send_masked([$usersocket], $msg, false);
+                            } else {
+                                $msg = json_encode([
+                                        'action' => 'error',
+                                        'user' => $usersocket->userid,
+                                        'message' => mb_convert_encoding('Invalid message received: ' . $unmasked, 'UTF-8', 'auto'),
+                                        'usersocketid' => $usersocket->userid ?? 'Unknown',
+                                    ], JSON_THROW_ON_ERROR);    
+                                $this->send_masked([$usersocket], $msg);
+                                // Disconnect the socket if the message is not valid.
+                                $this->disconnect($socket, false, 'Invalid message received: ' . $unmasked);
+                            }
+                        } 
+                    }
+                } // End of foreach read sockets.
+            } catch (Exception|Error $e) {
+                $this->stdout(self::red_text("FATAL Error: " . $e->getMessage(), false));
+                // If the socket is not the master, then disconnect it.
+                $this->stdout(self::red_text("Disconnecting socket due to error: " . $e->getMessage(), false));
+               
                 $this->disconnect($socket, true, $e->getMessage());
-            }
-        } 
-    
-    }
-    }
+            } 
 
+        }
+    }
+    /**
+     * Read the socket stream line by line and return the GET line and the headers:
+     * Sec-Websocket-Key
+     * Connection
+     * Upgrade
+     * Host
+     * @param $clientsocket
+     * @return array(string)
+     */
+    protected function read_headers_from_socket($clientsocket) {
+        $headers = [];
+        // Set the socket to blocking mode.
+        stream_set_blocking($clientsocket, true);
+        $line = fgets($clientsocket, $this->maxbuffersize);
+        if ($line === false) {
+            throw new RuntimeException("Failed to read from socket.");
+        }
+        $headers['GET'] = $line;
+        // Read the headers until we find an empty line.
+        while (($line = fgets($clientsocket, $this->maxbuffersize)) !== false && trim($line) !== '') {
+            // Check if the line is a valid header of types: Sec-WebSocket-Key, Connection, Upgrade, Host
+            if (preg_match('/^(Sec-WebSocket-Key|Connection|Upgrade|Host): (.+)$/', $line, $matches)) {
+                $headers[$matches[1]] = trim($matches[2]);
+            }
+        }
+        // Set the socket to non-blocking mode.
+        stream_set_blocking($clientsocket, false);
+        return $headers;
+    }
     /**
      * Check validity of json string.
      * @param string $string
@@ -1318,34 +1342,42 @@ abstract class websockets {
                 $this->stdout(self::red_text($sockerrno, false));
             }
             if ($triggerclosed) {
-                $user = $disconnecteduser->id ?? 'unknown';
+                $user = $disconnecteduser->ip ?? 'unknown';
                 $this->stdout("\033[1;30m" . "Client $user disconnected. ".$disconnecteduser->socket . "\033[0m");
                 $this->closed($disconnecteduser);
-                stream_socket_shutdown($disconnecteduser->socket, STREAM_SHUT_RDWR);
+                if (is_resource($disconnecteduser->socket)) {
+                    stream_socket_shutdown($disconnecteduser->socket, STREAM_SHUT_RDWR);
+                }
             } else {
                 $this->send_masked([$disconnecteduser],'close');
             }
-            // Close the socket.
-            fclose($disconnecteduser->socket);
+        }
+        // Close the socket.
+        if (is_resource($socket)) {
+            fclose($socket);
         }
     }
 
     /**
      * Handshake process
      *
-     * @param $client
-     * @param $rcvd
-     * @return void
+     * @param $clientsocket
+     * @return boolean
      */
-    protected function handshake($client, $rcvd) {
-        $headers = [];
-        $lines = preg_split("/\r\n/", $rcvd);
-        foreach ($lines as $line) {
-            $line = rtrim($line);
-            if (preg_match('/\A(\S+): (.*)\z/', $line, $matches)) {
-                $headers[$matches[1]] = $matches[2];
-            }
+    protected function handshake($clientsocket) {
+        
+        // Read the socket keeping only first line and Sec-Websocket-Key header.
+        // This is necessary to avoid DoS attacks with large headers.
+        $headers = $this->read_headers_from_socket($clientsocket);
+        // Check if request is OK.
+        if (strpos($headers['GET'] ?? '', 'HTTP/1.1') === false && strpos($headers['GET'] ?? '', 'HTTP/1.0 101') === false) {
+            $this->stdout(self::red_text("Bad headers from $ip." .
+                            ($this->transport !== self::SECURE_TRANSPORT ? 'SSL disabled. Client is attempting WSS connection?' :
+                            'Headers: ' . $headers), false));
+            $this->disconnect($clientsocket);
+            return false;
         }
+        
         if (isset($headers['Sec-WebSocket-Key'])) {
             $seckey = $headers['Sec-WebSocket-Key'];
             $secaccept = base64_encode(pack('H*', sha1($seckey . '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')));
@@ -1357,8 +1389,16 @@ abstract class websockets {
                 "WebSocket-Location: wss://$this->addr:$this->port\r\n".
                 "Sec-WebSocket-Version: 13\r\n" .
                 "Sec-WebSocket-Accept:$secaccept\r\n\r\n";
-            fwrite($client, $upgrade);
-            $this->connected($client);
+            fwrite($clientsocket, $upgrade);
+            $this->connected($clientsocket);
+            $ip = stream_socket_get_name($clientsocket, true);
+            $this->connect($clientsocket, $ip);
+            $this->stdout(self::green_text("Client connected. $clientsocket from $ip", false));
+            return true;
+        } else {
+            $this->stdout(self::red_text("Handshake failed. No Sec-WebSocket-Key header found.", false));
+            $this->disconnect($clientsocket);
+            return false;
         }
     }
 
@@ -1443,7 +1483,10 @@ abstract class websockets {
             } elseif (is_resource($socket) && $user->socket === $socket) {
                 // If the socket is a resource, compare it directly.
                 return $user;
-            } 
+            } elseif ($user->socket === $socket) {
+                // If the socket is a closed resource, compare it directly.
+                return $user;
+            }
         }
         return null;
     }
@@ -1537,10 +1580,10 @@ abstract class websockets {
             $n = strlen($hexlength) - 2;
             
             for ($i = $n; $i >= 0; $i -= 2) {
-                $lengthfield = unimoodleservercli . phpchr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
+                $lengthfield = chr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
             }
             while (strlen($lengthfield) < 2) {
-                $lengthfield = unimoodleservercli . phpchr(0) . $lengthfield;
+                $lengthfield = chr(0) . $lengthfield;
             }
         } else {
             $b2 = 127;
@@ -1551,14 +1594,14 @@ abstract class websockets {
             $n = strlen($hexlength) - 2;
 
             for ($i = $n; $i >= 0; $i -= 2) {
-                $lengthfield = unimoodleservercli . chr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
+                $lengthfield = chr(hexdec(substr($hexlength, $i, 2))) . $lengthfield;
             }
             while (strlen($lengthfield) < 8) {
-                $lengthfield = unimoodleservercli . chr(0) . $lengthfield;
+                $lengthfield = chr(0) . $lengthfield;
             }
         }
 
-        return unimoodleservercli . chr($b1) . chr($b2) . $lengthfield . $message;
+        return chr($b1) . chr($b2) . $lengthfield . $message;
     }
 
     /**
