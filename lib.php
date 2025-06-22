@@ -242,18 +242,83 @@ function mod_kuet_get_completion_active_rule_descriptions($cm): array {
  * @param $server
  * @return void
  */
-function mod_kuet_run_server_background($server) {
+function mod_kuet_run_server_background() {
+    global $CFG;
+    $server = $CFG->dirroot . '/mod/kuet/unimoodleservercli.php';
+    // Check if server is already running.
+    // If the server is running, we do not need to start it again.
+    $pid = mod_kuet_get_server_pid();
+    if (!empty($pid)) {
+        // Server is already running, do not start it again.
+        return;
+    }
+
+    $certificateurl = '';
+    $privatekeyurl = '';
+    $port = get_config('kuet', 'localport');
+    // Get log file path in temporary directory.
+    $logfile = $CFG->tempdir . '/kuet/unimoodleserver.log';
+    // Get verbose mode.
+    $verboselog = get_config('kuet', 'verboselog') ? "-v" : "";
+
+    if (!file_exists($logfile)) {
+        // Create log file if it does not exist.
+        if (!file_exists($CFG->tempdir . '/kuet')) {
+            mkdir($CFG->tempdir . '/kuet', 0770, true);
+        }
+        touch($logfile);
+    }
+
+    // Prepare certificate and key files.
+    $syscontext = context_system::instance();
+    $fs = get_file_storage();
+    $certificatefiles = $fs->get_area_files($syscontext->id, 'kuet', 'certificate_ssl', 0, 'filename', false);
+    foreach ($certificatefiles as $file) {
+        if ($file->get_filename() !== '.') {
+            file_safe_save_content($file->get_content(), $CFG->localcachedir . '/kuet/' . $file->get_filename());
+            $certificateurl = $CFG->localcachedir . '/kuet/' . $file->get_filename();
+            break;
+        }
+    }
+    $privatekeyfiles = $fs->get_area_files($syscontext->id, 'kuet', 'privatekey_ssl', 0, 'filename', false);
+    foreach ($privatekeyfiles as $file) {
+        if ($file->get_filename() !== '.') {
+            file_safe_save_content($file->get_content(), $CFG->localcachedir . '/kuet/' . $file->get_filename());
+            $privatekeyurl = $CFG->localcachedir . '/kuet/' . $file->get_filename();
+            break;
+        }
+    }
     switch (strtolower(PHP_OS_FAMILY)) {
         case "windows":
-            pclose(popen("start /B php $server", "r"));
+            pclose(popen("start /B php $server $port $certificateurl $privatekeyurl $verboselog", "r"));
             break;
         case "linux":
-            exec("php $server > /dev/null &");
+            exec("php $server $port $certificateurl $privatekeyurl $verboselog > $logfile &");
             break;
         default:
             debugging("Unsupported OS" . strtolower(PHP_OS_FAMILY));
             break;
     }
+}
+
+/**
+ * Get server PID
+ */
+function mod_kuet_get_server_pid() {
+    global $CFG;
+    $server = $CFG->dirroot . '/mod/kuet/unimoodleservercli.php';
+    switch (strtolower(PHP_OS_FAMILY)) {
+        case "windows":
+            $pid = shell_exec("tasklist /FI \"IMAGENAME eq php.exe\" /FO CSV | findstr unimoodleservercli.php");
+            break;
+        case "linux":
+            $pid = shell_exec("ps aux | grep -i unimoodleservercli.php | grep -v grep | awk '{print $2}'");
+            break;
+        default:
+            debugging("Unsupported OS" . strtolower(PHP_OS_FAMILY));
+            return null;
+    }
+    return $pid;
 }
 
 /**
