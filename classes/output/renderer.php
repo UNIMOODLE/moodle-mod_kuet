@@ -44,6 +44,7 @@ use mod_kuet\output\views\student_reports;
 use mod_kuet\output\views\student_session_view;
 use mod_kuet\output\views\teacher_reports;
 use mod_kuet\output\views\teacher_session_view;
+use mod_kuet\output\views\test_report;
 use moodle_exception;
 use plugin_renderer_base;
 use mod_kuet\output\views\student_view;
@@ -181,5 +182,20 @@ class renderer extends plugin_renderer_base {
             $template = 'mod_kuet/reports/group_reports';
         }
         return $this->render_from_template($template, $data);
+    }
+
+    /**
+     * Test WebSocket server report renderer.
+     *
+     * @param test_report $view
+     * @return string
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function render_test_reports(test_report $view): string {
+        $data = $view->export_for_template($this);
+        return $this->render_from_template('mod_kuet/test_report', $data);
     }
 }

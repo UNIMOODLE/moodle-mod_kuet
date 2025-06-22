@@ -31,6 +31,7 @@
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use mod_kuet\output\views\test_report;
 require_once('../../config.php');
 require_once('lib.php');
 global $OUTPUT, $PAGE, $CFG;
@@ -38,6 +39,9 @@ global $OUTPUT, $PAGE, $CFG;
 $PAGE->set_url('/mod/kuet/testssl.php');
 require_login();
 $context = context_system::instance();
+// Require administrator to access this page.
+require_capability('moodle/site:config', $context);
+
 $PAGE->set_context($context);
 $PAGE->set_heading(get_string('testssl', 'mod_kuet'));
 $PAGE->set_title(get_string('testssl', 'mod_kuet'));
@@ -45,8 +49,26 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('testssl', 'mod_kuet'));
 
 if (get_config('kuet', 'sockettype') === 'local') {
-    $server = $CFG->dirroot . '/mod/kuet/classes/server.php';
-    mod_kuet_run_server_background($server);
+    $pid = mod_kuet_get_server_pid();
+    // Kills the server if action=stop.
+    if ($pid && optional_param('action', '', PARAM_ALPHA) === 'stop') {
+        if (mod_kuet_kill_server($pid) === true) {
+            \core\notification::success(get_string('serverstopped', 'mod_kuet', $pid));
+        }
+    } else if ($pid == false && optional_param('action', '', PARAM_ALPHA) !== 'stop') {
+        mod_kuet_run_server_background();
+        // Wait 2 seconds to let the server start.
+        sleep(2);
+        // Get new pid.
+        \core\notification::success(get_string('serverstarted', 'mod_kuet'));
+    }
+    $pid = mod_kuet_get_server_pid();
+    // Just show server status.
+    if ($pid) {
+        \core\notification::success(get_string('serverrunning', 'mod_kuet', $pid));
+    } else {
+        \core\notification::error(get_string('serveroffline', 'mod_kuet'));
+    }
 }
 
 echo html_writer::div('', '', ['id' => 'testresult']);
@@ -63,10 +85,16 @@ if ($typesocket === 'nosocket') {
     throw new moodle_exception('nosocket', 'mod_kuet', '',
         [], get_string('nosocket', 'mod_kuet'));
 }
-$PAGE->requires->js_amd_inline("require(['mod_kuet/testssl'], function(TestSockets) {
-    TestSockets.initTestSockets('[data-region=\"mainpage\"]', '" . $socketurl . "', '" . $port . "');
-});");
 
-echo $OUTPUT->footer();
+$view = new test_report($socketurl, $port);
+$output = $PAGE->get_renderer('mod_kuet');
+$viehtml = $output->render($view);
+$context = context_system::instance();
+$PAGE->set_context($context);
+$PAGE->set_heading(get_string('testssl', 'mod_kuet'));
+$PAGE->set_title(get_string('testssl', 'mod_kuet'));
+$PAGE->set_cacheable(false);
 
 
+echo $viehtml;
+echo $output->footer();

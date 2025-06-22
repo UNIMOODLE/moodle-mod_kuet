@@ -52,6 +52,25 @@ if ($ADMIN->fulltree) {
     );
     $page->add($setting);
 
+    // Setting description with server PID.
+    require_once($CFG->dirroot . '/mod/kuet/lib.php');
+    $pid = mod_kuet_get_server_pid();
+    // Get server ip.
+    $a = new stdClass();
+    $a->pid = $pid ?: 'OFFLINE';
+    $a->server = gethostname() . " (" . gethostbyname(gethostname()) . ")";
+    $setting = new admin_setting_description(
+        'kuet/serverpid',
+        get_string('serverpid', 'mod_kuet'),
+        html_writer::div(
+            get_string('serverpid_desc', 'mod_kuet', $a),
+            'alert alert-info',
+            ['role' => 'alert']
+        )
+    );
+    $settings->hide_if('kuet/serverpid', 'kuet/sockettype', 'neq', 'local');
+    $page->add($setting);
+
     $setting = new admin_setting_configtext_with_maxlength(
         'kuet/localport',
         get_string('port', 'mod_kuet'),
@@ -59,7 +78,7 @@ if ($ADMIN->fulltree) {
     $settings->hide_if('kuet/localport', 'kuet/sockettype', 'neq', 'local');
     $page->add($setting);
 
-    $setting = new admin_setting_configstoredfile (
+    $setting = new admin_setting_configstoredfile(
         'kuet/certificate',
         get_string('certificate', 'mod_kuet'),
         get_string('certificate_desc', 'mod_kuet'),
@@ -71,7 +90,7 @@ if ($ADMIN->fulltree) {
     $setting->set_updatedcallback('theme_reset_all_caches');
     $page->add($setting);
 
-    $setting = new admin_setting_configstoredfile (
+    $setting = new admin_setting_configstoredfile(
         'kuet/privatekey',
         get_string('privatekey', 'mod_kuet'),
         get_string('privatekey_desc', 'mod_kuet'),
@@ -83,10 +102,23 @@ if ($ADMIN->fulltree) {
     $setting->set_updatedcallback('theme_reset_all_caches');
     $page->add($setting);
 
+    // Use verbose logging for local socket.
+    $setting = new admin_setting_configcheckbox(
+        'kuet/verboselog',
+        get_string('verboselog', 'mod_kuet'),
+        get_string('verboselog_desc', 'mod_kuet'), 0
+    );
+    $settings->hide_if('kuet/verboselog', 'kuet/sockettype', 'neq', 'local');
+    $page->add($setting);
+
+
     $setting = new admin_setting_configtext(
         'kuet/externalurl',
         get_string('externalurl', 'mod_kuet'),
-        get_string('externalurl_desc', 'mod_kuet'), $CFG->wwwroot, PARAM_URL);
+        get_string('externalurl_desc', 'mod_kuet'),
+        $CFG->wwwroot,
+        PARAM_URL
+    );
     $settings->hide_if('kuet/externalurl', 'kuet/sockettype', 'neq', 'external');
     $page->add($setting);
 
@@ -106,7 +138,8 @@ if ($ADMIN->fulltree) {
         html_writer::div(
             get_string('downloadsocket_desc', 'mod_kuet'),
             'alert alert-info',
-            ['role' => 'alert']) .
+            ['role' => 'alert']
+        ) .
         html_writer::link(
             new moodle_url('/mod/kuet/unimoodleservercli.php'),
             html_writer::tag('b', get_string('scriptphp', 'mod_kuet')),
