@@ -1199,7 +1199,8 @@ abstract class websockets {
                         if ($unmasked === "\x03\xe8" || $unmasked === "\x03\xe9") {
                             $this->disconnect($socket, true, "Disconnect message received from $ip");
                             continue;
-                        } else if ($unmasked !== '') { // Necessary to stabilise connections, review.
+                        } else {
+                            // Empty frames are not allowed.
                             $this->disconnect($socket);
                             $this->stdout(self::red_text( "Message too short." . bin2hex($unmasked) . " disconnected. TCP connection lost: " . $socket, false));
                             continue;
