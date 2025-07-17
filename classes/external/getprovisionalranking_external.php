@@ -87,11 +87,12 @@ class getprovisionalranking_external extends external_api {
         $questions = new questions($session->get('kuetid'), $cmid, $sid);
         $provisionalrankings = sessions::get_provisional_ranking($sid, $cmid, $kid);
         foreach($provisionalrankings as $provisionalranking) {
+            $provisionalranking = (array) $provisionalranking;
             $provisionalranking['questionscore'] = (string)$provisionalranking['questionscore'];
             $provisionalranking['userpoints'] = (string)$provisionalranking['userpoints'];
         }
         return [
-            'provisionalranking' => sessions::get_provisional_ranking($sid, $cmid, $kid),
+            'provisionalranking' => $provisionalrankings,
             'kid' => $kid,
             'sessionid' => $sid,
             'cmid' => $cmid,
