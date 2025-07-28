@@ -420,20 +420,15 @@ class unimoodleservercli extends websockets {
         );
         // Group mode.
         $this->close_groupmember($user);
-        $response = $this->mask(
-            kuet_encrypt(
-                $this->password,
-                json_encode(
-                    [
-                        'action' => 'userdisconnected',
-                        'usersocketid' => $user->usersocketid,
-                        'message' =>
-                            '<span style="color: red">' . "User $user->dataname has been disconnected."  . '</span>',
-                        'count' => isset($this->students[$user->sid]) ? count($this->students[$user->sid]) : 0,
-                        ],
-                    JSON_THROW_ON_ERROR
-                )
-            )
+        $response = json_encode(
+            [
+            'action' => 'userdisconnected',
+            'usersocketid' => $user->usersocketid,
+            'message' =>
+                '<span style="color: red">' . "User $user->dataname has been disconnected."  . '</span>',
+            'count' => isset($this->students[$user->sid]) ? count($this->students[$user->sid]) : 0,
+            ],
+            JSON_THROW_ON_ERROR
         );
         if (isset($this->sidusers[$user->sid])) {
             $this->send_masked($this->sidusers[$user->sid], $response);
