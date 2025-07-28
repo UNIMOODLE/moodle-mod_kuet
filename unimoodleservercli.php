@@ -208,6 +208,7 @@ class unimoodleservercli extends websockets {
                                     ], JSON_THROW_ON_ERROR);
                                 $this->send_masked([$usersocket], $msg, false);
                             } else {
+                                // Unknown amd malformed JSON message.
                                 $msg = json_encode([
                                         'action' => 'error',
                                         'user' => $usersocket->userid,
@@ -216,12 +217,12 @@ class unimoodleservercli extends websockets {
                                     ], JSON_THROW_ON_ERROR);
                                 $this->send_masked([$usersocket], $msg);
                                 // Disconnect the socket if the message is not valid.
-                                $this->disconnect($socket, false, 'Invalid message received: ' . $unmasked);
+                                $this->disconnect($socket, true, 'Invalid message received: ' . $unmasked);
                             }
                         }
                     }
                 } // End of foreach read sockets.
-            } catch (Exception | Error $e) {
+            } catch (Exception | Error | TypeError $e) {
                 $this->stdout(self::red_text("FATAL Error: " . $e->getMessage(), false));
                 // If the socket is not the master, then disconnect it.
                 $this->stdout(self::red_text("Disconnecting socket due to error: " . $e->getMessage(), false));
@@ -1908,7 +1909,7 @@ function get_letter_from_alphabet_for_letter($letter, $lettertochange) {
     return $temp[$poslettertochange];
 }
 
-$server = new unimoodleservercli('0.0.0.0', 2048);
+$server = new unimoodleservercli(addr: '0.0.0.0', bufferlength: 8192);
 try {
     $server->run();
 } catch (Exception $e) {
