@@ -875,8 +875,12 @@ abstract class websockets {
     protected $usessl = false;
     /**
      * @var string network transport protocol
-     */
+    */
     protected $transport;
+    /**
+     * @var bool verboselog
+     */
+    protected $verboselog = false;
     /**
      * SSL transport protocol
      */
@@ -898,17 +902,13 @@ abstract class websockets {
         'white' => '37',
     ];
     /**
-     * @var bool verboselog
-     */
-    protected $verboselog = false;
-    /**
      * Constructor
      *
      * @param $addr
      * @param $bufferlength
      * @throws Exception
      */
-    public function __construct($addr, $bufferlength = 2048) {
+    public function __construct($addr, $bufferlength = 16000) {
         global $_SERVER;
 
         // Check minimal prerequisites for run this server.
@@ -923,24 +923,84 @@ abstract class websockets {
         // * Port number.
         // * Certificate file (optional).
         // * Private key file (optional).
+        // * Buffer length (optional).
         // * Verbose mode (optional).
+        // Parse command line arguments.
+        // unimoodleservercli.php port [-c certificatefile -p privatekeyfile] [-b bufferlength] [-v].
+        if (isset($_SERVER['argv'][1]) && is_numeric($_SERVER['argv'][1])) {
+            $port = $_SERVER['argv'][1];
+            unset($_SERVER['argv'][1]);
+            $_SERVER['argv'] = array_values($_SERVER['argv']);
+        }
+                // If the port is not set, then show the interactive form and execute the server.
+        if (!isset($port) || !is_numeric($port)) {
+            echo self::white_text('USAGE: unimoodleservercli.php port [-c certificatefile -p privatekeyfile -b bufferlength] [-v]', false) . PHP_EOL;
+            $this->executeform();
+            echo self::green_text(PHP_EOL .
+                'Socket is running in the background. You can see the process running in the process list of your server.');
+            die();
+        }
         $verbosepos = array_search('-v', $_SERVER['argv'], true);
         if ($verbosepos !== false) {
             $this->verboselog = true;
             unset($_SERVER['argv'][$verbosepos]);
             $_SERVER['argv'] = array_values($_SERVER['argv']);
         }
-
-        // The unimoodleservercli can run with or without ssl protocol. Be careful if you run without ssl.
-        if (isset($_SERVER['argv'][2]) && isset($_SERVER['argv'][3])) {
-            [$script, $port, $certificate, $privatekey] = $_SERVER['argv'];
+        $certificate = '';
+        $privatekey = '';
+        $bufferlength = 16000; // Default buffer length.
+        // Check if buffer length is set.
+        $bufferlengthpos = array_search('-b', $_SERVER['argv'], true);
+        if (
+            $bufferlengthpos !== false && isset($_SERVER['argv'][$bufferlengthpos + 1])
+            && is_numeric($_SERVER['argv'][$bufferlengthpos + 1])
+        ) {
+            $bufferlength = (int)$_SERVER['argv'][$bufferlengthpos + 1];
+            unset($_SERVER['argv'][$bufferlengthpos], $_SERVER['argv'][$bufferlengthpos + 1]);
+            $_SERVER['argv'] = array_values($_SERVER['argv']);
+        }
+        // Check if certificate file is set.
+        $certificatepos = array_search('-c', $_SERVER['argv'], true);
+        if (
+            $certificatepos !== false
+            && isset($_SERVER['argv'][$certificatepos + 1])
+            && is_file($_SERVER['argv'][$certificatepos + 1])
+        ) {
+            $certificate = $_SERVER['argv'][$certificatepos + 1];
+            unset($_SERVER['argv'][$certificatepos], $_SERVER['argv'][$certificatepos + 1]);
+            $_SERVER['argv'] = array_values($_SERVER['argv']);
+        }
+        // Check if private key file is set.
+        $privatekeypos = array_search('-p', $_SERVER['argv'], true);
+        if (
+            $privatekeypos !== false
+            && isset($_SERVER['argv'][$privatekeypos + 1])
+            && is_file($_SERVER['argv'][$privatekeypos + 1])
+        ) {
+            $privatekey = $_SERVER['argv'][$privatekeypos + 1];
+            unset($_SERVER['argv'][$privatekeypos], $_SERVER['argv'][$privatekeypos + 1]);
+            $_SERVER['argv'] = array_values($_SERVER['argv']);
+        }
+        // Need both or none of certificate and private key.
+        if (($certificate !== '' && $privatekey === '') || ($certificate === '' && $privatekey !== '')) {
+            echo self::red_text(
+                'You must set both certificate and private key files or none of them. ' .
+                'Use -c certificatefile and -p privatekeyfile options with valid accessible files.'
+            );
+            die();
+        }
+        // If the certificate and private key are set, then set ssl mode.
+        if (isset($certificate) && is_file($certificate)) {
             $usessl = true;
-        } else if (isset($_SERVER['argv'][1])) {
-            [$script, $port] = $_SERVER['argv'];
-        } else {
-            $this->executeform();
-            echo self::green_text(PHP_EOL .
-                'Socket is running in the background. You can see the process running in the process list of your server.');
+        }
+        // If there are arguments left, then they are unknown options.
+        if (count($_SERVER['argv']) > 1) {
+            echo self::red_text(
+                'Unknown options: ' . implode(' ', $_SERVER['argv']) . PHP_EOL .
+                'Use -c certificatefile and -p privatekeyfile options for SSL mode.' . PHP_EOL .
+                'Use -b bufferlength option to set buffer length.' . PHP_EOL .
+                'Use -v option to enable verbose mode.'
+            );
             die();
         }
 
@@ -1126,7 +1186,7 @@ abstract class websockets {
                             (pathinfo($privatekey)['extension'] === 'key' || pathinfo($privatekey)['extension'] === 'pem')
                         ) {
                             readline_add_history($privatekey);
-                            $reference = $port . ' ' . $certificate . ' ' . $privatekey;
+                            $reference = $port . ' -c ' . $certificate . ' -p ' . $privatekey;
                             switch (strtolower(PHP_OS_FAMILY)) {
                                 case "windows":
                                     pclose(popen("start /B php unimoodleservercli.php $reference", "r"));
