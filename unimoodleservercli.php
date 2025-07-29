@@ -1399,6 +1399,12 @@ abstract class websockets {
         if ($line === false) {
             throw new RuntimeException("Failed to read from socket.");
         }
+        // Check if the first line is a valid GET request.
+        if (strpos($line, 'GET') !== 0) {
+            $this->stdout(self::red_text("Invalid GET request: $line", false));
+            $this->disconnect($clientsocket);
+            return [];
+        }
         $headers['GET'] = $line;
         // Read the headers until we find an empty line.
         while (($line = fgets($clientsocket, $this->maxbuffersize)) !== false && trim($line) !== '') {
