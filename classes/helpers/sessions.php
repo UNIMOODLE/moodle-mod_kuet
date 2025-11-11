@@ -85,7 +85,7 @@ class sessions {
                 $ds->timemode = get_string('session_time', 'mod_kuet');
                 $ds->sessiontime = userdate($session->get('sessiontime'), '%Mm %Ss');
                 $ds->timeperquestion =
-                    $ds->questions_number !== 0 ? userdate(($session->get('sessiontime') / $ds->questions_number), '%ss') : 0;
+                    $ds->questions_number !== 0 ? userdate(round($session->get('sessiontime') / $ds->questions_number, 3), '%ss') : 0;
                 break;
             case sessionsmodel::QUESTION_TIME:
                 $ds->timemode = get_string('question_time', 'mod_kuet');
