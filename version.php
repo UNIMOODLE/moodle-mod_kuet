@@ -40,3 +40,5 @@ $plugin->component = 'mod_kuet';
 $plugin->cron = 0;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->release = 'v0.0.2';
+// Moodle 4.2 breaks class namespaces for external apis.
+$plugin->incompatible = 4.2;
