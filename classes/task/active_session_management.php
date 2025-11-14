@@ -47,7 +47,6 @@ use stdClass;
  * active session management task class
  */
 class active_session_management extends scheduled_task {
-
     /**
      * Get name
      *
@@ -76,9 +75,11 @@ class active_session_management extends scheduled_task {
                 'status' => sessions::SESSION_STARTED]);
             if ($sessionstarted !== false) {
                 $sessionstartedmode = $sessionstarted->get('sessionmode');
-                if ($sessionstartedmode === sessions::INACTIVE_MANUAL ||
+                if (
+                    $sessionstartedmode === sessions::INACTIVE_MANUAL ||
                     $sessionstartedmode === sessions::PODIUM_MANUAL ||
-                    $sessionstartedmode === sessions::RACE_MANUAL) {
+                    $sessionstartedmode === sessions::RACE_MANUAL
+                ) {
                     // A manual session is active, and will prevail over scheduled sessions until it ends in this kuet.
                     $a->sessionid = $sessionstarted->get('id');
                     $a->kuetid = $sessionstarted->get('kuetid');
@@ -92,10 +93,12 @@ class active_session_management extends scheduled_task {
                     continue;
                 }
                 if ($session->get('status') !== sessions::SESSION_FINISHED && $session->get('automaticstart') !== 0) {
-                    if ($sessionstarted === false &&
+                    if (
+                        $sessionstarted === false &&
                         $session->get('startdate') <= $date &&
                         $session->get('enddate') > $date &&
-                        $session->get('status') === sessions::SESSION_ACTIVE) {
+                        $session->get('status') === sessions::SESSION_ACTIVE
+                    ) {
                         // We start the session if it is in session.
                         (new kuet_sessions($session->get('id')))->set('status', sessions::SESSION_STARTED)->update();
                         $activated = true;
@@ -103,9 +106,11 @@ class active_session_management extends scheduled_task {
                         $a->kuetid = $session->get('kuetid');
                         mtrace(get_string('sessionactivated', 'mod_kuet', $a));
                     }
-                    if ($session->get('enddate') <= $date &&
+                    if (
+                        $session->get('enddate') <= $date &&
                         ($session->get('status') === sessions::SESSION_STARTED ||
-                            $session->get('status') === sessions::SESSION_ACTIVE)) {
+                            $session->get('status') === sessions::SESSION_ACTIVE)
+                    ) {
                         // We end the session if you have complied.
                         (new kuet_sessions($session->get('id')))->set('status', sessions::SESSION_FINISHED)->update();
                         (new kuet_sessions($session->get('id')))->set('enddate', time())->update();

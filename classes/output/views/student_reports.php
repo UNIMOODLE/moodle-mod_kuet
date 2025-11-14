@@ -42,16 +42,15 @@ use mod_kuet\helpers\reports;
 use mod_kuet\kuet;
 use moodle_exception;
 use moodle_url;
-use renderable;
-use renderer_base;
+use core\output\renderable;
+use core\output\renderer_base;
 use stdClass;
-use templatable;
+use core\output\templatable;
 
 /**
  *  Student reports renderable class
  */
 class student_reports implements renderable, templatable {
-
     /**
      * @var int kuet module
      */
@@ -99,8 +98,10 @@ class student_reports implements renderable, templatable {
             $data->endedsessions = $kuet->get_completed_sessions();
             $data->groupmode = false;
             foreach ($data->endedsessions as $endedsession) {
-                $endedsession->viewreporturl = (new moodle_url('/mod/kuet/reports.php',
-                    ['cmid' => $this->cmid, 'sid' => $endedsession->sessionid, 'userid' => $USER->id]))->out(false);
+                $endedsession->viewreporturl = (new moodle_url(
+                    '/mod/kuet/reports.php',
+                    ['cmid' => $this->cmid, 'sid' => $endedsession->sessionid, 'userid' => $USER->id]
+                ))->out(false);
                 $data->score = round(grade::get_session_grade($USER->id, $endedsession->sessionid, $this->kuetid), 2);
             }
         } else {

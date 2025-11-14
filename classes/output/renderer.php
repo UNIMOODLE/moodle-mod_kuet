@@ -32,6 +32,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_kuet\output;
+
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
@@ -46,7 +47,7 @@ use mod_kuet\output\views\teacher_reports;
 use mod_kuet\output\views\teacher_session_view;
 use mod_kuet\output\views\test_report;
 use moodle_exception;
-use plugin_renderer_base;
+use core\output\plugin_renderer_base;
 use mod_kuet\output\views\student_view;
 use mod_kuet\output\views\teacher_view;
 use ReflectionException;
@@ -56,7 +57,6 @@ use ReflectionException;
  *
  */
 class renderer extends plugin_renderer_base {
-
     /**
      * Student view renderer
      *

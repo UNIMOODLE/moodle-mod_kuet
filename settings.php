@@ -74,7 +74,12 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configtext_with_maxlength(
         'kuet/localport',
         get_string('port', 'mod_kuet'),
-        get_string('port_desc', 'mod_kuet'), '8080', PARAM_INT, 4, 4);
+        get_string('port_desc', 'mod_kuet'),
+        '8080',
+        PARAM_INT,
+        4,
+        4
+    );
     $settings->hide_if('kuet/localport', 'kuet/sockettype', 'neq', 'local');
     $page->add($setting);
 
@@ -106,7 +111,8 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configcheckbox(
         'kuet/verboselog',
         get_string('verboselog', 'mod_kuet'),
-        get_string('verboselog_desc', 'mod_kuet'), 0
+        get_string('verboselog_desc', 'mod_kuet'),
+        0
     );
     $settings->hide_if('kuet/verboselog', 'kuet/sockettype', 'neq', 'local');
     $page->add($setting);
@@ -125,7 +131,12 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configtext_with_maxlength(
         'kuet/externalport',
         get_string('port', 'mod_kuet'),
-        get_string('port_desc', 'mod_kuet'), '8080', PARAM_INT, 4, 4);
+        get_string('port_desc', 'mod_kuet'),
+        '8080',
+        PARAM_INT,
+        4,
+        4
+    );
     $settings->hide_if('kuet/externalport', 'kuet/sockettype', 'neq', 'external');
     $page->add($setting);
 
@@ -156,7 +167,8 @@ if ($ADMIN->fulltree) {
         html_writer::div(
             get_string('warningtest', 'mod_kuet'),
             'alert alert-danger',
-            ['role' => 'alert']) .
+            ['role' => 'alert']
+        ) .
         html_writer::link(
             new moodle_url('/mod/kuet/testssl.php'),
             get_string('testssl_desc', 'mod_kuet'),

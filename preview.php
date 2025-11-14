@@ -17,7 +17,7 @@
 // Project implemented by the "Recovery, Transformation and Resilience Plan.
 // Funded by the European Union - Next GenerationEU".
 //
-// Produced by the UNIMOODLE University Group: Universities of
+// Produced by the UNIMOODLE Uniersity Group: Universities of
 // Valladolid, Complutense de Madrid, UPV/EHU, León, Salamanca,
 // Illes Balears, Valencia, Rey Juan Carlos, La Laguna, Zaragoza, Málaga,
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
@@ -50,8 +50,13 @@ $cid = required_param('cid', PARAM_INT);    // Course ID. mdl_course.
 
 $kquestion = $DB->get_record('kuet_questions', ['id' => $kid], '*', MUST_EXIST);
 if (!in_array($kquestion->qtype, questions::TYPES, true)) {
-    throw new moodle_exception('incompatible_question', 'mod_kuet', '',
-        [], get_string('incompatible_question', 'mod_kuet'));
+    throw new moodle_exception(
+        'incompatible_question',
+        'mod_kuet',
+        '',
+        [],
+        get_string('incompatible_question', 'mod_kuet')
+    );
 }
 
 $question = $DB->get_record('question', ['id' => $kquestion->questionid], '*', MUST_EXIST);

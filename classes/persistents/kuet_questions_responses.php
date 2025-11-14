@@ -147,7 +147,13 @@ class kuet_questions_responses extends persistent {
      * @throws moodle_exception
      */
     public static function add_response(
-        int $kuet, int $session, int $kid, int $questionid, int $userid, int $result, string $response
+        int $kuet,
+        int $session,
+        int $kid,
+        int $questionid,
+        int $userid,
+        int $result,
+        string $response
     ): bool {
         $sessiondata = kuet_sessions::get_record(['id' => $session], MUST_EXIST);
         $record = self::get_record(['kuet' => $kuet, 'session' => $session, 'kid' => $kid, 'userid' => $userid]);

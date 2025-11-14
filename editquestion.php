@@ -87,4 +87,3 @@ echo $OUTPUT->header();
 echo $OUTPUT->heading(format_string($kuet->name));
 echo $mform->render();
 echo $OUTPUT->footer();
-

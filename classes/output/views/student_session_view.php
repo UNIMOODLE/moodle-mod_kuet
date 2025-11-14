@@ -60,7 +60,6 @@ use user_picture;
  * Student session view renderable class
  */
 class student_session_view implements renderable, templatable {
-
     /**
      * Export for template
      *
@@ -81,15 +80,22 @@ class student_session_view implements renderable, templatable {
         $PAGE->set_title(get_string('session', 'kuet') . ' ' . $session->get('name'));
         if ($session->get('status') !== sessionsmodel::SESSION_STARTED) {
             // 3IP session layaout not active or redirect to cmid view.
-            throw new moodle_exception('notactivesession', 'mod_kuet', '',
-                [], get_string('notactivesession', 'mod_kuet'));
+            throw new moodle_exception(
+                'notactivesession',
+                'mod_kuet',
+                '',
+                [],
+                get_string('notactivesession', 'mod_kuet')
+            );
         }
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
                 $progress = kuet_user_progress::get_session_progress_for_user(
-                    $USER->id, $session->get('id'), $session->get('kuetid')
+                    $USER->id,
+                    $session->get('id'),
+                    $session->get('kuetid')
                 );
                 if ($progress !== false) {
                     $progressdata = json_decode($progress->get('other'), false);
@@ -97,27 +103,36 @@ class student_session_view implements renderable, templatable {
                         // END SESSION, no more question.
                         $data = sessions::export_endsession(
                             $cmid,
-                            $sid);
+                            $sid
+                        );
                         $data->programmedmode = true;
                         break;
                     }
                     $question = kuet_questions::get_question_by_kid($progressdata->currentquestion);
                 } else {
                     progress::set_progress(
-                        $session->get('kuetid'), $session->get('id'), $USER->id, $cmid, 0
+                        $session->get('kuetid'),
+                        $session->get('id'),
+                        $USER->id,
+                        $cmid,
+                        0
                     );
                     $newprogress = kuet_user_progress::get_session_progress_for_user(
-                        $USER->id, $session->get('id'), $session->get('kuetid')
+                        $USER->id,
+                        $session->get('id'),
+                        $session->get('kuetid')
                     );
                     $newprogressdata = json_decode($newprogress->get('other'), false);
                     $question = kuet_questions::get_question_by_kid($newprogressdata->currentquestion);
                 }
                 /** @var questions $type */
                 $type = questions::get_question_class_by_string_type($question->get('qtype'));
-                $data = $type::export_question($question->get('id'),
+                $data = $type::export_question(
+                    $question->get('id'),
                     $cmid,
                     $sid,
-                    $question->get('kuetid'));
+                    $question->get('kuetid')
+                );
                 $response = kuet_questions_responses::get_record(
                     ['session' => $question->get('sessionid'), 'kid' => $question->get('id'), 'userid' => $USER->id]
                 );
@@ -189,8 +204,13 @@ class student_session_view implements renderable, templatable {
                 }
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
-                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
+                throw new moodle_exception(
+                    'incorrect_sessionmode',
+                    'mod_kuet',
+                    '',
+                    [],
+                    get_string('incorrect_sessionmode', 'mod_kuet')
+                );
         }
         return $data;
     }

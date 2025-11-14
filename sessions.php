@@ -55,8 +55,13 @@ require_capability('mod/kuet:managesessions', $coursecontext);
 $sid = optional_param('sid', 0, PARAM_INT);
 $activesession = kuet_sessions::get_active_session_id($kuet->id);
 if ($activesession !== 0 && $activesession === $sid) {
-    throw new moodle_exception('erroreditsessionactive', 'mod_kuet', (new moodle_url('/mod/kuet/view.php', ['id' => $id])),
-        [], get_string('erroreditsessionactive', 'mod_kuet'));
+    throw new moodle_exception(
+        'erroreditsessionactive',
+        'mod_kuet',
+        (new moodle_url('/mod/kuet/view.php', ['id' => $id])),
+        [],
+        get_string('erroreditsessionactive', 'mod_kuet')
+    );
 }
 $view = new sessions_view($kuet, $cm->id);
 $output = $PAGE->get_renderer('mod_kuet');

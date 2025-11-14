@@ -37,16 +37,15 @@ use coding_exception;
 use core\invalid_persistent_exception;
 use mod_kuet\models\sessions;
 use moodle_exception;
-use renderable;
+use core\output\renderable;
 use stdClass;
-use templatable;
-use renderer_base;
+use core\output\templatable;
+use core\output\renderer_base;
 
 /**
  * Sessions view renderable class
  */
 class sessions_view implements renderable, templatable {
-
     /**
      * @var stdClass kuet module
      */

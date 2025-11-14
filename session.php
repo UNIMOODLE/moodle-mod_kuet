@@ -13,7 +13,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 // Project implemented by the "Recovery, Transformation and Resilience Plan.
 // Funded by the European Union - Next GenerationEU".
 //
@@ -31,6 +30,7 @@
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 require_once('../../config.php');
 require_once('lib.php');
 
@@ -57,8 +57,13 @@ $PAGE->set_title(get_string('session', 'kuet')) . ' - ' . kuet_sessions::get_ses
 
 $activesession = kuet_sessions::get_active_session_id($kuet->id);
 if ($activesession !== 0 && $activesession !== $sid) {
-    throw new moodle_exception('multiplesessionerror', 'mod_kuet', '', [],
-        get_string('multiplesessionerror', 'mod_kuet'));
+    throw new moodle_exception(
+        'multiplesessionerror',
+        'mod_kuet',
+        '',
+        [],
+        get_string('multiplesessionerror', 'mod_kuet')
+    );
 }
 
 if ($isteacher) {

@@ -46,7 +46,6 @@ use renderer_base;
  * Student view renderable class
  */
 class student_view implements renderable, templatable {
-
     /**
      * @var int kuet module
      */

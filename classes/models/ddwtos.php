@@ -64,7 +64,6 @@ use mod_kuet\interfaces\questionType;
  * Drag and drop class
  */
 class ddwtos extends questions implements questionType {
-
     /**
      * Constructor
      *
@@ -97,8 +96,13 @@ class ddwtos extends questions implements questionType {
         $kuetquestion = kuet_questions::get_record(['id' => $kid]);
         $question = question_bank::load_question($kuetquestion->get('questionid'));
         if (!assert($question instanceof qtype_ddwtos_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                [], get_string('question_nosuitable', 'mod_kuet'));
+            throw new moodle_exception(
+                'question_nosuitable',
+                'mod_kuet',
+                '',
+                [],
+                get_string('question_nosuitable', 'mod_kuet')
+            );
         }
         $question->shufflechoices = 0;
         $type = $question->get_type_name();
@@ -145,12 +149,18 @@ class ddwtos extends questions implements questionType {
         );
         $question = question_bank::load_question($data->questionid);
         if (!assert($question instanceof qtype_ddwtos_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                [], get_string('question_nosuitable', 'mod_kuet'));
+            throw new moodle_exception(
+                'question_nosuitable',
+                'mod_kuet',
+                '',
+                [],
+                get_string('question_nosuitable', 'mod_kuet')
+            );
         }
         $question->shufflechoices = 0;
         $data->questiontext = self::get_question_text(
-            $data->cmid, $question,
+            $data->cmid,
+            $question,
             (array)json_decode($responsedata->response, false)
         );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
@@ -175,7 +185,7 @@ class ddwtos extends questions implements questionType {
      * @throws dml_exception
      * @throws dml_transaction_exception
      */
-    public static function get_question_text(int $cmid, qtype_ddwtos_question $question, array $response = []):string {
+    public static function get_question_text(int $cmid, qtype_ddwtos_question $question, array $response = []): string {
         $questiontext = '';
         $embeddedelements = [];
         $placeholders = self::get_fragments_glue_placeholders($question->textfragments);
@@ -191,8 +201,11 @@ class ddwtos extends questions implements questionType {
         $questiontext =
             self::get_text($cmid, $questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         foreach ($placeholders as $placeholder) {
-            $questiontext = preg_replace('/'. preg_quote($placeholder, '/') . '/',
-                $embeddedelements[$placeholder], $questiontext);
+            $questiontext = preg_replace(
+                '/' . preg_quote($placeholder, '/') . '/',
+                $embeddedelements[$placeholder],
+                $questiontext
+            );
         }
 
         $result = html_writer::tag('div', $questiontext, ['class' => 'qtext']);
@@ -240,8 +253,11 @@ class ddwtos extends questions implements questionType {
             if ($i > 0) {
                 $group = $question->places[$i];
                 $choice = $question->choices[$group][$question->rightchoices[$i]];
-                $correctanswer .= '[' . str_replace('-', '&#x2011;',
-                        $choice->text) . ']';
+                $correctanswer .= '[' . str_replace(
+                    '-',
+                    '&#x2011;',
+                    $choice->text
+                ) . ']';
             }
             $correctanswer .= $fragment;
         }
@@ -262,9 +278,12 @@ class ddwtos extends questions implements questionType {
      * @return string
      * @throws coding_exception
      */
-    private static function embedded_element(qtype_ddwtos_question $question,
-                                               int $place,
-                                               question_display_options $options, array $response = []): string {
+    private static function embedded_element(
+        qtype_ddwtos_question $question,
+        int $place,
+        question_display_options $options,
+        array $response = []
+    ): string {
         $group = $question->places[$place];
         if (!empty($response)) {
             $options->questionidentifier = $question->name;
@@ -337,14 +356,17 @@ class ddwtos extends questions implements questionType {
      * @param array $response
      * @return string
      */
-    private static function post_qtext_elements(qtype_ddwtos_question $question,
-                                                question_display_options $options,
-                                                array $response = []): string {
+    private static function post_qtext_elements(
+        qtype_ddwtos_question $question,
+        question_display_options $options,
+        array $response = []
+    ): string {
         $result = '';
         $dragboxs = '';
         foreach ($question->choices as $group => $choices) {
             $dragboxs .= self::drag_boxes(
-                $question->get_ordered_choices($group), $options);
+                $question->get_ordered_choices($group)
+            );
         }
         $classes = ['answercontainer'];
         if ($options->readonly || !empty($response)) {
@@ -419,8 +441,11 @@ class ddwtos extends questions implements questionType {
                     'class' => 'draghome user-select-none choice' . $key . ' group' .
                         $choice->draggroup . $infinite]) . ' ';
         }
-        return html_writer::nonempty_tag('div', $boxes,
-            ['class' => 'user-select-none draggrouphomes' . $choice->draggroup]);
+        return html_writer::nonempty_tag(
+            'div',
+            $boxes,
+            ['class' => 'user-select-none draggrouphomes' . $choice->draggroup]
+        );
     }
 
     /**
@@ -436,13 +461,20 @@ class ddwtos extends questions implements questionType {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_question_report(kuet_sessions     $session,
-                                               question_definition $questiondata,
-                                               stdClass            $data,
-                                               int                 $kid): stdClass {
+    public static function get_question_report(
+        kuet_sessions $session,
+        question_definition $questiondata,
+        stdClass $data,
+        int $kid
+    ): stdClass {
         if (!assert($questiondata instanceof qtype_ddwtos_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                [], get_string('question_nosuitable', 'mod_kuet'));
+            throw new moodle_exception(
+                'question_nosuitable',
+                'mod_kuet',
+                '',
+                [],
+                get_string('question_nosuitable', 'mod_kuet')
+            );
         }
         $data->questiontext = self::correct_response($questiondata, $data->cmid);
         $data->hasnoanswers = true;
@@ -467,13 +499,17 @@ class ddwtos extends questions implements questionType {
         kuet_questions_responses $response,
         array $answers,
         kuet_sessions $session,
-        kuet_questions $question): stdClass {
+        kuet_questions $question
+    ): stdClass {
 
         $participant->response = grade::get_result_mark_type($response);
         $participant->responsestr = get_string($participant->response, 'mod_kuet');
         $points = grade::get_simple_mark($response);
-        $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-            $session->get('kuetid'));
+        $spoints = grade::get_session_grade(
+            $participant->participantid,
+            $session->get('id'),
+            $session->get('kuetid')
+        );
         $participant->userpoints = grade::get_rounded_mark($spoints);
         if ($session->is_group_mode()) {
             $participant->grouppoints = grade::get_rounded_mark($spoints);
@@ -529,7 +565,13 @@ class ddwtos extends questions implements questionType {
                 parent::add_group_response($kuetid, $session, $kid, $questionid, $userid, $result, $response);
             } else {
                 kuet_questions_responses::add_response(
-                    $kuetid, $sessionid, $kid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $kuetid,
+                    $sessionid,
+                    $kid,
+                    $questionid,
+                    $userid,
+                    $result,
+                    json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
@@ -555,7 +597,12 @@ class ddwtos extends questions implements questionType {
         if (assert($question instanceof qtype_ddwtos_question)) {
             $question->shufflechoices = 0;
             questions::get_text(
-                $cm->id, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
+                $cm->id,
+                $question->generalfeedback,
+                $question->generalfeedbackformat,
+                $question->id,
+                $question,
+                'generalfeedback'
             );
             $json = json_decode(base64_decode($response->get('response')), false);
             $responsejson = json_decode($json->response, false);
@@ -578,7 +625,7 @@ class ddwtos extends questions implements questionType {
     public static function get_question_statistics(question_definition $question, array $responses): array {
         $statistics = [];
         $total = count($responses);
-        list($correct, $incorrect, $invalid, $partially, $noresponse) = grade::count_result_mark_types($responses);
+        [$correct, $incorrect, $invalid, $partially, $noresponse] = grade::count_result_mark_types($responses);
         $statistics[0]['correct'] = $correct !== 0 ? round($correct * 100 / $total, 2) : 0;
         $statistics[0]['failure'] = $incorrect !== 0 ? round($incorrect * 100 / $total, 2) : 0;
         $statistics[0]['partially'] = $partially !== 0 ? round($partially * 100 / $total, 2) : 0;

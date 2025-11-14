@@ -77,10 +77,16 @@ if ($isteacher) {
     if ((int)$userid !== 0 && (int)$userid !== (int)$USER->id) {
         redirect(
             (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid, 'userid' => $USER->id]))->out(false),
-            null, notification::NOTIFY_ERROR
+            null,
+            notification::NOTIFY_ERROR
         );
-        throw new moodle_exception('otheruserreport', 'mod_kuet', '',
-            [], get_string('otheruserreport', 'mod_kuet'));
+        throw new moodle_exception(
+            'otheruserreport',
+            'mod_kuet',
+            '',
+            [],
+            get_string('otheruserreport', 'mod_kuet')
+        );
     }
     $PAGE->add_body_classes(['kuet-reports', 'kuet-student-reports']);
     $view = new student_reports($cm->id, $kuet->get('id'), $sid);

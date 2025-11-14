@@ -163,7 +163,9 @@ class kuet_questions extends persistent {
             case sessions::PODIUM_PROGRAMMED:
             case sessions::RACE_PROGRAMMED:
                 $progress = kuet_user_progress::get_session_progress_for_user(
-                    $USER->id, $session->get('id'), $session->get('kuetid')
+                    $USER->id,
+                    $session->get('id'),
+                    $session->get('kuetid')
                 );
                 if ($progress !== false) {
                     $data = json_decode($progress->get('other'), false);
@@ -186,8 +188,13 @@ class kuet_questions extends persistent {
                 }
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
-                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
+                throw new moodle_exception(
+                    'incorrect_sessionmode',
+                    'mod_kuet',
+                    '',
+                    [],
+                    get_string('incorrect_sessionmode', 'mod_kuet')
+                );
         }
         return $nextquestion;
     }

@@ -54,10 +54,10 @@ use stdClass;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
-require_once($CFG->dirroot. '/question/type/truefalse/questiontype.php');
-require_once($CFG->dirroot. '/question/engine/lib.php');
-require_once($CFG->dirroot. '/question/engine/bank.php');
+require_once($CFG->dirroot . '/question/type/multichoice/questiontype.php');
+require_once($CFG->dirroot . '/question/type/truefalse/questiontype.php');
+require_once($CFG->dirroot . '/question/engine/lib.php');
+require_once($CFG->dirroot . '/question/engine/bank.php');
 
 /**
  * Question model class
@@ -260,7 +260,9 @@ class questions {
             case sessions::RACE_PROGRAMMED:
                 $data->programmedmode = true;
                 $progress = kuet_user_progress::get_session_progress_for_user(
-                    $USER->id, $session->get('id'), $session->get('kuetid')
+                    $USER->id,
+                    $session->get('id'),
+                    $session->get('kuetid')
                 );
                 if ($progress !== false) {
                     $dataprogress = json_decode($progress->get('other'), false);
@@ -297,8 +299,13 @@ class questions {
                 $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
-                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
+                throw new moodle_exception(
+                    'incorrect_sessionmode',
+                    'mod_kuet',
+                    '',
+                    [],
+                    get_string('incorrect_sessionmode', 'mod_kuet')
+                );
         }
         switch ($session->get('timemode')) {
             case sessions::NO_TIME:
@@ -344,8 +351,14 @@ class questions {
      * @throws Exception
      */
     public static function get_text(
-        int $cmid, string $text, int $textformat, int $id,
-        question_definition $question, string $filearea, int $variant = 0, bool $noattempt = false
+        int $cmid,
+        string $text,
+        int $textformat,
+        int $id,
+        question_definition $question,
+        string $filearea,
+        int $variant = 0,
+        bool $noattempt = false
     ): string {
         global $DB;
         $contextmodule = context_module::instance($cmid);
@@ -358,7 +371,9 @@ class questions {
             $quba = question_engine::load_questions_usage_by_activity($usage->id);
         } else {
             $quba = question_engine::make_questions_usage_by_activity(
-                'mod_kuet', context_module::instance($cmid));
+                'mod_kuet',
+                context_module::instance($cmid)
+            );
         }
         $quba->set_preferred_behaviour('immediatefeedback');
         $slot = $quba->add_question($question, $options->maxmark);
@@ -415,11 +430,18 @@ class questions {
      * @throws moodle_exception
      */
     protected static function add_group_response(
-        int $kuetid, kuet_sessions $session, int $kid, int $questionid, int $userid, int $result, stdClass $response
+        int $kuetid,
+        kuet_sessions $session,
+        int $kid,
+        int $questionid,
+        int $userid,
+        int $result,
+        stdClass $response
     ): void {
         // All groupmembers has the same response saved on db.
         $num = kuet_questions_responses::count_records(
-            ['kuet' => $kuetid, 'session' => $session->get('id'), 'kid' => $kid, 'userid' => $userid]);
+            ['kuet' => $kuetid, 'session' => $session->get('id'), 'kid' => $kid, 'userid' => $userid]
+        );
         if ($num > 0) {
             return;
         }
@@ -427,7 +449,13 @@ class questions {
         $gmemberids = groupmode::get_grouping_group_members_by_userid($session->get('groupings'), $userid);
         foreach ($gmemberids as $gmemberid) {
             kuet_questions_responses::add_response(
-                $kuetid, $session->get('id'), $kid, $questionid, $gmemberid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                $kuetid,
+                $session->get('id'),
+                $kid,
+                $questionid,
+                $gmemberid,
+                $result,
+                json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
     }
@@ -454,8 +482,13 @@ class questions {
         }
         $type = "mod_kuet\models\\$type";
         if (!class_exists($type)) {
-            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                [], get_string('question_nosuitable', 'mod_kuet'));
+            throw new moodle_exception(
+                'question_nosuitable',
+                'mod_kuet',
+                '',
+                [],
+                get_string('question_nosuitable', 'mod_kuet')
+            );
         }
         return $type;
     }

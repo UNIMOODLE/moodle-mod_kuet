@@ -52,7 +52,6 @@ require_once("$CFG->dirroot/group/lib.php");
  * Group mode class
  */
 class groupmode {
-
     /**
      * Get group image
      *
@@ -211,7 +210,7 @@ class groupmode {
      */
     public static function get_grouping_userids(int $groupingid): array {
         $groupmembers = groups_get_grouping_members($groupingid, 'u.id');
-        return array_map(static function($user) {
+        return array_map(static function ($user) {
             return $user->id;
         }, $groupmembers);
     }

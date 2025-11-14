@@ -51,16 +51,15 @@ use stdClass;
  * teacher model class
  */
 class teacher extends user {
-
     /**
      * Export
      *
      * @param int $cmid
-     * @return Object
+     * @return object
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function export(int $cmid): Object {
+    public function export(int $cmid): object {
         return $this->export_sessions($cmid);
     }
 
@@ -68,12 +67,12 @@ class teacher extends user {
      * Export session
      *
      * @param int $cmid
-     * @return Object|stdClass
+     * @return object|stdClass
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function export_sessions(int $cmid): Object {
+    public function export_sessions(int $cmid): object {
         $kuet = new kuet($cmid);
         $actives = [];
         $inactives = [];
@@ -111,7 +110,7 @@ class teacher extends user {
      * @return array
      */
     private function get_sessions_conflicts(array $sessions): array {
-        usort($sessions, static function($a, $b) {
+        usort($sessions, static function ($a, $b) {
             if (isset($a->startdate, $b->startdate)) {
                 return $a->startdate <=> $b->startdate;
             }

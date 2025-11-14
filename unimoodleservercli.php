@@ -875,7 +875,7 @@ abstract class websockets {
     protected $usessl = false;
     /**
      * @var string network transport protocol
-    */
+     */
     protected $transport;
     /**
      * @var bool verboselog

@@ -56,7 +56,7 @@ require_once($CFG->dirroot . '/lib/gradelib.php');
  * @return true|null True if module supports feature, false if not, null if doesn't know
  */
 function kuet_supports(string $feature): ?bool {
-    switch($feature) {
+    switch ($feature) {
         case FEATURE_GROUPINGS:
         case FEATURE_MOD_INTRO:
         case FEATURE_COMPLETION_HAS_RULES:
@@ -164,14 +164,16 @@ function kuet_delete_instance(int $id): bool {
     $DB->delete_records('kuet_sessions_grades', ['kuet' => $id]);
     $DB->delete_records('kuet_user_progress', ['kuet' => $id]);
 
-    grade_update('mod/kuet',
+    grade_update(
+        'mod/kuet',
         $kuet->course,
         'mod',
         'kuet',
         $id,
         0,
         null,
-        ['deleted' => 1]);
+        ['deleted' => 1]
+    );
     return true;
 }
 
@@ -180,7 +182,7 @@ function kuet_delete_instance(int $id): bool {
  *
  * @param stdClass $coursemodule The coursemodule object (record).
  * @return cached_cm_info|bool
- * @throws dml_exception
+ * @throws \dml_exception
  */
 function kuet_get_coursemodule_info(stdClass $coursemodule): ?cached_cm_info {
     global $DB;
@@ -188,7 +190,7 @@ function kuet_get_coursemodule_info(stdClass $coursemodule): ?cached_cm_info {
     $dbparams = ['id' => $coursemodule->instance];
     $fields = 'id, name, intro, introformat, completionanswerall';
     if (!$kuet = $DB->get_record('kuet', $dbparams, $fields)) {
-        return false;
+        return null;
     }
 
     $result = new cached_cm_info();
@@ -216,8 +218,10 @@ function kuet_get_coursemodule_info(stdClass $coursemodule): ?cached_cm_info {
  */
 function mod_kuet_get_completion_active_rule_descriptions($cm): array {
     // Values will be present in cm_info, and we assume these are up to date.
-    if (empty($cm->customdata['customcompletionrules'])
-        || (int)$cm->completion !== COMPLETION_TRACKING_AUTOMATIC) {
+    if (
+        empty($cm->customdata['customcompletionrules'])
+        || (int)$cm->completion !== COMPLETION_TRACKING_AUTOMATIC
+    ) {
         return [];
     }
 
@@ -226,7 +230,7 @@ function mod_kuet_get_completion_active_rule_descriptions($cm): array {
         switch ($key) {
             case 'completionanswerall':
                 if (!empty($val)) {
-                    $descriptions[] = get_string('completionanswerall', 'kuet');
+                    $descriptions[] = get_string('completionansweralldesc', 'kuet');
                 }
                 break;
             default:
@@ -401,9 +405,13 @@ function kuet_extend_settings_navigation(settings_navigation $settings, navigati
         return;
     }
     $url = new moodle_url('/mod/kuet/reports.php', ['cmid' => $settings->get_page()->cm->id]);
-    $node = navigation_node::create(get_string('reports', 'mod_kuet'),
+    $node = navigation_node::create(
+        get_string('reports', 'mod_kuet'),
         $url,
-        navigation_node::TYPE_SETTING, null, 'mmod_kuet_reports');
+        navigation_node::TYPE_SETTING,
+        null,
+        'mmod_kuet_reports'
+    );
     $navref->add_node($node);
 }
 
@@ -526,8 +534,17 @@ function kuet_pluginfile($course, $cm, $context, $filearea, $args, $forcedownloa
  * @throws coding_exception
  * @throws moodle_exception
  */
-function mod_kuet_question_pluginfile($course, $context, $component, $filearea, $qubaid, $slot,
-                                          $args, $forcedownload, $options = []) {
+function mod_kuet_question_pluginfile(
+    $course,
+    $context,
+    $component,
+    $filearea,
+    $qubaid,
+    $slot,
+    $args,
+    $forcedownload,
+    $options = []
+) {
     $fs = get_file_storage();
     $relative = implode('/', $args);
     $full = "/$context->id/$component/$filearea/$relative";
@@ -564,7 +581,7 @@ function mod_kuet_get_grading_options(): array {
  */
 function mod_kuet_grade_item_update(stdClass $data, $grades = null) {
     global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
+    require_once($CFG->libdir . '/gradelib.php');
 
     if (!isset($data->id)) {
         return null;
@@ -587,7 +604,6 @@ function mod_kuet_grade_item_update(stdClass $data, $grades = null) {
         $grades = null;
     }
     return grade_update('mod/kuet', $data->course, 'mod', 'kuet', $data->id, 0, $grades, $params);
-
 }
 
 /**
@@ -622,6 +638,12 @@ function generate_kuet_qrcode(string $url): string {
     }
     return '';
 }
+/**
+ * Get grades for an user in a kuet instance.
+ * @param int $kuetid
+ * @param int $userid
+ * @return float
+ */
 function mod_kuet_get_user_grades(int $kuetid, int $userid): float {
     $kuetgrade = new \mod_kuet\persistents\kuet_grades();
     $pgrade = $kuetgrade::get_record(['kuet' => $kuetid, 'userid' => $userid]);

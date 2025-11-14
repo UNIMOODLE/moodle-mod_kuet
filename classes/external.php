@@ -44,7 +44,6 @@ use core_external\util;
  * External API class
  */
 class mod_kuet_external extends external_api {
-
     /**
      * get_kuets_by_courses parameters provided check
      *
@@ -52,10 +51,13 @@ class mod_kuet_external extends external_api {
      * @since Moodle 3.3
      */
     public static function get_kuets_by_courses_parameters(): external_function_parameters {
-        return new external_function_parameters (
+        return new external_function_parameters(
             [
                 'courseids' => new external_multiple_structure(
-                    new external_value(PARAM_INT, 'Course id'), 'Array of course ids', VALUE_DEFAULT, []
+                    new external_value(PARAM_INT, 'Course id'),
+                    'Array of course ids',
+                    VALUE_DEFAULT,
+                    []
                 ),
             ]
         );

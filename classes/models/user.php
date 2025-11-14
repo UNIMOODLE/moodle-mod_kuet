@@ -40,7 +40,6 @@ use stdClass;
  * Kuet user model class
  */
 abstract class user {
-
     /** @var stdClass User */
     protected $user;
 

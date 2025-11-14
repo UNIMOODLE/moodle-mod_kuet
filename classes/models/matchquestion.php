@@ -61,7 +61,6 @@ use mod_kuet\interfaces\questionType;
  * Match question class
  */
 class matchquestion extends questions implements questionType {
-
     /**
      * Constructor
      *
@@ -92,8 +91,13 @@ class matchquestion extends questions implements questionType {
         $kuetquestion = kuet_questions::get_record(['id' => $kid]);
         $question = question_bank::load_question($kuetquestion->get('questionid'));
         if (!assert($question instanceof qtype_match_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                [], get_string('question_nosuitable', 'mod_kuet'));
+            throw new moodle_exception(
+                'question_nosuitable',
+                'mod_kuet',
+                '',
+                [],
+                get_string('question_nosuitable', 'mod_kuet')
+            );
         }
         $type = $question->get_type_name();
         $data = self::get_question_common_data($session, $cmid, $sessionid, $kuetid, $preview, $kuetquestion, $type);
@@ -186,15 +190,22 @@ class matchquestion extends questions implements questionType {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public static function get_question_report(kuet_sessions $session,
-                                               question_definition $questiondata,
-                                               stdClass $data,
-                                               int $kid): stdClass {
+    public static function get_question_report(
+        kuet_sessions $session,
+        question_definition $questiondata,
+        stdClass $data,
+        int $kid
+    ): stdClass {
         $answers = [];
         $correctanswers = [];
         if (!assert($questiondata instanceof qtype_match_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                [], get_string('question_nosuitable', 'mod_kuet'));
+            throw new moodle_exception(
+                'question_nosuitable',
+                'mod_kuet',
+                '',
+                [],
+                get_string('question_nosuitable', 'mod_kuet')
+            );
         }
         if (isset($questiondata->stems)) {
             foreach ($questiondata->stems as $key => $answer) {
@@ -225,12 +236,16 @@ class matchquestion extends questions implements questionType {
         kuet_questions_responses $response,
         array $answers,
         kuet_sessions $session,
-        kuet_questions $question): stdClass {
+        kuet_questions $question
+    ): stdClass {
         $participant->response = grade::get_result_mark_type($response);
         $participant->responsestr = get_string($participant->response, 'mod_kuet');
         $points = grade::get_simple_mark($response);
-        $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-            $session->get('kuetid'));
+        $spoints = grade::get_session_grade(
+            $participant->participantid,
+            $session->get('id'),
+            $session->get('kuetid')
+        );
         $participant->userpoints = grade::get_rounded_mark($spoints);
         if ($session->is_group_mode()) {
             $participant->grouppoints = grade::get_rounded_mark($spoints);
@@ -268,7 +283,7 @@ class matchquestion extends questions implements questionType {
         int $userid,
         int $timeleft,
         array $custom
-    ):void {
+    ): void {
 
         $jsonresponse = $custom['jsonresponse'];
         $result = $custom['result'];
@@ -287,7 +302,13 @@ class matchquestion extends questions implements questionType {
             } else {
                 // Individual.
                 kuet_questions_responses::add_response(
-                    $kuetid, $sessionid, $kid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $kuetid,
+                    $sessionid,
+                    $kid,
+                    $questionid,
+                    $userid,
+                    $result,
+                    json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
@@ -302,7 +323,7 @@ class matchquestion extends questions implements questionType {
      * @throws JsonException
      * @throws coding_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response): float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
         global $DB;
         $mark = 0;
         $question = question_bank::load_question($response->get('questionid'));

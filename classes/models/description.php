@@ -59,7 +59,6 @@ use mod_kuet\interfaces\questionType;
  * Description question model class
  */
 class description extends questions implements questionType {
-
     /**
      * Constructor
      *
@@ -92,8 +91,13 @@ class description extends questions implements questionType {
         $kuetquestion = kuet_questions::get_record(['id' => $kid]);
         $question = question_bank::load_question($kuetquestion->get('questionid'));
         if (!assert($question instanceof qtype_description_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                [], get_string('question_nosuitable', 'mod_kuet'));
+            throw new moodle_exception(
+                'question_nosuitable',
+                'mod_kuet',
+                '',
+                [],
+                get_string('question_nosuitable', 'mod_kuet')
+            );
         }
         $type = $question->get_type_name();
         $data = self::get_question_common_data($session, $cmid, $sessionid, $kuetid, $preview, $kuetquestion, $type);
@@ -157,13 +161,20 @@ class description extends questions implements questionType {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_question_report(kuet_sessions     $session,
-                                               question_definition $questiondata,
-                                               stdClass            $data,
-                                               int                 $kid): stdClass {
+    public static function get_question_report(
+        kuet_sessions $session,
+        question_definition $questiondata,
+        stdClass $data,
+        int $kid
+    ): stdClass {
         if (!assert($questiondata instanceof qtype_description_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                [], get_string('question_nosuitable', 'mod_kuet'));
+            throw new moodle_exception(
+                'question_nosuitable',
+                'mod_kuet',
+                '',
+                [],
+                get_string('question_nosuitable', 'mod_kuet')
+            );
         }
         return $data;
     }
@@ -185,7 +196,8 @@ class description extends questions implements questionType {
         kuet_questions_responses $response,
         array $answers,
         kuet_sessions $session,
-        kuet_questions $question): stdClass {
+        kuet_questions $question
+    ): stdClass {
         $participant->response = 'noevaluable';
         $participant->responsestr = get_string('noevaluable', 'mod_kuet');
         if ($session->is_group_mode()) {
@@ -242,7 +254,13 @@ class description extends questions implements questionType {
             } else {
                 // Individual.
                 kuet_questions_responses::add_response(
-                    $kuetid, $sessionid, $kid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $kuetid,
+                    $sessionid,
+                    $kid,
+                    $questionid,
+                    $userid,
+                    $result,
+                    json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
@@ -255,7 +273,7 @@ class description extends questions implements questionType {
      * @param kuet_questions_responses $response
      * @return float
      */
-    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response): float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
         return 0;
     }
 

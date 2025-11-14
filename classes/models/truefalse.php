@@ -59,13 +59,12 @@ use mod_kuet\interfaces\questionType;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
+require_once($CFG->dirroot . '/question/type/multichoice/questiontype.php');
 
 /**
  * True false question model class
  */
 class truefalse extends questions implements questionType {
-
     /**
      * Constructor
      *
@@ -140,7 +139,9 @@ class truefalse extends questions implements questionType {
             case sessions::RACE_PROGRAMMED:
                 $data->programmedmode = true;
                 $progress = kuet_user_progress::get_session_progress_for_user(
-                    $USER->id, $session->get('id'), $session->get('kuetid')
+                    $USER->id,
+                    $session->get('id'),
+                    $session->get('kuetid')
                 );
                 if ($progress !== false) {
                     $dataprogress = json_decode($progress->get('other'), false);
@@ -175,8 +176,13 @@ class truefalse extends questions implements questionType {
                 $data->sessionprogress = round($order * 100 / $numsessionquestions);
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
-                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
+                throw new moodle_exception(
+                    'incorrect_sessionmode',
+                    'mod_kuet',
+                    '',
+                    [],
+                    get_string('incorrect_sessionmode', 'mod_kuet')
+                );
         }
         $data->questiontext =
             self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
@@ -280,10 +286,12 @@ class truefalse extends questions implements questionType {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_question_report(kuet_sessions $session,
-                                               question_definition $questiondata,
-                                               stdClass $data,
-                                               int $kid): stdClass {
+    public static function get_question_report(
+        kuet_sessions $session,
+        question_definition $questiondata,
+        stdClass $data,
+        int $kid
+    ): stdClass {
         $answers = [];
         $correctanswers = [];
 
@@ -294,12 +302,16 @@ class truefalse extends questions implements questionType {
         $answers[$questiondata->trueanswerid]['result'] = $statustrue;
         $answers[$questiondata->trueanswerid]['resultstr'] = get_string($statustrue, 'mod_kuet');
 
-        $icon = new pix_icon('i/' . $statustrue,
-            get_string($statustrue, 'mod_kuet'), 'mod_kuet', [
+        $icon = new pix_icon(
+            'i/' . $statustrue,
+            get_string($statustrue, 'mod_kuet'),
+            'mod_kuet',
+            [
                 'class' => 'icon',
                 'title' => get_string($statustrue, 'mod_kuet'),
-            ]);
-        $usersicon = new pix_icon('i/'. $statustrue .'_users', '', 'mod_kuet', [
+            ]
+        );
+        $usersicon = new pix_icon('i/' . $statustrue . '_users', '', 'mod_kuet', [
             'class' => 'icon',
             'title' => '',
         ]);
@@ -314,12 +326,16 @@ class truefalse extends questions implements questionType {
         $answers[$questiondata->falseanswerid]['result'] = $statusfalse;
         $answers[$questiondata->falseanswerid]['resultstr'] = get_string($statusfalse, 'mod_kuet');
 
-        $icon = new pix_icon('i/' . $statusfalse,
-            get_string($statusfalse, 'mod_kuet'), 'mod_kuet', [
+        $icon = new pix_icon(
+            'i/' . $statusfalse,
+            get_string($statusfalse, 'mod_kuet'),
+            'mod_kuet',
+            [
                 'class' => 'icon',
                 'title' => get_string($statusfalse, 'mod_kuet'),
-            ]);
-        $usersicon = new pix_icon('i/'. $statusfalse .'_users', '', 'mod_kuet', [
+            ]
+        );
+        $usersicon = new pix_icon('i/' . $statusfalse . '_users', '', 'mod_kuet', [
             'class' => 'icon',
             'title' => '',
         ]);
@@ -376,7 +392,8 @@ class truefalse extends questions implements questionType {
         kuet_questions_responses $response,
         array $answers,
         kuet_sessions $session,
-        kuet_questions $question): stdClass {
+        kuet_questions $question
+    ): stdClass {
 
         $other = json_decode(base64_decode($response->get('response')), false);
         $arrayresponses = explode(',', $other->answerids);
@@ -392,8 +409,11 @@ class truefalse extends questions implements questionType {
                 $participant->answertext = '';
             }
             $points = grade::get_simple_mark($response);
-            $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-                $session->get('kuetid'));
+            $spoints = grade::get_session_grade(
+                $participant->participantid,
+                $session->get('id'),
+                $session->get('kuetid')
+            );
             if ($session->is_group_mode()) {
                 $participant->grouppoints = grade::get_rounded_mark($spoints);
             } else {
@@ -442,8 +462,20 @@ class truefalse extends questions implements questionType {
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
         if ($isteacher !== true) {
-            multichoice::manage_response($kid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $kuetid,
-                $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::TRUE_FALSE);
+            multichoice::manage_response(
+                $kid,
+                $answerids,
+                $answertexts,
+                $correctanswers,
+                $questionid,
+                $sessionid,
+                $kuetid,
+                $statmentfeedback,
+                $answerfeedback,
+                $userid,
+                $timeleft,
+                questions::TRUE_FALSE
+            );
         }
     }
 
@@ -456,7 +488,7 @@ class truefalse extends questions implements questionType {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response): float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);

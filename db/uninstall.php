@@ -45,13 +45,23 @@ function xmldb_kuet_uninstall(): bool {
         $fs = get_file_storage();
         if ($fs !== null && $syscontext !== null) {
             $certificatefiles = $fs->get_area_files(
-                $syscontext->id, 'kuet', 'certificate_ssl', 0, 'filename', false
+                $syscontext->id,
+                'kuet',
+                'certificate_ssl',
+                0,
+                'filename',
+                false
             );
             foreach ($certificatefiles as $file) {
                 $file->delete();
             }
             $privatekeyfiles = $fs->get_area_files(
-                $syscontext->id, 'kuet', 'privatekey_ssl', 0, 'filename', false
+                $syscontext->id,
+                'kuet',
+                'privatekey_ssl',
+                0,
+                'filename',
+                false
             );
             foreach ($privatekeyfiles as $file) {
                 $file->delete();
@@ -64,8 +74,6 @@ function xmldb_kuet_uninstall(): bool {
         $dbman->drop_table($kuetgrades);
         $kuetquestions = new xmldb_table('kuet_questions');
         $dbman->drop_table($kuetquestions);
-        $questionsresponses = new xmldb_table('questions_responses');
-        $dbman->drop_table($questionsresponses);
         $kuetsessions = new xmldb_table('kuet_sessions');
         $dbman->drop_table($kuetsessions);
         $kuetsessionsgrades = new xmldb_table('kuet_sessions_grades');

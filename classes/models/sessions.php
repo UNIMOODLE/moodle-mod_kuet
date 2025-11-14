@@ -68,7 +68,6 @@ require_once($CFG->dirroot . '/question/editlib.php');
  * Sessions model class
  */
 class sessions {
-
     /** @var stdClass $kuet */
     protected stdClass $kuet;
 
@@ -192,12 +191,12 @@ class sessions {
     /**
      * Export form
      *
-     * @return Object
+     * @return object
      * @throws moodle_exception
      * @throws coding_exception
      * @throws invalid_persistent_exception
      */
-    public function export_form(): Object {
+    public function export_form(): object {
         $sid = optional_param('sid', 0, PARAM_INT);    // Session id.
         $anonymousanswerchoices = [
             self::ANONYMOUS_ANSWERS_NO => get_string('noanonymiseresponses', 'mod_kuet'),
@@ -259,7 +258,7 @@ class sessions {
             redirect($url);
         } else if ($fromform = $mform->get_data()) {
             $sid = self::save_session($fromform);
-            $url = new moodle_url('/mod/kuet/sessions.php', ['cmid' => $this->cmid, 'sid' => $sid,  'page' => 2]);
+            $url = new moodle_url('/mod/kuet/sessions.php', ['cmid' => $this->cmid, 'sid' => $sid, 'page' => 2]);
             redirect($url);
         }
         if ($sid) {
@@ -307,12 +306,12 @@ class sessions {
     /**
      * Export session questions
      *
-     * @return Object
+     * @return object
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function export_session_questions(): Object {
+    public function export_session_questions(): object {
         global $DB;
         $data = new stdClass();
         $data->ispage2 = true;
@@ -364,7 +363,8 @@ class sessions {
         $categoriesofcontext = helper::get_categories_for_contexts($contextslist, 'parent, sortorder, name ASC', true);
         [$realcategory, $contextcategory] = explode(',', $category);
         foreach ($categoriesofcontext as $categoryobject) {
-            if ((int)$realcategory === (int)$categoryobject->id ||
+            if (
+                (int)$realcategory === (int)$categoryobject->id ||
                 ($categoryobject->parent === $realcategory && $categoryobject->contextid === $contextcategory)
             ) {
                 $categories[] = $categoryobject->id . ',' . $categoryobject->contextid;
@@ -443,8 +443,14 @@ class sessions {
         $context = context_module::instance($this->cmid);
         $contexts = $context->get_parent_contexts();
         $contexts[$context->id] = $context;
-        $categoriesarray = helper::question_category_options($contexts, true, 0,
-            false, -1, false);
+        $categoriesarray = helper::question_category_options(
+            $contexts,
+            true,
+            0,
+            false,
+            -1,
+            false
+        );
         $currentcategory = [];
         foreach ($categoriesarray as $sistemcategory) {
             foreach ($sistemcategory as $key => $category) {
@@ -453,19 +459,25 @@ class sessions {
             }
             break;
         }
-        return [$currentcategory, helper::question_category_select_menu($contexts, true, 0,
-            true, -1, true)];
+        return [$currentcategory, helper::question_category_select_menu(
+            $contexts,
+            true,
+            0,
+            true,
+            -1,
+            true
+        )];
     }
 
     /**
      * Expor session resume
      *
-     * @return Object
+     * @return object
      * @throws coding_exception
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function export_session_resume(): Object {
+    public function export_session_resume(): object {
         $data = new stdClass();
         $data->ispage3 = true;
         $data->sid = required_param('sid', PARAM_INT);
@@ -599,8 +611,10 @@ class sessions {
                 if ($numquestion !== 0) {
                     $timeperquestion = round((int)$sessiondata->get('sessiontime') / $numquestion);
                     $timemodestring = get_string(
-                            'session_time_resume', 'mod_kuet', userdate($sessiondata->get('sessiontime'), '%Mm %Ss')
-                        ) . '<br>' .
+                        'session_time_resume',
+                        'mod_kuet',
+                        userdate($sessiondata->get('sessiontime'), '%Mm %Ss')
+                    ) . '<br>' .
                         get_string('question_time', 'mod_kuet') . ': ' .
                         $timeperquestion . 's';
                 }
@@ -639,8 +653,10 @@ class sessions {
         $students = [];
         $context = context_module::instance($cmid);
         foreach ($users as $user) {
-            if (!has_capability('mod/kuet:startsession', $context, $user) &&
-                info_module::is_user_visible($cm, $user->id, false)) {
+            if (
+                !has_capability('mod/kuet:startsession', $context, $user) &&
+                info_module::is_user_visible($cm, $user->id, false)
+            ) {
                 $correctanswers = kuet_questions_responses::count_records(['kuet' => $session->get('kuetid'),
                     'session' => $sid, 'userid' => $user->id, 'result' => questions::SUCCESS]);
                 $incorrectanswers = kuet_questions_responses::count_records(['kuet' => $session->get('kuetid'),
@@ -711,10 +727,10 @@ class sessions {
                 $sessiongroup->id = $group->id;
                 $sessiongroup->groupname = $group->name;
                 $sessiongroup->groupimageurl = groupmode::get_group_image($group, $sid);
-                if ($session->get('anonymousanswer')) {
-                    $sessiongroup->groupname = '**********';
-                    $sessiongroup->groupimageurl = '';
-                }
+            if ($session->get('anonymousanswer')) {
+                $sessiongroup->groupname = '**********';
+                $sessiongroup->groupimageurl = '';
+            }
                 $sessiongroup->correctanswers = $correctanswers;
                 $sessiongroup->incorrectanswers = $incorrectanswers;
                 $sessiongroup->partially = $partially;
@@ -848,12 +864,12 @@ class sessions {
     /**
      * Export object
      *
-     * @return Object
+     * @return object
      * @throws coding_exception
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public function export(): Object {
+    public function export(): object {
         $page = optional_param('page', 1, PARAM_INT);
         switch ($page) {
             case 1:
@@ -966,16 +982,22 @@ class sessions {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_provisional_ranking_individual(kuet_sessions $session, int $cmid, int $kid,
-                                                              context_module $context): array {
+    public static function get_provisional_ranking_individual(
+        kuet_sessions $session,
+        int $cmid,
+        int $kid,
+        context_module $context
+    ): array {
         global $PAGE;
         [$course, $cm] = get_course_and_cm_from_cmid($cmid);
         $users = enrol_get_course_users($course->id, true);
         $students = [];
         $sid = $session->get('id');
         foreach ($users as $user) {
-            if (!has_capability('mod/kuet:startsession', $context, $user) &&
-                info_module::is_user_visible($cm, $user->id, false)) {
+            if (
+                !has_capability('mod/kuet:startsession', $context, $user) &&
+                info_module::is_user_visible($cm, $user->id, false)
+            ) {
                 $userpicture = new user_picture($user);
                 $userpicture->size = 1;
                 $student = new stdClass();
@@ -1081,14 +1103,20 @@ class sessions {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    private static function get_final_individual_ranking(kuet_sessions $session, cm_info $cm, int $courseid,
-                                                         context_module $context): array {
+    private static function get_final_individual_ranking(
+        kuet_sessions $session,
+        cm_info $cm,
+        int $courseid,
+        context_module $context
+    ): array {
         global $PAGE;
         $users = enrol_get_course_users($courseid, true);
         $students = [];
         foreach ($users as $user) {
-            if (!has_capability('mod/kuet:startsession', $context, $user) &&
-                info_module::is_user_visible($cm, $user->id, false)) {
+            if (
+                !has_capability('mod/kuet:startsession', $context, $user) &&
+                info_module::is_user_visible($cm, $user->id, false)
+            ) {
                 $userpicture = new user_picture($user);
                 $userpicture->size = 200;
                 $student = new stdClass();
@@ -1195,8 +1223,13 @@ class sessions {
                 }
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
-                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
+                throw new moodle_exception(
+                    'incorrect_sessionmode',
+                    'mod_kuet',
+                    '',
+                    [],
+                    get_string('incorrect_sessionmode', 'mod_kuet')
+                );
         }
         return $data;
     }
@@ -1232,14 +1265,17 @@ class sessions {
      * @throws invalid_persistent_exception
      * @throws moodle_exception
      */
-    public static function set_session_status_error(kuet_sessions  $sessions, string $errorcode) {
+    public static function set_session_status_error(kuet_sessions $sessions, string $errorcode) {
         // Change status.
         sessionstatus_external::sessionstatus($sessions->get('id'), self::SESSION_ERROR);
         // Remove all the answers of this session.
         $kquestions = kuet_questions::get_records(['sessionid' => $sessions->get('id')]);
         foreach ($kquestions as $kquestion) {
-            kuet_questions_responses::delete_question_responses($sessions->get('kuetid'), $sessions->get('id'),
-                $kquestion->get('id'));
+            kuet_questions_responses::delete_question_responses(
+                $sessions->get('kuetid'),
+                $sessions->get('id'),
+                $kquestion->get('id')
+            );
         }
         kuet_user_progress::delete_session_user_progress($sessions->get('id'));
         $kuetinfo = get_course_and_cm_from_instance($sessions->get('kuetid'), 'kuet');

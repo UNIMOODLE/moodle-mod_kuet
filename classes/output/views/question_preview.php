@@ -42,16 +42,15 @@ use mod_kuet\models\questions;
 use mod_kuet\persistents\kuet_questions;
 use moodle_exception;
 use ReflectionException;
-use renderable;
+use core\output\renderable;
 use stdClass;
-use templatable;
-use renderer_base;
+use core\output\templatable;
+use core\output\renderer_base;
 
 /**
  * Question preview renderable class
  */
 class question_preview implements renderable, templatable {
-
     /**
      * @var int question id
      */
@@ -110,6 +109,7 @@ class question_preview implements renderable, templatable {
             $question->get('id'),
             $this->cmid,
             $this->sessionid,
-            $this->kuetid);
+            $this->kuetid
+        );
     }
 }

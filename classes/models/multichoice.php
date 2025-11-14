@@ -59,13 +59,12 @@ use mod_kuet\interfaces\questionType;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
 
-require_once($CFG->dirroot. '/question/type/multichoice/questiontype.php');
+require_once($CFG->dirroot . '/question/type/multichoice/questiontype.php');
 
 /**
  * Multichoice question model class
  */
 class multichoice extends questions implements questionType {
-
     /**
      * Constructor
      *
@@ -191,10 +190,12 @@ class multichoice extends questions implements questionType {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_question_report(kuet_sessions $session,
-                                               question_definition $questiondata,
-                                               stdClass $data,
-                                               int $kid): stdClass {
+    public static function get_question_report(
+        kuet_sessions $session,
+        question_definition $questiondata,
+        stdClass $data,
+        int $kid
+    ): stdClass {
         $answers = [];
         $correctanswers = [];
         foreach ($questiondata->answers as $key => $answer) {
@@ -285,7 +286,8 @@ class multichoice extends questions implements questionType {
         kuet_questions_responses $response,
         array $answers,
         kuet_sessions $session,
-        kuet_questions $question): stdClass {
+        kuet_questions $question
+    ): stdClass {
         $other = json_decode(base64_decode($response->get('response')), false);
         $arrayresponses = explode(',', $other->answerids);
         if (count($arrayresponses) === 1) {
@@ -300,8 +302,11 @@ class multichoice extends questions implements questionType {
                     $participant->answertext = '';
                 }
                 $points = grade::get_simple_mark($response);
-                $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-                    $session->get('kuetid'));
+                $spoints = grade::get_session_grade(
+                    $participant->participantid,
+                    $session->get('id'),
+                    $session->get('kuetid')
+                );
                 if ($session->is_group_mode()) {
                     $participant->grouppoints = grade::get_rounded_mark($spoints);
                 } else {
@@ -373,8 +378,20 @@ class multichoice extends questions implements questionType {
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
         if ($isteacher !== true) {
-            self::manage_response($kid, $answerids, $answertexts, $correctanswers, $questionid, $sessionid, $kuetid,
-                $statmentfeedback, $answerfeedback, $userid, $timeleft, questions::MULTICHOICE);
+            self::manage_response(
+                $kid,
+                $answerids,
+                $answertexts,
+                $correctanswers,
+                $questionid,
+                $sessionid,
+                $kuetid,
+                $statmentfeedback,
+                $answerfeedback,
+                $userid,
+                $timeleft,
+                questions::MULTICHOICE
+            );
         }
     }
 
@@ -427,7 +444,13 @@ class multichoice extends questions implements questionType {
         } else {
             // Individual.
             kuet_questions_responses::add_response(
-                $kuetid, $sessionid, $kid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                $kuetid,
+                $sessionid,
+                $kid,
+                $questionid,
+                $userid,
+                $result,
+                json_encode($response, JSON_THROW_ON_ERROR)
             );
         }
     }
@@ -467,7 +490,7 @@ class multichoice extends questions implements questionType {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response): float {
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
         global $DB;
         $mark = 0;
         $defaultmark = $DB->get_field('question', 'defaultmark', ['id' => $response->get('questionid')]);

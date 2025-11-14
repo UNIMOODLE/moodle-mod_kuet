@@ -62,5 +62,4 @@ class kuet_grades extends persistent {
             ],
         ];
     }
-
 }

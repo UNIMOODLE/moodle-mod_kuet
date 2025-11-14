@@ -48,14 +48,16 @@ $PAGE->set_title(get_string('testssl', 'mod_kuet'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('testssl', 'mod_kuet'));
 
+$action = optional_param('action', '', PARAM_ALPHA);
+
 if (get_config('kuet', 'sockettype') === 'local') {
     $pid = mod_kuet_get_server_pid();
     // Kills the server if action=stop.
-    if ($pid && optional_param('action', '', PARAM_ALPHA) === 'stop') {
+    if ($pid && $action === 'stop') {
         if (mod_kuet_kill_server($pid) === true) {
             \core\notification::success(get_string('serverstopped', 'mod_kuet', $pid));
         }
-    } else if ($pid == false && optional_param('action', '', PARAM_ALPHA) !== 'stop') {
+    } else if ($pid == false && $action === 'start') {
         mod_kuet_run_server_background();
         // Wait 2 seconds to let the server start.
         sleep(2);
@@ -82,8 +84,13 @@ if ($typesocket === 'external') {
     $port = get_config('kuet', 'externalport') !== false ? get_config('kuet', 'externalport') : '8080';
 }
 if ($typesocket === 'nosocket') {
-    throw new moodle_exception('nosocket', 'mod_kuet', '',
-        [], get_string('nosocket', 'mod_kuet'));
+    throw new moodle_exception(
+        'nosocket',
+        'mod_kuet',
+        '',
+        [],
+        get_string('nosocket', 'mod_kuet')
+    );
 }
 
 $view = new test_report($socketurl, $port);

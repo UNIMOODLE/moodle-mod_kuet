@@ -66,7 +66,6 @@ use mod_kuet\interfaces\questionType;
  * Calculated class question
  */
 class calculated extends questions implements questionType {
-
     /**
      * Constructor
      *
@@ -100,16 +99,29 @@ class calculated extends questions implements questionType {
         $kuetquestion = kuet_questions::get_record(['id' => $kid]);
         $question = question_bank::load_question($kuetquestion->get('questionid'));
         if (!assert($question instanceof qtype_calculated_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                [], get_string('question_nosuitable', 'mod_kuet'));
+            throw new moodle_exception(
+                'question_nosuitable',
+                'mod_kuet',
+                '',
+                [],
+                get_string('question_nosuitable', 'mod_kuet')
+            );
         }
         $type = $question->get_type_name();
         $data = self::get_question_common_data($session, $cmid, $sessionid, $kuetid, $preview, $kuetquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
         self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
-        $data->questiontext = self::get_text($cmid, $question->questiontext, $question->questiontextformat,
-            $question->id, $question, 'questiontext', $question->variant, true);
+        $data->questiontext = self::get_text(
+            $cmid,
+            $question->questiontext,
+            $question->questiontextformat,
+            $question->id,
+            $question,
+            'questiontext',
+            $question->variant,
+            true
+        );
         $data->questiontextformat = $question->questiontextformat;
         $data->name = $question->name;
         $data->unitsleft = isset($question->unitdisplay) && $question->unitdisplay === 1;
@@ -198,10 +210,25 @@ class calculated extends questions implements questionType {
         );
         $kuetquestion = kuet_questions::get_record(['id' => $data->kid]);
         $question = question_bank::load_question($kuetquestion->get('questionid'));
-        self::get_text($data->cmid, $question->questiontext, $question->questiontextformat, $question->id, $question,
-            'questiontext', $responsedata->variant);
-        $data->questiontext = self::get_text($data->cmid, $question->questiontext, $question->questiontextformat,
-            $question->id, $question, 'questiontext', $responsedata->variant, true);
+        self::get_text(
+            $data->cmid,
+            $question->questiontext,
+            $question->questiontextformat,
+            $question->id,
+            $question,
+            'questiontext',
+            $responsedata->variant
+        );
+        $data->questiontext = self::get_text(
+            $data->cmid,
+            $question->questiontext,
+            $question->questiontextformat,
+            $question->id,
+            $question,
+            'questiontext',
+            $responsedata->variant,
+            true
+        );
         $data->hasfeedbacks = $dataanswer['hasfeedbacks'];
         $data->calculatedresponse = $responsedata->response;
         $data->seconds = $responsedata->timeleft;
@@ -224,13 +251,20 @@ class calculated extends questions implements questionType {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public static function get_question_report(kuet_sessions     $session,
-                                               question_definition $questiondata,
-                                               stdClass            $data,
-                                               int                 $kid): stdClass {
+    public static function get_question_report(
+        kuet_sessions $session,
+        question_definition $questiondata,
+        stdClass $data,
+        int $kid
+    ): stdClass {
         if (!assert($questiondata instanceof qtype_calculated_question)) {
-            throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                [], get_string('question_nosuitable', 'mod_kuet'));
+            throw new moodle_exception(
+                'question_nosuitable',
+                'mod_kuet',
+                '',
+                [],
+                get_string('question_nosuitable', 'mod_kuet')
+            );
         }
         $answers = [];
         $correctanswers = [];
@@ -303,7 +337,12 @@ class calculated extends questions implements questionType {
         $data->correctanswers = array_values($correctanswers);
         $data->answers = array_values($answers);
         self::get_text(
-            $data->cmid, $data->questiontext, (int) $data->questiontextformat, $data->questionnid, $questiondata, 'questiontext'
+            $data->cmid,
+            $data->questiontext,
+            (int) $data->questiontextformat,
+            $data->questionnid,
+            $questiondata,
+            'questiontext'
         );
         $data->questiontext = $questiondata->questiontext;
         return $data;
@@ -327,13 +366,17 @@ class calculated extends questions implements questionType {
         kuet_questions_responses $response,
         array $answers,
         kuet_sessions $session,
-        kuet_questions $question): stdClass {
+        kuet_questions $question
+    ): stdClass {
 
         $participant->response = grade::get_result_mark_type($response);
         $participant->responsestr = get_string($participant->response, 'mod_kuet');
         $points = grade::get_simple_mark($response);
-        $spoints = grade::get_session_grade($participant->participantid, $session->get('id'),
-            $session->get('kuetid'));
+        $spoints = grade::get_session_grade(
+            $participant->participantid,
+            $session->get('id'),
+            $session->get('kuetid')
+        );
         $participant->userpoints = grade::get_rounded_mark($spoints);
         if ($session->is_group_mode()) {
             $participant->grouppoints = grade::get_rounded_mark($spoints);
@@ -396,7 +439,13 @@ class calculated extends questions implements questionType {
             } else {
                 // Individual.
                 kuet_questions_responses::add_response(
-                    $kuetid, $sessionid, $kid, $questionid, $userid, $result, json_encode($response, JSON_THROW_ON_ERROR)
+                    $kuetid,
+                    $sessionid,
+                    $kid,
+                    $questionid,
+                    $userid,
+                    $result,
+                    json_encode($response, JSON_THROW_ON_ERROR)
                 );
             }
         }
@@ -425,7 +474,8 @@ class calculated extends questions implements questionType {
                 $cm->id,
                 $question->generalfeedback,
                 $question->generalfeedbackformat,
-                $question->id, $question,
+                $question->id,
+                $question,
                 'generalfeedback',
                 $jsonresponse->variant
             );

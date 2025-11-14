@@ -48,7 +48,6 @@ use moodle_exception;
  * Kuet observers class
  */
 class observer {
-
     /**
      * Kuet session ended
      * Before calculate and save session grade, check:

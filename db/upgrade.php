@@ -49,7 +49,6 @@ function xmldb_kuet_upgrade($oldversion) {
 
     $dbman = $DB->get_manager();
     if ($oldversion < 2023071800) {
-
         // Define field grademethod to be added to kuet.
         $table = new xmldb_table('kuet');
         $field = new xmldb_field('grademethod', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0, 'badgepositions');

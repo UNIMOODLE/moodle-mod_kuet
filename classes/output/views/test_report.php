@@ -34,10 +34,10 @@
 
 namespace mod_kuet\output\views;
 
-use renderable;
-use renderer_base;
+use core\output\renderable;
+use core\output\renderer_base;
 use stdClass;
-use templatable;
+use core\output\templatable;
 
 /**
  * Test WebSocket server report renderable class.
@@ -58,11 +58,11 @@ class test_report implements renderable, templatable {
      */
     public array $tests;
     /**
-     * PID detected
+     * @var string websocket server process ID detected
      */
     public ?string $pid;
     /**
-     * Server listening address.
+     * @var string Server local listening address.
      */
     public ?string $server;
 
@@ -71,7 +71,7 @@ class test_report implements renderable, templatable {
      *
      * @param string $socketurl
      * @param string $port
-     * @throws coding_exception
+     * @throws \coding_exception
      */
     public function __construct(string $socketurl, string $port) {
         $this->socketurl = $socketurl;
@@ -124,10 +124,10 @@ class test_report implements renderable, templatable {
      *
      * @param renderer_base $output
      * @return stdClass
-     * @throws JsonException
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws moodle_exception
+     * @throws \JsonException
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \moodle_exception
      */
     public function export_for_template(renderer_base $output): stdClass {
         $data = new stdClass();

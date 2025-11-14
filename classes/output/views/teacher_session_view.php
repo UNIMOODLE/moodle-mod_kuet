@@ -96,12 +96,19 @@ class teacher_session_view implements renderable, templatable {
                     // The race mode also needs the result list data.
                     $data->racemode = true;
                     if ($session->is_group_mode()) {
-                        $data->questions = sessions::breakdown_responses_for_race_groups($data->groupresults, $data->sid,
-                            $data->cmid, $session->get('kuetid'));
+                        $data->questions = sessions::breakdown_responses_for_race_groups(
+                            $data->groupresults,
+                            $data->sid,
+                            $data->cmid,
+                            $session->get('kuetid')
+                        );
                     } else {
                         usort($data->userresults, static fn($a, $b) => strcmp($a->userfullname, $b->userfullname));
                         $data->questions = sessions::breakdown_responses_for_race(
-                            $data->userresults, $data->sid, $data->cmid, $session->get('kuetid')
+                            $data->userresults,
+                            $data->sid,
+                            $data->cmid,
+                            $session->get('kuetid')
                         );
                     }
                 }
@@ -144,8 +151,13 @@ class teacher_session_view implements renderable, templatable {
                 $data->courseid = $course->id;
                 break;
             default:
-                throw new moodle_exception('incorrect_sessionmode', 'mod_kuet', '',
-                    [], get_string('incorrect_sessionmode', 'mod_kuet'));
+                throw new moodle_exception(
+                    'incorrect_sessionmode',
+                    'mod_kuet',
+                    '',
+                    [],
+                    get_string('incorrect_sessionmode', 'mod_kuet')
+                );
         }
         return $data;
     }

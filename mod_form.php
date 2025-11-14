@@ -36,13 +36,12 @@ use mod_kuet\api\grade;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
 
 /**
  *  This class adds extra methods to form wrapper specific to be used for module add / update forms
  */
 class mod_kuet_mod_form extends moodleform_mod {
-
     /**
      * Definition
      *
@@ -68,8 +67,12 @@ class mod_kuet_mod_form extends moodleform_mod {
         $mform->addElement('hidden', 'grade', $currentgrade);
         $mform->setType('grade', PARAM_FLOAT);
 
-        $grademethodelement = $mform->createElement('select', 'grademethod', get_string('grademethod', 'kuet'),
-            mod_kuet_get_grading_options());
+        $grademethodelement = $mform->createElement(
+            'select',
+            'grademethod',
+            get_string('grademethod', 'kuet'),
+            mod_kuet_get_grading_options()
+        );
         $mform->disabledIf('gradecat', 'grademethod', 'eq', grade::MOD_OPTION_NO_GRADE);
         $mform->disabledIf('gradepass', 'grademethod', 'eq', grade::MOD_OPTION_NO_GRADE);
         $mform->insertElementBefore($grademethodelement, 'gradecat');

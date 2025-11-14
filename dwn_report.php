@@ -35,7 +35,7 @@
 require_once('../../config.php');
 require_once('lib.php');
 global $CFG;
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 use mod_kuet\helpers\reports;
 use mod_kuet\output\views\student_reports;
@@ -78,7 +78,7 @@ if ($isteacher) {
     }
     $view = new student_reports($cm->id, $kuet->get('id'), $sid);
 }
-$PAGE->set_title("$course->shortname: ".format_string($kuet->get('name')));
+$PAGE->set_title("$course->shortname: " . format_string($kuet->get('name')));
 $PAGE->set_heading($kuet->get('name'));
 
 $output = $PAGE->get_renderer('mod_kuet');
@@ -176,7 +176,7 @@ switch ($reportname) {
             get_string('responses', 'mod_kuet'),
             get_string('score', 'mod_kuet'),
             get_string('time', 'mod_kuet')];
-        $filename .= '_userid_' . $userid. '_'.trim($data->userfullname);
+        $filename .= '_userid_' . $userid . '_' . trim($data->userfullname);
         $reportvalues = $data->sessionquestions;
         $tabletitle = get_string('userreport', 'mod_kuet');
         $params = array_merge($params, ['userid' => $userid]);
@@ -191,7 +191,7 @@ switch ($reportname) {
             get_string('responses', 'mod_kuet'),
             get_string('score', 'mod_kuet'),
             get_string('time', 'mod_kuet')];
-        $filename .= '_groupid_' . $groupid. '_'.trim($data->groupname);
+        $filename .= '_groupid_' . $groupid . '_' . trim($data->groupname);
         $reportvalues = $data->sessionquestions;
         $tabletitle = get_string('userreport', 'mod_kuet');
         $params = array_merge($params, ['groupid' => $groupid]);
@@ -225,6 +225,3 @@ if (!$table->is_downloading()) {
     echo $OUTPUT->box_end();
     echo $OUTPUT->footer();
 }
-
-
-

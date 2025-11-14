@@ -45,7 +45,6 @@ use renderer_base;
  * Teacher view renderable class
  */
 class teacher_view implements renderable, templatable {
-
     /**
      * Export for template
      *
