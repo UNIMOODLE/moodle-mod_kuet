@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<ruleset name="mod_kuet custom rules">
+  <description>Reglas específicas para evitar advertencias deprecation en PHPCS.</description>
+
+  <!-- Importar la estándar de Moodle -->
+  <rule ref="moodle"/>
+
+  <rule ref="Generic.Functions.CallTimePassByReference">
+    <severity>0</severity>
+  </rule>
+
+  <rule ref="Squiz.Classes.DuplicateProperty">
+    <severity>0</severity>
+  </rule>
+
+  <!-- Opcional: excluir rutas vendor/build que no queremos analizar -->
+  <exclude-pattern>vendor/*</exclude-pattern>
+  <exclude-pattern>node_modules/*</exclude-pattern>
+</ruleset>
