@@ -875,7 +875,7 @@ abstract class websockets {
     protected $usessl = false;
     /**
      * @var string network transport protocol
-     */
+    */
     protected $transport;
     /**
      * @var bool verboselog
@@ -1477,6 +1477,7 @@ abstract class websockets {
      * @return boolean
      */
     protected function handshake($clientsocket) {
+
         // Read the socket keeping only first line and Sec-Websocket-Key header.
         // This is necessary to avoid DoS attacks with large headers.
         $headers = $this->read_headers_from_socket($clientsocket);
