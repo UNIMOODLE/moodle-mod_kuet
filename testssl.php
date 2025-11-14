@@ -45,10 +45,11 @@ $context = context_system::instance();
 $PAGE->set_context($context);
 $PAGE->set_heading(get_string('testssl', 'mod_kuet'));
 $PAGE->set_title(get_string('testssl', 'mod_kuet'));
+echo $OUTPUT->header();
+echo $OUTPUT->heading(get_string('testssl', 'mod_kuet'));
 
 if (get_config('kuet', 'sockettype') === 'local') {
-    $server = $CFG->dirroot . '/mod/kuet/classes/server.php';
-    mod_kuet_run_server_background($server);
+    mod_kuet_run_server_background();
 }
 
 echo html_writer::div('', '', ['id' => 'testresult']);
@@ -75,7 +76,6 @@ $PAGE->set_heading(get_string('testssl', 'mod_kuet'));
 $PAGE->set_title(get_string('testssl', 'mod_kuet'));
 $PAGE->set_cacheable(false);
 
-echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('testssl', 'mod_kuet'));
+
 echo $viehtml;
 echo $output->footer();

@@ -83,6 +83,33 @@ if ($ADMIN->fulltree) {
     $setting->set_updatedcallback('theme_reset_all_caches');
     $page->add($setting);
 
+    // Use verbose logging for local socket.
+    $setting = new admin_setting_configcheckbox(
+        'kuet/verboselog',
+        get_string('verboselog', 'mod_kuet'),
+        get_string('verboselog_desc', 'mod_kuet'), 0
+    );
+    $settings->hide_if('kuet/verboselog', 'kuet/sockettype', 'neq', 'local');
+    $page->add($setting);
+    require_once($CFG->dirroot . '/mod/kuet/lib.php');
+    // Setting description with server PID.
+    $pid = mod_kuet_get_server_pid();
+    // Get server ip.
+    $a = new stdClass();
+    $a->pid = $pid ?: 'OFFLINE';
+    $a->server = gethostname() . " (" . gethostbyname(gethostname()) . ")";
+    $setting = new admin_setting_description(
+        'kuet/serverpid',
+        get_string('serverpid', 'mod_kuet'),
+        html_writer::div(
+            get_string('serverpid_desc', 'mod_kuet', $a),
+            'alert alert-info',
+            ['role' => 'alert']
+        )
+    );
+    $settings->hide_if('kuet/serverpid', 'kuet/sockettype', 'neq', 'local');
+    $page->add($setting);
+
     $setting = new admin_setting_configtext(
         'kuet/externalurl',
         get_string('externalurl', 'mod_kuet'),

@@ -63,8 +63,7 @@ if ($activesession !== 0 && $activesession !== $sid) {
 
 if ($isteacher) {
     if (get_config('kuet', 'sockettype') === 'local') {
-        $server = $CFG->dirroot . '/mod/kuet/classes/server.php';
-        mod_kuet_run_server_background($server);
+        mod_kuet_run_server_background();
     }
     $view = new teacher_session_view();
 } else {
