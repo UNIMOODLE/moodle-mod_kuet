@@ -34,11 +34,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024043000;
+$plugin->version = 2025111900;
 $plugin->requires = 2022112802; // Moodle 4.1.2+.
 $plugin->component = 'mod_kuet';
 $plugin->cron = 0;
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v0.0.2';
+$plugin->release = 'v0.0.3-MOODLE_401';
 // Moodle 4.2 breaks class namespaces for external apis.
 $plugin->incompatible = 402;
