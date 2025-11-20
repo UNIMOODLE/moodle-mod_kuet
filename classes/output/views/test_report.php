@@ -136,6 +136,7 @@ class test_report implements renderable, templatable {
         $data->tests = $this->tests;
         $data->pid = $this->pid ?: 'OFFLINE';
         $data->server = $this->server;
+        $data->password = get_config('kuet', 'wspassword');
         return $data;
     }
 }

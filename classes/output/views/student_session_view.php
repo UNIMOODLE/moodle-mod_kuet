@@ -61,6 +61,25 @@ use user_picture;
  */
 class student_session_view implements renderable, templatable {
     /**
+     * Course module id.
+     * @var int course module id
+     */
+    public int $cmid;
+    /**
+     * Session id.
+     * @var int session id
+     */
+    public int $sid;
+    /**
+     * Constructor
+     *
+     * @param int $sid Session id
+     */
+    public function __construct(int $cmid, int $sid) {
+        $this->cmid = $cmid;
+        $this->sid = $sid;
+    }
+    /**
      * Export for template
      *
      * @param renderer_base $output
@@ -74,9 +93,7 @@ class student_session_view implements renderable, templatable {
      */
     public function export_for_template(renderer_base $output): stdClass {
         global $USER, $PAGE;
-        $cmid = required_param('cmid', PARAM_INT);
-        $sid = required_param('sid', PARAM_INT);
-        $session = new kuet_sessions($sid);
+        $session = new kuet_sessions($this->sid);
         $PAGE->set_title(get_string('session', 'kuet') . ' ' . $session->get('name'));
         if ($session->get('status') !== sessionsmodel::SESSION_STARTED) {
             // 3IP session layaout not active or redirect to cmid view.
@@ -102,8 +119,8 @@ class student_session_view implements renderable, templatable {
                     if (isset($progressdata->endSession)) {
                         // END SESSION, no more question.
                         $data = sessions::export_endsession(
-                            $cmid,
-                            $sid
+                            $this->cmid,
+                            $this->sid
                         );
                         $data->programmedmode = true;
                         break;
@@ -114,7 +131,7 @@ class student_session_view implements renderable, templatable {
                         $session->get('kuetid'),
                         $session->get('id'),
                         $USER->id,
-                        $cmid,
+                        $this->cmid,
                         0
                     );
                     $newprogress = kuet_user_progress::get_session_progress_for_user(
@@ -129,8 +146,8 @@ class student_session_view implements renderable, templatable {
                 $type = questions::get_question_class_by_string_type($question->get('qtype'));
                 $data = $type::export_question(
                     $question->get('id'),
-                    $cmid,
-                    $sid,
+                    $this->cmid,
+                    $this->sid,
                     $question->get('kuetid')
                 );
                 $response = kuet_questions_responses::get_record(
@@ -145,7 +162,7 @@ class student_session_view implements renderable, templatable {
                 if ($session->is_group_mode()) {
                     $data->isgroupmode = true;
                     $group = groupmode::get_user_group($USER->id, $session);
-                    $data->groupimage = groupmode::get_group_image($group, $sid, 1);
+                    $data->groupimage = groupmode::get_group_image($group, $this->sid, 1);
                     $data->groupname = $group->name;
                     $data->groupid = $group->id;
                     if ($session->get('anonymousanswer')) {
@@ -161,8 +178,8 @@ class student_session_view implements renderable, templatable {
                 // SOCKETS!
                 // Always start with waitingroom, and the socket will place you in the appropriate question if it has started.
                 $data = new stdClass();
-                $data->cmid = $cmid;
-                $data->sid = $sid;
+                $data->cmid = $this->cmid;
+                $data->sid = $this->sid;
                 $data->kuetid = $session->get('kuetid');
                 $data->userid = $USER->id;
                 $data->userfullname = $USER->firstname . ' ' . $USER->lastname;
@@ -186,7 +203,7 @@ class student_session_view implements renderable, templatable {
                 if ($session->is_group_mode()) {
                     $data->isgroupmode = true;
                     $group = groupmode::get_user_group($data->userid, $session);
-                    $data->groupimage = groupmode::get_group_image($group, $sid, 1);
+                    $data->groupimage = groupmode::get_group_image($group, $this->sid, 1);
                     $data->groupname = $group->name;
                     $data->groupid = $group->id;
                     if ($session->get('anonymousanswer') === 1) {
@@ -212,6 +229,8 @@ class student_session_view implements renderable, templatable {
                     get_string('incorrect_sessionmode', 'mod_kuet')
                 );
         }
+        // Set session password for websockets.
+        $data->passwd = mod_kuet_get_ws_password($this->sid);
         return $data;
     }
 }

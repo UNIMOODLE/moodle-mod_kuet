@@ -35,6 +35,7 @@ define(['jquery', 'core/str', 'core/notification', 'mod_kuet/encryptor'], functi
 
     let socketUrl = '';
     let portUrl = '8080';
+    let passwordping = '';
     let secureProtocol = false;
     let concatenateOnClose = false;
 
@@ -61,11 +62,13 @@ define(['jquery', 'core/str', 'core/notification', 'mod_kuet/encryptor'], functi
      * @param {String} region
      * @param {String} socketurl
      * @param {String} port
+     * @param {String} password websocket server session secret
      */
-    function TestSockets(region, socketurl, port) {
+    function TestSockets(region, socketurl, port, password) {
         this.root = $(region);
         socketUrl = socketurl;
         portUrl = port;
+        passwordping = password;
         protocolCell = this.root.find('#protocol-test-result');
         protocolExtraInfoCell = this.root.find('#protocol-test-extra-info');
         sslCell = this.root.find('#ssl-test-result');
@@ -179,7 +182,7 @@ define(['jquery', 'core/str', 'core/notification', 'mod_kuet/encryptor'], functi
                         TestSockets.prototype.setExtraInfo(connectionExtraInfoCell, strings[1]);
                     }).fail(notification.exception);
                 }
-                TestSockets.prototype.sendMessageSocket('ping');
+                TestSockets.prototype.sendMessageSocket('ping ' + passwordping);
             };
 
             TestSockets.prototype.webSocket.onerror = function(event) {
@@ -294,10 +297,11 @@ define(['jquery', 'core/str', 'core/notification', 'mod_kuet/encryptor'], functi
          * @param {String} region
          * @param {String} socketurl
          * @param {String} port
+         * @param {String} password websocket server session secret
          * @return {TestSockets}
          */
-        initTestSockets: function(region, socketurl, port) {
-            return new TestSockets(region, socketurl, port);
+        initTestSockets: function(region, socketurl, port, password) {
+            return new TestSockets(region, socketurl, port, password);
         },
     };
 });

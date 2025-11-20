@@ -23,11 +23,26 @@
 // Córdoba, Extremadura, Vigo, Las Palmas de Gran Canaria y Burgos..
 
 /**
- * CLI version of websocket server
+ * CLI version of websocket server.
+ *
+ * Command: unimoodleservercli.php port [-c certificatefile -p privatekeyfile] [-b bufferlength] [-s sessionsecret] [-v]
+ *
+ * Starts a WebSocket server for Kuet module communication. To allow connection from web browsers,
+ * SSL is required. You can provide a certificate and private key using the -c and -p options.
+ * Although not mandatory, it is highly recommended to set a session secret using the -s option. This session secret
+ * is used to generate a salted key for each session that clients must provide to connect to the server.
+ * The session secret enhances security by ensuring that only clients with the correct session is can connect from the correct server.
+ * Session secret can be used in plain text for ping and diag special messages.
+ *
+ * Buffer length can be set using -b option. Default is 2048 bytes. It defines the maximum size of each message read from the socket to mitigate
+ * Denial of Service attacks.
+ * - v option enables verbose logging for debugging purposes.
+ *
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
  * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     Juan Pablo de Castro <juanpablo.decastro@uva.es>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -65,6 +80,11 @@ class unimoodleservercli extends websockets {
      * @var string password
      */
     protected $password = 'elktkktagqes';
+    /**
+     * Session secret key for salting sid.
+     * @var string|null session key
+     */
+    protected $sessionkey = null;
 
     /**
      * Run Unimoodleservercli protocol forever.
@@ -179,7 +199,7 @@ class unimoodleservercli extends websockets {
                         $isjson = $this->check_json($unmasked);
                         if ($this->verboselog) {
                             $this->stdout(message: self::green_text("Message from " .
-                                    $usersocket->userid . " user. Content: " .
+                                    $usersocket->userid . " " . $ip . " user. Content: " .
                                     substr($unmasked, 0, 100) .
                                     '...[' . strlen($unmasked) . ' bytes]', false));
                         }
@@ -187,13 +207,24 @@ class unimoodleservercli extends websockets {
                         if ($isjson === true) {
                             $this->process($usersocket, $unmasked);
                         } else {
-                            if ($unmasked == 'ping') {
-                                $msg = json_encode([
-                                        'action' => 'connect',
-                                        'usersocketid' => $usersocket->userid ?? 'Unknown',
-                                    ], JSON_THROW_ON_ERROR);
+                            // Message has "ping password" and password match.
+                            [$cmd, $password] = explode(' ', $unmasked);
+                             if ($password != $this->sessionkey) {
+                                 $msg  = json_encode([
+                                            'action' => 'unauthorized',
+                                            'usersocketid' => $usersocket->userid ?? 'Unknown',
+                                        ], JSON_THROW_ON_ERROR);
                                 $this->send_masked([$usersocket], $msg);
-                            } else if ($unmasked == 'diag') {
+                                throw new Exception('Unauthorized ' . $cmd . ' message from ' . $ip);
+                             }
+                            if ($cmd === 'ping') {
+                                $msg = json_encode([
+                                    'action' => 'connect',
+                                    'usersocketid' => $usersocket->userid ?? 'Unknown',
+                                ], JSON_THROW_ON_ERROR);
+                                $this->send_masked([$usersocket], $msg);
+
+                            } else if ($cmd === 'diag') {
                                 // Diagnostic message, send the current status of the server.
                                 // Number of users connected, groups, held messages, memory usage, etc.
                                 $memoryusageinmb = round(memory_get_usage() / 1024 / 1024, 2);
@@ -247,6 +278,17 @@ class unimoodleservercli extends websockets {
             512,
             JSON_THROW_ON_ERROR
         );
+        // Check password.
+        if ($this->check_authorization($data) === false) {
+            $response = json_encode([
+                        'action' => 'notauthorized',
+                        'message' => 'You are not authorized to connect to this session.',
+                    ], JSON_THROW_ON_ERROR);
+            $usersocket = $user->usersocketid;
+            $this->send_masked([$user], $response);
+            $this->disconnect($user->socket);
+            return '';
+        }
         if (isset($data['oft']) && $data['oft'] === true) {
             // Only for teacher.
             $responsetext = $this->get_response_from_action_for_teacher($user, $data['action'], $data);
@@ -570,7 +612,7 @@ class unimoodleservercli extends websockets {
                 }
                 return $this->manage_newstudent_for_sid($user, $data);
             case 'countusers':
-                return json_encode([
+                return json_encode( [
                             'action' => 'countusers',
                             'count' => count($this->students[$data['sid']]),
                         ], JSON_THROW_ON_ERROR);
@@ -749,7 +791,21 @@ class unimoodleservercli extends websockets {
                 'count' => isset($this->sidusers[$data['sid']]) ? count($this->sidusers[$data['sid']]) : 0,
             ], JSON_THROW_ON_ERROR);
     }
-
+    /**
+     * Check authorization.
+     * Password is calculated from session id salted by session key.
+     */
+    private function check_authorization(array $data): bool {
+        // If no session key is set, then no authorization is required.
+        if ($this->sessionkey === null) {
+            return true;
+        }
+        $expectedpasswd = hash('sha256', $data['sid'] . $this->sessionkey);
+        if (!isset($data['passwd']) || $data['passwd'] !== $expectedpasswd) {
+            return false;
+        }
+        return true;
+    }
     /**
      * Manage new student user for session id
      *
@@ -925,6 +981,7 @@ abstract class websockets {
         // * Private key file (optional).
         // * Buffer length (optional).
         // * Verbose mode (optional).
+        // * Session secret key (optional).
         // Parse command line arguments.
         // unimoodleservercli.php port [-c certificatefile -p privatekeyfile] [-b bufferlength] [-v].
         if (isset($_SERVER['argv'][1]) && is_numeric($_SERVER['argv'][1])) {
@@ -934,7 +991,7 @@ abstract class websockets {
         }
                 // If the port is not set, then show the interactive form and execute the server.
         if (!isset($port) || !is_numeric($port)) {
-            echo self::white_text('USAGE: unimoodleservercli.php port [-c certificatefile -p privatekeyfile -b bufferlength] [-v]', false) . PHP_EOL;
+            echo self::white_text('USAGE: unimoodleservercli.php port [-c certificatefile -p privatekeyfile] [-b bufferlength] [-s sessionsecret] [-v]', false) . PHP_EOL;
             $this->executeform();
             echo self::green_text(PHP_EOL .
                 'Socket is running in the background. You can see the process running in the process list of your server.');
@@ -993,6 +1050,18 @@ abstract class websockets {
         if (isset($certificate) && is_file($certificate)) {
             $usessl = true;
         }
+        // * Session secret key (optional).
+        $sessionkeypos = array_search('-s', $_SERVER['argv'], true);
+        if (
+            $sessionkeypos !== false
+            && isset($_SERVER['argv'][$sessionkeypos + 1])
+            && !empty($_SERVER['argv'][$sessionkeypos + 1])
+        ) {
+            $this->sessionkey = $_SERVER['argv'][$sessionkeypos + 1];
+            unset($_SERVER['argv'][$sessionkeypos], $_SERVER['argv'][$sessionkeypos + 1]);
+            $_SERVER['argv'] = array_values($_SERVER['argv']);
+        }
+
         // If there are arguments left, then they are unknown options.
         if (count($_SERVER['argv']) > 1) {
             echo self::red_text(
