@@ -70,9 +70,9 @@ if ($isteacher) {
     if (get_config('kuet', 'sockettype') === 'local') {
         mod_kuet_run_server_background();
     }
-    $view = new teacher_session_view();
+    $view = new teacher_session_view($id, $sid);
 } else {
-    $view = new student_session_view();
+    $view = new student_session_view($id, $sid);
 }
 
 $output = $PAGE->get_renderer('mod_kuet');

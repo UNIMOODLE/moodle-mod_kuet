@@ -262,7 +262,18 @@ function mod_kuet_kill_server($pid): bool {
     $pidcheck = mod_kuet_get_server_pid();
     return $pidcheck === false || empty($pidcheck);
 }
-
+/**
+ * Calculate websocket password from session id and secret key.
+ * @param string $sessionid
+ * @return string|null
+ */
+function mod_kuet_get_ws_password(string $sessionid): ?string {
+    $sessionkey = get_config('kuet', 'wspassword');
+    if (!$sessionkey) {
+        return null;
+    }
+    return hash('sha256', $sessionid . $sessionkey);
+}
 /**
  * Run websocket server on background
  *
@@ -315,12 +326,20 @@ function mod_kuet_run_server_background() {
             break;
         }
     }
+    // Get session secret key.
+    $sessionkey = get_config('kuet', 'wspassword');
+
+    $websocketcmd = "php $server $port -c $certificateurl -p $privatekeyurl $verboselog";
+    if ($sessionkey) {
+        $websocketcmd .= " -s $sessionkey";
+    }
+
     switch (strtolower(PHP_OS_FAMILY)) {
         case "windows":
-            pclose(popen("start /B php $server $port -c $certificateurl -p $privatekeyurl $verboselog", "r"));
+            pclose(popen("start /B $websocketcmd", "r"));
             break;
         case "linux":
-            exec("php $server $port -c $certificateurl -p $privatekeyurl $verboselog > $logfile &");
+            exec("$websocketcmd > $logfile &");
             break;
         default:
             debugging("Unsupported OS" . strtolower(PHP_OS_FAMILY));
@@ -330,10 +349,11 @@ function mod_kuet_run_server_background() {
 
 /**
  * Get server PID
+ *
+ * @return string|null
  */
 function mod_kuet_get_server_pid() {
     global $CFG;
-    $server = $CFG->dirroot . '/mod/kuet/unimoodleservercli.php';
     switch (strtolower(PHP_OS_FAMILY)) {
         case "windows":
             $pid = shell_exec("tasklist /FI \"IMAGENAME eq php.exe\" /FO CSV | findstr unimoodleservercli.php");
@@ -345,7 +365,7 @@ function mod_kuet_get_server_pid() {
             debugging("Unsupported OS" . strtolower(PHP_OS_FAMILY));
             return null;
     }
-    return $pid;
+    return $pid ? trim($pid) : null;
 }
 
 /**

@@ -115,6 +115,7 @@ let messageBox = null;
 let countusers = null;
 let cmid = null;
 let sid = null;
+let passwd = null;
 let kuetid = null;
 let currentCuestionKqid = null;
 let groupid = 0;
@@ -134,6 +135,7 @@ Sockets.prototype.initSockets = function() {
     kuetid = this.root[0].dataset.kuetid;
     cmid = this.root[0].dataset.cmid;
     sid = this.root[0].dataset.sid;
+    passwd = this.root[0].dataset.passwd;
     messageBox = this.root.find(REGION.MESSAGEBOX);
     countusers = this.root.find(REGION.COUNTUSERS);
     groupmode = this.root[0].dataset.groupmode;
@@ -172,6 +174,7 @@ Sockets.prototype.initSockets = function() {
                         'sid': sid,
                         'usersocketid': usersocketid,
                         'action': 'newuser',
+                        'passwd': passwd,
                     };
                     if (groupmode == '1') {
                         msg.action = 'newgroup';
@@ -191,6 +194,7 @@ Sockets.prototype.initSockets = function() {
                         'usersocketid': student.usersocketid,
                         'userimage': student.picture,
                         'userfullname': student.name,
+                        'passwd': passwd,
                     };
                     Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html) {
                         identifier.append(html);
@@ -210,6 +214,7 @@ Sockets.prototype.initSockets = function() {
                         'groupid': group.groupid,
                         'name': group.name,
                         'numgroupusers': group.numgroupusers,
+                        'passwd': passwd,
                     };
                     Templates.render(TEMPLATES.GROUPPARTICIPANT, templateContext).then(function(html) {
                         participantshtml.append(html);
@@ -450,6 +455,7 @@ Sockets.prototype.initListeners = function() {
             'kid': currentCuestionKqid,
             'oft': true,
             'action': 'studentQuestionEnd',
+            'passwd': passwd,
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
         if (groupmode == '1') {
@@ -460,6 +466,7 @@ Sockets.prototype.initListeners = function() {
                 'kid': currentCuestionKqid,
                 'ofg': true,
                 'action': 'alreadyAnswered',
+                'passwd': passwd,
             };
             setTimeout(function() {
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg2));
@@ -493,7 +500,8 @@ Sockets.prototype.replyImprovise = function() {
                 'questiontext': jQuery('.improvise-statement').text(),
                 'programmedmode': false,
                 'preview': false,
-                'tags': [{name: improviseReply, count: 1, size: 9}]
+                'tags': [{name: improviseReply, count: 1, size: 9}],
+                'passwd': passwd,
             };
             Templates.render(TEMPLATES.QUESTION, cloudtagsData).then(function(html) {
                 jQuery(REGION.ROOT).html(html);
@@ -506,6 +514,7 @@ Sockets.prototype.replyImprovise = function() {
                     'sessionid': sid,
                     'cmid': cmid,
                     'userid': userid,
+                    'passwd': passwd,
                 };
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 if (userHasImprovised === false) {
@@ -533,6 +542,7 @@ Sockets.prototype.voteTags = function(e) {
             'sessionid': sid,
             'cmid': cmid,
             'userid': userid,
+            'passwd': passwd,
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
     }

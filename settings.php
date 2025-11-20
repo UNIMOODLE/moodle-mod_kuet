@@ -51,6 +51,18 @@ if ($ADMIN->fulltree) {
         ]
     );
     $page->add($setting);
+    // If use websocket server set a session password.
+    $setting = new admin_setting_configtext_with_maxlength(
+        'kuet/wspassword',
+        get_string('wspassword', 'mod_kuet'),
+        get_string('wspassword_desc', 'mod_kuet'),
+        '',
+        PARAM_ALPHANUMEXT,
+        20,
+        20
+    );
+    $settings->hide_if('kuet/wspassword', 'kuet/sockettype', 'eq', 'nosocket');
+    $page->add($setting);
 
     // Setting description with server PID.
     require_once($CFG->dirroot . '/mod/kuet/lib.php');

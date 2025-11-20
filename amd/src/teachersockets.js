@@ -115,6 +115,7 @@ let messageBox = null;
 let countusers = null;
 let cmid = null;
 let sid = null;
+let passwd = null;
 let db = null;
 let questionsKids = [];
 let waitingRoom = true;
@@ -146,6 +147,7 @@ function Sockets(region, socketurl, port, sessionmode, groupmode) {
     userimage = this.root[0].dataset.userimage;
     cmid = this.root[0].dataset.cmid;
     sid = this.root[0].dataset.sid;
+    passwd = this.root[0].dataset.passwd;
     messageBox = this.root.find(REGION.MESSAGEBOX);
     countusers = this.root.find(REGION.COUNTUSERS);
     groupMode = groupmode;
@@ -332,7 +334,8 @@ Sockets.prototype.initSockets = function() {
                         'cmid': cmid,
                         'sid': sid,
                         'usersocketid': usersocketid,
-                        'action': 'newuser'
+                        'action': 'newuser',
+                        'passwd': passwd,
                     };
                     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 }
@@ -349,6 +352,7 @@ Sockets.prototype.initSockets = function() {
                         'usersocketid': student.usersocketid,
                         'userimage': student.picture,
                         'userfullname': student.name,
+                        'passwd': passwd,
                     };
                     Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html) {
                         identifier.append(html);
@@ -368,6 +372,7 @@ Sockets.prototype.initSockets = function() {
                         'groupid': group.groupid,
                         'name': group.name,
                         'numgroupusers': group.numgroupusers,
+                        'passwd': passwd,
                     };
                     Templates.render(TEMPLATES.GROUPPARTICIPANT, templateContext).then(function(html) {
                         participantshtml.append(html);
@@ -661,7 +666,8 @@ Sockets.prototype.initSession = function() {
                     let msg = {
                         'action': 'question',
                         'sid': sid,
-                        'context': firstQuestion.result
+                        'context': firstQuestion.result,
+                        'passwd': passwd,
                     };
                     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
@@ -800,7 +806,8 @@ Sockets.prototype.nextQuestion = function() {
                 let msg = {
                     'action': 'question',
                     'sid': sid,
-                    'context': nextQuestionData.result
+                    'context': nextQuestionData.result,
+                    'passwd': passwd,
                 };
                 currentQuestionDataForRace = nextQuestionData.result.value;
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
@@ -836,7 +843,8 @@ Sockets.prototype.nextQuestion = function() {
                     let msg = {
                         'action': 'endSession',
                         'sid': sid,
-                        'context': endSession.result
+                        'context': endSession.result,
+                        'passwd': passwd,
                     };
                     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                     Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
@@ -867,7 +875,8 @@ Sockets.prototype.nextQuestion = function() {
                         let msg = {
                             'action': 'endSession',
                             'sid': sid,
-                            'context': endSession.result
+                            'context': endSession.result,
+                            'passwd': passwd,
                         };
                         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                         Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
@@ -952,7 +961,8 @@ Sockets.prototype.manageNext = function() {
                 let msg = {
                     'action': 'ranking',
                     'sid': sid,
-                    'context': provisionalRanking
+                    'context': provisionalRanking,
+                    'passwd': passwd,
                 };
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 showRankingBetweenQuestionsSwitch = false;
@@ -975,7 +985,8 @@ Sockets.prototype.pauseQuestion = function() {
     let msg = {
         'action': 'pauseQuestion',
         'sid': sid,
-        'kid': currentQuestionKqid
+        'kid': currentQuestionKqid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -984,7 +995,8 @@ Sockets.prototype.playQuestion = function() {
     let msg = {
         'action': 'playQuestion',
         'sid': sid,
-        'kid': currentQuestionKqid
+        'kid': currentQuestionKqid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1007,7 +1019,8 @@ Sockets.prototype.resendSelf = function() {
                 let msg = {
                     'action': 'question',
                     'sid': sid,
-                    'context': currentQuestionData.result
+                    'context': currentQuestionData.result,
+                    'passwd': passwd,
                 };
                 Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
                 showRankingBetweenQuestionsSwitch = true;
@@ -1058,7 +1071,8 @@ Sockets.prototype.jumpTo = function(questionNumber) {
         let msg = {
             'action': 'question',
             'sid': sid,
-            'context': data
+            'context': data,
+            'passwd': passwd,
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
         showRankingBetweenQuestionsSwitch = true;
@@ -1094,7 +1108,8 @@ Sockets.prototype.questionEnd = function() {
             'action': 'teacherQuestionEnd',
             'sid': sid,
             'kid': currentQuestionKqid,
-            'statistics': response.statistics
+            'statistics': response.statistics,
+            'passwd': passwd,
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
         dispatchEvent(new CustomEvent('teacherQuestionEnd_' + currentQuestionKqid, {
@@ -1107,7 +1122,8 @@ Sockets.prototype.showAnswers = function() {
     let msg = {
         'action': 'showAnswers',
         'sid': sid,
-        'kid': currentQuestionKqid
+        'kid': currentQuestionKqid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1116,7 +1132,8 @@ Sockets.prototype.hideAnswers = function() {
     let msg = {
         'action': 'hideAnswers',
         'sid': sid,
-        'kid': currentQuestionKqid
+        'kid': currentQuestionKqid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1125,7 +1142,8 @@ Sockets.prototype.showStatistics = function() {
     let msg = {
         'action': 'showStatistics',
         'sid': sid,
-        'kid': currentQuestionKqid
+        'kid': currentQuestionKqid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1134,7 +1152,8 @@ Sockets.prototype.hideStatistics = function() {
     let msg = {
         'action': 'hideStatistics',
         'sid': sid,
-        'kid': currentQuestionKqid
+        'kid': currentQuestionKqid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1143,7 +1162,8 @@ Sockets.prototype.showFeedback = function() {
     let msg = {
         'action': 'showFeedback',
         'sid': sid,
-        'kid': currentQuestionKqid
+        'kid': currentQuestionKqid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1152,7 +1172,8 @@ Sockets.prototype.hideFeedback = function() {
     let msg = {
         'action': 'hideFeedback',
         'sid': sid,
-        'kid': currentQuestionKqid
+        'kid': currentQuestionKqid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1160,7 +1181,8 @@ Sockets.prototype.hideFeedback = function() {
 Sockets.prototype.closeImprovise = function() {
     let msg = {
         'action': 'closeImprovise',
-        'sid': sid
+        'sid': sid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
     jQuery(REGION.IMPROVISE).addClass('d-none');
@@ -1170,7 +1192,8 @@ Sockets.prototype.closeImprovise = function() {
 Sockets.prototype.improvise = function() {
     let msg = {
         'action': 'improvising',
-        'sid': sid
+        'sid': sid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
     jQuery(REGION.IMPROVISE).removeClass('d-none');
@@ -1192,7 +1215,8 @@ Sockets.prototype.submitImprovise = function() {
             'sid': sid,
             'improvisestatement': improviseStatement,
             'improvisereply': improviseReply,
-            'cmid': cmid
+            'cmid': cmid,
+            'passwd': passwd,
         };
         Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
         Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
@@ -1213,7 +1237,8 @@ Sockets.prototype.submitImprovise = function() {
                 'questiontext': improviseStatement,
                 'programmedmode': false,
                 'preview': false,
-                'tags': cloudTags
+                'tags': cloudTags,
+                'passwd': passwd,
             };
             Templates.render(TEMPLATES.QUESTION, cloudtagsData).then(function(html, js) {
                 identifier.html(html);
@@ -1280,7 +1305,8 @@ Sockets.prototype.printNewTag = function() {
     let msg = {
         'action': 'printNewTag',
         'sid': sid,
-        'tags': cloudTags
+        'tags': cloudTags,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1303,7 +1329,8 @@ Sockets.prototype.vote = function() {
     jQuery(REGION.CLOUDTAGS).attr('data-show-value', false);
     let msg = {
         'action': 'initVote',
-        'sid': sid
+        'sid': sid,
+        'passwd': passwd,
     };
     Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
 };
@@ -1318,7 +1345,8 @@ Sockets.prototype.normalizeUser = function(usersocketid) {
                 'sid': sid,
                 'ofs': true, // Only for student.
                 'usersocketid': usersocketid,
-                'context': currentQuestiondata.result
+                'context': currentQuestiondata.result,
+                'passwd': passwd,
             };
             Sockets.prototype.sendMessageSocket(JSON.stringify(msg));
         };

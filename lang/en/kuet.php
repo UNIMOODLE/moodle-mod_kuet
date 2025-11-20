@@ -401,3 +401,5 @@ $string['waitingroom_info'] = 'Check that everything is correct before starting 
 $string['waitingroom_message'] = 'Hold on, we\'re leaving in no time...';
 $string['waitteacher'] = 'Waiting for the teacher';
 $string['warningtest'] = 'This will attempt a connection to the socket with the current configuration. <b>Save the configuration before testing.</b>';
+$string['wspassword'] = 'WebSocket Password';
+$string['wspassword_desc'] = 'Password to enter a Kuet session in the WebSocket server. This password should be the same as the one configured in the WebSocket server.';

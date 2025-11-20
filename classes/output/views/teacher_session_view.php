@@ -53,6 +53,25 @@ use user_picture;
  */
 class teacher_session_view implements renderable, templatable {
     /**
+     * Session id.
+     * @var int session id
+     */
+    public int $sid;
+    /**
+     * Course module id.
+     * @var int course module id
+     */
+    public int $cmid;
+    /**
+     * Constructor
+     *
+     * @param int $sid Session id
+     */
+    public function __construct(int $cmid, int $sessionid) {
+        $this->cmid = $cmid;
+        $this->sid = $sessionid;
+    }
+    /**
      * Export for template
      *
      * @param renderer_base $output
@@ -65,8 +84,8 @@ class teacher_session_view implements renderable, templatable {
     public function export_for_template(renderer_base $output): stdClass {
         global $USER, $DB, $PAGE, $COURSE;
         $data = new stdClass();
-        $data->cmid = required_param('cmid', PARAM_INT);
-        $data->sid = required_param('sid', PARAM_INT);
+        $data->cmid = $this->cmid;
+        $data->sid = $this->sid;
         $data->courseid = $COURSE->id;
         $data->isteacher = true;
         $data->userid = $USER->id;
@@ -79,6 +98,7 @@ class teacher_session_view implements renderable, templatable {
         $qrcode = generate_kuet_qrcode((new moodle_url('/mod/kuet/view.php', ['id' => $data->cmid]))->out(false));
         $data->hasqrcodeimage = $qrcode !== '';
         $data->urlqrcode = $data->hasqrcodeimage === true ? $qrcode : '';
+
         kuet_sessions::mark_session_started($data->sid);
         switch ($session->get('sessionmode')) {
             case sessions::INACTIVE_PROGRAMMED:
@@ -159,6 +179,8 @@ class teacher_session_view implements renderable, templatable {
                     get_string('incorrect_sessionmode', 'mod_kuet')
                 );
         }
+        // Set session password for websockets.
+        $data->passwd = mod_kuet_get_ws_password($data->sid);
         return $data;
     }
 }

@@ -77,6 +77,6 @@
 </div>
 {{#js}}
     require(['mod_kuet/testssl'], function(TestSockets) {
-        TestSockets.initTestSockets('[data-region="test-result"]', "{{socketurl}}", "{{port}}");
+        TestSockets.initTestSockets('[data-region="test-result"]', "{{socketurl}}", "{{port}}", "{{password}}");
     });
 {{/js}}
