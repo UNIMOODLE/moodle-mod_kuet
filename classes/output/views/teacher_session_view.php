@@ -67,7 +67,7 @@ class teacher_session_view implements renderable, templatable {
      *
      * @param int $sid Session id
      */
-    public function __construct(int $cmid, string $sessionid) {
+    public function __construct(int $cmid, int $sessionid) {
         $this->cmid = $cmid;
         $this->sid = $sessionid;
     }

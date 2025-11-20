@@ -349,6 +349,8 @@ function mod_kuet_run_server_background() {
 
 /**
  * Get server PID
+ *
+ * @return string|null
  */
 function mod_kuet_get_server_pid() {
     global $CFG;

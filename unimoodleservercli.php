@@ -31,7 +31,8 @@
  * SSL is required. You can provide a certificate and private key using the -c and -p options.
  * Although not mandatory, it is highly recommended to set a session secret using the -s option. This session secret
  * is used to generate a salted key for each session that clients must provide to connect to the server.
- * The session secret enhances security by ensuring that only clients with the correct session is can connect from the correct server.
+ * The session secret enhances security by ensuring that only clients with the correct session can connect
+ * from the correct server.
  * Session secret can be used in plain text for ping and diag special messages.
  *
  * Buffer length can be set using -b option. Default is 2048 bytes. It defines the maximum size of each message read from the socket to mitigate

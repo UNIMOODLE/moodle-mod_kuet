@@ -56,7 +56,7 @@ if ($ADMIN->fulltree) {
         'kuet/wspassword',
         get_string('wspassword', 'mod_kuet'),
         get_string('wspassword_desc', 'mod_kuet'),
-        'mysecretpassword',
+        '',
         PARAM_ALPHANUMEXT,
         20,
         20
