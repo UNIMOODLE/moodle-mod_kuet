@@ -35,7 +35,8 @@
  * from the correct server.
  * Session secret can be used in plain text for ping and diag special messages.
  *
- * Buffer length can be set using -b option. Default is 2048 bytes. It defines the maximum size of each message read from the socket to mitigate
+ * Buffer length can be set using -b option. Default is 2048 bytes.
+ * It defines the maximum size of each message read from the socket to mitigate
  * Denial of Service attacks.
  * - v option enables verbose logging for debugging purposes.
  *
@@ -209,22 +210,21 @@ class unimoodleservercli extends websockets {
                             $this->process($usersocket, $unmasked);
                         } else {
                             // Message has "ping password" and password match.
-                            [$cmd, $password] = explode(' ', $unmasked);
-                             if ($password != $this->sessionkey) {
+                            [$cmd, $password] = explode(' ', $unmasked, 2);
+                            if ($password != $this->sessionkey) {
                                  $msg  = json_encode([
                                             'action' => 'unauthorized',
                                             'usersocketid' => $usersocket->userid ?? 'Unknown',
                                         ], JSON_THROW_ON_ERROR);
                                 $this->send_masked([$usersocket], $msg);
                                 throw new Exception('Unauthorized ' . $cmd . ' message from ' . $ip);
-                             }
+                            }
                             if ($cmd === 'ping') {
                                 $msg = json_encode([
                                     'action' => 'connect',
                                     'usersocketid' => $usersocket->userid ?? 'Unknown',
                                 ], JSON_THROW_ON_ERROR);
                                 $this->send_masked([$usersocket], $msg);
-
                             } else if ($cmd === 'diag') {
                                 // Diagnostic message, send the current status of the server.
                                 // Number of users connected, groups, held messages, memory usage, etc.
@@ -288,7 +288,7 @@ class unimoodleservercli extends websockets {
             $usersocket = $user->usersocketid;
             $this->send_masked([$user], $response);
             $this->disconnect($user->socket);
-            return '';
+            return;
         }
         if (isset($data['oft']) && $data['oft'] === true) {
             // Only for teacher.
@@ -613,7 +613,7 @@ class unimoodleservercli extends websockets {
                 }
                 return $this->manage_newstudent_for_sid($user, $data);
             case 'countusers':
-                return json_encode( [
+                return json_encode([
                             'action' => 'countusers',
                             'count' => count($this->students[$data['sid']]),
                         ], JSON_THROW_ON_ERROR);
@@ -992,7 +992,8 @@ abstract class websockets {
         }
                 // If the port is not set, then show the interactive form and execute the server.
         if (!isset($port) || !is_numeric($port)) {
-            echo self::white_text('USAGE: unimoodleservercli.php port [-c certificatefile -p privatekeyfile] [-b bufferlength] [-s sessionsecret] [-v]', false) . PHP_EOL;
+            echo self::white_text('USAGE: unimoodleservercli.php port [-c certificatefile -p privatekeyfile] ' .
+                                    '[-b bufferlength] [-s sessionsecret] [-v]', false) . PHP_EOL;
             $this->executeform();
             echo self::green_text(PHP_EOL .
                 'Socket is running in the background. You can see the process running in the process list of your server.');
@@ -1051,7 +1052,7 @@ abstract class websockets {
         if (isset($certificate) && is_file($certificate)) {
             $usessl = true;
         }
-        // * Session secret key (optional).
+        // Session secret key (optional).
         $sessionkeypos = array_search('-s', $_SERVER['argv'], true);
         if (
             $sessionkeypos !== false
