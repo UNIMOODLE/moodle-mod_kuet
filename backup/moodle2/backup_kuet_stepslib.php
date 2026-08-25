@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -38,7 +39,6 @@
  * Define the complete choice structure for backup, with file and id annotations.
  */
 class backup_kuet_activity_structure_step extends backup_questions_activity_structure_step {
-
     /**
      * Define structure
      *
@@ -59,6 +59,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'introformat',
             'teamgrade',
             'grademethod',
+            'sessiongrademax',
             'completionanswerall',
             'usermodified',
             'timecreated',
@@ -71,6 +72,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'anonymousanswer',
             'sessionmode',
             'sgrade',
+            'mandatoryattendance',
             'countdown',
             'showgraderanking',
             'randomquestions',
@@ -85,6 +87,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'questiontime',
             'groupings',
             'status',
+            'questionslocked',
             'usermodified',
             'timecreated',
             'timemodified',
@@ -104,7 +107,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'timecreated',
             'timemodified',
         ]);
-        $this->add_question_usages($question, 'questionid');
+        $this->add_question_references($question, 'mod_kuet', 'session_question');
         $questionsresponses = new backup_nested_element('questions_responses');
         $questionsresponse = new backup_nested_element('questions_response', ['id'], [
             'session',
@@ -114,6 +117,8 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'anonymise',
             'result',
             'response',
+            'manualmark',
+            'manualcomment',
             'timecreated',
             'timemodified',
         ]);

@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -50,6 +51,57 @@ class kuet_questions extends persistent {
      * @var string questions table
      */
     public const TABLE = 'kuet_questions';
+
+    /** @var \mod_kuet\question\mutation|null Active write guard. */
+    private $questionmutation;
+
+    /** Protect new positions and verify their destination. */
+    protected function before_create() {
+        $this->begin_question_mutation();
+    }
+
+    /** Protect all edits, including order and version changes. */
+    protected function before_update() {
+        $this->begin_question_mutation();
+    }
+
+    /** Protect individual removals; whole-session cleanup has an explicit bulk path. */
+    protected function before_delete() {
+        $this->begin_question_mutation();
+        \mod_kuet\question\version_resolver::delete_references([$this->get('id')]);
+    }
+
+    /** Serialise against a session start and check immutable state under that lock. */
+    private function begin_question_mutation(): void {
+        $this->questionmutation = new \mod_kuet\question\mutation($this->get('kuetid'));
+        try {
+            \mod_kuet\helpers\modcontext::require_session_in_kuet($this->get('sessionid'), $this->get('kuetid'));
+            \mod_kuet\question\version_resolver::require_editable($this->get('sessionid'));
+        } catch (\Throwable $e) {
+            $this->questionmutation->abort($e);
+        }
+    }
+
+    /** Create the reference in the same transaction as the position. */
+    protected function after_create() {
+        try {
+            \mod_kuet\question\version_resolver::ensure_reference($this->to_record());
+            $this->questionmutation->finish();
+        } catch (\Throwable $e) {
+            $this->questionmutation->abort($e);
+        }
+    }
+
+    /** Finish the protected update. */
+    protected function after_update($result) {
+        $this->questionmutation->finish();
+    }
+
+    /** Remove the corresponding reference before committing the deletion. */
+    protected function after_delete($result) {
+        // The reference was removed by before_delete in this same transaction.
+        $this->questionmutation->finish();
+    }
     /**
      * Return the definition of the properties of this model.
      *
@@ -274,7 +326,17 @@ class kuet_questions extends persistent {
      */
     public static function delete_session_questions(int $sid): bool {
         global $DB;
-        return  $DB->delete_records(self::TABLE, ['sessionid' => $sid]);
+        $session = $DB->get_record('kuet_sessions', ['id' => $sid], '*', MUST_EXIST);
+        $guard = new \mod_kuet\question\mutation($session->kuetid);
+        try {
+            $ids = $DB->get_fieldset_select(self::TABLE, 'id', 'sessionid = ?', [$sid]);
+            \mod_kuet\question\version_resolver::delete_references($ids);
+            $result = $DB->delete_records(self::TABLE, ['sessionid' => $sid]);
+            $guard->finish();
+            return $result;
+        } catch (\Throwable $e) {
+            $guard->abort($e);
+        }
     }
 
     /**
@@ -287,15 +349,24 @@ class kuet_questions extends persistent {
      * @throws invalid_persistent_exception
      */
     public static function copy_session_questions(int $oldsid, int $newsid): bool {
-        $oldquestions = self::get_records(['sessionid' => $oldsid]);
-        foreach ($oldquestions as $oldquestion) {
-            $data = $oldquestion->to_record();
-            unset($data->id, $data->sessionid, $data->usermodified, $data->timecreated, $data->timemodified);
-            $data->sessionid = $newsid;
-            $newquestion = new self(0, $data);
-            $newquestion->create();
+        $target = new kuet_sessions($newsid);
+        $guard = new \mod_kuet\question\mutation($target->get('kuetid'));
+        try {
+            $oldquestions = self::get_records(['sessionid' => $oldsid]);
+            foreach ($oldquestions as $oldquestion) {
+                $data = $oldquestion->to_record();
+                unset($data->id, $data->sessionid, $data->usermodified, $data->timecreated, $data->timemodified);
+                $data->sessionid = $newsid;
+                $newquestion = new self(0, $data);
+                \mod_kuet\question\bank_provider::require_question($data->questionid);
+                $newquestion->create();
+                \mod_kuet\question\version_resolver::copy_reference($oldquestion->get('id'), $newquestion->get('id'));
+            }
+            $guard->finish();
+            return true;
+        } catch (\Throwable $e) {
+            $guard->abort($e);
         }
-        return true;
     }
 
     /**

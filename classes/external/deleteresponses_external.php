@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use context_module;
+use mod_kuet\helpers\modcontext;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
@@ -50,7 +52,6 @@ use moodle_exception;
  * Delete responses class
  */
 class deleteresponses_external extends external_api {
-
     /**
      * Delete responses parameters validation
      *
@@ -81,6 +82,14 @@ class deleteresponses_external extends external_api {
             self::deleteresponses_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid, 'kid' => $kid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        // The capability is checked below, and this function reports a refusal in
+        // its return value instead of throwing. What was missing was the context
+        // validation and the ownership check, not the authorisation itself.
+        modcontext::require_session_in_cm($sessionid, $cmid);
+        modcontext::require_question_in_session($kid, $sessionid);
         $cmcontext = context_module::instance($cmid);
         if (has_capability('mod/kuet:startsession', $cmcontext)) {
             $kuet = new kuet($cmid);

@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use dml_exception;
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -51,14 +53,14 @@ use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use question_bank;
 
-
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
 require_once($CFG->dirroot . '/question/engine/bank.php');
 
 /**
  * Get question statistics class
  */
 class getquestionstatistics_external extends external_api {
-
     /**
      * Get question statistics parameter validation
      *
@@ -88,8 +90,13 @@ class getquestionstatistics_external extends external_api {
             self::getquestionstatistics_parameters(),
             ['sid' => $sid, 'kid' => $kid]
         );
+
+        $context = modcontext::from_session($sid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
+        modcontext::require_question_in_session($kid, $sid);
         $kuetquestion = kuet_questions::get_question_by_kid($kid);
-        $question = question_bank::load_question($kuetquestion->get('questionid'));
+        $question = question_bank::load_question($kuetquestion->get('questionid'), 0);
         $statistics = [];
         $session = new kuet_sessions($sid);
         $responses = kuet_questions_responses::get_question_responses($sid, $kuetquestion->get('kuetid'), $kid);
@@ -133,8 +140,12 @@ class getquestionstatistics_external extends external_api {
                             'partially' => new external_value(PARAM_FLOAT, 'number of failures answers', VALUE_OPTIONAL),
                             'noresponse' => new external_value(PARAM_FLOAT, 'number of noresponse answers', VALUE_OPTIONAL),
                             'invalid' => new external_value(PARAM_FLOAT, 'number of invalid answers', VALUE_OPTIONAL),
-                        ], 'Number of replies for one answer.'
-                    ), 'List of answers with number of replies.', VALUE_OPTIONAL),
+                        ],
+                        'Number of replies for one answer.'
+                    ),
+                    'List of answers with number of replies.',
+                    VALUE_OPTIONAL
+                ),
             ]
         );
     }

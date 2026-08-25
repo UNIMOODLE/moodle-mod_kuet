@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -38,7 +39,6 @@ namespace mod_kuet\exporter;
  *   Exporter to take a stdClass and prepare it for return by webservice, or as the context for a template.
  */
 class shortanswer_exporter extends commondata_exporter {
-
     /**
      * Properties definition
      *

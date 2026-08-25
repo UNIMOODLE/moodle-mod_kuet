@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -80,6 +81,16 @@ class kuet_questions_responses extends persistent {
             ],
             'response' => [
                 'type' => PARAM_RAW,
+            ],
+            'manualmark' => [
+                'type' => PARAM_FLOAT,
+                'null' => NULL_ALLOWED,
+                'default' => null,
+            ],
+            'manualcomment' => [
+                'type' => PARAM_TEXT,
+                'null' => NULL_ALLOWED,
+                'default' => null,
             ],
         ];
     }

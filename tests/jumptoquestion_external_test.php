@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_kuet;
+
 use mod_kuet\models\questions;
 
 /**
@@ -28,26 +31,28 @@ use mod_kuet\models\questions;
 
 /**
  * Jump to question service test class
+ *
+ * @covers \mod_kuet\external\jumptoquestion_external
  */
-class jumptoquestion_external_test extends  advanced_testcase {
+final class jumptoquestion_external_test extends \advanced_testcase {
     /**
      * Jump to question service test
      *
      * @return void
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws dml_transaction_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \dml_transaction_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
     public function test_jumptoquestion(): void {
+        global $PAGE;
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -81,7 +86,10 @@ class jumptoquestion_external_test extends  advanced_testcase {
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $questiongenerator->create_question_category();
+        $bank = self::getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+        $cat = $questiongenerator->create_question_category([
+            'contextid' => \context_module::instance($bank->cmid)->id,
+        ]);
         $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, ['category' => $cat->id]);
         $nq = $questiongenerator->create_question(questions::NUMERICAL, null, ['category' => $cat->id]);
         $tfq = $questiongenerator->create_question(questions::TRUE_FALSE, null, ['category' => $cat->id]);
@@ -102,7 +110,8 @@ class jumptoquestion_external_test extends  advanced_testcase {
         ]);
 
         $question2 = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]);
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]
+        );
         $pos2 = \mod_kuet\external\jumptoquestion_external::jumptoquestion($kuet->cmid, $createdsid, 2, true);
         $this->assertIsArray($pos2);
         $this->assertArrayHasKey('cmid', $pos2);
@@ -115,7 +124,8 @@ class jumptoquestion_external_test extends  advanced_testcase {
         $this->assertEquals(questions::NUMERICAL, $pos2['qtype']);
 
         $question4 = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]);
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]
+        );
         $pos4 = \mod_kuet\external\jumptoquestion_external::jumptoquestion($kuet->cmid, $createdsid, 4, true);
         $this->assertIsArray($pos4);
         $this->assertArrayHasKey('cmid', $pos4);
@@ -125,6 +135,12 @@ class jumptoquestion_external_test extends  advanced_testcase {
         $this->assertArrayHasKey('kid', $pos4);
         $this->assertEquals($question4->get('id'), $pos4['kid']);
         $this->assertArrayHasKey('qtype', $pos4);
+        $html = $PAGE->get_renderer("core")->render_from_template(
+            "mod_kuet/session/manual/teachercontrolpanel",
+            ["kid" => $question4->get("id"), "numquestions" => 7]
+        );
+        $this->assertStringContainsString("data-bs-toggle=\"dropdown\"", $html);
+        $this->assertStringNotContainsString("data-toggle=\"dropdown\"", $html);
         $this->assertEquals(questions::MULTICHOICE, $pos4['qtype']);
     }
 }

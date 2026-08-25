@@ -25,7 +25,8 @@
  *
  * @module    mod_kuet/questionspanel
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,10 +36,10 @@
 import jQuery from 'jquery';
 import {get_strings as getStrings} from 'core/str';
 import Ajax from 'core/ajax';
-import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
+import ModalSaveCancel from 'core/modal_save_cancel';
 
 let ACTION = {
     SELECTCATEGORY: '#id_movetocategory',
@@ -100,10 +101,9 @@ QuestionsPanel.prototype.selectCategory = function(e) {
             const title = langStrings[0];
             const message = langStrings[1];
             const buttonText = langStrings[2];
-            return ModalFactory.create({
+            return ModalSaveCancel.create({
                 title: title,
                 body: message,
-                type: ModalFactory.types.SAVE_CANCEL
             }).then(modal => {
                 modal.setSaveButtonText(buttonText);
                 modal.getRoot().on(ModalEvents.save, () => {
@@ -124,7 +124,7 @@ QuestionsPanel.prototype.selectCategory = function(e) {
                             identifier.html(html);
                             Templates.runTemplateJS(js);
                             jQuery(REGION.LOADING).remove();
-                        }).fail(Notification.exception);
+                        }).catch(Notification.exception);
                     });
                 });
                 modal.getRoot().on(ModalEvents.hidden, () => {
@@ -154,7 +154,7 @@ QuestionsPanel.prototype.selectCategory = function(e) {
                 identifier.html(html);
                 Templates.runTemplateJS(js);
                 jQuery(REGION.LOADING).remove();
-            }).fail(Notification.exception);
+            }).catch(Notification.exception);
         });
     }
 };

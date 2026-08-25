@@ -1,0 +1,32 @@
+# Packaging rules for the distribution ZIP produced by `git archive`.
+#
+# The Moodle Marketplace requires a package that installs as-is, with no build
+# tooling and no development files. Keep this file committed BEFORE tagging a
+# release: `git archive` reads these attributes from the tree of the tag, not
+# from the working tree.
+
+# Never convert line endings. Every blob in this repository is stored with LF,
+# but `git archive` applies the working-tree conversion, so on a checkout with
+# core.autocrlf=true (the Windows default) the package would come out CRLF and
+# every PHP file would fail the moodle line ending sniff in the Marketplace
+# validation. Marking everything as not-text makes the package byte-identical
+# to what is committed, whoever builds it.
+* -text
+
+# Build tooling (SCSS -> styles.css). The compiled CSS does ship; the sources
+# and the toolchain do not.
+package.json        export-ignore
+package-lock.json   export-ignore
+scss/               export-ignore
+
+# Development artefacts of the stylesheet.
+nocompressedstyles.css  export-ignore
+styles.css.map          export-ignore
+
+# Code style ruleset used during development.
+phpcs.xml           export-ignore
+
+# Repository metadata and CI.
+.github/            export-ignore
+.gitignore          export-ignore
+.gitattributes      export-ignore

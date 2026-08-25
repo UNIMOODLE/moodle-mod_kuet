@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -78,6 +79,125 @@ function xmldb_kuet_upgrade($oldversion) {
 
         // Kuet savepoint reached.
         upgrade_mod_savepoint(true, 2023071800, 'kuet');
+    }
+
+    if ($oldversion < 2026060200) {
+        // KUETEDUCAM-67: maximum grade obtainable per session.
+        $table = new xmldb_table('kuet');
+        $field = new xmldb_field(
+            'sessiongrademax',
+            XMLDB_TYPE_NUMBER,
+            '10, 5',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'grademethod'
+        );
+
+        // Conditionally launch add field sessiongrademax.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Initialise existing instances to the platform gradepointmax so they
+        // keep a sensible per-session maximum. Existing session grades are NOT
+        // renormalised here: recalculation pushes to the gradebook, which needs
+        // get_fast_modinfo() and is forbidden mid-upgrade. Run the CLI script
+        // mod/kuet/cli/recalculate_grades.php afterwards to renormalise them.
+        $gradepointmax = get_config('core', 'gradepointmax');
+        $DB->set_field_select('kuet', 'sessiongrademax', $gradepointmax, 'sessiongrademax = 0');
+
+        // Kuet savepoint reached.
+        upgrade_mod_savepoint(true, 2026060200, 'kuet');
+    }
+
+    if ($oldversion < 2026062500) {
+        // KUETEDUCAM-72: mandatory attendance flag per session.
+        $table = new xmldb_table('kuet_sessions');
+        $field = new xmldb_field(
+            'mandatoryattendance',
+            XMLDB_TYPE_INTEGER,
+            '1',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '1',
+            'sgrade'
+        );
+
+        // Conditionally launch add field mandatoryattendance. Existing sessions
+        // default to mandatory (1) so their grading behaviour is unchanged: a
+        // non-attendee keeps scoring 0 and the session keeps counting.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Kuet savepoint reached.
+        upgrade_mod_savepoint(true, 2026062500, 'kuet');
+    }
+
+    if ($oldversion < 2026062501) {
+        // KUETEDUCAM-73: manual mark override and its justifying comment per response.
+        $table = new xmldb_table('kuet_questions_responses');
+
+        // Teacher override for the question mark. Nullable, no fill: NULL means
+        // "no override" so existing responses keep their calculated mark.
+        $field = new xmldb_field(
+            'manualmark',
+            XMLDB_TYPE_NUMBER,
+            '10, 5',
+            null,
+            null,
+            null,
+            null,
+            'response'
+        );
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Mandatory comment justifying the override (only the last value kept).
+        $field = new xmldb_field('manualcomment', XMLDB_TYPE_TEXT, null, null, null, null, null, 'manualmark');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Kuet savepoint reached.
+        upgrade_mod_savepoint(true, 2026062501, 'kuet');
+    }
+    if ($oldversion < 2026091600) {
+        $table = new xmldb_table('kuet_sessions');
+        $field = new xmldb_field('questionslocked', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $DB->set_field_select('kuet_sessions', 'questionslocked', 1,
+            'status IN (0, 2) OR id IN (SELECT session FROM {kuet_questions_responses})
+             OR id IN (SELECT session FROM {kuet_user_progress})');
+        $lastid = 0;
+        do {
+            $records = $DB->get_records_sql('SELECT kq.id, qv.questionbankentryid, qv.version, ctx.id AS contextid
+                FROM {kuet_questions} kq
+                JOIN {question_versions} qv ON qv.questionid = kq.questionid
+                JOIN {modules} m ON m.name = :module
+                JOIN {course_modules} cm ON cm.module = m.id AND cm.instance = kq.kuetid
+                JOIN {context} ctx ON ctx.contextlevel = :level AND ctx.instanceid = cm.id
+                WHERE kq.id > :lastid ORDER BY kq.id',
+                ['module' => 'kuet', 'level' => CONTEXT_MODULE, 'lastid' => $lastid], 0, 500);
+            foreach ($records as $record) {
+                $key = ['component' => 'mod_kuet', 'questionarea' => 'session_question', 'itemid' => $record->id];
+                if (!$DB->record_exists('question_references', $key)) {
+                    $DB->insert_record('question_references', (object)($key + [
+                        'usingcontextid' => $record->contextid,
+                        'questionbankentryid' => $record->questionbankentryid,
+                        'version' => $record->version,
+                    ]));
+                }
+                $lastid = $record->id;
+            }
+        } while (count($records) === 500);
+        upgrade_mod_savepoint(true, 2026091600, 'kuet');
     }
     return true;
 }

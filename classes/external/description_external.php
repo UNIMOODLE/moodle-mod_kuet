@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
@@ -53,14 +55,14 @@ use moodle_exception;
 use qtype_description_question;
 use question_bank;
 
-
-require_once($CFG->dirroot. '/question/engine/bank.php');
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/question/engine/bank.php');
 
 /**
  * Description question class
  */
 class description_external extends external_api {
-
     /**
      * Description question parameters validation
      *
@@ -108,7 +110,6 @@ class description_external extends external_api {
         int $timeleft,
         bool $preview
     ): array {
-        global $PAGE, $USER;
         self::validate_parameters(
             self::description_parameters(),
             [
@@ -121,48 +122,13 @@ class description_external extends external_api {
                 'preview' => $preview,
             ]
         );
-        $contextmodule = context_module::instance($cmid);
-        $PAGE->set_context($contextmodule);
 
-        $session = new kuet_sessions($sessionid);
-        $question = question_bank::load_question($questionid);
-        $result = questions::NOTEVALUABLE;
-        if (assert($question instanceof qtype_description_question)) {
-            $statmentfeedback = questions::get_text(
-                $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
-            );
-            if ($preview === false) {
-                description::question_response(
-                    $cmid,
-                    $kid,
-                    $questionid,
-                    $sessionid,
-                    $kuetid,
-                    $statmentfeedback,
-                    $USER->id,
-                    $timeleft
-                );
-            }
-            return [
-                'reply_status' => true,
-                'result' => $result,
-                'hasfeedbacks' => (bool)($statmentfeedback !== ''),
-                'statment_feedback' => $statmentfeedback,
-                'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
-                    $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
-                    $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
-                'preview' => $preview,
-            ];
-        }
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_session_in_cm($sessionid, $cmid);
 
-        return [
-            'reply_status' => false,
-            'hasfeedbacks' => false,
-            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
-                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
-                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
-            'preview' => $preview,
-        ];
+        return description::answer($sessionid, $kuetid, $cmid, $questionid, $kid, $timeleft, $preview);
     }
 
     /**

@@ -76,14 +76,23 @@
             {{^ispage1}}
                 <div class="d-table-cell text-center">{{time}}</div>
             {{/ispage1}}
-            <div class="d-table-cell text-center">{{version}} </div>
+            <div class="d-table-cell text-center">{{version}} <small class="d-block">{{versionpolicy}}</small></div>
             <div class="d-table-cell actions">
                 <div class="content-actions">
                     {{^ispage3}}
                         {{#managesessions}}
-                            <a href="{{editquestionurl}}" class="question-action">
+                            <a href="{{editquestionurl}}" class="question-action"
+                                    title="{{#str}}editkuetquestionsettings, mod_kuet{{/str}}"
+                                    aria-label="{{#str}}editkuetquestionsettings, mod_kuet{{/str}}">
                                 {{#pix}} i/edit_session, mod_kuet {{/pix}}
                             </a>
+                            {{#caneditbankquestion}}
+                                <a href="{{bankeditquestionurl}}" class="question-action"
+                                        title="{{#str}}editbankquestion, mod_kuet{{/str}}"
+                                        aria-label="{{#str}}editbankquestion, mod_kuet{{/str}}">
+                                    {{#pix}} t/edit, core {{/pix}}
+                                </a>
+                            {{/caneditbankquestion}}
                             <div class="question-action" data-action="preview_question" data-questionnid="{{questionnid}}">
                                 <div class="question-action" data-action="question_preview" data-questionnid="{{questionnid}}">
                                     {{#pix}} i/preview, mod_kuet {{/pix}}

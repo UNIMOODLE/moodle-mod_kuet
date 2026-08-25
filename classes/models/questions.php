@@ -26,7 +26,8 @@
  * Question model
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -46,6 +47,8 @@ use mod_kuet\persistents\kuet_questions_responses;
 use mod_kuet\persistents\kuet_sessions;
 use mod_kuet\persistents\kuet_user_progress;
 use moodle_exception;
+use moodle_url;
+use pix_icon;
 use qbank_previewquestion\question_preview_options;
 use question_attempt;
 use question_definition;
@@ -154,6 +157,11 @@ class questions {
     protected int $sid;
     /** @var kuet_questions[] list */
     protected array $list;
+    /**
+     * @var int variant used by the last {@see self::get_text()} call. Avoids setting a
+     * dynamic property on the core question_definition object (deprecated in PHP 8.2+).
+     */
+    protected static int $lastvariant = 0;
 
     /**
      * Constructor
@@ -196,6 +204,100 @@ class questions {
      */
     public function get_num_questions(): int {
         return kuet_questions::count_records(['sessionid' => $this->sid, 'kuetid' => $this->kuetid]);
+    }
+
+    /**
+     * Export a session question for the session question list
+     *
+     * Lives here, and not in the external class that used to hold it, because
+     * it is not a web service function: it is called while rendering pages.
+     *
+     * @param kuet_questions $question
+     * @param int $cmid
+     * @return stdClass
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function export_session_question(kuet_questions $question, int $cmid): stdClass {
+        global $DB;
+        $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')]);
+        $questionexists = (bool) $questiondb;
+        if (!$questionexists) {
+            $questiondb = (object)['name' => get_string('missingquestion', 'mod_kuet')];
+        }
+        $data = new stdClass();
+        $data->questionnid = $question->get('id');
+        $data->position = $question->get('qorder');
+        $data->name = $questiondb->name;
+        $data->type = $question->get('qtype');
+        $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
+            'class' => 'icon',
+            'title' => $question->get('qtype'),
+        ]);
+        $data->icon = $icon->export_for_pix();
+        $data->sid = $question->get('sessionid');
+        $data->cmid = $cmid;
+        $data->kuetid = $question->get('kuetid');
+        $data->isvalid = $question->get('isvalid');
+        $session = new kuet_sessions($question->get('sessionid'));
+        switch ($session->get('timemode')) {
+            case sessions::NO_TIME:
+            default:
+                $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
+                break;
+            case sessions::SESSION_TIME:
+                $numquestion = kuet_questions::count_records(
+                    ['sessionid' => $session->get('id'), 'kuetid' => $session->get('kuetid')]
+                );
+                $timeperquestion = round((int)$session->get('sessiontime') / $numquestion);
+                $data->time = ($timeperquestion > 0) ? $timeperquestion . 's' : '-';
+                break;
+            case sessions::QUESTION_TIME:
+                $data->time =
+                    ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : $session->get('questiontime') . 's';
+                break;
+        }
+        $data->issuitable = in_array($question->get('qtype'), self::TYPES, true);
+        $data->version = $DB->get_field('question_versions', 'version', ['questionid' => $question->get('questionid')]);
+        $cmcontext = context_module::instance($cmid);
+        $data->managesessions = has_capability('mod/kuet:managesessions', $cmcontext) &&
+            !\mod_kuet\question\version_resolver::locked($question->get('sessionid'));
+        $reference = \mod_kuet\question\version_resolver::reference($question->get('id'));
+        $data->versionpolicy = get_string($reference && $reference->version === null ? 'uselatestready' :
+            'fixedquestionversion', 'mod_kuet');
+        $args = [
+            'id' => $cmid,
+            'kid' => $question->get('id'),
+            'sid' => $question->get('sessionid'),
+            'ksid' => $question->get('kuetid'),
+            'cid' => ($DB->get_record('kuet', ['id' => $question->get('kuetid')], 'course'))->course,
+        ];
+        $data->question_preview_url = (new moodle_url('/mod/kuet/preview.php', $args))->out(false);
+        $data->editquestionurl = (new moodle_url('/mod/kuet/editquestion.php', $args))->out(false);
+        $data->caneditbankquestion = false;
+        if ($questionexists) {
+            $bankquestion = \mod_kuet\question\bank_provider::question((int) $questiondb->id);
+            $bankcontext = \context::instance_by_id($bankquestion->contextid);
+            if (
+                $bankcontext->contextlevel === CONTEXT_MODULE &&
+                    \question_bank::is_qtype_installed($bankquestion->qtype) &&
+                    question_has_capability_on($bankquestion, 'edit')
+            ) {
+                $returnurl = new moodle_url('/mod/kuet/sessions.php', [
+                    'cmid' => $cmid,
+                    'sid' => $question->get('sessionid'),
+                    'page' => 2,
+                ]);
+                $data->caneditbankquestion = true;
+                $data->bankeditquestionurl = (new moodle_url('/question/bank/editquestion/question.php', [
+                    'id' => $bankquestion->id,
+                    'cmid' => $bankcontext->instanceid,
+                    'returnurl' => $returnurl->out_as_local_url(false),
+                ]))->out(false);
+            }
+        }
+        return $data;
     }
 
     /**
@@ -362,42 +464,51 @@ class questions {
     ): string {
         global $DB;
         $contextmodule = context_module::instance($cmid);
-        $usage = $DB->get_record('question_usages', ['component' => 'mod_kuet', 'contextid' => $contextmodule->id]);
-        $options = new question_preview_options($question);
-        $options->load_user_defaults();
-        $options->set_from_request();
         $maxvariant = min($question->get_num_variants(), 100);
-        if ($usage !== false) {
-            $quba = question_engine::load_questions_usage_by_activity($usage->id);
-        } else {
-            $quba = question_engine::make_questions_usage_by_activity(
-                'mod_kuet',
-                context_module::instance($cmid)
-            );
+        $variant = $variant ?: random_int(1, max(1, $maxvariant));
+        if (!$noattempt) {
+            self::$lastvariant = $variant;
         }
-        $quba->set_preferred_behaviour('immediatefeedback');
-        $slot = $quba->add_question($question, $options->maxmark);
-        if ($options->variant) {
-            $options->variant = min($maxvariant, max(1, $options->variant));
-        } else {
-            $options->variant = random_int(1, $maxvariant);
+        $cm = get_coursemodule_from_id('kuet', $cmid, 0, false, MUST_EXIST);
+        $guard = new \mod_kuet\question\mutation($cm->instance);
+        try {
+            // These are rendering usages, not student responses. Reuse only the exact version and variant.
+            $attempts = $DB->get_records_sql('SELECT qa.id, qa.questionusageid, qa.slot
+                  FROM {question_attempts} qa
+                  JOIN {question_usages} qu ON qu.id = qa.questionusageid
+                 WHERE qu.component = :component AND qu.contextid = :context
+                   AND qa.questionid = :question AND qa.variant = :variant
+                 ORDER BY qa.id', ['component' => 'mod_kuet', 'context' => $contextmodule->id,
+                    'question' => $question->id, 'variant' => $variant], 0, 1);
+            if ($attempts) {
+                $attempt = reset($attempts);
+                $quba = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
+                $slot = $attempt->slot;
+            } else {
+                $quba = question_engine::make_questions_usage_by_activity('mod_kuet', $contextmodule);
+                $quba->set_preferred_behaviour('immediatefeedback');
+                $slot = $quba->add_question($question);
+                $quba->start_question($slot, $variant, null, 0);
+                question_engine::save_questions_usage_by_activity($quba);
+            }
+            $qa = $quba->get_question_attempt($slot);
+            // Type renderers also read the supplied definition after formatting (e.g. shuffled ddwtos choices).
+            $question->apply_attempt_state($qa->get_step(0));
+            $text = $qa->get_question()->format_text($text, $textformat, $qa, 'question', $filearea, $id);
+            $guard->finish();
+            return $text;
+        } catch (\Throwable $e) {
+            $guard->abort($e);
         }
-        if ($noattempt === false) {
-            $question->variant = $options->variant;
-        }
-        if ($variant === 0) {
-            $quba->start_question($slot, $options->variant);
-        } else {
-            $quba->start_question($slot, $variant);
-        }
-        if ($usage === false) {
-            $transaction = $DB->start_delegated_transaction();
-            question_engine::save_questions_usage_by_activity($quba);
-            $transaction->allow_commit();
-        }
-        $qa = new question_attempt($question, $quba->get_id());
-        $qa->set_slot($slot);
-        return $qa->get_question()->format_text($text, $textformat, $qa, 'question', $filearea, $id);
+    }
+
+    /**
+     * Variant used by the last {@see self::get_text()} call.
+     *
+     * @return int
+     */
+    public static function get_last_variant(): int {
+        return self::$lastvariant;
     }
 
     /**

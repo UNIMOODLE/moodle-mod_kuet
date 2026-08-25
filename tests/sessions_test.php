@@ -27,18 +27,23 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_kuet;
+
 use core\invalid_persistent_exception;
 use mod_kuet\models\sessions;
 use mod_kuet\persistents\kuet_sessions;
 
 /**
  * Sessions test class
+ *
+ * @covers \mod_kuet\models\sessions
  */
-class sessions_test extends advanced_testcase {
+final class sessions_test extends \advanced_testcase {
     /**
      * @var array session mockup
      */
@@ -75,7 +80,7 @@ class sessions_test extends advanced_testcase {
      *
      * @return bool
      * @throws invalid_persistent_exception
-     * @throws coding_exception
+     * @throws \coding_exception
      */
     public function test_save_session(): void {
         $this->resetAfterTest(true);
@@ -93,8 +98,8 @@ class sessions_test extends advanced_testcase {
      * Delete session test
      *
      * @return bool
-     * @throws coding_exception
-     * @throws dml_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
      * @throws invalid_persistent_exception
      */
     public function test_delete_session(): bool {
@@ -105,10 +110,10 @@ class sessions_test extends advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $generator->create_session($kuet, (object) $this->sessionmock);
         $this->sessions = new sessions($kuet, $kuet->cmid);
-        $list = $this->sessions->get_list();
+        $list = array_values($this->sessions->get_list());
         $list[0]::delete_session($list[0]->get('id'));
         $this->sessions->set_list();
-        $newlist = $this->sessions->get_list();
+        $newlist = array_values($this->sessions->get_list());
         $this->assertCount(0, $newlist);
         return true;
     }
@@ -117,8 +122,8 @@ class sessions_test extends advanced_testcase {
      * Duplicate session test
      *
      * @return bool
-     * @throws coding_exception
-     * @throws dml_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
      * @throws invalid_persistent_exception
      */
     public function test_duplicate_session(): bool {
@@ -129,10 +134,10 @@ class sessions_test extends advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $generator->create_session($kuet, (object) $this->sessionmock);
         $this->sessions = new sessions($kuet, $kuet->cmid);
-        $list = $this->sessions->get_list();
+        $list = array_values($this->sessions->get_list());
         $list[0]::duplicate_session($list[0]->get('id'));
         $this->sessions->set_list();
-        $newlist = $this->sessions->get_list();
+        $newlist = array_values($this->sessions->get_list());
         $this->assertCount(2, $newlist);
         return true;
     }
@@ -141,9 +146,9 @@ class sessions_test extends advanced_testcase {
      * Test session
      *
      * @return void
-     * @throws coding_exception
+     * @throws \coding_exception
      */
-    public function test_session() {
+    public function test_session(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
@@ -153,7 +158,7 @@ class sessions_test extends advanced_testcase {
         $createdsid = $generator->create_session($kuet, (object) $this->sessionmock);
         $expecteds = kuet_sessions::get_record(['kuetid' => $kuet->id]);
         $this->assertSame($expecteds->get('id'), $createdsid);
-        $list = $this->sessions->get_list();
+        $list = array_values($this->sessions->get_list());
         $this->assertIsArray($list);
         $this->assertCount(1, $list);
         $this->assertIsObject($list[0]);
@@ -168,7 +173,7 @@ class sessions_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_breakdown_responses_for_race() {
+    public function test_breakdown_responses_for_race(): void {
         // 3IP.
     }
 
@@ -177,7 +182,7 @@ class sessions_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_breakdown_responses_for_race_groups() {
+    public function test_breakdown_responses_for_race_groups(): void {
         // 3IP.
     }
 
@@ -186,7 +191,7 @@ class sessions_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_get_provisional_ranking() {
+    public function test_get_provisional_ranking(): void {
         $this->resetAfterTest(true);
         // Create session.
         $course = self::getDataGenerator()->create_course();
@@ -203,7 +208,7 @@ class sessions_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_get_provisional_ranking_individual() {
+    public function test_get_provisional_ranking_individual(): void {
         // 3IP.
     }
 
@@ -212,7 +217,7 @@ class sessions_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_get_provisional_ranking_group() {
+    public function test_get_provisional_ranking_group(): void {
         // 3IP.
     }
 
@@ -221,7 +226,7 @@ class sessions_test extends advanced_testcase {
      *
      * @return void
      */
-    public function test_get_final_ranking() {
+    public function test_get_final_ranking(): void {
         // 3IP.
     }
 
@@ -229,10 +234,10 @@ class sessions_test extends advanced_testcase {
      * End session test
      *
      * @return void
-     * @throws coding_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \moodle_exception
      */
-    public function test_export_endsession() {
+    public function test_export_endsession(): void {
         $this->resetAfterTest(true);
         // Create session.
         $course = self::getDataGenerator()->create_course();
@@ -243,7 +248,7 @@ class sessions_test extends advanced_testcase {
 
         $data = sessions::export_endsession($kuet->cmid, $createdsid);
         $this->assertIsObject($data);
-        $this->assertObjectHasProperty('endsession', $data);
+        $this->assertTrue(property_exists($data, 'endsession'));
         $this->assertSame($data->endsession, true);
     }
 }

@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use core_external\external_api;
+use mod_kuet\helpers\modcontext;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
@@ -48,7 +50,6 @@ use moodle_exception;
  * Delete question class
  */
 class deletequestion_external extends external_api {
-
     /**
      * Delete question paremeters validation
      *
@@ -77,8 +78,15 @@ class deletequestion_external extends external_api {
             ['sid' => $sid, 'qid' => $qid]
         );
 
+        $context = modcontext::from_question($qid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
+        modcontext::require_question_in_session($qid, $sid);
+
+        $sqp = new kuet_questions($qid);
+        $guard = new \mod_kuet\question\mutation($sqp->get('kuetid'));
         try {
-            $sqp = new kuet_questions($qid);
+            $sqp->read();
             $deletedorder = $sqp->get('qorder');
             $deleted = $sqp->delete();
             // Reorder the rest of the questions.
@@ -91,8 +99,9 @@ class deletequestion_external extends external_api {
                     $deletedorder++;
                 }
             }
-        } catch (moodle_exception $e) {
-            $deleted = false;
+            $guard->finish();
+        } catch (\Throwable $e) {
+            $guard->abort($e);
         }
 
         return [

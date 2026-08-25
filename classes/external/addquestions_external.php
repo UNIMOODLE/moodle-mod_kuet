@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use core\invalid_persistent_exception;
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -53,7 +55,6 @@ use mod_kuet\models\questions;
  * Add questions class
  */
 class addquestions_external extends external_api {
-
     /**
      * Add questions parameters validation
      *
@@ -67,10 +68,15 @@ class addquestions_external extends external_api {
                         'questionid' => new external_value(PARAM_INT, 'question id'),
                         'sessionid' => new external_value(PARAM_INT, 'sessionid'),
                         'kuetid' => new external_value(PARAM_INT, 'kuetid'),
-                        'qtype' => new external_value(PARAM_RAW, 'sessionid'),
+                        'qtype' => new external_value(PARAM_RAW, 'Legacy type; ignored by the server', VALUE_DEFAULT, ''),
+                        'uselatest' => new external_value(PARAM_BOOL, 'Use latest ready version', VALUE_DEFAULT, false),
                     ]
-                ), 'List of session questions', VALUE_DEFAULT, []
+                ),
+                'List of session questions',
+                VALUE_DEFAULT,
+                []
             ),
+            'requestid' => new external_value(PARAM_ALPHANUMEXT, 'Retry token', VALUE_DEFAULT, ''),
         ]);
     }
 
@@ -84,28 +90,63 @@ class addquestions_external extends external_api {
      * @throws invalid_parameter_exception
      * @throws invalid_persistent_exception
      */
-    public static function add_questions(array $questions): array {
-        self::validate_parameters(
-            self::add_questions_parameters(),
-            ['questions' => $questions]
-        );
-
-        $added = true;
-        foreach ($questions as $question) {
-            if (!in_array($question['qtype'], questions::TYPES, true)) {
-                continue;
-            }
-            $result = kuet_questions::add_question($question['questionid'], $question['sessionid'],
-                $question['kuetid'], $question['qtype']);
-            if (false === $result) {
-                $added = false;
-            }
+    public static function add_questions(array $questions, string $requestid = ''): array {
+        global $DB, $SESSION;
+        $params = self::validate_parameters(self::add_questions_parameters(),
+            ['questions' => $questions, 'requestid' => $requestid]);
+        $questions = $params['questions'];
+        if (!$questions) {
+            return ['added' => true];
         }
-        return [
-            'added' => $added,
-        ];
+        $kuetid = (int)$questions[0]['kuetid'];
+        $sid = (int)$questions[0]['sessionid'];
+        $context = modcontext::from_kuet($kuetid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
+        modcontext::require_session_in_kuet($sid, $kuetid);
+        $guard = new \mod_kuet\question\mutation($kuetid);
+        try {
+            $fingerprint = hash('sha256', json_encode($questions));
+            $key = $kuetid . ':' . $sid . ':' . $params['requestid'];
+            if ($params['requestid'] !== '' && isset($SESSION->kuetquestionrequests[$key])) {
+                if ($SESSION->kuetquestionrequests[$key] !== $fingerprint) {
+                    throw new invalid_parameter_exception('Request token already used with different questions.');
+                }
+                $guard->finish();
+                return ['added' => true];
+            }
+            \mod_kuet\question\version_resolver::require_editable($sid);
+            // Validate the entire batch before inserting any position.
+            $resolved = [];
+            foreach ($questions as $question) {
+                if ((int)$question['kuetid'] !== $kuetid || (int)$question['sessionid'] !== $sid) {
+                    throw new invalid_parameter_exception('All questions must target the same session.');
+                }
+                $resolved[] = \mod_kuet\question\bank_provider::require_question($question['questionid']);
+            }
+            $order = (int)$DB->get_field_sql('SELECT MAX(qorder) FROM {kuet_questions} WHERE sessionid = ?', [$sid]);
+            foreach ($questions as $index => $input) {
+                $question = $resolved[$index];
+                $slot = new kuet_questions(0, (object)[
+                    'questionid' => $question->id, 'sessionid' => $sid, 'kuetid' => $kuetid,
+                    'qorder' => ++$order, 'qtype' => $question->qtype, 'timelimit' => 0,
+                    'ignorecorrectanswer' => 0, 'isvalid' => 0, 'config' => '',
+                ]);
+                $slot->create();
+                if ($input['uselatest']) {
+                    \mod_kuet\question\version_resolver::set_policy($slot, null);
+                }
+            }
+            $guard->finish();
+            if ($params['requestid'] !== '') {
+                $SESSION->kuetquestionrequests[$key] = $fingerprint;
+                $SESSION->kuetquestionrequests = array_slice($SESSION->kuetquestionrequests, -100, null, true);
+            }
+            return ['added' => true];
+        } catch (\Throwable $e) {
+            $guard->abort($e);
+        }
     }
-
     /**
      * Add questions return
      *

@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -43,7 +44,6 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_kuet\api\grade;
 use mod_kuet\api\groupmode;
-use mod_kuet\external\multichoice_external;
 use mod_kuet\helpers\reports;
 use mod_kuet\persistents\kuet_questions;
 use mod_kuet\persistents\kuet_questions_responses;
@@ -95,7 +95,7 @@ class multichoice extends questions implements questionType {
     public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false): object {
         $session = kuet_sessions::get_record(['id' => $sessionid]);
         $kuetquestion = kuet_questions::get_record(['id' => $kid]);
-        $question = question_bank::load_question($kuetquestion->get('questionid'));
+        $question = question_bank::load_question($kuetquestion->get('questionid'), 0);
         $type = $question->get_type_name();
         $data = self::get_question_common_data($session, $cmid, $sessionid, $kuetid, $preview, $kuetquestion, $type);
         $data->$type = true;
@@ -105,7 +105,7 @@ class multichoice extends questions implements questionType {
         $feedbacks = [];
         foreach ($question->answers as $response) {
             if (assert($response instanceof question_answer)) {
-                if ($response->fraction !== 0.0 && $response->fraction !== 1.0) {
+                if ($response->fraction > 0 && $response->fraction < 1) {
                     $data->multianswers = true;
                 }
                 $answertext = self::get_text($cmid, $response->answer, $response->answerformat, $response->id, $question, 'answer');
@@ -150,7 +150,7 @@ class multichoice extends questions implements questionType {
     public static function export_question_response(stdClass $data, string $response, int $result = 0): stdClass {
         $responsedata = json_decode($response, false);
         $data->answered = true;
-        $dataanswer = multichoice_external::multichoice(
+        $dataanswer = self::answer(
             $responsedata->answerids,
             $data->sessionid,
             $data->kuetid,
@@ -201,19 +201,7 @@ class multichoice extends questions implements questionType {
         foreach ($questiondata->answers as $key => $answer) {
             $answers[$key]['answertext'] = $answer->answer; // 3IP get text with images questions::get_text.
             $answers[$key]['answerid'] = $key;
-            if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
-                $answers[$key]['result'] = 'incorrect';
-                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_kuet');
-                $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
-                    'class' => 'icon',
-                    'title' => get_string('incorrect', 'mod_kuet'),
-                ]);
-                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
-                    'class' => 'icon',
-                    'title' => '',
-                ]);
-            } else if ($answer->fraction === '1.0000000') {
+            if ((int)$answer->fraction == 1) {
                 $answers[$key]['result'] = 'correct';
                 $answers[$key]['resultstr'] = get_string('correct', 'mod_kuet');
                 $answers[$key]['fraction'] = '1';
@@ -225,7 +213,7 @@ class multichoice extends questions implements questionType {
                     'class' => 'icon',
                     'title' => '',
                 ]);
-            } else {
+            } else if ($answer->fraction > 0 && $answer->fraction < 1) {
                 $answers[$key]['result'] = 'partially';
                 $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_kuet');
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
@@ -237,11 +225,23 @@ class multichoice extends questions implements questionType {
                     'class' => 'icon',
                     'title' => '',
                 ]);
+            } else {
+                $answers[$key]['result'] = 'incorrect';
+                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_kuet');
+                $answers[$key]['fraction'] = round($answer->fraction, 2);
+                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
+                        'class' => 'icon',
+                        'title' => get_string('incorrect', 'mod_kuet'),
+                ]);
+                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
+                        'class' => 'icon',
+                        'title' => '',
+                ]);
             }
-            $answers[$key]['resulticon'] = $icon->export_for_pix();
+                $answers[$key]['resulticon'] = $icon->export_for_pix();
             $answers[$key]['usersicon'] = $usersicon->export_for_pix();
             $answers[$key]['numticked'] = 0;
-            if ($answer->fraction !== '0.0000000') { // Answers with punctuation, even if negative.
+            if ($answer->fraction < 1) { // Answers with punctuation, even if negative.
                 $correctanswers[$key]['response'] = $answer->answer;
                 $correctanswers[$key]['score'] = grade::get_rounded_mark($questiondata->defaultmark * $answer->fraction);
             }
@@ -298,7 +298,7 @@ class multichoice extends questions implements questionType {
                     $participant->answertext = $answer['answertext'];
                 } else if ((int)$arrayresponses[0] === 0) {
                     $participant->response = 'noresponse';
-                    $participant->responsestr = get_string('qstatus_' . questions::NORESPONSE, 'mod_kuet');
+                    $participant->responsestr = get_string($participant->response, 'mod_kuet');
                     $participant->answertext = '';
                 }
                 $points = grade::get_simple_mark($response);
@@ -325,7 +325,9 @@ class multichoice extends questions implements questionType {
                 }
             }
             $status = grade::get_status_response_for_multiple_answers($question->get('questionid'), $other->answerids);
-            $participant->response = get_string('qstatus_' . $status, 'mod_kuet');
+            // Store the key, not the label: the template reuses it as CSS class
+            // and as the pix icon name (pix/q/<key>.svg).
+            $participant->response = grade::get_result_mark_type_by_status($status);
             $participant->responsestr = get_string($participant->response, 'mod_kuet');
             $participant->answertext = trim($answertext, '<br>');
             $points = grade::get_simple_mark($response);
@@ -539,5 +541,113 @@ class multichoice extends questions implements questionType {
      */
     public static function show_statistics(): bool {
         return true;
+    }
+    /**
+     * Grade and register an answer to a multiple choice question
+     *
+     * Internal counterpart of the multichoice web service. Report rendering
+     * calls this directly, so that it never goes through the external API
+     * and its validate_context() in the middle of a page render.
+     *
+     * @param string $answerids
+     * @param int $sessionid
+     * @param int $kuetid
+     * @param int $cmid
+     * @param int $questionid
+     * @param int $kid
+     * @param int $timeleft
+     * @param bool $preview
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     * @return array
+     */
+    public static function answer(
+        string $answerids,
+        int $sessionid,
+        int $kuetid,
+        int $cmid,
+        int $questionid,
+        int $kid,
+        int $timeleft,
+        bool $preview
+    ): array {
+        global $PAGE, $USER;
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
+
+        $question = question_bank::load_question($questionid, 0);
+        $statmentfeedback = questions::get_text(
+            $cmid,
+            $question->generalfeedback,
+            $question->generalfeedbackformat,
+            $question->id,
+            $question,
+            'generalfeedback'
+        );
+        $correctanswers = '';
+        $answerfeedback = '';
+        $answertexts = [];
+        foreach ($question->answers as $key => $answer) {
+            $answertexts[$answer->id] = $answer->answer;
+            // Cast before comparing: fraction arrives as a float on some Moodle versions and as a
+            // string on others, so a strict comparison silently changes meaning between them.
+            if ((float)$answer->fraction > 0) {
+                $correctanswers .= $answer->id . ',';
+            }
+            if (isset($answerids) && $answerids !== '' && $answerids !== '0') {
+                $arrayanswers = explode(',', $answerids);
+                foreach ($arrayanswers as $arrayanswer) {
+                    if ((int)$key === (int)$arrayanswer) {
+                        $answertexts[$answer->id] = strip_tags($answer->answer);
+                        $answerfeedback .= questions::get_text(
+                            $cmid,
+                            $answer->feedback,
+                            1,
+                            $answer->id,
+                            $question,
+                            'answerfeedback'
+                        ) . '<br>';
+                    }
+                }
+            }
+        }
+        $answertexts = json_encode($answertexts, JSON_THROW_ON_ERROR);
+        $correctanswers = trim($correctanswers, ',');
+        if ($preview === false) {
+            $custom = [
+                'answerids' => $answerids,
+                'answertexts' => $answertexts,
+                'correctanswers' => $correctanswers,
+                'answerfeedback' => $answerfeedback,
+            ];
+            self::question_response(
+                $cmid,
+                $kid,
+                $questionid,
+                $sessionid,
+                $kuetid,
+                $statmentfeedback,
+                $USER->id,
+                $timeleft,
+                $custom
+            );
+        }
+        $session = new kuet_sessions($sessionid);
+        return [
+            'reply_status' => true,
+            'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
+            'statment_feedback' => $statmentfeedback,
+            'answer_feedback' => $answerfeedback,
+            'correct_answers' => $correctanswers,
+            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+            'preview' => $preview,
+        ];
     }
 }

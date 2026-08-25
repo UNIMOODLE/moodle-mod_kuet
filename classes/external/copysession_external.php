@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
@@ -52,7 +54,6 @@ use mod_kuet\persistents\kuet_sessions;
  * Copy session class
  */
 class copysession_external extends external_api {
-
     /**
      * Copy session API parameters validation
      *
@@ -86,11 +87,25 @@ class copysession_external extends external_api {
             self::copysession_parameters(),
             ['courseid' => $courseid, 'cmid' => $cmid, 'sessionid' => $sessionid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        // The capability is checked below, and this function reports a refusal in
+        // its return value instead of throwing. What was missing was the context
+        // validation and the ownership check, not the authorisation itself.
+        modcontext::require_session_in_cm($sessionid, $cmid);
         $cmcontext = context_module::instance($cmid);
         $copied = false;
         if ($cmcontext !== null && has_capability('mod/kuet:managesessions', $cmcontext, $USER)) {
-            $newsessionid = kuet_sessions::duplicate_session($sessionid);
-            $copied = kuet_questions::copy_session_questions($sessionid, $newsessionid);
+            $session = new kuet_sessions($sessionid);
+            $guard = new \mod_kuet\question\mutation($session->get('kuetid'));
+            try {
+                $newsessionid = kuet_sessions::duplicate_session($sessionid);
+                $copied = kuet_questions::copy_session_questions($sessionid, $newsessionid);
+                $guard->finish();
+            } catch (\Throwable $e) {
+                $guard->abort($e);
+            }
         }
         return [
             'copied' => $copied,

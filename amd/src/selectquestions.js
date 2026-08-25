@@ -25,7 +25,8 @@
  *
  * @module    mod_kuet/selectquestions
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,10 +36,11 @@
 import jQuery from 'jquery';
 import {get_strings as getStrings} from 'core/str';
 import Ajax from 'core/ajax';
-import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
+import ModalCancel from 'core/modal_cancel';
+import ModalSaveCancel from 'core/modal_save_cancel';
 
 let ACTION = {
     ADDQUESTIONS: '[data-action="add_questions"]',
@@ -141,10 +143,9 @@ SelectQuestions.prototype.addQuestions = function(e) {
         getStrings(stringkeys).then((langStrings) => {
             const title = langStrings[0];
             const message = langStrings[1];
-            return ModalFactory.create({
+            return ModalCancel.create({
                 title: title,
                 body: message,
-                type: ModalFactory.types.CANCEL
             }).then(modal => {
                 modal.getRoot().on(ModalEvents.hidden, () => {
                     modal.destroy();
@@ -175,10 +176,9 @@ SelectQuestions.prototype.addQuestions = function(e) {
             const title = langStrings[0];
             const message = langStrings[1];
             const buttonText = langStrings[2];
-            return ModalFactory.create({
+            return ModalSaveCancel.create({
                 title: title,
                 body: message,
-                type: ModalFactory.types.SAVE_CANCEL
             }).then(modal => {
                 modal.setSaveButtonText(buttonText);
                 modal.getRoot().on(ModalEvents.save, () => {
@@ -211,12 +211,12 @@ SelectQuestions.prototype.addQuestions = function(e) {
                                     Templates.runTemplateJS(js);
                                     that.countChecks();
                                     jQuery(REGION.LOADING).remove();
-                                }).fail(Notification.exception);
+                                }).catch(Notification.exception);
                             });
                         }
                     })
                     .fail( async (e) => {
-                        const modal = await ModalFactory.create({
+                        const modal = await ModalCancel.create({
                             title: 'KUET',
                             body: Templates.render('mod_kuet/error_modal', {message: e.message, link: e.link})
                         });
@@ -277,7 +277,7 @@ SelectQuestions.prototype.addQuestion = function(e) {
                     Templates.runTemplateJS(js);
                     that.countChecks();
                     jQuery(REGION.LOADING).remove();
-                }).fail(Notification.exception);
+                }).catch(Notification.exception);
             });
         } else {
             // 3IP modal or notification error.

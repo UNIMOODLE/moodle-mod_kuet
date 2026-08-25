@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -49,9 +50,10 @@ require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
 
 /**
  * Sessions panel test class
+ *
+ * @covers \mod_kuet\external\sessionspanel_external
  */
-class sessionspanel_external_test extends advanced_testcase {
-
+final class sessionspanel_external_test extends advanced_testcase {
     /**
      * @var array session mockup
      */
@@ -72,7 +74,7 @@ class sessionspanel_external_test extends advanced_testcase {
         'sessiontime' => 0,
         'questiontime' => 10,
         'groupmode' => 0,
-        'status' => sessions::SESSION_FINISHED,
+        'status' => sessions::SESSION_ACTIVE,
         'sessionid' => 0,
         'submitbutton' => 0,
         'showgraderanking' => 0,
@@ -100,7 +102,10 @@ class sessionspanel_external_test extends advanced_testcase {
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $questiongenerator->create_question_category();
+        $bank = self::getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+        $cat = $questiongenerator->create_question_category([
+            'contextid' => \context_module::instance($bank->cmid)->id,
+        ]);
         $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, ['category' => $cat->id]);
         $nq = $questiongenerator->create_question(questions::NUMERICAL, null, ['category' => $cat->id]);
         $tfq = $questiongenerator->create_question(questions::TRUE_FALSE, null, ['category' => $cat->id]);
@@ -118,6 +123,8 @@ class sessionspanel_external_test extends advanced_testcase {
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION],
         ];
         $generator->add_questions_to_session($questions);
+        $finished = new kuet_sessions($createdsid);
+        $finished->set('status', sessions::SESSION_FINISHED)->update();
         $allsessions = kuet_sessions::get_records(['kuetid' => $kuet->id]);
         $expectedids = 0;
         foreach ($allsessions as $session) {
@@ -147,25 +154,27 @@ class sessionspanel_external_test extends advanced_testcase {
         $this->assertEquals($sessionurl, $result['createsessionurl']);
         $this->assertFalse($result['hasactivesession']);
         $this->assertIsArray($result['endedsessions']);
-        $this->assertObjectHasProperty('name', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('sessionid', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('sessionmode', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('timemode', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('sessiontime', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('questions_number', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('managesessions', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('initsession', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('initsessionurl', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('viewreporturl', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('editsessionurl', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('date', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('status', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('issessionstarted', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('stringsession', $result['endedsessions'][0]);
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'name'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'sessionid'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'sessionmode'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'timemode'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'sessiontime'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'questions_number'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'managesessions'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'initsession'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'initsessionurl'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'viewreporturl'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'editsessionurl'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'date'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'status'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'issessionstarted'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'stringsession'));
         $this->assertEquals($this->sessionmock['name'], $result['endedsessions'][0]->name);
         $this->assertEquals($createdsid, $result['endedsessions'][0]->sessionid);
-        $this->assertEquals(get_string($this->sessionmock['sessionmode'], 'mod_kuet'),
-            $result['endedsessions'][0]->sessionmode);
+        $this->assertEquals(
+            get_string($this->sessionmock['sessionmode'], 'mod_kuet'),
+            $result['endedsessions'][0]->sessionmode
+        );
         $this->assertEquals(get_string('question_time', 'mod_kuet'), $result['endedsessions'][0]->timemode);
         $this->assertEquals(userdate(60, '%Mm %Ss'), $result['endedsessions'][0]->sessiontime);
         $this->assertEquals(6, $result['endedsessions'][0]->questions_number);
@@ -179,7 +188,7 @@ class sessionspanel_external_test extends advanced_testcase {
         $editsessionurl =
             (new \moodle_url('/mod/kuet/sessions.php', ['cmid' => $kuet->cmid, 'sid' => $createdsid]))->out(false);
         $this->assertEquals($editsessionurl, $result['endedsessions'][0]->editsessionurl);
-        $this->assertEquals($this->sessionmock['status'], $result['endedsessions'][0]->status);
+        $this->assertEquals(sessions::SESSION_FINISHED, $result['endedsessions'][0]->status);
         $this->assertFalse($result['endedsessions'][0]->issessionstarted);
         $this->assertEquals(get_string('init_session', 'mod_kuet'), $result['endedsessions'][0]->stringsession);
     }

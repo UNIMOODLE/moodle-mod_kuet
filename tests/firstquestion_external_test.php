@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_kuet;
+
 /**
  * First question service test
  *
@@ -27,26 +29,27 @@
 
 /**
  *  First question service test class
+ *
+ * @covers \mod_kuet\external\firstquestion_external
  */
-class firstquestion_external_test extends advanced_testcase {
+final class firstquestion_external_test extends \advanced_testcase {
     /**
      * First question service test
      *
      * @return void
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws dml_transaction_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \dml_transaction_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_firstquestion() {
+    public function test_firstquestion(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -80,7 +83,10 @@ class firstquestion_external_test extends advanced_testcase {
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $questiongenerator->create_question_category();
+        $bank = self::getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+        $cat = $questiongenerator->create_question_category([
+            'contextid' => \context_module::instance($bank->cmid)->id,
+        ]);
         /** @var qtype_shortanswer $saq */
         $saq = $questiongenerator->create_question('shortanswer', null, ['category' => $cat->id]);
         $numq = $questiongenerator->create_question('numerical', null, ['category' => $cat->id]);
@@ -92,7 +98,8 @@ class firstquestion_external_test extends advanced_testcase {
         ]);
 
         $jqf = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'shortanswer']);
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'shortanswer']
+        );
         $data = \mod_kuet\external\firstquestion_external::firstquestion($kuet->cmid, $createdsid);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('cmid', $data);

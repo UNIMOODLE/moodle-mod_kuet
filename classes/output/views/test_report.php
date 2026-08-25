@@ -27,17 +27,18 @@
  *
  * @package    mod_kuet
  * @copyright  2025 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     PLANIFICACIÓN DE ENTORNOS TECNOLÓGICOS, S.L. <admon@pentec.es>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_kuet\output\views;
 
-use core\output\renderable;
-use core\output\renderer_base;
+use renderable;
+use renderer_base;
 use stdClass;
-use core\output\templatable;
+use templatable;
 
 /**
  * Test WebSocket server report renderable class.

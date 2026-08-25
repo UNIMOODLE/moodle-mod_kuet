@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -48,8 +49,10 @@ require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
 
 /**
  * Delete session test class
+ *
+ * @covers \mod_kuet\external\deletesession_external
  */
-class deletesession_external_test extends advanced_testcase {
+final class deletesession_external_test extends advanced_testcase {
     /**
      * @var array session mockup
      */
@@ -94,12 +97,12 @@ class deletesession_external_test extends advanced_testcase {
         $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $sessionid = $generator->create_session($kuet, (object) $this->sessionmock);
-        $list = $sessiontest->get_list();
+        $list = array_values($sessiontest->get_list());
         $result = deletesession_external::deletesession($course->id, $kuet->cmid, $list[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertTrue($result['deleted']);
         $sessiontest->set_list();
-        $newlist = $sessiontest->get_list();
+        $newlist = array_values($sessiontest->get_list());
         $this->assertCount(0, $newlist);
 
         $student = self::getDataGenerator()->create_and_enrol($course);
@@ -107,7 +110,7 @@ class deletesession_external_test extends advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $generator->create_session($kuet, (object) $this->sessionmock);
 
-        $newlist = $sessiontest->get_list();
+        $newlist = array_values($sessiontest->get_list());
         $result = deletesession_external::deletesession($course->id, $kuet->cmid, $newlist[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertFalse($result['deleted']);

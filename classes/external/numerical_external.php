@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
@@ -53,14 +55,14 @@ use moodle_exception;
 use qtype_numerical_question;
 use question_bank;
 
-
-require_once($CFG->dirroot. '/question/engine/bank.php');
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/question/engine/bank.php');
 
 /**
  * Numerical question type class
  */
 class numerical_external extends external_api {
-
     /**
      * Numerical question type parameters validation
      *
@@ -117,7 +119,6 @@ class numerical_external extends external_api {
         int $timeleft,
         bool $preview
     ): array {
-        global $PAGE, $USER;
         self::validate_parameters(
             self::numerical_parameters(),
             [
@@ -133,92 +134,24 @@ class numerical_external extends external_api {
                 'preview' => $preview,
             ]
         );
-        $contextmodule = context_module::instance($cmid);
-        $PAGE->set_context($contextmodule);
-        $unit = $unit === '0' ? '' : $unit;
-        $multiplier = $multiplier === '0' ? '' : $multiplier;
-        $session = new kuet_sessions($sessionid);
-        $question = question_bank::load_question($questionid);
-        $answerfeedback = '';
-        $result = questions::NORESPONSE;
-        if (assert($question instanceof qtype_numerical_question)) {
-            $statmentfeedback = questions::get_text(
-                $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
-            );
-            $moodleresult = $question->grade_response(['answer' => $responsenum, 'unit' => $unit]);
-            if (isset($moodleresult[1])) {
-                switch (get_class($moodleresult[1])) {
-                    case 'question_state_gradedwrong':
-                        $result = questions::FAILURE;
-                        break;
-                    case 'question_state_gradedpartial':
-                        $result = questions::PARTIALLY;
-                        break;
-                    case 'question_state_gradedright':
-                        $result = questions::SUCCESS;
-                        break;
-                    default:
-                        break;
-                }
-            }
-            if ($multiplier === '') {
-                $matchanswer = $question->get_matching_answer($responsenum, null);
-            } else {
-                $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
-            }
-            if ($matchanswer !== null) {
-                $answerfeedback = questions::get_text(
-                    $cmid, $matchanswer->feedback, $matchanswer->feedbackformat, $question->id, $question, 'feedback'
-                );
-            }
 
-            $possibleanswers = '';
-            foreach ($question->answers as $answer) {
-                $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
-            }
-            if ($preview === false) {
-                $custom = [
-                    'responsetext' => $responsenum,
-                    'unit' => $unit,
-                    'multiplier' => $multiplier,
-                    'result' => $result,
-                    'answerfeedback' => $answerfeedback,
-                ];
-                numerical::question_response(
-                    $cmid,
-                    $kid,
-                    $questionid,
-                    $sessionid,
-                    $kuetid,
-                    $statmentfeedback,
-                    $USER->id,
-                    $timeleft,
-                    $custom
-                );
-            }
-            return [
-                'reply_status' => true,
-                'result' => $result,
-                'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
-                'statment_feedback' => $statmentfeedback,
-                'answer_feedback' => $answerfeedback,
-                'possibleanswers' => rtrim($possibleanswers, '/ '),
-                'numericalresponse' => (string)$responsenum,
-                'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
-                    $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
-                    $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
-                'preview' => $preview,
-            ];
-        }
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_session_in_cm($sessionid, $cmid);
 
-        return [
-            'reply_status' => false,
-            'hasfeedbacks' => false,
-            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
-                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
-                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
-            'preview' => $preview,
-        ];
+        return numerical::answer(
+            $responsenum,
+            $unit,
+            $multiplier,
+            $sessionid,
+            $kuetid,
+            $cmid,
+            $questionid,
+            $kid,
+            $timeleft,
+            $preview
+        );
     }
 
     /**

@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use core\invalid_persistent_exception;
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -51,7 +53,6 @@ use moodle_exception;
  * Reorder questions class
  */
 class reorderquestions_external extends external_api {
-
     /**
      * Reorder questions parameters validation
      *
@@ -65,7 +66,10 @@ class reorderquestions_external extends external_api {
                         'qid' => new external_value(PARAM_INT, 'question id'),
                         'qorder' => new external_value(PARAM_INT, 'new question order'),
                     ]
-                ), 'List of questions qith the new order.', VALUE_DEFAULT, []
+                ),
+                'List of questions qith the new order.',
+                VALUE_DEFAULT,
+                []
             ),
         ]);
     }
@@ -86,14 +90,27 @@ class reorderquestions_external extends external_api {
             ['questions' => $questions]
         );
 
-        $added = true;
-        foreach ($questions as $question) {
-            $result = kuet_questions::reorder_question($question['qid'], $question['qorder']);
-            if (false === $result) {
-                $added = false;
-            }
+        if (!$questions) {
+            return ['added' => true];
         }
-
+        $first = new kuet_questions($questions[0]['qid']);
+        $context = modcontext::from_question((int)$questions[0]['qid']);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
+        $guard = new \mod_kuet\question\mutation($first->get('kuetid'));
+        try {
+            \mod_kuet\question\version_resolver::require_editable($first->get('sessionid'));
+            foreach ($questions as $question) {
+                modcontext::require_question_in_session((int)$question['qid'], $first->get('sessionid'));
+            }
+            $added = true;
+            foreach ($questions as $question) {
+                $added = kuet_questions::reorder_question($question['qid'], $question['qorder']) && $added;
+            }
+            $guard->finish();
+        } catch (\Throwable $e) {
+            $guard->abort($e);
+        }
         return [
             'added' => $added,
         ];

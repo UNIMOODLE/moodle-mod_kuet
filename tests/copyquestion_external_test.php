@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_kuet;
+
 /**
  * Copy question test
  *
@@ -26,23 +28,23 @@
 
 /**
  * Copy question test class
+ *
+ * @covers \mod_kuet\external\copyquestion_external
  */
-class copyquestion_external_test extends advanced_testcase {
-
+final class copyquestion_external_test extends \advanced_testcase {
     /**
      * Copy question test
      *
      * @return void
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_copyquestion() :void {
+    public function test_copyquestion(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -76,17 +78,21 @@ class copyquestion_external_test extends advanced_testcase {
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $questiongenerator->create_question_category();
+        $bank = self::getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+        $cat = $questiongenerator->create_question_category([
+            'contextid' => \context_module::instance($bank->cmid)->id,
+        ]);
         $saq = $questiongenerator->create_question('shortanswer', null, ['category' => $cat->id]);
 
         // Add question.
         \mod_kuet\external\addquestions_external::add_questions([
             ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'shortanswer'],
         ]);
-        $kquestion = mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id]);
+        $kquestion = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id]
+        );
         $data = \mod_kuet\external\copyquestion_external::copyquestion($kquestion->get('id'));
-        $total = mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'kuetid' => $kuet->id]);
+        $total = \mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'kuetid' => $kuet->id]);
         $this->assertIsArray($data);
         $this->assertArrayHasKey('copied', $data);
         $this->assertTrue($data['copied']);

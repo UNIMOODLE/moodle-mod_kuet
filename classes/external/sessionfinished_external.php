@@ -28,7 +28,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,6 +37,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use dml_exception;
 use core_external\external_api;
@@ -54,7 +56,6 @@ use stdClass;
  * Session finished class
  */
 class sessionfinished_external extends external_api {
-
     /**
      * Session finished parameters validation
      *
@@ -85,18 +86,28 @@ class sessionfinished_external extends external_api {
             self::sessionfinished_parameters(),
             ['kuetid' => $kuetid, 'cmid' => $cmid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_kuet_in_cm($kuetid, $cmid);
         global $OUTPUT, $PAGE;
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
 
         $nextsession = kuet_sessions::get_next_session($kuetid);
-        return  [
+        $activesession = kuet_sessions::get_active_session_id($kuetid);
+        $output = [
             'sessionclosedimage' => $OUTPUT->image_url('f/error', 'mod_kuet')->out(false),
             'hasnextsession' => $nextsession !== 0,
             'nextsessiontime' =>
-                ($nextsession !== 0) ? userdate($nextsession, get_string('strftimedatetimeshort', 'core_langconfig')) : '',
+                    ($nextsession !== 0) ? userdate($nextsession, get_string('strftimedatetimeshort', 'core_langconfig')) : '',
             'urlreports' => (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid]))->out(false),
         ];
+        if ($activesession) {
+            $output['hasactivesession'] = $activesession;
+        }
+        return $output;
     }
 
     /**
@@ -108,6 +119,7 @@ class sessionfinished_external extends external_api {
         return new external_single_structure(
             [
                 'sessionclosedimage' => new external_value(PARAM_URL, 'Close session image'),
+                'hasactivesession' => new external_value(PARAM_BOOL, 'Has an active session', VALUE_OPTIONAL),
                 'hasnextsession' => new external_value(PARAM_BOOL, 'Has next session image'),
                 'nextsessiontime' => new external_value(PARAM_RAW, 'Time of next session', VALUE_OPTIONAL),
                 'urlreports' => new external_value(PARAM_URL, 'Url reports'),

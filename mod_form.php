@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -78,10 +79,45 @@ class mod_kuet_mod_form extends moodleform_mod {
         $mform->insertElementBefore($grademethodelement, 'gradecat');
         $mform->addHelpButton('grademethod', 'grademethod', 'kuet');
 
+        // Maximum grade obtainable per session (KUETEDUCAM-67).
+        $sessiongrademaxelement = $mform->createElement(
+            'text',
+            'sessiongrademax',
+            get_string('sessiongrademax', 'kuet'),
+            ['size' => '5']
+        );
+        $mform->insertElementBefore($sessiongrademaxelement, 'gradecat');
+        $mform->setType('sessiongrademax', PARAM_FLOAT);
+        $mform->setDefault('sessiongrademax', get_config('core', 'gradepointmax'));
+        $mform->addHelpButton('sessiongrademax', 'sessiongrademax', 'kuet');
+        $mform->disabledIf('sessiongrademax', 'grademethod', 'eq', grade::MOD_OPTION_NO_GRADE);
+
         // Course module elements.
         $this->standard_coursemodule_elements();
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Form validation.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     * @throws coding_exception
+     */
+    public function validation($data, $files): array {
+        $errors = parent::validation($data, $files);
+        if ((int) $data['grademethod'] !== grade::MOD_OPTION_NO_GRADE) {
+            if (
+                !isset($data['sessiongrademax'])
+                || !is_numeric($data['sessiongrademax'])
+                || (float) $data['sessiongrademax'] <= 0
+            ) {
+                $errors['sessiongrademax'] = get_string('sessiongrademaxinvalid', 'kuet');
+            }
+        }
+        return $errors;
     }
 
     /**

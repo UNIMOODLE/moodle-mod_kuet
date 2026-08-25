@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,8 +41,10 @@ use dml_exception;
 
 /**
  * Test generator class
+ *
+ * @covers \mod_kuet_generator
  */
-class generator_test extends advanced_testcase {
+final class generator_test extends advanced_testcase {
     /**
      * Test generator
      *
@@ -49,7 +52,7 @@ class generator_test extends advanced_testcase {
      * @throws coding_exception
      * @throws dml_exception
      */
-    public function test_generator() {
+    public function test_generator(): void {
         global $DB;
         $this->resetAfterTest(true);
         $this->assertEquals(0, $DB->count_records('kuet'));
@@ -73,7 +76,7 @@ class generator_test extends advanced_testcase {
         $this->assertEquals($kuet->cmid, $context->instanceid);
     }
 
-    public function test_create_session() {
+    public function test_create_session(): void {
         // 3IP.
     }
 }

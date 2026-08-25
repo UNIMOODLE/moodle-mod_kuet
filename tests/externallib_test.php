@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -52,9 +53,10 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 
 /**
  * External library test class
+ *
+ * @covers \mod_kuet_external
  */
-class externallib_test extends externallib_advanced_testcase {
-
+final class externallib_test extends externallib_advanced_testcase {
     /**
      * Get kuet instances by courses
      *
@@ -66,7 +68,7 @@ class externallib_test extends externallib_advanced_testcase {
      * @throws invalid_response_exception
      * @throws stored_file_creation_exception
      */
-    public function test_mod_kuet_get_kuets_by_courses() {
+    public function test_mod_kuet_get_kuets_by_courses(): void {
         global $DB;
 
         $this->resetAfterTest(true);
@@ -115,7 +117,7 @@ class externallib_test extends externallib_advanced_testcase {
         $kuet1->groupmode = 0;
         $kuet1->groupingid = 0;
         $kuet1->introfiles = [];
-        $kuet1->lang = '';
+        $kuet1->lang = $DB->get_field('course_modules', 'lang', ['id' => $kuet1->cmid]);
 
         $kuet2->coursemodule = $kuet2->cmid;
         $kuet2->introformat = 1;
@@ -124,8 +126,16 @@ class externallib_test extends externallib_advanced_testcase {
         $kuet2->groupmode = 0;
         $kuet2->groupingid = 0;
         $kuet2->introfiles = [];
-        $kuet2->lang = '';
+        $kuet2->lang = $DB->get_field('course_modules', 'lang', ['id' => $kuet2->cmid]);
 
+        // Newer cores expose these additional standard course-module fields.
+        foreach (['enableaitools', 'enabledaiactions'] as $field) {
+            if (isset($returndescription->keys['kuets']->content->keys[$field])) {
+                $expectedfields[] = $field;
+                $kuet1->{$field} = $DB->get_field('course_modules', $field, ['id' => $kuet1->cmid]);
+                $kuet2->{$field} = $DB->get_field('course_modules', $field, ['id' => $kuet2->cmid]);
+            }
+        }
         foreach ($expectedfields as $field) {
             $expected1[$field] = $kuet1->{$field};
             $expected2[$field] = $kuet2->{$field};

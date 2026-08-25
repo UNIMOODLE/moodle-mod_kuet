@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -43,7 +44,6 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_kuet\api\grade;
 use mod_kuet\api\groupmode;
-use mod_kuet\external\numerical_external;
 use mod_kuet\helpers\reports;
 use mod_kuet\persistents\kuet;
 use mod_kuet\persistents\kuet_questions;
@@ -182,7 +182,7 @@ class numerical extends questions implements questionType {
             }
         }
         $data->answered = true;
-        $dataanswer = numerical_external::numerical(
+        $dataanswer = self::answer(
             $responsedata->response,
             $responsedata->unit,
             $responsedata->multiplier,
@@ -238,19 +238,7 @@ class numerical extends questions implements questionType {
         foreach ($questiondata->answers as $key => $answer) {
             $answers[$key]['answertext'] = $answer->answer;
             $answers[$key]['answerid'] = $answer->id;
-            if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
-                $answers[$key]['result'] = 'incorrect';
-                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_kuet');
-                $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
-                    'class' => 'icon',
-                    'title' => get_string('incorrect', 'mod_kuet'),
-                ]);
-                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
-                    'class' => 'icon',
-                    'title' => '',
-                ]);
-            } else if ($answer->fraction === '1.0000000') {
+            if ((int)$answer->fraction === 1) {
                 $answers[$key]['result'] = 'correct';
                 $answers[$key]['resultstr'] = get_string('correct', 'mod_kuet');
                 $answers[$key]['fraction'] = '1';
@@ -262,7 +250,7 @@ class numerical extends questions implements questionType {
                     'class' => 'icon',
                     'title' => '',
                 ]);
-            } else {
+            } else if ($answer->fraction > 0 && $answer->fraction < 1) {
                 $answers[$key]['result'] = 'partially';
                 $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_kuet');
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
@@ -274,11 +262,23 @@ class numerical extends questions implements questionType {
                     'class' => 'icon',
                     'title' => '',
                 ]);
+            } else {
+                $answers[$key]['result'] = 'incorrect';
+                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_kuet');
+                $answers[$key]['fraction'] = round($answer->fraction, 2);
+                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
+                        'class' => 'icon',
+                        'title' => get_string('incorrect', 'mod_kuet'),
+                ]);
+                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
+                        'class' => 'icon',
+                        'title' => '',
+                ]);
             }
             $answers[$key]['resulticon'] = $icon->export_for_pix();
             $answers[$key]['usersicon'] = $usersicon->export_for_pix();
             $answers[$key]['numticked'] = 0;
-            if ($answer->fraction !== '0.0000000') { // Answers with punctuation, even if negative.
+            if ($answer->fraction < 1) { // Answers with punctuation, even if negative.
                 $correctanswers[$key]['response'] = $answer->answer;
                 $correctanswers[$key]['score'] = grade::get_rounded_mark($questiondata->defaultmark * $answer->fraction);
             }
@@ -459,5 +459,141 @@ class numerical extends questions implements questionType {
         $statistics[0]['partially'] = $partially !== 0 ? round($partially * 100 / $total, 2) : 0;
         $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse * 100 / $total, 2) : 0;
         return $statistics;
+    }
+    /**
+     * Grade and register an answer to a numerical question
+     *
+     * Internal counterpart of the numerical web service. Report rendering
+     * calls this directly, so that it never goes through the external API
+     * and its validate_context() in the middle of a page render.
+     *
+     * @param string $responsenum
+     * @param string $unit
+     * @param string $multiplier
+     * @param int $sessionid
+     * @param int $kuetid
+     * @param int $cmid
+     * @param int $questionid
+     * @param int $kid
+     * @param int $timeleft
+     * @param bool $preview
+     * @throws JsonException
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
+     * @return array
+     */
+    public static function answer(
+        string $responsenum,
+        string $unit,
+        string $multiplier,
+        int $sessionid,
+        int $kuetid,
+        int $cmid,
+        int $questionid,
+        int $kid,
+        int $timeleft,
+        bool $preview
+    ): array {
+        global $PAGE, $USER;
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
+        $unit = $unit === '0' ? '' : $unit;
+        $multiplier = $multiplier === '0' ? '' : $multiplier;
+        $session = new kuet_sessions($sessionid);
+        $question = question_bank::load_question($questionid);
+        $answerfeedback = '';
+        $result = questions::NORESPONSE;
+        if (assert($question instanceof qtype_numerical_question)) {
+            $statmentfeedback = questions::get_text(
+                $cmid,
+                $question->generalfeedback,
+                $question->generalfeedbackformat,
+                $question->id,
+                $question,
+                'generalfeedback'
+            );
+            $moodleresult = $question->grade_response(['answer' => $responsenum, 'unit' => $unit]);
+            if (isset($moodleresult[1])) {
+                switch (get_class($moodleresult[1])) {
+                    case 'question_state_gradedwrong':
+                        $result = questions::FAILURE;
+                        break;
+                    case 'question_state_gradedpartial':
+                        $result = questions::PARTIALLY;
+                        break;
+                    case 'question_state_gradedright':
+                        $result = questions::SUCCESS;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if ($multiplier === '') {
+                $matchanswer = $question->get_matching_answer($responsenum, null);
+            } else {
+                $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
+            }
+            if ($matchanswer !== null) {
+                $answerfeedback = questions::get_text(
+                    $cmid,
+                    $matchanswer->feedback,
+                    $matchanswer->feedbackformat,
+                    $question->id,
+                    $question,
+                    'feedback'
+                );
+            }
+
+            $possibleanswers = '';
+            foreach ($question->answers as $answer) {
+                $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
+            }
+            if ($preview === false) {
+                $custom = [
+                    'responsetext' => $responsenum,
+                    'unit' => $unit,
+                    'multiplier' => $multiplier,
+                    'result' => $result,
+                    'answerfeedback' => $answerfeedback,
+                ];
+                self::question_response(
+                    $cmid,
+                    $kid,
+                    $questionid,
+                    $sessionid,
+                    $kuetid,
+                    $statmentfeedback,
+                    $USER->id,
+                    $timeleft,
+                    $custom
+                );
+            }
+            return [
+                'reply_status' => true,
+                'result' => $result,
+                'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
+                'statment_feedback' => $statmentfeedback,
+                'answer_feedback' => $answerfeedback,
+                'possibleanswers' => rtrim($possibleanswers, '/ '),
+                'numericalresponse' => (string)$responsenum,
+                'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+                'preview' => $preview,
+            ];
+        }
+
+        return [
+            'reply_status' => false,
+            'hasfeedbacks' => false,
+            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+            'preview' => $preview,
+        ];
     }
 }

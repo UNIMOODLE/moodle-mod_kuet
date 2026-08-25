@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -44,7 +45,6 @@ use moodle_exception;
  * Kuet Custom completion class
  */
 class custom_completion extends activity_custom_completion {
-
     /**
      * Fetches the completion state for a given completion rule.
      *
@@ -62,8 +62,13 @@ class custom_completion extends activity_custom_completion {
         $userid = $this->userid;
 
         if (!$DB->get_record('kuet', ['id' => $kuetid])) {
-            throw new moodle_exception('kuetnotexist', 'mod_kuet', '',
-                [], get_string('kuetnotexist', 'mod_kuet', $kuetid));
+            throw new moodle_exception(
+                'kuetnotexist',
+                'mod_kuet',
+                '',
+                [],
+                get_string('kuetnotexist', 'mod_kuet', $kuetid)
+            );
         }
 
         $numsessions = kuet_sessions::count_records(['kuetid' => $kuetid]);

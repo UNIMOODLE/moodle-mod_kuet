@@ -25,7 +25,8 @@
  *
  * @module    mod_kuet/teacher_programmedmode
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -37,8 +38,8 @@ import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import {get_strings as getStrings} from 'core/str';
-import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
+import ModalSaveCancel from 'core/modal_save_cancel';
 
 let REGION = {
     LISTRESULTS: '[data-region="list-results"]',
@@ -110,7 +111,7 @@ ProgrammedMode.prototype.reloadList = function() {
             // eslint-disable-next-line promise/always-return
             Templates.render(TEMPLATES.LISTRESULTS, response).then((html) => {
                 identifier.html(html);
-            }).fail(Notification.exception);
+            }).catch(Notification.exception);
         }).fail(Notification.exception);
     });
 };
@@ -127,10 +128,9 @@ ProgrammedMode.prototype.finishSession = function(e) {
         const title = langStrings[0];
         const confirmMessage = langStrings[1];
         const buttonText = langStrings[2];
-        return ModalFactory.create({
+        return ModalSaveCancel.create({
             title: title,
             body: confirmMessage,
-            type: ModalFactory.types.SAVE_CANCEL
         }).then(modal => {
             modal.setSaveButtonText(buttonText);
             modal.getRoot().on(ModalEvents.save, () => {
@@ -189,7 +189,7 @@ ProgrammedMode.prototype.reloadRace = function() {
             ProgrammedMode.prototype.raceMode();
             newScrollUsers.scrollTop = scrollUsersTop;
             newScrollQuestions.scrollLeft = scrollQuestionsLeft;
-        }).fail(Notification.exception);
+        }).catch(Notification.exception);
     }).fail(Notification.exception);
 };
 

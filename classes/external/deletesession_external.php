@@ -27,20 +27,26 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
+use core\context\module;
 use dml_exception;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
 use invalid_parameter_exception;
+use mod_kuet\api\grade;
+use mod_kuet\event\session_removed;
+use mod_kuet\models\sessions;
 use mod_kuet\persistents\kuet_questions;
 use mod_kuet\persistents\kuet_questions_responses;
 use mod_kuet\persistents\kuet_sessions;
@@ -53,7 +59,6 @@ use mod_kuet\persistents\kuet_user_progress;
  * Delete session class
  */
 class deletesession_external extends external_api {
-
     /**
      * Delete session parameters validation
      *
@@ -86,15 +91,40 @@ class deletesession_external extends external_api {
             self::deletesession_parameters(),
             ['courseid' => $courseid, 'cmid' => $cmid, 'sessionid' => $sessionid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        // The capability is checked below, and this function reports a refusal in
+        // its return value instead of throwing. What was missing was the context
+        // validation and the ownership check, not the authorisation itself.
+        modcontext::require_session_in_cm($sessionid, $cmid);
         $cmcontext = context_module::instance($cmid);
         $deleted = false;
+        $session = false;
         if ($cmcontext !== null && has_capability('mod/kuet:managesessions', $cmcontext, $USER)) {
-            $ds = kuet_sessions::delete_session($sessionid);
-            $dq = kuet_questions::delete_session_questions($sessionid);
-            $dresponses = kuet_questions_responses::delete_questions_responses($sessionid);
-            $dsgrades = kuet_sessions_grades::delete_session_grades($sessionid);
-            $duprogress = kuet_user_progress::delete_session_user_progress($sessionid);
-            $deleted = $dq && $ds && $dresponses && $dsgrades && $duprogress;
+            $session = kuet_sessions::get_record(['id' => $sessionid]);
+            $guard = new \mod_kuet\question\mutation($session->get('kuetid'));
+            try {
+                $dq = kuet_questions::delete_session_questions($sessionid);
+                $ds = kuet_sessions::delete_session($sessionid);
+                $dresponses = kuet_questions_responses::delete_questions_responses($sessionid);
+                $dsgrades = kuet_sessions_grades::delete_session_grades($sessionid);
+                $duprogress = kuet_user_progress::delete_session_user_progress($sessionid);
+                $deleted = $dq && $ds && $dresponses && $dsgrades && $duprogress;
+                $guard->finish();
+            } catch (\Throwable $e) {
+                $guard->abort($e);
+            }
+        }
+        if ($deleted && $session) {
+            grade::recalculate_mod_mark($cmid, $session->get('kuetid'));
+            session_removed::create([
+                    'context' => module::instance($cmid),
+                    'objectid' => $sessionid,
+                    'other' => [
+                            'sessionid' => $sessionid,
+                    ],
+            ])->trigger();
         }
         return [
             'deleted' => $deleted,

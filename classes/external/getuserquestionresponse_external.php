@@ -27,13 +27,15 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
@@ -68,7 +70,6 @@ use stdClass;
  * Get user response to question class
  */
 class getuserquestionresponse_external extends external_api {
-
     /**
      * Get user response to question parameters validation
      *
@@ -109,7 +110,16 @@ class getuserquestionresponse_external extends external_api {
             self::getuserquestionresponse_parameters(),
             ['kid' => $kid, 'cmid' => $cmid, 'sid' => $sid, 'uid' => $uid, 'preview' => $preview]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_session_in_cm($sid, $cmid);
         global $USER, $PAGE;
+        // Reading somebody else's answers is a teacher action.
+        if ($uid !== 0 && $uid !== (int) $USER->id) {
+            require_capability('mod/kuet:managesessions', $context);
+        }
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $userid = $uid === 0 ? $USER->id : $uid;
@@ -166,7 +176,8 @@ class getuserquestionresponse_external extends external_api {
                     $cmid,
                     $sid,
                     $data->kuetid,
-                    $preview);
+                    $preview
+                );
                 $dataexport->uid = $uid;
                 return (array)numerical::export_question_response($dataexport, $json);
             case questions::CALCULATED:
@@ -175,7 +186,8 @@ class getuserquestionresponse_external extends external_api {
                     $cmid,
                     $sid,
                     $data->kuetid,
-                    $preview);
+                    $preview
+                );
                 return (array)calculated::export_question_response($dataexport, $json);
             case questions::DESCRIPTION:
                 return (array)description::export_question_response($data, $json);
@@ -185,11 +197,17 @@ class getuserquestionresponse_external extends external_api {
                     $cmid,
                     $sid,
                     $data->kuetid,
-                    $preview);
+                    $preview
+                );
                 return (array)ddwtos::export_question_response($dataexport, $json);
             default:
-                throw new moodle_exception('question_nosuitable', 'mod_kuet', '',
-                    [], get_string('question_nosuitable', 'mod_kuet'));
+                throw new moodle_exception(
+                    'question_nosuitable',
+                    'mod_kuet',
+                    '',
+                    [],
+                    get_string('question_nosuitable', 'mod_kuet')
+                );
         }
     }
 

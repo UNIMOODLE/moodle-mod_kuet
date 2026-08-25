@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_kuet;
+
 use mod_kuet\models\ddwtos;
 use mod_kuet\models\sessions;
 use mod_kuet\models\questions;
@@ -28,26 +31,26 @@ use mod_kuet\models\questions;
 
 /**
  * DDrag and drop question type test class
+ *
+ * @covers \mod_kuet\external\ddwtos_external
  */
-class ddwtos_external_test extends advanced_testcase {
-
+final class ddwtos_external_test extends \advanced_testcase {
     /**
      * Drag and drop question type test
      *
      * @return void
-     * @throws JsonException
+     * @throws \JsonException
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws dml_transaction_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \dml_transaction_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_ddwtos() :void {
+    public function test_ddwtos(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -84,7 +87,10 @@ class ddwtos_external_test extends advanced_testcase {
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $questiongenerator->create_question_category();
+        $bank = self::getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+        $cat = $questiongenerator->create_question_category([
+            'contextid' => \context_module::instance($bank->cmid)->id,
+        ]);
         $ddwtosq = $questiongenerator->create_question(questions::DDWTOS, null, ['category' => $cat->id]);
 
         // Add questions to a session.
@@ -94,7 +100,7 @@ class ddwtos_external_test extends advanced_testcase {
         $generator->add_questions_to_session($questions);
         \mod_kuet\external\startsession_external::startsession($kuet->cmid, $createdsid);
 
-        $qbddwtos = question_bank::load_question($ddwtosq->id);
+        $qbddwtos = \question_bank::load_question($ddwtosq->id);
         $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $qbddwtos->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS]
         );
@@ -102,20 +108,25 @@ class ddwtos_external_test extends advanced_testcase {
         $correctchoices = [];
         $incorrectanswers = [];
         foreach ($qbddwtos->rightchoices as $key => $rightchoice) {
-            $correctanswers['p'.$key] = $rightchoice;
+            $correctanswers['p' . $key] = $rightchoice;
             $correctchoices[$key] = $rightchoice;
         }
         foreach ($qbddwtos->choices as $key => $choice) {
             foreach ($choice as $choicekey => $option) {
                 if ($choicekey != $correctchoices[$key]) {
-                    $incorrectanswers['p'.$key] = $choicekey;
+                    $incorrectanswers['p' . $key] = $choicekey;
                 }
             }
         }
         $partiallycorrectanswers = $correctanswers;
         $partiallycorrectanswers['p1'] = $incorrectanswers['p1'];
         $statmentfeedback = questions::get_text(
-            $kuet->cmid, $qbddwtos->generalfeedback, 1, $qbddwtos->id, $qbddwtos, 'generalfeedback'
+            $kuet->cmid,
+            $qbddwtos->generalfeedback,
+            1,
+            $qbddwtos->id,
+            $qbddwtos,
+            'generalfeedback'
         );
         $correctanswersfeedback = questions::get_text(
             $kuet->cmid,
@@ -147,8 +158,16 @@ class ddwtos_external_test extends advanced_testcase {
 
         // User 1 answers a correct answer.
         self::setUser($student1);
-        $data1 = \mod_kuet\external\ddwtos_external::ddwtos($createdsid, $kuet->id,
-            $kuet->cmid, $ddwtosq->id, $jmcq->get('id'), 10, false, json_encode($correctanswers));
+        $data1 = \mod_kuet\external\ddwtos_external::ddwtos(
+            $createdsid,
+            $kuet->id,
+            $kuet->cmid,
+            $ddwtosq->id,
+            $jmcq->get('id'),
+            10,
+            false,
+            json_encode($correctanswers)
+        );
         $this->assertIsArray($data1);
         $this->assertArrayHasKey('reply_status', $data1);
         $this->assertArrayHasKey('result', $data1);
@@ -168,8 +187,16 @@ class ddwtos_external_test extends advanced_testcase {
 
         // User 2 answers a partially correct answer.
         self::setUser($student2);
-        $data2 = \mod_kuet\external\ddwtos_external::ddwtos($createdsid, $kuet->id,
-            $kuet->cmid, $ddwtosq->id, $jmcq->get('id'), 10, false, json_encode($partiallycorrectanswers));
+        $data2 = \mod_kuet\external\ddwtos_external::ddwtos(
+            $createdsid,
+            $kuet->id,
+            $kuet->cmid,
+            $ddwtosq->id,
+            $jmcq->get('id'),
+            10,
+            false,
+            json_encode($partiallycorrectanswers)
+        );
         $this->assertIsArray($data2);
         $this->assertArrayHasKey('reply_status', $data2);
         $this->assertArrayHasKey('result', $data2);
@@ -189,8 +216,16 @@ class ddwtos_external_test extends advanced_testcase {
 
         // User 3 answers incorrectly.
         self::setUser($student3);
-        $data3 = \mod_kuet\external\ddwtos_external::ddwtos($createdsid, $kuet->id,
-            $kuet->cmid, $ddwtosq->id, $jmcq->get('id'), 10, false, json_encode($incorrectanswers));
+        $data3 = \mod_kuet\external\ddwtos_external::ddwtos(
+            $createdsid,
+            $kuet->id,
+            $kuet->cmid,
+            $ddwtosq->id,
+            $jmcq->get('id'),
+            10,
+            false,
+            json_encode($incorrectanswers)
+        );
         $this->assertIsArray($data3);
         $this->assertArrayHasKey('reply_status', $data3);
         $this->assertArrayHasKey('result', $data3);

@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -92,6 +93,7 @@ function kuet_add_instance(stdClass $data): int {
     $record->introformat = $data->introformat;
     $record->teamgrade = isset($data->teamgrade) ?? $data->teamgrade;
     $record->grademethod = $data->grademethod;
+    $record->sessiongrademax = $data->sessiongrademax ?? get_config('core', 'gradepointmax');
     $record->completionanswerall = $data->completionanswerall ?? 0;
     $record->usermodified = $USER->id;
     $kuet = new kuet(0, $record);
@@ -130,6 +132,7 @@ function kuet_update_instance(stdClass $data): bool {
     $kuet->set('introformat', $data->introformat);
     $kuet->set('teamgrade', $teamgrade);
     $kuet->set('grademethod', $data->grademethod);
+    $kuet->set('sessiongrademax', $data->sessiongrademax ?? get_config('core', 'gradepointmax'));
     $kuet->set('completionanswerall', $data->completionanswerall ?? 0);
     $kuet->set('usermodified', $USER->id);
     $kuet->update();
@@ -155,9 +158,19 @@ function kuet_delete_instance(int $id): bool {
     if (!$kuet) {
         return false;
     }
+    $cm = get_coursemodule_from_instance('kuet', $id);
+    if ($cm) {
+        $usageids = $DB->get_fieldset_select('question_usages', 'id',
+            'component = ? AND contextid = ?', ['mod_kuet', context_module::instance($cm->id)->id]);
+        foreach ($usageids as $usageid) {
+            question_engine::delete_questions_usage_by_activity($usageid);
+        }
+    }
     // Finally delete the kuet object.
     $DB->delete_records('kuet', ['id' => $id]);
     $DB->delete_records('kuet_grades', ['kuet' => $id]);
+    \mod_kuet\question\version_resolver::delete_references(
+        $DB->get_fieldset_select('kuet_questions', 'id', 'kuetid = ?', [$id]));
     $DB->delete_records('kuet_questions', ['kuetid' => $id]);
     $DB->delete_records('kuet_questions_responses', ['kuet' => $id]);
     $DB->delete_records('kuet_sessions', ['kuetid' => $id]);
@@ -545,6 +558,40 @@ function mod_kuet_question_pluginfile(
     $forcedownload,
     $options = []
 ) {
+    global $DB, $USER;
+    $quba = question_engine::load_questions_usage_by_activity($qubaid);
+    if ($quba->get_owning_component() !== 'mod_kuet') {
+        send_file_not_found();
+    }
+    $usingcontext = $quba->get_owning_context();
+    $cm = get_coursemodule_from_id('kuet', $usingcontext->instanceid, 0, false, MUST_EXIST);
+    require_login($cm->course, false, $cm);
+    require_capability('mod/kuet:view', $usingcontext);
+    $qa = $quba->get_question_attempt($slot);
+    $question = $qa->get_question();
+    if ((int)$question->contextid !== (int)$context->id) {
+        send_file_not_found();
+    }
+    $positions = $DB->get_records('kuet_questions', ['kuetid' => $cm->instance, 'questionid' => $question->id]);
+    $manager = has_capability('mod/kuet:managesessions', $usingcontext);
+    $allowed = $manager && !empty($positions);
+    $feedback = $manager;
+    foreach ($positions as $position) {
+        $session = $DB->get_record('kuet_sessions', ['id' => $position->sessionid], '*', MUST_EXIST);
+        $answered = $DB->record_exists('kuet_questions_responses', ['kid' => $position->id, 'userid' => $USER->id]);
+        $progress = $DB->get_record('kuet_user_progress', ['session' => $session->id, 'userid' => $USER->id]);
+        $state = $progress ? json_decode($progress->other) : null;
+        $current = (int)$session->status === \mod_kuet\models\sessions::SESSION_STARTED &&
+            (int)($state->currentquestion ?? 0) === (int)$position->id;
+        $allowed = $allowed || $answered || $current;
+        $feedback = $feedback || ($answered && !empty($session->showfeedback));
+    }
+    $displayoptions = new question_display_options();
+    $displayoptions->feedback = $displayoptions->generalfeedback = $displayoptions->rightanswer =
+        $feedback ? question_display_options::VISIBLE : question_display_options::HIDDEN;
+    if (!$allowed || !$qa->check_file_access($displayoptions, $component, $filearea, $args, $forcedownload)) {
+        send_file_not_found();
+    }
     $fs = get_file_storage();
     $relative = implode('/', $args);
     $full = "/$context->id/$component/$filearea/$relative";
@@ -616,13 +663,17 @@ function mod_kuet_grade_item_update(stdClass $data, $grades = null) {
  */
 function kuet_questions_in_use($questionids): bool {
     global $DB;
-    [$sqlfragment, $params] = $DB->get_in_or_equal($questionids);
-    $params['component'] = 'mod_kuet';
-    $params['questionarea'] = 'slot';
-    $sql = "SELECT jq.id
-              FROM {kuet_questions} jq
-             WHERE jq.questionid $sqlfragment";
-    return $DB->record_exists_sql($sql, $params);
+    if (!$questionids) {
+        return false;
+    }
+    [$sql, $params] = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
+    if ($DB->record_exists_select('kuet_questions', "questionid $sql", $params)) {
+        return true;
+    }
+    return $DB->record_exists_sql("SELECT qr.id FROM {question_references} qr
+        JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid
+        WHERE qr.component = 'mod_kuet' AND qr.questionarea = 'session_question'
+          AND qv.questionid $sql AND (qr.version IS NULL OR qr.version = qv.version)", $params);
 }
 
 /**
@@ -651,4 +702,64 @@ function mod_kuet_get_user_grades(int $kuetid, int $userid): float {
         return 0;
     }
     return $pgrade->get('grade');
+}
+
+/**
+ * Build an authorised question selector for a KUET session.
+ * @param array $args Fragment arguments; the view class is never supplied by the client.
+ * @return \mod_kuet\question\bank\custom_view
+ */
+function mod_kuet_question_bank_view(array $args): \mod_kuet\question\bank\custom_view {
+    global $CFG;
+    require_once($CFG->dirroot . '/question/editlib.php');
+    [$params, $extra] = \core_question\local\bank\filter_condition_manager::extract_parameters_from_fragment_args($args);
+    $kuetcmid = clean_param($args['kuetcmid'] ?? $extra['kuetcmid'] ?? 0, PARAM_INT);
+    $sid = clean_param($args['sessionid'] ?? $extra['sessionid'] ?? 0, PARAM_INT);
+    $bankcmid = clean_param($args['bankcmid'] ?? $args['cmid'] ?? 0, PARAM_INT);
+    $context = \mod_kuet\helpers\modcontext::from_cmid($kuetcmid);
+    require_capability('mod/kuet:managesessions', $context);
+    \mod_kuet\helpers\modcontext::require_session_in_cm($sid, $kuetcmid);
+    \mod_kuet\question\version_resolver::require_editable($sid);
+    $bank = \mod_kuet\question\bank_provider::require_bank($bankcmid);
+    $params['cmid'] = $bankcmid;
+    $params['qperpage'] = min(100, max(1, (int)($args['qperpage'] ?? 20)));
+    if (isset($args['cat'])) {
+        $params['cat'] = clean_param($args['cat'], PARAM_SEQUENCE);
+    }
+    if (!empty($params['cat'])) {
+        [$categoryid, $contextid] = array_pad(explode(',', $params['cat']), 2, 0);
+        if ((int)$contextid !== (int)$bank->context->id) {
+            throw new invalid_parameter_exception('Category is outside the selected bank.');
+        }
+    }
+    [$url, $contexts, , $cm, , $pagevars] = question_build_edit_resources(
+        'editq', '/mod/kuet/sessions.php', $params, 20);
+    $extra = ['kuetcmid' => $kuetcmid, 'sessionid' => $sid, 'cmid' => $bankcmid,
+        'view' => \mod_kuet\question\bank\custom_view::class];
+    return new \mod_kuet\question\bank\custom_view($contexts, $url, get_course($cm->course), $cm, $pagevars, $extra);
+}
+
+/** Render the complete bank, including core filters, inside the selection modal. */
+function mod_kuet_output_fragment_kuet_question_bank(array $args): string {
+    $view = mod_kuet_question_bank_view($args);
+    ob_start();
+    try {
+        $view->display();
+        return ob_get_contents();
+    } finally {
+        ob_end_clean();
+    }
+}
+
+/** Render a filtered/paginated table without rebuilding filter controls. */
+function mod_kuet_output_fragment_kuet_question_data(array $args): string {
+    $view = mod_kuet_question_bank_view($args);
+    $view->add_standard_search_conditions();
+    ob_start();
+    try {
+        $view->display_question_list();
+        return ob_get_contents();
+    } finally {
+        ob_end_clean();
+    }
 }

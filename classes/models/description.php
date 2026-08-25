@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -41,7 +42,6 @@ use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
 use JsonException;
-use mod_kuet\external\description_external;
 use mod_kuet\helpers\reports;
 use mod_kuet\persistents\kuet_questions;
 use mod_kuet\persistents\kuet_questions_responses;
@@ -132,7 +132,7 @@ class description extends questions implements questionType {
             $responsedata->response = '';
         }
         $data->answered = true;
-        $dataanswer = description_external::description(
+        $dataanswer = self::answer(
             $data->sessionid,
             $data->kuetid,
             $data->cmid,
@@ -294,5 +294,86 @@ class description extends questions implements questionType {
      */
     public static function get_question_statistics(question_definition $question, array $responses): array {
         return [];
+    }
+    /**
+     * Grade and register an answer to a description question
+     *
+     * Internal counterpart of the description web service. Report rendering
+     * calls this directly, so that it never goes through the external API
+     * and its validate_context() in the middle of a page render.
+     *
+     * @param int $sessionid
+     * @param int $kuetid
+     * @param int $cmid
+     * @param int $questionid
+     * @param int $kid
+     * @param int $timeleft
+     * @param bool $preview
+     * @throws JsonException
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
+     * @return array
+     */
+    public static function answer(
+        int $sessionid,
+        int $kuetid,
+        int $cmid,
+        int $questionid,
+        int $kid,
+        int $timeleft,
+        bool $preview
+    ): array {
+        global $PAGE, $USER;
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
+
+        $session = new kuet_sessions($sessionid);
+        $question = question_bank::load_question($questionid);
+        $result = questions::NOTEVALUABLE;
+        if (assert($question instanceof qtype_description_question)) {
+            $statmentfeedback = questions::get_text(
+                $cmid,
+                $question->generalfeedback,
+                $question->generalfeedbackformat,
+                $question->id,
+                $question,
+                'generalfeedback'
+            );
+            if ($preview === false) {
+                self::question_response(
+                    $cmid,
+                    $kid,
+                    $questionid,
+                    $sessionid,
+                    $kuetid,
+                    $statmentfeedback,
+                    $USER->id,
+                    $timeleft
+                );
+            }
+            return [
+                'reply_status' => true,
+                'result' => $result,
+                'hasfeedbacks' => (bool)($statmentfeedback !== ''),
+                'statment_feedback' => $statmentfeedback,
+                'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+                'preview' => $preview,
+            ];
+        }
+
+        return [
+            'reply_status' => false,
+            'hasfeedbacks' => false,
+            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+            'preview' => $preview,
+        ];
     }
 }

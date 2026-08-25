@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -48,7 +49,6 @@ use stdClass;
  * Progress helper class
  */
 class progress {
-
     /**
      * Set progress
      *
@@ -74,13 +74,15 @@ class progress {
         $cmcontext = context_module::instance($cmid);
         $isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
         if (!$isteacher) {
-            $session = kuet_sessions::get_record(['id' => $sessionid] );
+            $session = kuet_sessions::get_record(['id' => $sessionid]);
             switch ($session->get('sessionmode')) {
                 case sessions::INACTIVE_PROGRAMMED:
                 case sessions::PODIUM_PROGRAMMED:
                 case sessions::RACE_PROGRAMMED:
                     $record = kuet_user_progress::get_session_progress_for_user(
-                        $userid, $sessionid, $kuetid
+                        $userid,
+                        $sessionid,
+                        $kuetid
                     );
                     switch ([$record !== false, $session->get('randomquestions')]) {
                         case [false, 1]:  // New order of questions for one user.

@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -100,7 +101,13 @@ class active_session_management extends scheduled_task {
                         $session->get('status') === sessions::SESSION_ACTIVE
                     ) {
                         // We start the session if it is in session.
-                        (new kuet_sessions($session->get('id')))->set('status', sessions::SESSION_STARTED)->update();
+                        try {
+                            (new kuet_sessions($session->get('id')))->set('status', sessions::SESSION_STARTED)->update();
+                        } catch (\moodle_exception $e) {
+                            kuet_sessions::update_status($session->get('id'), sessions::SESSION_ERROR);
+                            mtrace('KUET ' . $session->get('id') . ': ' . $e->getMessage());
+                            continue;
+                        }
                         $activated = true;
                         $a->sessionid = $session->get('id');
                         $a->kuetid = $session->get('kuetid');
@@ -112,8 +119,9 @@ class active_session_management extends scheduled_task {
                             $session->get('status') === sessions::SESSION_ACTIVE)
                     ) {
                         // We end the session if you have complied.
-                        (new kuet_sessions($session->get('id')))->set('status', sessions::SESSION_FINISHED)->update();
-                        (new kuet_sessions($session->get('id')))->set('enddate', time())->update();
+                        $session->set('status', sessions::SESSION_FINISHED)->update();
+                        $session->set('enddate', time())->update();
+                        $session->update();
                         $a->sessionid = $session->get('id');
                         $a->kuetid = $session->get('kuetid');
                         mtrace(get_string('sessionfinished', 'mod_kuet', $a));

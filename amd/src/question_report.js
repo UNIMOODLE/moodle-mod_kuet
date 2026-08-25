@@ -25,7 +25,8 @@
  *
  * @module    mod_kuet/question_report
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,7 +36,6 @@
 
 import jQuery from 'jquery';
 import Templates from 'core/templates';
-import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import ModalKuet from 'mod_kuet/modal';
 import Ajax from 'core/ajax';
@@ -94,12 +94,11 @@ QuestionReport.prototype.questionPreview = function(e) {
         Ajax.call([request])[0].done(function(question) {
             Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
                 getString('preview', 'mod_kuet').done((title) => {
-                    ModalFactory.create({
+                    ModalKuet.create({
                         classes: 'modal_kuet',
                         body: html,
                         title: title,
                         footer: '',
-                        type: ModalKuet.TYPE
                     }).then(modal => {
                         modal.getRoot().on(ModalEvents.hidden, function() {
                             modal.destroy();
@@ -107,7 +106,7 @@ QuestionReport.prototype.questionPreview = function(e) {
                         jQuery(REGION.LOADING).remove();
                         modal.show();
                         Templates.runTemplateJS(js);
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 }).fail(Notification.exception);
             });
         });
@@ -150,12 +149,11 @@ QuestionReport.prototype.seeAnswer = function(e) {
                 };
                 getString('viewquestion_user', 'mod_kuet').done((title) => {
                     Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
-                        ModalFactory.create({
+                        ModalKuet.create({
                             classes: 'modal_kuet',
                             body: html,
                             title: title,
                             footer: '',
-                            type: ModalKuet.TYPE
                         }).then(modal => {
                             modal.getRoot().on(ModalEvents.hidden, function() {
                                 modal.destroy();
@@ -163,8 +161,8 @@ QuestionReport.prototype.seeAnswer = function(e) {
                             jQuery(REGION.LOADING).remove();
                             modal.show();
                             Templates.runTemplateJS(js);
-                        }).fail(Notification.exception);
-                    }).fail(Notification.exception);
+                        }).catch(Notification.exception);
+                    }).catch(Notification.exception);
                 }).fail(Notification.exception);
             });
         });

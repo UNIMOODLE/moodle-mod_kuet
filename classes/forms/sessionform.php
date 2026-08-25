@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -43,13 +44,12 @@ use mod_kuet\persistents\kuet_sessions;
 use moodleform;
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
-require_once($CFG->libdir.'/formslib.php');
+require_once($CFG->libdir . '/formslib.php');
 
 /**
  * Session form class
  */
 class sessionform extends moodleform {
-
     /**
      * Definition
      *
@@ -72,21 +72,33 @@ class sessionform extends moodleform {
         // Name.
         $nameparams = [
             'placeholder' => get_string('session_name_placeholder', 'mod_kuet')];
-        $mform->addElement('text', 'name',
-            get_string('session_name', 'mod_kuet'), $nameparams);
+        $mform->addElement(
+            'text',
+            'name',
+            get_string('session_name', 'mod_kuet'),
+            $nameparams
+        );
         $mform->setType('name', PARAM_RAW);
         $mform->addHelpButton('name', 'session_name', 'mod_kuet');
         $mform->addRule('name', get_string('required'), 'required');
 
         // Anonymousanswer.
-        $mform->addElement('select', 'anonymousanswer',
-            get_string('anonymousanswer', 'mod_kuet'), $customdata['anonymousanswerchoices']);
+        $mform->addElement(
+            'select',
+            'anonymousanswer',
+            get_string('anonymousanswer', 'mod_kuet'),
+            $customdata['anonymousanswerchoices']
+        );
         $mform->setType('anonymousanswer', PARAM_RAW);
         $mform->addHelpButton('anonymousanswer', 'anonymousanswer', 'kuet');
 
         // Sessionmode.
-        $mform->addElement('select', 'sessionmode',
-            get_string('sessionmode', 'mod_kuet'), $customdata['sessionmodechoices']);
+        $mform->addElement(
+            'select',
+            'sessionmode',
+            get_string('sessionmode', 'mod_kuet'),
+            $customdata['sessionmodechoices']
+        );
         $mform->setType('sessionmode', PARAM_RAW);
         $mform->addHelpButton('sessionmode', 'sessionmode', 'kuet');
 
@@ -95,6 +107,16 @@ class sessionform extends moodleform {
             $mform->addElement('checkbox', 'sgrade', get_string('sgrade', 'mod_kuet'));
             $mform->setType('sgrade', PARAM_INT);
             $mform->addHelpButton('sgrade', 'sgrade', 'kuet');
+
+            // Mandatory attendance (KUETEDUCAM-72). Only relevant when the session
+            // is graded (sgrade), so it is hidden unless sgrade is checked. When
+            // unchecked, students who do not attend (answer no question) are
+            // excluded from this session's grade and from the activity average.
+            $mform->addElement('checkbox', 'mandatoryattendance', get_string('mandatoryattendance', 'mod_kuet'));
+            $mform->setType('mandatoryattendance', PARAM_INT);
+            $mform->setDefault('mandatoryattendance', 1);
+            $mform->addHelpButton('mandatoryattendance', 'mandatoryattendance', 'kuet');
+            $mform->hideIf('mandatoryattendance', 'sgrade', 'notchecked');
         }
 
         // Countdown.
@@ -157,10 +179,13 @@ class sessionform extends moodleform {
         $mform->addHelpButton('automaticstart', 'automaticstart', 'kuet');
 
         // Openquiz - Startdate.
-        $date = new DateTime();
-        $date->setTime($date->format('H'), ceil($date->format('i') / 10) * 10, 0);
-        $mform->addElement('date_time_selector', 'startdate',
-            get_string('startdate', 'mod_kuet'), ['optional' => false, 'defaulttime' => $date->getTimestamp()]);
+        $now = time();
+        $mform->addElement(
+            'date_time_selector',
+            'startdate',
+            get_string('startdate', 'mod_kuet'),
+            ['optional' => false, 'defaulttime' => $now]
+        );
         $mform->hideIf('startdate', 'automaticstart', 'notchecked');
         $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->hideIf('startdate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
@@ -168,8 +193,12 @@ class sessionform extends moodleform {
         $mform->addHelpButton('startdate', 'startdate', 'kuet');
 
         // Closequiz - enddate.
-        $mform->addElement('date_time_selector', 'enddate',
-            get_string('enddate', 'mod_kuet'), ['optional' => false, 'defaulttime' => $date->getTimestamp() + 3600]);
+        $mform->addElement(
+            'date_time_selector',
+            'enddate',
+            get_string('enddate', 'mod_kuet'),
+            ['optional' => false, 'defaulttime' => $now + 3600]
+        );
         $mform->hideIf('enddate', 'automaticstart', 'notchecked');
         $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::INACTIVE_MANUAL);
         $mform->hideIf('enddate', 'sessionmode', 'eq', sessions::PODIUM_MANUAL);
@@ -178,20 +207,32 @@ class sessionform extends moodleform {
         $mform->addHelpButton('enddate', 'enddate', 'kuet');
 
         // Time mode.
-        $mform->addElement('select', 'timemode',
-            get_string('timemode', 'mod_kuet'), $customdata['timemode']);
+        $mform->addElement(
+            'select',
+            'timemode',
+            get_string('timemode', 'mod_kuet'),
+            $customdata['timemode']
+        );
         $mform->setType('timemode', PARAM_INT);
         $mform->addHelpButton('timemode', 'timemode', 'mod_kuet');
 
-        $mform->addElement('duration', 'sessiontime', get_string('session_time', 'mod_kuet'),
-            ['units' => [MINSECS, 1], 'optional' => false]);
+        $mform->addElement(
+            'duration',
+            'sessiontime',
+            get_string('session_time', 'mod_kuet'),
+            ['units' => [MINSECS, 1], 'optional' => false]
+        );
         $mform->setType('sessiontime', PARAM_INT);
         $mform->addHelpButton('sessiontime', 'sessiontime', 'mod_kuet');
         $mform->hideIf('sessiontime', 'timemode', 'eq', sessions::NO_TIME);
         $mform->hideIf('sessiontime', 'timemode', 'eq', sessions::QUESTION_TIME);
 
-        $mform->addElement('duration', 'questiontime', get_string('question_time', 'mod_kuet'),
-            ['units' => [MINSECS, 1], 'defaultunit' => 1, 'optional' => false]);
+        $mform->addElement(
+            'duration',
+            'questiontime',
+            get_string('question_time', 'mod_kuet'),
+            ['units' => [MINSECS, 1], 'defaultunit' => 1, 'optional' => false]
+        );
         $mform->setType('questiontime', PARAM_INT);
         $mform->addHelpButton('questiontime', 'questiontime', 'mod_kuet');
         $mform->hideIf('questiontime', 'timemode', 'eq', sessions::NO_TIME);
@@ -210,8 +251,13 @@ class sessionform extends moodleform {
                 get_string('accessrestrictions', 'mod_kuet') .
                 '</h6>');
             $mform->addElement('html', '<div class="formconcontent col-xl-6 offset-xl-3 col-12">');
-            $select = $mform->addElement('select', 'groupings',
-                get_string('groupings', 'mod_kuet'), $customdata['groupingsselect'], ['cols' => 100]);
+            $select = $mform->addElement(
+                'select',
+                'groupings',
+                get_string('groupings', 'mod_kuet'),
+                $customdata['groupingsselect'],
+                ['cols' => 100]
+            );
             $select->setMultiple(false);
             $mform->setType('groupings', PARAM_INT);
             $mform->addElement('html', '</div>');

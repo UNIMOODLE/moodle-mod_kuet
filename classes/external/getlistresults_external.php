@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use context_module;
+use mod_kuet\helpers\modcontext;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
@@ -80,6 +82,11 @@ class getlistresults_external extends external_api {
             self::getlistresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
+        modcontext::require_session_in_cm($sid, $cmid);
         $context = context_module::instance($cmid);
         $PAGE->set_context($context);
         $session = new kuet_sessions($sid);
@@ -110,8 +117,11 @@ class getlistresults_external extends external_api {
                         'partially' => new external_value(PARAM_INT, 'Num of partially correct answers'),
                         'userpoints' => new external_value(PARAM_RAW, 'Total points of user'),
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
-                    ], ''
-                ), '', VALUE_OPTIONAL
+                    ],
+                    ''
+                ),
+                '',
+                VALUE_OPTIONAL
             ),
             'groupmode' => new external_value(PARAM_BOOL, 'group mode activated'),
             'groupresults' => new external_multiple_structure(
@@ -125,8 +135,11 @@ class getlistresults_external extends external_api {
                         'partially' => new external_value(PARAM_INT, 'Num of partially correct answers'),
                         'grouppoints' => new external_value(PARAM_RAW, 'Total points of group'),
                         'groupposition' => new external_value(PARAM_INT, 'Group position depending on the points'),
-                    ], ''
-                ), '', VALUE_OPTIONAL
+                    ],
+                    ''
+                ),
+                '',
+                VALUE_OPTIONAL
             ),
         ]);
     }

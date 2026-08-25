@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use dml_exception;
+use mod_kuet\helpers\modcontext;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
@@ -50,7 +52,6 @@ use moodle_exception;
  * Select questions from category API class
  */
 class selectquestionscategory_external extends external_api {
-
     /**
      * Select questions from category parameters validation
      *
@@ -81,6 +82,10 @@ class selectquestionscategory_external extends external_api {
             self::selectquestionscategory_parameters(),
             ['categorykey' => $categorykey, 'cmid' => $cmid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
         [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'kuet');
         $kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
         return ['questions' => (new sessions($kuet, $cmid))->get_questions_for_category($categorykey)];
@@ -114,8 +119,10 @@ class selectquestionscategory_external extends external_api {
                             'component' => new external_value(PARAM_RAW, 'component of icon'),
                             'title' => new external_value(PARAM_RAW, 'title for alt', VALUE_OPTIONAL),
                         ]),
-                    ], ''
-                ), ''
+                    ],
+                    ''
+                ),
+                ''
             ),
         ]);
     }

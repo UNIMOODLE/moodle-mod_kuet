@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_kuet;
+
 use mod_kuet\models\questions;
 use mod_kuet\models\sessions;
 
@@ -29,23 +32,24 @@ use mod_kuet\models\sessions;
 
 /**
  * Session questions test class
+ *
+ * @covers \mod_kuet\external\sessionquestions_external
  */
-class sessionquestions_external_test extends advanced_testcase {
+final class sessionquestions_external_test extends \advanced_testcase {
     /**
      * Session questions test
      *
      * @return void
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_sessionquestions() {
+    public function test_sessionquestions(): void {
         global $DB;
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -79,7 +83,10 @@ class sessionquestions_external_test extends advanced_testcase {
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $questiongenerator->create_question_category();
+        $bank = self::getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+        $cat = $questiongenerator->create_question_category([
+            'contextid' => \context_module::instance($bank->cmid)->id,
+        ]);
         $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, ['category' => $cat->id]);
         $nq = $questiongenerator->create_question(questions::NUMERICAL, null, ['category' => $cat->id]);
         $tfq = $questiongenerator->create_question(questions::TRUE_FALSE, null, ['category' => $cat->id]);
@@ -110,25 +117,26 @@ class sessionquestions_external_test extends advanced_testcase {
         $this->assertIsArray($data['sessionquestions']);
         // Question 1.
         $this->assertIsObject($data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('sid', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('cmid', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('kuetid', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('questionnid', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('position', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('name', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('type', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('isvalid', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('time', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('version', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('managesessions', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('question_preview_url', $data['sessionquestions'][0]);
-        $this->assertObjectHasProperty('editquestionurl', $data['sessionquestions'][0]);
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'sid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'cmid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'kuetid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'questionnid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'position'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'name'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'type'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'isvalid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'time'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'version'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'managesessions'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'question_preview_url'));
+        $this->assertTrue(property_exists($data['sessionquestions'][0], 'editquestionurl'));
         $this->assertEquals($createdsid, $data['sessionquestions'][0]->{'sid'});
         $this->assertEquals($kuet->cmid, $data['sessionquestions'][0]->{'cmid'});
         $this->assertEquals($kuet->id, $data['sessionquestions'][0]->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $saq->id], '*', MUST_EXIST);
         $jsaq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER]);
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER]
+        );
         $this->assertEquals($jsaq->get('id'), $data['sessionquestions'][0]->{'questionnid'});
         $this->assertEquals(1, $data['sessionquestions'][0]->{'position'});
         $this->assertEquals($qbs->name, $data['sessionquestions'][0]->{'name'});
@@ -143,32 +151,37 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $data['sessionquestions'][0]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $data['sessionquestions'][0]->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $data['sessionquestions'][0]->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $data['sessionquestions'][0]->{'editquestionurl'}
+        );
 
         // Question 2.
         $this->assertIsObject($data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('sid', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('cmid', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('kuetid', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('questionnid', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('position', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('name', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('type', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('isvalid', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('time', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('version', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('managesessions', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('question_preview_url', $data['sessionquestions'][1]);
-        $this->assertObjectHasProperty('editquestionurl', $data['sessionquestions'][1]);
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'sid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'cmid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'kuetid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'questionnid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'position'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'name'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'type'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'isvalid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'time'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'version'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'managesessions'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'question_preview_url'));
+        $this->assertTrue(property_exists($data['sessionquestions'][1], 'editquestionurl'));
         $this->assertEquals($createdsid, $data['sessionquestions'][1]->{'sid'});
         $this->assertEquals($kuet->cmid, $data['sessionquestions'][1]->{'cmid'});
         $this->assertEquals($kuet->id, $data['sessionquestions'][1]->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $nq->id], '*', MUST_EXIST);
         $jnq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]);
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]
+        );
         $this->assertEquals($jnq->get('id'), $data['sessionquestions'][1]->{'questionnid'});
         $this->assertEquals(2, $data['sessionquestions'][1]->{'position'});
         $this->assertEquals($qbs->name, $data['sessionquestions'][1]->{'name'});
@@ -183,32 +196,37 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $data['sessionquestions'][1]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $data['sessionquestions'][1]->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $data['sessionquestions'][1]->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $data['sessionquestions'][1]->{'editquestionurl'}
+        );
 
         // Question 3.
         $this->assertIsObject($data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('sid', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('cmid', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('kuetid', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('questionnid', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('position', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('name', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('type', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('isvalid', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('time', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('version', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('managesessions', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('question_preview_url', $data['sessionquestions'][2]);
-        $this->assertObjectHasProperty('editquestionurl', $data['sessionquestions'][2]);
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'sid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'cmid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'kuetid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'questionnid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'position'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'name'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'type'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'isvalid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'time'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'version'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'managesessions'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'question_preview_url'));
+        $this->assertTrue(property_exists($data['sessionquestions'][2], 'editquestionurl'));
         $this->assertEquals($createdsid, $data['sessionquestions'][2]->{'sid'});
         $this->assertEquals($kuet->cmid, $data['sessionquestions'][2]->{'cmid'});
         $this->assertEquals($kuet->id, $data['sessionquestions'][2]->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $tfq->id], '*', MUST_EXIST);
         $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]);
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]
+        );
         $this->assertEquals($jtfq->get('id'), $data['sessionquestions'][2]->{'questionnid'});
         $this->assertEquals(3, $data['sessionquestions'][2]->{'position'});
         $this->assertEquals($qbs->name, $data['sessionquestions'][2]->{'name'});
@@ -223,32 +241,37 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $data['sessionquestions'][2]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $data['sessionquestions'][2]->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $data['sessionquestions'][2]->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $data['sessionquestions'][2]->{'editquestionurl'}
+        );
 
         // Question 4.
         $this->assertIsObject($data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('sid', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('cmid', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('kuetid', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('questionnid', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('position', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('name', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('type', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('isvalid', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('time', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('version', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('managesessions', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('question_preview_url', $data['sessionquestions'][3]);
-        $this->assertObjectHasProperty('editquestionurl', $data['sessionquestions'][3]);
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'sid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'cmid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'kuetid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'questionnid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'position'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'name'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'type'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'isvalid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'time'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'version'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'managesessions'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'question_preview_url'));
+        $this->assertTrue(property_exists($data['sessionquestions'][3], 'editquestionurl'));
         $this->assertEquals($createdsid, $data['sessionquestions'][3]->{'sid'});
         $this->assertEquals($kuet->cmid, $data['sessionquestions'][3]->{'cmid'});
         $this->assertEquals($kuet->id, $data['sessionquestions'][3]->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $mcq->id], '*', MUST_EXIST);
         $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]);
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]
+        );
         $this->assertEquals($jmcq->get('id'), $data['sessionquestions'][3]->{'questionnid'});
         $this->assertEquals(4, $data['sessionquestions'][3]->{'position'});
         $this->assertEquals($qbs->name, $data['sessionquestions'][3]->{'name'});
@@ -263,32 +286,37 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $data['sessionquestions'][3]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $data['sessionquestions'][3]->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $data['sessionquestions'][3]->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $data['sessionquestions'][3]->{'editquestionurl'}
+        );
 
         // Question 5.
         $this->assertIsObject($data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('sid', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('cmid', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('kuetid', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('questionnid', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('position', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('name', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('type', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('isvalid', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('time', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('version', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('managesessions', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('question_preview_url', $data['sessionquestions'][4]);
-        $this->assertObjectHasProperty('editquestionurl', $data['sessionquestions'][4]);
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'sid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'cmid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'kuetid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'questionnid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'position'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'name'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'type'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'isvalid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'time'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'version'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'managesessions'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'question_preview_url'));
+        $this->assertTrue(property_exists($data['sessionquestions'][4], 'editquestionurl'));
         $this->assertEquals($createdsid, $data['sessionquestions'][4]->{'sid'});
         $this->assertEquals($kuet->cmid, $data['sessionquestions'][4]->{'cmid'});
         $this->assertEquals($kuet->id, $data['sessionquestions'][4]->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $ddwtosq->id], '*', MUST_EXIST);
         $jsddwtosq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS]);
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS]
+        );
         $this->assertEquals($jsddwtosq->get('id'), $data['sessionquestions'][4]->{'questionnid'});
         $this->assertEquals(5, $data['sessionquestions'][4]->{'position'});
         $this->assertEquals($qbs->name, $data['sessionquestions'][4]->{'name'});
@@ -303,32 +331,37 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $data['sessionquestions'][4]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $data['sessionquestions'][4]->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $data['sessionquestions'][4]->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $data['sessionquestions'][4]->{'editquestionurl'}
+        );
 
         // Question 6.
         $this->assertIsObject($data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('sid', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('cmid', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('kuetid', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('questionnid', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('position', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('name', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('type', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('isvalid', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('time', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('version', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('managesessions', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('question_preview_url', $data['sessionquestions'][5]);
-        $this->assertObjectHasProperty('editquestionurl', $data['sessionquestions'][5]);
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'sid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'cmid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'kuetid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'questionnid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'position'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'name'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'type'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'isvalid'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'time'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'version'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'managesessions'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'question_preview_url'));
+        $this->assertTrue(property_exists($data['sessionquestions'][5], 'editquestionurl'));
         $this->assertEquals($createdsid, $data['sessionquestions'][5]->{'sid'});
         $this->assertEquals($kuet->cmid, $data['sessionquestions'][5]->{'cmid'});
         $this->assertEquals($kuet->id, $data['sessionquestions'][5]->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $dq->id], '*', MUST_EXIST);
         $jdq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]);
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]
+        );
         $this->assertEquals($jdq->get('id'), $data['sessionquestions'][5]->{'questionnid'});
         $this->assertEquals(6, $data['sessionquestions'][5]->{'position'});
         $this->assertEquals($qbs->name, $data['sessionquestions'][5]->{'name'});
@@ -343,26 +376,29 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $data['sessionquestions'][5]->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $data['sessionquestions'][5]->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $data['sessionquestions'][5]->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $data['sessionquestions'][5]->{'editquestionurl'}
+        );
     }
 
     /**
      * Export question test
      *
      * @return void
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \moodle_exception
      */
-    public function test_export_question() {
+    public function test_export_question(): void {
         global $DB;
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -396,7 +432,10 @@ class sessionquestions_external_test extends advanced_testcase {
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $questiongenerator->create_question_category();
+        $bank = self::getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+        $cat = $questiongenerator->create_question_category([
+            'contextid' => \context_module::instance($bank->cmid)->id,
+        ]);
         $saq = $questiongenerator->create_question(questions::SHORTANSWER, null, ['category' => $cat->id]);
         $nq = $questiongenerator->create_question(questions::NUMERICAL, null, ['category' => $cat->id]);
         $tfq = $questiongenerator->create_question(questions::TRUE_FALSE, null, ['category' => $cat->id]);
@@ -417,28 +456,30 @@ class sessionquestions_external_test extends advanced_testcase {
 
         // Question 1.
         $jsaq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER]);
-        $datasaq = \mod_kuet\external\sessionquestions_external::export_question($jsaq, $kuet->cmid);
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER]
+        );
+        $datasaq = questions::export_session_question($jsaq, $kuet->cmid);
         $this->assertIsObject($datasaq);
-        $this->assertObjectHasProperty('sid', $datasaq);
-        $this->assertObjectHasProperty('cmid', $datasaq);
-        $this->assertObjectHasProperty('kuetid', $datasaq);
-        $this->assertObjectHasProperty('questionnid', $datasaq);
-        $this->assertObjectHasProperty('position', $datasaq);
-        $this->assertObjectHasProperty('name', $datasaq);
-        $this->assertObjectHasProperty('type', $datasaq);
-        $this->assertObjectHasProperty('isvalid', $datasaq);
-        $this->assertObjectHasProperty('time', $datasaq);
-        $this->assertObjectHasProperty('version', $datasaq);
-        $this->assertObjectHasProperty('managesessions', $datasaq);
-        $this->assertObjectHasProperty('question_preview_url', $datasaq);
-        $this->assertObjectHasProperty('editquestionurl', $datasaq);
+        $this->assertTrue(property_exists($datasaq, 'sid'));
+        $this->assertTrue(property_exists($datasaq, 'cmid'));
+        $this->assertTrue(property_exists($datasaq, 'kuetid'));
+        $this->assertTrue(property_exists($datasaq, 'questionnid'));
+        $this->assertTrue(property_exists($datasaq, 'position'));
+        $this->assertTrue(property_exists($datasaq, 'name'));
+        $this->assertTrue(property_exists($datasaq, 'type'));
+        $this->assertTrue(property_exists($datasaq, 'isvalid'));
+        $this->assertTrue(property_exists($datasaq, 'time'));
+        $this->assertTrue(property_exists($datasaq, 'version'));
+        $this->assertTrue(property_exists($datasaq, 'managesessions'));
+        $this->assertTrue(property_exists($datasaq, 'question_preview_url'));
+        $this->assertTrue(property_exists($datasaq, 'editquestionurl'));
         $this->assertEquals($createdsid, $datasaq->{'sid'});
         $this->assertEquals($kuet->cmid, $datasaq->{'cmid'});
         $this->assertEquals($kuet->id, $datasaq->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $saq->id], '*', MUST_EXIST);
         $jsaq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER]);
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER]
+        );
         $this->assertEquals($jsaq->get('id'), $datasaq->{'questionnid'});
         $this->assertEquals(1, $datasaq->{'position'});
         $this->assertEquals($qbs->name, $datasaq->{'name'});
@@ -453,35 +494,41 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $datasaq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $datasaq->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $datasaq->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $datasaq->{'editquestionurl'}
+        );
 
         // Question 2.
         $jnq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]);
-        $datanq = \mod_kuet\external\sessionquestions_external::export_question($jnq, $kuet->cmid);
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]
+        );
+        $datanq = questions::export_session_question($jnq, $kuet->cmid);
         $this->assertIsObject($datanq);
-        $this->assertObjectHasProperty('sid', $datanq);
-        $this->assertObjectHasProperty('cmid', $datanq);
-        $this->assertObjectHasProperty('kuetid', $datanq);
-        $this->assertObjectHasProperty('questionnid', $datanq);
-        $this->assertObjectHasProperty('position', $datanq);
-        $this->assertObjectHasProperty('name', $datanq);
-        $this->assertObjectHasProperty('type', $datanq);
-        $this->assertObjectHasProperty('isvalid', $datanq);
-        $this->assertObjectHasProperty('time', $datanq);
-        $this->assertObjectHasProperty('version', $datanq);
-        $this->assertObjectHasProperty('managesessions', $datanq);
-        $this->assertObjectHasProperty('question_preview_url', $datanq);
-        $this->assertObjectHasProperty('editquestionurl', $datanq);
+        $this->assertTrue(property_exists($datanq, 'sid'));
+        $this->assertTrue(property_exists($datanq, 'cmid'));
+        $this->assertTrue(property_exists($datanq, 'kuetid'));
+        $this->assertTrue(property_exists($datanq, 'questionnid'));
+        $this->assertTrue(property_exists($datanq, 'position'));
+        $this->assertTrue(property_exists($datanq, 'name'));
+        $this->assertTrue(property_exists($datanq, 'type'));
+        $this->assertTrue(property_exists($datanq, 'isvalid'));
+        $this->assertTrue(property_exists($datanq, 'time'));
+        $this->assertTrue(property_exists($datanq, 'version'));
+        $this->assertTrue(property_exists($datanq, 'managesessions'));
+        $this->assertTrue(property_exists($datanq, 'question_preview_url'));
+        $this->assertTrue(property_exists($datanq, 'editquestionurl'));
         $this->assertEquals($createdsid, $datanq->{'sid'});
         $this->assertEquals($kuet->cmid, $datanq->{'cmid'});
         $this->assertEquals($kuet->id, $datanq->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $nq->id], '*', MUST_EXIST);
         $jnq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]);
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]
+        );
         $this->assertEquals($jnq->get('id'), $datanq->{'questionnid'});
         $this->assertEquals(2, $datanq->{'position'});
         $this->assertEquals($qbs->name, $datanq->{'name'});
@@ -496,35 +543,41 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $datanq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $datanq->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $datanq->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $datanq->{'editquestionurl'}
+        );
 
         // Question 3.
         $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]);
-        $datatfq = \mod_kuet\external\sessionquestions_external::export_question($jtfq, $kuet->cmid);
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]
+        );
+        $datatfq = questions::export_session_question($jtfq, $kuet->cmid);
         $this->assertIsObject($datatfq);
-        $this->assertObjectHasProperty('sid', $datatfq);
-        $this->assertObjectHasProperty('cmid', $datatfq);
-        $this->assertObjectHasProperty('kuetid', $datatfq);
-        $this->assertObjectHasProperty('questionnid', $datatfq);
-        $this->assertObjectHasProperty('position', $datatfq);
-        $this->assertObjectHasProperty('name', $datatfq);
-        $this->assertObjectHasProperty('type', $datatfq);
-        $this->assertObjectHasProperty('isvalid', $datatfq);
-        $this->assertObjectHasProperty('time', $datatfq);
-        $this->assertObjectHasProperty('version', $datatfq);
-        $this->assertObjectHasProperty('managesessions', $datatfq);
-        $this->assertObjectHasProperty('question_preview_url', $datatfq);
-        $this->assertObjectHasProperty('editquestionurl', $datatfq);
+        $this->assertTrue(property_exists($datatfq, 'sid'));
+        $this->assertTrue(property_exists($datatfq, 'cmid'));
+        $this->assertTrue(property_exists($datatfq, 'kuetid'));
+        $this->assertTrue(property_exists($datatfq, 'questionnid'));
+        $this->assertTrue(property_exists($datatfq, 'position'));
+        $this->assertTrue(property_exists($datatfq, 'name'));
+        $this->assertTrue(property_exists($datatfq, 'type'));
+        $this->assertTrue(property_exists($datatfq, 'isvalid'));
+        $this->assertTrue(property_exists($datatfq, 'time'));
+        $this->assertTrue(property_exists($datatfq, 'version'));
+        $this->assertTrue(property_exists($datatfq, 'managesessions'));
+        $this->assertTrue(property_exists($datatfq, 'question_preview_url'));
+        $this->assertTrue(property_exists($datatfq, 'editquestionurl'));
         $this->assertEquals($createdsid, $datatfq->{'sid'});
         $this->assertEquals($kuet->cmid, $datatfq->{'cmid'});
         $this->assertEquals($kuet->id, $datatfq->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $tfq->id], '*', MUST_EXIST);
         $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]);
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]
+        );
         $this->assertEquals($jtfq->get('id'), $datatfq->{'questionnid'});
         $this->assertEquals(3, $datatfq->{'position'});
         $this->assertEquals($qbs->name, $datatfq->{'name'});
@@ -539,35 +592,41 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $datatfq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $datatfq->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $datatfq->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $datatfq->{'editquestionurl'}
+        );
 
         // Question 4.
         $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]);
-        $datamcq = \mod_kuet\external\sessionquestions_external::export_question($jmcq, $kuet->cmid);
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]
+        );
+        $datamcq = questions::export_session_question($jmcq, $kuet->cmid);
         $this->assertIsObject($datamcq);
-        $this->assertObjectHasProperty('sid', $datamcq);
-        $this->assertObjectHasProperty('cmid', $datamcq);
-        $this->assertObjectHasProperty('kuetid', $datamcq);
-        $this->assertObjectHasProperty('questionnid', $datamcq);
-        $this->assertObjectHasProperty('position', $datamcq);
-        $this->assertObjectHasProperty('name', $datamcq);
-        $this->assertObjectHasProperty('type', $datamcq);
-        $this->assertObjectHasProperty('isvalid', $datamcq);
-        $this->assertObjectHasProperty('time', $datamcq);
-        $this->assertObjectHasProperty('version', $datamcq);
-        $this->assertObjectHasProperty('managesessions', $datamcq);
-        $this->assertObjectHasProperty('question_preview_url', $datamcq);
-        $this->assertObjectHasProperty('editquestionurl', $datamcq);
+        $this->assertTrue(property_exists($datamcq, 'sid'));
+        $this->assertTrue(property_exists($datamcq, 'cmid'));
+        $this->assertTrue(property_exists($datamcq, 'kuetid'));
+        $this->assertTrue(property_exists($datamcq, 'questionnid'));
+        $this->assertTrue(property_exists($datamcq, 'position'));
+        $this->assertTrue(property_exists($datamcq, 'name'));
+        $this->assertTrue(property_exists($datamcq, 'type'));
+        $this->assertTrue(property_exists($datamcq, 'isvalid'));
+        $this->assertTrue(property_exists($datamcq, 'time'));
+        $this->assertTrue(property_exists($datamcq, 'version'));
+        $this->assertTrue(property_exists($datamcq, 'managesessions'));
+        $this->assertTrue(property_exists($datamcq, 'question_preview_url'));
+        $this->assertTrue(property_exists($datamcq, 'editquestionurl'));
         $this->assertEquals($createdsid, $datamcq->{'sid'});
         $this->assertEquals($kuet->cmid, $datamcq->{'cmid'});
         $this->assertEquals($kuet->id, $datamcq->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $mcq->id], '*', MUST_EXIST);
         $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]);
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]
+        );
         $this->assertEquals($jmcq->get('id'), $datamcq->{'questionnid'});
         $this->assertEquals(4, $datamcq->{'position'});
         $this->assertEquals($qbs->name, $datamcq->{'name'});
@@ -582,35 +641,41 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $datamcq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $datamcq->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $datamcq->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $datamcq->{'editquestionurl'}
+        );
 
         // Question 5.
         $jddwtosq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS]);
-        $dataddwtosq = \mod_kuet\external\sessionquestions_external::export_question($jddwtosq, $kuet->cmid);
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS]
+        );
+        $dataddwtosq = questions::export_session_question($jddwtosq, $kuet->cmid);
         $this->assertIsObject($dataddwtosq);
-        $this->assertObjectHasProperty('sid', $dataddwtosq);
-        $this->assertObjectHasProperty('cmid', $dataddwtosq);
-        $this->assertObjectHasProperty('kuetid', $dataddwtosq);
-        $this->assertObjectHasProperty('questionnid', $dataddwtosq);
-        $this->assertObjectHasProperty('position', $dataddwtosq);
-        $this->assertObjectHasProperty('name', $dataddwtosq);
-        $this->assertObjectHasProperty('type', $dataddwtosq);
-        $this->assertObjectHasProperty('isvalid', $dataddwtosq);
-        $this->assertObjectHasProperty('time', $dataddwtosq);
-        $this->assertObjectHasProperty('version', $dataddwtosq);
-        $this->assertObjectHasProperty('managesessions', $dataddwtosq);
-        $this->assertObjectHasProperty('question_preview_url', $dataddwtosq);
-        $this->assertObjectHasProperty('editquestionurl', $dataddwtosq);
+        $this->assertTrue(property_exists($dataddwtosq, 'sid'));
+        $this->assertTrue(property_exists($dataddwtosq, 'cmid'));
+        $this->assertTrue(property_exists($dataddwtosq, 'kuetid'));
+        $this->assertTrue(property_exists($dataddwtosq, 'questionnid'));
+        $this->assertTrue(property_exists($dataddwtosq, 'position'));
+        $this->assertTrue(property_exists($dataddwtosq, 'name'));
+        $this->assertTrue(property_exists($dataddwtosq, 'type'));
+        $this->assertTrue(property_exists($dataddwtosq, 'isvalid'));
+        $this->assertTrue(property_exists($dataddwtosq, 'time'));
+        $this->assertTrue(property_exists($dataddwtosq, 'version'));
+        $this->assertTrue(property_exists($dataddwtosq, 'managesessions'));
+        $this->assertTrue(property_exists($dataddwtosq, 'question_preview_url'));
+        $this->assertTrue(property_exists($dataddwtosq, 'editquestionurl'));
         $this->assertEquals($createdsid, $dataddwtosq->{'sid'});
         $this->assertEquals($kuet->cmid, $dataddwtosq->{'cmid'});
         $this->assertEquals($kuet->id, $dataddwtosq->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $ddwtosq->id], '*', MUST_EXIST);
         $jsddwtosq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS]);
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS]
+        );
         $this->assertEquals($jsddwtosq->get('id'), $dataddwtosq->{'questionnid'});
         $this->assertEquals(5, $dataddwtosq->{'position'});
         $this->assertEquals($qbs->name, $dataddwtosq->{'name'});
@@ -625,35 +690,41 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $dataddwtosq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $dataddwtosq->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $dataddwtosq->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $dataddwtosq->{'editquestionurl'}
+        );
 
         // Question 6.
         $jdq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]);
-        $datadq = \mod_kuet\external\sessionquestions_external::export_question($jdq, $kuet->cmid);
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]
+        );
+        $datadq = questions::export_session_question($jdq, $kuet->cmid);
         $this->assertIsObject($datadq);
-        $this->assertObjectHasProperty('sid', $datadq);
-        $this->assertObjectHasProperty('cmid', $datadq);
-        $this->assertObjectHasProperty('kuetid', $datadq);
-        $this->assertObjectHasProperty('questionnid', $datadq);
-        $this->assertObjectHasProperty('position', $datadq);
-        $this->assertObjectHasProperty('name', $datadq);
-        $this->assertObjectHasProperty('type', $datadq);
-        $this->assertObjectHasProperty('isvalid', $datadq);
-        $this->assertObjectHasProperty('time', $datadq);
-        $this->assertObjectHasProperty('version', $datadq);
-        $this->assertObjectHasProperty('managesessions', $datadq);
-        $this->assertObjectHasProperty('question_preview_url', $datadq);
-        $this->assertObjectHasProperty('editquestionurl', $datadq);
+        $this->assertTrue(property_exists($datadq, 'sid'));
+        $this->assertTrue(property_exists($datadq, 'cmid'));
+        $this->assertTrue(property_exists($datadq, 'kuetid'));
+        $this->assertTrue(property_exists($datadq, 'questionnid'));
+        $this->assertTrue(property_exists($datadq, 'position'));
+        $this->assertTrue(property_exists($datadq, 'name'));
+        $this->assertTrue(property_exists($datadq, 'type'));
+        $this->assertTrue(property_exists($datadq, 'isvalid'));
+        $this->assertTrue(property_exists($datadq, 'time'));
+        $this->assertTrue(property_exists($datadq, 'version'));
+        $this->assertTrue(property_exists($datadq, 'managesessions'));
+        $this->assertTrue(property_exists($datadq, 'question_preview_url'));
+        $this->assertTrue(property_exists($datadq, 'editquestionurl'));
         $this->assertEquals($createdsid, $datadq->{'sid'});
         $this->assertEquals($kuet->cmid, $datadq->{'cmid'});
         $this->assertEquals($kuet->id, $datadq->{'kuetid'});
         $qbs = $DB->get_record('question', ['id' => $dq->id], '*', MUST_EXIST);
         $jdq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]);
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]
+        );
         $this->assertEquals($jdq->get('id'), $datadq->{'questionnid'});
         $this->assertEquals(6, $datadq->{'position'});
         $this->assertEquals($qbs->name, $datadq->{'name'});
@@ -668,9 +739,13 @@ class sessionquestions_external_test extends advanced_testcase {
             'ksid' => $kuet->id,
             'cid' => $kuet->course,
         ];
-        $this->assertEquals((new moodle_url('/mod/kuet/preview.php', $args))->out(false),
-            $datadq->{'question_preview_url'});
-        $this->assertEquals((new moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
-            $datadq->{'editquestionurl'});
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/preview.php', $args))->out(false),
+            $datadq->{'question_preview_url'}
+        );
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/editquestion.php', $args))->out(false),
+            $datadq->{'editquestionurl'}
+        );
     }
 }

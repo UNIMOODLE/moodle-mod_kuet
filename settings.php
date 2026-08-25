@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -69,6 +70,19 @@ if ($ADMIN->fulltree) {
         )
     );
     $settings->hide_if('kuet/serverpid', 'kuet/sockettype', 'neq', 'local');
+    $page->add($setting);
+
+    // Sockets information.
+    $setting = new admin_setting_description(
+        'kuet/socketinfo',
+        get_string('socketinfo', 'mod_kuet'),
+        html_writer::div(
+            get_string('socketinfo_desc', 'mod_kuet'),
+            'alert alert-info',
+            ['role' => 'alert']
+        )
+    );
+    $settings->hide_if('kuet/socketinfo', 'kuet/sockettype', 'eq', 'nosocket');
     $page->add($setting);
 
     $setting = new admin_setting_configtext_with_maxlength(

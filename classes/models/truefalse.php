@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -43,7 +44,6 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_kuet\api\grade;
 use mod_kuet\api\groupmode;
-use mod_kuet\external\truefalse_external;
 use mod_kuet\helpers\reports;
 use mod_kuet\persistents\kuet_questions;
 use mod_kuet\persistents\kuet_questions_responses;
@@ -247,7 +247,7 @@ class truefalse extends questions implements questionType {
         if (!isset($responsedata->answerids)) {
             $responsedata->answerids = 0;
         }
-        $dataanswer = truefalse_external::truefalse(
+        $dataanswer = self::answer(
             $responsedata->answerids,
             $data->sessionid,
             $data->kuetid,
@@ -532,5 +532,106 @@ class truefalse extends questions implements questionType {
      */
     public static function show_statistics(): bool {
         return true;
+    }
+    /**
+     * Grade and register an answer to a true/false question
+     *
+     * Internal counterpart of the truefalse web service. Report rendering
+     * calls this directly, so that it never goes through the external API
+     * and its validate_context() in the middle of a page render.
+     *
+     * @param int $answerid
+     * @param int $sessionid
+     * @param int $kuetid
+     * @param int $cmid
+     * @param int $questionid
+     * @param int $kid
+     * @param int $timeleft
+     * @param bool $preview
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     * @return array
+     */
+    public static function answer(
+        int $answerid,
+        int $sessionid,
+        int $kuetid,
+        int $cmid,
+        int $questionid,
+        int $kid,
+        int $timeleft,
+        bool $preview
+    ): array {
+        global $PAGE, $USER;
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
+
+        $question = question_bank::load_question($questionid);
+        $statmentfeedback = questions::get_text(
+            $cmid,
+            $question->generalfeedback,
+            1,
+            $question->id,
+            $question,
+            'generalfeedback'
+        );
+        $answertext = '0';
+        $correctanswer = $question->rightanswer ? (int)$question->trueanswerid : (int)$question->falseanswerid;
+        if ((int)$answerid === (int)$question->trueanswerid) {
+            $answertext = '1';
+            $answerfeedback = questions::get_text(
+                $cmid,
+                $question->truefeedback,
+                1,
+                (int) $question->trueanswerid,
+                $question,
+                'answerfeedback'
+            ) . '<br>';
+        } else {
+            $answerfeedback = questions::get_text(
+                $cmid,
+                $question->falsefeedback,
+                1,
+                (int) $question->falseanswerid,
+                $question,
+                'answerfeedback'
+            ) . '<br>';
+        }
+        if ($preview === false) {
+            $custom = [
+                'answerids' => $answerid,
+                'answertexts' => $answertext,
+                'correctanswers' => $correctanswer,
+                'answerfeedback' => $answerfeedback,
+            ];
+            self::question_response(
+                $cmid,
+                $kid,
+                $questionid,
+                $sessionid,
+                $kuetid,
+                $statmentfeedback,
+                $USER->id,
+                $timeleft,
+                $custom
+            );
+        }
+        $session = new kuet_sessions($sessionid);
+        return [
+            'reply_status' => true,
+            'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
+            'statment_feedback' => $statmentfeedback,
+            'answer_feedback' => $answerfeedback,
+            'correct_answers' => $correctanswer,
+            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+            'preview' => $preview,
+        ];
     }
 }

@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_kuet;
+
 /**
  * Add questions test
  *
@@ -26,22 +28,23 @@
 
 /**
  * Add questions test class
+ *
+ * @covers \mod_kuet\external\addquestions_external
  */
-class addquestions_external_test extends advanced_testcase {
+final class addquestions_external_test extends \advanced_testcase {
     /**
      * Add questions test
      *
      * @return void
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_add_questions() :void {
+    public function test_add_questions(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -76,7 +79,10 @@ class addquestions_external_test extends advanced_testcase {
 
         // Create questions.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $cat = $questiongenerator->create_question_category();
+        $bank = self::getDataGenerator()->create_module('qbank', ['course' => $course->id]);
+        $cat = $questiongenerator->create_question_category([
+            'contextid' => \context_module::instance($bank->cmid)->id,
+        ]);
         $saq = $questiongenerator->create_question('shortanswer', null, ['category' => $cat->id]);
         $numq = $questiongenerator->create_question('numerical', null, ['category' => $cat->id]);
         $essayq = $questiongenerator->create_question('essay', null, ['category' => $cat->id]); // Not accepted on kuet.
@@ -91,16 +97,13 @@ class addquestions_external_test extends advanced_testcase {
         $this->assertArrayHasKey('added', $data);
         $this->assertTrue($data['added']);
 
-        // Not compatible question.
-        $data = \mod_kuet\external\addquestions_external::add_questions([
+        $this->assertEquals(2, \mod_kuet\persistents\kuet_questions::count_records([
+            'sessionid' => $createdsid, 'kuetid' => $kuet->id,
+        ]));
+        // Unsupported questions now fail explicitly; mixed batches are atomic.
+        $this->expectException(\moodle_exception::class);
+        \mod_kuet\external\addquestions_external::add_questions([
             ['questionid' => $essayq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => 'essay'],
         ]);
-        $total = mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'kuetid' => $kuet->id]);
-        $this->assertIsArray($data);
-        $this->assertArrayHasKey('added', $data);
-        $this->assertTrue($data['added']);
-
-        // Revisamos a ver si realmente se ha añadido.
-        $this->assertEquals(2, $total);
     }
 }

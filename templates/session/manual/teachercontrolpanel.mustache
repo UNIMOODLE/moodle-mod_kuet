@@ -83,19 +83,19 @@
                 <span>{{#str}}resend, mod_kuet{{/str}}</span>
             </div>
             <div class="dropdown show {{#cloudtags}}disabled{{/cloudtags}}">
-                <div class="control-action dropdown-toggle" role="button" id="jumpTo" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <button type="button" class="control-action dropdown-toggle border-0 bg-transparent" id="jumpTo-{{kid}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <div class="control-action-icon bg-primary">
                         {{#pix}}i/jump, mod_kuet{{/pix}}
                     </div>
                     <span>{{#str}}jump, mod_kuet{{/str}}</span>
-                </div>
-                <div class="dropdown-menu" aria-labelledby="jumpTo">
+                </button>
+                <div class="dropdown-menu" aria-labelledby="jumpTo-{{kid}}">
                     <div class="form-inline">
                         <div class="form-group ml-2 mr-2 mb-2">
-                            <label for="jumpToNumber" class="sr-only">{{#str}}question_number, mod_kuet{{/str}}</label>
-                            <input type="number" class="form-control" id="jumpToNumber" data-input="jumpto" data-numquestions="{{numquestions}}" placeholder="{{#str}}question_number, mod_kuet{{/str}}" min="1" max="{{numquestions}}">
+                            <label for="jumpToNumber-{{kid}}" class="visually-hidden">{{#str}}question_number, mod_kuet{{/str}}</label>
+                            <input type="number" class="form-control" id="jumpToNumber-{{kid}}" data-input="jumpto" data-numquestions="{{numquestions}}" placeholder="{{#str}}question_number, mod_kuet{{/str}}" min="1" max="{{numquestions}}">
                         </div>
-                        <div data-action="jump" class="btn btn-primary mb-2 mr-2">{{#str}}jump, mod_kuet{{/str}}</div>
+                        <button type="button" data-action="jump" class="btn btn-primary mb-2 mr-2">{{#str}}jump, mod_kuet{{/str}}</button>
                     </div>
                 </div>
             </div>

@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -38,7 +39,6 @@
  * Kuet activity structure steps class
  */
 class restore_kuet_activity_structure_step extends restore_questions_activity_structure_step {
-
     /**
      * Define structure
      *
@@ -53,7 +53,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $paths[] = new restore_path_element('kuet_session', '/activity/kuet/sessions/session');
         $question = new restore_path_element('kuet_question', '/activity/kuet/questions/question');
         $paths[] = $question;
-        $this->add_question_usages($question, $paths);
+        $this->add_question_references($question, $paths);
         if ($userinfo) {
             $paths[] = new restore_path_element('kuet_grade', '/activity/kuet/grades/grade');
             $paths[] = new restore_path_element('kuet_session_grade', '/activity/kuet/sessions_grades/session_grade');
@@ -97,6 +97,29 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
     }
 
     /**
+     * Keep exact IDs consistent with the core's final reconnection to shared banks.
+     *
+     * @param int $oldid Backed-up question version ID.
+     * @return int Restored or reused question ID, or zero if missing.
+     */
+    private function mapped_question_id(int $oldid): int {
+        global $DB;
+        if ($this->task->is_samesite()) {
+            $contextid = $DB->get_field_sql('SELECT qc.contextid
+                FROM {question_versions} qv
+                JOIN {question_bank_entries} qbe ON qbe.id = qv.questionbankentryid
+                JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                WHERE qv.questionid = ?', [$oldid]);
+            if ($contextid && !$this->get_mappingid('context', $contextid)) {
+                $context = context::instance_by_id($contextid, IGNORE_MISSING);
+                if ($context && $context->contextlevel === CONTEXT_MODULE && has_capability('mod/qbank:view', $context)) {
+                    return $oldid;
+                }
+            }
+        }
+        return (int)$this->get_mappingid('question', $oldid);
+    }
+    /**
      * Process kuet questions
      *
      * @param $data
@@ -108,14 +131,17 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         global $DB;
         $data = (object)$data;
         $oldid = $data->id;
-        $newquestionid = $this->get_mappingid('question', $data->questionid);
-        if ($newquestionid) {
-            $data->questionid = $newquestionid;
+        $newquestionid = $this->mapped_question_id((int)$data->questionid);
+        // Never reuse an unmapped ID from another site. Keep an explicit missing-question placeholder.
+        $data->questionid = $newquestionid ?: 0;
+        if (!$newquestionid) {
+            $data->isvalid = 0;
         }
         $data->sessionid = $this->get_mappingid('kuet_sessions', $data->sessionid);
         $data->kuetid = $this->get_new_parentid('kuet');
         $newitemid = $DB->insert_record('kuet_questions', $data);
         $this->set_mapping('kuet_questions', $oldid, $newitemid);
+        $this->set_mapping('kuet_question', $oldid, $newitemid);
     }
 
     /**
@@ -131,11 +157,12 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $data->kuet = $this->get_new_parentid('kuet');
         $data->session = $this->get_mappingid('kuet_sessions', $data->session);
         $data->kid = $this->get_mappingid('kuet_questions', $data->kid);
-        $newquestionid = $this->get_mappingid('question', $data->questionid);
+        $newquestionid = $this->mapped_question_id((int)$data->questionid);
         if ($newquestionid) {
             $data->questionid = $newquestionid;
             $data->response = $this->replace_answerids($data->response, $newquestionid);
         }
+        $data->questionid = $newquestionid ?: 0;
         $data->userid = $this->get_mappingid('user', $data->userid);
         $DB->insert_record('kuet_questions_responses', $data);
     }
@@ -156,6 +183,7 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         $data->timecreated = $this->apply_date_offset($data->timecreated);
         $data->timemodified = $this->apply_date_offset($data->timemodified);
         $data->groupings = $this->get_mappingid('groupings', $data->groupings);
+        $data->questionslocked = $data->questionslocked ?? (int)in_array((int)$data->status, [0, 2], true);
         $newitemid = $DB->insert_record('kuet_sessions', $data);
         $this->set_mapping('kuet_sessions', $oldid, $newitemid);
     }
@@ -212,7 +240,41 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
      * @return void
      */
     protected function after_execute() {
+        global $DB;
+        parent::after_execute();
         $this->add_related_files('mod_kuet', 'intro', null);
+        // Old backups do not contain question_reference elements. Use their remapped exact version.
+        $slots = $DB->get_records('kuet_questions', ['kuetid' => $this->get_new_parentid('kuet')]);
+        foreach ($slots as $slot) {
+            if (!\mod_kuet\question\version_resolver::reference($slot->id) && $slot->questionid) {
+                $version = $DB->get_record('question_versions', ['questionid' => $slot->questionid]);
+                if ($version) {
+                    $DB->insert_record('question_references', (object)[
+                        'usingcontextid' => $this->task->get_contextid(),
+                        'component' => 'mod_kuet', 'questionarea' => 'session_question',
+                        'itemid' => $slot->id, 'questionbankentryid' => $version->questionbankentryid,
+                        'version' => $version->version,
+                    ]);
+                }
+            }
+        }
+    }
+
+    /** Restore references using KUET's position mapping, not quiz_question_instance. */
+    public function process_question_reference($data) {
+        global $DB;
+        $data = (object)$data;
+        $entryid = $this->get_mappingid('question_bank_entry', $data->questionbankentryid);
+        if (!$entryid) {
+            throw new restore_step_exception('missing_question_bank_entry_mapping', $data->questionbankentryid);
+        }
+        unset($data->id);
+        $data->component = 'mod_kuet';
+        $data->questionarea = 'session_question';
+        $data->usingcontextid = $this->task->get_contextid();
+        $data->itemid = $this->get_new_parentid('kuet_question');
+        $data->questionbankentryid = $entryid;
+        $DB->insert_record('question_references', $data);
     }
 
     /**
@@ -233,7 +295,6 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
             return $this->replace_answerids_multichoice($resp, $newquestionid);
         }
         return $responsejson;
-
     }
 
     /**

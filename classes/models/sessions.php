@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -44,9 +45,6 @@ use Exception;
 use invalid_parameter_exception;
 use mod_kuet\api\grade;
 use mod_kuet\api\groupmode;
-use mod_kuet\external\getfinalranking_external;
-use mod_kuet\external\sessionquestions_external;
-use mod_kuet\external\sessionstatus_external;
 use mod_kuet\forms\sessionform;
 use mod_kuet\persistents\kuet;
 use mod_kuet\persistents\kuet_questions;
@@ -287,6 +285,7 @@ class sessions {
             'anonymousanswer' => $session->get('anonymousanswer'),
             'sessionmode' => $session->get('sessionmode'),
             'sgrade' => $session->get('sgrade'),
+            'mandatoryattendance' => $session->get('mandatoryattendance'),
             'countdown' => $session->get('countdown'),
             'showgraderanking' => $session->get('showgraderanking'),
             'randomquestions' => $session->get('randomquestions'),
@@ -318,18 +317,19 @@ class sessions {
         $data->sid = required_param('sid', PARAM_INT);
         $data->cmid = required_param('cmid', PARAM_INT);
         $data->kuetid = $this->kuet->id;
-        [$data->currentcategory, $data->questionbank_categories] = $this->get_questionbank_select();
-        $course = $DB->get_record_sql("
-                    SELECT c.*
-                      FROM {course_modules} cm
-                      JOIN {course} c ON c.id = cm.course
-                     WHERE cm.id = ?", [$this->cmid], MUST_EXIST);
-        $data->questionbank_url = (new moodle_url('/question/edit.php', ['courseid' => $course->id]))->out(false);
-        $data->questions = $this->get_questions_for_category($data->currentcategory);
+        $context = context_module::instance($this->cmid);
+        $data->contextid = $context->id;
+        $data->canaddquestions = !\mod_kuet\question\version_resolver::locked($data->sid);
+        $data->questionbanks = [];
+        foreach (\mod_kuet\question\bank_provider::banks($this->kuet->course) as $bank) {
+            $data->questionbanks[] = ['cmid' => $bank->modid,
+                'name' => strip_tags($bank->coursenamebankname)];
+        }
+        $data->hasquestionbanks = !empty($data->questionbanks);
         $allquestions = (new questions($data->kuetid, $data->cmid, $data->sid))->get_list();
         $questiondata = [];
         foreach ($allquestions as $question) {
-            $questiondata[] = sessionquestions_external::export_question($question, $this->cmid);
+            $questiondata[] = questions::export_session_question($question, $this->cmid);
         }
         $data->sessionquestions = $questiondata;
         $data->resumeurl =
@@ -350,72 +350,32 @@ class sessions {
      */
     public function get_questions_for_category(string $category): array {
         global $DB;
-        core_php_time_limit::raise(300);
-        $categories = [];
-        $context = context_module::instance($this->cmid);
-        $contexts = $context->get_parent_contexts();
-        $contexts[$context->id] = $context;
-        $pcontexts = [];
-        foreach ($contexts as $context) {
-            $pcontexts[] = $context->id;
+        global $CFG;
+        require_once($CFG->libdir . '/questionlib.php');
+        if (!preg_match('/^(\d+),(\d+)$/', $category, $matches)) {
+            return [];
         }
-        $contextslist = implode(', ', $pcontexts);
-        $categoriesofcontext = helper::get_categories_for_contexts($contextslist, 'parent, sortorder, name ASC', true);
-        [$realcategory, $contextcategory] = explode(',', $category);
-        foreach ($categoriesofcontext as $categoryobject) {
-            if (
-                (int)$realcategory === (int)$categoryobject->id ||
-                ($categoryobject->parent === $realcategory && $categoryobject->contextid === $contextcategory)
-            ) {
-                $categories[] = $categoryobject->id . ',' . $categoryobject->contextid;
-                foreach ($categoriesofcontext as $sencond) {
-                    if ($sencond->parent === $categoryobject->id && $sencond->contextid === $contextcategory) {
-                        $categories[] = $sencond->id . ',' . $sencond->contextid;
-                    }
-                }
-            }
+        $categoryrecord = $DB->get_record('question_categories',
+            ['id' => $matches[1], 'contextid' => $matches[2]], '*', MUST_EXIST);
+        $context = \context::instance_by_id($categoryrecord->contextid);
+        if ($context->contextlevel !== CONTEXT_MODULE) {
+            throw new \moodle_exception('banknotavailable', 'mod_kuet');
         }
-        $catstr = '';
-        $params = [];
-        $questions = [];
-        foreach ($categories as $key => $str) {
-            [$categoryid, $contextid] = explode(',', $str);
-            $catstr .= ':cat_' . $key . ',';
-            $params['cat_' . $key] = $categoryid;
-        }
-        if (!empty($params) && $catstr !== '') {
-            $catstr = trim($catstr, ',');
-            $sql = "SELECT
-                        qv.status,
-                        qc.id as categoryid,
-                        qv.version,
-                        qv.id as versionid,
-                        qbe.id as questionbankentryid,
-                        q.id,
-                        q.qtype,
-                        q.name,
-                        qbe.idnumber,
-                        qc.contextid
-                    FROM {question} q
-                        JOIN {question_versions} qv ON qv.questionid = q.id
-                        JOIN {question_bank_entries} qbe on qbe.id = qv.questionbankentryid
-                        JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                            WHERE q.parent = 0
-                            AND qv.version = (SELECT MAX(v.version)
-                                                FROM {question_versions} v
-                                                JOIN {question_bank_entries} be
-                                                ON be.id = v.questionbankentryid
-                                                WHERE be.id = qbe.id)
-                                                    AND ((qbe.questioncategoryid IN ($catstr)))
-                            ORDER BY q.qtype ASC, q.name ASC";
-            $questionsrs = $DB->get_recordset_sql($sql, $params);
-            foreach ($questionsrs as $question) {
-                if (!empty($question->id)) {
-                    $questions[$question->id] = $question;
-                }
-            }
-            $questionsrs->close();
-        }
+        \mod_kuet\question\bank_provider::require_bank($context->instanceid);
+        $categories = question_categorylist($categoryrecord->id);
+        [$insql, $params] = $DB->get_in_or_equal($categories, SQL_PARAMS_NAMED);
+        $params['context'] = $context->id;
+        $questions = $DB->get_records_sql("SELECT q.*, qc.id AS categoryid, qc.contextid, qbe.idnumber,
+                qv.version, qv.status, qv.id AS versionid, qbe.id AS questionbankentryid
+            FROM {question} q
+            JOIN {question_versions} qv ON qv.questionid = q.id
+            JOIN {question_bank_entries} qbe ON qbe.id = qv.questionbankentryid
+            JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+            WHERE q.parent = 0 AND qc.contextid = :context AND qc.id $insql AND qv.status = 'ready'
+              AND NOT EXISTS (SELECT 1 FROM {question_versions} newer
+                  WHERE newer.questionbankentryid = qbe.id AND newer.status = 'ready' AND newer.version > qv.version)
+            ORDER BY q.qtype, q.name", $params);
+        $questions = array_filter($questions, static fn($q) => question_has_capability_on($q, 'use'));
         foreach ($questions as $key => $question) {
             $icon = new pix_icon('icon', '', 'qtype_' . $question->qtype, [
                 'class' => 'icon',
@@ -430,43 +390,6 @@ class sessions {
             $questions[$key] = (array)$question;
         }
         return array_values($questions);
-    }
-
-    /**
-     * Select questions from question bank
-     *
-     * @return array
-     * @throws coding_exception
-     * @throws dml_exception
-     */
-    private function get_questionbank_select(): array {
-        $context = context_module::instance($this->cmid);
-        $contexts = $context->get_parent_contexts();
-        $contexts[$context->id] = $context;
-        $categoriesarray = helper::question_category_options(
-            $contexts,
-            true,
-            0,
-            false,
-            -1,
-            false
-        );
-        $currentcategory = [];
-        foreach ($categoriesarray as $sistemcategory) {
-            foreach ($sistemcategory as $key => $category) {
-                $currentcategory = $key;
-                break;
-            }
-            break;
-        }
-        return [$currentcategory, helper::question_category_select_menu(
-            $contexts,
-            true,
-            0,
-            true,
-            -1,
-            true
-        )];
     }
 
     /**
@@ -487,7 +410,7 @@ class sessions {
         $allquestions = (new questions($data->kuetid, $data->cmid, $data->sid))->get_list();
         $questiondata = [];
         foreach ($allquestions as $question) {
-            $questiondata[] = sessionquestions_external::export_question($question, $this->cmid);
+            $questiondata[] = questions::export_session_question($question, $this->cmid);
         }
         $data->sessionquestions = $questiondata;
         $data->addquestions =
@@ -631,6 +554,23 @@ class sessions {
             'configname' => get_string('timemode', 'mod_kuet'),
             'configvalue' => $timemodestring,
         ];
+
+        // Whether the session counts towards the activity grade (sgrade), and if
+        // so whether attendance is mandatory (KUETEDUCAM-72).
+        $isgradable = (int) $sessiondata->get('sgrade') !== self::GM_DISABLED;
+        $data[] = [
+            'iconconfig' => 'grademethod',
+            'configname' => get_string('sgrade', 'mod_kuet'),
+            'configvalue' => $isgradable ? get_string('yes') : get_string('no'),
+        ];
+        if ($isgradable) {
+            $data[] = [
+                'iconconfig' => 'users',
+                'configname' => get_string('mandatoryattendance', 'mod_kuet'),
+                'configvalue' => (int) $sessiondata->get('mandatoryattendance') === 1
+                    ? get_string('yes') : get_string('no'),
+            ];
+        }
 
         return $data;
     }
@@ -900,6 +840,12 @@ class sessions {
         if (!isset($data->sgrade)) {
             $data->sgrade = 0;
         }
+        // Unchecked attendance checkbox is absent: store 0 (non-mandatory). The
+        // checkbox is only rendered when grading is on, so an absent value here
+        // means the teacher unchecked it.
+        if (!isset($data->mandatoryattendance)) {
+            $data->mandatoryattendance = 0;
+        }
         if (!isset($data->countdown)) {
             $data->countdown = 0;
         }
@@ -1068,6 +1014,52 @@ class sessions {
     }
 
     /**
+     * Build the end-of-session ranking payload
+     *
+     * Internal counterpart of the getfinalranking web service: the same data,
+     * without the external API wrapper, so that page code can build it without
+     * going through validate_context() in the middle of a render.
+     *
+     * @param int $sid
+     * @param int $cmid
+     * @return array
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public static function get_final_ranking_data(int $sid, int $cmid): array {
+        $session = kuet_sessions::get_record(['id' => $sid]);
+        $questions = new questions($session->get('kuetid'), $cmid, $sid);
+        $contextmodule = context_module::instance($cmid);
+        $ranking = self::get_final_ranking($sid, $cmid);
+        $finalranking = $ranking;
+        unset($finalranking[0], $finalranking[1], $finalranking[2]);
+        $finalranking = array_values($finalranking);
+        foreach ($finalranking as $key => $userforranking) {
+            $finalranking[$key]->userpoints = $userforranking->userpoints ? (string)$userforranking->userpoints : '';
+        }
+        return [
+            'finalranking' => $finalranking,
+            'firstuserimageurl' => $ranking[0]->userimageurl ?? '',
+            'firstuserfullname' => $ranking[0]->userfullname ?? '',
+            'firstuserpoints' => $ranking[0]->userpoints ? (string)$ranking[0]->userpoints : '',
+            'seconduserimageurl' => $ranking[1]->userimageurl ?? '',
+            'seconduserfullname' => $ranking[1]->userfullname ?? '',
+            'seconduserpoints' => $ranking[1]->userpoints ? (string)$ranking[1]->userpoints : '',
+            'thirduserimageurl' => $ranking[2]->userimageurl ?? '',
+            'thirduserfullname' => $ranking[2]->userfullname ?? '',
+            'thirduserpoints' => $ranking[2]->userpoints ? (string)$ranking[2]->userpoints : '',
+            'sessionid' => $sid,
+            'cmid' => $cmid,
+            'kuetid' => $session->get('kuetid'),
+            'numquestions' => $questions->get_num_questions(),
+            'ranking' => true,
+            'endsession' => true,
+            'reporturl' => (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false),
+            'isteacher' => has_capability('mod/kuet:startsession', $contextmodule),
+        ];
+    }
+
+    /**
      * Get final ranking
      *
      * @param int $sid
@@ -1215,7 +1207,7 @@ class sessions {
                 if ((int)$session->get('showfinalgrade') === 0) {
                     $data = self::get_normal_endsession($data);
                 } else {
-                    $data = (object)getfinalranking_external::getfinalranking($sessionid, $cmid);
+                    $data = (object)self::get_final_ranking_data($sessionid, $cmid);
                     $data = self::get_normal_endsession($data);
                     $data->endsession = true;
                     $data->ranking = true;
@@ -1267,7 +1259,7 @@ class sessions {
      */
     public static function set_session_status_error(kuet_sessions $sessions, string $errorcode) {
         // Change status.
-        sessionstatus_external::sessionstatus($sessions->get('id'), self::SESSION_ERROR);
+        kuet_sessions::update_status($sessions->get('id'), self::SESSION_ERROR);
         // Remove all the answers of this session.
         $kquestions = kuet_questions::get_records(['sessionid' => $sessions->get('id')]);
         foreach ($kquestions as $kquestion) {

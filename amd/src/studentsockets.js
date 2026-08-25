@@ -25,7 +25,8 @@
  *
  * @module    mod_kuet/studentsockets
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,7 +37,7 @@ import Templates from 'core/templates';
 import Notification from 'core/notification';
 import Ajax from 'core/ajax';
 import Encryptor from 'mod_kuet/encryptor';
-import mEvent from 'core/event';
+import * as fEvents from 'core_filters/events';
 import {get_strings as getStrings} from 'core/str';
 
 let REGION = {
@@ -48,6 +49,7 @@ let REGION = {
     IMPROVISEREPLY: '.improvise-student-form #reply_student_improvise',
     TAGSCONTENT: '[data-region="tags-content"]',
     VOTETAG: '[data-action="vote-tag"]',
+    WAITINGROOMMESSAGE: '[data-region="waiting-room-message"]',
 };
 
 let ACTIONS = {
@@ -194,7 +196,7 @@ Sockets.prototype.initSockets = function() {
                     };
                     Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html) {
                         identifier.append(html);
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 });
                 countusers.html(response.count);
                 break;
@@ -213,7 +215,7 @@ Sockets.prototype.initSockets = function() {
                     };
                     Templates.render(TEMPLATES.GROUPPARTICIPANT, templateContext).then(function(html) {
                         participantshtml.append(html);
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 });
                 countusers.html(response.count);
                 break;
@@ -246,9 +248,9 @@ Sockets.prototype.initSockets = function() {
                         Templates.render(TEMPLATES.QUESTION, questionData).then(function(html, js) {
                             identifier.html(html);
                             Templates.runTemplateJS(js);
-                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.ROOT));
+                            fEvents.notifyFilterContentUpdated(document.querySelector(REGION.ROOT));
                             jQuery(REGION.LOADING).remove();
-                        }).fail(Notification.exception);
+                        }).catch(Notification.exception);
                     });
                 });
                 break;
@@ -262,7 +264,7 @@ Sockets.prototype.initSockets = function() {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
                         jQuery(REGION.LOADING).remove();
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 });
                 break;
             case 'pauseQuestion':
@@ -311,7 +313,7 @@ Sockets.prototype.initSockets = function() {
                         identifier.html(html);
                         jQuery(ACTIONS.REPLYIMPROVISE).on('click', Sockets.prototype.replyImprovise);
                         jQuery(REGION.LOADING).remove();
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 });
                 break;
             case 'printNewTag':
@@ -367,7 +369,7 @@ Sockets.prototype.initSockets = function() {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
                         jQuery(REGION.LOADING).remove();
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 });
                 break;
             case 'teacherQuestionEnd':
@@ -391,6 +393,17 @@ Sockets.prototype.initSockets = function() {
                     .find('.numgroupusers').html('(' + response.count + ')');
                 messageBox.append('<div>' + response.message + '</div>');
                 break;
+            case 'waitingRoomState': {
+                // Late-joiner waiting-room hint: server tells us whether a question is already running
+                // and whether it is the last one, so we can swap which h2 is visible.
+                let messageregion = jQuery(REGION.WAITINGROOMMESSAGE);
+                if (messageregion.length) {
+                    let state = response.state || 'noquestion';
+                    messageregion.find('h2[data-state]').addClass('d-none');
+                    messageregion.find('h2[data-state="' + state + '"]').removeClass('d-none');
+                }
+                break;
+            }
             default:
                 break;
         }
@@ -415,7 +428,7 @@ Sockets.prototype.initSockets = function() {
             Templates.render(TEMPLATES.SESSIONFIINISHED, response).then(function(html, js) {
                 jQuery(REGION.ROOT).html(html);
                 Templates.runTemplateJS(js);
-            }).fail(Notification.exception);
+            }).catch(Notification.exception);
         });
     };
 };
@@ -513,7 +526,7 @@ Sockets.prototype.replyImprovise = function() {
                     notImprovised = true;
                 }
                 userHasImprovised = true;
-            }).fail(Notification.exception);
+            }).catch(Notification.exception);
         });
     }
 };

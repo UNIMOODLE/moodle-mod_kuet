@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use dml_exception;
 use dml_transaction_exception;
@@ -58,7 +60,6 @@ use ReflectionException;
  * First question class
  */
 class firstquestion_external extends external_api {
-
     /**
      * First question parameters validation
      *
@@ -94,6 +95,11 @@ class firstquestion_external extends external_api {
             self::firstquestion_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:startsession', $context);
+        modcontext::require_session_in_cm($sessionid, $cmid);
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $firstquestion = kuet_questions::get_first_question_of_session($sessionid);
@@ -103,12 +109,15 @@ class firstquestion_external extends external_api {
             $firstquestion->get('id'),
             $cmid,
             $sessionid,
-            $firstquestion->get('kuetid'));
+            $firstquestion->get('kuetid')
+        );
         $question->showstatistics = $type::show_statistics();
         $session = new kuet_sessions($sessionid);
-        if ($session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+        if (
+            $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
             $session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
-            $session->get('sessionmode') === sessions::RACE_PROGRAMMED) {
+            $session->get('sessionmode') === sessions::RACE_PROGRAMMED
+        ) {
             $question->programmedmode = true;
         } else {
             $question->programmedmode = false;

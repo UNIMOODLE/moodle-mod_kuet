@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,14 +41,12 @@ require_once($CFG->dirroot . '/mod/kuet/backup/moodle2/backup_kuet_stepslib.php'
  * Backup task that provides all the settings and steps to perform one complete backup.
  */
 class backup_kuet_activity_task extends backup_activity_task {
-
     /**
      * This should define settings. Not used at the moment.
      *
      * @return void
      */
     protected function define_my_settings() {
-
     }
 
     /**
@@ -79,5 +78,4 @@ class backup_kuet_activity_task extends backup_activity_task {
         $content = preg_replace($search, '$@KUETVIEWBYID*$2@$', $content);
         return $content;
     }
-
 }

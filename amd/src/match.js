@@ -25,7 +25,8 @@
  *
  * @module    mod_kuet/match
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,7 +37,7 @@
 import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
-import mEvent from 'core/event';
+import * as fEvents from 'core_filters/events';
 
 let ACTION = {
     SEND_RESPONSE: '[data-action="send-match"]',
@@ -147,7 +148,7 @@ Match.prototype.answered = function(jsonresponse) {
     }
     let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
     if (contentFeedbacks !== null) {
-        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+        fEvents.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
     }
 };
 

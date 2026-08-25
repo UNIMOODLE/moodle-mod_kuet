@@ -25,7 +25,8 @@
  *
  * @module    mod_kuet/question
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,8 +37,8 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
-import mEvent from 'core/event';
-import ModalFactory from 'core/modal_factory';
+import * as fEvents from 'core_filters/events';
+import ModalCancel from 'core/modal_cancel';
 
 let ACTION = {
     EXPAND: '[data-action="question-fullscreen"]',
@@ -162,7 +163,7 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
                         identifier.html(html);
                         Templates.runTemplateJS(js);
                         jQuery(REGION.LOADING).remove();
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 }).fail(Notification.exception);
             } else {
                 let requestNext = {
@@ -191,19 +192,19 @@ Question.prototype.nextQuestion = function(e) { // Only for programed modes, not
                                 identifier.html(html);
                                 Templates.runTemplateJS(js);
                                 jQuery(REGION.LOADING).remove();
-                            }).fail(Notification.exception);
+                            }).catch(Notification.exception);
                         }).fail(Notification.exception);
                     } else { // Normal Question.
                         Templates.render(templateQuestions, nextQuestion).then(function(html, js) {
                             identifier.html(html);
                             Templates.runTemplateJS(js);
-                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.SESSIONCONTENT));
+                            fEvents.notifyFilterContentUpdated(document.querySelector(REGION.SESSIONCONTENT));
                             jQuery(REGION.LOADING).remove();
-                        }).fail(Notification.exception);
+                        }).catch(Notification.exception);
                     }
                 }).fail(async (e) =>  {
                     if (e.message && e.link) {
-                        const modal = await ModalFactory.create({
+                        const modal = await ModalCancel.create({
                             title: 'KUET',
                             body: Templates.render('mod_kuet/error_modal', {message: e.message, link: e.link})
                         });

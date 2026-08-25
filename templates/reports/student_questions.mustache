@@ -61,10 +61,18 @@
                     <div class="d-table-cell">{{name}}</div>
                     <div class="d-table-cell text-center">
                         <div class="{{response}}">
+                            {{#pix}}q/{{response}}, mod_kuet{{/pix}}
                             <span>{{responsestr}}</span>
                         </div>
                     </div>
-                    <div class="d-table-cell text-center">{{score}}</div>
+                    <div class="d-table-cell text-center">
+                        {{score}}
+                        {{#ismanual}}
+                            <span class="badge badge-info" title="{{#str}}editgrades_editedhelp, mod_kuet{{/str}}">
+                                {{#str}}editgrades_edited, mod_kuet{{/str}}
+                            </span>
+                        {{/ismanual}}
+                    </div>
                     <div class="d-table-cell text-center">
                         {{#icon}}
                             {{#pix}} {{key}}, {{component}}, {{title}} {{/pix}}

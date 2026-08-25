@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -83,36 +85,12 @@ class getfinalranking_external extends external_api {
             self::getfinalranking_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
-        $session = kuet_sessions::get_record(['id' => $sid]);
-        $questions = new questions($session->get('kuetid'), $cmid, $sid);
-        $contextmodule = context_module::instance($cmid);
-        $ranking = sessions::get_final_ranking($sid, $cmid);
-        $finalranking = $ranking;
-        unset($finalranking[0], $finalranking[1], $finalranking[2]);
-        $finalranking = array_values($finalranking);
-        foreach ($finalranking as $key => $userforranking) {
-            $finalranking[$key]->userpoints = $userforranking->userpoints ? (string)$userforranking->userpoints : '';
-        }
-        return [
-            'finalranking' => $finalranking,
-            'firstuserimageurl' => $ranking[0]->userimageurl ?? '',
-            'firstuserfullname' => $ranking[0]->userfullname ?? '',
-            'firstuserpoints' => $ranking[0]->userpoints ? (string)$ranking[0]->userpoints : '',
-            'seconduserimageurl' => $ranking[1]->userimageurl ?? '',
-            'seconduserfullname' => $ranking[1]->userfullname ?? '',
-            'seconduserpoints' => $ranking[1]->userpoints ? (string)$ranking[1]->userpoints : '',
-            'thirduserimageurl' => $ranking[2]->userimageurl ?? '',
-            'thirduserfullname' => $ranking[2]->userfullname ?? '',
-            'thirduserpoints' => $ranking[2]->userpoints ? (string)$ranking[2]->userpoints : '',
-            'sessionid' => $sid,
-            'cmid' => $cmid,
-            'kuetid' => $session->get('kuetid'),
-            'numquestions' => $questions->get_num_questions(),
-            'ranking' => true,
-            'endsession' => true,
-            'reporturl' => (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false),
-            'isteacher' => has_capability('mod/kuet:startsession', $contextmodule),
-        ];
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_session_in_cm($sid, $cmid);
+        return sessions::get_final_ranking_data($sid, $cmid);
     }
 
     /**
@@ -129,8 +107,10 @@ class getfinalranking_external extends external_api {
                         'userposition' => new external_value(PARAM_INT, 'User position depending on the points'),
                         'userfullname' => new external_value(PARAM_RAW, 'Name of user'),
                         'userpoints' => new external_value(PARAM_RAW, 'Total points of user'),
-                    ], ''
-                ), ''
+                    ],
+                    ''
+                ),
+                ''
             ),
             'sessionid' => new external_value(PARAM_INT, 'kuet_session id'),
             'cmid' => new external_value(PARAM_INT, 'course module id'),

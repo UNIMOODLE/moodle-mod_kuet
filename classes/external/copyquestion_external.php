@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,6 +36,7 @@
 namespace mod_kuet\external;
 
 use core_external\external_api;
+use mod_kuet\helpers\modcontext;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
@@ -49,7 +51,6 @@ use stdClass;
  * Copy question class
  */
 class copyquestion_external extends external_api {
-
     /**
      * Copy question parameters validation
      *
@@ -75,9 +76,14 @@ class copyquestion_external extends external_api {
             self::copyquestion_parameters(),
             ['qid' => $qid]
         );
+
+        $context = modcontext::from_question($qid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
         $copied = true;
+        $sqp = new kuet_questions($qid);
+        $guard = new \mod_kuet\question\mutation($sqp->get('kuetid'));
         try {
-            $sqp = new kuet_questions($qid);
             $numquestionsinsession = $sqp::count_records(['sessionid' => $sqp->get('sessionid')]);
             $newquestion = new stdClass();
             $newquestion->questionid = $sqp->get('questionid');
@@ -90,9 +96,12 @@ class copyquestion_external extends external_api {
             $newquestion->isvalid = $sqp->get('isvalid');
             $newquestion->config = $sqp->get('config');
             $newq = new kuet_questions(0, $newquestion);
+            \mod_kuet\question\bank_provider::require_question($newquestion->questionid);
             $newq->save();
-        } catch (moodle_exception $e) {
-            $copied = false;
+            \mod_kuet\question\version_resolver::copy_reference($qid, $newq->get('id'));
+            $guard->finish();
+        } catch (\Throwable $e) {
+            $guard->abort($e);
         }
 
         return [

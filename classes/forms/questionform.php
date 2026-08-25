@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -58,13 +59,36 @@ class questionform extends moodleform {
         $customdata = $this->_customdata;
 
         $mform->addElement('html', '<div class="row">');
-        $mform->addElement('html', '<h4 style="margin:0 auto;">'.$customdata['qname'].'('. $customdata['qtype'] .')'.'</h4>');
+        $mform->addElement(
+            'html',
+            '<h4 style="margin:0 auto;">' . $customdata['qname'] . '(' . $customdata['qtype'] . ')' . '</h4>'
+        );
         $mform->addElement('html', '</div>');
 
+        if ($customdata['hasmultipleversions']) {
+            $mform->addElement(
+                'select',
+                'questionversion',
+                get_string('questionversionselection', 'mod_kuet'),
+                $customdata['versionoptions']
+            );
+            $mform->addHelpButton('questionversion', 'questionversionselection', 'mod_kuet');
+            $mform->setType('questionversion', PARAM_ALPHANUMEXT);
+        } else {
+            $mform->addElement('advcheckbox', 'uselatest', get_string('uselatestready', 'mod_kuet'));
+            $mform->addHelpButton('uselatest', 'uselatestready', 'mod_kuet');
+        }
+        $mform->addElement('hidden', 'reviewedquestionid', $customdata['reviewedquestionid']);
+        $mform->setType('reviewedquestionid', PARAM_INT);
         $mform->addElement('header', 'timeheader', get_string('questiontime', 'mod_kuet'));
         if ($customdata['sessionlimittimebyquestionsenabled'] === true || $customdata['notimelimit'] === true) {
-            $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_kuet'),
-                ['units' => [MINSECS, 1], 'optional' => true], 'asd');
+            $mform->addElement(
+                'duration',
+                'timelimit',
+                get_string('timelimit', 'mod_kuet'),
+                ['units' => [MINSECS, 1], 'optional' => true],
+                'asd'
+            );
             $mform->addHelpButton('timelimit', 'timelimit', 'kuet');
             $mform->setType('timelimit', PARAM_INT);
         } else {

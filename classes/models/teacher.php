@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -73,6 +74,7 @@ class teacher extends user {
      * @throws moodle_exception
      */
     public function export_sessions(int $cmid): object {
+        global $CFG;
         $kuet = new kuet($cmid);
         $actives = [];
         $inactives = [];
@@ -80,8 +82,9 @@ class teacher extends user {
         $coursemodulecontext = context_module::instance($cmid);
         $managesessions = has_capability('mod/kuet:managesessions', $coursemodulecontext);
         $initsession = has_capability('mod/kuet:startsession', $coursemodulecontext);
+        $caneditgrades = has_capability('mod/kuet:editgrades', $coursemodulecontext);
         foreach ($sessions as $session) {
-            $ds = sessionshelper::get_data_session($session, $cmid, $managesessions, $initsession);
+            $ds = sessionshelper::get_data_session($session, $cmid, $managesessions, $initsession, $caneditgrades);
             if ((int)$session->get('status') !== sessionsmodel::SESSION_FINISHED) {
                 $actives[] = $ds;
             } else {
@@ -100,6 +103,19 @@ class teacher extends user {
         $data->hasqrcodeimage = $qrcode !== '';
         $data->urlqrcode = $data->hasqrcodeimage === true ? $qrcode : '';
         $data->hasactivesession = kuet_sessions::get_active_session_id(($kuet->get_kuet())->id) !== 0;
+        $typesocket = get_config('kuet', 'sockettype');
+        $data->sockettype = $typesocket ?: 'nosocket';
+        $data->hassocket = $typesocket === 'local' || $typesocket === 'external';
+        $data->socketurl = '';
+        $data->socketport = '';
+        if ($typesocket === 'local') {
+            $data->socketurl = $CFG->wwwroot;
+            $data->socketport = get_config('kuet', 'localport') !== false ? get_config('kuet', 'localport') : '8080';
+        }
+        if ($typesocket === 'external') {
+            $data->socketurl = get_config('kuet', 'externalurl');
+            $data->socketport = get_config('kuet', 'externalport') !== false ? get_config('kuet', 'externalport') : '8080';
+        }
         return $data;
     }
 

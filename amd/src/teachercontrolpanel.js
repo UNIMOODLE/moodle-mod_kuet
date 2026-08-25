@@ -25,7 +25,8 @@
  *
  * @module    mod_kuet/teachercontrolpanel
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -36,8 +37,8 @@
 import jQuery from 'jquery';
 import {get_strings as getStrings} from 'core/str';
 import Notification from 'core/notification';
-import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
+import ModalCancel from 'core/modal_cancel';
 
 let REGION = {
     CONTROLPANEL: '[data-region="teacher_control_panel"]', // This root.
@@ -100,10 +101,11 @@ TeacherControlPanel.prototype.initControlPanel = function() {
     this.root.find(ACTION.PAUSE).on('click', this.pause);
     this.root.find(ACTION.PLAY).on('click', this.play);
     this.root.find(ACTION.RESEND).on('click', this.resend);
-    this.root.find(ACTION.JUMP).on('click', this.jump);
+    this.root.find(ACTION.JUMP).on('click', this.jump.bind(this));
     this.root.find(REGION.JUMPTOINPUT).on('keyup', (e) => {
         if (e.key === 'Enter' || e.keyCode === 13) {
-            TeacherControlPanel.prototype.jump();
+            e.preventDefault();
+            this.jump();
         }
     });
     this.root.find(ACTION.FINISHQUESTION).on('click', this.finishquestion);
@@ -175,22 +177,22 @@ TeacherControlPanel.prototype.resend = function() {
 };
 
 TeacherControlPanel.prototype.jump = function() {
-    let numquestion = jQuery(REGION.JUMPTOINPUT).data('numquestions');
-    let value = jQuery(REGION.JUMPTOINPUT).val();
-    if (value > numquestion || value < 1) {
+    const input = this.root.find(REGION.JUMPTOINPUT);
+    const numquestion = Number(input.data('numquestions'));
+    const value = Number(input.val());
+    if (!Number.isInteger(value) || value > numquestion || value < 1) {
         const stringkeys = [
             {key: 'jump', component: 'mod_kuet'},
             {key: 'jumpto_error', component: 'mod_kuet', param: numquestion},
             {key: 'confirm', component: 'mod_kuet'}
         ];
         getStrings(stringkeys).then((langStrings) => {
-            return ModalFactory.create({
+            return ModalCancel.create({
                 title: langStrings[0],
                 body: langStrings[1],
-                type: ModalFactory.types.CANCEL
             }).then(modal => {
                 modal.getRoot().on(ModalEvents.hidden, () => {
-                    jQuery(REGION.JUMPTOINPUT).val('');
+                    input.val('').trigger('focus');
                     modal.destroy();
                 });
                 return modal;
@@ -199,10 +201,11 @@ TeacherControlPanel.prototype.jump = function() {
             modal.show();
         }).fail(Notification.exception);
     } else {
-        let jumpEvent = new CustomEvent('jumpTo', {
+        const jumpEvent = new CustomEvent('jumpTo', {
             "detail": {"jumpTo": value}
         });
         dispatchEvent(jumpEvent);
+        input.val('');
     }
 };
 

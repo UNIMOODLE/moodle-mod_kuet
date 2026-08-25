@@ -34,8 +34,10 @@ use mod_kuet\models\sessions;
 
 /**
  * Get session service test class
+ *
+ * @covers \mod_kuet\external\getsession_external
  */
-class getsession_external_test extends \advanced_testcase {
+final class getsession_external_test extends \advanced_testcase {
     /**
      * Get session service test
      *
@@ -43,7 +45,7 @@ class getsession_external_test extends \advanced_testcase {
      * @throws \coding_exception
      * @throws \invalid_parameter_exception
      */
-    public function test_getsession() {
+    public function test_getsession(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);

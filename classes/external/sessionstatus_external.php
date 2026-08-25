@@ -27,7 +27,8 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -35,12 +36,13 @@ namespace mod_kuet\external;
 
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use core\invalid_persistent_exception;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
 use invalid_parameter_exception;
-use mod_assign\external\external_api;
+use core_external\external_api;
 use mod_kuet\persistents\kuet_sessions;
 
 /**
@@ -77,12 +79,11 @@ class sessionstatus_external extends external_api {
             ['sid' => $sid, 'status' => $status]
         );
 
-        $result = [];
-        $session = new kuet_sessions($sid);
-        $session->set('status', $status);
-        $result['statuschanged'] = $session->update();
+        $context = modcontext::from_session($sid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
 
-        return $result;
+        return ['statuschanged' => kuet_sessions::update_status($sid, $status)];
     }
 
     /**

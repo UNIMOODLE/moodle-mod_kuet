@@ -27,12 +27,16 @@
  *
  * @package    mod_kuet
  * @copyright  2023 Proyecto UNIMOODLE {@link https://unimoodle.github.io}
- * @author     UNIMOODLE Group (Coordinator) <direccion.area.estrategia.digital@uva.es>
+ * @author     UNIMOODLE Group (Coordinator) <juanpablo.decastro@uva.es>
+ * @author     Juan Pablo de Castro  <juan.pablo.de.castro@gmail.com>
  * @author     3IPUNT <contacte@tresipunt.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+namespace mod_kuet;
+
 use core\invalid_persistent_exception;
 use mod_kuet\external\copysession_external;
+use mod_kuet\models\sessions;
 
 defined('MOODLE_INTERNAL') || die();
 global $CFG;
@@ -40,17 +44,18 @@ require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
 
 /**
  * Copy session test class
+ *
+ * @covers \mod_kuet\external\copysession_external
  */
-class copysession_external_test extends advanced_testcase {
-
+final class copysession_external_test extends \advanced_testcase {
     /**
      * Copy session test
      *
      * @return true
      * @throws invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws invalid_parameter_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
      */
     public function test_copysession(): bool {
         $this->resetAfterTest(true);
@@ -58,14 +63,24 @@ class copysession_external_test extends advanced_testcase {
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
         $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
         self::setUser($teacher);
-        $sessiontest = new sessions_test();
-        $sessiontest->test_session();
-        $list = $sessiontest->sessions->get_list();
+        // The session has to belong to the very kuet whose cmid is passed in.
+        // sessions_test::test_session() builds its own course and kuet, so reusing
+        // its session here meant copying a session of one kuet using the cmid of
+        // another — which the service now rejects, and rightly so.
+        $sessionmock = (new sessions_test('test_session'))->sessionmock;
+        $sessionmock['kuetid'] = $kuet->id;
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_kuet');
+        $generator->create_session($kuet, (object) $sessionmock);
+
+        $sessions = new sessions($kuet, $kuet->cmid);
+        $list = array_values($sessions->get_list());
+        $this->assertCount(1, $list);
+
         $result = copysession_external::copysession($course->id, $kuet->cmid, $list[0]->get('id'));
         $this->assertIsArray($result);
         $this->assertTrue($result['copied']);
-        $sessiontest->sessions->set_list();
-        $newlist = $sessiontest->sessions->get_list();
+        $sessions->set_list();
+        $newlist = array_values($sessions->get_list());
         $this->assertCount(2, $newlist);
 
         $student = self::getDataGenerator()->create_and_enrol($course);
