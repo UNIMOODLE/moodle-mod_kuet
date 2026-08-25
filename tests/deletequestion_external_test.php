@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_kuet;
+
 /**
  * Delete question test
  *
@@ -27,22 +29,23 @@
 
 /**
  * Delete question test class
+ *
+ * @covers \mod_kuet\external\deletequestion_external
  */
-class deletequestion_external_test extends advanced_testcase {
+final class deletequestion_external_test extends \advanced_testcase {
     /**
      * Delete question test
      *
      * @return void
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_deletequestion() {
+    public function test_deletequestion(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -87,8 +90,9 @@ class deletequestion_external_test extends advanced_testcase {
         ]);
 
         // Get questions.
-        $kquestions = mod_kuet\persistents\kuet_questions::get_records(
-            ['sessionid' => $createdsid, 'kuetid' => $kuet->id]);
+        $kquestions = \mod_kuet\persistents\kuet_questions::get_records(
+            ['sessionid' => $createdsid, 'kuetid' => $kuet->id]
+        );
         $q1 = $kquestions[0];
         \mod_kuet\external\deletequestion_external::deletequestion($createdsid, $q1->get('id'));
         $total = \mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'kuetid' => $kuet->id]);

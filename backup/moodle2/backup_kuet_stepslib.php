@@ -38,7 +38,6 @@
  * Define the complete choice structure for backup, with file and id annotations.
  */
 class backup_kuet_activity_structure_step extends backup_questions_activity_structure_step {
-
     /**
      * Define structure
      *
@@ -59,6 +58,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'introformat',
             'teamgrade',
             'grademethod',
+            'sessiongrademax',
             'completionanswerall',
             'usermodified',
             'timecreated',
@@ -71,6 +71,7 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'anonymousanswer',
             'sessionmode',
             'sgrade',
+            'mandatoryattendance',
             'countdown',
             'showgraderanking',
             'randomquestions',
@@ -114,6 +115,8 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'anonymise',
             'result',
             'response',
+            'manualmark',
+            'manualcomment',
             'timecreated',
             'timemodified',
         ]);

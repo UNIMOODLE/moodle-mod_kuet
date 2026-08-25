@@ -38,7 +38,6 @@ use core\external\exporter;
  *   Exporter to take a stdClass and prepare it for return by webservice, or as the context for a template.
  */
 class answer_exporter extends exporter {
-
     /**
      * Properties definition
      *

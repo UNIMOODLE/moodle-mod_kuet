@@ -36,7 +36,7 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Notification from 'core/notification';
 import Templates from 'core/templates';
-import mEvent from 'core/event';
+import * as fEvents from 'core_filters/events';
 
 let ACTION = {
     REPLY: '[data-action="multichoice-answer"]',
@@ -340,7 +340,7 @@ MultiChoice.prototype.answered = function(response) {
     }
     let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
     if (contentFeedbacks !== null) {
-        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+        fEvents.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
     }
 };
 

@@ -1,0 +1,143 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    Project implemented by the "Recovery, Transformation and Resilience Plan.
+    Funded by the European Union - Next GenerationEU".
+    Produced by the UNIMOODLE University Group.
+}}
+{{!
+    @template mod_kuet/editgrades/questions
+
+    Manual grade editing: a user's questions in a session, editable (KUETEDUCAM-73).
+
+    Context variables required for this template:
+    * cmid, kuetid, sid, userid
+    * sessionname, userfullname
+    * studentsurl - URL back to the student list
+    * ispodium - Whether to show the time-percentage notice
+    * hasquestions
+    * questions - [ { kid, questionid, position, name, icon, defaultmark,
+                      editable, result, responsestr, mark, ismanual, manualcomment } ]
+
+    Example context (json):
+    {
+        "cmid": 1, "kuetid": 1, "sid": 1, "userid": 2,
+        "sessionname": "Session 1", "userfullname": "Jane Doe",
+        "studentsurl": "#", "ispodium": true, "hasquestions": true,
+        "questions": [
+            { "kid": 5, "questionid": 9, "position": 1, "name": "Capital of France",
+              "defaultmark": "1.00", "editable": true, "result": 1,
+              "responsestr": "Correct", "mark": "1.00", "ismanual": false, "manualcomment": "" }
+        ]
+    }
+}}
+<div class="kuet-editgrades kuet-editgrades-questions"
+     data-region="kuet-editgrades"
+     data-cmid="{{cmid}}" data-kuetid="{{kuetid}}" data-sid="{{sid}}" data-userid="{{userid}}">
+    <div class="sessions-list-header bg-primary">
+        <div class="sessions-list-header-title">
+            {{#pix}} i/questions_list, mod_kuet {{/pix}}
+            <h6>{{sessionname}} &mdash; {{userfullname}}</h6>
+        </div>
+        <div>
+            <a class="btn btn-secondary text-primary border-0" href="{{studentsurl}}">
+                {{#str}}back, mod_kuet{{/str}}
+            </a>
+        </div>
+    </div>
+
+    {{#isgroup}}
+        <div class="alert alert-warning">
+            {{groupinfomessage}}
+            <br>
+            <strong>{{#str}}editgrades_groupmembers, mod_kuet{{/str}}:</strong> {{groupmembers}}
+        </div>
+    {{/isgroup}}
+
+    {{#ispodium}}
+        <div class="alert alert-info">{{#str}}editgrades_podiuminfo, mod_kuet{{/str}}</div>
+    {{/ispodium}}
+
+    {{#hasquestions}}
+        <table class="table generaltable">
+            <thead>
+                <tr>
+                    <th scope="col" class="text-center">#</th>
+                    <th scope="col">{{#str}}question, mod_kuet{{/str}}</th>
+                    <th scope="col" class="text-center">{{#str}}result, mod_kuet{{/str}}</th>
+                    <th scope="col" class="text-center">{{#str}}editgrades_mark, mod_kuet{{/str}}</th>
+                    <th scope="col">{{#str}}editgrades_comment, mod_kuet{{/str}}</th>
+                    <th scope="col" class="text-center">{{#str}}session_actions, mod_kuet{{/str}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#questions}}
+                    <tr data-region="kuet-editgrades-row" data-kid="{{kid}}" data-defaultmark="{{defaultmark}}">
+                        <td class="text-center">{{position}}</td>
+                        <td>
+                            {{#icon}}
+                                {{#pix}} {{key}}, {{component}}, {{title}} {{/pix}}
+                            {{/icon}}
+                            {{name}}
+                            {{#ismanual}}
+                                <span class="badge badge-info" title="{{#str}}editgrades_editedhelp, mod_kuet{{/str}}">
+                                    {{#str}}editgrades_edited, mod_kuet{{/str}}
+                                </span>
+                            {{/ismanual}}
+                        </td>
+                        <td class="text-center" data-region="result">{{responsestr}}</td>
+                        <td class="text-center">
+                            {{#editable}}
+                                <input type="number" class="form-control kuet-manualmark" style="max-width: 6rem; display:inline-block;"
+                                       min="0" max="{{defaultmark}}" step="0.00001" value="{{mark}}"
+                                       aria-label="{{#str}}editgrades_mark, mod_kuet{{/str}}">
+                                <small class="text-muted d-block">/ {{defaultmark}}</small>
+                            {{/editable}}
+                            {{^editable}}
+                                {{mark}}
+                            {{/editable}}
+                        </td>
+                        <td>
+                            {{#editable}}
+                                <textarea class="form-control kuet-manualcomment" rows="2"
+                                          aria-label="{{#str}}editgrades_comment, mod_kuet{{/str}}">{{manualcomment}}</textarea>
+                            {{/editable}}
+                            {{^editable}}
+                                <span class="text-muted">{{#str}}editgrades_noteditable, mod_kuet{{/str}}</span>
+                            {{/editable}}
+                        </td>
+                        <td class="text-center">
+                            {{#editable}}
+                                <button type="button" class="btn btn-primary kuet-savegrade" data-action="savegrade">
+                                    {{#str}}editgrades_save, mod_kuet{{/str}}
+                                </button>
+                                <div class="kuet-savegrade-feedback small mt-1" data-region="feedback" aria-live="polite"></div>
+                            {{/editable}}
+                        </td>
+                    </tr>
+                {{/questions}}
+            </tbody>
+        </table>
+    {{/hasquestions}}
+    {{^hasquestions}}
+        <div class="alert alert-info">{{#str}}editgrades_noquestions, mod_kuet{{/str}}</div>
+    {{/hasquestions}}
+</div>
+{{#js}}
+    require(['mod_kuet/editgrades'], function(EditGrades) {
+        EditGrades.init('.kuet-editgrades-questions');
+    });
+{{/js}}

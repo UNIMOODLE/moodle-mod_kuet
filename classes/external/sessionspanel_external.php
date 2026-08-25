@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
@@ -50,7 +51,6 @@ use moodle_exception;
  * Sessions panel class
  */
 class sessionspanel_external extends external_api {
-
     /**
      * Sessions panel parameters validation
      *
@@ -79,6 +79,10 @@ class sessionspanel_external extends external_api {
             self::sessionspanel_parameters(),
             ['cmid' => $cmid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
         $teacher = new teacher($USER->id);
         return (array)$teacher->export_sessions($cmid);
     }
@@ -98,6 +102,10 @@ class sessionspanel_external extends external_api {
             'urlqrcode' => new external_value(PARAM_RAW, 'QRCode svg', VALUE_OPTIONAL),
             'createsessionurl' => new external_value(PARAM_URL, 'URL for create session'),
             'hasactivesession' => new external_value(PARAM_BOOL, 'URL for create session'),
+            'sockettype' => new external_value(PARAM_ALPHA, 'Socket type: local, external or nosocket'),
+            'hassocket' => new external_value(PARAM_BOOL, 'Whether a socket server is configured for manual sessions'),
+            'socketurl' => new external_value(PARAM_RAW, 'Socket server url, empty if no socket is configured'),
+            'socketport' => new external_value(PARAM_RAW, 'Socket server port, empty if no socket is configured'),
         ]);
     }
 
@@ -125,14 +133,18 @@ class sessionspanel_external extends external_api {
                     'initsessionurl' => new external_value(PARAM_URL, 'Url for init session'),
                     'viewreporturl' => new external_value(PARAM_URL, 'Url for view report of session'),
                     'editsessionurl' => new external_value(PARAM_URL, 'Url for edit session'),
+                    'caneditgrades' => new external_value(PARAM_BOOL, 'Capability to edit question grades manually'),
+                    'editgradesurl' => new external_value(PARAM_URL, 'Url for the manual grade editor of the session'),
                     'date' => new external_value(PARAM_RAW, 'Init and en date of session, or empty'),
                     'finishingdate' => new external_value(PARAM_RAW, 'End date for completed session', VALUE_OPTIONAL),
                     'status' => new external_value(PARAM_INT, 'Session status: active 1, initi 2 or finished 0'),
                     'issessionstarted' => new external_value(PARAM_BOOL, 'Session status: active 1, initi 2 or finished 0'),
                     'startedssionurl' => new external_value(PARAM_RAW, 'Session url', VALUE_OPTIONAL),
                     'stringsession' => new external_value(PARAM_RAW, 'String for button'),
-                ], ''
-            ), ''
+                ],
+                ''
+            ),
+            ''
         );
     }
 }

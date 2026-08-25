@@ -38,7 +38,6 @@ use context;
  *   Exporter to take a stdClass and prepare it for return by webservice, or as the context for a template.
  */
 class commondata_exporter extends question_exporter {
-
     /**
      * Properties definition
      *

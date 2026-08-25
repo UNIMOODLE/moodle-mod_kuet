@@ -71,6 +71,19 @@ if ($ADMIN->fulltree) {
     $settings->hide_if('kuet/serverpid', 'kuet/sockettype', 'neq', 'local');
     $page->add($setting);
 
+    // Sockets information.
+    $setting = new admin_setting_description(
+        'kuet/socketinfo',
+        get_string('socketinfo', 'mod_kuet'),
+        html_writer::div(
+            get_string('socketinfo_desc', 'mod_kuet'),
+            'alert alert-info',
+            ['role' => 'alert']
+        )
+    );
+    $settings->hide_if('kuet/socketinfo', 'kuet/sockettype', 'eq', 'nosocket');
+    $page->add($setting);
+
     $setting = new admin_setting_configtext_with_maxlength(
         'kuet/localport',
         get_string('port', 'mod_kuet'),

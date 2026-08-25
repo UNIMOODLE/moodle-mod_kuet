@@ -48,7 +48,6 @@ use stdClass;
  * Sessions helper class
  */
 class sessions {
-
     /**
      * Get session data
      *
@@ -56,6 +55,7 @@ class sessions {
      * @param int $cmid
      * @param bool $managesessions
      * @param bool $initsession
+     * @param bool $caneditgrades
      * @return stdClass
      * @throws coding_exception
      * @throws dml_exception
@@ -65,7 +65,8 @@ class sessions {
         kuet_sessions $session,
         int $cmid,
         bool $managesessions,
-        bool $initsession
+        bool $initsession,
+        bool $caneditgrades = false
     ): stdClass {
         $ds = new stdClass();
         $ds->name = $session->get('name');
@@ -85,7 +86,9 @@ class sessions {
                 $ds->timemode = get_string('session_time', 'mod_kuet');
                 $ds->sessiontime = userdate($session->get('sessiontime'), '%Mm %Ss');
                 $ds->timeperquestion =
-                    $ds->questions_number !== 0 ? userdate(round($session->get('sessiontime') / $ds->questions_number, 3), '%ss') : 0;
+                    $ds->questions_number !== 0
+                        ? userdate(round($session->get('sessiontime') / $ds->questions_number, 3), '%ss')
+                        : 0;
                 break;
             case sessionsmodel::QUESTION_TIME:
                 $ds->timemode = get_string('question_time', 'mod_kuet');
@@ -101,6 +104,11 @@ class sessions {
             (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->editsessionurl =
             (new moodle_url('/mod/kuet/sessions.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
+        // Manual grade editing (KUETEDUCAM-73): only for graded sessions, since
+        // there is no grade to edit when the session is not graded.
+        $ds->caneditgrades = $caneditgrades && (int) $session->get('sgrade') !== sessionsmodel::GM_DISABLED;
+        $ds->editgradesurl =
+            (new moodle_url('/mod/kuet/editgrades.php', ['cmid' => $cmid, 'sid' => $session->get('id')]))->out(false);
         $ds->status = $session->get('status');
         $ds->issessionstarted = $ds->status === sessionsmodel::SESSION_STARTED;
         $ds->sessioncreating = $ds->status === sessionsmodel::SESSION_CREATING;
@@ -134,8 +142,10 @@ class sessions {
             }
         }
         $ds->noquestions = $ds->questions_number === 0;
-        if ($ds->date !== '' || $ds->issessionstarted === true || $ds->sessioncreating === true
-            || $ds->noquestions === true || $ds->haserror === true) {
+        if (
+            $ds->date !== '' || $ds->issessionstarted === true || $ds->sessioncreating === true
+            || $ds->noquestions === true || $ds->haserror === true
+        ) {
             $ds->initsession = false;
         }
         if ($ds->status === sessionsmodel::SESSION_FINISHED) {

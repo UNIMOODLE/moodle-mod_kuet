@@ -38,7 +38,6 @@ namespace mod_kuet\exporter;
  *   Exporter to take a stdClass and prepare it for return by webservice, or as the context for a template.
  */
 class multichoice_exporter extends commondata_exporter {
-
     /**
      * Properties definition
      *

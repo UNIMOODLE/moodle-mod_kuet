@@ -39,6 +39,7 @@ use dml_exception;
 use dml_transaction_exception;
 use invalid_parameter_exception;
 use JsonException;
+use mod_kuet\output\views\editgrades;
 use mod_kuet\output\views\question_preview;
 use mod_kuet\output\views\sessions_view;
 use mod_kuet\output\views\student_reports;
@@ -47,7 +48,7 @@ use mod_kuet\output\views\teacher_reports;
 use mod_kuet\output\views\teacher_session_view;
 use mod_kuet\output\views\test_report;
 use moodle_exception;
-use core\output\plugin_renderer_base;
+use plugin_renderer_base;
 use mod_kuet\output\views\student_view;
 use mod_kuet\output\views\teacher_view;
 use ReflectionException;
@@ -163,6 +164,20 @@ class renderer extends plugin_renderer_base {
     public function render_teacher_reports(teacher_reports $view): string {
         $data = $view->export_for_template($this);
         return $this->render_from_template('mod_kuet/reports/teacher_reports', $data);
+    }
+
+    /**
+     * Manual grade editing renderer (KUETEDUCAM-73)
+     *
+     * @param editgrades $view
+     * @return string
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function render_editgrades(editgrades $view): string {
+        $data = $view->export_for_template($this);
+        return $this->render_from_template($view->get_template(), $data);
     }
 
     /**

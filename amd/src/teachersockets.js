@@ -35,12 +35,12 @@ import jQuery from 'jquery';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import {get_string as getString, get_strings as getStrings} from 'core/str';
-import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Ajax from 'core/ajax';
 import Encryptor from 'mod_kuet/encryptor';
 import Database from 'mod_kuet/database';
-import mEvent from 'core/event';
+import * as fEvents from 'core_filters/events';
+import ModalSaveCancel from 'core/modal_save_cancel';
 
 let REGION = {
     MESSAGEBOX: '#message-box',
@@ -236,10 +236,9 @@ Sockets.prototype.backSession = function() {
         {key: 'confirm', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
-        return ModalFactory.create({
+        return ModalSaveCancel.create({
             title: langStrings[0],
             body: langStrings[1],
-            type: ModalFactory.types.SAVE_CANCEL
         }).then(modal => {
             modal.setSaveButtonText(langStrings[2]);
             modal.getRoot().on(ModalEvents.save, () => {
@@ -352,7 +351,7 @@ Sockets.prototype.initSockets = function() {
                     };
                     Templates.render(TEMPLATES.PARTICIPANT, templateContext).then(function(html) {
                         identifier.append(html);
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 });
                 countusers.html(response.count);
                 break;
@@ -371,7 +370,7 @@ Sockets.prototype.initSockets = function() {
                     };
                     Templates.render(TEMPLATES.GROUPPARTICIPANT, templateContext).then(function(html) {
                         participantshtml.append(html);
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 });
                 countusers.html(response.count);
                 break;
@@ -547,9 +546,9 @@ Sockets.prototype.initListeners = function() {
                     jQuery(ACTION.NEXT).removeClass('d-none');
                     jQuery(ACTION.VOTE).addClass('disabled');
                     jQuery(ACTION.JUMP).addClass('disabled');
-                    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                    fEvents.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                 }, 300);
-            }).fail(Notification.exception);
+            }).catch(Notification.exception);
         } else {
             that.questionEnd();
         }
@@ -635,6 +634,14 @@ Sockets.prototype.getNextQuestion = function(kid) {
             // End session.
             nextQuestionKqid = null;
             that.setEndSession(nextquestion);
+            // Tell the socket server that `kid` is the last question of the session.
+            // Late-joining students need this to show the "last question" waiting-room message.
+            let lastmsg = {
+                'action': 'lastquestion',
+                'sid': sid,
+                'kid': kid
+            };
+            Sockets.prototype.sendMessageSocket(JSON.stringify(lastmsg));
         }
     }).fail(Notification.exception);
 };
@@ -649,10 +656,9 @@ Sockets.prototype.initSession = function() {
         {key: 'sessionstarted_info', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
-        return ModalFactory.create({
+        return ModalSaveCancel.create({
             title: langStrings[0],
             body: langStrings[1],
-            type: ModalFactory.types.SAVE_CANCEL
         }).then(modal => {
             modal.setSaveButtonText(langStrings[2]);
             modal.getRoot().on(ModalEvents.save, () => {
@@ -676,8 +682,8 @@ Sockets.prototype.initSession = function() {
                                 identifier.html(html);
                                 Templates.runTemplateJS(js);
                                 jQuery(REGION.LOADING).remove();
-                                mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
-                            }).fail(Notification.exception);
+                                fEvents.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                            }).catch(Notification.exception);
                         }
                         if (sessionMode === 'race_manual') {
                             Sockets.prototype.raceResults();
@@ -747,10 +753,9 @@ Sockets.prototype.endSession = function() {
         {key: 'end_session_error', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
-        return ModalFactory.create({
+        return ModalSaveCancel.create({
             title: langStrings[0],
             body: langStrings[1],
-            type: ModalFactory.types.SAVE_CANCEL
         }).then(modal => {
             modal.setSaveButtonText(langStrings[2]);
             modal.getRoot().on(ModalEvents.save, () => {
@@ -820,9 +825,9 @@ Sockets.prototype.nextQuestion = function() {
                         Templates.render(TEMPLATES.QUESTION, nextQuestionData.result.value).then(function(html, js) {
                             identifier.html(html);
                             Templates.runTemplateJS(js);
-                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                            fEvents.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                             jQuery(REGION.LOADING).remove();
-                        }).fail(Notification.exception);
+                        }).catch(Notification.exception);
                     }
                     if (sessionMode === 'race_manual') {
                         Sockets.prototype.raceResults();
@@ -850,7 +855,7 @@ Sockets.prototype.nextQuestion = function() {
                             identifier.html(html);
                             Templates.runTemplateJS(js);
                             jQuery(REGION.LOADING).remove();
-                        }).fail(Notification.exception);
+                        }).catch(Notification.exception);
                     });
                 };
             } else {
@@ -881,7 +886,7 @@ Sockets.prototype.nextQuestion = function() {
                                 identifier.html(html);
                                 Templates.runTemplateJS(js);
                                 jQuery(REGION.LOADING).remove();
-                            }).fail(Notification.exception);
+                            }).catch(Notification.exception);
                         });
                     }).fail(Notification.exception);
                 };
@@ -927,7 +932,7 @@ Sockets.prototype.raceResults = function() {
             }, {passive: true});
             newScrollUsers.scrollTop = scrollUsersTop;
             newScrollQuestions.scrollLeft = scrollQuestionsLeft;
-        }).fail(Notification.exception);
+        }).catch(Notification.exception);
     }).fail(Notification.exception);
 };
 
@@ -964,7 +969,7 @@ Sockets.prototype.manageNext = function() {
                         identifier.html(html);
                         Templates.runTemplateJS(js);
                         jQuery(REGION.LOADING).remove();
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 });
             }).fail(Notification.exception);
         }
@@ -1022,9 +1027,9 @@ Sockets.prototype.resendSelf = function() {
                         Templates.render(TEMPLATES.QUESTION, currentQuestionData.result.value).then(function(html, js) {
                             identifier.html(html);
                             Templates.runTemplateJS(js);
-                            mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                            fEvents.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                             jQuery(REGION.LOADING).remove();
-                        }).fail(Notification.exception);
+                        }).catch(Notification.exception);
                     });
                 }
             };
@@ -1073,9 +1078,9 @@ Sockets.prototype.jumpTo = function(questionNumber) {
                 Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
                     identifier.html(html);
                     Templates.runTemplateJS(js);
-                    mEvent.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
+                    fEvents.notifyFilterContentUpdated(document.querySelector(REGION.TEACHERCANVAS));
                     jQuery(REGION.LOADING).remove();
-                }).fail(Notification.exception);
+                }).catch(Notification.exception);
             }
         });
     }).fail(Notification.exception);
@@ -1221,7 +1226,7 @@ Sockets.prototype.submitImprovise = function() {
                 Templates.runTemplateJS(js);
                 jQuery(REGION.LOADING).remove();
                 jQuery(REGION.VOTEIMPROVISE).removeClass('disabled');
-            }).fail(Notification.exception);
+            }).catch(Notification.exception);
         });
     }
 };

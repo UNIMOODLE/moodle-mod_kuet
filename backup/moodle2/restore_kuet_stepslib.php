@@ -38,7 +38,6 @@
  * Kuet activity structure steps class
  */
 class restore_kuet_activity_structure_step extends restore_questions_activity_structure_step {
-
     /**
      * Define structure
      *
@@ -233,7 +232,6 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
             return $this->replace_answerids_multichoice($resp, $newquestionid);
         }
         return $responsejson;
-
     }
 
     /**

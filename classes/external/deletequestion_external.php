@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use core_external\external_api;
+use mod_kuet\helpers\modcontext;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
@@ -48,7 +49,6 @@ use moodle_exception;
  * Delete question class
  */
 class deletequestion_external extends external_api {
-
     /**
      * Delete question paremeters validation
      *
@@ -76,6 +76,11 @@ class deletequestion_external extends external_api {
             self::deletequestion_parameters(),
             ['sid' => $sid, 'qid' => $qid]
         );
+
+        $context = modcontext::from_question($qid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
+        modcontext::require_question_in_session($qid, $sid);
 
         try {
             $sqp = new kuet_questions($qid);

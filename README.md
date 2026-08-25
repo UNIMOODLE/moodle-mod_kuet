@@ -58,6 +58,34 @@ git clone https://github.com/UNIMOODLE/moodle-mod_kuet.git path/to/moodle/mod/ku
 
 After installation, you can configure Kuet through the Moodle plugin settings page. Here, you can set default options and technical data to use a Websockets server (included).
 
+## Command Line (CLI) Tools
+
+### Recalculating session grades
+
+Kuet includes a CLI script to renormalise existing session grades to the per-session maximum (`sessiongrademax`). It recalculates the stored session grades and the activity grade for the selected kuet instances and pushes the result to the gradebook.
+
+This is mainly intended to be run **after upgrading**, where renormalising cannot happen automatically because the gradebook update needs `get_fast_modinfo()`, which is forbidden during an upgrade.
+
+Run it from the root of your Moodle installation:
+
+```shell
+# Process every kuet instance on the site
+php mod/kuet/cli/recalculate_grades.php --all
+
+# Process only one kuet instance (by kuet instance id)
+php mod/kuet/cli/recalculate_grades.php --kuetid=42
+
+# Process every kuet instance in a given course
+php mod/kuet/cli/recalculate_grades.php --courseid=10
+```
+
+Available options:
+
+- `-h`, `--help`  Print out the help message.
+- `--all`  Process every kuet instance on the site.
+- `--kuetid=N`  Process only the kuet instance with this id.
+- `--courseid=N`  Process every kuet instance in this course.
+
 ## Scalability and Real-Time Interaction with WebSockets
 
 Kuet leverages WebSockets to enhance real-time interaction and scalability, ensuring that quizzes and polls are responsive and engaging, even with a large number of participants. WebSockets provide a full-duplex communication channel over a single, long-lived connection, allowing Kuet to deliver immediate updates and feedback to and from users.
@@ -202,14 +230,14 @@ When the installer has finished, we can **run the tests of the whole platform** 
 ```sh
 vendor/bin/phpunit
 ```
-**To run only the mod_jshow tests, you must first add the following code in the phpunit.xml:770 file**
+**To run only the mod_kuet tests, you must first add the following code in the phpunit.xml:770 file**
 ```sh
 <testsuite name="mod_kuet_testsuite">
     <directory suffix="_test.php">mod/kuet/tests</directory>
 </testsuite>
 ```
 
-After that you can run all mod_jshow tests with the following command:
+After that you can run all mod_kuet tests with the following command:
 ```sh
 vendor/bin/phpunit --testsuite mod_kuet_testsuite
 ```

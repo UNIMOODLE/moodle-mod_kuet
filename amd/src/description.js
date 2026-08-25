@@ -36,7 +36,7 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
-import mEvent from 'core/event';
+import * as fEvents from 'core_filters/events';
 
 let ACTION = {
     SEND_RESPONSE: '[data-action="next-question"]',
@@ -277,7 +277,7 @@ Description.prototype.answered = function(response) {
     jQuery(REGION.NEXT).removeClass('d-none');
     let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
     if (contentFeedbacks !== null) {
-        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+        fEvents.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
     }
 };
 

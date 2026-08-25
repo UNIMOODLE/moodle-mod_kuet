@@ -1,0 +1,37 @@
+// Manual grade editing page (KUETEDUCAM-73).
+body.path-mod-kuet {
+    .kuet-editgrades {
+        .sessions-list-header {
+            padding: 15px 20px;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 8px 8px 0 0;
+            max-height: 60px;
+
+            .sessions-list-header-title {
+                display: flex;
+                flex-flow: row nowrap;
+                justify-content: flex-start;
+                align-items: center;
+                color: white;
+
+                .icon,
+                img {
+                    height: 24px;
+                    width: auto;
+                    margin: 0 10px 0 0;
+                }
+
+                h6 {
+                    margin-bottom: 0;
+                }
+            }
+
+            .btn {
+                background-color: white;
+            }
+        }
+    }
+}

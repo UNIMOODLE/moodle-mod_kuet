@@ -49,9 +49,10 @@ require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
 
 /**
  * Sessions panel test class
+ *
+ * @covers \mod_kuet\external\sessionspanel_external
  */
-class sessionspanel_external_test extends advanced_testcase {
-
+final class sessionspanel_external_test extends advanced_testcase {
     /**
      * @var array session mockup
      */
@@ -147,25 +148,27 @@ class sessionspanel_external_test extends advanced_testcase {
         $this->assertEquals($sessionurl, $result['createsessionurl']);
         $this->assertFalse($result['hasactivesession']);
         $this->assertIsArray($result['endedsessions']);
-        $this->assertObjectHasProperty('name', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('sessionid', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('sessionmode', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('timemode', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('sessiontime', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('questions_number', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('managesessions', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('initsession', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('initsessionurl', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('viewreporturl', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('editsessionurl', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('date', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('status', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('issessionstarted', $result['endedsessions'][0]);
-        $this->assertObjectHasProperty('stringsession', $result['endedsessions'][0]);
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'name'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'sessionid'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'sessionmode'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'timemode'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'sessiontime'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'questions_number'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'managesessions'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'initsession'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'initsessionurl'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'viewreporturl'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'editsessionurl'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'date'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'status'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'issessionstarted'));
+        $this->assertTrue(property_exists($result['endedsessions'][0], 'stringsession'));
         $this->assertEquals($this->sessionmock['name'], $result['endedsessions'][0]->name);
         $this->assertEquals($createdsid, $result['endedsessions'][0]->sessionid);
-        $this->assertEquals(get_string($this->sessionmock['sessionmode'], 'mod_kuet'),
-            $result['endedsessions'][0]->sessionmode);
+        $this->assertEquals(
+            get_string($this->sessionmock['sessionmode'], 'mod_kuet'),
+            $result['endedsessions'][0]->sessionmode
+        );
         $this->assertEquals(get_string('question_time', 'mod_kuet'), $result['endedsessions'][0]->timemode);
         $this->assertEquals(userdate(60, '%Mm %Ss'), $result['endedsessions'][0]->sessiontime);
         $this->assertEquals(6, $result['endedsessions'][0]->questions_number);

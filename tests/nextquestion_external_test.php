@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_kuet;
+
 use mod_kuet\models\questions;
 
 /**
@@ -27,26 +30,27 @@ use mod_kuet\models\questions;
 
 /**
  * Next question service test class
+ *
+ * @covers \mod_kuet\external\nextquestion_external
  */
-class nextquestion_external_test extends advanced_testcase {
+final class nextquestion_external_test extends \advanced_testcase {
     /**
      * Next question service test
      *
      * @return void
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws dml_transaction_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \dml_transaction_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_nextquestion() {
+    public function test_nextquestion(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -101,19 +105,21 @@ class nextquestion_external_test extends advanced_testcase {
         ]);
 
         $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $mcq->id , 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]);
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]
+        );
         $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $tfq->id , 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]);
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]
+        );
         $shouldbetruefalse = \mod_kuet\external\nextquestion_external::nextquestion($kuet->cmid, $createdsid, $jmcq->get('id'));
 
-        $this->assertIsArray(  $shouldbetruefalse);
-        $this->assertArrayHasKey('cmid',   $shouldbetruefalse);
-        $this->assertEquals($kuet->cmid,   $shouldbetruefalse['cmid']);
-        $this->assertArrayHasKey('questionid',   $shouldbetruefalse);
-        $this->assertEquals($tfq->id,   $shouldbetruefalse['questionid']);
-        $this->assertArrayHasKey('kid',   $shouldbetruefalse);
-        $this->assertEquals($jtfq->get('id'),   $shouldbetruefalse['kid']);
-        $this->assertArrayHasKey('qtype',   $shouldbetruefalse);
+        $this->assertIsArray($shouldbetruefalse);
+        $this->assertArrayHasKey('cmid', $shouldbetruefalse);
+        $this->assertEquals($kuet->cmid, $shouldbetruefalse['cmid']);
+        $this->assertArrayHasKey('questionid', $shouldbetruefalse);
+        $this->assertEquals($tfq->id, $shouldbetruefalse['questionid']);
+        $this->assertArrayHasKey('kid', $shouldbetruefalse);
+        $this->assertEquals($jtfq->get('id'), $shouldbetruefalse['kid']);
+        $this->assertArrayHasKey('qtype', $shouldbetruefalse);
         $this->assertEquals(questions::TRUE_FALSE, $shouldbetruefalse['qtype']);
     }
 }

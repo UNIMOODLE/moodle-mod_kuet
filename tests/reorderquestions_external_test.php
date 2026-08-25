@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_kuet;
+
 use mod_kuet\models\questions;
 /**
  * Reorder question service test
@@ -27,22 +30,23 @@ use mod_kuet\models\questions;
 
 /**
  * Reorder question service test class
+ *
+ * @covers \mod_kuet\external\reorderquestions_external
  */
-class reorderquestions_external_test extends advanced_testcase {
+final class reorderquestions_external_test extends \advanced_testcase {
     /**
      * Reorder question service test
      *
      * @return void
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_reorderquestions() {
+    public function test_reorderquestions(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -98,19 +102,26 @@ class reorderquestions_external_test extends advanced_testcase {
         $generator->add_questions_to_session($questions);
 
         $jdq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]);
+            ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]
+        );
         $jddwtosq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS]);
+            ['questionid' => $ddwtosq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DDWTOS]
+        );
         $jcq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $cq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::CALCULATED]);
+            ['questionid' => $cq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::CALCULATED]
+        );
         $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]);
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]
+        );
         $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]);
+            ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]
+        );
         $jnq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]);
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]
+        );
         $jsaq = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER]);
+            ['questionid' => $saq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::SHORTANSWER]
+        );
 
         $neworderquestions = [
             ['qid' => $jdq->get('id'), 'qorder' => 1],

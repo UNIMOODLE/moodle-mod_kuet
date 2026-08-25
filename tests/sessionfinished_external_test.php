@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_kuet;
+
 use mod_kuet\models\questions;
 /**
  * Session finished service test
@@ -27,23 +30,24 @@ use mod_kuet\models\questions;
 
 /**
  * Session finished service test
+ *
+ * @covers \mod_kuet\external\sessionfinished_external
  */
-class sessionfinished_external_test extends advanced_testcase {
+final class sessionfinished_external_test extends \advanced_testcase {
     /**
      * Session finished service test
      *
      * @return void
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_sessionfinished() {
+    public function test_sessionfinished(): void {
         global $OUTPUT;
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -108,8 +112,14 @@ class sessionfinished_external_test extends advanced_testcase {
         $sessionmock2['status'] = \mod_kuet\models\sessions::SESSION_ACTIVE;
         $sessionmock2['automaticstart'] = 1;
         $sessionmock2['startdate'] = time();
-        $sessionmock2['enddate'] = mktime(date("h"), date("i"), date("s"), date("m"),
-            date("d") + 1, date("Y"));
+        $sessionmock2['enddate'] = mktime(
+            date("h"),
+            date("i"),
+            date("s"),
+            date("m"),
+            date("d") + 1,
+            date("Y")
+        );
         $sessionmock2['id'] = $generator->create_session($kuet, (object) $sessionmock2);
 
         // Add questions to a session.
@@ -139,8 +149,10 @@ class sessionfinished_external_test extends advanced_testcase {
         $this->assertEquals($OUTPUT->image_url('f/error', 'mod_kuet')->out(false), $data['sessionclosedimage']);
         $this->assertEquals(0, $data['hasnextsession']);
         $this->assertEquals('', $data['nextsessiontime']);
-        $this->assertEquals((new moodle_url('/mod/kuet/reports.php', ['cmid' => $kuet->cmid]))->out(false),
-            $data['urlreports']);
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/reports.php', ['cmid' => $kuet->cmid]))->out(false),
+            $data['urlreports']
+        );
         // Test session 2.
         $this->assertIsArray($data);
         $this->assertArrayHasKey('sessionclosedimage', $data2);
@@ -151,7 +163,9 @@ class sessionfinished_external_test extends advanced_testcase {
         $date = userdate($sessionmock2['startdate'], get_string('strftimedatetimeshort', 'core_langconfig'));
         $this->assertTrue($data2['hasnextsession']);
         $this->assertEquals($date, $data2['nextsessiontime']);
-        $this->assertEquals((new moodle_url('/mod/kuet/reports.php', ['cmid' => $kuet->cmid]))->out(false),
-            $data2['urlreports']);
+        $this->assertEquals(
+            (new \moodle_url('/mod/kuet/reports.php', ['cmid' => $kuet->cmid]))->out(false),
+            $data2['urlreports']
+        );
     }
 }

@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
@@ -76,6 +77,11 @@ class getsession_external extends external_api {
             self::getsession_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_session_in_cm($sid, $cmid);
         $session = new kuet_sessions($sid);
         return ['session' => [
             'id' => $session->get('id'),
@@ -128,7 +134,8 @@ class getsession_external extends external_api {
                     'questiontime' => new external_value(PARAM_INT, ''),
                     'groupings' => new external_value(PARAM_RAW, ''),
                     'status' => new external_value(PARAM_INT, ''),
-                ], ''
+                ],
+                ''
             ),
         ]);
     }

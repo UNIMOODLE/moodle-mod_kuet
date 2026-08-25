@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use core\invalid_persistent_exception;
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -51,7 +52,6 @@ use moodle_exception;
  * Reorder questions class
  */
 class reorderquestions_external extends external_api {
-
     /**
      * Reorder questions parameters validation
      *
@@ -65,7 +65,10 @@ class reorderquestions_external extends external_api {
                         'qid' => new external_value(PARAM_INT, 'question id'),
                         'qorder' => new external_value(PARAM_INT, 'new question order'),
                     ]
-                ), 'List of questions qith the new order.', VALUE_DEFAULT, []
+                ),
+                'List of questions qith the new order.',
+                VALUE_DEFAULT,
+                []
             ),
         ]);
     }
@@ -85,6 +88,13 @@ class reorderquestions_external extends external_api {
             self::reorderquestions_parameters(),
             ['questions' => $questions]
         );
+
+        // The questions may in principle come from different kuets: authorise each.
+        foreach ($questions as $question) {
+            $context = modcontext::from_question((int) $question['qid']);
+            self::validate_context($context);
+            require_capability('mod/kuet:managesessions', $context);
+        }
 
         $added = true;
         foreach ($questions as $question) {

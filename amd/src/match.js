@@ -36,7 +36,7 @@
 import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
-import mEvent from 'core/event';
+import * as fEvents from 'core_filters/events';
 
 let ACTION = {
     SEND_RESPONSE: '[data-action="send-match"]',
@@ -147,7 +147,7 @@ Match.prototype.answered = function(jsonresponse) {
     }
     let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
     if (contentFeedbacks !== null) {
-        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+        fEvents.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
     }
 };
 

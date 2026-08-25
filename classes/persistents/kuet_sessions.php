@@ -83,6 +83,10 @@ class kuet_sessions extends persistent {
                 'type' => PARAM_INT,
                 'default' => sessions::GM_DISABLED,
             ],
+            'mandatoryattendance' => [
+                'type' => PARAM_INT,
+                'default' => 1,
+            ],
             'countdown' => [
                 'type' => PARAM_INT,
                 'null' => NULL_ALLOWED,
@@ -249,8 +253,12 @@ class kuet_sessions extends persistent {
      */
     public static function get_next_session(int $kuetid): int {
         global $DB;
-        $allsessions = $DB->get_records(self::TABLE, ['kuetid' => $kuetid, 'status' => sessionsmodel::SESSION_ACTIVE],
-            'startdate DESC', 'id, startdate');
+        $allsessions = $DB->get_records(
+            self::TABLE,
+            ['kuetid' => $kuetid, 'status' => sessionsmodel::SESSION_ACTIVE],
+            'startdate DESC',
+            'id, startdate'
+        );
         $dates = [];
         foreach ($allsessions as $date) {
             if ($date->startdate !== 0) {
@@ -296,13 +304,19 @@ class kuet_sessions extends persistent {
             if ($sid !== $active->id) {
                 $session = new kuet_sessions($active->id);
                 $session->set('status', sessionsmodel::SESSION_FINISHED);
-                $session->set('enddate', time());
+                // KUETEDUCAM-32: this only makes sure a single session stays active.
+                // Finishing the session is the scheduled task's job, and the end date
+                // must not be touched here: it conflicts with automatically started
+                // sessions.
                 $session->update();
             }
         }
         $session = new kuet_sessions($sid);
         $session->set('status', sessionsmodel::SESSION_STARTED);
-        $session->set('startdate', time());
+        // Solo se modifica la fecha de inicio en caso que el inicio no sea automatico.
+        if ($session->get('automaticstart') != 1) {
+            $session->set('startdate', time());
+        }
         $session->update();
     }
 
@@ -318,6 +332,24 @@ class kuet_sessions extends persistent {
         $session = new kuet_sessions($sid);
         $session->set('status', sessionsmodel::SESSION_ACTIVE);
         $session->update();
+    }
+
+    /**
+     * Set the status of a session
+     *
+     * Internal counterpart of the sessionstatus web service, so that plugin
+     * code can change the status without going through the external API.
+     *
+     * @param int $sid
+     * @param int $status
+     * @return bool Whether the session was updated.
+     * @throws coding_exception
+     * @throws invalid_persistent_exception
+     */
+    public static function update_status(int $sid, int $status): bool {
+        $session = new kuet_sessions($sid);
+        $session->set('status', $status);
+        return $session->update();
     }
 
     /**
@@ -371,8 +403,10 @@ class kuet_sessions extends persistent {
         $comparescaleclause = $DB->sql_compare_text('name')  . ' =  ' . $DB->sql_compare_text(':name');
         $comparescaleclause .= ' AND kuetid = :kuetid';
 
-        return $DB->get_records_sql("SELECT * FROM {kuet_sessions} WHERE $comparescaleclause",
-            ['name' => $name, 'kuetid' => $jsqhowid]);
+        return $DB->get_records_sql(
+            "SELECT * FROM {kuet_sessions} WHERE $comparescaleclause",
+            ['name' => $name, 'kuetid' => $jsqhowid]
+        );
     }
 
     /**

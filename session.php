@@ -34,6 +34,7 @@
 require_once('../../config.php');
 require_once('lib.php');
 
+use mod_kuet\models\sessions as sessionsmodel;
 use mod_kuet\output\views\student_session_view;
 use mod_kuet\output\views\teacher_session_view;
 use mod_kuet\persistents\kuet_sessions;
@@ -45,12 +46,16 @@ $sid = required_param('sid', PARAM_INT);    // Session id.
 $cm = get_coursemodule_from_id('kuet', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
-
+$cmcontext = context_module::instance($cm->id);
+$isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
+$session = new kuet_sessions($sid);
+if (!$isteacher && $session->get('status') !== sessionsmodel::SESSION_STARTED) {
+    // 3IP session not active.
+    redirect($CFG->wwwroot . "/mod/kuet/view.php?id=" . $cm->id);
+}
 $PAGE->set_url('/mod/kuet/view.php', ['id' => $id]);
 require_login($course, false, $cm);
-$cmcontext = context_module::instance($cm->id);
 require_capability('mod/kuet:view', $cmcontext);
-$isteacher = has_capability('mod/kuet:managesessions', $cmcontext);
 $strkuet = get_string('modulename', 'kuet');
 $PAGE->set_heading($course->fullname);
 $PAGE->set_title(get_string('session', 'kuet')) . ' - ' . kuet_sessions::get_sessionname($kuet->id, $sid);

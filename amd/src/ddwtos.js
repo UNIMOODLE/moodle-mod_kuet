@@ -36,7 +36,7 @@ import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
-import mEvent from 'core/event';
+import * as fEvents from 'core_filters/events';
 /*import DragDrop from 'core/local/reactive/dragdrop';*/
 import dragDrop from 'core/dragdrop';
 
@@ -439,7 +439,7 @@ Ddwtos.prototype.answered = function(response, fromService = false) {
     });
     let contentFeedbacks = document.querySelector(REGION.CONTENTFEEDBACKS);
     if (contentFeedbacks !== null) {
-        mEvent.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
+        fEvents.notifyFilterContentUpdated(document.querySelector(REGION.CONTENTFEEDBACKS));
     }
 };
 

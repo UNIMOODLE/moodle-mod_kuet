@@ -42,8 +42,10 @@
 <div class="row student-waiting-room">
     <div class="col-12">
         <div class="content-waiting-room">
-            <div class="waiting-room-title">
-                <h2>{{#str}}waitingroom_message, mod_kuet{{/str}}</h2>
+            <div class="waiting-room-title" data-region="waiting-room-message">
+                <h2 data-state="noquestion">{{#str}}waitingroom_message, mod_kuet{{/str}}</h2>
+                <h2 data-state="inprogress" class="d-none">{{#str}}waitingroom_message_inprogress, mod_kuet{{/str}}</h2>
+                <h2 data-state="lastquestion" class="d-none">{{#str}}waitingroom_message_lastquestion, mod_kuet{{/str}}</h2>
             </div>
             <div class="waiting-room-participants">
                 <div class="waiting-room-subtitle">

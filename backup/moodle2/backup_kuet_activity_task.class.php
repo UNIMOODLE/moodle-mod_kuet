@@ -40,14 +40,12 @@ require_once($CFG->dirroot . '/mod/kuet/backup/moodle2/backup_kuet_stepslib.php'
  * Backup task that provides all the settings and steps to perform one complete backup.
  */
 class backup_kuet_activity_task extends backup_activity_task {
-
     /**
      * This should define settings. Not used at the moment.
      *
      * @return void
      */
     protected function define_my_settings() {
-
     }
 
     /**
@@ -79,5 +77,4 @@ class backup_kuet_activity_task extends backup_activity_task {
         $content = preg_replace($search, '$@KUETVIEWBYID*$2@$', $content);
         return $content;
     }
-
 }

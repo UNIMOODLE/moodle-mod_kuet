@@ -36,7 +36,6 @@
  * Kuet test generator library class
  */
 class mod_kuet_generator extends testing_module_generator {
-
     /**
      * Create instance
      *

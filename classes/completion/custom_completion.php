@@ -44,7 +44,6 @@ use moodle_exception;
  * Kuet Custom completion class
  */
 class custom_completion extends activity_custom_completion {
-
     /**
      * Fetches the completion state for a given completion rule.
      *
@@ -62,8 +61,13 @@ class custom_completion extends activity_custom_completion {
         $userid = $this->userid;
 
         if (!$DB->get_record('kuet', ['id' => $kuetid])) {
-            throw new moodle_exception('kuetnotexist', 'mod_kuet', '',
-                [], get_string('kuetnotexist', 'mod_kuet', $kuetid));
+            throw new moodle_exception(
+                'kuetnotexist',
+                'mod_kuet',
+                '',
+                [],
+                get_string('kuetnotexist', 'mod_kuet', $kuetid)
+            );
         }
 
         $numsessions = kuet_sessions::count_records(['kuetid' => $kuetid]);

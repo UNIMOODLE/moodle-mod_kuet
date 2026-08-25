@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
@@ -83,10 +84,15 @@ class getprovisionalranking_external extends external_api {
             self::getprovisionalranking_parameters(),
             ['sid' => $sid, 'cmid' => $cmid, 'kid' => $kid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_session_in_cm($sid, $cmid);
         $session = kuet_sessions::get_record(['id' => $sid]);
         $questions = new questions($session->get('kuetid'), $cmid, $sid);
         $provisionalrankings = sessions::get_provisional_ranking($sid, $cmid, $kid);
-        foreach($provisionalrankings as $provisionalranking) {
+        foreach ($provisionalrankings as $provisionalranking) {
             $provisionalranking = (array) $provisionalranking;
             $provisionalranking['questionscore'] = (string)$provisionalranking['questionscore'];
             $provisionalranking['userpoints'] = (string)$provisionalranking['userpoints'];
@@ -117,8 +123,10 @@ class getprovisionalranking_external extends external_api {
                         'userfullname'   => new external_value(PARAM_RAW, 'Name of user'),
                         'questionscore' => new external_value(PARAM_RAW, 'Num of partially correct answers'),
                         'userpoints' => new external_value(PARAM_RAW, 'Total points of user'),
-                    ], ''
-                ), ''
+                    ],
+                    ''
+                ),
+                ''
             ),
             'kid' => new external_value(PARAM_INT, 'kuet_question id'),
             'sessionid' => new external_value(PARAM_INT, 'kuet_session id'),

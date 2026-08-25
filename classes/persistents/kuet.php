@@ -70,6 +70,9 @@ class kuet extends persistent {
             'grademethod' => [
                 'type' => PARAM_INT,
             ],
+            'sessiongrademax' => [
+                'type' => PARAM_FLOAT,
+            ],
             'completionanswerall' => [
                 'type' => PARAM_INT,
             ],
@@ -88,7 +91,7 @@ class kuet extends persistent {
      * @throws moodle_exception
      */
     public static function get_kuet_from_cmid(int $cmid) {
-        list($course, $cm) = get_course_and_cm_from_cmid($cmid, 'kuet');
+        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'kuet');
         return self::get_record(['id' => (int) $cm->instance, 'course' => $course->id]);
     }
 }

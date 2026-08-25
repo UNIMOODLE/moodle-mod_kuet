@@ -13,6 +13,7 @@
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Quiz intro text format."/>
         <FIELD NAME="teamgrade" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false" COMMENT="Options: first,last or average"/>
         <FIELD NAME="grademethod" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="Options: 0-notgrades, 1-gradehighest, 2-gradeaverage, 3-firstsession, 4-lastsession."/>
+        <FIELD NAME="sessiongrademax" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="Maximum grade obtainable in a single session. Each session grade is normalised to this max over its gradable questions (KUETEDUCAM-67)."/>
         <FIELD NAME="completionanswerall" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Nonzero if all the questions are answered"/>
         <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
@@ -34,6 +35,7 @@
         <FIELD NAME="anonymousanswer" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="There are 3 types: 0 (partially) 1(totally) 2(not anonymous)"/>
         <FIELD NAME="sessionmode" TYPE="char" LENGTH="50" NOTNULL="true" DEFAULT="inactive_manual" SEQUENCE="false" COMMENT="Options:inactive_manual,podium_manual,podium_programmed"/>
         <FIELD NAME="sgrade" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="Options: 0-notgrades, 1-relative position, 2-relative points, 3-combined."/>
+        <FIELD NAME="mandatoryattendance" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Whether attendance is mandatory (KUETEDUCAM-72). 1: not attending scores 0 and the session always counts. 0: a non-attendee (no answers) is excluded from this session grade and from the activity grade."/>
         <FIELD NAME="countdown" TYPE="int" LENGTH="20" NOTNULL="false" SEQUENCE="false" COMMENT="Time in seconds between questions. Only for scheduled mode"/>
         <FIELD NAME="showgraderanking" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Option to hide or not ranking and grades between questions. By default, not hidden."/>
         <FIELD NAME="randomquestions" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Options: 0 or 1"/>
@@ -140,6 +142,8 @@
         <FIELD NAME="anonymise" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="0 not anonymise, 1 Anonymise student response"/>
         <FIELD NAME="result" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="2" SEQUENCE="false" COMMENT="The status of the answer: 0 error, 1 success, 2 not answered, 3 not evaluable, 4 invalid"/>
         <FIELD NAME="response" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Answer sent by the user. Must be serialisable using json_encode()"/>
+        <FIELD NAME="manualmark" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="5" COMMENT="Teacher override for the question mark (KUETEDUCAM-73). NULL means no override: the automatically calculated mark is used. When set, it prevails over the calculated mark (range 0..question.defaultmark)."/>
+        <FIELD NAME="manualcomment" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Mandatory comment justifying the manual mark override (KUETEDUCAM-73). Only the last value is kept, no history."/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT=""/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this grade changed."/>
       </FIELDS>

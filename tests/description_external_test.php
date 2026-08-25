@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_kuet;
+
 use mod_kuet\models\sessions;
 use mod_kuet\models\questions;
 /**
@@ -27,25 +30,26 @@ use mod_kuet\models\questions;
 
 /**
  * Description question type test class
+ *
+ * @covers \mod_kuet\external\description_external
  */
-class description_external_test extends advanced_testcase {
+final class description_external_test extends \advanced_testcase {
     /**
      * Description question type test
      *
      * @return void
-     * @throws JsonException
+     * @throws \JsonException
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws dml_transaction_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \dml_transaction_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
     public function test_description(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -91,7 +95,7 @@ class description_external_test extends advanced_testcase {
         $generator->add_questions_to_session($questions);
         \mod_kuet\external\startsession_external::startsession($kuet->cmid, $createdsid);
 
-        $qbd = question_bank::load_question($dq->id);
+        $qbd = \question_bank::load_question($dq->id);
 
         $jdq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $dq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::DESCRIPTION]
@@ -101,10 +105,22 @@ class description_external_test extends advanced_testcase {
         self::setUser($student1);
         $hasfeedback = !empty($qbd->generalfeedback);
         $feedback = questions::get_text(
-            $kuet->cmid, $qbd->generalfeedback, $qbd->generalfeedbackformat, $qbd->id, $qbd, 'generalfeedback'
+            $kuet->cmid,
+            $qbd->generalfeedback,
+            $qbd->generalfeedbackformat,
+            $qbd->id,
+            $qbd,
+            'generalfeedback'
         );
-        $data1 = \mod_kuet\external\description_external::description($createdsid, $kuet->id,
-            $kuet->cmid, $dq->id, $jdq->get('id'), 10, false);
+        $data1 = \mod_kuet\external\description_external::description(
+            $createdsid,
+            $kuet->id,
+            $kuet->cmid,
+            $dq->id,
+            $jdq->get('id'),
+            10,
+            false
+        );
         $this->assertIsArray($data1);
         $this->assertArrayHasKey('reply_status', $data1);
         $this->assertArrayHasKey('result', $data1);

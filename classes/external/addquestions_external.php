@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use core\invalid_persistent_exception;
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -53,7 +54,6 @@ use mod_kuet\models\questions;
  * Add questions class
  */
 class addquestions_external extends external_api {
-
     /**
      * Add questions parameters validation
      *
@@ -69,7 +69,10 @@ class addquestions_external extends external_api {
                         'kuetid' => new external_value(PARAM_INT, 'kuetid'),
                         'qtype' => new external_value(PARAM_RAW, 'sessionid'),
                     ]
-                ), 'List of session questions', VALUE_DEFAULT, []
+                ),
+                'List of session questions',
+                VALUE_DEFAULT,
+                []
             ),
         ]);
     }
@@ -90,13 +93,25 @@ class addquestions_external extends external_api {
             ['questions' => $questions]
         );
 
+        // Every question is added to its own kuet, so each one is authorised separately.
+        foreach ($questions as $question) {
+            $context = modcontext::from_kuet((int) $question['kuetid']);
+            self::validate_context($context);
+            require_capability('mod/kuet:managesessions', $context);
+            modcontext::require_session_in_kuet((int) $question['sessionid'], (int) $question['kuetid']);
+        }
+
         $added = true;
         foreach ($questions as $question) {
             if (!in_array($question['qtype'], questions::TYPES, true)) {
                 continue;
             }
-            $result = kuet_questions::add_question($question['questionid'], $question['sessionid'],
-                $question['kuetid'], $question['qtype']);
+            $result = kuet_questions::add_question(
+                $question['questionid'],
+                $question['sessionid'],
+                $question['kuetid'],
+                $question['qtype']
+            );
             if (false === $result) {
                 $added = false;
             }

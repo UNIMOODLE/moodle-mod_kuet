@@ -41,7 +41,6 @@ use dml_exception;
 use invalid_parameter_exception;
 use JsonException;
 use mod_kuet\api\grade;
-use mod_kuet\external\match_external;
 use mod_kuet\helpers\reports;
 use mod_kuet\persistents\kuet;
 use mod_kuet\persistents\kuet_questions;
@@ -89,7 +88,7 @@ class matchquestion extends questions implements questionType {
     public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false): object {
         $session = kuet_sessions::get_record(['id' => $sessionid]);
         $kuetquestion = kuet_questions::get_record(['id' => $kid]);
-        $question = question_bank::load_question($kuetquestion->get('questionid'));
+        $question = question_bank::load_question($kuetquestion->get('questionid'), 0);
         if (!assert($question instanceof qtype_match_question)) {
             throw new moodle_exception(
                 'question_nosuitable',
@@ -153,7 +152,7 @@ class matchquestion extends questions implements questionType {
         $responsedata = json_decode($response, false);
         $data->answered = true;
         $jsonresponse = json_encode($responsedata->response, JSON_THROW_ON_ERROR);
-        $dataanswer = match_external::match(
+        $dataanswer = self::answer(
             $jsonresponse,
             $result,
             $data->sessionid,
@@ -326,7 +325,7 @@ class matchquestion extends questions implements questionType {
     public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
         global $DB;
         $mark = 0;
-        $question = question_bank::load_question($response->get('questionid'));
+        $question = question_bank::load_question($response->get('questionid'), 0);
         if (assert($question instanceof qtype_match_question)) {
             $jsonresponse = json_decode(base64_decode($response->get('response')), false, 512, JSON_THROW_ON_ERROR);
             usort($jsonresponse->response, static fn($a, $b) => strcmp($a->stemDragId, $b->stemDragId));
@@ -397,5 +396,129 @@ class matchquestion extends questions implements questionType {
         $statistics[0]['partially'] = $partially !== 0 ? round($partially * 100 / $total, 2) : 0;
         $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse * 100 / $total, 2) : 0;
         return $statistics;
+    }
+    /**
+     * Grade and register an answer to a matching question
+     *
+     * Internal counterpart of the match web service. Report rendering
+     * calls this directly, so that it never goes through the external API
+     * and its validate_context() in the middle of a page render.
+     *
+     * @param string $jsonresponse
+     * @param int $result
+     * @param int $sessionid
+     * @param int $kuetid
+     * @param int $cmid
+     * @param int $questionid
+     * @param int $kid
+     * @param int $timeleft
+     * @param bool $preview
+     * @throws JsonException
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     * @throws coding_exception
+     * @throws invalid_parameter_exception
+     * @return array
+     */
+    public static function answer(
+        string $jsonresponse,
+        int $result,
+        int $sessionid,
+        int $kuetid,
+        int $cmid,
+        int $questionid,
+        int $kid,
+        int $timeleft,
+        bool $preview
+    ): array {
+        global $PAGE, $USER;
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
+
+        $session = new kuet_sessions($sessionid);
+        $question = question_bank::load_question($questionid, 0);
+        if (assert($question instanceof qtype_match_question)) {
+            $statmentfeedback = questions::get_text(
+                $cmid,
+                $question->generalfeedback,
+                $question->generalfeedbackformat,
+                $question->id,
+                $question,
+                'generalfeedback'
+            );
+            switch ($result) {
+                case questions::SUCCESS:
+                    $answerfeedback = questions::get_text(
+                        $cmid,
+                        $question->correctfeedback,
+                        $question->correctfeedbackformat,
+                        $question->id,
+                        $question,
+                        'correctfeedback'
+                    );
+                    break;
+                case questions::PARTIALLY:
+                    $answerfeedback = questions::get_text(
+                        $cmid,
+                        $question->partiallycorrectfeedback,
+                        $question->partiallycorrectfeedbackformat,
+                        $question->id,
+                        $question,
+                        'partiallycorrectfeedback'
+                    );
+                    break;
+                case questions::FAILURE:
+                    $answerfeedback = questions::get_text(
+                        $cmid,
+                        $question->incorrectfeedback,
+                        $question->incorrectfeedbackformat,
+                        $question->id,
+                        $question,
+                        'incorrectfeedback'
+                    );
+                    break;
+                default:
+                    $answerfeedback = '';
+                    break;
+            }
+
+            if ($preview === false) {
+                $custom = [
+                    'jsonresponse' => $jsonresponse,
+                    'result' => $result,
+                    'answerfeedback' => $answerfeedback,
+                ];
+                self::question_response(
+                    $cmid,
+                    $kid,
+                    $questionid,
+                    $sessionid,
+                    $kuetid,
+                    $statmentfeedback,
+                    $USER->id,
+                    $timeleft,
+                    $custom
+                );
+            }
+            return [
+                'reply_status' => true,
+                'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
+                'statment_feedback' => $statmentfeedback,
+                'answer_feedback' => $answerfeedback,
+                'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+                'preview' => $preview,
+            ];
+        }
+
+        return [
+            'reply_status' => false,
+            'hasfeedbacks' => false,
+            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+            'preview' => $preview,
+        ];
     }
 }

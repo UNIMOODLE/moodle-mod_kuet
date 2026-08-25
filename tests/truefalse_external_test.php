@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_kuet;
+
 use mod_kuet\models\sessions;
 use mod_kuet\models\questions;
 /**
@@ -28,25 +30,26 @@ use mod_kuet\models\questions;
 
 /**
  * Truefalse question type test class
+ *
+ * @covers \mod_kuet\external\truefalse_external
  */
-class truefalse_external_test extends advanced_testcase {
+final class truefalse_external_test extends \advanced_testcase {
     /**
      * Truefalse question type test
      *
      * @return void
-     * @throws JsonException
+     * @throws \JsonException
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws dml_transaction_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \dml_transaction_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_truefalse() {
+    public function test_truefalse(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -92,7 +95,7 @@ class truefalse_external_test extends advanced_testcase {
         $generator->add_questions_to_session($questions);
         \mod_kuet\external\startsession_external::startsession($kuet->cmid, $createdsid);
 
-        $qbtf = question_bank::load_question($tfq->id);
+        $qbtf = \question_bank::load_question($tfq->id);
         $jtfq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $tfq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]
         );
@@ -100,8 +103,16 @@ class truefalse_external_test extends advanced_testcase {
         // User 1 answers a correct answer.
         self::setUser($student);
         $user1answerid = $qbtf->trueanswerid;
-        $data = \mod_kuet\external\truefalse_external::truefalse($user1answerid, $createdsid, $kuet->id,
-            $kuet->cmid, $tfq->id, $jtfq->get('id'), 10, false);
+        $data = \mod_kuet\external\truefalse_external::truefalse(
+            $user1answerid,
+            $createdsid,
+            $kuet->id,
+            $kuet->cmid,
+            $tfq->id,
+            $jtfq->get('id'),
+            10,
+            false
+        );
 
         $this->assertIsArray($data);
         $this->assertArrayHasKey('reply_status', $data);
@@ -114,11 +125,21 @@ class truefalse_external_test extends advanced_testcase {
         $this->assertTrue($data['reply_status']);
 
         $statmentfeedback = questions::get_text(
-            $kuet->cmid, $qbtf->generalfeedback, 1, $qbtf->id, $qbtf, 'generalfeedback'
+            $kuet->cmid,
+            $qbtf->generalfeedback,
+            1,
+            $qbtf->id,
+            $qbtf,
+            'generalfeedback'
         );
         $answerfeedback1 = questions::get_text(
-                    $kuet->cmid, $qbtf->truefeedback, 1, (int) $qbtf->trueanswerid, $qbtf, 'answerfeedback'
-                ) . '<br>';
+            $kuet->cmid,
+            $qbtf->truefeedback,
+            1,
+            (int) $qbtf->trueanswerid,
+            $qbtf,
+            'answerfeedback'
+        ) . '<br>';
 
         $hasfeedback = !empty($statmentfeedback) || !empty($answerfeedback);
         $this->assertEquals($hasfeedback, $data['hasfeedbacks']);
@@ -131,8 +152,16 @@ class truefalse_external_test extends advanced_testcase {
         // User 2 answers an incorrect answer.
         self::setUser($student2);
         $user2answerid = $qbtf->falseanswerid;
-        $data = \mod_kuet\external\truefalse_external::truefalse($user2answerid, $createdsid, $kuet->id,
-            $kuet->cmid, $tfq->id, $jtfq->get('id'), 10, false);
+        $data = \mod_kuet\external\truefalse_external::truefalse(
+            $user2answerid,
+            $createdsid,
+            $kuet->id,
+            $kuet->cmid,
+            $tfq->id,
+            $jtfq->get('id'),
+            10,
+            false
+        );
 
         $this->assertIsArray($data);
         $this->assertArrayHasKey('reply_status', $data);
@@ -145,12 +174,22 @@ class truefalse_external_test extends advanced_testcase {
         $this->assertTrue($data['reply_status']);
 
         $statmentfeedback = questions::get_text(
-            $kuet->cmid, $qbtf->generalfeedback, 1, $qbtf->id, $qbtf, 'generalfeedback'
+            $kuet->cmid,
+            $qbtf->generalfeedback,
+            1,
+            $qbtf->id,
+            $qbtf,
+            'generalfeedback'
         );
 
         $answerfeedback2 = $answerfeedback = questions::get_text(
-                $kuet->cmid, $qbtf->falsefeedback, 1, (int) $qbtf->falseanswerid, $qbtf, 'answerfeedback'
-            ) . '<br>';
+            $kuet->cmid,
+            $qbtf->falsefeedback,
+            1,
+            (int) $qbtf->falseanswerid,
+            $qbtf,
+            'answerfeedback'
+        ) . '<br>';
         $hasfeedback = !empty($statmentfeedback) || !empty($answerfeedback);
         $this->assertEquals($hasfeedback, $data['hasfeedbacks']);
         $this->assertEquals($statmentfeedback, $data['statment_feedback']);

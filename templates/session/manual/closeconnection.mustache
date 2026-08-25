@@ -45,30 +45,46 @@
             <img src="{{sessionclosedimage}}" alt="{{#str}}session_closed, mod_kuet{{/str}}" />
         </div>
         <div class="content-text">
-            <h2>{{#str}}session_closed, mod_kuet{{/str}}</h2>
-            <p>{{#str}}session_closed_info, mod_kuet{{/str}}</p>
-            {{#hasnextsession}}
-                <div class="alert alert-primary" role="alert">
-                    <b>{{#str}}nextsession, mod_kuet{{/str}}</b> {{nextsessiontime}}
-                </div>
-            {{/hasnextsession}}
+            {{#hasactivesession}}
+                <h2>{{#str}}connection_closed_title, mod_kuet{{/str}}</h2>
+                <p>{{#str}}connection_closed_info, mod_kuet{{/str}}</p>
+            {{/hasactivesession}}
+            {{^hasactivesession}}
+                <h2>{{#str}}session_closed, mod_kuet{{/str}}</h2>
+                <p>{{#str}}session_closed_info, mod_kuet{{/str}}</p>
+                {{#hasnextsession}}
+                    <div class="alert alert-primary" role="alert">
+                        <b>{{#str}}nextsession, mod_kuet{{/str}}</b> {{nextsessiontime}}
+                    </div>
+                {{/hasnextsession}}
+            {{/hasactivesession}}
             <a class="btn btn-primary" href="{{urlreports}}">
                 {{#str}}reports, mod_kuet{{/str}}
             </a>
         </div>
     </div>
     <div class="containt-mobile">
-        <h2>{{#str}}session_closed, mod_kuet{{/str}}</h2>
+{{#hasactivesession}}
+    <h2>{{#str}}connection_closed_title, mod_kuet{{/str}}</h2>
+{{/hasactivesession}}
+{{^hasactivesession}}
+    <h2>{{#str}}session_closed, mod_kuet{{/str}}</h2>
+{{/hasactivesession}}
         <div class="content-image">
             <img src="{{sessionclosedimage}}" alt="{{#str}}session_closed, mod_kuet{{/str}}" />
         </div>
         <div class="content-text">
-            <p>{{#str}}session_closed_info, mod_kuet{{/str}}</p>
-            {{#hasnextsession}}
-                <div class="alert alert-primary" role="alert">
-                    <b>{{#str}}nextsession, mod_kuet{{/str}}</b> {{nextsessiontime}}
-                </div>
-            {{/hasnextsession}}
+            {{#hasactivesession}}
+                <p>{{#str}}connection_closed_info, mod_kuet{{/str}}</p>
+            {{/hasactivesession}}
+            {{^hasactivesession}}
+                <p>{{#str}}session_closed_info, mod_kuet{{/str}}</p>
+                {{#hasnextsession}}
+                    <div class="alert alert-primary" role="alert">
+                        <b>{{#str}}nextsession, mod_kuet{{/str}}</b> {{nextsessiontime}}
+                    </div>
+                {{/hasnextsession}}
+            {{/hasactivesession}}
             <a class="btn btn-primary" href="{{urlreports}}">
                 {{#str}}reports, mod_kuet{{/str}}
             </a>

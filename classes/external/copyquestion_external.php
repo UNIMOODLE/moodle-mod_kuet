@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use core_external\external_api;
+use mod_kuet\helpers\modcontext;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
 use core_external\external_value;
@@ -49,7 +50,6 @@ use stdClass;
  * Copy question class
  */
 class copyquestion_external extends external_api {
-
     /**
      * Copy question parameters validation
      *
@@ -75,6 +75,10 @@ class copyquestion_external extends external_api {
             self::copyquestion_parameters(),
             ['qid' => $qid]
         );
+
+        $context = modcontext::from_question($qid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
         $copied = true;
         try {
             $sqp = new kuet_questions($qid);

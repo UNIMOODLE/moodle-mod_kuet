@@ -81,6 +81,16 @@ class kuet_questions_responses extends persistent {
             'response' => [
                 'type' => PARAM_RAW,
             ],
+            'manualmark' => [
+                'type' => PARAM_FLOAT,
+                'null' => NULL_ALLOWED,
+                'default' => null,
+            ],
+            'manualcomment' => [
+                'type' => PARAM_TEXT,
+                'null' => NULL_ALLOWED,
+                'default' => null,
+            ],
         ];
     }
 

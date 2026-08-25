@@ -104,18 +104,23 @@
                             <b>{{#str}}questions_number, mod_kuet{{/str}}:</b> {{ numquestions }}
                         </div>
                         <div class="alert alert-success rounded-0 mb-0" role="alert">
+                            {{#pix}}q/success, mod_kuet{{/pix}}
                             <b>{{#str}}success, mod_kuet{{/str}}:</b> {{ success }}
                         </div>
                         <div class="alert alert-light rounded-0 mb-0" role="alert">
+                            {{#pix}}q/partially, mod_kuet{{/pix}}
                             <b>{{#str}}partially_correct, mod_kuet{{/str}}:</b> {{ partially }}
                         </div>
                         <div class="alert alert-danger rounded-0 mb-0" role="alert">
+                            {{#pix}}q/incorrect, mod_kuet{{/pix}}
                             <b>{{#str}}incorrect, mod_kuet{{/str}}:</b> {{ failures }}
                         </div>
                         <div class="alert alert-warning rounded-0 mb-0" role="alert">
+                            {{#pix}}q/noresponse, mod_kuet{{/pix}}
                             <b>{{#str}}noresponse, mod_kuet{{/str}}:</b> {{ noresponse }}
                         </div>
                         <div class="alert alert-dark rounded-right mb-0" role="alert">
+                            {{#pix}}q/noevaluable, mod_kuet{{/pix}}
                             <b>{{#str}}noevaluable, mod_kuet{{/str}}:</b> {{ noevaluable }}
                         </div>
                     </div>

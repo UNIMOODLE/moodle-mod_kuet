@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
@@ -62,7 +63,6 @@ use stdClass;
  * Next question class
  */
 class nextquestion_external extends external_api {
-
     /**
      * Next question parameters validation
      *
@@ -97,20 +97,32 @@ class nextquestion_external extends external_api {
      * @throws moodle_exception
      */
     public static function nextquestion(
-        int $cmid, int $sessionid, int $kid, bool $manual = false
+        int $cmid,
+        int $sessionid,
+        int $kid,
+        bool $manual = false
     ): array {
         global $PAGE, $USER;
         self::validate_parameters(
             self::nextquestion_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid, 'kid' => $kid, 'manual' => $manual]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_session_in_cm($sessionid, $cmid);
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $nextquestion = kuet_questions::get_next_question_of_session($sessionid, $kid);
         $session = new kuet_sessions($sessionid);
         if ($nextquestion !== false) {
             progress::set_progress(
-                $nextquestion->get('kuetid'), $sessionid, $USER->id, $cmid, $nextquestion->get('id')
+                $nextquestion->get('kuetid'),
+                $sessionid,
+                $USER->id,
+                $cmid,
+                $nextquestion->get('id')
             );
             /** @var questions $type */
             $type = questions::get_question_class_by_string_type($nextquestion->get('qtype'));
@@ -118,17 +130,22 @@ class nextquestion_external extends external_api {
                 $nextquestion->get('id'),
                 $cmid,
                 $sessionid,
-                $nextquestion->get('kuetid'));
+                $nextquestion->get('kuetid')
+            );
             $data->showstatistics = $type::show_statistics();
         } else {
             $finishdata = new stdClass();
             $finishdata->endSession = 1;
             kuet_user_progress::add_progress(
-                $session->get('kuetid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
+                $session->get('kuetid'),
+                $sessionid,
+                $USER->id,
+                json_encode($finishdata, JSON_THROW_ON_ERROR)
             );
             $data = sessions::export_endsession(
                 $cmid,
-                $sessionid);
+                $sessionid
+            );
         }
         $data->programmedmode = $manual === false;
         $data->showquestionfeedback = (int)$session->get('showfeedback') === 1;

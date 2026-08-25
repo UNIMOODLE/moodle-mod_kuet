@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use core\invalid_persistent_exception;
 use core_external\external_api;
@@ -50,7 +51,6 @@ use mod_kuet\persistents\kuet_sessions;
  * Finish session class
  */
 class finishsession_external extends external_api {
-
     /**
      * Finish session parameters valdation
      *
@@ -81,6 +81,13 @@ class finishsession_external extends external_api {
             self::finishsession_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        // The capability is checked below, and this function reports a refusal in
+        // its return value instead of throwing. What was missing was the context
+        // validation and the ownership check, not the authorisation itself.
+        modcontext::require_session_in_cm($sessionid, $cmid);
         $cmcontext = context_module::instance($cmid);
         $finished = false;
         if ($cmcontext !== null && has_capability('mod/kuet:managesessions', $cmcontext, $USER)) {

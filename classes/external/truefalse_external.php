@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
@@ -52,14 +53,14 @@ use mod_kuet\persistents\kuet_sessions;
 use moodle_exception;
 use question_bank;
 
-
-require_once($CFG->dirroot. '/question/engine/bank.php');
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/question/engine/bank.php');
 
 /**
  * True-false question type class
  */
 class truefalse_external extends external_api {
-
     /**
      * True-false question type parameters validation
      *
@@ -101,9 +102,15 @@ class truefalse_external extends external_api {
      * @throws moodle_exception
      */
     public static function truefalse(
-        int $answerid, int $sessionid, int $kuetid, int $cmid, int $questionid, int $kid, int $timeleft, bool $preview
+        int $answerid,
+        int $sessionid,
+        int $kuetid,
+        int $cmid,
+        int $questionid,
+        int $kid,
+        int $timeleft,
+        bool $preview
     ): array {
-        global $PAGE, $USER;
         self::validate_parameters(
             self::truefalse_parameters(),
             [
@@ -117,56 +124,13 @@ class truefalse_external extends external_api {
                 'preview' => $preview,
             ]
         );
-        $contextmodule = context_module::instance($cmid);
-        $PAGE->set_context($contextmodule);
 
-        $question = question_bank::load_question($questionid);
-        $statmentfeedback = questions::get_text(
-            $cmid, $question->generalfeedback, 1, $question->id, $question, 'generalfeedback'
-        );
-        $answertext = '0';
-        $correctanswer = $question->rightanswer ? (int)$question->trueanswerid : (int)$question->falseanswerid;
-        if ((int)$answerid === (int)$question->trueanswerid) {
-            $answertext = '1';
-            $answerfeedback = questions::get_text(
-                    $cmid, $question->truefeedback, 1, (int) $question->trueanswerid, $question, 'answerfeedback'
-                ) . '<br>';
-        } else {
-            $answerfeedback = questions::get_text(
-                    $cmid, $question->falsefeedback, 1, (int) $question->falseanswerid, $question, 'answerfeedback'
-                ) . '<br>';
-        }
-        if ($preview === false) {
-            $custom = [
-                'answerids' => $answerid,
-                'answertexts' => $answertext,
-                'correctanswers' => $correctanswer,
-                'answerfeedback' => $answerfeedback,
-            ];
-            truefalse::question_response(
-                $cmid,
-                $kid,
-                $questionid,
-                $sessionid,
-                $kuetid,
-                $statmentfeedback,
-                $USER->id,
-                $timeleft,
-                $custom
-            );
-        }
-        $session = new kuet_sessions($sessionid);
-        return [
-            'reply_status' => true,
-            'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
-            'statment_feedback' => $statmentfeedback,
-            'answer_feedback' => $answerfeedback,
-            'correct_answers' => $correctanswer,
-            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
-                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
-                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
-            'preview' => $preview,
-        ];
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_session_in_cm($sessionid, $cmid);
+
+        return truefalse::answer($answerid, $sessionid, $kuetid, $cmid, $questionid, $kid, $timeleft, $preview);
     }
 
     /**

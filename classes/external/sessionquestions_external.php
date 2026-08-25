@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use dml_exception;
 use core_external\external_api;
@@ -58,7 +59,6 @@ use stdClass;
  * Session questions class
  */
 class sessionquestions_external extends external_api {
-
     /**
      * Session questions parameters validation
      *
@@ -91,73 +91,17 @@ class sessionquestions_external extends external_api {
             self::sessionquestions_parameters(),
             ['kuetid' => $kuetid, 'cmid' => $cmid, 'sid' => $sid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
+        modcontext::require_session_in_cm($sid, $cmid);
         $allquestions = (new questions($kuetid, $cmid, $sid))->get_list();
         $questiondata = [];
         foreach ($allquestions as $question) {
-            $questiondata[] = self::export_question($question, $cmid);
+            $questiondata[] = questions::export_session_question($question, $cmid);
         }
         return ['kuetid' => $kuetid, 'cmid' => $cmid, 'sid' => $sid, 'sessionquestions' => $questiondata];
-    }
-
-    /**
-     * Export question
-     *
-     * @param kuet_questions $question
-     * @param int $cmid
-     * @return stdClass
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws moodle_exception
-     */
-    public static function export_question(kuet_questions $question, int $cmid): stdClass {
-        global $DB;
-        $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
-        $data = new stdClass();
-        $data->questionnid = $question->get('id');
-        $data->position = $question->get('qorder');
-        $data->name = $questiondb->name;
-        $data->type = $question->get('qtype');
-        $icon = new pix_icon('icon', '', 'qtype_' . $question->get('qtype'), [
-            'class' => 'icon',
-            'title' => $question->get('qtype'),
-        ]);
-        $data->icon = $icon->export_for_pix();
-        $data->sid = $question->get('sessionid');
-        $data->cmid = $cmid;
-        $data->kuetid = $question->get('kuetid');
-        $data->isvalid = $question->get('isvalid');
-        $session = new kuet_sessions($question->get('sessionid'));
-        switch ($session->get('timemode')) {
-            case sessions::NO_TIME:
-            default:
-                $data->time = ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : '-';
-                break;
-            case sessions::SESSION_TIME:
-                $numquestion = kuet_questions::count_records(
-                    ['sessionid' => $session->get('id'), 'kuetid' => $session->get('kuetid')]
-                );
-                $timeperquestion = round((int)$session->get('sessiontime') / $numquestion);
-                $data->time = ($timeperquestion > 0) ? $timeperquestion . 's' : '-';
-                break;
-            case sessions::QUESTION_TIME:
-                $data->time =
-                    ($question->get('timelimit') > 0) ? $question->get('timelimit') . 's' : $session->get('questiontime') . 's';
-                break;
-        }
-        $data->issuitable = in_array($question->get('qtype'), questions::TYPES, true);
-        $data->version = $DB->get_field('question_versions', 'version', ['questionid' => $question->get('questionid')]);
-        $cmcontext = context_module::instance($cmid);
-        $data->managesessions = has_capability('mod/kuet:managesessions', $cmcontext);
-        $args = [
-            'id' => $cmid,
-            'kid' => $question->get('id'),
-            'sid' => $question->get('sessionid'),
-            'ksid' => $question->get('kuetid'),
-            'cid' => ($DB->get_record('kuet', ['id' => $question->get('kuetid')], 'course'))->course,
-         ];
-        $data->question_preview_url = (new moodle_url('/mod/kuet/preview.php', $args))->out(false);
-        $data->editquestionurl = (new moodle_url('/mod/kuet/editquestion.php', $args))->out(false);
-        return $data;
     }
 
     /**
@@ -191,8 +135,10 @@ class sessionquestions_external extends external_api {
                         'managesessions' => new external_value(PARAM_BOOL, 'Capability'),
                         'question_preview_url' => new external_value(PARAM_URL, 'Url for preview'),
                         'editquestionurl' => new external_value(PARAM_URL, 'Url for edit question'),
-                    ], ''
-                ), ''
+                    ],
+                    ''
+                ),
+                ''
             ),
         ]);
     }

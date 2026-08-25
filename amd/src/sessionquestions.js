@@ -35,12 +35,12 @@
 import jQuery from 'jquery';
 import {get_string as getString, get_strings as getStrings} from 'core/str';
 import Ajax from 'core/ajax';
-import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import SortableList from 'core/sortable_list';
 import ModalKuet from 'mod_kuet/modal';
+import ModalSaveCancel from 'core/modal_save_cancel';
 
 let ACTION = {
     DELETEQUESTION: '[data-action="delete_question"]',
@@ -141,12 +141,11 @@ SessionQuestions.prototype.questionPreview = function(e) {
         Ajax.call([request])[0].done(function(question) {
             Templates.render(TEMPLATES.QUESTION, question).then(function(html, js) {
                 getString('preview', 'mod_kuet').done((title) => {
-                    ModalFactory.create({
+                    ModalKuet.create({
                         classes: 'modal_kuet',
                         body: html,
                         title: title,
                         footer: '',
-                        type: ModalKuet.TYPE
                     }).then(modal => {
                         modal.getRoot().on(ModalEvents.hidden, function() {
                             modal.destroy();
@@ -175,7 +174,7 @@ SessionQuestions.prototype.reloadSessionQuestionsHtml = function() {
             jQuery(REGION.SESSIONQUESTIONS).html(html);
             Templates.runTemplateJS(js);
             jQuery(REGION.LOADING).remove();
-        }).fail(Notification.exception);
+        }).catch(Notification.exception);
     }).fail(Notification.exception);
 };
 
@@ -193,10 +192,9 @@ SessionQuestions.prototype.deleteQuestion = function(e) {
         const title = langStrings[0];
         const message = langStrings[1];
         const buttonText = langStrings[2];
-        return ModalFactory.create({
+        return ModalSaveCancel.create({
             title: title,
             body: message,
-            type: ModalFactory.types.SAVE_CANCEL
         }).then(modal => {
             modal.setSaveButtonText(buttonText);
             modal.getRoot().on(ModalEvents.save, () => {

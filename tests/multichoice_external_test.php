@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_kuet;
+
 use mod_kuet\models\sessions;
 use mod_kuet\models\questions;
 
@@ -29,25 +31,26 @@ use mod_kuet\models\questions;
 
 /**
  * Multichoice question type test class
+ *
+ * @covers \mod_kuet\external\multichoice_external
  */
-class multichoice_external_test extends advanced_testcase {
+final class multichoice_external_test extends \advanced_testcase {
     /**
      * Multichoice question type test
      *
      * @return void
-     * @throws JsonException
+     * @throws \JsonException
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws dml_transaction_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \dml_transaction_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_multichoice() {
+    public function test_multichoice(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -93,7 +96,7 @@ class multichoice_external_test extends advanced_testcase {
         $generator->add_questions_to_session($questions);
         \mod_kuet\external\startsession_external::startsession($kuet->cmid, $createdsid);
 
-        $qbmc = question_bank::load_question($mcq->id);
+        $qbmc = \question_bank::load_question($mcq->id);
         $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
             ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]
         );
@@ -103,32 +106,55 @@ class multichoice_external_test extends advanced_testcase {
         $incorrectanswers = [];
         $incorrectanswersfeedback = '';
         foreach ($qbmc->answers as $key => $answer) {
-            if ($answer->fraction !== '0.0000000' && strpos($answer->fraction, '-') !== 0) {
+            if ($answer->fraction > 0) {
                 $correctanswers[] = $answer->id;
-                if (!empty($answer->feedback) ) {
+                if (!empty($answer->feedback)) {
                     $correctanswersfeedback .= questions::get_text(
-                            $kuet->cmid, $answer->feedback, 1, $answer->id, $qbmc, 'answerfeedback'
-                        ) . '<br>';
+                        $kuet->cmid,
+                        $answer->feedback,
+                        1,
+                        $answer->id,
+                        $qbmc,
+                        'answerfeedback'
+                    ) . '<br>';
                 }
             } else {
                 $incorrectanswers[] = $answer->id;
-                if (!empty($answer->feedback) ) {
+                if (!empty($answer->feedback)) {
                     $incorrectanswersfeedback .= questions::get_text(
-                            $kuet->cmid, $answer->feedback, 1, $answer->id, $qbmc, 'answerfeedback'
-                        ) . '<br>';
+                        $kuet->cmid,
+                        $answer->feedback,
+                        1,
+                        $answer->id,
+                        $qbmc,
+                        'answerfeedback'
+                    ) . '<br>';
                 }
             }
         }
         $statmentfeedback = questions::get_text(
-            $kuet->cmid, $qbmc->generalfeedback, 1, $qbmc->id, $qbmc, 'generalfeedback'
+            $kuet->cmid,
+            $qbmc->generalfeedback,
+            1,
+            $qbmc->id,
+            $qbmc,
+            'generalfeedback'
         );
         $hasfeedback = !empty($statmentfeedback) || !empty($correctanswersfeedback);
 
         // User 1 answers a correct answer.
         self::setUser($student1);
         $user1answerids = implode(',', $correctanswers);
-        $data1 = \mod_kuet\external\multichoice_external::multichoice($user1answerids, $createdsid, $kuet->id,
-            $kuet->cmid, $mcq->id, $jmcq->get('id'), 10, false);
+        $data1 = \mod_kuet\external\multichoice_external::multichoice(
+            $user1answerids,
+            $createdsid,
+            $kuet->id,
+            $kuet->cmid,
+            $mcq->id,
+            $jmcq->get('id'),
+            10,
+            false
+        );
         $this->assertIsArray($data1);
         $this->assertArrayHasKey('reply_status', $data1);
         $this->assertArrayHasKey('hasfeedbacks', $data1);
@@ -147,8 +173,16 @@ class multichoice_external_test extends advanced_testcase {
         // User 2 answers an incorrect answer.
         self::setUser($student2);
         $user2answerids = implode(',', $incorrectanswers);
-        $data2 = \mod_kuet\external\multichoice_external::multichoice($user2answerids, $createdsid, $kuet->id,
-            $kuet->cmid, $mcq->id, $jmcq->get('id'), 10, false);
+        $data2 = \mod_kuet\external\multichoice_external::multichoice(
+            $user2answerids,
+            $createdsid,
+            $kuet->id,
+            $kuet->cmid,
+            $mcq->id,
+            $jmcq->get('id'),
+            10,
+            false
+        );
         $this->assertIsArray($data2);
         $this->assertArrayHasKey('reply_status', $data2);
         $this->assertArrayHasKey('hasfeedbacks', $data2);

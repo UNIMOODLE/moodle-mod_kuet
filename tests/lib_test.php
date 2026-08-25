@@ -45,15 +45,17 @@ use stdClass;
 
 /**
  * Library test class
+ *
+ * @covers ::kuet_core_calendar_provide_event_action
  */
-class lib_test extends advanced_testcase {
-
+final class lib_test extends advanced_testcase {
     /**
      * Set up
      *
      * @return void
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
         self::setAdminUser();
     }
@@ -65,14 +67,17 @@ class lib_test extends advanced_testcase {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function test_kuet_core_calendar_provide_event_action() {
+    public function test_kuet_core_calendar_provide_event_action(): void {
         // Create the activity.
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $kuet->id,
-            api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+        $event = $this->create_action_event(
+            $course->id,
+            $kuet->id,
+            api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED
+        );
 
         // Create an action factory.
         $factory = new action_factory();
@@ -95,7 +100,7 @@ class lib_test extends advanced_testcase {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function test_kuet_core_calendar_provide_event_action_as_non_user() {
+    public function test_kuet_core_calendar_provide_event_action_as_non_user(): void {
         global $CFG;
 
         // Create the activity.
@@ -103,8 +108,11 @@ class lib_test extends advanced_testcase {
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $kuet->id,
-                api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+        $event = $this->create_action_event(
+            $course->id,
+            $kuet->id,
+            api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED
+        );
 
         // Now log out.
         $CFG->forcelogin = true; // We don't want to be logged in as guest, as guest users might still have some capabilities.
@@ -127,7 +135,7 @@ class lib_test extends advanced_testcase {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function test_kuet_core_calendar_provide_event_action_in_hidden_section() {
+    public function test_kuet_core_calendar_provide_event_action_in_hidden_section(): void {
         // Create the activity.
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
@@ -136,8 +144,11 @@ class lib_test extends advanced_testcase {
         $student = self::getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $kuet->id,
-                api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+        $event = $this->create_action_event(
+            $course->id,
+            $kuet->id,
+            api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED
+        );
 
         // Set sections 0 as hidden.
         set_section_visible($course->id, 0, 0);
@@ -159,7 +170,7 @@ class lib_test extends advanced_testcase {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function test_kuet_core_calendar_provide_event_action_for_user() {
+    public function test_kuet_core_calendar_provide_event_action_for_user(): void {
         global $CFG;
 
         // Create the activity.
@@ -170,8 +181,11 @@ class lib_test extends advanced_testcase {
         $student = self::getDataGenerator()->create_and_enrol($course, 'student');
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $kuet->id,
-            api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+        $event = $this->create_action_event(
+            $course->id,
+            $kuet->id,
+            api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED
+        );
 
         // Now, log out.
         $CFG->forcelogin = true; // We don't want to be logged in as guest, as guest users might still have some capabilities.
@@ -198,22 +212,28 @@ class lib_test extends advanced_testcase {
      * @throws moodle_exception
      * @throws coding_exception
      */
-    public function test_kuet_core_calendar_provide_event_action_already_completed() {
+    public function test_kuet_core_calendar_provide_event_action_already_completed(): void {
         global $CFG;
 
         $CFG->enablecompletion = 1;
 
         // Create the activity.
         $course = self::getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id],
-            ['completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS]);
+        $kuet = self::getDataGenerator()->create_module(
+            'kuet',
+            ['course' => $course->id],
+            ['completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS]
+        );
 
         // Get some additional data.
         $cm = get_coursemodule_from_instance('kuet', $kuet->id);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $kuet->id,
-            api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+        $event = $this->create_action_event(
+            $course->id,
+            $kuet->id,
+            api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED
+        );
 
         // Mark the activity as completed.
         $completion = new completion_info($course);
@@ -236,15 +256,18 @@ class lib_test extends advanced_testcase {
      * @throws coding_exception
      * @throws moodle_exception
      */
-    public function test_kuet_core_calendar_provide_event_action_already_completed_for_user() {
+    public function test_kuet_core_calendar_provide_event_action_already_completed_for_user(): void {
         global $CFG;
 
         $CFG->enablecompletion = 1;
 
         // Create the activity.
         $course = self::getDataGenerator()->create_course(['enablecompletion' => 1]);
-        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id],
-                ['completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS]);
+        $kuet = self::getDataGenerator()->create_module(
+            'kuet',
+            ['course' => $course->id],
+            ['completion' => 2, 'completionview' => 1, 'completionexpected' => time() + DAYSECS]
+        );
 
         // Enrol a student in the course.
         $student = self::getDataGenerator()->create_and_enrol($course, 'student');
@@ -253,8 +276,11 @@ class lib_test extends advanced_testcase {
         $cm = get_coursemodule_from_instance('kuet', $kuet->id);
 
         // Create a calendar event.
-        $event = $this->create_action_event($course->id, $kuet->id,
-                api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+        $event = $this->create_action_event(
+            $course->id,
+            $kuet->id,
+            api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED
+        );
 
         // Mark the activity as completed for the student.
         $completion = new completion_info($course);

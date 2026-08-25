@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_single_structure;
@@ -48,7 +49,6 @@ use mod_kuet\persistents\kuet_sessions;
  * Get active session class
  */
 class getactivesession_external extends external_api {
-
     /**
      * Get active session parameters validation
      *
@@ -77,6 +77,11 @@ class getactivesession_external extends external_api {
             self::getactivesession_parameters(),
             ['cmid' => $cmid, 'kuetid' => $kuetid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_kuet_in_cm($kuetid, $cmid);
         $activessesion = kuet_sessions::get_active_session_id($kuetid);
         return [
             'active' => $activessesion,

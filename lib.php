@@ -92,6 +92,7 @@ function kuet_add_instance(stdClass $data): int {
     $record->introformat = $data->introformat;
     $record->teamgrade = isset($data->teamgrade) ?? $data->teamgrade;
     $record->grademethod = $data->grademethod;
+    $record->sessiongrademax = $data->sessiongrademax ?? get_config('core', 'gradepointmax');
     $record->completionanswerall = $data->completionanswerall ?? 0;
     $record->usermodified = $USER->id;
     $kuet = new kuet(0, $record);
@@ -130,6 +131,7 @@ function kuet_update_instance(stdClass $data): bool {
     $kuet->set('introformat', $data->introformat);
     $kuet->set('teamgrade', $teamgrade);
     $kuet->set('grademethod', $data->grademethod);
+    $kuet->set('sessiongrademax', $data->sessiongrademax ?? get_config('core', 'gradepointmax'));
     $kuet->set('completionanswerall', $data->completionanswerall ?? 0);
     $kuet->set('usermodified', $USER->id);
     $kuet->update();

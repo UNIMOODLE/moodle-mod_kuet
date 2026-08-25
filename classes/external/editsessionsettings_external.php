@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_course;
 use dml_exception;
 use core_external\external_api;
@@ -50,7 +51,6 @@ use mod_kuet\persistents\kuet_sessions;
  * Edit session settings class
  */
 class editsessionsettings_external extends external_api {
-
     /**
      * Edit session settings parameters validation
      *
@@ -85,6 +85,12 @@ class editsessionsettings_external extends external_api {
             self::editsession_parameters(),
             ['courseid' => $courseid, 'sessionid' => $sessionid, 'name' => $name, 'value' => $value]
         );
+
+        $context = modcontext::from_session($sessionid);
+        self::validate_context($context);
+        // The capability is checked below, and this function reports a refusal in
+        // its return value instead of throwing. What was missing was the context
+        // validation and the ownership check, not the authorisation itself.
         $coursecontext = context_course::instance($courseid);
         if ($coursecontext !== null && has_capability('mod/kuet:managesessions', $coursecontext, $USER)) {
             return [

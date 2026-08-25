@@ -64,7 +64,7 @@ $course = $DB->get_record('course', ['id' => $cid], '*', MUST_EXIST);
 $coursecontext = context_course::instance($course->id);
 require_login($course, false);
 
-$question = question_bank::load_question((int) $question->id);
+$question = question_bank::load_question((int) $question->id, 0);
 
 $view = new question_preview($kquestion->questionid, $kid, $id, $sid, $kuetid);
 $PAGE->set_context($coursecontext);

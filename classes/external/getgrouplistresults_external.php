@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use context_module;
+use mod_kuet\helpers\modcontext;
 use core_external\external_api;
 use core_external\external_function_parameters;
 use core_external\external_multiple_structure;
@@ -81,6 +82,11 @@ class getgrouplistresults_external extends external_api {
             self::getgrouplistresults_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
+        modcontext::require_session_in_cm($sid, $cmid);
         $groupresults = sessions::get_group_session_results($sid, $cmid);
 
         return ['groupresults' => $groupresults];
@@ -103,8 +109,10 @@ class getgrouplistresults_external extends external_api {
                         'partially' => new external_value(PARAM_INT, 'Num of partially correct answers'),
                         'grouppoints' => new external_value(PARAM_RAW, 'Total points of group'),
                         'groupposition' => new external_value(PARAM_INT, 'Group position depending on the points'),
-                    ], ''
-                ), ''
+                    ],
+                    ''
+                ),
+                ''
             ),
         ]);
     }

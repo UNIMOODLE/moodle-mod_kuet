@@ -43,7 +43,6 @@ use html_writer;
 use invalid_parameter_exception;
 use JsonException;
 use mod_kuet\api\grade;
-use mod_kuet\external\ddwtos_external;
 use mod_kuet\helpers\reports;
 use mod_kuet\persistents\kuet;
 use mod_kuet\persistents\kuet_questions;
@@ -94,7 +93,7 @@ class ddwtos extends questions implements questionType {
     public static function export_question(int $kid, int $cmid, int $sessionid, int $kuetid, bool $preview = false): object {
         $session = kuet_sessions::get_record(['id' => $sessionid]);
         $kuetquestion = kuet_questions::get_record(['id' => $kid]);
-        $question = question_bank::load_question($kuetquestion->get('questionid'));
+        $question = question_bank::load_question($kuetquestion->get('questionid'), 0);
         if (!assert($question instanceof qtype_ddwtos_question)) {
             throw new moodle_exception(
                 'question_nosuitable',
@@ -137,7 +136,7 @@ class ddwtos extends questions implements questionType {
             $responsedata->response = '';
         }
         $data->answered = true;
-        $dataanswer = ddwtos_external::ddwtos(
+        $dataanswer = self::answer(
             $data->sessionid,
             $data->kuetid,
             $data->cmid,
@@ -147,7 +146,7 @@ class ddwtos extends questions implements questionType {
             true,
             $responsedata->response
         );
-        $question = question_bank::load_question($data->questionid);
+        $question = question_bank::load_question($data->questionid, 0);
         if (!assert($question instanceof qtype_ddwtos_question)) {
             throw new moodle_exception(
                 'question_nosuitable',
@@ -593,7 +592,7 @@ class ddwtos extends questions implements questionType {
         $mark = 0;
         $kuet = new kuet($response->get('kuet'));
         [$course, $cm] = get_course_and_cm_from_instance($response->get('kuet'), 'kuet', $kuet->get('course'));
-        $question = question_bank::load_question($response->get('questionid'));
+        $question = question_bank::load_question($response->get('questionid'), 0);
         if (assert($question instanceof qtype_ddwtos_question)) {
             $question->shufflechoices = 0;
             questions::get_text(
@@ -631,5 +630,153 @@ class ddwtos extends questions implements questionType {
         $statistics[0]['partially'] = $partially !== 0 ? round($partially * 100 / $total, 2) : 0;
         $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse * 100 / $total, 2) : 0;
         return $statistics;
+    }
+    /**
+     * Grade and register an answer to a drag and drop into text question
+     *
+     * Internal counterpart of the ddwtos web service. Report rendering
+     * calls this directly, so that it never goes through the external API
+     * and its validate_context() in the middle of a page render.
+     *
+     * @param int $sessionid
+     * @param int $kuetid
+     * @param int $cmid
+     * @param int $questionid
+     * @param int $kid
+     * @param int $timeleft
+     * @param bool $preview
+     * @param string $response
+     * @throws JsonException
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     * @return array
+     */
+    public static function answer(
+        int $sessionid,
+        int $kuetid,
+        int $cmid,
+        int $questionid,
+        int $kid,
+        int $timeleft,
+        bool $preview,
+        string $response
+    ): array {
+        global $PAGE, $USER;
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
+
+        $session = new kuet_sessions($sessionid);
+        $question = question_bank::load_question($questionid, 0);
+        $result = questions::NORESPONSE;
+        if (assert($question instanceof qtype_ddwtos_question)) {
+            $statmentfeedback = questions::get_text(
+                $cmid,
+                $question->generalfeedback,
+                $question->generalfeedbackformat,
+                $question->id,
+                $question,
+                'generalfeedback'
+            );
+            $responsejson = json_decode($response, false);
+            $moodleresult = $question->grade_response((array)$responsejson);
+            $answerfeedback = '';
+            if (isset($moodleresult[1])) {
+                switch (get_class($moodleresult[1])) {
+                    case 'question_state_gradedwrong':
+                        $result = questions::FAILURE;
+                        $answerfeedback = questions::get_text(
+                            $cmid,
+                            $question->incorrectfeedback,
+                            $question->incorrectfeedbackformat,
+                            $question->id,
+                            $question,
+                            'feedback'
+                        );
+                        break;
+                    case 'question_state_gradedpartial':
+                        $result = questions::PARTIALLY;
+                        $answerfeedback = questions::get_text(
+                            $cmid,
+                            $question->partiallycorrectfeedback,
+                            $question->partiallycorrectfeedbackformat,
+                            $question->id,
+                            $question,
+                            'feedback'
+                        );
+                        break;
+                    case 'question_state_gradedright':
+                        $result = questions::SUCCESS;
+                        $answerfeedback = questions::get_text(
+                            $cmid,
+                            $question->correctfeedback,
+                            $question->correctfeedbackformat,
+                            $question->id,
+                            $question,
+                            'feedback'
+                        );
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if ($preview === false) {
+                $custom = [
+                    'responsetext' => $response,
+                    'result' => $result,
+                    'answerfeedback' => $answerfeedback,
+                ];
+                self::question_response(
+                    $cmid,
+                    $kid,
+                    $questionid,
+                    $sessionid,
+                    $kuetid,
+                    $statmentfeedback,
+                    $USER->id,
+                    $timeleft,
+                    $custom
+                );
+            }
+            $question = question_bank::load_question($questionid, 0);
+            if (!assert($question instanceof qtype_ddwtos_question)) {
+                throw new moodle_exception(
+                    'question_nosuitable',
+                    'mod_kuet',
+                    '',
+                    [],
+                    get_string('question_nosuitable', 'mod_kuet')
+                );
+            }
+            $questiontextfeedback = self::get_question_text(
+                $cmid,
+                $question,
+                (array)json_decode($response, false)
+            );
+            return [
+                'reply_status' => true,
+                'result' => $result,
+                'hasfeedbacks' => (bool)($statmentfeedback !== ''),
+                'statment_feedback' => $statmentfeedback,
+                'answer_feedback' => $answerfeedback,
+                'question_text_feedback' => base64_encode($questiontextfeedback),
+                'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+                'preview' => $preview,
+            ];
+        }
+
+        return [
+            'reply_status' => false,
+            'hasfeedbacks' => false,
+            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+            'preview' => $preview,
+        ];
     }
 }

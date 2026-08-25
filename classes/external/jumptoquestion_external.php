@@ -34,6 +34,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
@@ -61,7 +62,6 @@ use stdClass;
  * Jump to question class
  */
 class jumptoquestion_external extends external_api {
-
     /**
      * Jump to question parameters validation
      *
@@ -101,12 +101,21 @@ class jumptoquestion_external extends external_api {
             self::jumptoquestion_parameters(),
             ['cmid' => $cmid, 'sessionid' => $sessionid, 'position' => $position, 'manual' => $manual]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:startsession', $context);
+        modcontext::require_session_in_cm($sessionid, $cmid);
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $question = kuet_questions::get_question_by_position($sessionid, $position);
         if ($question !== false) {
             progress::set_progress(
-                $question->get('kuetid'), $sessionid, $USER->id, $cmid, $question->get('id')
+                $question->get('kuetid'),
+                $sessionid,
+                $USER->id,
+                $cmid,
+                $question->get('id')
             );
             /** @var questions $type */
             $type = questions::get_question_class_by_string_type($question->get('qtype'));
@@ -114,18 +123,23 @@ class jumptoquestion_external extends external_api {
                 $question->get('id'),
                 $cmid,
                 $sessionid,
-                $question->get('kuetid'));
+                $question->get('kuetid')
+            );
             $data->showstatistics = $type::show_statistics();
         } else {
             $session = new kuet_sessions($sessionid);
             $finishdata = new stdClass();
             $finishdata->endSession = 1;
             kuet_user_progress::add_progress(
-                $session->get('kuetid'), $sessionid, $USER->id, json_encode($finishdata, JSON_THROW_ON_ERROR)
+                $session->get('kuetid'),
+                $sessionid,
+                $USER->id,
+                json_encode($finishdata, JSON_THROW_ON_ERROR)
             );
             $data = sessions::export_endsession(
                 $cmid,
-                $sessionid);
+                $sessionid
+            );
         }
         $data->programmedmode = $manual === false;
         return (array)(new question_exporter($data, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_kuet'));

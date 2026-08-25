@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_kuet;
+
 /**
  * Active session test
  *
@@ -26,15 +28,17 @@
 
 /**
  * Active session test class
+ *
+ * @covers \mod_kuet\external\activesession_external
  */
-class activesession_external_test extends advanced_testcase {
+final class activesession_external_test extends \advanced_testcase {
     /**
      * Test active session
      *
      * @return void
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws invalid_parameter_exception
+     * @throws \coding_exception
+     * @throws \invalid_parameter_exception
      */
     public function test_activesession(): void {
         $this->resetAfterTest(true);

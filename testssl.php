@@ -50,6 +50,13 @@ echo $OUTPUT->heading(get_string('testssl', 'mod_kuet'));
 
 $action = optional_param('action', '', PARAM_ALPHA);
 
+// Starting and stopping the server changes state, so it cannot be reachable
+// through a plain link: an administrator following a crafted URL would kill
+// the WebSocket server of a live session.
+if ($action !== '') {
+    require_sesskey();
+}
+
 if (get_config('kuet', 'sockettype') === 'local') {
     $pid = mod_kuet_get_server_pid();
     // Kills the server if action=stop.
@@ -67,9 +74,17 @@ if (get_config('kuet', 'sockettype') === 'local') {
     $pid = mod_kuet_get_server_pid();
     // Just show server status.
     if ($pid) {
-        \core\notification::success(get_string('serverrunning', 'mod_kuet', $pid));
+        $stopurl = new moodle_url('/mod/kuet/testssl.php', ['action' => 'stop', 'sesskey' => sesskey()]);
+        \core\notification::success(
+            get_string('serverrunning', 'mod_kuet', $pid) . ' ' .
+            html_writer::link($stopurl, get_string('killlocalserver', 'mod_kuet'))
+        );
     } else {
-        \core\notification::error(get_string('serveroffline', 'mod_kuet'));
+        $starturl = new moodle_url('/mod/kuet/testssl.php', ['action' => 'start', 'sesskey' => sesskey()]);
+        \core\notification::error(
+            get_string('serveroffline', 'mod_kuet') . ' ' .
+            html_writer::link($starturl, get_string('startlocalserver', 'mod_kuet'))
+        );
     }
 }
 

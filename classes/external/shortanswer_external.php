@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use core\invalid_persistent_exception;
 use dml_exception;
@@ -53,14 +54,14 @@ use moodle_exception;
 use qtype_shortanswer_question;
 use question_bank;
 
-
-require_once($CFG->dirroot. '/question/engine/bank.php');
+defined('MOODLE_INTERNAL') || die();
+global $CFG;
+require_once($CFG->dirroot . '/question/engine/bank.php');
 
 /**
  * Short answer type class
  */
 class shortanswer_external extends external_api {
-
     /**
      * Short answer type parameters validation
      *
@@ -111,7 +112,6 @@ class shortanswer_external extends external_api {
         int $timeleft,
         bool $preview
     ): array {
-        global $PAGE, $USER;
         self::validate_parameters(
             self::shortanswer_parameters(),
             [
@@ -125,77 +125,13 @@ class shortanswer_external extends external_api {
                 'preview' => $preview,
             ]
         );
-        $contextmodule = context_module::instance($cmid);
-        $PAGE->set_context($contextmodule);
 
-        $session = new kuet_sessions($sessionid);
-        $question = question_bank::load_question($questionid);
-        $result = questions::FAILURE;
-        $answerfeedback = '';
-        if (assert($question instanceof qtype_shortanswer_question)) {
-            $statmentfeedback = questions::get_text(
-                $cmid, $question->generalfeedback, $question->generalfeedbackformat, $question->id, $question, 'generalfeedback'
-            );
-            $possibleanswers = '';
-            foreach ($question->answers as $answer) {
-                $possibleanswers .= $answer->answer . ' / ';
-                $overlap = (int)$question->usecase === 0 ?
-                    (strcasecmp($responsetext, $answer->answer) === 0) : // Uppercase and lowercase letters are the same.
-                    (strcmp($responsetext, $answer->answer) === 0); // Uppercase and lowercase letters must match.
-                if ($overlap === true) {
-                    if ($answer->fraction === '1.0000000') {
-                        $result = questions::SUCCESS;
-                    } else if ($answer->fraction === '0.0000000' ) {
-                        $result = questions::FAILURE;
-                    } else {
-                        $result = questions::PARTIALLY;
-                    }
-                    $answerfeedback = questions::get_text(
-                        $cmid, $answer->feedback, $answer->feedbackformat, $question->id, $question, 'feedback'
-                    );
-                }
-            }
-            if ($preview === false) {
-                $custom = [
-                    'responsetext' => $responsetext,
-                    'result' => $result,
-                    'answerfeedback' => $answerfeedback,
-                ];
-                shortanswer::question_response(
-                    $cmid,
-                    $kid,
-                    $questionid,
-                    $sessionid,
-                    $kuetid,
-                    $statmentfeedback,
-                    $USER->id,
-                    $timeleft,
-                    $custom
-                );
-            }
-            return [
-                'reply_status' => true,
-                'result' => $result,
-                'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
-                'statment_feedback' => $statmentfeedback,
-                'answer_feedback' => $answerfeedback,
-                'possibleanswers' => rtrim($possibleanswers, '/ '),
-                'shortanswerresponse' => $responsetext,
-                'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
-                    $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
-                    $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
-                'preview' => $preview,
-            ];
-        }
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_session_in_cm($sessionid, $cmid);
 
-        return [
-            'reply_status' => false,
-            'hasfeedbacks' => false,
-            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
-                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
-                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
-            'preview' => $preview,
-        ];
+        return shortanswer::answer($responsetext, $sessionid, $kuetid, $cmid, $questionid, $kid, $timeleft, $preview);
     }
 
     /**

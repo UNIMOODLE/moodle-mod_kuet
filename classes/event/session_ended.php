@@ -42,7 +42,6 @@ use core\event\base;
  * Session ended event class
  */
 class session_ended extends base {
-
     /**
      * Init method.
      *

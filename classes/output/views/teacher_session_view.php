@@ -36,7 +36,6 @@ namespace mod_kuet\output\views;
 use coding_exception;
 use core\invalid_persistent_exception;
 use dml_exception;
-use mod_kuet\external\sessionquestions_external;
 use mod_kuet\models\questions;
 use mod_kuet\models\sessions;
 use mod_kuet\persistents\kuet_sessions;
@@ -130,7 +129,7 @@ class teacher_session_view implements renderable, templatable {
                 $allquestions = (new questions($kuet->id, $data->cmid, $data->sid))->get_list();
                 $questiondata = [];
                 foreach ($allquestions as $question) {
-                    $questionexport = sessionquestions_external::export_question($question, $data->cmid);
+                    $questionexport = questions::export_session_question($question, $data->cmid);
                     $questionexport->managesessions = false;
                     $questiondata[] = $questionexport;
                 }

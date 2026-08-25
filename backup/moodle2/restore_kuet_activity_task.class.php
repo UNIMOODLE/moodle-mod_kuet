@@ -40,14 +40,12 @@ require_once($CFG->dirroot . '/mod/kuet/backup/moodle2/restore_kuet_stepslib.php
  * Kuet restore task that provides all the settings and steps to perform one complete restore of the activity
  */
 class restore_kuet_activity_task extends restore_activity_task {
-
     /**
      * This should define settings. Not used at the moment.
      *
      * @return void
      */
     protected function define_my_settings() {
-
     }
 
     /**
@@ -100,5 +98,4 @@ class restore_kuet_activity_task extends restore_activity_task {
     public static function define_restore_log_rules_for_course() {
         return [];
     }
-
 }

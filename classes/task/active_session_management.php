@@ -112,8 +112,9 @@ class active_session_management extends scheduled_task {
                             $session->get('status') === sessions::SESSION_ACTIVE)
                     ) {
                         // We end the session if you have complied.
-                        (new kuet_sessions($session->get('id')))->set('status', sessions::SESSION_FINISHED)->update();
-                        (new kuet_sessions($session->get('id')))->set('enddate', time())->update();
+                        $session->set('status', sessions::SESSION_FINISHED)->update();
+                        $session->set('enddate', time())->update();
+                        $session->update();
                         $a->sessionid = $session->get('id');
                         $a->kuetid = $session->get('kuetid');
                         mtrace(get_string('sessionfinished', 'mod_kuet', $a));

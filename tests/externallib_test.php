@@ -52,9 +52,10 @@ require_once($CFG->dirroot . '/webservice/tests/helpers.php');
 
 /**
  * External library test class
+ *
+ * @covers \mod_kuet_external
  */
-class externallib_test extends externallib_advanced_testcase {
-
+final class externallib_test extends externallib_advanced_testcase {
     /**
      * Get kuet instances by courses
      *
@@ -66,7 +67,7 @@ class externallib_test extends externallib_advanced_testcase {
      * @throws invalid_response_exception
      * @throws stored_file_creation_exception
      */
-    public function test_mod_kuet_get_kuets_by_courses() {
+    public function test_mod_kuet_get_kuets_by_courses(): void {
         global $DB;
 
         $this->resetAfterTest(true);

@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use dml_exception;
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -81,6 +82,11 @@ class getsessionresume_external extends external_api {
             self::getsessionresume_parameters(),
             ['sid' => $sid, 'cmid' => $cmid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:managesessions', $context);
+        modcontext::require_session_in_cm($sid, $cmid);
         return ['config' => sessions::get_session_config($sid, $cmid)];
     }
 
@@ -97,8 +103,10 @@ class getsessionresume_external extends external_api {
                         'iconconfig'   => new external_value(PARAM_RAW, 'Name of icon'),
                         'configname' => new external_value(PARAM_RAW, 'Num of config'),
                         'configvalue' => new external_value(PARAM_RAW, 'HTML for config value'),
-                    ], ''
-                ), ''
+                    ],
+                    ''
+                ),
+                ''
             ),
         ]);
     }

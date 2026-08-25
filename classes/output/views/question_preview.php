@@ -42,10 +42,10 @@ use mod_kuet\models\questions;
 use mod_kuet\persistents\kuet_questions;
 use moodle_exception;
 use ReflectionException;
-use core\output\renderable;
+use renderable;
 use stdClass;
-use core\output\templatable;
-use core\output\renderer_base;
+use templatable;
+use renderer_base;
 
 /**
  * Question preview renderable class

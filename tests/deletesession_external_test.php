@@ -48,8 +48,10 @@ require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
 
 /**
  * Delete session test class
+ *
+ * @covers \mod_kuet\external\deletesession_external
  */
-class deletesession_external_test extends advanced_testcase {
+final class deletesession_external_test extends advanced_testcase {
     /**
      * @var array session mockup
      */

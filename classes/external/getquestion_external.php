@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use coding_exception;
+use mod_kuet\helpers\modcontext;
 use context_module;
 use dml_exception;
 use dml_transaction_exception;
@@ -58,7 +59,6 @@ use ReflectionException;
  * Get question class
  */
 class getquestion_external extends external_api {
-
     /**
      * Get question parameters validation
      *
@@ -95,6 +95,11 @@ class getquestion_external extends external_api {
             self::getquestion_parameters(),
             ['cmid' => $cmid, 'sid' => $sessionid, 'kid' => $kid]
         );
+
+        $context = modcontext::from_cmid($cmid);
+        self::validate_context($context);
+        require_capability('mod/kuet:view', $context);
+        modcontext::require_session_in_cm($sessionid, $cmid);
         $contextmodule = context_module::instance($cmid);
         $PAGE->set_context($contextmodule);
         $session = new kuet_sessions($sessionid);
@@ -104,8 +109,11 @@ class getquestion_external extends external_api {
         $type = questions::get_question_class_by_string_type($kquestion->get('qtype'));
         $question = $type::export_question($kid, $cmid, $sessionid, $session->get('kuetid'), true);
         $session = new kuet_sessions($sessionid);
-        $question->programmedmode = in_array($session->get('sessionmode'),
-            [sessions::PODIUM_PROGRAMMED, sessions::INACTIVE_PROGRAMMED, sessions::RACE_PROGRAMMED], true);
+        $question->programmedmode = in_array(
+            $session->get('sessionmode'),
+            [sessions::PODIUM_PROGRAMMED, sessions::INACTIVE_PROGRAMMED, sessions::RACE_PROGRAMMED],
+            true
+        );
         return (array)(new question_exporter($question, ['context' => $contextmodule]))->export($PAGE->get_renderer('mod_kuet'));
     }
 

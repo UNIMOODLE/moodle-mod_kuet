@@ -44,9 +44,6 @@ use Exception;
 use invalid_parameter_exception;
 use mod_kuet\api\grade;
 use mod_kuet\api\groupmode;
-use mod_kuet\external\getfinalranking_external;
-use mod_kuet\external\sessionquestions_external;
-use mod_kuet\external\sessionstatus_external;
 use mod_kuet\forms\sessionform;
 use mod_kuet\persistents\kuet;
 use mod_kuet\persistents\kuet_questions;
@@ -287,6 +284,7 @@ class sessions {
             'anonymousanswer' => $session->get('anonymousanswer'),
             'sessionmode' => $session->get('sessionmode'),
             'sgrade' => $session->get('sgrade'),
+            'mandatoryattendance' => $session->get('mandatoryattendance'),
             'countdown' => $session->get('countdown'),
             'showgraderanking' => $session->get('showgraderanking'),
             'randomquestions' => $session->get('randomquestions'),
@@ -329,7 +327,7 @@ class sessions {
         $allquestions = (new questions($data->kuetid, $data->cmid, $data->sid))->get_list();
         $questiondata = [];
         foreach ($allquestions as $question) {
-            $questiondata[] = sessionquestions_external::export_question($question, $this->cmid);
+            $questiondata[] = questions::export_session_question($question, $this->cmid);
         }
         $data->sessionquestions = $questiondata;
         $data->resumeurl =
@@ -361,6 +359,10 @@ class sessions {
         }
         $contextslist = implode(', ', $pcontexts);
         $categoriesofcontext = helper::get_categories_for_contexts($contextslist, 'parent, sortorder, name ASC', true);
+        // No valid "categoryid,contextid" category: nothing to list.
+        if (strpos($category, ',') === false) {
+            return [];
+        }
         [$realcategory, $contextcategory] = explode(',', $category);
         foreach ($categoriesofcontext as $categoryobject) {
             if (
@@ -451,13 +453,16 @@ class sessions {
             -1,
             false
         );
-        $currentcategory = [];
+        // Pick the first available category across all option groups. Some groups
+        // may be empty, so scan until a key is found instead of stopping at the
+        // first group (which could leave $currentcategory as an array and break
+        // get_questions_for_category(), which expects a "categoryid,contextid" string).
+        $currentcategory = '';
         foreach ($categoriesarray as $sistemcategory) {
             foreach ($sistemcategory as $key => $category) {
                 $currentcategory = $key;
-                break;
+                break 2;
             }
-            break;
         }
         return [$currentcategory, helper::question_category_select_menu(
             $contexts,
@@ -487,7 +492,7 @@ class sessions {
         $allquestions = (new questions($data->kuetid, $data->cmid, $data->sid))->get_list();
         $questiondata = [];
         foreach ($allquestions as $question) {
-            $questiondata[] = sessionquestions_external::export_question($question, $this->cmid);
+            $questiondata[] = questions::export_session_question($question, $this->cmid);
         }
         $data->sessionquestions = $questiondata;
         $data->addquestions =
@@ -631,6 +636,23 @@ class sessions {
             'configname' => get_string('timemode', 'mod_kuet'),
             'configvalue' => $timemodestring,
         ];
+
+        // Whether the session counts towards the activity grade (sgrade), and if
+        // so whether attendance is mandatory (KUETEDUCAM-72).
+        $isgradable = (int) $sessiondata->get('sgrade') !== self::GM_DISABLED;
+        $data[] = [
+            'iconconfig' => 'grademethod',
+            'configname' => get_string('sgrade', 'mod_kuet'),
+            'configvalue' => $isgradable ? get_string('yes') : get_string('no'),
+        ];
+        if ($isgradable) {
+            $data[] = [
+                'iconconfig' => 'users',
+                'configname' => get_string('mandatoryattendance', 'mod_kuet'),
+                'configvalue' => (int) $sessiondata->get('mandatoryattendance') === 1
+                    ? get_string('yes') : get_string('no'),
+            ];
+        }
 
         return $data;
     }
@@ -900,6 +922,12 @@ class sessions {
         if (!isset($data->sgrade)) {
             $data->sgrade = 0;
         }
+        // Unchecked attendance checkbox is absent: store 0 (non-mandatory). The
+        // checkbox is only rendered when grading is on, so an absent value here
+        // means the teacher unchecked it.
+        if (!isset($data->mandatoryattendance)) {
+            $data->mandatoryattendance = 0;
+        }
         if (!isset($data->countdown)) {
             $data->countdown = 0;
         }
@@ -1068,6 +1096,52 @@ class sessions {
     }
 
     /**
+     * Build the end-of-session ranking payload
+     *
+     * Internal counterpart of the getfinalranking web service: the same data,
+     * without the external API wrapper, so that page code can build it without
+     * going through validate_context() in the middle of a render.
+     *
+     * @param int $sid
+     * @param int $cmid
+     * @return array
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public static function get_final_ranking_data(int $sid, int $cmid): array {
+        $session = kuet_sessions::get_record(['id' => $sid]);
+        $questions = new questions($session->get('kuetid'), $cmid, $sid);
+        $contextmodule = context_module::instance($cmid);
+        $ranking = self::get_final_ranking($sid, $cmid);
+        $finalranking = $ranking;
+        unset($finalranking[0], $finalranking[1], $finalranking[2]);
+        $finalranking = array_values($finalranking);
+        foreach ($finalranking as $key => $userforranking) {
+            $finalranking[$key]->userpoints = $userforranking->userpoints ? (string)$userforranking->userpoints : '';
+        }
+        return [
+            'finalranking' => $finalranking,
+            'firstuserimageurl' => $ranking[0]->userimageurl ?? '',
+            'firstuserfullname' => $ranking[0]->userfullname ?? '',
+            'firstuserpoints' => $ranking[0]->userpoints ? (string)$ranking[0]->userpoints : '',
+            'seconduserimageurl' => $ranking[1]->userimageurl ?? '',
+            'seconduserfullname' => $ranking[1]->userfullname ?? '',
+            'seconduserpoints' => $ranking[1]->userpoints ? (string)$ranking[1]->userpoints : '',
+            'thirduserimageurl' => $ranking[2]->userimageurl ?? '',
+            'thirduserfullname' => $ranking[2]->userfullname ?? '',
+            'thirduserpoints' => $ranking[2]->userpoints ? (string)$ranking[2]->userpoints : '',
+            'sessionid' => $sid,
+            'cmid' => $cmid,
+            'kuetid' => $session->get('kuetid'),
+            'numquestions' => $questions->get_num_questions(),
+            'ranking' => true,
+            'endsession' => true,
+            'reporturl' => (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false),
+            'isteacher' => has_capability('mod/kuet:startsession', $contextmodule),
+        ];
+    }
+
+    /**
      * Get final ranking
      *
      * @param int $sid
@@ -1215,7 +1289,7 @@ class sessions {
                 if ((int)$session->get('showfinalgrade') === 0) {
                     $data = self::get_normal_endsession($data);
                 } else {
-                    $data = (object)getfinalranking_external::getfinalranking($sessionid, $cmid);
+                    $data = (object)self::get_final_ranking_data($sessionid, $cmid);
                     $data = self::get_normal_endsession($data);
                     $data->endsession = true;
                     $data->ranking = true;
@@ -1267,7 +1341,7 @@ class sessions {
      */
     public static function set_session_status_error(kuet_sessions $sessions, string $errorcode) {
         // Change status.
-        sessionstatus_external::sessionstatus($sessions->get('id'), self::SESSION_ERROR);
+        kuet_sessions::update_status($sessions->get('id'), self::SESSION_ERROR);
         // Remove all the answers of this session.
         $kquestions = kuet_questions::get_records(['sessionid' => $sessions->get('id')]);
         foreach ($kquestions as $kquestion) {

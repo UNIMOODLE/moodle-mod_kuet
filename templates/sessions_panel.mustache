@@ -30,7 +30,9 @@
     * None
 
     Data attibutes required for JS:
-    * None
+    * data-sockettype
+    * data-socketurl
+    * data-socketport
 
     Context variables required for this template:
     * none
@@ -39,7 +41,13 @@
     {
     }
 }}
-<div data-region="sessions-panel" data-courseid="{{courseid}}" data-cmid="{{cmid}}">
+<div data-region="sessions-panel" data-courseid="{{courseid}}" data-cmid="{{cmid}}"
+     data-sockettype="{{sockettype}}" data-socketurl="{{socketurl}}" data-socketport="{{socketport}}">
+    {{#hassocket}}
+        <div data-region="socket-connection-warning" class="alert alert-warning d-none" role="alert">
+            {{#str}}sockettestfailed, mod_kuet{{/str}} {{#str}}info_4, mod_kuet{{/str}}
+        </div>
+    {{/hassocket}}
     <div class="position-relative">
         <h2>{{#str}}sessions, mod_kuet{{/str}}</h2>
         <small>{{#str}}sessions_info, mod_kuet{{/str}}</small>
@@ -71,9 +79,14 @@
                     {{#pix}} i/sessions_list, mod_kuet {{/pix}}
                     <h6>{{#str}}active_sessions, mod_kuet{{/str}}</h6>
                 </div>
-                <a class="btn btn-secondary create-session text-primary border-0" href="{{createsessionurl}}">
-                    {{#str}}create_session, mod_kuet{{/str}}
-                </a>
+                <div>
+                <span class="btn btn-secondary see-info text-primary border-0" data-action="see_info">
+                    <i class="icon fa fa-info-circle m-0" aria-hidden="true"></i>
+                </span>
+                    <a class="btn btn-secondary create-session text-primary border-0" href="{{createsessionurl}}">
+                        {{#str}}create_session, mod_kuet{{/str}}
+                    </a>
+                </div>
             </div>
             <div class="content_table">
                 <div class="sessions-list-body d-table">
@@ -226,6 +239,11 @@
                                         <div class="session-action" data-action="delete_session" data-sessionid="{{sessionid}}">
                                             {{#pix}} i/delete_session, mod_kuet, {{#str}}delete_session, mod_kuet{{/str}} {{/pix}}
                                         </div>
+                                        {{#caneditgrades}}
+                                        <a class="session-action" href="{{editgradesurl}}" title="{{#str}}editgrades, mod_kuet{{/str}}">
+                                            <i class="icon fa fa-pencil m-0" aria-hidden="true"></i>
+                                        </a>
+                                        {{/caneditgrades}}
                                     </div>
                                     <div class="dropdown show mobile-content-actions">
                                         <a class="dropdown-toggle" href="#" role="button" id="actions-{{id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -238,8 +256,22 @@
                                             <a class="dropdown-item" href="#"  data-action="delete_session" data-sessionid="{{sessionid}}">
                                                 {{#str}}delete_session, mod_kuet{{/str}}
                                             </a>
+                                            {{#caneditgrades}}
+                                            <a class="dropdown-item" href="{{editgradesurl}}">
+                                                {{#str}}editgrades, mod_kuet{{/str}}
+                                            </a>
+                                            {{/caneditgrades}}
                                         </div>
                                     </div>
+                                {{/managesessions}}
+                                {{^managesessions}}
+                                    {{#caneditgrades}}
+                                    <div class="content-actions">
+                                        <a class="session-action" href="{{editgradesurl}}" title="{{#str}}editgrades, mod_kuet{{/str}}">
+                                            <i class="icon fa fa-pencil m-0" aria-hidden="true"></i>
+                                        </a>
+                                    </div>
+                                    {{/caneditgrades}}
                                 {{/managesessions}}
                             </div>
                             <div class="d-table-cell viewreport-session">

@@ -36,8 +36,8 @@
 import jQuery from 'jquery';
 import {get_strings as getStrings} from 'core/str';
 import Notification from 'core/notification';
-import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
+import ModalCancel from 'core/modal_cancel';
 
 let REGION = {
     CONTROLPANEL: '[data-region="teacher_control_panel"]', // This root.
@@ -184,10 +184,9 @@ TeacherControlPanel.prototype.jump = function() {
             {key: 'confirm', component: 'mod_kuet'}
         ];
         getStrings(stringkeys).then((langStrings) => {
-            return ModalFactory.create({
+            return ModalCancel.create({
                 title: langStrings[0],
                 body: langStrings[1],
-                type: ModalFactory.types.CANCEL
             }).then(modal => {
                 modal.getRoot().on(ModalEvents.hidden, () => {
                     jQuery(REGION.JUMPTOINPUT).val('');

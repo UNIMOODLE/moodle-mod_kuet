@@ -42,10 +42,10 @@ use mod_kuet\helpers\reports;
 use mod_kuet\kuet;
 use moodle_exception;
 use moodle_url;
-use core\output\renderable;
-use core\output\renderer_base;
+use renderable;
+use renderer_base;
 use stdClass;
-use core\output\templatable;
+use templatable;
 
 /**
  *  Student reports renderable class
@@ -102,7 +102,14 @@ class student_reports implements renderable, templatable {
                     '/mod/kuet/reports.php',
                     ['cmid' => $this->cmid, 'sid' => $endedsession->sessionid, 'userid' => $USER->id]
                 ))->out(false);
-                $data->score = round(grade::get_session_grade($USER->id, $endedsession->sessionid, $this->kuetid), 2);
+                // Default for sessions excluded from the student's grade
+                // (KUETEDUCAM-72): a 0 would be misleading. Overwritten below
+                // when the session counts.
+                $endedsession->score = '-';
+                if (grade::session_counts_for_user($USER->id, (int) $endedsession->sessionid, $this->kuetid)) {
+                    $endedsession->score =
+                        round(grade::get_session_grade($USER->id, (int) $endedsession->sessionid, $this->kuetid), 2);
+                }
             }
         } else {
             $data = reports::get_student_report($this->cmid, $this->sid);

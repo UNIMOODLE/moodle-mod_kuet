@@ -43,7 +43,6 @@ use invalid_parameter_exception;
 use JsonException;
 use mod_kuet\api\grade;
 use mod_kuet\api\groupmode;
-use mod_kuet\external\shortanswer_external;
 use mod_kuet\helpers\reports;
 use mod_kuet\persistents\kuet_questions;
 use mod_kuet\persistents\kuet_questions_responses;
@@ -135,7 +134,7 @@ class shortanswer extends questions implements questionType {
             $responsedata->response = '';
         }
         $data->answered = true;
-        $dataanswer = shortanswer_external::shortanswer(
+        $dataanswer = self::answer(
             $responsedata->response,
             $data->sessionid,
             $data->kuetid,
@@ -189,19 +188,7 @@ class shortanswer extends questions implements questionType {
         foreach ($questiondata->answers as $key => $answer) {
             $answers[$key]['answertext'] = $answer->answer;
             $answers[$key]['answerid'] = $answer->id;
-            if ($answer->fraction === '0.0000000' || strpos($answer->fraction, '-') === 0) {
-                $answers[$key]['result'] = 'incorrect';
-                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_kuet');
-                $answers[$key]['fraction'] = round($answer->fraction, 2);
-                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
-                    'class' => 'icon',
-                    'title' => get_string('incorrect', 'mod_kuet'),
-                ]);
-                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
-                    'class' => 'icon',
-                    'title' => '',
-                ]);
-            } else if ($answer->fraction === '1.0000000') {
+            if ((int)$answer->fraction === 1) {
                 $answers[$key]['result'] = 'correct';
                 $answers[$key]['resultstr'] = get_string('correct', 'mod_kuet');
                 $answers[$key]['fraction'] = '1';
@@ -213,7 +200,7 @@ class shortanswer extends questions implements questionType {
                     'class' => 'icon',
                     'title' => '',
                 ]);
-            } else {
+            } else if ($answer->fraction > 0) {
                 $answers[$key]['result'] = 'partially';
                 $answers[$key]['resultstr'] = get_string('partially_correct', 'mod_kuet');
                 $answers[$key]['fraction'] = round($answer->fraction, 2);
@@ -225,11 +212,23 @@ class shortanswer extends questions implements questionType {
                     'class' => 'icon',
                     'title' => '',
                 ]);
+            } else {
+                $answers[$key]['result'] = 'incorrect';
+                $answers[$key]['resultstr'] = get_string('incorrect', 'mod_kuet');
+                $answers[$key]['fraction'] = round($answer->fraction, 2);
+                $icon = new pix_icon('i/incorrect', get_string('incorrect', 'mod_kuet'), 'mod_kuet', [
+                        'class' => 'icon',
+                        'title' => get_string('incorrect', 'mod_kuet'),
+                ]);
+                $usersicon = new pix_icon('i/incorrect_users', '', 'mod_kuet', [
+                        'class' => 'icon',
+                        'title' => '',
+                ]);
             }
-            $answers[$key]['resulticon'] = $icon->export_for_pix();
+                $answers[$key]['resulticon'] = $icon->export_for_pix();
             $answers[$key]['usersicon'] = $usersicon->export_for_pix();
             $answers[$key]['numticked'] = 0;
-            if ($answer->fraction !== '0.0000000') { // Answers with punctuation, even if negative.
+            if ($answer->fraction < 1) { // Answers with punctuation, even if negative.
                 $correctanswers[$key]['response'] = $answer->answer;
                 $correctanswers[$key]['score'] = grade::get_rounded_mark($questiondata->defaultmark * $answer->fraction);
             }
@@ -398,5 +397,120 @@ class shortanswer extends questions implements questionType {
         $statistics[0]['partially'] = $partially !== 0 ? round($partially * 100 / $total, 2) : 0;
         $statistics[0]['noresponse'] = $noresponse !== 0 ? round($noresponse * 100 / $total, 2) : 0;
         return $statistics;
+    }
+    /**
+     * Grade and register an answer to a short answer question
+     *
+     * Internal counterpart of the shortanswer web service. Report rendering
+     * calls this directly, so that it never goes through the external API
+     * and its validate_context() in the middle of a page render.
+     *
+     * @param string $responsetext
+     * @param int $sessionid
+     * @param int $kuetid
+     * @param int $cmid
+     * @param int $questionid
+     * @param int $kid
+     * @param int $timeleft
+     * @param bool $preview
+     * @throws JsonException
+     * @throws invalid_persistent_exception
+     * @throws moodle_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws dml_transaction_exception
+     * @throws invalid_parameter_exception
+     * @return array
+     */
+    public static function answer(
+        string $responsetext,
+        int $sessionid,
+        int $kuetid,
+        int $cmid,
+        int $questionid,
+        int $kid,
+        int $timeleft,
+        bool $preview
+    ): array {
+        global $PAGE, $USER;
+        $contextmodule = context_module::instance($cmid);
+        $PAGE->set_context($contextmodule);
+
+        $session = new kuet_sessions($sessionid);
+        $question = question_bank::load_question($questionid);
+        if (assert($question instanceof qtype_shortanswer_question)) {
+            $statmentfeedback = questions::get_text(
+                $cmid,
+                $question->generalfeedback,
+                $question->generalfeedbackformat,
+                $question->id,
+                $question,
+                'generalfeedback'
+            );
+            $possibleanswers = '';
+            foreach ($question->answers as $answer) {
+                // Cast before comparing: see the note in multichoice::answer().
+                if ((float)$answer->fraction === 1.0) {
+                    $possibleanswers .= $answer->answer . ' / ';
+                }
+            }
+            $response = ['answer' => $responsetext];
+            [$fraction, $notused] = $question->grade_response($response);
+            $answerfeedback = questions::get_text(
+                $cmid,
+                $question->generalfeedback,
+                $question->generalfeedbackformat,
+                $question->id,
+                $question,
+                'feedback'
+            );
+            if ($fraction >= 1.0) {
+                $result = questions::SUCCESS;
+            } else if ($fraction > 0) {
+                $result = questions::PARTIALLY;
+            } else {
+                $result = questions::FAILURE;
+            }
+            // Save answer in DB.
+            if ($preview === false) {
+                $custom = [
+                    'responsetext' => $responsetext,
+                    'result' => $result,
+                    'answerfeedback' => $answerfeedback,
+                ];
+                self::question_response(
+                    $cmid,
+                    $kid,
+                    $questionid,
+                    $sessionid,
+                    $kuetid,
+                    $statmentfeedback,
+                    $USER->id,
+                    $timeleft,
+                    $custom
+                );
+            }
+            return [
+                'reply_status' => true,
+                'result' => $result,
+                'hasfeedbacks' => (bool)($statmentfeedback !== '' | $answerfeedback !== ''),
+                'statment_feedback' => $statmentfeedback,
+                'answer_feedback' => $answerfeedback,
+                'possibleanswers' => rtrim($possibleanswers, '/ '),
+                'shortanswerresponse' => $responsetext,
+                'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                    $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+                'preview' => $preview,
+            ];
+        }
+        return [
+            'reply_status' => false,
+            'hasfeedbacks' => false,
+            'programmedmode' => ($session->get('sessionmode') === sessions::PODIUM_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::INACTIVE_PROGRAMMED ||
+                $session->get('sessionmode') === sessions::RACE_PROGRAMMED),
+            'preview' => $preview,
+        ];
     }
 }

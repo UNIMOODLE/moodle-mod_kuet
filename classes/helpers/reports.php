@@ -58,7 +58,6 @@ use user_picture;
  * Reports helper class
  */
 class reports {
-
     /**
      * @var string question report
      */
@@ -128,7 +127,11 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_questions_data_for_teacher_report_groups(
-        kuet_questions $question, int $kuetid, int $cmid, kuet_sessions $session): stdClass {
+        kuet_questions $question,
+        int $kuetid,
+        int $cmid,
+        kuet_sessions $session
+    ): stdClass {
         global $DB;
         $groupmembers = groupmode::get_one_member_of_each_grouping_group($session->get('groupings'));
         $questiondb = $DB->get_record('question', ['id' => $question->get('questionid')], '*', MUST_EXIST);
@@ -176,7 +179,8 @@ class reports {
         if ($type::is_evaluable()) {
             $data->isevaluable = true;
         }
-        $data->questionreporturl = (new moodle_url('/mod/kuet/reports.php',
+        $data->questionreporturl = (new moodle_url(
+            '/mod/kuet/reports.php',
             ['cmid' => $cmid, 'sid' => $session->get('id'), 'kid' => $question->get('id')]
         ))->out(false);
         return $data;
@@ -195,7 +199,10 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_questions_data_for_teacher_report_individual(
-        kuet_questions $question, int $kuetid, int $cmid, kuet_sessions $session
+        kuet_questions $question,
+        int $kuetid,
+        int $cmid,
+        kuet_sessions $session
     ): stdClass {
         global $DB;
         $kuet = new kuet($kuetid);
@@ -242,7 +249,8 @@ class reports {
         if ($type::is_evaluable()) {
             $data->isevaluable = true;
         }
-        $data->questionreporturl = (new moodle_url('/mod/kuet/reports.php',
+        $data->questionreporturl = (new moodle_url(
+            '/mod/kuet/reports.php',
             ['cmid' => $cmid, 'sid' => $session->get('id'), 'kid' => $question->get('id')]
         ))->out(false);
         return $data;
@@ -288,10 +296,14 @@ class reports {
             $userdata = $DB->get_record('user', ['id' => $user->userid]);
             if ($userdata !== false) {
                 $user = self::add_userdata($userdata, $user, $user->userid, 200);
-                $user->viewreporturl = (new moodle_url('/mod/kuet/reports.php',
-                    ['cmid' => $cmid, 'sid' => $sid, 'userid' => $user->userid]))->out(false);
-                if ($session->get('anonymousanswer') === 1
-                    && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
+                $user->viewreporturl = (new moodle_url(
+                    '/mod/kuet/reports.php',
+                    ['cmid' => $cmid, 'sid' => $sid, 'userid' => $user->userid]
+                ))->out(false);
+                if (
+                    $session->get('anonymousanswer') === 1
+                    && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)
+                ) {
                     unset($user->viewreporturl);
                     unset($user->userimageurl);
                     $user->userfullname = '**********';
@@ -321,12 +333,16 @@ class reports {
             $group->sid = $sid;
             $groupdata = groups_get_group($group->id);
             $group = self::add_groupdata($groupdata, $group, 200);
-            $group->viewreporturl = (new moodle_url('/mod/kuet/reports.php',
-                    ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $group->id]))->out(false);
-            if ($session->get('anonymousanswer') === 1
-                && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
+            $group->viewreporturl = (new moodle_url(
+                '/mod/kuet/reports.php',
+                ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $group->id]
+            ))->out(false);
+            if (
+                $session->get('anonymousanswer') === 1
+                && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)
+            ) {
                 unset($group->viewreporturl);
-                unset( $group->groupimage);
+                unset($group->groupimage);
                 $group->groupname = '**********';
             }
         }
@@ -374,13 +390,15 @@ class reports {
                 $data->response = 'noresponse';
                 $data->responsestr = get_string('noresponse', 'mod_kuet');
                 $data->time = $questiontimestr . ' / ' . $questiontimestr; // Or 0?
+                $data->ismanual = false;
             } else {
                 $data->response = grade::get_result_mark_type($response);
                 $data->responsestr = get_string($data->response, 'mod_kuet');
                 $data->time = self::get_user_time_in_question($session, $question, $response);
-                /** @var questions $type */
-                $type = questions::get_question_class_by_string_type($question->get('qtype'));
-                $data->score = round($type::get_simple_mark(json_decode(base64_decode($response->get('response'))), $response), 2);
+                // Use the grade API so a manual override (KUETEDUCAM-73) prevails
+                // over the calculated mark, keeping the report consistent.
+                $data->score = round(grade::get_simple_mark($response), 2);
+                $data->ismanual = $response->get('manualmark') !== null;
             }
             $data->cmid = $cmid;
             $data->sessionid = $sid;
@@ -401,7 +419,9 @@ class reports {
      * @throws coding_exception
      */
     public static function get_user_time_in_question(
-        kuet_sessions $session, kuet_questions $question, kuet_questions_responses $response
+        kuet_sessions $session,
+        kuet_questions $question,
+        kuet_questions_responses $response
     ): string {
         $responsedata = json_decode(base64_decode($response->get('response')), false);
         $usertimelast = $responsedata->timeleft;
@@ -524,8 +544,12 @@ class reports {
         global $OUTPUT;
 
         $urlbase = new moodle_url('/mod/kuet/dwn_report.php');
-        return $OUTPUT->download_dataformat_selector(get_string('downloadas', 'table'),
-            $urlbase, 'download', $urlparams);
+        return $OUTPUT->download_dataformat_selector(
+            get_string('downloadas', 'table'),
+            $urlbase,
+            'download',
+            $urlparams
+        );
     }
 
     /**
@@ -578,9 +602,14 @@ class reports {
         $data->questionnid = $question->get('id');
         $data->position = $question->get('qorder');
         $data->type = $question->get('qtype');
-        $questiondata = question_bank::load_question($questiondb->id);
+        $questiondata = question_bank::load_question($questiondb->id, 0);
         $data->questiontext = questions::get_text(
-            $cmid, $questiondata->questiontext, $questiondata->questiontextformat, $questiondata->id, $questiondata, 'questiontext'
+            $cmid,
+            $questiondata->questiontext,
+            $questiondata->questiontextformat,
+            $questiondata->id,
+            $questiondata,
+            'questiontext'
         );
         $data->questiontextformat = $questiondata->questiontextformat;
         $data->backurl = (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
@@ -607,10 +636,10 @@ class reports {
             ['kuet' => $data->kuetid, 'session' => $sid, 'kid' => $kid, 'result' => questions::PARTIALLY]
         );
         $data->numnoresponse = $data->numusers - ($data->numcorrect + $data->numincorrect + $data->numpartial);
-        $data->percent_correct = round(($data->numcorrect / $data->numusers) * 100, 2);
-        $data->percent_incorrect = round(($data->numincorrect / $data->numusers) * 100, 2);
-        $data->percent_partially = round(($data->numpartial / $data->numusers) * 100, 2);
-        $data->percent_noresponse = round(($data->numnoresponse / $data->numusers) * 100, 2);
+        $data->percent_correct = $data->numusers ? round(($data->numcorrect / $data->numusers) * 100, 2) : 0;
+        $data->percent_incorrect = $data->numusers ? round(($data->numincorrect / $data->numusers) * 100, 2) : 0;
+        $data->percent_partially = $data->numusers ? round(($data->numpartial / $data->numusers) * 100, 2) : 0;
+        $data->percent_noresponse = $data->numusers ? round(($data->numnoresponse / $data->numusers) * 100, 2) : 0;
         if ($session->get('anonymousanswer') === 1) {
             if (has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
                 $data->hasranking = true;
@@ -659,7 +688,12 @@ class reports {
         $data->type = $question->get('qtype');
         $questiondata = question_bank::load_question($questiondb->id);
         $data->questiontext = questions::get_text(
-            $cmid, $questiondata->questiontext, $questiondata->questiontextformat, $questiondata->id, $questiondata, 'questiontext'
+            $cmid,
+            $questiondata->questiontext,
+            $questiondata->questiontextformat,
+            $questiondata->id,
+            $questiondata,
+            'questiontext'
         );
         $data->backurl = (new moodle_url('/mod/kuet/reports.php', ['cmid' => $cmid, 'sid' => $sid]))->out(false);
         /** @var questions $type */
@@ -738,8 +772,13 @@ class reports {
         $session = new kuet_sessions($sid);
         $data->kuetid = $session->get('kuetid');
         if ($session->get('anonymousanswer') === 1 && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
-            throw new moodle_exception('anonymousanswers', 'mod_kuet', '',
-                [], get_string('anonymousanswers', 'mod_kuet'));
+            throw new moodle_exception(
+                'anonymousanswers',
+                'mod_kuet',
+                '',
+                [],
+                get_string('anonymousanswers', 'mod_kuet')
+            );
         }
         $data->userreport = true;
         $data->sessionname = $session->get('name');
@@ -804,8 +843,13 @@ class reports {
         $session = new kuet_sessions($sid);
         $data->kuetid = $session->get('kuetid');
         if ($session->get('anonymousanswer') === 1 && !has_capability('mod/kuet:viewanonymousanswers', $cmcontext, $USER)) {
-            throw new moodle_exception('anonymousanswers', 'mod_kuet', '',
-                [], get_string('anonymousanswers', 'mod_kuet'));
+            throw new moodle_exception(
+                'anonymousanswers',
+                'mod_kuet',
+                '',
+                [],
+                get_string('anonymousanswers', 'mod_kuet')
+            );
         }
         $data->groupreport = true;
         $data->sessionname = $session->get('name');
@@ -965,7 +1009,13 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_ranking_for_question(
-        array $users, array $answers, kuet_sessions $session, kuet_questions $question, int $cmid, int $sid, int $kid
+        array $users,
+        array $answers,
+        kuet_sessions $session,
+        kuet_questions $question,
+        int $cmid,
+        int $sid,
+        int $kid
     ): array {
         global $DB;
         $context = context_module::instance($cmid);
@@ -975,8 +1025,10 @@ class reports {
             $user->participantid = $user->id;
             if ($userdata !== false && !has_capability('mod/kuet:startsession', $context, $userdata)) {
                 $user = self::add_userdata($userdata, $user, $user->id);
-                $user->viewreporturl = (new moodle_url('/mod/kuet/reports.php',
-                    ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userdata->id]))->out(false);
+                $user->viewreporturl = (new moodle_url(
+                    '/mod/kuet/reports.php',
+                    ['cmid' => $cmid, 'sid' => $sid, 'userid' => $userdata->id]
+                ))->out(false);
                 $response = kuet_questions_responses::get_record(['userid' => $userdata->id, 'session' => $sid, 'kid' => $kid]);
                 if ($response !== false) {
                     $other = json_decode(base64_decode($response->get('response')), false);
@@ -1019,15 +1071,23 @@ class reports {
      * @throws moodle_exception
      */
     public static function get_group_ranking_for_question(
-        array $groups, array $answers, kuet_sessions $session, kuet_questions $question, int $cmid, int $sid, int $kid
+        array $groups,
+        array $answers,
+        kuet_sessions $session,
+        kuet_questions $question,
+        int $cmid,
+        int $sid,
+        int $kid
     ): array {
 
         $results = [];
         foreach ($groups as $group) {
             $group->sid = $sid;
             $group = self::add_groupdata($group, $group);
-            $group->viewreporturl = (new moodle_url('/mod/kuet/reports.php',
-                ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $group->id]))->out(false);
+            $group->viewreporturl = (new moodle_url(
+                '/mod/kuet/reports.php',
+                ['cmid' => $cmid, 'sid' => $sid, 'groupid' => $group->id]
+            ))->out(false);
             $gmembers = groupmode::get_group_members($group->id);
             $gmember = reset($gmembers);
             $group->participantid = $gmember->id;

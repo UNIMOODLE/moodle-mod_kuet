@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_kuet;
+
 use mod_kuet\models\questions;
 
 /**
@@ -28,26 +31,27 @@ use mod_kuet\models\questions;
 
 /**
  * Jump to question service test class
+ *
+ * @covers \mod_kuet\external\jumptoquestion_external
  */
-class jumptoquestion_external_test extends  advanced_testcase {
+final class jumptoquestion_external_test extends \advanced_testcase {
     /**
      * Jump to question service test
      *
      * @return void
-     * @throws JsonException
-     * @throws ReflectionException
+     * @throws \JsonException
+     * @throws \ReflectionException
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws dml_transaction_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \dml_transaction_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
     public function test_jumptoquestion(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.
@@ -102,7 +106,8 @@ class jumptoquestion_external_test extends  advanced_testcase {
         ]);
 
         $question2 = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]);
+            ['questionid' => $nq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::NUMERICAL]
+        );
         $pos2 = \mod_kuet\external\jumptoquestion_external::jumptoquestion($kuet->cmid, $createdsid, 2, true);
         $this->assertIsArray($pos2);
         $this->assertArrayHasKey('cmid', $pos2);
@@ -115,7 +120,8 @@ class jumptoquestion_external_test extends  advanced_testcase {
         $this->assertEquals(questions::NUMERICAL, $pos2['qtype']);
 
         $question4 = \mod_kuet\persistents\kuet_questions::get_record(
-            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]);
+            ['questionid' => $mcq->id, 'sessionid' => $createdsid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]
+        );
         $pos4 = \mod_kuet\external\jumptoquestion_external::jumptoquestion($kuet->cmid, $createdsid, 4, true);
         $this->assertIsArray($pos4);
         $this->assertArrayHasKey('cmid', $pos4);

@@ -33,14 +33,17 @@
 "use strict";
 
 import jQuery from 'jquery';
-import {get_strings as getStrings} from 'core/str';
+import {get_strings as getStrings, get_string as getString} from 'core/str';
 import Ajax from 'core/ajax';
-import ModalFactory from 'core/modal_factory';
 import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
+import ModalSaveCancel from 'core/modal_save_cancel';
+import ModalCancel from 'core/modal_cancel';
+import ModalAlert from 'core/local/modal/alert';
 
 let ACTION = {
+    SEEINFORMATION: '[data-action="see_info"]',
     COPYSESSION: '[data-action="copy_session"]',
     DELETESESSION: '[data-action="delete_session"]',
     INITSESSION: '[data-action="init_session"]'
@@ -55,8 +58,11 @@ let SERVICES = {
 
 let REGION = {
     SESSIONSPANEL: '[data-region="sessions-panel-reload"]',
-    PANEL: '[data-region="sessions-panel"]'
+    PANEL: '[data-region="sessions-panel"]',
+    SOCKETWARNING: '[data-region="socket-connection-warning"]'
 };
+
+const SOCKETTESTTIMEOUT = 5000;
 
 let TEMPLATES = {
     LOADING: 'core/overlay_loading',
@@ -84,10 +90,77 @@ SessionsPanel.prototype.node = null;
 
 SessionsPanel.prototype.initPanel = function() {
     this.node.find(ACTION.COPYSESSION).on('click', this.copySession);
+    this.node.find(ACTION.SEEINFORMATION).on('click', this.seeInfo);
     this.node.find(ACTION.DELETESESSION).on('click', this.deleteSession);
     this.node.find(ACTION.INITSESSION).on('click', this.initSession);
+    this.testSocketConnection();
 };
 
+/**
+ * Probe the websocket server (same check as the admin test page, see testssl.js) and
+ * unhide the warning region when the connection cannot be established. The server
+ * pushes a 'connect' message right after the handshake, so receiving any message
+ * proves the whole chain (port, certificate, handshake and framing) works.
+ */
+SessionsPanel.prototype.testSocketConnection = function() {
+    let sockettype = this.node.attr('data-sockettype');
+    if (sockettype !== 'local' && sockettype !== 'external') {
+        return;
+    }
+    let warning = this.node.find(REGION.SOCKETWARNING);
+    let socketUrl;
+    try {
+        socketUrl = new URL(this.node.attr('data-socketurl'));
+    } catch (e) {
+        warning.removeClass('d-none');
+        return;
+    }
+    socketUrl.port = this.node.attr('data-socketport');
+    socketUrl.pathname = socketUrl.pathname === '/' ? '/testkuet' : socketUrl.pathname + '/testkuet';
+    socketUrl.protocol = socketUrl.protocol === 'https:' ? 'wss:' : 'ws:';
+
+    let succeeded = false;
+    const fail = () => {
+        if (!succeeded) {
+            warning.removeClass('d-none');
+        }
+    };
+    let webSocket;
+    try {
+        webSocket = new WebSocket(socketUrl.toString());
+    } catch (e) {
+        fail();
+        return;
+    }
+    const timer = setTimeout(() => {
+        fail();
+        webSocket.close();
+    }, SOCKETTESTTIMEOUT);
+    webSocket.onmessage = () => {
+        succeeded = true;
+        clearTimeout(timer);
+        webSocket.close();
+    };
+    webSocket.onerror = () => {
+        clearTimeout(timer);
+        fail();
+    };
+    webSocket.onclose = () => {
+        clearTimeout(timer);
+        fail();
+    };
+};
+
+SessionsPanel.prototype.seeInfo = async function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let title = await getString('info_title', 'mod_kuet');
+    let modal = await ModalCancel.create({
+        title: title,
+        body: await Templates.render('mod_kuet/see_info'),
+    });
+    modal.show();
+};
 SessionsPanel.prototype.copySession = function(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -103,10 +176,9 @@ SessionsPanel.prototype.copySession = function(e) {
         const confirmMessage = langStrings[1];
         const buttonText = langStrings[2];
         const copysessionerror = langStrings[3];
-        return ModalFactory.create({
+        return ModalSaveCancel.create({
             title: title,
             body: confirmMessage,
-            type: ModalFactory.types.SAVE_CANCEL
         }).then(modal => {
             modal.setSaveButtonText(buttonText);
             modal.getRoot().on(ModalEvents.save, () => {
@@ -135,7 +207,7 @@ SessionsPanel.prototype.copySession = function(e) {
                                 Templates.render(TEMPLATES.PANEL, response).then((html, js) => {
                                     identifier.html(html);
                                     Templates.runTemplateJS(js);
-                                }).fail(Notification.exception);
+                                }).catch(Notification.exception);
                             }).fail(Notification.exception);
                         } else {
                             Notification.exception({message: copysessionerror});
@@ -169,10 +241,9 @@ SessionsPanel.prototype.deleteSession = function(e) {
         const confirmMessage = langStrings[1];
         const buttonText = langStrings[2];
         const copysessionerror = langStrings[3];
-        return ModalFactory.create({
+        return ModalSaveCancel.create({
             title: title,
             body: confirmMessage,
-            type: ModalFactory.types.SAVE_CANCEL
         }).then(modal => {
             modal.setSaveButtonText(buttonText);
             modal.getRoot().on(ModalEvents.save, () => {
@@ -232,10 +303,9 @@ SessionsPanel.prototype.initSession = function(e) {
         {key: 'confirm', component: 'mod_kuet'}
     ];
     getStrings(stringkeys).then((langStrings) => {
-        return ModalFactory.create({
+        return ModalSaveCancel.create({
             title: langStrings[0],
             body: langStrings[1],
-            type: ModalFactory.types.SAVE_CANCEL
         }).then(modal => {
             modal.setSaveButtonText(langStrings[2]);
             modal.getRoot().on(ModalEvents.save, () => {
@@ -256,10 +326,9 @@ SessionsPanel.prototype.initSession = function(e) {
                             {key: 'confirm', component: 'mod_kuet'}
                         ];
                         getStrings(stringkeyserror).then((langStringsError) => {
-                            return ModalFactory.create({
+                            return ModalAlert.create({
                                 title: langStringsError[0],
                                 body: langStringsError[1],
-                                type: ModalFactory.types.ALERT,
                                 buttons: {
                                     cancel: langStringsError[2],
                                 },

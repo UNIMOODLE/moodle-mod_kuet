@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_kuet;
+
 use mod_kuet\models\questions;
 use mod_kuet\models\sessions;
 /**
@@ -28,24 +30,25 @@ use mod_kuet\models\sessions;
 
 /**
  * Session start test class
+ *
+ * @covers \mod_kuet\external\startsession_external
  */
-class startsession_external_test extends advanced_testcase {
+final class startsession_external_test extends \advanced_testcase {
     /**
      * Session start test
      *
      * @return void
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_startsession() {
+    public function test_startsession(): void {
 
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
-        $this->sessionmock['kuetid'] = $kuet->id;
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
 
         // Only a user with capability can add questions.

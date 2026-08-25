@@ -79,5 +79,91 @@ function xmldb_kuet_upgrade($oldversion) {
         // Kuet savepoint reached.
         upgrade_mod_savepoint(true, 2023071800, 'kuet');
     }
+
+    if ($oldversion < 2026060200) {
+        // KUETEDUCAM-67: maximum grade obtainable per session.
+        $table = new xmldb_table('kuet');
+        $field = new xmldb_field(
+            'sessiongrademax',
+            XMLDB_TYPE_NUMBER,
+            '10, 5',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'grademethod'
+        );
+
+        // Conditionally launch add field sessiongrademax.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Initialise existing instances to the platform gradepointmax so they
+        // keep a sensible per-session maximum. Existing session grades are NOT
+        // renormalised here: recalculation pushes to the gradebook, which needs
+        // get_fast_modinfo() and is forbidden mid-upgrade. Run the CLI script
+        // mod/kuet/cli/recalculate_grades.php afterwards to renormalise them.
+        $gradepointmax = get_config('core', 'gradepointmax');
+        $DB->set_field_select('kuet', 'sessiongrademax', $gradepointmax, 'sessiongrademax = 0');
+
+        // Kuet savepoint reached.
+        upgrade_mod_savepoint(true, 2026060200, 'kuet');
+    }
+
+    if ($oldversion < 2026062500) {
+        // KUETEDUCAM-72: mandatory attendance flag per session.
+        $table = new xmldb_table('kuet_sessions');
+        $field = new xmldb_field(
+            'mandatoryattendance',
+            XMLDB_TYPE_INTEGER,
+            '1',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '1',
+            'sgrade'
+        );
+
+        // Conditionally launch add field mandatoryattendance. Existing sessions
+        // default to mandatory (1) so their grading behaviour is unchanged: a
+        // non-attendee keeps scoring 0 and the session keeps counting.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Kuet savepoint reached.
+        upgrade_mod_savepoint(true, 2026062500, 'kuet');
+    }
+
+    if ($oldversion < 2026062501) {
+        // KUETEDUCAM-73: manual mark override and its justifying comment per response.
+        $table = new xmldb_table('kuet_questions_responses');
+
+        // Teacher override for the question mark. Nullable, no fill: NULL means
+        // "no override" so existing responses keep their calculated mark.
+        $field = new xmldb_field(
+            'manualmark',
+            XMLDB_TYPE_NUMBER,
+            '10, 5',
+            null,
+            null,
+            null,
+            null,
+            'response'
+        );
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Mandatory comment justifying the override (only the last value kept).
+        $field = new xmldb_field('manualcomment', XMLDB_TYPE_TEXT, null, null, null, null, null, 'manualmark');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Kuet savepoint reached.
+        upgrade_mod_savepoint(true, 2026062501, 'kuet');
+    }
     return true;
 }

@@ -13,6 +13,9 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+namespace mod_kuet;
+
 use mod_kuet\models\questions;
 use mod_kuet\models\sessions;
 
@@ -29,19 +32,21 @@ use mod_kuet\models\sessions;
 
 /**
  * Get session resume service test class
+ *
+ * @covers \mod_kuet\external\getsessionresume_external
  */
-class getsessionresume_external_test extends advanced_testcase {
+final class getsessionresume_external_test extends \advanced_testcase {
     /**
      * Get session resume service test
      *
      * @return void
      * @throws \core\invalid_persistent_exception
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws invalid_parameter_exception
-     * @throws moodle_exception
+     * @throws \coding_exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     * @throws \moodle_exception
      */
-    public function test_getsessionresume() {
+    public function test_getsessionresume(): void {
         $this->resetAfterTest(true);
         $course = self::getDataGenerator()->create_course();
         $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
@@ -106,7 +111,7 @@ class getsessionresume_external_test extends advanced_testcase {
         $this->assertArrayHasKey('config', $data1);
 
         $this->assertIsArray($data1['config']);
-        $this->assertEquals(11, count($data1['config']));
+        $this->assertEquals(12, count($data1['config']));
 
         $this->assertArrayHasKey('iconconfig', $data1['config'][0]);
         $this->assertArrayHasKey('configname', $data1['config'][0]);
@@ -181,8 +186,10 @@ class getsessionresume_external_test extends advanced_testcase {
         $numquestion = 2;
         $timeperquestion = round((int)$sessionmock1['sessiontime'] / $numquestion);
         $timemodestring = get_string(
-                'session_time_resume', 'mod_kuet', userdate($sessionmock1['sessiontime'], '%Mm %Ss')
-            ) . '<br>' .
+            'session_time_resume',
+            'mod_kuet',
+            userdate($sessionmock1['sessiontime'], '%Mm %Ss')
+        ) . '<br>' .
             get_string('question_time', 'mod_kuet') . ': ' .
             $timeperquestion . 's';
 
@@ -193,12 +200,19 @@ class getsessionresume_external_test extends advanced_testcase {
         $this->assertEquals(get_string('timemode', 'mod_kuet'), $data1['config'][10]['configname']);
         $this->assertEquals($timemodestring, $data1['config'][10]['configvalue']);
 
+        $this->assertArrayHasKey('iconconfig', $data1['config'][11]);
+        $this->assertArrayHasKey('configname', $data1['config'][11]);
+        $this->assertArrayHasKey('configvalue', $data1['config'][11]);
+        $this->assertEquals('grademethod', $data1['config'][11]['iconconfig']);
+        $this->assertEquals(get_string('sgrade', 'mod_kuet'), $data1['config'][11]['configname']);
+        $this->assertEquals(get_string('no'), $data1['config'][11]['configvalue']);
+
         // SESION 2.
         $this->assertIsArray($data2);
         $this->assertArrayHasKey('config', $data2);
         $this->assertIsArray($data2['config']);
 
-        $this->assertEquals(11, count($data2['config']));
+        $this->assertEquals(12, count($data2['config']));
 
         $this->assertArrayHasKey('iconconfig', $data2['config'][0]);
         $this->assertArrayHasKey('configname', $data2['config'][0]);
@@ -261,8 +275,10 @@ class getsessionresume_external_test extends advanced_testcase {
         $this->assertArrayHasKey('configvalue', $data2['config'][8]);
         $this->assertEquals('startdate', $data2['config'][8]['iconconfig']);
         $this->assertEquals(get_string('startdate', 'mod_kuet'), $data2['config'][8]['configname']);
-        $this->assertEquals(userdate($sessionmock2['startdate'], get_string('strftimedatetimeshort', 'core_langconfig')),
-            $data2['config'][8]['configvalue']);
+        $this->assertEquals(
+            userdate($sessionmock2['startdate'], get_string('strftimedatetimeshort', 'core_langconfig')),
+            $data2['config'][8]['configvalue']
+        );
 
         $this->assertArrayHasKey('iconconfig', $data2['config'][9]);
         $this->assertArrayHasKey('configname', $data2['config'][9]);
@@ -274,8 +290,10 @@ class getsessionresume_external_test extends advanced_testcase {
         $numquestion = 2;
         $timeperquestion = round((int)$sessionmock2['sessiontime'] / $numquestion);
         $timemodestring = get_string(
-                'session_time_resume', 'mod_kuet', userdate($sessionmock2['sessiontime'], '%Mm %Ss')
-            ) . '<br>' .
+            'session_time_resume',
+            'mod_kuet',
+            userdate($sessionmock2['sessiontime'], '%Mm %Ss')
+        ) . '<br>' .
             get_string('question_time', 'mod_kuet') . ': ' .
             $timeperquestion . 's';
 
@@ -286,5 +304,11 @@ class getsessionresume_external_test extends advanced_testcase {
         $this->assertEquals(get_string('timemode', 'mod_kuet'), $data2['config'][10]['configname']);
         $this->assertEquals($timemodestring, $data2['config'][10]['configvalue']);
 
+        $this->assertArrayHasKey('iconconfig', $data2['config'][11]);
+        $this->assertArrayHasKey('configname', $data2['config'][11]);
+        $this->assertArrayHasKey('configvalue', $data2['config'][11]);
+        $this->assertEquals('grademethod', $data2['config'][11]['iconconfig']);
+        $this->assertEquals(get_string('sgrade', 'mod_kuet'), $data2['config'][11]['configname']);
+        $this->assertEquals(get_string('no'), $data2['config'][11]['configvalue']);
     }
 }

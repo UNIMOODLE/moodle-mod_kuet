@@ -82,13 +82,25 @@ class observer {
             if (is_null($participant->{'id'})) {
                 continue;
             }
-            // Get session grade.
-            $sessiongrade = grade::get_session_grade($participant->{'id'}, $data['objectid'], $kuet->get('id'));
             $params = [
                 'kuet' => $kuet->get('id'),
                 'session' => $data['objectid'],
                 'userid' => $participant->{'id'},
             ];
+            // If attendance is not mandatory and the user did not attend, the
+            // session must not count for them: drop any stored session grade and
+            // let the recalculation exclude it from the activity grade
+            // (KUETEDUCAM-72).
+            if (!grade::session_counts_for_user($participant->{'id'}, $data['objectid'], $kuet->get('id'))) {
+                $jgrade = kuet_sessions_grades::get_record($params);
+                if ($jgrade) {
+                    $jgrade->delete();
+                }
+                grade::recalculate_mod_mark_by_userid($participant->{'id'}, $kuet->get('id'));
+                continue;
+            }
+            // Get session grade normalised to the activity's per-session max (KUETEDUCAM-67).
+            $sessiongrade = grade::get_normalized_session_grade($participant->{'id'}, $data['objectid'], $kuet->get('id'));
              // Save grade on db.
             $jgrade = kuet_sessions_grades::get_record($params);
             if (!$jgrade) {

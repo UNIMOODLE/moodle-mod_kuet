@@ -58,13 +58,21 @@ class questionform extends moodleform {
         $customdata = $this->_customdata;
 
         $mform->addElement('html', '<div class="row">');
-        $mform->addElement('html', '<h4 style="margin:0 auto;">'.$customdata['qname'].'('. $customdata['qtype'] .')'.'</h4>');
+        $mform->addElement(
+            'html',
+            '<h4 style="margin:0 auto;">' . $customdata['qname'] . '(' . $customdata['qtype'] . ')' . '</h4>'
+        );
         $mform->addElement('html', '</div>');
 
         $mform->addElement('header', 'timeheader', get_string('questiontime', 'mod_kuet'));
         if ($customdata['sessionlimittimebyquestionsenabled'] === true || $customdata['notimelimit'] === true) {
-            $mform->addElement('duration', 'timelimit', get_string('timelimit', 'mod_kuet'),
-                ['units' => [MINSECS, 1], 'optional' => true], 'asd');
+            $mform->addElement(
+                'duration',
+                'timelimit',
+                get_string('timelimit', 'mod_kuet'),
+                ['units' => [MINSECS, 1], 'optional' => true],
+                'asd'
+            );
             $mform->addHelpButton('timelimit', 'timelimit', 'kuet');
             $mform->setType('timelimit', PARAM_INT);
         } else {

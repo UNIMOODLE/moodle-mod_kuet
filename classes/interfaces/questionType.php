@@ -43,7 +43,6 @@ use stdClass;
  * Question type interface
  */
 interface questionType {
-
     /**
      * Get simple makr
      *
@@ -51,7 +50,7 @@ interface questionType {
      * @param kuet_questions_responses $response
      * @return float
      */
-    public static function get_simple_mark(stdClass $useranswer,  kuet_questions_responses $response): float;
+    public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float;
 
 
     /**
@@ -64,11 +63,13 @@ interface questionType {
      * @param kuet_questions $question
      * @return stdClass
      */
-    public static function get_ranking_for_question(stdClass $participant,
-                                                    kuet_questions_responses $response,
-                                                    array $answers,
-                                                    kuet_sessions $session,
-                                                    kuet_questions $question): stdClass;
+    public static function get_ranking_for_question(
+        stdClass $participant,
+        kuet_questions_responses $response,
+        array $answers,
+        kuet_sessions $session,
+        kuet_questions $question
+    ): stdClass;
 
     /**
      * Get question statistics
@@ -88,10 +89,12 @@ interface questionType {
      * @param int $kid
      * @return mixed
      */
-    public static function get_question_report(kuet_sessions $session,
-                                               question_definition $questiondata,
-                                               stdClass $data,
-                                               int $kid): stdClass;
+    public static function get_question_report(
+        kuet_sessions $session,
+        question_definition $questiondata,
+        stdClass $data,
+        int $kid
+    ): stdClass;
 
     /**
      * Export question
@@ -141,4 +144,3 @@ interface questionType {
         array $custom
     ): void;
 }
-

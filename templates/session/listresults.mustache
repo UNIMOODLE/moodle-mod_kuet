@@ -49,10 +49,22 @@
             <div class="d-table-cell">{{#str}}students, mod_kuet{{/str}}</div>
         {{/groupmode}}
 
-        <div class="d-table-cell text-center">{{#str}}corrects, mod_kuet{{/str}}</div>
-        <div class="d-table-cell text-center">{{#str}}incorrects, mod_kuet{{/str}}</div>
-        <div class="d-table-cell text-center">{{#str}}partially_correct, mod_kuet{{/str}}</div>
-        <div class="d-table-cell text-center">{{#str}}notanswers, mod_kuet{{/str}}</div>
+        <div class="d-table-cell text-center">
+            {{#pix}}q/success, mod_kuet{{/pix}}
+            {{#str}}corrects, mod_kuet{{/str}}
+        </div>
+        <div class="d-table-cell text-center">
+            {{#pix}}q/incorrect, mod_kuet{{/pix}}
+            {{#str}}incorrects, mod_kuet{{/str}}
+        </div>
+        <div class="d-table-cell text-center">
+            {{#pix}}q/partially, mod_kuet{{/pix}}
+            {{#str}}partially_correct, mod_kuet{{/str}}
+        </div>
+        <div class="d-table-cell text-center">
+            {{#pix}}q/noresponse, mod_kuet{{/pix}}
+            {{#str}}notanswers, mod_kuet{{/str}}
+        </div>
         <div class="d-table-cell text-center">{{#str}}points, mod_kuet{{/str}}</div>
     </div>
     {{#userresults}}
