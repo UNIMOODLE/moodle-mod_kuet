@@ -1,0 +1,16 @@
+/* Documentation additions: retain the original Mobirise typography and palette. */
+.kuet-guide { padding: 4.5rem 0; background: #fff; }
+.kuet-guide:nth-of-type(odd) { background: #f4f4f4; }
+.kuet-guide h2 { margin-bottom: 1.5rem; }
+.kuet-guide p, .kuet-guide li { line-height: 1.75; }
+.kuet-guide li { margin-bottom: .65rem; }
+.kuet-guide a { color: #149dcc; text-decoration: underline; }
+.kuet-guide figure { margin: 2rem 0; }
+.kuet-guide figcaption { margin-top: .75rem; color: #666; font-size: .85rem; }
+.kuet-guide img { height: auto; }
+.article9 img { max-width: 100%; height: auto; }
+code { overflow-wrap: anywhere; }
+section[id] { scroll-margin-top: 8rem; }
+.navbar .dropdown-item[aria-current="page"] { font-weight: 700; text-decoration: underline; }
+.navbar a:focus-visible, .kuet-guide a:focus-visible { outline: 3px solid #ffcf55; outline-offset: 4px; }
+@media (max-width: 767px) { .kuet-guide { padding: 2.5rem 0; } }
