@@ -65,6 +65,8 @@ let REGION = {
     CONTENTFEEDBACKS: '[data-region="containt-feedbacks"]',
     FEEDBACK: '[data-region="statement-feedback"]',
     FEEDBACKANSWER: '[data-region="answer-feedback"]',
+    FEEDBACKLINE: '[data-region="statement-feedback-line"]',
+    FEEDBACKANSWERLINE: '[data-region="answer-feedback-line"]',
     FEEDBACKBACGROUND: '[data-region="feedback-background"]',
 };
 
@@ -83,6 +85,7 @@ let kuetId;
 let kid;
 let questionEnd = false;
 let showQuestionFeedback = false;
+let hasFeedbacks = false;
 let manualMode = false;
 let startPoint;
 let color;
@@ -321,9 +324,16 @@ Match.prototype.removeEvents = function() {
 Match.prototype.createLinkCorrection = function() {
     linkCorrection = [];
     jQuery.each(jQuery(REGION.LEFT_OPTION_SELECTOR), function(index, item) {
+        // The choice an element belongs to is the one the server sends in
+        // data-correctstems. It cannot be worked out from the element's own key:
+        // qtype_match merges the choices that share a text, so several elements may
+        // point at one choice, and a choice may be offered with no element at all.
+        let correctStems = jQuery(item).data('correctstems');
+        if (correctStems === undefined || correctStems === '') {
+            return;
+        }
         let dragId = jQuery(item).data('stems') + '-draggable';
-        let steam = Match.prototype.baseConvert(jQuery(item).data('stems'), 2, 16);
-        let dropId = Match.prototype.baseConvert(steam, 10, 26) + '-dropzone';
+        let dropId = correctStems + '-dropzone';
         let stemsLeft = jQuery('#' + dragId).data('forstems');
         let stemsRight = jQuery('#' + dropId).data('forstems');
         linkCorrection.push({dragId: dragId, dropId: dropId, stemsLeft: stemsLeft, stemsRight: stemsRight});
@@ -344,13 +354,49 @@ Match.prototype.getRandomColor = function(position) {
     return colorArray[position];
 };
 
+/**
+ * Whether the choice picked for an element is the one the element belongs to.
+ *
+ * It is read from the element in the page, where the server puts it, because it cannot
+ * be worked out from the element's own key: qtype_match merges the choices that share a
+ * text, so several elements may point at one choice, and a choice may have no element.
+ * A page rendered before that attribute existed falls back to the old comparison.
+ *
+ * @param {Object} link One entry of linkList
+ * @param {Object} element The jQuery node of the left hand side of that link
+ * @return {Boolean}
+ */
+Match.prototype.isRightChoice = function(link, element) {
+    let correctStems = element.data('correctstems');
+    if (correctStems === undefined || correctStems === '') {
+        return link.stemDragId === link.stemDropId;
+    }
+    return String(correctStems) === String(link.stemsRight);
+};
+
+/**
+ * Take the link styling off a dropzone.
+ *
+ * Only the drawing of the links that remain puts it back, so a dropzone that still has
+ * an element joined to it keeps its style.
+ *
+ * @param {String} dropId
+ * @return {void}
+ */
+Match.prototype.unstyleDropzone = function(dropId) {
+    let pointer = jQuery('#' + dropId).find('i');
+    pointer.removeClass('linked');
+    pointer.css('font-weight', '400');
+    pointer.css('color', '#5a57ff');
+};
+
 Match.prototype.drawResponse = function(fromTeacher = false) {
     let corrects = 0;
     let fails = 0;
     linkList.forEach(userR => {
         let optionLeft = jQuery('#' + userR.dragId).parents('.option-left').first();
         let optionRight = jQuery('#' + userR.dropId).parents('.option-right').first();
-        if (userR.stemDragId === userR.stemDropId) { // CORRECT.
+        if (Match.prototype.isRightChoice(userR, optionLeft)) { // CORRECT.
             if (manualMode === false || jQuery('.modal-body').length || fromTeacher === true) {
                 userR.color = '#0fd08c';
                 optionLeft.find('.feedback-icon.correct').css({'display': 'flex'});
@@ -412,7 +458,10 @@ Match.prototype.sendResponse = function() {
         if (jQuery(REGION.LEFT_OPTION_SELECTOR).length === fails) {
             result = 0; // Failure.
         }
-        if (jQuery(REGION.LEFT_OPTION_SELECTOR).length === 0 && jQuery(REGION.LEFT_OPTION_SELECTOR).length === 0) {
+        if (linkList.length === 0) {
+            // Nothing was joined at all. The condition used to compare the number of
+            // elements with itself, so it was only ever true for a question with no
+            // elements, and an unanswered question was stored as a failure.
             result = 3; // No response.
         }
         Match.prototype.drawLinks();
@@ -437,10 +486,18 @@ Match.prototype.sendResponse = function() {
                 jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
                 jQuery(REGION.NEXT).removeClass('d-none');
                 dispatchEvent(Match.prototype.studentQuestionEnd);
-                if (response.hasfeedbacks) {
+                hasFeedbacks = response.hasfeedbacks === true;
+                if (hasFeedbacks) {
                     jQuery(REGION.FEEDBACK).html(response.statment_feedback);
                     jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
                 }
+                // A line opens a half of the box, so it has no business being drawn when
+                // that half is empty: a question with only one of the two feedbacks was
+                // showing a line with nothing under it (KUET-051).
+                jQuery(REGION.FEEDBACKLINE)
+                    .toggleClass('d-none', (response.statment_feedback || '').trim() === '');
+                jQuery(REGION.FEEDBACKANSWERLINE)
+                    .toggleClass('d-none', (response.answer_feedback || '').trim() === '');
                 if (jQuery('.modal-body').length) { // Preview.
                     Match.prototype.showAnswers();
                     if (showQuestionFeedback === true) {
@@ -517,25 +574,15 @@ Match.prototype.onDrop = function(event) {
 };
 
 Match.prototype.Drop = function(dragId, dropId){
-    let deselected = linkList.filter(obj => {
-        return obj.dragId === dragId || obj.dropId === dropId;
-    });
-    if (deselected.length) {
-        deselected.forEach(x => {
-            let selectroDropId = jQuery("#" + x.dropId);
-            selectroDropId.find("i").css('font-weight', '400');
-            selectroDropId.find("i").css('color', '#5a57ff');
-            selectroDropId.find("i").removeClass('linked');
-            selectroDropId.find("i").css('font-weight', '400');
-            selectroDropId.find("i").css('color', '#5a57ff');
-        });
-    }
+    // The element being joined loses the link it had, and only that one: several
+    // elements can be joined to a single choice, which qtype_match supports and the
+    // stored response - a list of pairs - already holds.
+    linkList.filter(obj => {
+        return obj.dragId === dragId;
+    }).forEach(obj => Match.prototype.unstyleDropzone(obj.dropId));
 
     linkList = linkList.filter(obj => {
         return obj.dragId !== dragId;
-    });
-    linkList = linkList.filter(obj => {
-        return obj.dropId !== dropId;
     });
 
     let stemsLeft = jQuery('#' + dragId).data('forstems');
@@ -653,13 +700,11 @@ Match.prototype.drawLink = function(obj1, obj2, pColor) {
 
 Match.prototype.clearPath = function(event) {
     let ident = event.currentTarget.id;
-    let oldStemsLeft = '';
-    let oldStemsRight = '';
+    // Clicking a choice unjoins it from every element, and there may be more than one.
+    let cleared = linkList.filter(obj => {
+        return obj.dropId === ident;
+    });
     linkList = linkList.filter(obj => {
-        if (obj.dropId === ident) {
-            oldStemsLeft = obj.stemsLeft;
-            oldStemsRight = obj.stemsRight;
-        }
         return obj.dropId !== ident;
     });
     let dragQuestionObject = jQuery(REGION.CONTAINER_ANSWERS);
@@ -667,9 +712,7 @@ Match.prototype.clearPath = function(event) {
     dragQuestionObject.find("i").css('font-weight', '400');
     dragQuestionObject.find("i").css('color', '#5a57ff');
     Match.prototype.drawLinks();
-    if (oldStemsLeft !== '' && oldStemsRight !== '') {
-        Match.prototype.optionDeselected(oldStemsLeft, oldStemsRight);
-    }
+    cleared.forEach(obj => Match.prototype.optionDeselected(obj.stemsLeft, obj.stemsRight));
     Match.prototype.drawSelects();
 };
 
@@ -784,22 +827,32 @@ Match.prototype.OptionSelected = function(e) {
         }, 200);
     } else {
         let dragId = stemsLeft + '-draggable';
-        let oldDropId = '';
-        let oldStemsRight = '';
+        let cleared = linkList.filter(obj => {
+            return obj.dragId === dragId;
+        });
         linkList = linkList.filter(obj => {
-            if (obj.dragId === dragId) {
-                oldDropId = obj.dropId;
-                oldStemsRight = obj.stemsRight;
-            }
             return obj.dragId !== dragId;
         });
-        Match.prototype.optionDeselected(stemsLeft, oldStemsRight);
-        jQuery('#' + oldDropId).trigger('click');
+        // Not by clicking the dropzone, which is how this used to reach the drawing:
+        // that unjoins the choice from every element, and only this one is going back
+        // to «Choose...».
+        cleared.forEach(obj => {
+            Match.prototype.optionDeselected(stemsLeft, obj.stemsRight);
+            Match.prototype.unstyleDropzone(obj.dropId);
+        });
+        Match.prototype.drawLinks();
+        Match.prototype.drawSelects();
     }
 };
 
 Match.prototype.optionSelected = function(stemsLeft, stemsRight, color) {
     jQuery(ACTION.SELECTOPTION).each(function() {
+        // Only the select of this element is painted, the same way optionDeselected()
+        // clears only its own: two elements joined to one choice each keep their own
+        // colour, instead of the last one painting every select that offers it.
+        if (parseInt(jQuery(this).attr('data-stems')) !== parseInt(stemsLeft)) {
+            return;
+        }
         jQuery(this).find('option[data-stems="' + stemsRight + '"]')
             .each(function() {
                 jQuery(this).css('background-color', color);
@@ -809,9 +862,13 @@ Match.prototype.optionSelected = function(stemsLeft, stemsRight, color) {
 
 Match.prototype.optionDeselected = function(stemsLeft, stemsRight) {
     jQuery(ACTION.SELECTOPTION).each(function() {
-        if (parseInt(jQuery(this).attr('data-stems')) === parseInt(stemsLeft)) {
-            jQuery(this).css({'border': '1px solid #8f959e'});
+        // Only the select of this element goes back to «Choose...» and loses the colour
+        // of that choice: another element may still be joined to the same choice, and
+        // its own select has to keep both.
+        if (parseInt(jQuery(this).attr('data-stems')) !== parseInt(stemsLeft)) {
+            return;
         }
+        jQuery(this).css({'border': '1px solid #8f959e'});
         if (jQuery(this).find('option[data-stems="' + stemsRight + '"]:selected').length) {
             jQuery(this).find('option[data-stems="default"]').prop('selected', true);
         }
@@ -848,7 +905,7 @@ Match.prototype.drawMobileResponse = function(fromTeacher = false) {
             '.content-options-right-mobile[data-stems="' + userR.stemsLeft + '"]' +
             ' .option-right-mobile[data-stems="' + userR.stemsRight + '"]');
         if (manualMode === false || jQuery('.modal-body').length || fromTeacher === true) {
-            if (userR.stemDragId === userR.stemDropId) {
+            if (Match.prototype.isRightChoice(userR, optionLeft)) {
                 userR.color = '#0fd08c';
                 feedbacks.find('.feedback-icon.correct').css({'display': 'flex'});
                 optionLeft.css({'border': '1px solid #0fd08c'});
@@ -948,7 +1005,9 @@ Match.prototype.showFeedback = function() {
             Match.prototype.showCorrects();
             Match.prototype.drawCorrectLinks();
         }
-        jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+        if (hasFeedbacks === true) {
+            jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
+        }
     }
 };
 

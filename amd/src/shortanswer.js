@@ -51,9 +51,12 @@ let REGION = {
     CONTENTFEEDBACKS: '[data-region="containt-feedbacks"]',
     FEEDBACK: '[data-region="statement-feedback"]',
     FEEDBACKANSWER: '[data-region="answer-feedback"]',
+    FEEDBACKLINE: '[data-region="statement-feedback-line"]',
+    FEEDBACKANSWERLINE: '[data-region="answer-feedback-line"]',
     FEEDBACKBACGROUND: '[data-region="feedback-background"]',
     INPUTANSWER: '#userShortAnswer',
     ANSWERHELP: '#userShortAnswerHelp',
+    ANSWERHELPVALUE: '[data-region="answer-help-value"]',
     FEEDBACKICONS: '.feedback-icons',
 };
 
@@ -72,6 +75,7 @@ let kuetId;
 let kid;
 let questionEnd = false;
 let showQuestionFeedback = false;
+let hasFeedbacks = false;
 let manualMode = false;
 
 /** @type {jQuery} The jQuery node for the page region. */
@@ -302,15 +306,23 @@ ShortAnswer.prototype.reply = function() {
 
 ShortAnswer.prototype.answered = function(response) {
     questionEnd = true;
-    if (response.hasfeedbacks) {
+    hasFeedbacks = response.hasfeedbacks === true;
+    if (hasFeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
         jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
     }
+    // A line opens a half of the box, so it has no business being drawn when that half
+    // is empty: a question with only one of the two feedbacks was showing a line with
+    // nothing under it (KUET-051).
+    jQuery(REGION.FEEDBACKLINE).toggleClass('d-none', (response.statment_feedback || '').trim() === '');
+    jQuery(REGION.FEEDBACKANSWERLINE).toggleClass('d-none', (response.answer_feedback || '').trim() === '');
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(REGION.INPUTANSWER).css('z-index', 3).attr('disabled', 'disabled');
     jQuery(REGION.NEXT).removeClass('d-none');
-    jQuery(REGION.ANSWERHELP).text(response.possibleanswers);
+    // Into the span, not into the whole element: .text() would wipe out the icon of
+    // the right answer that sits beside it.
+    jQuery(REGION.ANSWERHELPVALUE).text(response.possibleanswers);
     if (response.result === 0) {
         jQuery(REGION.FEEDBACKICONS + ' .correct').remove();
         jQuery(REGION.FEEDBACKICONS + ' .partially').remove();
@@ -346,7 +358,7 @@ ShortAnswer.prototype.playQuestion = function() {
 };
 
 ShortAnswer.prototype.showFeedback = function() {
-    if (questionEnd === true) {
+    if (questionEnd === true && hasFeedbacks === true) {
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
     }
 };

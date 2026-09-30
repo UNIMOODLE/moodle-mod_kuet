@@ -48,6 +48,19 @@ $PAGE->set_title(get_string('testssl', 'mod_kuet'));
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('testssl', 'mod_kuet'));
 
+/**
+ * A server status string with any link its translation carries taken out
+ *
+ * The anchor and its label go together: stripping only the tags would leave the old
+ * label sitting beside the real link, saying the same thing twice.
+ *
+ * @param string $text
+ * @return string
+ */
+function mod_kuet_testssl_without_links(string $text): string {
+    return trim(preg_replace('/<a(?=[\s>])[^>]*>.*?<\/a>/is', '', $text));
+}
+
 $action = optional_param('action', '', PARAM_ALPHA);
 
 // Starting and stopping the server changes state, so it cannot be reachable
@@ -73,16 +86,27 @@ if (get_config('kuet', 'sockettype') === 'local') {
     }
     $pid = mod_kuet_get_server_pid();
     // Just show server status.
+    //
+    // These two strings are plain text and the link beside them is built here, with a
+    // sesskey (KUET-010). They used to carry the anchor inside them, pointing at a bare
+    // ./testssl.php?action=... with no token, and that older wording still lives in the
+    // language packs published on AMOS. A site with one installed loads it after the
+    // plugin's own lang directory and overrides it, so the page drew the stale anchor as
+    // well as the real link: two links for the same action, one of them dead, since the
+    // require_sesskey() above turns it into an invalid session key (KUET-053).
+    //
+    // Dropped here rather than waited out, so it holds on every site whatever
+    // translation it has installed.
     if ($pid) {
         $stopurl = new moodle_url('/mod/kuet/testssl.php', ['action' => 'stop', 'sesskey' => sesskey()]);
         \core\notification::success(
-            get_string('serverrunning', 'mod_kuet', $pid) . ' ' .
+            mod_kuet_testssl_without_links(get_string('serverrunning', 'mod_kuet', $pid)) . ' ' .
             html_writer::link($stopurl, get_string('killlocalserver', 'mod_kuet'))
         );
     } else {
         $starturl = new moodle_url('/mod/kuet/testssl.php', ['action' => 'start', 'sesskey' => sesskey()]);
         \core\notification::error(
-            get_string('serveroffline', 'mod_kuet') . ' ' .
+            mod_kuet_testssl_without_links(get_string('serveroffline', 'mod_kuet')) . ' ' .
             html_writer::link($starturl, get_string('startlocalserver', 'mod_kuet'))
         );
     }

@@ -139,7 +139,7 @@ final class truefalse_external_test extends \advanced_testcase {
             (int) $qbtf->trueanswerid,
             $qbtf,
             'answerfeedback'
-        ) . '<br>';
+        );
 
         $hasfeedback = !empty($statmentfeedback) || !empty($answerfeedback);
         $this->assertEquals($hasfeedback, $data['hasfeedbacks']);
@@ -189,7 +189,7 @@ final class truefalse_external_test extends \advanced_testcase {
             (int) $qbtf->falseanswerid,
             $qbtf,
             'answerfeedback'
-        ) . '<br>';
+        );
         $hasfeedback = !empty($statmentfeedback) || !empty($answerfeedback);
         $this->assertEquals($hasfeedback, $data['hasfeedbacks']);
         $this->assertEquals($statmentfeedback, $data['statment_feedback']);
@@ -197,5 +197,87 @@ final class truefalse_external_test extends \advanced_testcase {
         $this->assertEquals($qbtf->trueanswerid, $data['correct_answers']);
         $this->assertFalse($data['programmedmode']);
         $this->assertFalse($data['preview']);
+    }
+
+    /**
+     * A true or false question with no feedback at all reports that it has none
+     *
+     * The break was appended to the feedback of the answer whether that answer carried
+     * one or not, so a question with none left the string at a lone break. That is not
+     * empty, so hasfeedbacks came back true and the participant was shown an empty
+     * feedback box (KUET-054). Same shape as KUET-050 on multichoice.
+     *
+     * @covers \mod_kuet\external\truefalse_external::truefalse
+     * @return void
+     */
+    public function test_a_question_with_no_feedback_reports_none(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+        $course = self::getDataGenerator()->create_course();
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
+        $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = self::getDataGenerator()->create_and_enrol($course);
+        self::setUser($teacher);
+
+        $sid = $generator->create_session($kuet, (object) [
+            'name' => 'Session Test',
+            'kuetid' => $kuet->id,
+            'anonymousanswer' => 0,
+            'sessionmode' => sessions::PODIUM_MANUAL,
+            'sgrade' => 0,
+            'countdown' => 0,
+            'showgraderanking' => 0,
+            'randomquestions' => 0,
+            'randomanswers' => 0,
+            'showfeedback' => 0,
+            'showfinalgrade' => 0,
+            'startdate' => 0,
+            'enddate' => 0,
+            'automaticstart' => 0,
+            'timemode' => sessions::QUESTION_TIME,
+            'sessiontime' => 0,
+            'questiontime' => 10,
+            'groupings' => 0,
+            'status' => sessions::SESSION_ACTIVE,
+            'sessionid' => 0,
+            'submitbutton' => 0,
+        ]);
+
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $cat = $questiongenerator->create_question_category();
+        $tfq = $questiongenerator->create_question(questions::TRUE_FALSE, null, ['category' => $cat->id]);
+
+        // The question core builds carries feedback on both answers; this one has none.
+        $DB->set_field('question', 'generalfeedback', '', ['id' => $tfq->id]);
+        $DB->set_field('question_answers', 'feedback', '', ['question' => $tfq->id]);
+
+        $generator->add_questions_to_session([
+            ['questionid' => $tfq->id, 'sessionid' => $sid, 'kuetid' => $kuet->id,
+                'qtype' => questions::TRUE_FALSE],
+        ]);
+        \mod_kuet\external\startsession_external::startsession($kuet->cmid, $sid);
+        $kid = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $tfq->id, 'sessionid' => $sid, 'kuetid' => $kuet->id,
+                'qtype' => questions::TRUE_FALSE]
+        )->get('id');
+
+        $loaded = \question_bank::load_question($tfq->id);
+        self::setUser($student);
+        $data = \mod_kuet\external\truefalse_external::truefalse(
+            (int) $loaded->trueanswerid,
+            $sid,
+            $kuet->id,
+            $kuet->cmid,
+            $tfq->id,
+            $kid,
+            10,
+            false
+        );
+
+        $this->assertTrue($data['reply_status']);
+        $this->assertSame('', $data['statment_feedback']);
+        $this->assertSame('', $data['answer_feedback'], 'A break was left behind as if it were feedback');
+        $this->assertFalse($data['hasfeedbacks'], 'The question says it has feedback when it has none');
     }
 }

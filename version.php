@@ -34,11 +34,11 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026082500;
+$plugin->version = 2026082501;
 $plugin->requires = 2023100900; // Moodle 4.3+.
 $plugin->supported = [403, 405]; // Moodle 4.3 to 4.5.
 $plugin->component = 'mod_kuet';
 $plugin->cron = 0;
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v1.0.0-MOODLE_405';
+$plugin->release = 'v1.0.1-MOODLE_405';
 $plugin->incompatible = 500;

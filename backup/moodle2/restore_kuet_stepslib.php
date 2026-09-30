@@ -215,7 +215,15 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
     }
 
     /**
-     * Replace answer ids
+     * Replace the answer ids of a stored response with the ones this restore created
+     *
+     * The response column keeps base64 of JSON, the same as everywhere else in the
+     * plugin, so it has to be decoded on the way in and encoded again on the way out.
+     *
+     * Ids are resolved through the 'question_answer' mapping that restore_qtype_plugin
+     * records for every question it restores. That is the mapping core itself relies
+     * on, and it is set both for a question the restore created and for one matched
+     * against a question already in the bank.
      *
      * @param string $responsejson
      * @param int $newquestionid
@@ -225,57 +233,69 @@ class restore_kuet_activity_structure_step extends restore_questions_activity_st
         if (!$newquestionid) {
             return $responsejson;
         }
-        $resp = json_decode($responsejson, false);
-        if ($resp->{'type'} == 'truefalse') {
-            return $this->replace_answerids_truefalse($resp, $newquestionid);
-        } else if ($resp->{'type'} == 'multichoice') {
-            return $this->replace_answerids_multichoice($resp, $newquestionid);
+        $response = json_decode(base64_decode($responsejson), false);
+        if (!is_object($response) || !isset($response->type)) {
+            // A response this code cannot read is left exactly as it was.
+            return $responsejson;
         }
-        return $responsejson;
+        if ($response->type !== 'truefalse' && $response->type !== 'multichoice') {
+            return $responsejson;
+        }
+        if (isset($response->answerids)) {
+            $response->answerids = $this->map_answerids((string)$response->answerids);
+        }
+        if (isset($response->correct_answers)) {
+            $response->correct_answers = $this->map_answerids((string)$response->correct_answers);
+        }
+        if ($response->type === 'multichoice' && isset($response->answertexts)) {
+            // Only multichoice keys its answer texts by answer id. For true-false the
+            // field holds the '1' or '0' the participant picked, and means nothing here.
+            $response->answertexts = $this->map_answertexts((string)$response->answertexts);
+        }
+        $encoded = json_encode($response);
+
+        return $encoded === false ? $responsejson : base64_encode($encoded);
     }
 
     /**
-     * Replace answer ids for multichoice questions
+     * Map a comma separated list of question_answers ids through the restore mappings
      *
-     * @param stdClass $response
-     * @param $newquestionid
+     * A token with nothing to map is kept verbatim: '' and '0' are what the plugin
+     * stores for a question that was never answered.
+     *
+     * @param string $answerids
      * @return string
      */
-    private function replace_answerids_multichoice(stdClass $response, $newquestionid): string {
-        $answertexts = $response->{'answertexts'};
-        $answerids = explode(',', $response->{'answerids'});
-        $newanswerids = [];
-        $answertexts = json_decode($answertexts);
-        $question = question_bank::load_question($newquestionid);
-        foreach ($question->answers as $key => $answer) {
-            foreach ($answerids as $answerid) {
-                $text = $answertexts->{$answerid};
-                if (strcmp($text, strip_tags($answer->answer)) == 0) {
-                    $newanswerids[] = $key;
-                }
-            }
+    private function map_answerids(string $answerids): string {
+        $mapped = [];
+        foreach (explode(',', $answerids) as $answerid) {
+            $newanswerid = (int)$answerid > 0 ? $this->get_mappingid('question_answer', (int)$answerid) : false;
+            $mapped[] = $newanswerid ?: $answerid;
         }
-        $newanswerids = implode(',', $newanswerids);
-        $response->{'answerids'} = $newanswerids;
 
-        return json_encode($response);
+        return implode(',', $mapped);
     }
 
     /**
-     * Replace answer ids for true-false questions
+     * Map the keys of the answer texts of a multichoice response
      *
-     * @param stdClass $response
-     * @param $newquestionid
+     * The field is JSON nested inside the response: answer id to answer text.
+     *
+     * @param string $answertexts
      * @return string
      */
-    private function replace_answerids_truefalse(stdClass $response, $newquestionid): string {
-        $question = question_bank::load_question($newquestionid);
-        $answertext = $response->{'answertexts'};
-        $newanswerids = $question->falseanswerid;
-        if ($answertext == '1' && $question->rightanswer) {
-            $newanswerids  = $question->trueanswerid;
+    private function map_answertexts(string $answertexts): string {
+        $texts = json_decode($answertexts, true);
+        if (!is_array($texts)) {
+            return $answertexts;
         }
-        $response->{'answerids'} = $newanswerids;
-        return json_encode($response);
+        $mapped = [];
+        foreach ($texts as $answerid => $text) {
+            $newanswerid = (int)$answerid > 0 ? $this->get_mappingid('question_answer', (int)$answerid) : false;
+            $mapped[$newanswerid ?: $answerid] = $text;
+        }
+        $encoded = json_encode((object)$mapped);
+
+        return $encoded === false ? $answertexts : $encoded;
     }
 }

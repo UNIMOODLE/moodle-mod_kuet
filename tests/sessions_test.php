@@ -34,6 +34,7 @@
 namespace mod_kuet;
 
 use core\invalid_persistent_exception;
+use mod_kuet\models\questions;
 use mod_kuet\models\sessions;
 use mod_kuet\persistents\kuet_sessions;
 
@@ -227,6 +228,64 @@ final class sessions_test extends \advanced_testcase {
      */
     public function test_get_final_ranking(): void {
         // 3IP.
+    }
+
+    /**
+     * A participant who scored zero is shown a zero, not an empty box.
+     *
+     * Regression for KUET-036: the points of the podium and of the rest of the final
+     * ranking were blanked with a truth test, so anyone on 0 - which is most of a class
+     * after a hard question - reached the template as an empty string and got a pill
+     * with the star and no number in it.
+     *
+     * @return void
+     */
+    public function test_the_final_ranking_shows_a_score_of_zero(): void {
+        $this->resetAfterTest(true);
+        $course = self::getDataGenerator()->create_course();
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $this->sessionmock['kuetid'] = $kuet->id;
+        $this->sessionmock['status'] = sessions::SESSION_ACTIVE;
+        $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
+        $right = self::getDataGenerator()->create_and_enrol($course);
+        $wrong = self::getDataGenerator()->create_and_enrol($course);
+
+        self::setUser($teacher);
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_kuet');
+        $sid = $generator->create_session($kuet, (object) $this->sessionmock);
+        $questiongenerator = self::getDataGenerator()->get_plugin_generator('core_question');
+        $category = $questiongenerator->create_question_category();
+        $question = $questiongenerator->create_question(questions::TRUE_FALSE, null, ['category' => $category->id]);
+        $generator->add_questions_to_session([
+            ['questionid' => $question->id, 'sessionid' => $sid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE],
+        ]);
+        \mod_kuet\external\startsession_external::startsession($kuet->cmid, $sid);
+
+        $definition = \question_bank::load_question($question->id);
+        $kid = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $question->id, 'sessionid' => $sid, 'kuetid' => $kuet->id, 'qtype' => questions::TRUE_FALSE]
+        )->get('id');
+        foreach ([[$right, $definition->trueanswerid], [$wrong, $definition->falseanswerid]] as [$user, $answerid]) {
+            self::setUser($user);
+            \mod_kuet\external\truefalse_external::truefalse(
+                $answerid,
+                $sid,
+                $kuet->id,
+                $kuet->cmid,
+                $question->id,
+                $kid,
+                10,
+                false
+            );
+        }
+
+        self::setUser($teacher);
+        $data = sessions::get_final_ranking_data($sid, $kuet->cmid);
+
+        $this->assertNotSame('', $data['firstuserpoints'], 'The winner has no points.');
+        $this->assertSame('0', $data['seconduserpoints'], 'A score of zero must reach the template as a zero.');
+        // Nobody else took part, so the two places left on the podium stay empty.
+        $this->assertSame('', $data['thirduserpoints']);
     }
 
     /**

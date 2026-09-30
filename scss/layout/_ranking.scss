@@ -222,7 +222,11 @@
         .first-user,
         .second-user,
         .third-user {
-            .userimage {
+            // Not .userimage: that name is generic enough that a theme styles it for its
+            // own widgets and lands on this podium. theme_fresk shifts it 140px to the left
+            // and draws a white border around every span inside it, which is where the
+            // number and the name of each of the three live.
+            .podium-user {
                 display: flex;
                 flex-flow: column nowrap;
                 align-items: center;
