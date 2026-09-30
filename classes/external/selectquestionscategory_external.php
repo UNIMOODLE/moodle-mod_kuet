@@ -35,6 +35,7 @@
 namespace mod_kuet\external;
 
 use dml_exception;
+use context_module;
 use mod_kuet\helpers\modcontext;
 use core_external\external_api;
 use core_external\external_function_parameters;
@@ -42,6 +43,7 @@ use core_external\external_multiple_structure;
 use core_external\external_single_structure;
 use core_external\external_value;
 use invalid_parameter_exception;
+use required_capability_exception;
 use mod_kuet\models\sessions;
 use moodle_exception;
 
@@ -61,6 +63,7 @@ class selectquestionscategory_external extends external_api {
             [
                 'categorykey' => new external_value(PARAM_RAW, 'key for category selected'),
                 'cmid' => new external_value(PARAM_INT, 'cmid for course module'),
+                'questionbankcmid' => new external_value(PARAM_INT, 'questionbank cm id for course module'),
             ]
         );
     }
@@ -75,19 +78,36 @@ class selectquestionscategory_external extends external_api {
      * @throws dml_exception
      * @throws invalid_parameter_exception
      */
-    public static function selectquestionscategory(string $categorykey, int $cmid): array {
+    public static function selectquestionscategory(string $categorykey, int $cmid, int $questionbankcmid): array {
         global $DB;
         self::validate_parameters(
             self::selectquestionscategory_parameters(),
-            ['categorykey' => $categorykey, 'cmid' => $cmid]
+            ['categorykey' => $categorykey, 'cmid' => $cmid, 'questionbankcmid' => $questionbankcmid]
         );
 
         $context = modcontext::from_cmid($cmid);
         self::validate_context($context);
         require_capability('mod/kuet:managesessions', $context);
+
+        // Same as in getquestionbank_external: the bank is another course module and
+        // carries its own context, so it has to be authorised separately.
+        $bankcm = get_coursemodule_from_id('qbank', $questionbankcmid, 0, false, MUST_EXIST);
+        $bankcontext = context_module::instance($bankcm->id);
+        // Also validate_context() on the bank, not just a capability check: it runs
+        // require_login() for the bank's course and module, which is what rejects a bank
+        // in a course the caller cannot access, or one that is hidden from them.
+        self::validate_context($bankcontext);
+        // Same capabilities core requires to offer a bank in its own bank switcher
+        // (question\output\switch_question_bank): either of the two is enough to
+        // consult it. Which questions may actually be used is a per-question matter
+        // that core resolves with question_has_capability_on($question, 'use').
+        if (!has_any_capability(['moodle/question:useall', 'moodle/question:usemine'], $bankcontext)) {
+            throw new required_capability_exception($bankcontext, 'moodle/question:useall', 'nopermissions', '');
+        }
+
         [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'kuet');
         $kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
-        return ['questions' => (new sessions($kuet, $cmid))->get_questions_for_category($categorykey)];
+        return ['questions' => (new sessions($kuet, $cmid, $questionbankcmid))->get_questions_for_category($categorykey)];
     }
 
     /**

@@ -36,6 +36,7 @@ use core\invalid_persistent_exception;
 use core_calendar\action_factory;
 use core_calendar\local\event\value_objects\action;
 use core_completion\api;
+use mod_kuet\helpers\question_references;
 use mod_kuet\api\grade;
 use mod_kuet\persistents\kuet;
 defined('MOODLE_INTERNAL') || die;
@@ -55,22 +56,27 @@ require_once($CFG->dirroot . '/lib/gradelib.php');
  * @param string $feature FEATURE_xx constant for requested feature
  * @return true|null True if module supports feature, false if not, null if doesn't know
  */
-function kuet_supports(string $feature): ?bool {
-    switch ($feature) {
-        case FEATURE_GROUPINGS:
-        case FEATURE_MOD_INTRO:
-        case FEATURE_COMPLETION_HAS_RULES:
-        case FEATURE_GRADE_HAS_GRADE:
-        case FEATURE_GRADE_OUTCOMES:
-        case FEATURE_BACKUP_MOODLE2:
-        case FEATURE_SHOW_DESCRIPTION:
-        case FEATURE_CONTROLS_GRADE_VISIBILITY:
-        case FEATURE_USES_QUESTIONS:
-        case FEATURE_GROUPS:
-            return true;
-        default:
-            return null;
+function kuet_supports(string $feature): bool|string|null {
+    // FEATURE_MOD_OTHERPURPOSE only exists from Moodle 5.1. It cannot go in the match
+    // below: the arms are evaluated in order, so on 5.0 every query that reaches it
+    // dies with an undefined constant instead of returning null.
+    if (defined('FEATURE_MOD_OTHERPURPOSE') && $feature === FEATURE_MOD_OTHERPURPOSE) {
+        return MOD_PURPOSE_COLLABORATION;
     }
+    return match ($feature) {
+        FEATURE_GROUPS => true,
+        FEATURE_GROUPINGS => true,
+        FEATURE_MOD_INTRO => true,
+        FEATURE_COMPLETION_HAS_RULES => true,
+        FEATURE_GRADE_HAS_GRADE => true,
+        FEATURE_GRADE_OUTCOMES => true,
+        FEATURE_BACKUP_MOODLE2 => true,
+        FEATURE_SHOW_DESCRIPTION => true,
+        FEATURE_CONTROLS_GRADE_VISIBILITY => true,
+        FEATURE_USES_QUESTIONS => true,
+        FEATURE_MOD_PURPOSE => MOD_PURPOSE_ASSESSMENT,
+        default => null,
+    };
 }
 /**
  * Add kuet instance
@@ -160,6 +166,9 @@ function kuet_delete_instance(int $id): bool {
     // Finally delete the kuet object.
     $DB->delete_records('kuet', ['id' => $id]);
     $DB->delete_records('kuet_grades', ['kuet' => $id]);
+    // The references of the questions of the kuet, before their rows go: they are
+    // rows of core, in the context of the module, and nothing else cleans them.
+    question_references::remove_for_kuet($id);
     $DB->delete_records('kuet_questions', ['kuetid' => $id]);
     $DB->delete_records('kuet_questions_responses', ['kuet' => $id]);
     $DB->delete_records('kuet_sessions', ['kuetid' => $id]);
@@ -653,4 +662,21 @@ function mod_kuet_get_user_grades(int $kuetid, int $userid): float {
         return 0;
     }
     return $pgrade->get('grade');
+}
+/**
+ * Build and return the output for the question bank and category chooser.
+ *
+ * @param array $args provided by the AJAX request.
+ * @return string html to render to the modal.
+ */
+function mod_kuet_output_fragment_switch_question_bank($args): string {
+    global $USER, $COURSE, $OUTPUT;
+
+    $kuetcmid = clean_param($args['kuetcmid'], PARAM_INT);
+
+    // The plugin's own chooser, not the one of core: core's opens with a link to the
+    // question bank of the activity itself, and a kuet has none (KUET-042).
+    $switchbankwidget = new \mod_kuet\output\switch_question_bank($kuetcmid, $COURSE->id, $USER->id);
+
+    return $OUTPUT->render($switchbankwidget);
 }

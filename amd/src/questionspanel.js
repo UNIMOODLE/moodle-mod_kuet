@@ -39,18 +39,26 @@ import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import ModalSaveCancel from 'core/modal_save_cancel';
+import KuetAddQuestionModal from 'mod_kuet/add_question_modal';
 
 let ACTION = {
     SELECTCATEGORY: '#id_movetocategory',
+    BANK_SEARCH: '#searchbanks',
+    CHANGE_QUESTIONBANK: '[data-action="change_questionbank"]',
+    ANCHOR: 'a[href]',
+    NEW_BANKMOD_ID: 'data-newmodid',
 };
 
 let SERVICES = {
     SELECTCATEGORY: 'mod_kuet_selectquestionscategory',
+    RELOAD_PANELQUESTIONBANK: 'mod_kuet_getquestionbank',
 };
 
 let REGION = {
     PANEL: '[data-region="questions-panel"]',
+    PANELQUESTIONBANK: '[data-region="content-questionbank"]',
     NUMBERSELECT: '#number_select',
+    QUESTIONSBANK: 'questions-bank',
     SELECTQUESTION: '.select_question',
     CONTENTQUESTIONS: '[data-region="content-question"]',
     LOADING: '[data-region="overlay-icon-container"]'
@@ -60,7 +68,8 @@ let TEMPLATES = {
     LOADING: 'core/overlay_loading',
     SUCCESS: 'core/notification_success',
     ERROR: 'core/notification_error',
-    QUESTIONSFORSELECT: 'mod_kuet/createsession/contentquestions'
+    QUESTIONSFORSELECT: 'mod_kuet/createsession/contentquestions',
+    QUESTIONBANK: 'mod_kuet/createsession/questionbank'
 };
 
 let cmId;
@@ -83,6 +92,7 @@ QuestionsPanel.prototype.node = null;
 
 QuestionsPanel.prototype.initPanel = function() {
     this.node.find(ACTION.SELECTCATEGORY).on('change', this.selectCategory.bind(this));
+    this.node.find(ACTION.CHANGE_QUESTIONBANK).on('click', this.changeQuestionBank.bind(this));
 };
 
 QuestionsPanel.prototype.selectCategory = function(e) {
@@ -90,6 +100,7 @@ QuestionsPanel.prototype.selectCategory = function(e) {
     e.stopPropagation();
     let categoryKey = jQuery(e.currentTarget).val();
     let identifier = jQuery(REGION.CONTENTQUESTIONS);
+    let questionsbankcmid = document.getElementById(REGION.QUESTIONSBANK).dataset.questionbankcmid;
     if (jQuery(REGION.SELECTQUESTION + ':checked').length > 0) {
         const stringkeys = [
             {key: 'changecategory', component: 'mod_kuet'},
@@ -114,7 +125,8 @@ QuestionsPanel.prototype.selectCategory = function(e) {
                         methodname: SERVICES.SELECTCATEGORY,
                         args: {
                             categorykey: categoryKey,
-                            cmid: cmId
+                            cmid: parseInt(cmId),
+                            questionbankcmid: parseInt(questionsbankcmid)
                         }
                     };
                     Ajax.call([request])[0].done(function(response) {
@@ -124,7 +136,7 @@ QuestionsPanel.prototype.selectCategory = function(e) {
                             Templates.runTemplateJS(js);
                             jQuery(REGION.LOADING).remove();
                         }).catch(Notification.exception);
-                    });
+                    }).fail(Notification.exception);
                 });
                 modal.getRoot().on(ModalEvents.hidden, () => {
                     modal.destroy();
@@ -144,7 +156,8 @@ QuestionsPanel.prototype.selectCategory = function(e) {
             methodname: SERVICES.SELECTCATEGORY,
             args: {
                 categorykey: categoryKey,
-                cmid: cmId
+                cmid: parseInt(cmId),
+                questionbankcmid: parseInt(questionsbankcmid)
             }
         };
         Ajax.call([request])[0].done(function(response) {
@@ -154,8 +167,89 @@ QuestionsPanel.prototype.selectCategory = function(e) {
                 Templates.runTemplateJS(js);
                 jQuery(REGION.LOADING).remove();
             }).catch(Notification.exception);
-        });
+        }).fail(Notification.exception);
     }
+};
+
+/**
+ * Load another question bank into the questions panel and close the bank chooser.
+ *
+ * Both ways of choosing a bank end up here — the links of the chooser and the
+ * search box — because kuet does not render core's question bank inside the
+ * modal: there is nothing to reload in it, what changes is the panel behind.
+ *
+ * @param {Object} modal The bank chooser, destroyed once the panel is redrawn.
+ * @param {Number} bankcmid Course module id of the chosen question bank.
+ * @param {Number} cmid Course module id of the kuet.
+ * @param {Number} kuetid Kuet instance id.
+ * @param {Number} sid Session id.
+ */
+function loadQuestionBank(modal, bankcmid, cmid, kuetid, sid) {
+    let identifier = jQuery(REGION.PANELQUESTIONBANK);
+    Templates.render(TEMPLATES.LOADING, {visible: true}).done(function(html) {
+        identifier.append(html);
+    });
+    let request = {
+        methodname: SERVICES.RELOAD_PANELQUESTIONBANK,
+        args: {
+            questionbankcmid: parseInt(bankcmid),
+            cmid: parseInt(cmid),
+            kuetid: parseInt(kuetid),
+            sid: parseInt(sid)
+        }
+    };
+    Ajax.call([request])[0].done(function(response) {
+        Templates.render(TEMPLATES.QUESTIONBANK, response.questions).then(function(html, js) {
+            identifier.html(html);
+            Templates.runTemplateJS(js);
+            jQuery(REGION.LOADING).remove();
+            modal.destroy();
+            return true;
+        }).catch(Notification.exception);
+    }).fail(Notification.exception);
+}
+
+QuestionsPanel.prototype.changeQuestionBank = async function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    let cmid = e.currentTarget.dataset.cmid;
+    let kuetid = e.currentTarget.dataset.kuetid;
+    let contextid = e.currentTarget.dataset.contextid;
+    let sid = e.currentTarget.dataset.sid;
+
+    const modal = await KuetAddQuestionModal.create({
+        contextId: contextid,
+        addOnPage: 0,
+        kuetCmId: cmid,
+        bankCmId: 0,
+    });
+
+    // Renders core's bank chooser in the modal and turns the search field into
+    // an autocomplete over every shared bank of the site.
+    await modal.handleSwitchBankContentReload(ACTION.BANK_SEARCH).then((bankmodal) => {
+        // The autocomplete writes the chosen bank into the original select and
+        // fires a native 'change' on it.
+        document.querySelector(ACTION.BANK_SEARCH)?.addEventListener('change', (event) => {
+            const bankcmid = event.currentTarget.value;
+            if (bankcmid > 0) {
+                bankmodal.bankCmId = bankcmid;
+                loadQuestionBank(bankmodal, bankcmid, cmid, kuetid, sid);
+            }
+        });
+        // The banks of the course and the recently used ones are links.
+        bankmodal.getModal().on('click', ACTION.ANCHOR, (event) => {
+            const anchorelement = event.currentTarget;
+            if (!anchorelement.closest('a[' + ACTION.NEW_BANKMOD_ID + ']')) {
+                return;
+            }
+            event.preventDefault();
+            bankmodal.bankCmId = anchorelement.getAttribute(ACTION.NEW_BANKMOD_ID);
+            loadQuestionBank(bankmodal, bankmodal.bankCmId, cmid, kuetid, sid);
+        });
+        return bankmodal;
+    }).catch(Notification.exception);
+
+    modal.show();
 };
 
 export const initQuestionsPanel = (selector) => {

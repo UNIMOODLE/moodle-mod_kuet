@@ -92,7 +92,7 @@
             {{/ answers }}
         </div>
         {{#multianswers}}
-            <div class="btn btn-primary ml-auto mt-3" data-action="send-multianswer">
+            <div class="btn btn-primary ms-auto w-auto mt-3" data-action="send-multianswer">
                 {{#str}}send_response, mod_kuet{{/str}}
             </div>
         {{/multianswers}}
@@ -102,13 +102,13 @@
                 {{#str}}feedback, mod_kuet{{/str}}
             </div>
             <div class="content-feedbacks" data-region="content-feedback">
-                <hr>
+                <hr data-region="statement-feedback-line">
                 <div class="content-feedback" data-region="statement-feedback">
                     {{#answered}}
                         {{{ statment_feedback }}}
                     {{/answered}}
                 </div>
-                <hr>
+                <hr data-region="answer-feedback-line">
                 <div class="content-feedback-answer" data-region="answer-feedback">
                     {{#answered}}
                         {{{ answer_feedback }}}

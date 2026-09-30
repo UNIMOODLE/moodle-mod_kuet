@@ -46,6 +46,16 @@ Kuet offers sophisticated result presentation options:
 
 Students can see whether their answer was correct, the points scored, and any feedback provided. They can review their responses after the session, and their results are integrated into Moodle's Gradebook.
 
+## Requirements
+
+| | |
+|---|---|
+| Moodle | 5.0, 5.1 and 5.2 |
+| PHP | 8.2 or later; Moodle 5.2 itself requires 8.3 |
+| Real-time sessions | A WebSocket server. The plugin ships one that can be run on the Moodle host, or an external one can be configured — see [Scalability and Real-Time Interaction with WebSockets](#scalability-and-real-time-interaction-with-websockets) |
+
+For Moodle 4.3 to 4.5, use the `v1.0.0-MOODLE_405` release instead.
+
 ## Installation
 
 To install Kuet, clone this repository into your Moodle's `mod` directory and follow the standard Moodle module installation process. Detailed instructions can be found in the `INSTALL.md` file.

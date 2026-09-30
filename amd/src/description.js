@@ -51,6 +51,8 @@ let REGION = {
     CONTENTFEEDBACKS: '[data-region="containt-feedbacks"]',
     FEEDBACK: '[data-region="statement-feedback"]',
     FEEDBACKANSWER: '[data-region="answer-feedback"]',
+    FEEDBACKLINE: '[data-region="statement-feedback-line"]',
+    FEEDBACKANSWERLINE: '[data-region="answer-feedback-line"]',
     FEEDBACKBACGROUND: '[data-region="feedback-background"]'
 };
 
@@ -69,6 +71,7 @@ let kuetId;
 let kid;
 let questionEnd = false;
 let showQuestionFeedback = false;
+let hasFeedbacks = false;
 let manualMode = false;
 
 /** @type {jQuery} The jQuery node for the page region. */
@@ -268,10 +271,16 @@ Description.prototype.reply = function() {
 
 Description.prototype.answered = function(response) {
     questionEnd = true;
-    if (response.hasfeedbacks) {
+    hasFeedbacks = response.hasfeedbacks === true;
+    if (hasFeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
         jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
     }
+    // A line opens a half of the box, so it has no business being drawn when that half
+    // is empty: a question with only one of the two feedbacks was showing a line with
+    // nothing under it (KUET-051).
+    jQuery(REGION.FEEDBACKLINE).toggleClass('d-none', (response.statment_feedback || '').trim() === '');
+    jQuery(REGION.FEEDBACKANSWERLINE).toggleClass('d-none', (response.answer_feedback || '').trim() === '');
     jQuery(ACTION.SEND_RESPONSE).addClass('d-none');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(REGION.NEXT).removeClass('d-none');
@@ -298,7 +307,7 @@ Description.prototype.playQuestion = function() {
 };
 
 Description.prototype.showFeedback = function() {
-    if (questionEnd === true) {
+    if (questionEnd === true && hasFeedbacks === true) {
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
     }
 };

@@ -49,6 +49,8 @@ let REGION = {
     CONTENTFEEDBACKS: '[data-region="containt-feedbacks"]',
     FEEDBACK: '[data-region="statement-feedback"]',
     FEEDBACKANSWER: '[data-region="answer-feedback"]',
+    FEEDBACKLINE: '[data-region="statement-feedback-line"]',
+    FEEDBACKANSWERLINE: '[data-region="answer-feedback-line"]',
     FEEDBACKBACGROUND: '[data-region="feedback-background"]',
     STATEMENTTEXT: '[data-region="statement-text"]',
     TIMER: '[data-region="question-timer"]',
@@ -73,6 +75,7 @@ let kid;
 let questionEnd = false;
 let correctAnswers = null;
 let showQuestionFeedback = false;
+let hasFeedbacks = false;
 let manualMode = false;
 
 /**
@@ -288,10 +291,16 @@ TrueFalse.prototype.reply = function(e) {
 
 TrueFalse.prototype.answered = function(response) {
     questionEnd = true;
-    if (response.hasfeedbacks) {
+    hasFeedbacks = response.hasfeedbacks === true;
+    if (hasFeedbacks) {
         jQuery(REGION.FEEDBACK).html(response.statment_feedback);
         jQuery(REGION.FEEDBACKANSWER).html(response.answer_feedback);
     }
+    // A line opens a half of the box, so it has no business being drawn when that half
+    // is empty: a question with only one of the two feedbacks was showing a line with
+    // nothing under it (KUET-051).
+    jQuery(REGION.FEEDBACKLINE).toggleClass('d-none', (response.statment_feedback || '').trim() === '');
+    jQuery(REGION.FEEDBACKANSWERLINE).toggleClass('d-none', (response.answer_feedback || '').trim() === '');
     jQuery(REGION.FEEDBACKBACGROUND).css('display', 'block');
     jQuery(REGION.STATEMENTTEXT).css({'z-index': 3, 'padding': '15px'});
     jQuery(REGION.TIMER).css('z-index', 3);
@@ -359,7 +368,7 @@ TrueFalse.prototype.hideStatistics = function() {
 };
 
 TrueFalse.prototype.showFeedback = function() {
-    if (questionEnd === true) {
+    if (questionEnd === true && hasFeedbacks === true) {
         jQuery(REGION.CONTENTFEEDBACKS).css({'display': 'block', 'z-index': 3});
     }
 };

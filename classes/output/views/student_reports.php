@@ -42,10 +42,10 @@ use mod_kuet\helpers\reports;
 use mod_kuet\kuet;
 use moodle_exception;
 use moodle_url;
-use renderable;
-use renderer_base;
+use core\output\renderable;
+use core\output\renderer_base;
 use stdClass;
-use templatable;
+use core\output\templatable;
 
 /**
  *  Student reports renderable class

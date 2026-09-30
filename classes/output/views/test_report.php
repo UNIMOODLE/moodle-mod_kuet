@@ -34,10 +34,10 @@
 
 namespace mod_kuet\output\views;
 
-use renderable;
-use renderer_base;
+use core\output\renderable;
+use core\output\renderer_base;
 use stdClass;
-use templatable;
+use core\output\templatable;
 
 /**
  * Test WebSocket server report renderable class.

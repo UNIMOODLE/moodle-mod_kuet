@@ -93,7 +93,7 @@ final class deletequestion_external_test extends \advanced_testcase {
         $kquestions = \mod_kuet\persistents\kuet_questions::get_records(
             ['sessionid' => $createdsid, 'kuetid' => $kuet->id]
         );
-        $q1 = $kquestions[0];
+        $q1 = reset($kquestions);
         \mod_kuet\external\deletequestion_external::deletequestion($createdsid, $q1->get('id'));
         $total = \mod_kuet\persistents\kuet_questions::count_records(['sessionid' => $createdsid, 'kuetid' => $kuet->id]);
 

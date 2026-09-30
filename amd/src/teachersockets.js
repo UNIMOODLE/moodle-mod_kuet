@@ -360,6 +360,13 @@ Sockets.prototype.initSockets = function() {
                 let participantshtml = jQuery(REGION.USERLIST);
                 let grouplist = response.groups;
                 participantshtml.html('');
+                // Late-joining group member: if the session is already running, push the current question
+                // to that member. The student renders it via getuserquestionresponse, which returns the
+                // group's saved response (replicated to every member), so it shows locked if the group
+                // already answered and answerable otherwise. Keeps the "one answer per group" rule intact.
+                if (waitingRoom === false) {
+                    Sockets.prototype.normalizeUser(response.usersocketid);
+                }
                 jQuery.each(grouplist, function (i, group) {
                     let templateContext = {
                         'usersocketid': group.usersocketid,

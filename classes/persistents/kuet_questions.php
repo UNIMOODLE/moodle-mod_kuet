@@ -38,6 +38,7 @@ use core\invalid_persistent_exception;
 use core\persistent;
 use dml_exception;
 use JsonException;
+use mod_kuet\helpers\question_references;
 use mod_kuet\models\sessions;
 use moodle_exception;
 use stdClass;
@@ -96,6 +97,41 @@ class kuet_questions extends persistent {
                 'type' => PARAM_INT,
             ],
         ];
+    }
+
+    /**
+     * Reference the question in the bank it comes from
+     *
+     * Every path that adds a question to a session goes through here - the panel,
+     * the copy of a question and the copy of a whole session - so this is the one
+     * place that has to record it. What the reference is for, and why kuet needs
+     * one at all, is in {@see question_references}.
+     *
+     * @return void
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    protected function after_create() {
+        question_references::set(
+            (int) $this->get('id'),
+            (int) $this->get('kuetid'),
+            (int) $this->get('questionid')
+        );
+    }
+
+    /**
+     * Drop the reference of a question that is taken out of a session
+     *
+     * @param bool $result Whether the row was deleted.
+     * @return void
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    protected function after_delete($result) {
+        if (!$result) {
+            return;
+        }
+        question_references::remove((int) $this->get('id'));
     }
 
     /**
@@ -274,6 +310,9 @@ class kuet_questions extends persistent {
      */
     public static function delete_session_questions(int $sid): bool {
         global $DB;
+        // The rows go in one statement, so no persistent is built and after_delete()
+        // never runs: the references have to be dropped here.
+        question_references::remove_for_session($sid);
         return  $DB->delete_records(self::TABLE, ['sessionid' => $sid]);
     }
 

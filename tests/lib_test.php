@@ -150,8 +150,13 @@ final class lib_test extends advanced_testcase {
             api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED
         );
 
-        // Set sections 0 as hidden.
-        set_section_visible($course->id, 0, 0);
+        // Set sections 0 as hidden. Not with set_section_visible(): it is deprecated from
+        // Moodle 5.2, and its replacement, sectionactions::set_visibility(), does not exist
+        // before it. course_update_section() is the same function in 5.0 and in 5.2 and
+        // cascades the visibility to the modules just the same.
+        global $DB;
+        $section = $DB->get_record('course_sections', ['course' => $course->id, 'section' => 0], '*', MUST_EXIST);
+        course_update_section($course, $section, ['visible' => 0]);
 
         // Create an action factory.
         $factory = new action_factory();

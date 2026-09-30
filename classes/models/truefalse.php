@@ -583,6 +583,10 @@ class truefalse extends questions implements questionType {
         $correctanswer = $question->rightanswer ? (int)$question->trueanswerid : (int)$question->falseanswerid;
         if ((int)$answerid === (int)$question->trueanswerid) {
             $answertext = '1';
+            // No break after it: there is a single feedback here, so there is nothing to
+            // separate, and appended to an answer that carries none it left the string at
+            // '<br>'. That is not empty, so hasfeedbacks came back true and the participant
+            // was shown an empty feedback box (KUET-054, the same as KUET-050 on multichoice).
             $answerfeedback = questions::get_text(
                 $cmid,
                 $question->truefeedback,
@@ -590,7 +594,7 @@ class truefalse extends questions implements questionType {
                 (int) $question->trueanswerid,
                 $question,
                 'answerfeedback'
-            ) . '<br>';
+            );
         } else {
             $answerfeedback = questions::get_text(
                 $cmid,
@@ -599,7 +603,7 @@ class truefalse extends questions implements questionType {
                 (int) $question->falseanswerid,
                 $question,
                 'answerfeedback'
-            ) . '<br>';
+            );
         }
         if ($preview === false) {
             $custom = [

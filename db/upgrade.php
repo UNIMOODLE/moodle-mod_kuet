@@ -165,5 +165,48 @@ function xmldb_kuet_upgrade($oldversion) {
         // Kuet savepoint reached.
         upgrade_mod_savepoint(true, 2026062501, 'kuet');
     }
+
+    if ($oldversion < 2026091600) {
+        // KUET-041: every question already added to a session gets its reference to
+        // the entry of the bank it comes from. Until now the plugin only kept the
+        // question id, which is what left the copy of an activity whose bank lives
+        // outside it - the ordinary case in Moodle 5 - without a single question.
+        // Written here in SQL, and not through the helper of the plugin, so the step
+        // keeps doing the same thing whatever that class does later on.
+        $sql = "SELECT kq.id, kq.kuetid, qv.questionbankentryid, qv.version
+                  FROM {kuet_questions} kq
+                  JOIN {question_versions} qv ON qv.questionid = kq.questionid
+             LEFT JOIN {question_references} qr
+                       ON qr.component = 'mod_kuet' AND qr.questionarea = 'question' AND qr.itemid = kq.id
+                 WHERE qr.id IS NULL
+              ORDER BY kq.kuetid";
+        $rs = $DB->get_recordset_sql($sql);
+        $contextids = [];
+        foreach ($rs as $question) {
+            // One course module lookup per kuet, not per question.
+            if (!array_key_exists($question->kuetid, $contextids)) {
+                $cm = get_coursemodule_from_instance('kuet', $question->kuetid, 0, false, IGNORE_MISSING);
+                $contextids[$question->kuetid] = $cm ? context_module::instance($cm->id)->id : 0;
+            }
+            if (empty($contextids[$question->kuetid])) {
+                // A kuet with no course module has nothing to own the reference.
+                continue;
+            }
+            $DB->insert_record('question_references', (object) [
+                'usingcontextid' => $contextids[$question->kuetid],
+                'component' => 'mod_kuet',
+                'questionarea' => 'question',
+                'itemid' => $question->id,
+                'questionbankentryid' => $question->questionbankentryid,
+                // The version the session was built with, which is the one its
+                // questionid names.
+                'version' => $question->version,
+            ]);
+        }
+        $rs->close();
+
+        // Kuet savepoint reached.
+        upgrade_mod_savepoint(true, 2026091600, 'kuet');
+    }
     return true;
 }

@@ -33,6 +33,8 @@
  */
 
 
+use mod_kuet\helpers\question_references;
+
 
 /**
  * Define the complete choice structure for backup, with file and id annotations.
@@ -106,6 +108,16 @@ class backup_kuet_activity_structure_step extends backup_questions_activity_stru
             'timemodified',
         ]);
         $this->add_question_usages($question, 'questionid');
+        // The reference is what carries the questions into the copy when the bank
+        // they live in is not inside what is being copied, which in Moodle 5 is the
+        // ordinary case: banks are activities of their own, shared between courses.
+        // The id annotation further down only reaches a bank within the copy, so on
+        // its own it left the copy of a kuet without a single question (KUET-041).
+        $this->add_question_references(
+            $question,
+            question_references::COMPONENT,
+            question_references::QUESTIONAREA
+        );
         $questionsresponses = new backup_nested_element('questions_responses');
         $questionsresponse = new backup_nested_element('questions_response', ['id'], [
             'session',

@@ -97,7 +97,8 @@ final class deletesession_external_test extends advanced_testcase {
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
         $sessionid = $generator->create_session($kuet, (object) $this->sessionmock);
         $list = $sessiontest->get_list();
-        $result = deletesession_external::deletesession($course->id, $kuet->cmid, $list[0]->get('id'));
+        $first = reset($list);
+        $result = deletesession_external::deletesession($course->id, $kuet->cmid, $first->get('id'));
         $this->assertIsArray($result);
         $this->assertTrue($result['deleted']);
         $sessiontest->set_list();
@@ -110,7 +111,8 @@ final class deletesession_external_test extends advanced_testcase {
         $generator->create_session($kuet, (object) $this->sessionmock);
 
         $newlist = $sessiontest->get_list();
-        $result = deletesession_external::deletesession($course->id, $kuet->cmid, $newlist[0]->get('id'));
+        $firstnew = reset($newlist);
+        $result = deletesession_external::deletesession($course->id, $kuet->cmid, $firstnew->get('id'));
         $this->assertIsArray($result);
         $this->assertFalse($result['deleted']);
         $this->assertCount(1, $newlist);

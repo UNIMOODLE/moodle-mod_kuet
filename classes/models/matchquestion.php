@@ -50,7 +50,6 @@ use moodle_exception;
 use qtype_match_question;
 use question_bank;
 use question_definition;
-use question_state;
 use stdClass;
 use mod_kuet\interfaces\questionType;
 
@@ -109,8 +108,21 @@ class matchquestion extends questions implements questionType {
         foreach ($question->stems as $key => $leftside) {
             $leftoptions[$key] = [
                 'questionid' => $kuetquestion->get('questionid'),
+                // The key of the stem in qtype_match's own arrays. Nothing in the page
+                // reads it - it used to be painted into a data-key attribute no script
+                // looked at, and it never survived the exporter either (KUET-044).
                 'key' => $key,
                 'optionkey' => base_convert($key, 16, 2),
+                // The choice this stem has to be joined to, as the option key of that
+                // choice, which is what identifies its element in the page. It cannot be
+                // worked out from the stem's own key: qtype_match merges the choices that
+                // share a text, so several stems may point at one choice, and a choice may
+                // be offered with no stem at all. $question->right is mixed in core - the
+                // subquestion id as a string, or the array key of the choice it was merged
+                // with, an int - so it is cast before it is converted.
+                'correctoptionkey' => isset($question->right[$key])
+                    ? base_convert((string)(int)$question->right[$key], 10, 26)
+                    : '',
                 'optiontext' =>
                     self::get_text($cmid, $leftside, $question->stemformat[$key] ?? 1, $question->id, $question, 'questiontext'),
             ];
@@ -206,9 +218,14 @@ class matchquestion extends questions implements questionType {
                 get_string('question_nosuitable', 'mod_kuet')
             );
         }
+        // The choice a stem has to be joined to is the one $questiondata->right points
+        // at, and not the choice that carries the stem's own key: qtype_match merges the
+        // choices that share a text, so several stems may point at one choice, and a
+        // choice may be offered with no stem at all.
         if (isset($questiondata->stems)) {
-            foreach ($questiondata->stems as $key => $answer) {
-                $correctanswers[$key]['response'] = $answer . ' -> ' . $questiondata->choices[$key];
+            foreach ($questiondata->stems as $key => $stem) {
+                $choice = (int)($questiondata->right[$key] ?? 0);
+                $correctanswers[$key]['response'] = $stem . ' -> ' . ($questiondata->choices[$choice] ?? '');
             }
         }
         $data->correctanswers = array_values($correctanswers);
@@ -316,6 +333,15 @@ class matchquestion extends questions implements questionType {
     /**
      * Get simple mark
      *
+     * The mark is the proportion of stems matched to the choice that
+     * qtype_match_question::$right points at, over the number of stems.
+     *
+     * Both halves of that matter. A choice with no stem is a distractor and there
+     * is nothing to match it to, so it must not count towards the total; and several
+     * stems may legitimately share one choice, because qtype_match merges the
+     * choices that have the same text, so the correct choice of a stem cannot be
+     * assumed to be the choice that carries the stem's own key.
+     *
      * @param stdClass $useranswer
      * @param kuet_questions_responses $response
      * @return float|int
@@ -323,60 +349,32 @@ class matchquestion extends questions implements questionType {
      * @throws coding_exception
      */
     public static function get_simple_mark(stdClass $useranswer, kuet_questions_responses $response): float {
-        global $DB;
-        $mark = 0;
         $question = question_bank::load_question($response->get('questionid'), 0);
-        if (assert($question instanceof qtype_match_question)) {
-            $jsonresponse = json_decode(base64_decode($response->get('response')), false, 512, JSON_THROW_ON_ERROR);
-            usort($jsonresponse->response, static fn($a, $b) => strcmp($a->stemDragId, $b->stemDragId));
-            $moodleresponse = [];
-            $positionstems = 0;
-            $stemorder = [];
-            foreach ($question->choices as $keychoice => $rightside) {
-                $stemorder[] = $keychoice;
-            }
-            foreach ($question->stems as $keystem => $leftside) {
-                $moodleresponse[$positionstems] = 0;
-                foreach ($jsonresponse->response as $useroptionresponse) {
-                    if ((int)$useroptionresponse->stemDragId === $keystem) {
-                        foreach ($question->choices as $keychoice => $rightside) {
-                            if ((int)$useroptionresponse->stemDropId === $keychoice) {
-                                $moodleresponse[$positionstems] = $keychoice;
-                            }
-                        }
-                    }
-                }
-                $positionstems++;
-            }
-            [$right, $total] = self::get_num_parts_right($moodleresponse, $stemorder);
-            $fraction = $right / $total;
-            $moodleresult = [$fraction, question_state::graded_state_for_fraction($fraction)];
-            if (isset($moodleresult[0])) {
-                $mark = $moodleresult[0];
+        if (!assert($question instanceof qtype_match_question) || empty($question->stems)) {
+            return 0;
+        }
+        $jsonresponse = json_decode(base64_decode($response->get('response')), false, 512, JSON_THROW_ON_ERROR);
+        // The choice picked for each stem. Both ids come from the client, so only the
+        // pairs that name a stem and a choice of this very question are taken.
+        $picked = [];
+        foreach ($jsonresponse->response ?? [] as $pair) {
+            $stem = (int)($pair->stemDragId ?? 0);
+            $choice = (int)($pair->stemDropId ?? 0);
+            if (array_key_exists($stem, $question->stems) && array_key_exists($choice, $question->choices)) {
+                $picked[$stem] = $choice;
             }
         }
-        return (float)$mark;
-    }
-
-    /**
-     * Get number of right parts to match
-     *
-     * @param array $moodleresponse
-     * @param array $stemorder
-     * @return array
-     */
-    private static function get_num_parts_right(array $moodleresponse, array $stemorder) {
+        // The right mapping is mixed in core: its value is the subquestion id straight
+        // from the database, so a string, except when the choice was merged with an
+        // earlier one, where it is the key of that choice and therefore an int. Both
+        // sides are cast so that a shared choice is not reported as a miss.
         $numright = 0;
-        foreach ($stemorder as $key => $stemid) {
-            if (!array_key_exists($key, $moodleresponse)) {
-                continue;
-            }
-            $choice = $moodleresponse[$key];
-            if ($stemid === $moodleresponse[$key]) {
+        foreach (array_keys($question->stems) as $stem) {
+            if (isset($picked[$stem], $question->right[$stem]) && $picked[$stem] === (int)$question->right[$stem]) {
                 ++$numright;
             }
         }
-        return [$numright, count($stemorder)];
+        return (float)($numright / count($question->stems));
     }
 
     /**

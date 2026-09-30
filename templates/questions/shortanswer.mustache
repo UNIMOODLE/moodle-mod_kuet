@@ -83,10 +83,13 @@
                     <span class="feedback-icon incorrect">{{#pix}}q/incorrect, mod_kuet{{/pix}}</span>
                 </div>
             </div>
-            <small class="answer-help d-none" id="userShortAnswerHelp"></small>
+            <small class="answer-help d-none" id="userShortAnswerHelp">
+                {{#pix}}q/success, mod_kuet{{/pix}}
+                <span class="answer-help-value" data-region="answer-help-value"></span>
+            </small>
         </div>
         {{^answered}}
-            <div class="btn btn-primary ml-auto mt-3" data-action="send-response">
+            <div class="btn btn-primary ms-auto w-auto mt-3" data-action="send-response">
                 {{#str}}send_response, mod_kuet{{/str}}
             </div>
         {{/answered}}
@@ -97,13 +100,13 @@
                 {{#str}}feedback, mod_kuet{{/str}}
             </div>
             <div class="content-feedbacks" data-region="content-feedback">
-                <hr>
+                <hr data-region="statement-feedback-line">
                 <div class="content-feedback" data-region="statement-feedback">
                     {{#answered}}
                         {{{ statment_feedback }}}
                     {{/answered}}
                 </div>
-                <hr>
+                <hr data-region="answer-feedback-line">
                 <div class="content-feedback-answer" data-region="answer-feedback">
                     {{#answered}}
                         {{{ answer_feedback }}}
