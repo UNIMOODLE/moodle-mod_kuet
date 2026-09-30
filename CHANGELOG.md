@@ -1,6 +1,9 @@
 # Changelog
 
 ## v1.0.1-MOODLE_405
+- Fixed the grade item of the activity, which was created with the site-wide
+  maximum grade instead of the maximum configured on the activity itself, so a
+  Kuet set to any other maximum carried the wrong scale into the gradebook.
 - Fixed the mark of a match question, which was computed over the number of
   answers instead of the number of elements to match. Any question with an
   answer that has no element - a distractor, which is ordinary - was marked

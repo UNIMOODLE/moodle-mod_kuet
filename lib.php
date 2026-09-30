@@ -597,7 +597,7 @@ function mod_kuet_grade_item_update(stdClass $data, $grades = null) {
         $params['gradetype'] = GRADE_TYPE_NONE;
     } else {
         $params['gradetype'] = GRADE_TYPE_VALUE;
-        $params['grademax'] = get_config('core', 'gradepointmax');
+        $params['grademax'] = $data->sessiongrademax ?? get_config('core', 'gradepointmax');
         $params['grademin'] = 0;
     }
 
