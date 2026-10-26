@@ -110,6 +110,12 @@ class calculated extends questions implements questionType {
         $data = self::get_question_common_data($session, $cmid, $sessionid, $kuetid, $preview, $kuetquestion, $type);
         $data->$type = true;
         $data->qtype = $type;
+        // A calculated question does not substitute a text handed to format_text(): it substitutes
+        // the question's own properties, because calculate_all_expressions() rewrites
+        // $question->questiontext and $question->generalfeedback when the attempt starts. So the
+        // text has to be read AFTER get_text() has started one. This first call is what starts it
+        // and fixes the variant; its return value is the text from before, wildcards and all,
+        // which is why it is thrown away. Do not remove it: the statement would show {a} and {b}.
         self::get_text($cmid, $question->questiontext, $question->questiontextformat, $question->id, $question, 'questiontext');
         $data->questiontext = self::get_text(
             $cmid,
@@ -554,6 +560,19 @@ class calculated extends questions implements questionType {
         $answerfeedback = '';
         $result = questions::NORESPONSE;
         if (assert($question instanceof qtype_calculated_question)) {
+            // Same as in export_question(): the wildcards of a calculated question are
+            // substituted on the question itself when the attempt starts, so the general
+            // feedback has to be read after starting one for this variant. The first call
+            // is what starts it, and returns the text from before, so it is thrown away.
+            questions::get_text(
+                $cmid,
+                $question->generalfeedback,
+                $question->generalfeedbackformat,
+                $question->id,
+                $question,
+                'generalfeedback',
+                $variant
+            );
             $statmentfeedback = questions::get_text(
                 $cmid,
                 $question->generalfeedback,
@@ -580,11 +599,15 @@ class calculated extends questions implements questionType {
                 }
             }
             if (is_numeric($responsenum)) {
-                if ($multiplier === '') {
-                    $matchanswer = $question->get_matching_answer($responsenum, null);
-                } else {
-                    $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
-                }
+                // Ask the question's own answer processor which answer this response falls on,
+                // exactly as grade_response() does. The multiplier the client sends is the one
+                // stored for the unit, and core works with its inverse
+                // (qtype_numerical_answer_processor::apply_units()), so matching with it picks
+                // a different answer from the one the mark came from: an answer graded wrong
+                // could be shown the feedback of the right one.
+                [$value, $notused, $unitmultiplier] =
+                    $question->ap->apply_units($responsenum, $unit === '' ? null : $unit);
+                $matchanswer = $question->get_matching_answer($value, $unitmultiplier);
                 if ($matchanswer !== null) {
                     $answerfeedback = questions::get_text(
                         $cmid,
@@ -598,7 +621,14 @@ class calculated extends questions implements questionType {
             }
             $possibleanswers = '';
             foreach ($question->answers as $answer) {
-                $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
+                // Only the answers that score the whole mark: the rest are there to feed a
+                // specific feedback, and the catch-all '*' is not an answer at all, so listing
+                // them tells the participant that a wrong answer was right. Same criterion as
+                // shortanswer::answer(), which fills this very same line of the question.
+                // Cast before comparing: see the note in multichoice::answer().
+                if ((float)$answer->fraction === 1.0) {
+                    $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
+                }
             }
             if ($preview === false) {
                 $custom = [

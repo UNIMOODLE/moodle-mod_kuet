@@ -198,4 +198,88 @@ final class multichoice_external_test extends \advanced_testcase {
         $this->assertFalse($data2['programmedmode']);
         $this->assertFalse($data2['preview']);
     }
+
+    /**
+     * A multichoice question with no feedback at all reports that it has none
+     *
+     * The answer feedback is the only one of the eight types that is concatenated,
+     * and the separator used to go on after every answer, so picking an answer that
+     * carries no feedback left the string at '<br>'. That is not empty, so
+     * hasfeedbacks came back true and the participant got an empty feedback box
+     * (KUET-050).
+     *
+     * @covers \mod_kuet\external\multichoice_external::multichoice
+     * @return void
+     */
+    public function test_a_question_with_no_feedback_reports_none(): void {
+        global $DB;
+        $this->resetAfterTest(true);
+        $course = self::getDataGenerator()->create_course();
+        $kuet = self::getDataGenerator()->create_module('kuet', ['course' => $course->id]);
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_kuet');
+        $teacher = self::getDataGenerator()->create_and_enrol($course, 'teacher');
+        $student = self::getDataGenerator()->create_and_enrol($course);
+        self::setUser($teacher);
+
+        $sid = $generator->create_session($kuet, (object) [
+            'name' => 'Session Test',
+            'kuetid' => $kuet->id,
+            'anonymousanswer' => 0,
+            'sessionmode' => sessions::PODIUM_MANUAL,
+            'sgrade' => 0,
+            'countdown' => 0,
+            'showgraderanking' => 0,
+            'randomquestions' => 0,
+            'randomanswers' => 0,
+            'showfeedback' => 0,
+            'showfinalgrade' => 0,
+            'startdate' => 0,
+            'enddate' => 0,
+            'automaticstart' => 0,
+            'timemode' => sessions::QUESTION_TIME,
+            'sessiontime' => 0,
+            'questiontime' => 10,
+            'groupings' => 0,
+            'status' => sessions::SESSION_ACTIVE,
+            'sessionid' => 0,
+            'submitbutton' => 0,
+        ]);
+
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $cat = $questiongenerator->create_question_category();
+        $mcq = $questiongenerator->create_question(questions::MULTICHOICE, null, ['category' => $cat->id]);
+
+        // The question core builds comes with feedback everywhere; this one has none,
+        // which is the case the participant reported.
+        $DB->set_field('question', 'generalfeedback', '', ['id' => $mcq->id]);
+        $DB->set_field('question_answers', 'feedback', '', ['question' => $mcq->id]);
+
+        $generator->add_questions_to_session([
+            ['questionid' => $mcq->id, 'sessionid' => $sid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE],
+        ]);
+        \mod_kuet\external\startsession_external::startsession($kuet->cmid, $sid);
+        $jmcq = \mod_kuet\persistents\kuet_questions::get_record(
+            ['questionid' => $mcq->id, 'sessionid' => $sid, 'kuetid' => $kuet->id, 'qtype' => questions::MULTICHOICE]
+        );
+
+        $answers = $DB->get_records('question_answers', ['question' => $mcq->id], 'id ASC');
+        $chosen = (string) reset($answers)->id;
+
+        self::setUser($student);
+        $data = \mod_kuet\external\multichoice_external::multichoice(
+            $chosen,
+            $sid,
+            $kuet->id,
+            $kuet->cmid,
+            $mcq->id,
+            $jmcq->get('id'),
+            10,
+            false
+        );
+
+        $this->assertTrue($data['reply_status']);
+        $this->assertSame('', $data['statment_feedback']);
+        $this->assertSame('', $data['answer_feedback'], 'A separator was left behind as if it were feedback');
+        $this->assertFalse($data['hasfeedbacks'], 'The question says it has feedback when it has none');
+    }
 }
