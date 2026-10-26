@@ -36,6 +36,7 @@ namespace mod_kuet;
 use coding_exception;
 use context_module;
 use dml_exception;
+use core_course\external\helper_for_get_mods_by_courses;
 use core_external\external_api;
 use externallib_advanced_testcase;
 use file_exception;
@@ -108,6 +109,15 @@ final class externallib_test extends externallib_advanced_testcase {
         $expectedfields = ['id', 'coursemodule', 'course', 'name', 'intro', 'introformat', 'introfiles', 'timemodified',
             'section', 'visible', 'groupmode', 'groupingid', 'lang'];
 
+        // The standard course module elements grow from one Moodle version to the next:
+        // enableaitools and enabledaiactions only arrived in 5.1. Ask core which ones it
+        // returns instead of pinning the list to a single version.
+        $optionalfields = array_values(array_intersect(
+            ['enableaitools', 'enabledaiactions'],
+            array_keys(helper_for_get_mods_by_courses::standard_coursemodule_elements_returns())
+        ));
+        $expectedfields = array_merge($expectedfields, $optionalfields);
+
         // Add expected coursemodule and data.
         $kuet1->coursemodule = $kuet1->cmid;
         $kuet1->introformat = 1;
@@ -116,7 +126,7 @@ final class externallib_test extends externallib_advanced_testcase {
         $kuet1->groupmode = 0;
         $kuet1->groupingid = 0;
         $kuet1->introfiles = [];
-        $kuet1->lang = '';
+        $kuet1->lang = null;
 
         $kuet2->coursemodule = $kuet2->cmid;
         $kuet2->introformat = 1;
@@ -125,7 +135,12 @@ final class externallib_test extends externallib_advanced_testcase {
         $kuet2->groupmode = 0;
         $kuet2->groupingid = 0;
         $kuet2->introfiles = [];
-        $kuet2->lang = '';
+        $kuet2->lang = null;
+
+        foreach ($optionalfields as $optionalfield) {
+            $kuet1->{$optionalfield} = null;
+            $kuet2->{$optionalfield} = null;
+        }
 
         foreach ($expectedfields as $field) {
             $expected1[$field] = $kuet1->{$field};

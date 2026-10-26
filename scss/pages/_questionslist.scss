@@ -14,6 +14,9 @@ body#page-mod-kuet-sessions {
                 border-radius: 8px;
                 box-shadow: 0 0 10px rgba(0, 0, 0, .06);
 
+                #id_movetocategory {
+                    width: 100%;
+                }
                 .titlecontainer {
                     box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
                     border-radius: 8px 8px 0 0;
@@ -112,10 +115,12 @@ body#page-mod-kuet-sessions {
                 }
 
                 .btn-primary {
-                    display: block;
-                    margin: 1em 0 0 0;
-                    width: 50%;
-                    min-width: 250px;
+                    &.add_questions {
+                        display: block;
+                        margin: 1em 0 0 0;
+                        width: 50%;
+                        min-width: 250px;
+                    }
                 }
 
                 .content-question {

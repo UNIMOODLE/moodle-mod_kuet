@@ -48,7 +48,7 @@ use mod_kuet\output\views\teacher_reports;
 use mod_kuet\output\views\teacher_session_view;
 use mod_kuet\output\views\test_report;
 use moodle_exception;
-use plugin_renderer_base;
+use core\output\plugin_renderer_base;
 use mod_kuet\output\views\student_view;
 use mod_kuet\output\views\teacher_view;
 use ReflectionException;

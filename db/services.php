@@ -32,6 +32,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_kuet\external\getquestionbank_external;
 use mod_kuet\external\activesession_external;
 use mod_kuet\external\calculated_external;
 use mod_kuet\external\copysession_external;
@@ -430,6 +431,15 @@ $functions = [
         'classname' => sessionstatus_external::class,
         'methodname' => 'sessionstatus',
         'description' => 'Change session status',
+        'type' => 'write',
+        'capabilities' => 'mod/kuet:managesessions',
+        'ajax' => true,
+        'loginrequired' => true,
+    ],
+    'mod_kuet_getquestionbank' => [
+        'classname' => getquestionbank_external::class,
+        'methodname' => 'getquestionbank',
+        'description' => 'getquestionbank panel part',
         'type' => 'write',
         'capabilities' => 'mod/kuet:managesessions',
         'ajax' => true,

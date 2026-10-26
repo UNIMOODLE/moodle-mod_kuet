@@ -36,6 +36,7 @@ namespace mod_kuet\models;
 use cm_info;
 use coding_exception;
 use context_module;
+use core\context\module;
 use core\invalid_persistent_exception;
 use core_availability\info_module;
 use core_php_time_limit;
@@ -70,6 +71,8 @@ class sessions {
 
     /** @var int cmid */
     protected int $cmid;
+    /** @var int $qbankcmid */
+    protected int $qbankcmid;
 
     /** @var kuet_sessions[] list */
     protected array $list;
@@ -160,9 +163,10 @@ class sessions {
      * @param stdClass $kuet
      * @param int $cmid
      */
-    public function __construct(stdClass $kuet, int $cmid) {
+    public function __construct(stdClass $kuet, int $cmid, int $questionbankcmid = 0) {
         $this->kuet = $kuet;
         $this->cmid = $cmid;
+        $this->qbankcmid = $questionbankcmid;
     }
 
     /**
@@ -310,11 +314,34 @@ class sessions {
      * @throws moodle_exception
      */
     public function export_session_questions(): object {
+        $sid = required_param('sid', PARAM_INT);
+        $cmid = required_param('cmid', PARAM_INT);
+        return $this->export_session_questionbank_panel($sid, $cmid);
+    }
+
+    /**
+     * export_session_questionbank_panel
+     * @param int $sid
+     * @param int $cmid
+     * @return stdClass
+     * @throws \core\exception\moodle_exception
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public function export_session_questionbank_panel(int $sid, int $cmid): object {
         global $DB;
         $data = new stdClass();
         $data->ispage2 = true;
-        $data->sid = required_param('sid', PARAM_INT);
-        $data->cmid = required_param('cmid', PARAM_INT);
+        $data->sid = $sid;
+        $data->cmid = $cmid;
+        $data->questionbankcmid = $this->qbankcmid;
+        if ($data->questionbankcmid) {
+            $data->hasquestionbankname = true;
+            [$course, $cm] = get_course_and_cm_from_cmid($this->qbankcmid, 'qbank');
+            $data->questionbankname = $cm->name;
+        }
+        $data->contextid = module::instance($data->cmid)->id;
         $data->kuetid = $this->kuet->id;
         [$data->currentcategory, $data->questionbank_categories] = $this->get_questionbank_select();
         $course = $DB->get_record_sql("
@@ -350,7 +377,12 @@ class sessions {
         global $DB;
         core_php_time_limit::raise(300);
         $categories = [];
-        $context = context_module::instance($this->cmid);
+        if ($this->qbankcmid) {
+            $context = context_module::instance($this->qbankcmid);
+        } else {
+            $context = context_module::instance($this->cmid);
+        }
+
         $contexts = $context->get_parent_contexts();
         $contexts[$context->id] = $context;
         $pcontexts = [];
@@ -396,6 +428,7 @@ class sessions {
                         q.id,
                         q.qtype,
                         q.name,
+                        q.createdby,
                         qbe.idnumber,
                         qc.contextid
                     FROM {question} q
@@ -419,6 +452,14 @@ class sessions {
             $questionsrs->close();
         }
         foreach ($questions as $key => $question) {
+            // Per-question authorisation, the way core does it in mod_quiz
+            // (structure::has_use_capability()): 'use' resolves to useall, or to
+            // usemine for a question the user created. The record carries contextid
+            // and createdby, so this costs no extra query.
+            if (!question_has_capability_on($question, 'use')) {
+                unset($questions[$key]);
+                continue;
+            }
             $icon = new pix_icon('icon', '', 'qtype_' . $question->qtype, [
                 'class' => 'icon',
                 'title' => $question->qtype,
@@ -442,9 +483,14 @@ class sessions {
      * @throws dml_exception
      */
     private function get_questionbank_select(): array {
-        $context = context_module::instance($this->cmid);
-        $contexts = $context->get_parent_contexts();
+        if ($this->qbankcmid) {
+            $context = context_module::instance($this->qbankcmid);
+        } else {
+            $context = context_module::instance($this->cmid);
+        }
+
         $contexts[$context->id] = $context;
+        $contexts = array_merge($contexts, $context->get_parent_contexts());
         $categoriesarray = helper::question_category_options(
             $contexts,
             true,
@@ -453,18 +499,30 @@ class sessions {
             -1,
             false
         );
-        // Pick the first available category across all option groups. Some groups
-        // may be empty, so scan until a key is found instead of stopping at the
-        // first group (which could leave $currentcategory as an array and break
-        // get_questions_for_category(), which expects a "categoryid,contextid" string).
+        // Pick the first category with questions of its own, and the first of all as a
+        // fallback. Scanning every option group, because some may be empty: stopping at
+        // the first group could leave $currentcategory as an array and break
+        // get_questions_for_category(), which expects a "categoryid,contextid" string.
+        // The first of all is always "top", which by convention holds no question, so
+        // opening on it showed the bank through what its subcategories happen to have.
         $currentcategory = '';
+        $firstcategory = '';
         foreach ($categoriesarray as $sistemcategory) {
             foreach ($sistemcategory as $key => $category) {
+                // Keys are "categoryid,contextid" (see qbank_managecategories\helper::combine_id_context);
+                // keep the full string — get_questions_for_category() splits it on the comma.
+                if ($firstcategory === '') {
+                    $firstcategory = $key;
+                }
+                if (!self::category_has_questions($key)) {
+                    continue;
+                }
                 $currentcategory = $key;
                 break 2;
             }
         }
-        return [$currentcategory, helper::question_category_select_menu(
+
+        return [$currentcategory ?: $firstcategory, helper::question_category_select_menu(
             $contexts,
             true,
             0,
@@ -472,6 +530,24 @@ class sessions {
             -1,
             true
         )];
+    }
+
+    /**
+     * Whether a category of the bank holds questions of its own
+     *
+     * @param string $category Key of the option, "categoryid,contextid".
+     * @return bool
+     * @throws dml_exception
+     */
+    private static function category_has_questions(string $category): bool {
+        global $DB;
+
+        if (strpos($category, ',') === false) {
+            return false;
+        }
+        [$categoryid] = explode(',', $category);
+
+        return $DB->record_exists('question_bank_entries', ['questioncategoryid' => (int)$categoryid]);
     }
 
     /**
@@ -779,7 +855,9 @@ class sessions {
      * @throws coding_exception
      */
     public static function breakdown_responses_for_race(array $userresults, int $sid, int $cmid, int $kuetid): array {
-        $questions = (new questions($kuetid, $cmid, $sid))->get_list();
+        // Reindexed: from Moodle 5.2 persistent::get_records() keys the instances by record
+        // id (MDL-79574), so $key is the id of the question, not its position in the list.
+        $questions = array_values((new questions($kuetid, $cmid, $sid))->get_list());
         $questionsdata = [];
         foreach ($questions as $key => $question) {
             $questionsdata[$key] = new stdClass();
@@ -839,7 +917,9 @@ class sessions {
      * @throws coding_exception
      */
     public static function breakdown_responses_for_race_groups(array $groupresults, int $sid, int $cmid, int $kuetid): array {
-        $questions = (new questions($kuetid, $cmid, $sid))->get_list();
+        // Reindexed: from Moodle 5.2 persistent::get_records() keys the instances by record
+        // id (MDL-79574), so $key is the id of the question, not its position in the list.
+        $questions = array_values((new questions($kuetid, $cmid, $sid))->get_list());
         $questionsdata = [];
         foreach ($questions as $key => $question) {
             $questionsdata[$key] = new stdClass();
@@ -1117,19 +1197,21 @@ class sessions {
         unset($finalranking[0], $finalranking[1], $finalranking[2]);
         $finalranking = array_values($finalranking);
         foreach ($finalranking as $key => $userforranking) {
-            $finalranking[$key]->userpoints = $userforranking->userpoints ? (string)$userforranking->userpoints : '';
+            // Cast, do not test for truth: a participant who scored 0 has points to show,
+            // and an empty string paints an empty pill next to their name.
+            $finalranking[$key]->userpoints = (string)$userforranking->userpoints;
         }
         return [
             'finalranking' => $finalranking,
             'firstuserimageurl' => $ranking[0]->userimageurl ?? '',
             'firstuserfullname' => $ranking[0]->userfullname ?? '',
-            'firstuserpoints' => $ranking[0]->userpoints ? (string)$ranking[0]->userpoints : '',
+            'firstuserpoints' => isset($ranking[0]) ? (string)$ranking[0]->userpoints : '',
             'seconduserimageurl' => $ranking[1]->userimageurl ?? '',
             'seconduserfullname' => $ranking[1]->userfullname ?? '',
-            'seconduserpoints' => $ranking[1]->userpoints ? (string)$ranking[1]->userpoints : '',
+            'seconduserpoints' => isset($ranking[1]) ? (string)$ranking[1]->userpoints : '',
             'thirduserimageurl' => $ranking[2]->userimageurl ?? '',
             'thirduserfullname' => $ranking[2]->userfullname ?? '',
-            'thirduserpoints' => $ranking[2]->userpoints ? (string)$ranking[2]->userpoints : '',
+            'thirduserpoints' => isset($ranking[2]) ? (string)$ranking[2]->userpoints : '',
             'sessionid' => $sid,
             'cmid' => $cmid,
             'kuetid' => $session->get('kuetid'),

@@ -42,7 +42,6 @@ use mod_kuet\persistents\kuet_sessions;
 global $CFG, $PAGE, $DB, $COURSE, $USER;
 $id = required_param('cmid', PARAM_INT);    // Course Module ID.
 $sid = required_param('sid', PARAM_INT);    // Session id.
-
 $cm = get_coursemodule_from_id('kuet', $id, 0, false, MUST_EXIST);
 $course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);

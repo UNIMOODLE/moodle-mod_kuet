@@ -531,11 +531,14 @@ class numerical extends questions implements questionType {
                         break;
                 }
             }
-            if ($multiplier === '') {
-                $matchanswer = $question->get_matching_answer($responsenum, null);
-            } else {
-                $matchanswer = $question->get_matching_answer($responsenum, (float)$multiplier);
-            }
+            // Ask the question's own answer processor which answer this response falls on,
+            // exactly as grade_response() does. The multiplier the client sends is the one
+            // stored for the unit, and core works with its inverse
+            // (qtype_numerical_answer_processor::apply_units()), so matching with it picks a
+            // different answer from the one the mark came from: an answer graded wrong could
+            // be shown the feedback of the right one.
+            [$value, $notused, $unitmultiplier] = $question->ap->apply_units($responsenum, $unit === '' ? null : $unit);
+            $matchanswer = $question->get_matching_answer($value, $unitmultiplier);
             if ($matchanswer !== null) {
                 $answerfeedback = questions::get_text(
                     $cmid,
@@ -549,7 +552,14 @@ class numerical extends questions implements questionType {
 
             $possibleanswers = '';
             foreach ($question->answers as $answer) {
-                $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
+                // Only the answers that score the whole mark: the rest are there to feed a
+                // specific feedback, and the catch-all '*' is not an answer at all, so listing
+                // them tells the participant that a wrong answer was right. Same criterion as
+                // shortanswer::answer(), which fills this very same line of the question.
+                // Cast before comparing: see the note in multichoice::answer().
+                if ((float)$answer->fraction === 1.0) {
+                    $possibleanswers .= $answer->answer . $question->ap->get_default_unit() . ' / ';
+                }
             }
             if ($preview === false) {
                 $custom = [

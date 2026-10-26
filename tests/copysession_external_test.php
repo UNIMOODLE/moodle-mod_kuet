@@ -38,8 +38,8 @@ use mod_kuet\external\copysession_external;
 use mod_kuet\models\sessions;
 
 defined('MOODLE_INTERNAL') || die();
-global $CFG;
-require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
+
+require_once(__DIR__ . '/session_fixture_trait.php');
 
 /**
  * Copy session test class
@@ -47,6 +47,8 @@ require_once($CFG->dirroot . '/mod/kuet/tests/sessions_test.php');
  * @covers \mod_kuet\external\copysession_external
  */
 final class copysession_external_test extends \advanced_testcase {
+    use session_fixture_trait;
+
     /**
      * Copy session test
      *
@@ -66,8 +68,7 @@ final class copysession_external_test extends \advanced_testcase {
         // sessions_test::test_session() builds its own course and kuet, so reusing
         // its session here meant copying a session of one kuet using the cmid of
         // another — which the service now rejects, and rightly so.
-        $sessionmock = (new sessions_test())->sessionmock;
-        $sessionmock['kuetid'] = $kuet->id;
+        $sessionmock = $this->session_fixture(['kuetid' => $kuet->id]);
         $generator = self::getDataGenerator()->get_plugin_generator('mod_kuet');
         $generator->create_session($kuet, (object) $sessionmock);
 
@@ -75,7 +76,8 @@ final class copysession_external_test extends \advanced_testcase {
         $list = $sessions->get_list();
         $this->assertCount(1, $list);
 
-        $result = copysession_external::copysession($course->id, $kuet->cmid, $list[0]->get('id'));
+        $first = reset($list);
+        $result = copysession_external::copysession($course->id, $kuet->cmid, $first->get('id'));
         $this->assertIsArray($result);
         $this->assertTrue($result['copied']);
         $sessions->set_list();
@@ -84,7 +86,8 @@ final class copysession_external_test extends \advanced_testcase {
 
         $student = self::getDataGenerator()->create_and_enrol($course);
         self::setUser($student);
-        $result = copysession_external::copysession($course->id, $kuet->cmid, $newlist[0]->get('id'));
+        $firstnew = reset($newlist);
+        $result = copysession_external::copysession($course->id, $kuet->cmid, $firstnew->get('id'));
         $this->assertIsArray($result);
         $this->assertFalse($result['copied']);
 

@@ -58,14 +58,6 @@ class mod_kuet_mod_form extends moodleform_mod {
 
         // Grade settings.
         $this->standard_grading_coursemodule_elements();
-        $mform->removeElement('grade');
-        if (property_exists($this->current, 'grade')) {
-            $currentgrade = $this->current->grade;
-        } else {
-            $currentgrade = get_config('core', 'gradepointmax');
-        }
-        $mform->addElement('hidden', 'grade', $currentgrade);
-        $mform->setType('grade', PARAM_FLOAT);
 
         $grademethodelement = $mform->createElement(
             'select',

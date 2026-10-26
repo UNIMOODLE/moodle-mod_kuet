@@ -603,14 +603,22 @@ class multichoice extends questions implements questionType {
                 foreach ($arrayanswers as $arrayanswer) {
                     if ((int)$key === (int)$arrayanswer) {
                         $answertexts[$answer->id] = strip_tags($answer->answer);
-                        $answerfeedback .= questions::get_text(
+                        $feedback = questions::get_text(
                             $cmid,
                             $answer->feedback,
                             1,
                             $answer->id,
                             $question,
                             'answerfeedback'
-                        ) . '<br>';
+                        );
+                        // The break belongs between two feedbacks, not after each one. Appended to
+                        // an answer that carries none it left the string at '<br>', which is not
+                        // empty, so hasfeedbacks came back true and the participant was shown a
+                        // feedback box with a line break inside it (KUET-050). This is the only
+                        // question type that concatenates; the rest assign.
+                        if (trim($feedback) !== '') {
+                            $answerfeedback .= ($answerfeedback !== '' ? '<br>' : '') . $feedback;
+                        }
                     }
                 }
             }

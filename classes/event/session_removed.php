@@ -35,6 +35,7 @@ namespace mod_kuet\event;
 use coding_exception;
 use context_module;
 use core\context\module;
+use core\url;
 use moodle_exception;
 use moodle_url;
 use core\event\base;
@@ -82,7 +83,7 @@ class session_removed extends base {
      */
     public function get_url(): moodle_url {
         $cmcontext = module::instance($this->contextinstanceid);
-        return new moodle_url('mod/kuet/sessions.php', ['sid' => $this->objectid,
+        return new url('mod/kuet/sessions.php', ['sid' => $this->objectid,
             'cmid' => $cmcontext->instanceid]);
     }
 

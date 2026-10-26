@@ -39,8 +39,8 @@ import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
 import Notification from 'core/notification';
 import ModalSaveCancel from 'core/modal_save_cancel';
-import ModalCancel from 'core/modal_cancel';
 import ModalAlert from 'core/local/modal/alert';
+import ModalCancel from 'core/modal_cancel';
 
 let ACTION = {
     SEEINFORMATION: '[data-action="see_info"]',
