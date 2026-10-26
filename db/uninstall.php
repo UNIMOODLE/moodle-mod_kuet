@@ -34,12 +34,24 @@
 
 
 /**
- * Uninstall routine
+ * Uninstall routine.
+ *
+ * Only the socket certificate and private key files are removed here. They are
+ * stored by admin_setting_configstoredfile under the 'kuet' component, not
+ * 'mod_kuet', so the delete_component_files() call in uninstall_plugin() does
+ * not reach them.
+ *
+ * The plugin tables are deliberately NOT dropped here. uninstall_plugin() calls
+ * this function before core\plugininfo\mod::uninstall_cleanup(), which runs
+ * grade_uninstalled_module() to remove the leftover grade items; that goes
+ * through grade_grade::notify_changed() and get_coursemodule_from_instance(),
+ * which reads the {kuet} table. Dropping it here made the whole uninstall abort
+ * with a dmlreadexception and leave orphaned grade items behind. Core drops
+ * every table declared in db/install.xml right afterwards anyway.
  *
  * @return bool
  */
 function xmldb_kuet_uninstall(): bool {
-    global $DB;
     try {
         $syscontext = context_system::instance();
         $fs = get_file_storage();
@@ -67,21 +79,9 @@ function xmldb_kuet_uninstall(): bool {
                 $file->delete();
             }
         }
-        $dbman = $DB->get_manager();
-        $kuet = new xmldb_table('kuet');
-        $dbman->drop_table($kuet);
-        $kuetgrades = new xmldb_table('kuet_grades');
-        $dbman->drop_table($kuetgrades);
-        $kuetquestions = new xmldb_table('kuet_questions');
-        $dbman->drop_table($kuetquestions);
-        $kuetsessions = new xmldb_table('kuet_sessions');
-        $dbman->drop_table($kuetsessions);
-        $kuetsessionsgrades = new xmldb_table('kuet_sessions_grades');
-        $dbman->drop_table($kuetsessionsgrades);
-        $kuetuserprogress = new xmldb_table('kuet_user_progress');
-        $dbman->drop_table($kuetuserprogress);
         return true;
     } catch (Exception $e) {
+        debugging('mod_kuet uninstall could not delete the socket certificate files: ' . $e->getMessage());
         return false;
     }
 }

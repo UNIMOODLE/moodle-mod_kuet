@@ -1117,19 +1117,21 @@ class sessions {
         unset($finalranking[0], $finalranking[1], $finalranking[2]);
         $finalranking = array_values($finalranking);
         foreach ($finalranking as $key => $userforranking) {
-            $finalranking[$key]->userpoints = $userforranking->userpoints ? (string)$userforranking->userpoints : '';
+            // Cast, do not test for truth: a participant who scored 0 has points to show,
+            // and an empty string paints an empty pill next to their name.
+            $finalranking[$key]->userpoints = (string)$userforranking->userpoints;
         }
         return [
             'finalranking' => $finalranking,
             'firstuserimageurl' => $ranking[0]->userimageurl ?? '',
             'firstuserfullname' => $ranking[0]->userfullname ?? '',
-            'firstuserpoints' => $ranking[0]->userpoints ? (string)$ranking[0]->userpoints : '',
+            'firstuserpoints' => isset($ranking[0]) ? (string)$ranking[0]->userpoints : '',
             'seconduserimageurl' => $ranking[1]->userimageurl ?? '',
             'seconduserfullname' => $ranking[1]->userfullname ?? '',
-            'seconduserpoints' => $ranking[1]->userpoints ? (string)$ranking[1]->userpoints : '',
+            'seconduserpoints' => isset($ranking[1]) ? (string)$ranking[1]->userpoints : '',
             'thirduserimageurl' => $ranking[2]->userimageurl ?? '',
             'thirduserfullname' => $ranking[2]->userfullname ?? '',
-            'thirduserpoints' => $ranking[2]->userpoints ? (string)$ranking[2]->userpoints : '',
+            'thirduserpoints' => isset($ranking[2]) ? (string)$ranking[2]->userpoints : '',
             'sessionid' => $sid,
             'cmid' => $cmid,
             'kuetid' => $session->get('kuetid'),

@@ -54,11 +54,27 @@
             }
         }
 
+        // The right answer, under the input: a white box with the icon that marks a correct
+        // answer beside the value. The parent is a centred row-wrap flex container and
+        // .input-content above fills the row, so the box lands on its own line, centred, and
+        // takes the width of its content.
         .answer-help {
-            display: block;
-            color: lime !important;
-            margin-top: 0;
-            flex-basis: 60%;
+            display: inline-flex;
+            flex-flow: row nowrap;
+            align-items: center;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 4px 12px;
+            margin-top: 10px;
+            color: #241023;
+            font-size: 16px;
+            font-weight: bold;
+
+            .icon {
+                margin: 0 8px 0 0;
+                height: 15px;
+                width: auto;
+            }
         }
     }
 }

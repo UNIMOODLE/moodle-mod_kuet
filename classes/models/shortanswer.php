@@ -456,10 +456,17 @@ class shortanswer extends questions implements questionType {
             }
             $response = ['answer' => $responsetext];
             [$fraction, $notused] = $question->grade_response($response);
-            $answerfeedback = questions::get_text(
+            // The feedback of the answer the response fell on, which is what the lower half of
+            // the feedback box is for. It used to repeat the general feedback that the upper
+            // half already shows, so a question with one was told the same thing twice and a
+            // question whose answers carry their own feedback never showed it (KUET-052).
+            // Asked of the question's own strategy, the same one grade_response() just used,
+            // so the feedback always belongs to the answer the mark came from.
+            $matchanswer = $question->get_matching_answer($response);
+            $answerfeedback = $matchanswer === null ? '' : questions::get_text(
                 $cmid,
-                $question->generalfeedback,
-                $question->generalfeedbackformat,
+                $matchanswer->feedback,
+                $matchanswer->feedbackformat,
                 $question->id,
                 $question,
                 'feedback'

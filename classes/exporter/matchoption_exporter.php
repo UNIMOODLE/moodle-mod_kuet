@@ -51,6 +51,15 @@ class matchoption_exporter extends exporter {
             'optionkey' => [
                 'type' => PARAM_RAW,
             ],
+            // The option key of the choice a stem has to be joined to. Only the options of
+            // the left hand side carry it, and this same definition describes those of the
+            // right hand side, which have nothing to point at, so it is optional. Without
+            // it declared here the field would not survive the external services, which
+            // return only what the exporter defines.
+            'correctoptionkey' => [
+                'type' => PARAM_RAW,
+                'optional' => true,
+            ],
             'optiontext' => [
                 'type' => PARAM_RAW,
             ],
