@@ -44,17 +44,17 @@
         transition-duration: .5s;
         transition-timing-function: ease;
 
-        &.width {
+        &.collapse-horizontal {
             width: 0;
         }
     }
 
     .teacher-control-panel {
-        background: #faf9ff;
+        background: var(--kuet-panel-bg);
         border-width: 0 0 2px 2px;
         border-style: solid;
-        border-color: #eeecf5;
-        box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+        border-color: var(--kuet-panel-border-color);
+        box-shadow: var(--kuet-box-shadow);
         border-radius: 0 0 8px 8px;
         width: 260px;
         padding: 30px 0 30px 30px;
@@ -78,7 +78,7 @@
             }
 
             .line-separator {
-                background-color: #edebf4;
+                background-color: var(--kuet-divider-color);
                 height: 2px;
                 width: 100%;
             }
@@ -96,15 +96,8 @@
                 pointer-events: none;
                 opacity: .5;
 
-                .custom-control-input {
+                .form-check-input {
                     pointer-events: none;
-                }
-
-                .custom-control-label {
-                    &:before,
-                    &:after {
-                        pointer-events: none;
-                    }
                 }
             }
 
@@ -181,4 +174,9 @@
         right: 0;
         z-index: 40;
     }
+}
+// "Jump to question" input of the control panel: wide enough for its placeholder now that it is no longer sized by
+// Bootstrap 4's .form-inline.
+#jumpToNumber.kuet-jumpto-input {
+    width: 9rem;
 }

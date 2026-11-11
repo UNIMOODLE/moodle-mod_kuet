@@ -1,1 +1,11 @@
 $answercolors: #0fd08c, #f8971e, #f85455, #3778f8, #5a57ff, #241023, #ff6663, #a51080, #00272b, #8c8a93, #2e5266, #14213d, #4a5043, #c97d60; /* TODO review all colors */
+
+// Emit the content as a dark colour mode override of the rule it is written inside.
+// Same helper as theme_boost's dark-mode mixin (theme/boost/scss/moodle/colour-mode.scss): Moodle sets
+// data-bs-theme="dark" on <html>, so the attribute selector is put in front of the enclosing selector instead of
+// being nested inside it, and the override keeps (and adds to) the specificity of the rule it corrects.
+@mixin dark-mode {
+    @at-root #{selector-nest('[data-bs-theme="dark"]', &)} {
+        @content;
+    }
+}

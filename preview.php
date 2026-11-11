@@ -48,6 +48,16 @@ $sid = required_param('sid', PARAM_INT);    // Kuet session ID. mdl_kuet_session
 $kuetid = required_param('ksid', PARAM_INT);    // Kuet session ID. mdl_kuet.
 $cid = required_param('cid', PARAM_INT);    // Course ID. mdl_course.
 
+// The course comes from the activity, never from the cid parameter, and the question has to belong to a session of
+// that activity: otherwise any logged-in user could preview the questions (and feedback) of any course.
+$cm = get_coursemodule_from_id('kuet', $id, 0, false, MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
+require_login($course, false, $cm);
+require_capability('mod/kuet:managesessions', context_module::instance($cm->id));
+\mod_kuet\helpers\modcontext::require_kuet_in_cm($kuetid, $id);
+\mod_kuet\helpers\modcontext::require_session_in_cm($sid, $id);
+\mod_kuet\helpers\modcontext::require_question_in_session($kid, $sid);
+
 $kquestion = $DB->get_record('kuet_questions', ['id' => $kid], '*', MUST_EXIST);
 if (!in_array($kquestion->qtype, questions::TYPES, true)) {
     throw new moodle_exception(
@@ -60,14 +70,10 @@ if (!in_array($kquestion->qtype, questions::TYPES, true)) {
 }
 
 $question = $DB->get_record('question', ['id' => $kquestion->questionid], '*', MUST_EXIST);
-$course = $DB->get_record('course', ['id' => $cid], '*', MUST_EXIST);
-$coursecontext = context_course::instance($course->id);
-require_login($course, false);
 
 $question = question_bank::load_question((int) $question->id, 0);
 
 $view = new question_preview($kquestion->questionid, $kid, $id, $sid, $kuetid);
-$PAGE->set_context($coursecontext);
 $PAGE->set_url('/mod/kuet/preview.php', ['id' => $id, 'kid' => $kid, 'sid' => $sid, 'cid' => $cid, 'kuetid' => $kuetid]);
 $PAGE->set_heading($question->name);
 $PAGE->set_title($question->name);

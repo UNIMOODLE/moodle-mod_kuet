@@ -8,9 +8,10 @@ body.path-mod-kuet {
                     }
 
                     .container-fluid {
-                        small {
+                        // Not the right-answer box under the input (.answer-help), which has its own colours.
+                        small:not(.answer-help) {
                             font-size: 13px;
-                            color: #929292;
+                            color: var(--kuet-muted-color);
                         }
 
                         .row {

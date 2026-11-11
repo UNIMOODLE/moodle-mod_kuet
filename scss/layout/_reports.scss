@@ -38,7 +38,7 @@ body#page-mod-kuet-reports.kuet-reports {
 
             .user-fullname {
                 font-size: 24px;
-                color: black;
+                color: var(--bs-emphasis-color);
                 margin-right: 8px;
             }
         }
@@ -57,7 +57,7 @@ body#page-mod-kuet-reports.kuet-reports {
 
     .user_session_grade {
         padding: 10px;
-        border: 1px solid black;
+        border: 1px solid var(--bs-emphasis-color);
         border-radius: 9px;
         width: fit-content;
         height: 45px;
@@ -74,8 +74,9 @@ body#page-mod-kuet-reports.kuet-reports {
         margin-top: 25px;
         padding: 0;
         border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
-        background-color: white;
+        box-shadow: var(--kuet-box-shadow);
+        border: var(--kuet-box-border);
+        background-color: var(--kuet-surface-bg);
 
         .sessions-list-header {
             padding: 10px 20px;
@@ -99,7 +100,7 @@ body#page-mod-kuet-reports.kuet-reports {
             }
 
             .create-session {
-                background-color: white;
+                background-color: var(--kuet-surface-bg);
             }
         }
 
@@ -130,7 +131,7 @@ body#page-mod-kuet-reports.kuet-reports {
                     font-weight: bold;
 
                     .d-table-cell {
-                        color: #2b2b2b !important;
+                        color: var(--bs-body-color) !important;
                     }
                 }
 
@@ -138,8 +139,8 @@ body#page-mod-kuet-reports.kuet-reports {
                     font-weight: normal;
 
                     .d-table-cell {
-                        border-top: 1px solid #edebf4;
-                        color: #929292 !important;
+                        border-top: 1px solid var(--kuet-divider-color);
+                        color: var(--kuet-muted-color) !important;
                     }
                 }
 
@@ -150,7 +151,7 @@ body#page-mod-kuet-reports.kuet-reports {
                         div, a {
                             width: 125px;
                             height: 32px;
-                            color: #667085;
+                            color: var(--kuet-action-muted-color);
                             background-color: transparent;
                             border-radius: 8px;
                             display: flex;
@@ -162,7 +163,7 @@ body#page-mod-kuet-reports.kuet-reports {
                             &:hover {
                                 cursor: pointer;
                                 text-decoration: none;
-                                background-color: #e6e6e6;
+                                background-color: var(--kuet-hover-bg);
                                 transition: background-color .2s ease-in-out;
                             }
                         }
@@ -176,10 +177,12 @@ body#page-mod-kuet-reports.kuet-reports {
         margin-top: 25px;
         padding: 0;
         border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+        box-shadow: var(--kuet-box-shadow);
+        border: var(--kuet-box-border);
+        background-color: var(--kuet-box-bg);
 
         .titlecontainer {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+            box-shadow: var(--kuet-inner-shadow);
             border-radius: 8px 8px 0 0;
             color: #fff;
             padding: 1em;
@@ -228,10 +231,12 @@ body#page-mod-kuet-reports.kuet-reports {
         margin-top: 25px;
         padding: 0;
         border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+        box-shadow: var(--kuet-box-shadow);
+        border: var(--kuet-box-border);
+        background-color: var(--kuet-box-bg);
 
         .titlecontainer {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+            box-shadow: var(--kuet-inner-shadow);
             border-radius: 8px 8px 0 0;
             color: #fff;
             padding: 1em;
@@ -267,7 +272,7 @@ body#page-mod-kuet-reports.kuet-reports {
                     font-weight: bold;
 
                     .d-table-cell {
-                        color: #2b2b2b !important;
+                        color: var(--bs-body-color) !important;
                     }
                 }
 
@@ -276,12 +281,12 @@ body#page-mod-kuet-reports.kuet-reports {
                     font-weight: normal;
 
                     &:nth-child(even) {
-                        background-color: rgba(0, 0, 0, .03);
+                        background-color: rgba(var(--bs-emphasis-color-rgb), .03);
                     }
 
                     .d-table-cell {
-                        border-top: 1px solid #edebf4;
-                        color: #929292 !important;
+                        border-top: 1px solid var(--kuet-divider-color);
+                        color: var(--kuet-muted-color) !important;
 
                         &.viewreport,
                         &.viewquestion,
@@ -289,7 +294,7 @@ body#page-mod-kuet-reports.kuet-reports {
                             a, div {
                                 width: 125px;
                                 height: 32px;
-                                color: #667085;
+                                color: var(--kuet-action-muted-color);
                                 background-color: transparent;
                                 border-radius: 8px;
                                 display: flex;
@@ -301,9 +306,9 @@ body#page-mod-kuet-reports.kuet-reports {
                                 &:hover {
                                     cursor: pointer;
                                     text-decoration: none;
-                                    background-color: #e6e6e6;
+                                    background-color: var(--kuet-hover-bg);
                                     transition: background-color .2s ease-in-out, color .2s ease-in-out;
-                                    color: #475467;
+                                    color: var(--kuet-action-hover-color);
                                 }
 
                                 &:focus {
@@ -339,12 +344,21 @@ body#page-mod-kuet-reports.kuet-reports {
                             }
                         }
 
+                        // Status chips: pastel tints with coloured text, swapped for Bootstrap's subtle/emphasis pairs in dark mode.
                         .failure,
                         .incorrect {
                             background-color: #ffeaea;
 
                             span {
                                 color: #f35b5b;
+                            }
+
+                            @include dark-mode {
+                                background-color: var(--bs-danger-bg-subtle);
+
+                                span {
+                                    color: var(--bs-danger-text-emphasis);
+                                }
                             }
                         }
 
@@ -355,6 +369,14 @@ body#page-mod-kuet-reports.kuet-reports {
                             span {
                                 color: #2fb182;
                             }
+
+                            @include dark-mode {
+                                background-color: var(--bs-success-bg-subtle);
+
+                                span {
+                                    color: var(--bs-success-text-emphasis);
+                                }
+                            }
                         }
 
                         .partially {
@@ -362,6 +384,14 @@ body#page-mod-kuet-reports.kuet-reports {
 
                             span {
                                 color: #818182;
+                            }
+
+                            @include dark-mode {
+                                background-color: var(--bs-tertiary-bg);
+
+                                span {
+                                    color: var(--bs-secondary-color);
+                                }
                             }
                         }
 
@@ -371,6 +401,14 @@ body#page-mod-kuet-reports.kuet-reports {
                             span {
                                 color: #feac16;
                             }
+
+                            @include dark-mode {
+                                background-color: var(--bs-warning-bg-subtle);
+
+                                span {
+                                    color: var(--bs-warning-text-emphasis);
+                                }
+                            }
                         }
 
                         .noevaluable {
@@ -379,6 +417,14 @@ body#page-mod-kuet-reports.kuet-reports {
                             span {
                                 color: #1b1e21;
                             }
+
+                            @include dark-mode {
+                                background-color: var(--bs-tertiary-bg);
+
+                                span {
+                                    color: var(--bs-body-color);
+                                }
+                            }
                         }
 
                         .invalid {
@@ -386,6 +432,14 @@ body#page-mod-kuet-reports.kuet-reports {
 
                             span {
                                 color: #000;
+                            }
+
+                            @include dark-mode {
+                                background-color: var(--bs-secondary-bg);
+
+                                span {
+                                    color: var(--bs-emphasis-color);
+                                }
                             }
                         }
                     }
@@ -429,7 +483,7 @@ body#page-mod-kuet-reports.kuet-reports {
 
                     .user-fullname {
                         font-size: 16px;
-                        color: black;
+                        color: var(--bs-emphasis-color);
                         margin-right: 8px;
                     }
                 }
@@ -444,10 +498,12 @@ body#page-mod-kuet-reports.kuet-reports {
         .question-info {
             padding: 0;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+            box-shadow: var(--kuet-box-shadow);
+            border: var(--kuet-box-border);
+            background-color: var(--kuet-box-bg);
 
             .titlecontainer {
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                box-shadow: var(--kuet-inner-shadow);
                 border-radius: 8px 8px 0 0;
                 color: #fff;
                 padding: 1em;
@@ -500,11 +556,13 @@ body#page-mod-kuet-reports.kuet-reports {
         .answers {
             padding: 0;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+            box-shadow: var(--kuet-box-shadow);
+            border: var(--kuet-box-border);
+            background-color: var(--kuet-box-bg);
             margin-top: 1em;
 
             .titlecontainer {
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                box-shadow: var(--kuet-inner-shadow);
                 border-radius: 8px 8px 0 0;
                 color: #fff;
                 padding: 1em;
@@ -518,16 +576,29 @@ body#page-mod-kuet-reports.kuet-reports {
                         padding: 1em;
                         margin-bottom: 1em;
 
+                        // The text on these follows the body colour, so in dark mode the tints have to be dark too.
                         &.correct {
                             background-color: #d7e4d6;
+
+                            @include dark-mode {
+                                background-color: var(--bs-success-bg-subtle);
+                            }
                         }
 
                         &.partially {
                             background-color: #f1f1f1;
+
+                            @include dark-mode {
+                                background-color: var(--bs-tertiary-bg);
+                            }
                         }
 
                         &.incorrect {
                             background-color: #f4d6d2;
+
+                            @include dark-mode {
+                                background-color: var(--bs-danger-bg-subtle);
+                            }
                         }
 
                         .answer-body {
@@ -545,7 +616,7 @@ body#page-mod-kuet-reports.kuet-reports {
                             }
 
                             .result-icon {
-                                background: white;
+                                background: var(--kuet-surface-bg);
                                 padding: 10px;
                                 border-radius: 15px;
                                 display: flex;

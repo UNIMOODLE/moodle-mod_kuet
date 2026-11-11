@@ -42,21 +42,20 @@ body#page-mod-kuet-view {
                         max-width: 100%;
                     }
 
-                    .lightbox .close {
-                        color: #fff;
-                        font-size: 4em;
-                        font-weight: bold;
-                        height: 1em;
+                    .lightbox .btn-close {
+                        font-size: 2em;
                         position: fixed;
-                        right: 1em;
-                        top: 1.5em;
-                        width: 1em;
+                        right: 2em;
+                        top: 3em;
                         z-index: 1001;
                     }
 
                     .lightbox .content {
                         padding: 20px;
-                        background-color: white
+                        // Stays white in dark mode too, a QR code needs a light background to be scanned, so the
+                        // text on it is pinned to the light mode body colour.
+                        background-color: white;
+                        color: #1d2125;
                     }
 
                     .lightbox p {
@@ -73,8 +72,9 @@ body#page-mod-kuet-view {
                         margin-top: 25px;
                         padding: 0;
                         border-radius: 8px;
-                        box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
-                        background-color: white;
+                        box-shadow: var(--kuet-box-shadow);
+                        border: var(--kuet-box-border);
+                        background-color: var(--kuet-surface-bg);
 
                         .content_table {
                             width: 100%;
@@ -120,7 +120,7 @@ body#page-mod-kuet-view {
 
                             .create-session ,
                             .see-info {
-                                background-color: white;
+                                background-color: var(--kuet-surface-bg);
 
                             }
                         }
@@ -132,7 +132,7 @@ body#page-mod-kuet-view {
                                 font-weight: bold;
 
                                 .d-table-cell {
-                                    color: #2b2b2b !important;
+                                    color: var(--bs-body-color) !important;
                                 }
                             }
 
@@ -140,38 +140,64 @@ body#page-mod-kuet-view {
                                 font-weight: normal;
 
                                 &:nth-child(even) {
-                                    background-color: rgba(0, 0, 0, .03);
+                                    background-color: rgba(var(--bs-emphasis-color-rgb), .03);
                                 }
 
+                                // The state tints are pastel, far too bright behind the light text of dark mode.
                                 &.session-started {
                                     background-color: #d7e4d6;
                                     color: #1c3f1a;
+
+                                    @include dark-mode {
+                                        background-color: var(--bs-success-bg-subtle);
+                                        color: var(--bs-success-text-emphasis);
+                                    }
                                 }
 
                                 &.session-warning {
                                     background-color: #fcefdc;
                                     color: #7d5a29;
+
+                                    @include dark-mode {
+                                        background-color: var(--bs-warning-bg-subtle);
+                                        color: var(--bs-warning-text-emphasis);
+                                    }
                                 }
 
                                 &.session-conflict,
                                 &.session-error {
                                     background-color: #f4d6d2;
                                     color: #691911;
+
+                                    @include dark-mode {
+                                        background-color: var(--bs-danger-bg-subtle);
+                                        color: var(--bs-danger-text-emphasis);
+                                    }
                                 }
 
                                 &.session-creating {
                                     background-color: #d1ecf1;
                                     color: #0c5460;
+
+                                    @include dark-mode {
+                                        background-color: var(--bs-info-bg-subtle);
+                                        color: var(--bs-info-text-emphasis);
+                                    }
                                 }
 
                                 &.session-noquestions {
                                     background-color: #d6d8d9;
                                     color: #1b1e21;
+
+                                    @include dark-mode {
+                                        background-color: var(--bs-tertiary-bg);
+                                        color: var(--bs-body-color);
+                                    }
                                 }
 
                                 .d-table-cell {
-                                    border-top: 1px solid #edebf4;
-                                    color: #929292 !important;
+                                    border-top: 1px solid var(--kuet-divider-color);
+                                    color: var(--kuet-muted-color) !important;
                                 }
                             }
 
@@ -202,7 +228,7 @@ body#page-mod-kuet-view {
 
                                             &:hover {
                                                 cursor: pointer;
-                                                background-color: #e6e6e6;
+                                                background-color: var(--kuet-hover-bg);
                                                 transition: background-color .2s ease-in-out;
                                             }
 
@@ -222,7 +248,7 @@ body#page-mod-kuet-view {
                                     div, a {
                                         width: 125px;
                                         height: 32px;
-                                        color: #344054;
+                                        color: var(--kuet-action-color);
                                         background-color: transparent;
                                         border-radius: 8px;
                                         display: flex;
@@ -234,9 +260,9 @@ body#page-mod-kuet-view {
                                         &:hover {
                                             cursor: pointer;
                                             text-decoration: none;
-                                            background-color: #e6e6e6;
+                                            background-color: var(--kuet-hover-bg);
                                             transition: background-color .2s ease-in-out, color .2s ease-in-out;
-                                            color: #475467;
+                                            color: var(--kuet-action-hover-color);
                                         }
 
                                         &:focus {
@@ -343,4 +369,13 @@ body#page-mod-kuet-view {
             }
         }
     }
+}
+
+// The QR code is a black drawing on a transparent background, so it needs a white backing (and a small quiet zone
+// around it) to be scanned whatever is behind it, dark mode included. Covers the sessions panel, the teacher waiting
+// room and the running session; the enlarged copy in .lightbox .content is already white.
+body.path-mod-kuet .imageQr .item a img {
+    background-color: #fff;
+    padding: 8px;
+    border-radius: 4px;
 }

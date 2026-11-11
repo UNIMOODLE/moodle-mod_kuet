@@ -1,0 +1,108 @@
+// Colour tokens for the neutral surfaces and greys of the plugin.
+//
+// The light values are the original hard-coded ones, so light mode looks exactly as before. In dark mode they are
+// re-pointed at Bootstrap 5.3 variables: surfaces follow the raised surface of cards and modals, text greys follow
+// the body/secondary text colours and dividers follow the border colour.
+:root,
+[data-bs-theme="light"] {
+    --kuet-surface-bg: #fff;
+    --kuet-panel-bg: #faf9ff;
+    --kuet-panel-border-color: #eeecf5;
+    --kuet-divider-color: #edebf4;
+    --kuet-hover-bg: #e6e6e6;
+    --kuet-muted-color: #929292;
+    --kuet-action-color: #344054;
+    --kuet-action-muted-color: #667085;
+    --kuet-action-hover-color: #475467;
+    // Boxes (panels, lists, the waiting room...) are only told apart from the page by a soft shadow in light mode.
+    --kuet-box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+    --kuet-box-border: none;
+    --kuet-box-bg: transparent;
+    // The same shadow on the coloured header strip at the top of a box.
+    --kuet-inner-shadow: 0 0 10px rgba(0, 0, 0, .06);
+}
+
+[data-bs-theme="dark"] {
+    --kuet-surface-bg: var(--bs-secondary-bg);
+    --kuet-panel-bg: var(--bs-secondary-bg);
+    --kuet-panel-border-color: var(--bs-border-color);
+    --kuet-divider-color: var(--bs-border-color);
+    --kuet-hover-bg: rgba(var(--bs-emphasis-color-rgb), .1);
+    --kuet-muted-color: var(--bs-secondary-color);
+    --kuet-action-color: var(--bs-body-color);
+    --kuet-action-muted-color: var(--bs-secondary-color);
+    --kuet-action-hover-color: var(--bs-emphasis-color);
+    // A 6% black shadow does not show on a dark page, so boxes become a raised surface with a hairline border
+    // instead, like Moodle's own cards in dark mode.
+    --kuet-box-shadow: none;
+    --kuet-box-border: 1px solid var(--bs-border-color);
+    --kuet-box-bg: var(--kuet-surface-bg);
+    --kuet-inner-shadow: none;
+}
+
+// The plugin's monochrome icons are drawn in a dark slate (#344054, #212529, #929292, or no fill at all for
+// s/pending) and arrive as <img>, so they stay dark on a dark page. Turn them into a neutral light grey close to the
+// body text. brightness(0) first so that every one of them lands on the same grey whatever its original shade.
+// Coloured icons (q/*, i/correct, i/incorrect, i/time...) and the white ones used on .bg-primary headers are left
+// out on purpose. The core question type icons are black too; qtype_description is the only coloured one.
+body.path-mod-kuet img.icon {
+    @include dark-mode {
+        &[src*="mod_kuet/"][src*="/s/"],
+        &[src*="mod_kuet/"][src*="/i/add"],
+        &[src*="mod_kuet/"][src*="/i/copy_session"],
+        &[src*="mod_kuet/"][src*="/i/delete_session"],
+        &[src*="mod_kuet/"][src*="/i/dragger"],
+        &[src*="mod_kuet/"][src*="/i/edit_session"],
+        &[src*="mod_kuet/"][src*="/i/eye"],
+        &[src*="mod_kuet/"][src*="/i/feedback"],
+        &[src*="mod_kuet/"][src*="/i/loupe"],
+        &[src*="mod_kuet/"][src*="/i/preview"],
+        &[src*="mod_kuet/"][src*="/i/statistics"],
+        &[src*="mod_kuet/"][src*="/i/three_dots"],
+        &[src*="mod_kuet/"][src*="/i/vote_gray"],
+        &[src*="/qtype_"]:not([src*="qtype_description"]) {
+            filter: brightness(0) invert(.87);
+        }
+    }
+}
+
+// The dark result icons (partially, not evaluable, invalid) only where their background turns dark: the count
+// alerts, the table headers and the statistics. Inside the result labels and the feedback circles the background
+// stays light, and so must they. The "no response" hourglass is dark amber (#664d03): inverting it would turn it
+// blue, so it is brightened instead, to the amber of the "No response" labels.
+body.path-mod-kuet {
+    .alert,
+    [class*="-thead"],
+    .onestatistic,
+    &#page-mod-kuet-reports .partially,
+    &#page-mod-kuet-reports .noresponse {
+        img.icon[src*="mod_kuet/"] {
+            @include dark-mode {
+                &[src*="/q/partially"],
+                &[src*="/q/noevaluable"],
+                &[src*="/q/invalid"] {
+                    filter: invert(1);
+                }
+
+                &[src*="/q/noresponse"] {
+                    filter: brightness(2.6);
+                }
+            }
+        }
+    }
+}
+
+// Word cloud: half of the answer palette is near black, unreadable as text on a dark page. Those colours are
+// lightened only here, where they are text; on buttons they are backgrounds and stay as they are.
+.container-fluid.cloudtags.question .tags-content ul.cloud li {
+    @include dark-mode {
+        @for $i from 1 through length($answercolors) {
+            $colour: nth($answercolors, $i);
+            @if lightness($colour) < 45% {
+                &:nth-child(#{length($answercolors)}n+#{$i}) span.tag {
+                    color: mix(#fff, $colour, 55%);
+                }
+            }
+        }
+    }
+}

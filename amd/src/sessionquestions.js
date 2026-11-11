@@ -153,7 +153,7 @@ SessionQuestions.prototype.questionPreview = function(e) {
                         jQuery(REGION.LOADING).remove();
                         modal.show();
                         Templates.runTemplateJS(js);
-                    }).fail(Notification.exception);
+                    }).catch(Notification.exception);
                 }).fail(Notification.exception);
             });
         });

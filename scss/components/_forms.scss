@@ -34,7 +34,7 @@
                 }
 
                 .step-text {
-                    background-color: #000;
+                    background-color: var(--bs-emphasis-color);
                     height: 13px;
                     width: 13px;
                     display: inline-block;
@@ -66,10 +66,12 @@
         margin-top: 25px;
         padding: 0;
         border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+        box-shadow: var(--kuet-box-shadow);
+        border: var(--kuet-box-border);
+        background-color: var(--kuet-box-bg);
 
         .titlecontainer {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+            box-shadow: var(--kuet-inner-shadow);
             border-radius: 8px 8px 0 0;
             color: #fff;
             padding: 1em;

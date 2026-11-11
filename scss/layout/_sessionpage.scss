@@ -7,8 +7,9 @@ body#page-mod-kuet-view {
                         &.no-session-start,
                         &.session-closed,
                         &.end-session {
-                            background-color: white;
-                            box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                            background-color: var(--kuet-surface-bg);
+                            box-shadow: var(--kuet-box-shadow);
+                            border: var(--kuet-box-border);
                             border-radius: 8px;
                             margin-top: 40px;
                             padding: 30px;

@@ -34,10 +34,10 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026091805;
+$plugin->version = 2026110600;
 $plugin->requires = 2025041400; // Moodle 5.0+.
-$plugin->supported = [500, 502]; // Moodle 5.0 to 5.2.
+$plugin->supported = [500, 503]; // Moodle 5.0 to 5.3.
 $plugin->component = 'mod_kuet';
 $plugin->cron = 0;
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v1.0.1-MOODLE_502';
+$plugin->release = 'v1.0.2-MOODLE_503';

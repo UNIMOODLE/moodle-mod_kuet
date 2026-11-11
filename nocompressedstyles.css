@@ -23,6 +23,72 @@ body.path-mod-kuet #page-content #region-main h1.bg-primary, body.path-mod-kuet 
   color: #fff !important;
 }
 
+:root,
+[data-bs-theme=light] {
+  --kuet-surface-bg: #fff;
+  --kuet-panel-bg: #faf9ff;
+  --kuet-panel-border-color: #eeecf5;
+  --kuet-divider-color: #edebf4;
+  --kuet-hover-bg: #e6e6e6;
+  --kuet-muted-color: #929292;
+  --kuet-action-color: #344054;
+  --kuet-action-muted-color: #667085;
+  --kuet-action-hover-color: #475467;
+  --kuet-box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+  --kuet-box-border: none;
+  --kuet-box-bg: transparent;
+  --kuet-inner-shadow: 0 0 10px rgba(0, 0, 0, .06);
+}
+
+[data-bs-theme=dark] {
+  --kuet-surface-bg: var(--bs-secondary-bg);
+  --kuet-panel-bg: var(--bs-secondary-bg);
+  --kuet-panel-border-color: var(--bs-border-color);
+  --kuet-divider-color: var(--bs-border-color);
+  --kuet-hover-bg: rgba(var(--bs-emphasis-color-rgb), .1);
+  --kuet-muted-color: var(--bs-secondary-color);
+  --kuet-action-color: var(--bs-body-color);
+  --kuet-action-muted-color: var(--bs-secondary-color);
+  --kuet-action-hover-color: var(--bs-emphasis-color);
+  --kuet-box-shadow: none;
+  --kuet-box-border: 1px solid var(--bs-border-color);
+  --kuet-box-bg: var(--kuet-surface-bg);
+  --kuet-inner-shadow: none;
+}
+
+[data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/s/"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/add"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/copy_session"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/delete_session"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/dragger"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/edit_session"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/eye"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/feedback"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/loupe"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/preview"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/statistics"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/three_dots"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="mod_kuet/"][src*="/i/vote_gray"], [data-bs-theme=dark] body.path-mod-kuet img.icon[src*="/qtype_"]:not([src*=qtype_description]) {
+  filter: brightness(0) invert(0.87);
+}
+
+[data-bs-theme=dark] body.path-mod-kuet .alert img.icon[src*="mod_kuet/"][src*="/q/partially"], [data-bs-theme=dark] body.path-mod-kuet .alert img.icon[src*="mod_kuet/"][src*="/q/noevaluable"], [data-bs-theme=dark] body.path-mod-kuet .alert img.icon[src*="mod_kuet/"][src*="/q/invalid"], [data-bs-theme=dark] body.path-mod-kuet [class*=-thead] img.icon[src*="mod_kuet/"][src*="/q/partially"], [data-bs-theme=dark] body.path-mod-kuet [class*=-thead] img.icon[src*="mod_kuet/"][src*="/q/noevaluable"], [data-bs-theme=dark] body.path-mod-kuet [class*=-thead] img.icon[src*="mod_kuet/"][src*="/q/invalid"], [data-bs-theme=dark] body.path-mod-kuet .onestatistic img.icon[src*="mod_kuet/"][src*="/q/partially"], [data-bs-theme=dark] body.path-mod-kuet .onestatistic img.icon[src*="mod_kuet/"][src*="/q/noevaluable"], [data-bs-theme=dark] body.path-mod-kuet .onestatistic img.icon[src*="mod_kuet/"][src*="/q/invalid"], [data-bs-theme=dark] body.path-mod-kuet#page-mod-kuet-reports .partially img.icon[src*="mod_kuet/"][src*="/q/partially"], [data-bs-theme=dark] body.path-mod-kuet#page-mod-kuet-reports .partially img.icon[src*="mod_kuet/"][src*="/q/noevaluable"], [data-bs-theme=dark] body.path-mod-kuet#page-mod-kuet-reports .partially img.icon[src*="mod_kuet/"][src*="/q/invalid"], [data-bs-theme=dark] body.path-mod-kuet#page-mod-kuet-reports .noresponse img.icon[src*="mod_kuet/"][src*="/q/partially"], [data-bs-theme=dark] body.path-mod-kuet#page-mod-kuet-reports .noresponse img.icon[src*="mod_kuet/"][src*="/q/noevaluable"], [data-bs-theme=dark] body.path-mod-kuet#page-mod-kuet-reports .noresponse img.icon[src*="mod_kuet/"][src*="/q/invalid"] {
+  filter: invert(1);
+}
+[data-bs-theme=dark] body.path-mod-kuet .alert img.icon[src*="mod_kuet/"][src*="/q/noresponse"], [data-bs-theme=dark] body.path-mod-kuet [class*=-thead] img.icon[src*="mod_kuet/"][src*="/q/noresponse"], [data-bs-theme=dark] body.path-mod-kuet .onestatistic img.icon[src*="mod_kuet/"][src*="/q/noresponse"], [data-bs-theme=dark] body.path-mod-kuet#page-mod-kuet-reports .partially img.icon[src*="mod_kuet/"][src*="/q/noresponse"], [data-bs-theme=dark] body.path-mod-kuet#page-mod-kuet-reports .noresponse img.icon[src*="mod_kuet/"][src*="/q/noresponse"] {
+  filter: brightness(2.6);
+}
+
+[data-bs-theme=dark] .container-fluid.cloudtags.question .tags-content ul.cloud li:nth-child(14n+1) span.tag {
+  color: rgb(147, 233.85, 203.25);
+}
+[data-bs-theme=dark] .container-fluid.cloudtags.question .tags-content ul.cloud li:nth-child(14n+6) span.tag {
+  color: rgb(156.45, 147.45, 156);
+}
+[data-bs-theme=dark] .container-fluid.cloudtags.question .tags-content ul.cloud li:nth-child(14n+8) span.tag {
+  color: rgb(214.5, 147.45, 197.85);
+}
+[data-bs-theme=dark] .container-fluid.cloudtags.question .tags-content ul.cloud li:nth-child(14n+9) span.tag {
+  color: rgb(140.25, 157.8, 159.6);
+}
+[data-bs-theme=dark] .container-fluid.cloudtags.question .tags-content ul.cloud li:nth-child(14n+11) span.tag {
+  color: rgb(160.95, 177.15, 186.15);
+}
+[data-bs-theme=dark] .container-fluid.cloudtags.question .tags-content ul.cloud li:nth-child(14n+12) span.tag {
+  color: rgb(149.25, 155.1, 167.7);
+}
+[data-bs-theme=dark] .container-fluid.cloudtags.question .tags-content ul.cloud li:nth-child(14n+13) span.tag {
+  color: rgb(173.55, 176.25, 170.4);
+}
+
 .content-control-panel {
   position: relative;
   z-index: 2;
@@ -62,15 +128,15 @@ body.path-mod-kuet #page-content #region-main h1.bg-primary, body.path-mod-kuet 
   transition-duration: 0.5s;
   transition-timing-function: ease;
 }
-.content-control-panel .collapsing.width {
+.content-control-panel .collapsing.collapse-horizontal {
   width: 0;
 }
 .content-control-panel .teacher-control-panel {
-  background: #faf9ff;
+  background: var(--kuet-panel-bg);
   border-width: 0 0 2px 2px;
   border-style: solid;
-  border-color: #eeecf5;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  border-color: var(--kuet-panel-border-color);
+  box-shadow: var(--kuet-box-shadow);
   border-radius: 0 0 8px 8px;
   width: 260px;
   padding: 30px 0 30px 30px;
@@ -92,7 +158,7 @@ body.path-mod-kuet #page-content #region-main h1.bg-primary, body.path-mod-kuet 
   font-size: 14px;
 }
 .content-control-panel .teacher-control-panel .separator .line-separator {
-  background-color: #edebf4;
+  background-color: var(--kuet-divider-color);
   height: 2px;
   width: 100%;
 }
@@ -109,13 +175,8 @@ body.path-mod-kuet #page-content #region-main h1.bg-primary, body.path-mod-kuet 
   pointer-events: none;
   opacity: 0.5;
 }
-.content-control-panel .teacher-control-panel .control-action.disabled .custom-control-input,
-.content-control-panel .teacher-control-panel .showhide-action.disabled .custom-control-input {
-  pointer-events: none;
-}
-.content-control-panel .teacher-control-panel .control-action.disabled .custom-control-label:before, .content-control-panel .teacher-control-panel .control-action.disabled .custom-control-label:after,
-.content-control-panel .teacher-control-panel .showhide-action.disabled .custom-control-label:before,
-.content-control-panel .teacher-control-panel .showhide-action.disabled .custom-control-label:after {
+.content-control-panel .teacher-control-panel .control-action.disabled .form-check-input,
+.content-control-panel .teacher-control-panel .showhide-action.disabled .form-check-input {
   pointer-events: none;
 }
 .content-control-panel .teacher-control-panel .control-action .control-action-icon,
@@ -176,6 +237,10 @@ body.path-mod-kuet #page-content #region-main h1.bg-primary, body.path-mod-kuet 
     z-index: 40;
   }
 }
+#jumpToNumber.kuet-jumpto-input {
+  width: 9rem;
+}
+
 #page-mod-kuet-sessions .content-header {
   display: flex;
   flex-flow: row nowrap;
@@ -208,7 +273,7 @@ body.path-mod-kuet #page-content #region-main h1.bg-primary, body.path-mod-kuet 
   left: 0;
 }
 #page-mod-kuet-sessions .content-header .session-steps .step .step-text {
-  background-color: #000;
+  background-color: var(--bs-emphasis-color);
   height: 13px;
   width: 13px;
   display: inline-block;
@@ -233,10 +298,12 @@ body.path-mod-kuet #page-content #region-main h1.bg-primary, body.path-mod-kuet 
   margin-top: 25px;
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 #page-mod-kuet-sessions .formcontainer .titlecontainer {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-inner-shadow);
   border-radius: 8px 8px 0 0;
   color: #fff;
   padding: 1em;
@@ -534,7 +601,7 @@ body.path-mod-kuet.fullscreen * {
   /*position: absolute;
   top: 0;
   right: 8px;*/
-  color: black;
+  color: var(--bs-emphasis-color);
 }
 
 .resume-config .list-resume .list-group {
@@ -542,7 +609,7 @@ body.path-mod-kuet.fullscreen * {
 }
 .resume-config .list-resume .list-group .list-group-item {
   border: 0;
-  border-bottom: 1px solid #edebf4;
+  border-bottom: 1px solid var(--kuet-divider-color);
   display: flex;
   flex-flow: row nowrap;
   justify-content: flex-start;
@@ -698,7 +765,7 @@ body.path-mod-kuet.fullscreen * {
     justify-content: center;
     align-items: center;
     margin: 1em auto 0.5em auto;
-    background: white;
+    background: var(--kuet-surface-bg);
     border-radius: 8px;
     padding: 10px;
   }
@@ -751,8 +818,8 @@ body.path-mod-kuet.fullscreen * {
   height: 40px;
   padding: 10px;
   border-radius: 8px;
-  border: 2px solid #212529;
-  background-color: white;
+  border: 2px solid var(--bs-body-color);
+  background-color: var(--kuet-surface-bg);
 }
 .container-fluid.question .content-indicators .users .icon,
 .container-fluid.question .content-indicators .timer .icon {
@@ -771,7 +838,7 @@ body.path-mod-kuet.fullscreen * {
   flex-flow: column nowrap;
   justify-content: space-between;
   align-items: flex-start;
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
   border-radius: 25px;
   z-index: 1;
 }
@@ -781,7 +848,7 @@ body.path-mod-kuet.fullscreen * {
 }
 .container-fluid.question .contain-group-message {
   padding: 15px;
-  background-color: #fff;
+  background-color: var(--kuet-surface-bg);
   margin-top: 1em;
   border-radius: 25px;
 }
@@ -1180,7 +1247,7 @@ body.path-mod-kuet.fullscreen * {
   margin: 0 0.5em;
 }
 .container-fluid.numerical.question .containt-answers .input-content .btn-group,
-.container-fluid.numerical.question .containt-answers .input-content .custom-select {
+.container-fluid.numerical.question .containt-answers .input-content .form-select {
   margin: 0 0 0 0.5em !important;
 }
 .container-fluid.numerical.question .containt-answers .input-content .units_title {
@@ -1201,7 +1268,7 @@ body.path-mod-kuet.fullscreen * {
   margin: 0 0.5em;
 }
 .container-fluid.calculated.question .containt-answers .input-content .btn-group,
-.container-fluid.calculated.question .containt-answers .input-content .custom-select {
+.container-fluid.calculated.question .containt-answers .input-content .form-select {
   margin: 0 0 0 0.5em !important;
 }
 .container-fluid.calculated.question .containt-answers .input-content .units_title {
@@ -1347,8 +1414,8 @@ body.path-mod-kuet.fullscreen * {
   height: 40px;
   padding: 10px;
   border-radius: 8px;
-  border: 2px solid #212529;
-  background-color: white;
+  border: 2px solid var(--bs-body-color);
+  background-color: var(--kuet-surface-bg);
 }
 .container-fluid.truefalse .content-indicators .users .icon,
 .container-fluid.truefalse .content-indicators .timer .icon {
@@ -1367,7 +1434,7 @@ body.path-mod-kuet.fullscreen * {
   flex-flow: column nowrap;
   justify-content: space-between;
   align-items: flex-start;
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
   border-radius: 25px;
   z-index: 1;
 }
@@ -1683,7 +1750,8 @@ body.path-mod-kuet.fullscreen * {
 }
 .question-content .question-container {
   border-radius: 25px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
   padding: 0;
 }
 .question-content .question-container .question-heading {
@@ -1766,9 +1834,9 @@ body.path-mod-kuet.fullscreen * {
 body.path-mod-kuet #page-wrapper #page-content #region-main [role=main] > h2 {
   display: none;
 }
-body.path-mod-kuet #page-wrapper #page-content #region-main [role=main] .container-fluid small {
+body.path-mod-kuet #page-wrapper #page-content #region-main [role=main] .container-fluid small:not(.answer-help) {
   font-size: 13px;
-  color: #929292;
+  color: var(--kuet-muted-color);
 }
 body.path-mod-kuet #page-wrapper #page-content #region-main [role=main] .container-fluid .row {
   margin-right: 0;
@@ -1879,7 +1947,7 @@ body.path-mod-kuet #page-wrapper #page-content #region-main [role=main] .contain
   border-radius: 8px;
 }
 .content-raceresults .questions-list .content-question .content-responses .response.noresponse .content-color {
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
 }
 .content-raceresults .questions-list .content-question .content-responses .response.fail .content-color {
   background-color: #f85455;
@@ -2133,6 +2201,7 @@ body.path-mod-kuet #page-wrapper #page-content #region-main [role=main] .contain
 .ranking-first-three .content-users .third-user .userpoints .content-points {
   width: 100%;
   padding: 8px;
+  color: #212529;
   border-radius: 40px;
   border: 2px solid;
   text-align: center;
@@ -2359,7 +2428,7 @@ body#page-mod-kuet-reports.kuet-reports .content-info .participant img {
 }
 body#page-mod-kuet-reports.kuet-reports .content-info .participant .user-fullname {
   font-size: 24px;
-  color: black;
+  color: var(--bs-emphasis-color);
   margin-right: 8px;
 }
 body#page-mod-kuet-reports.kuet-reports [data-region=reports] .row {
@@ -2368,7 +2437,7 @@ body#page-mod-kuet-reports.kuet-reports [data-region=reports] .row {
 }
 body#page-mod-kuet-reports.kuet-reports .user_session_grade {
   padding: 10px;
-  border: 1px solid black;
+  border: 1px solid var(--bs-emphasis-color);
   border-radius: 9px;
   width: fit-content;
   height: 45px;
@@ -2384,8 +2453,9 @@ body#page-mod-kuet-reports.kuet-reports .sessions-list {
   margin-top: 25px;
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
-  background-color: white;
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-surface-bg);
 }
 body#page-mod-kuet-reports.kuet-reports .sessions-list .sessions-list-header {
   padding: 10px 20px;
@@ -2407,7 +2477,7 @@ body#page-mod-kuet-reports.kuet-reports .sessions-list .sessions-list-header .se
   margin-bottom: 0;
 }
 body#page-mod-kuet-reports.kuet-reports .sessions-list .sessions-list-header .create-session {
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
 }
 body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table {
   width: 100%;
@@ -2433,14 +2503,14 @@ body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-
   font-weight: bold;
 }
 body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-list-body .sessions-list-thead .d-table-cell {
-  color: #2b2b2b !important;
+  color: var(--bs-body-color) !important;
 }
 body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-list-body .sessions-list-data {
   font-weight: normal;
 }
 body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-list-body .sessions-list-data .d-table-cell {
-  border-top: 1px solid #edebf4;
-  color: #929292 !important;
+  border-top: 1px solid var(--kuet-divider-color);
+  color: var(--kuet-muted-color) !important;
 }
 body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-list-body .d-table-cell {
   padding: 15px;
@@ -2448,7 +2518,7 @@ body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-
 body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-list-body .d-table-cell.viewreport-session div, body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-list-body .d-table-cell.viewreport-session a {
   width: 125px;
   height: 32px;
-  color: #667085;
+  color: var(--kuet-action-muted-color);
   background-color: transparent;
   border-radius: 8px;
   display: flex;
@@ -2460,17 +2530,19 @@ body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-
 body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-list-body .d-table-cell.viewreport-session div:hover, body#page-mod-kuet-reports.kuet-reports .sessions-list .content_table .sessions-list-body .d-table-cell.viewreport-session a:hover {
   cursor: pointer;
   text-decoration: none;
-  background-color: #e6e6e6;
+  background-color: var(--kuet-hover-bg);
   transition: background-color 0.2s ease-in-out;
 }
 body#page-mod-kuet-reports.kuet-reports .resume-config {
   margin-top: 25px;
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 body#page-mod-kuet-reports.kuet-reports .resume-config .titlecontainer {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-inner-shadow);
   border-radius: 8px 8px 0 0;
   color: #fff;
   padding: 1em;
@@ -2508,11 +2580,13 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list {
   margin-top: 25px;
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 body#page-mod-kuet-reports.kuet-reports .questions-list .titlecontainer,
 body#page-mod-kuet-reports.kuet-reports .ranking-list .titlecontainer {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-inner-shadow);
   border-radius: 8px 8px 0 0;
   color: #fff;
   padding: 1em;
@@ -2590,7 +2664,7 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-thead .d-table-cell,
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-thead .d-table-cell,
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-thead .d-table-cell {
-  color: #2b2b2b !important;
+  color: var(--bs-body-color) !important;
 }
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data,
@@ -2626,7 +2700,7 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data:nth-child(even),
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data:nth-child(even),
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(var(--bs-emphasis-color-rgb), 0.03);
 }
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell,
@@ -2644,8 +2718,8 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell,
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell,
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell {
-  border-top: 1px solid #edebf4;
-  color: #929292 !important;
+  border-top: 1px solid var(--kuet-divider-color);
+  color: var(--kuet-muted-color) !important;
 }
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.viewreport a, body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.viewreport div, body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.viewquestion a, body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.viewquestion div, body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions a, body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions div,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell.viewreport a,
@@ -2740,7 +2814,7 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-us
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell.actions div {
   width: 125px;
   height: 32px;
-  color: #667085;
+  color: var(--kuet-action-muted-color);
   background-color: transparent;
   border-radius: 8px;
   display: flex;
@@ -2842,9 +2916,9 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-us
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell.actions div:hover {
   cursor: pointer;
   text-decoration: none;
-  background-color: #e6e6e6;
+  background-color: var(--kuet-hover-bg);
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-  color: #475467;
+  color: var(--kuet-action-hover-color);
 }
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.viewreport a:focus, body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.viewreport div:focus, body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.viewquestion a:focus, body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.viewquestion div:focus, body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions a:focus, body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions div:focus,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell.viewreport a:focus,
@@ -3335,6 +3409,13 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-us
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .incorrect span {
   color: #f35b5b;
 }
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .incorrect, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .failure, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .incorrect {
+  background-color: var(--bs-danger-bg-subtle);
+}
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .incorrect span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .failure span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .incorrect span {
+  color: var(--bs-danger-text-emphasis);
+}
+
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .success,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .correct,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .success,
@@ -3403,6 +3484,13 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-us
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .correct span {
   color: #2fb182;
 }
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .correct, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .success, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .correct {
+  background-color: var(--bs-success-bg-subtle);
+}
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .correct span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .success span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .correct span {
+  color: var(--bs-success-text-emphasis);
+}
+
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .partially,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .partially,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .partially,
@@ -3439,6 +3527,13 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-us
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .partially span {
   color: #818182;
 }
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .partially, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .partially {
+  background-color: var(--bs-tertiary-bg);
+}
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .partially span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .partially span {
+  color: var(--bs-secondary-color);
+}
+
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .noresponse,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .noresponse,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .noresponse,
@@ -3475,6 +3570,13 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-us
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .noresponse span {
   color: #feac16;
 }
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .noresponse, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .noresponse {
+  background-color: var(--bs-warning-bg-subtle);
+}
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .noresponse span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .noresponse span {
+  color: var(--bs-warning-text-emphasis);
+}
+
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .noevaluable,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .noevaluable,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .noevaluable,
@@ -3511,6 +3613,13 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-us
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .noevaluable span {
   color: #1b1e21;
 }
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .noevaluable, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .noevaluable {
+  background-color: var(--bs-tertiary-bg);
+}
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .noevaluable span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .noevaluable span {
+  color: var(--bs-body-color);
+}
+
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .invalid,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .invalid,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .invalid,
@@ -3547,6 +3656,13 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-us
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .invalid span {
   color: #000;
 }
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .invalid, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .invalid {
+  background-color: var(--bs-secondary-bg);
+}
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .questions-list-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .questions-list-body .ranking-users-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .questions-list-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .ranking-users-body .ranking-users-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .questions-list-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .ranking-users-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .questions-list-data .d-table-cell .invalid span, [data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .ranking-users-data .d-table-cell .invalid span {
+  color: var(--bs-emphasis-color);
+}
+
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .questions-list-body .d-table-cell,
 body#page-mod-kuet-reports.kuet-reports .questions-list .session-questions .ranking-users-body .d-table-cell,
 body#page-mod-kuet-reports.kuet-reports .questions-list .ranking-users .questions-list-body .d-table-cell,
@@ -3629,7 +3745,7 @@ body#page-mod-kuet-reports.kuet-reports .ranking-list .session-questions .rankin
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .questions-list-body .participant .user-fullname,
 body#page-mod-kuet-reports.kuet-reports .ranking-list .ranking-users .ranking-users-body .participant .user-fullname {
   font-size: 16px;
-  color: black;
+  color: var(--bs-emphasis-color);
   margin-right: 8px;
 }
 body#page-mod-kuet-reports.kuet-reports .question-report {
@@ -3639,11 +3755,13 @@ body#page-mod-kuet-reports.kuet-reports .question-report .question,
 body#page-mod-kuet-reports.kuet-reports .question-report .question-info {
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 body#page-mod-kuet-reports.kuet-reports .question-report .question .titlecontainer,
 body#page-mod-kuet-reports.kuet-reports .question-report .question-info .titlecontainer {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-inner-shadow);
   border-radius: 8px 8px 0 0;
   color: #fff;
   padding: 1em;
@@ -3709,11 +3827,13 @@ body#page-mod-kuet-reports.kuet-reports .question-report .question-info .questio
 body#page-mod-kuet-reports.kuet-reports .question-report .answers {
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
   margin-top: 1em;
 }
 body#page-mod-kuet-reports.kuet-reports .question-report .answers .titlecontainer {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-inner-shadow);
   border-radius: 8px 8px 0 0;
   color: #fff;
   padding: 1em;
@@ -3728,12 +3848,24 @@ body#page-mod-kuet-reports.kuet-reports .question-report .answers .answers-data 
 body#page-mod-kuet-reports.kuet-reports .question-report .answers .answers-data .answers-data-body .answer.correct {
   background-color: #d7e4d6;
 }
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .question-report .answers .answers-data .answers-data-body .answer.correct {
+  background-color: var(--bs-success-bg-subtle);
+}
+
 body#page-mod-kuet-reports.kuet-reports .question-report .answers .answers-data .answers-data-body .answer.partially {
   background-color: #f1f1f1;
 }
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .question-report .answers .answers-data .answers-data-body .answer.partially {
+  background-color: var(--bs-tertiary-bg);
+}
+
 body#page-mod-kuet-reports.kuet-reports .question-report .answers .answers-data .answers-data-body .answer.incorrect {
   background-color: #f4d6d2;
 }
+[data-bs-theme=dark] body#page-mod-kuet-reports.kuet-reports .question-report .answers .answers-data .answers-data-body .answer.incorrect {
+  background-color: var(--bs-danger-bg-subtle);
+}
+
 body#page-mod-kuet-reports.kuet-reports .question-report .answers .answers-data .answers-data-body .answer .answer-body {
   display: flex;
   flex-flow: row nowrap;
@@ -3748,7 +3880,7 @@ body#page-mod-kuet-reports.kuet-reports .question-report .answers .answers-data 
   align-items: center;
 }
 body#page-mod-kuet-reports.kuet-reports .question-report .answers .answers-data .answers-data-body .answer .answer-body .result-icon {
-  background: white;
+  background: var(--kuet-surface-bg);
   padding: 10px;
   border-radius: 15px;
   display: flex;
@@ -3835,8 +3967,9 @@ body#page-mod-kuet-reports.kuet-reports .alert {
   }
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .container.no-session-start, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .container.session-closed, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .container.end-session {
-  background-color: white;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  background-color: var(--kuet-surface-bg);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
   border-radius: 8px;
   margin-top: 40px;
   padding: 30px;
@@ -3917,14 +4050,15 @@ body#page-mod-kuet-view .student-improvising {
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
   display: flex;
   flex-flow: column nowrap;
   justify-content: flex-start;
   align-items: center;
   padding: 2em;
   z-index: 100;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
   border-radius: 25px;
   min-height: 55vh;
 }
@@ -3969,11 +4103,13 @@ body#page-mod-kuet-view [data-region=teacher-panel] .resume-config,
 body#page-mod-kuet-view [data-region=teacher-panel] .users-results {
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 body#page-mod-kuet-view [data-region=teacher-panel] .resume-config .titlecontainer,
 body#page-mod-kuet-view [data-region=teacher-panel] .users-results .titlecontainer {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-inner-shadow);
   border-radius: 8px 8px 0 0;
   color: #fff;
   padding: 1em;
@@ -4005,31 +4141,32 @@ body#page-mod-kuet-view [data-region=teacher-panel] .users-results .list-results
   font-weight: bold;
 }
 body#page-mod-kuet-view [data-region=teacher-panel] .users-results .list-results .list-results-body .list-results-thead .d-table-cell {
-  color: #2b2b2b !important;
+  color: var(--bs-body-color) !important;
 }
 body#page-mod-kuet-view [data-region=teacher-panel] .users-results .list-results .list-results-body .result-list-data {
   font-weight: normal;
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
 }
 body#page-mod-kuet-view [data-region=teacher-panel] .users-results .list-results .list-results-body .result-list-data .d-table-cell {
-  border-top: 1px solid #edebf4;
-  color: #929292 !important;
+  border-top: 1px solid var(--kuet-divider-color);
+  color: var(--kuet-muted-color) !important;
 }
 body#page-mod-kuet-view [data-region=teacher-panel] .users-results .list-results .list-results-body .result-list-data:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(var(--bs-emphasis-color-rgb), 0.03);
 }
 body#page-mod-kuet-view .teacher-improvise-form {
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
   z-index: 100;
   padding: 3em;
   display: flex;
   flex-flow: column nowrap;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
   border-radius: 25px;
   min-height: 55vh;
 }
@@ -4064,7 +4201,7 @@ body#page-mod-kuet-view .teacher-improvise-form .improvise-form #reply_improvise
 .question #statistics {
   display: none;
   width: 65%;
-  background-color: #fff;
+  background-color: var(--kuet-surface-bg);
   padding: 1.5em;
   border-radius: 1em;
   margin: 1em auto;
@@ -4144,7 +4281,9 @@ body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configurati
   margin-top: 25px;
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list #id_movetocategory,
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank #id_movetocategory {
@@ -4152,7 +4291,7 @@ body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configurati
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list .titlecontainer,
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .titlecontainer {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-inner-shadow);
   border-radius: 8px 8px 0 0;
   color: #fff;
   padding: 1em;
@@ -4178,16 +4317,16 @@ body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configurati
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list .session-questions .questions-list-body .questions-list-thead .d-table-cell,
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .session-questions .questions-list-body .questions-list-thead .d-table-cell {
-  color: #2b2b2b !important;
+  color: var(--bs-body-color) !important;
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list .session-questions .questions-list-body .questions-list-data,
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .session-questions .questions-list-body .questions-list-data {
   font-weight: normal;
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list .session-questions .questions-list-body .questions-list-data:nth-child(even),
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .session-questions .questions-list-body .questions-list-data:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(var(--bs-emphasis-color-rgb), 0.03);
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list .session-questions .questions-list-body .questions-list-data .isvalid,
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .session-questions .questions-list-body .questions-list-data .isvalid {
@@ -4195,8 +4334,8 @@ body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configurati
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell,
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .session-questions .questions-list-body .questions-list-data .d-table-cell {
-  border-top: 1px solid #edebf4;
-  color: #929292 !important;
+  border-top: 1px solid var(--kuet-divider-color);
+  color: var(--kuet-muted-color) !important;
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions,
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions {
@@ -4224,7 +4363,7 @@ body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configurati
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions .question-action:hover,
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions .question-action:hover {
   cursor: pointer;
-  background-color: #e6e6e6;
+  background-color: var(--kuet-hover-bg);
   transition: background-color 0.2s ease-in-out;
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions .question-action:focus,
@@ -4238,7 +4377,7 @@ body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configurati
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-list {
   margin-right: 15px;
 }
-body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .form-group {
+body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .questions-bank-filters {
   padding: 15px 15px 0 15px;
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .btn-primary.add_questions {
@@ -4270,7 +4409,7 @@ body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configurati
   width: 90%;
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .content-question .question a {
-  color: #344054;
+  color: var(--kuet-action-color);
 }
 body#page-mod-kuet-sessions [data-region=questions-panel] .questions-configuration .questions-bank .pagination {
   flex-flow: row wrap;
@@ -4284,11 +4423,13 @@ body#page-mod-kuet-sessions .summary-session .questions-list {
   margin-top: 25px;
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 body#page-mod-kuet-sessions .summary-session .resume-config .titlecontainer,
 body#page-mod-kuet-sessions .summary-session .questions-list .titlecontainer {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-inner-shadow);
   border-radius: 8px 8px 0 0;
   color: #fff;
   padding: 1em;
@@ -4320,21 +4461,21 @@ body#page-mod-kuet-sessions .summary-session .questions-list .session-questions 
   font-weight: bold;
 }
 body#page-mod-kuet-sessions .summary-session .questions-list .session-questions .questions-list-body .questions-list-thead .d-table-cell {
-  color: #2b2b2b !important;
+  color: var(--bs-body-color) !important;
 }
 body#page-mod-kuet-sessions .summary-session .questions-list .session-questions .questions-list-body .questions-list-data {
   font-weight: normal;
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
 }
 body#page-mod-kuet-sessions .summary-session .questions-list .session-questions .questions-list-body .questions-list-data:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(var(--bs-emphasis-color-rgb), 0.03);
 }
 body#page-mod-kuet-sessions .summary-session .questions-list .session-questions .questions-list-body .questions-list-data .isvalid {
   text-align: center;
 }
 body#page-mod-kuet-sessions .summary-session .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell {
-  border-top: 1px solid #edebf4;
-  color: #929292 !important;
+  border-top: 1px solid var(--kuet-divider-color);
+  color: var(--kuet-muted-color) !important;
 }
 body#page-mod-kuet-sessions .summary-session .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions {
   display: flex;
@@ -4358,7 +4499,7 @@ body#page-mod-kuet-sessions .summary-session .questions-list .session-questions 
 }
 body#page-mod-kuet-sessions .summary-session .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions .question-action:hover {
   cursor: pointer;
-  background-color: #e6e6e6;
+  background-color: var(--kuet-hover-bg);
   transition: background-color 0.2s ease-in-out;
 }
 body#page-mod-kuet-sessions .summary-session .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions .question-action:focus {
@@ -4397,20 +4538,17 @@ body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .li
   margin: auto;
   max-width: 100%;
 }
-body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .lightbox .close {
-  color: #fff;
-  font-size: 4em;
-  font-weight: bold;
-  height: 1em;
+body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .lightbox .btn-close {
+  font-size: 2em;
   position: fixed;
-  right: 1em;
-  top: 1.5em;
-  width: 1em;
+  right: 2em;
+  top: 3em;
   z-index: 1001;
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .lightbox .content {
   padding: 20px;
   background-color: white;
+  color: #1d2125;
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .lightbox p {
   font-size: 2em;
@@ -4424,8 +4562,9 @@ body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .se
   margin-top: 25px;
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
-  background-color: white;
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-surface-bg);
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .content_table {
   width: 100%;
@@ -4465,7 +4604,7 @@ body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .se
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-header .create-session,
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-header .see-info {
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body {
   width: 100%;
@@ -4474,37 +4613,62 @@ body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .se
   font-weight: bold;
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-thead .d-table-cell {
-  color: #2b2b2b !important;
+  color: var(--bs-body-color) !important;
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data {
   font-weight: normal;
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(var(--bs-emphasis-color-rgb), 0.03);
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-started {
   background-color: #d7e4d6;
   color: #1c3f1a;
 }
+[data-bs-theme=dark] body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-started {
+  background-color: var(--bs-success-bg-subtle);
+  color: var(--bs-success-text-emphasis);
+}
+
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-warning {
   background-color: #fcefdc;
   color: #7d5a29;
 }
+[data-bs-theme=dark] body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-warning {
+  background-color: var(--bs-warning-bg-subtle);
+  color: var(--bs-warning-text-emphasis);
+}
+
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-conflict, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-error {
   background-color: #f4d6d2;
   color: #691911;
 }
+[data-bs-theme=dark] body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-conflict, [data-bs-theme=dark] body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-error {
+  background-color: var(--bs-danger-bg-subtle);
+  color: var(--bs-danger-text-emphasis);
+}
+
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-creating {
   background-color: #d1ecf1;
   color: #0c5460;
 }
+[data-bs-theme=dark] body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-creating {
+  background-color: var(--bs-info-bg-subtle);
+  color: var(--bs-info-text-emphasis);
+}
+
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-noquestions {
   background-color: #d6d8d9;
   color: #1b1e21;
 }
+[data-bs-theme=dark] body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data.session-noquestions {
+  background-color: var(--bs-tertiary-bg);
+  color: var(--bs-body-color);
+}
+
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .sessions-list-data .d-table-cell {
-  border-top: 1px solid #edebf4;
-  color: #929292 !important;
+  border-top: 1px solid var(--kuet-divider-color);
+  color: var(--kuet-muted-color) !important;
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell {
   padding: 15px;
@@ -4531,7 +4695,7 @@ body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .se
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.actions .content-actions .session-action:hover {
   cursor: pointer;
-  background-color: #e6e6e6;
+  background-color: var(--kuet-hover-bg);
   transition: background-color 0.2s ease-in-out;
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.actions .content-actions .session-action:focus {
@@ -4543,7 +4707,7 @@ body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .se
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.initsession div, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.initsession a, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.viewreport-session div, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.viewreport-session a {
   width: 125px;
   height: 32px;
-  color: #344054;
+  color: var(--kuet-action-color);
   background-color: transparent;
   border-radius: 8px;
   display: flex;
@@ -4555,9 +4719,9 @@ body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .se
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.initsession div:hover, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.initsession a:hover, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.viewreport-session div:hover, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.viewreport-session a:hover {
   cursor: pointer;
   text-decoration: none;
-  background-color: #e6e6e6;
+  background-color: var(--kuet-hover-bg);
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
-  color: #475467;
+  color: var(--kuet-action-hover-color);
 }
 body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.initsession div:focus, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.initsession a:focus, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.viewreport-session div:focus, body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .sessions-list .sessions-list-body .d-table-cell.viewreport-session a:focus {
   background-color: transparent !important;
@@ -4618,6 +4782,12 @@ body#page-mod-kuet-view #page-wrapper #page-content #region-main [role=main] .se
     display: none;
   }
 }
+body.path-mod-kuet .imageQr .item a img {
+  background-color: #fff;
+  padding: 8px;
+  border-radius: 4px;
+}
+
 body.path-mod-kuet .kuet-editgrades .sessions-list-header {
   padding: 15px 20px;
   display: flex;
@@ -4644,7 +4814,7 @@ body.path-mod-kuet .kuet-editgrades .sessions-list-header .sessions-list-header-
   margin-bottom: 0;
 }
 body.path-mod-kuet .kuet-editgrades .sessions-list-header .btn {
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
 }
 
 .teacher-session-content .imageQr .item a img, .teacher-session-content .imageQr .item a svg, .teacher-session-content .imageQr .item a g {
@@ -4658,12 +4828,14 @@ body.path-mod-kuet .kuet-editgrades .sessions-list-header .btn {
 .teacher-session-content .summary-session .race-results {
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 .teacher-session-content .summary-session .resume-config .titlecontainer,
 .teacher-session-content .summary-session .users-results .titlecontainer,
 .teacher-session-content .summary-session .race-results .titlecontainer {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-inner-shadow);
   border-radius: 8px 8px 0 0;
   color: #fff;
   padding: 1em;
@@ -4695,18 +4867,18 @@ body.path-mod-kuet .kuet-editgrades .sessions-list-header .btn {
   font-weight: bold;
 }
 .teacher-session-content .summary-session .users-results .list-results .list-results-body .list-results-thead .d-table-cell {
-  color: #2b2b2b !important;
+  color: var(--bs-body-color) !important;
 }
 .teacher-session-content .summary-session .users-results .list-results .list-results-body .result-list-data {
   font-weight: normal;
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
 }
 .teacher-session-content .summary-session .users-results .list-results .list-results-body .result-list-data .d-table-cell {
-  border-top: 1px solid #edebf4;
-  color: #929292 !important;
+  border-top: 1px solid var(--kuet-divider-color);
+  color: var(--kuet-muted-color) !important;
 }
 .teacher-session-content .summary-session .users-results .list-results .list-results-body .result-list-data:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(var(--bs-emphasis-color-rgb), 0.03);
 }
 
 body#page-mod-kuet-view .content-header .more-info-session {
@@ -4728,21 +4900,24 @@ body#page-mod-kuet-view .content-header .more-info-session .sessionname {
   width: 50%;
   padding: 18px;
   margin-right: 1em;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 body#page-mod-kuet-view .content-header .more-info-session .sessionname .sessionname-text {
   display: flex;
   flex-flow: column nowrap;
   font-size: 16px;
   font-weight: bold;
-  color: #2b2b2b;
+  color: var(--bs-body-color);
   text-align: left;
   margin-left: 15px;
 }
 body#page-mod-kuet-view .content-header .more-info-session .sessionname .sessionname-text span {
   font-size: 13px;
   font-weight: normal;
-  color: #929292;
+  color: var(--kuet-muted-color);
 }
 body#page-mod-kuet-view .content-header .more-info-session .numusers {
   display: flex;
@@ -4751,7 +4926,10 @@ body#page-mod-kuet-view .content-header .more-info-session .numusers {
   align-items: center;
   width: 50%;
   padding: 10px 18px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 body#page-mod-kuet-view .content-header .more-info-session .numusers .imageQr {
   margin-left: auto;
@@ -4764,7 +4942,7 @@ body#page-mod-kuet-view .content-header .more-info-session .numusers .countusers
   flex-flow: column nowrap;
   font-size: 16px;
   font-weight: bold;
-  color: #2b2b2b;
+  color: var(--bs-body-color);
   text-align: left;
   margin-left: 15px;
   margin-right: 15px;
@@ -4772,7 +4950,7 @@ body#page-mod-kuet-view .content-header .more-info-session .numusers .countusers
 body#page-mod-kuet-view .content-header .more-info-session .numusers .countusers .participants {
   font-size: 13px;
   font-weight: normal;
-  color: #929292;
+  color: var(--kuet-muted-color);
 }
 body#page-mod-kuet-view .content-header .session-controller {
   display: flex;
@@ -4799,11 +4977,13 @@ body#page-mod-kuet-view .teacher-waiting-room .questions-list {
   margin-top: 25px;
   padding: 0;
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
 }
 body#page-mod-kuet-view .teacher-waiting-room .resume-config .titlecontainer,
 body#page-mod-kuet-view .teacher-waiting-room .questions-list .titlecontainer {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-inner-shadow);
   border-radius: 8px 8px 0 0;
   color: #fff;
   padding: 1em;
@@ -4835,21 +5015,21 @@ body#page-mod-kuet-view .teacher-waiting-room .questions-list .session-questions
   font-weight: bold;
 }
 body#page-mod-kuet-view .teacher-waiting-room .questions-list .session-questions .questions-list-body .questions-list-thead .d-table-cell {
-  color: #2b2b2b !important;
+  color: var(--bs-body-color) !important;
 }
 body#page-mod-kuet-view .teacher-waiting-room .questions-list .session-questions .questions-list-body .questions-list-data {
   font-weight: normal;
-  background-color: white;
+  background-color: var(--kuet-surface-bg);
 }
 body#page-mod-kuet-view .teacher-waiting-room .questions-list .session-questions .questions-list-body .questions-list-data:nth-child(even) {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: rgba(var(--bs-emphasis-color-rgb), 0.03);
 }
 body#page-mod-kuet-view .teacher-waiting-room .questions-list .session-questions .questions-list-body .questions-list-data .isvalid {
   text-align: center;
 }
 body#page-mod-kuet-view .teacher-waiting-room .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell {
-  border-top: 1px solid #edebf4;
-  color: #929292 !important;
+  border-top: 1px solid var(--kuet-divider-color);
+  color: var(--kuet-muted-color) !important;
 }
 body#page-mod-kuet-view .teacher-waiting-room .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions {
   display: flex;
@@ -4873,7 +5053,7 @@ body#page-mod-kuet-view .teacher-waiting-room .questions-list .session-questions
 }
 body#page-mod-kuet-view .teacher-waiting-room .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions .question-action:hover {
   cursor: pointer;
-  background-color: #e6e6e6;
+  background-color: var(--kuet-hover-bg);
   transition: background-color 0.2s ease-in-out;
 }
 body#page-mod-kuet-view .teacher-waiting-room .questions-list .session-questions .questions-list-body .questions-list-data .d-table-cell.actions .content-actions .question-action:focus {
@@ -4887,7 +5067,9 @@ body#page-mod-kuet-view .student-waiting-room {
 }
 body#page-mod-kuet-view .student-waiting-room .content-waiting-room {
   border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+  box-shadow: var(--kuet-box-shadow);
+  border: var(--kuet-box-border);
+  background-color: var(--kuet-box-bg);
   padding: 52px 100px;
 }
 body#page-mod-kuet-view .student-waiting-room .content-waiting-room .waiting-room-title h2 {

@@ -64,7 +64,7 @@
             </div>
             <div class="lightboxes">
                 <div class="lightbox" id="imageQr">
-                    <a href="#" class="close">&times;</a>
+                    <a href="#" class="btn-close btn-close-white" aria-label="{{#str}}closebuttontitle, core{{/str}}"></a>
                     <div class="content">
                         <img src="{{{urlqrcode}}}" />
                     </div>
@@ -127,8 +127,8 @@
                                             {{#pix}} i/delete_session, mod_kuet, {{#str}}delete_session, mod_kuet{{/str}} {{/pix}}
                                         </div>
                                     </div>
-                                    <div class="dropdown show mobile-content-actions">
-                                        <a class="dropdown-toggle" href="#" role="button" id="actions-{{sessionid}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <div class="dropdown mobile-content-actions">
+                                        <a class="dropdown-toggle" href="#" role="button" id="actions-{{sessionid}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             {{#pix}}i/three_dots, mod_kuet {{/pix}}
                                         </a>
                                         <div class="dropdown-menu" aria-labelledby="actions-{{sessionid}}">
@@ -167,27 +167,27 @@
                                     </div>
                                 {{/issessionstarted}}
                                 {{#noquestions}}
-                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionnoquestions, mod_kuet{{/str}}">
+                                    <span class="icon-warning" data-bs-toggle="tooltip" title="{{#str}}sessionnoquestions, mod_kuet{{/str}}">
                                         {{#pix}} i/warning, mod_kuet {{/pix}}
                                     </span>
                                 {{/noquestions}}
                                 {{#sessioncreating}}
-                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessioncreating, mod_kuet{{/str}}">
+                                    <span class="icon-warning" data-bs-toggle="tooltip" title="{{#str}}sessioncreating, mod_kuet{{/str}}">
                                         {{#pix}} i/warning, mod_kuet {{/pix}}
                                     </span>
                                 {{/sessioncreating}}
                                 {{#hasconflict}}
-                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionconflict, mod_kuet{{/str}}">
+                                    <span class="icon-warning" data-bs-toggle="tooltip" title="{{#str}}sessionconflict, mod_kuet{{/str}}">
                                         {{#pix}} i/danger, mod_kuet {{/pix}}
                                     </span>
                                 {{/hasconflict}}
                                 {{#haswarning}}
-                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionwarning, mod_kuet{{/str}}">
+                                    <span class="icon-warning" data-bs-toggle="tooltip" title="{{#str}}sessionwarning, mod_kuet{{/str}}">
                                         {{#pix}} i/warning, mod_kuet {{/pix}}
                                     </span>
                                 {{/haswarning}}
                                 {{#haserror}}
-                                    <span class="icon-warning" data-toggle="tooltip" title="{{#str}}sessionerror, mod_kuet{{/str}}">
+                                    <span class="icon-warning" data-bs-toggle="tooltip" title="{{#str}}sessionerror, mod_kuet{{/str}}">
                                         {{#pix}} i/warning, mod_kuet {{/pix}}
                                     </span>
                                 {{/haserror}}
@@ -245,11 +245,11 @@
                                         </a>
                                         {{/caneditgrades}}
                                     </div>
-                                    <div class="dropdown show mobile-content-actions">
-                                        <a class="dropdown-toggle" href="#" role="button" id="actions-{{id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <div class="dropdown mobile-content-actions">
+                                        <a class="dropdown-toggle" href="#" role="button" id="actions-{{sessionid}}" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                             {{#pix}}i/three_dots, mod_kuet {{/pix}}
                                         </a>
-                                        <div class="dropdown-menu" aria-labelledby="actions-{{id}}">
+                                        <div class="dropdown-menu" aria-labelledby="actions-{{sessionid}}">
                                             <a class="dropdown-item" href="#" data-action="copy_session" data-sessionid="{{sessionid}}">
                                                 {{#str}}copy_session, mod_kuet{{/str}}
                                             </a>

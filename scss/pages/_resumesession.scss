@@ -5,10 +5,12 @@ body#page-mod-kuet-sessions {
             margin-top: 25px;
             padding: 0;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, .06);
+            box-shadow: var(--kuet-box-shadow);
+            border: var(--kuet-box-border);
+            background-color: var(--kuet-box-bg);
 
             .titlecontainer {
-                box-shadow: 0 0 10px rgba(0, 0, 0, 0.06);
+                box-shadow: var(--kuet-inner-shadow);
                 border-radius: 8px 8px 0 0;
                 color: #fff;
                 padding: 1em;
@@ -47,16 +49,16 @@ body#page-mod-kuet-sessions {
                         font-weight: bold;
 
                         .d-table-cell {
-                            color: #2b2b2b !important;
+                            color: var(--bs-body-color) !important;
                         }
                     }
 
                     .questions-list-data {
                         font-weight: normal;
-                        background-color: white;
+                        background-color: var(--kuet-surface-bg);
 
                         &:nth-child(even) {
-                            background-color: rgba(0, 0, 0, .03);
+                            background-color: rgba(var(--bs-emphasis-color-rgb), .03);
                         }
 
                         .isvalid {
@@ -64,8 +66,8 @@ body#page-mod-kuet-sessions {
                         }
 
                         .d-table-cell {
-                            border-top: 1px solid #edebf4;
-                            color: #929292 !important;
+                            border-top: 1px solid var(--kuet-divider-color);
+                            color: var(--kuet-muted-color) !important;
 
                             &.actions {
                                 .content-actions {
@@ -91,7 +93,7 @@ body#page-mod-kuet-sessions {
 
                                         &:hover {
                                             cursor: pointer;
-                                            background-color: #e6e6e6;
+                                            background-color: var(--kuet-hover-bg);
                                             transition: background-color .2s ease-in-out;
                                         }
 

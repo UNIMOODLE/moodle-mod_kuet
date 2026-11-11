@@ -873,7 +873,7 @@ Match.prototype.optionDeselected = function(stemsLeft, stemsRight) {
             jQuery(this).find('option[data-stems="default"]').prop('selected', true);
         }
         jQuery(this).find('option[data-stems="' + stemsRight + '"]').each(function() {
-            jQuery(this).css('background-color', 'white');
+            jQuery(this).css('background-color', '');
         });
     });
 };
@@ -881,7 +881,7 @@ Match.prototype.optionDeselected = function(stemsLeft, stemsRight) {
 Match.prototype.drawSelects = function() {
     jQuery(ACTION.SELECTOPTION).each(function() {
         jQuery(this).find('option').each(function() {
-            jQuery(this).css('background-color', 'white');
+            jQuery(this).css('background-color', '');
         });
     });
     linkList.forEach(

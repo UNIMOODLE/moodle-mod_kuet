@@ -79,7 +79,7 @@
                     </div>
                     <div class="lightboxes">
                         <div class="lightbox" id="imageQr">
-                            <a href="#" class="close">&times;</a>
+                            <a href="#" class="btn-close btn-close-white" aria-label="{{#str}}closebuttontitle, core{{/str}}"></a>
                             <div class="content">
                                 <img src="{{{urlqrcode}}}" />
                             </div>
@@ -114,12 +114,12 @@
         </div>
         <h2 class="text-center">{{#str}}statement_improvising, mod_kuet{{/str}}</h2>
         <div class="improvise-form">
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="statement">{{#str}}statement_improvise, mod_kuet{{/str}}</label>
                 <input type="text" class="form-control" id="statement">
                 <small id="statementHelp" class="form-text text-muted">{{#str}}statement_improvise_help, mod_kuet{{/str}}</small>
             </div>
-            <div class="form-group">
+            <div class="mb-3">
                 <label for="reply_improvise">{{#str}}reply_improvise, mod_kuet{{/str}}</label>
                 <input type="text" class="form-control" maxlength="30" id="reply_improvise">
                 <small id="statementHelp" class="form-text text-muted">{{#str}}reply_improvise_help, mod_kuet{{/str}}</small>

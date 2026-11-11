@@ -40,7 +40,7 @@
     }
 }}
 <div class="content-control-panel">
-    <div class="collapse show width" id="control-panel">
+    <div class="collapse show collapse-horizontal" id="control-panel">
         <div class="teacher-control-panel" data-region="teacher_control_panel">
             <h5>{{#str}}controlpanel, mod_kuet{{/str}}</h5>
             <div class="separator">
@@ -82,20 +82,20 @@
                 </div>
                 <span>{{#str}}resend, mod_kuet{{/str}}</span>
             </div>
-            <div class="dropdown show {{#cloudtags}}disabled{{/cloudtags}}">
-                <div class="control-action dropdown-toggle" role="button" id="jumpTo" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <div class="dropdown {{#cloudtags}}disabled{{/cloudtags}}">
+                <div class="control-action dropdown-toggle" role="button" id="jumpTo" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     <div class="control-action-icon bg-primary">
                         {{#pix}}i/jump, mod_kuet{{/pix}}
                     </div>
                     <span>{{#str}}jump, mod_kuet{{/str}}</span>
                 </div>
                 <div class="dropdown-menu" aria-labelledby="jumpTo">
-                    <div class="form-inline">
-                        <div class="form-group ml-2 mr-2 mb-2">
-                            <label for="jumpToNumber" class="sr-only">{{#str}}question_number, mod_kuet{{/str}}</label>
-                            <input type="number" class="form-control" id="jumpToNumber" data-input="jumpto" data-numquestions="{{numquestions}}" placeholder="{{#str}}question_number, mod_kuet{{/str}}" min="1" max="{{numquestions}}">
+                    <div class="d-flex align-items-center">
+                        <div class="ms-2 me-2 mb-2">
+                            <label for="jumpToNumber" class="visually-hidden">{{#str}}question_number, mod_kuet{{/str}}</label>
+                            <input type="number" class="form-control kuet-jumpto-input" id="jumpToNumber" data-input="jumpto" data-numquestions="{{numquestions}}" placeholder="{{#str}}question_number, mod_kuet{{/str}}" min="1" max="{{numquestions}}">
                         </div>
-                        <div data-action="jump" class="btn btn-primary mb-2 mr-2">{{#str}}jump, mod_kuet{{/str}}</div>
+                        <div data-action="jump" class="btn btn-primary mb-2 me-2">{{#str}}jump, mod_kuet{{/str}}</div>
                     </div>
                 </div>
             </div>
@@ -110,14 +110,12 @@
                     </div>
                     <span>{{#str}}responses, mod_kuet{{/str}}</span>
                 </div>
-                <div class="custom-control custom-switch">
+                <div class="form-check form-switch">
                     <input id="showhide_responses" type="checkbox"
                            data-action="showhide_responses"
-                           class="custom-control-input"
-                    >
-                    <label for="showhide_responses" class="custom-control-label"
-                           title="{{#str}}responses, mod_kuet{{/str}}" >
-                    </label>
+                           class="form-check-input"
+                           title="{{#str}}responses, mod_kuet{{/str}}">
+                    <label for="showhide_responses" class="form-check-label visually-hidden">{{#str}}responses, mod_kuet{{/str}}</label>
                 </div>
             </div>
             <div class="showhide-action disabled" data-action="statistics">
@@ -127,13 +125,12 @@
                     </div>
                     <span>{{#str}}statistics, mod_kuet{{/str}}</span>
                 </div>
-                <div class="custom-control custom-switch">
+                <div class="form-check form-switch">
                     <input id="showhide_statistics" type="checkbox"
                            data-action="showhide_statistics"
-                           class="custom-control-input">
-                    <label for="showhide_statistics" class="custom-control-label"
-                           title="{{#str}}statistics, mod_kuet{{/str}}" >
-                    </label>
+                           class="form-check-input"
+                           title="{{#str}}statistics, mod_kuet{{/str}}">
+                    <label for="showhide_statistics" class="form-check-label visually-hidden">{{#str}}statistics, mod_kuet{{/str}}</label>
                 </div>
             </div>
             <div class="showhide-action disabled" data-action="feedback">
@@ -143,14 +140,12 @@
                     </div>
                     <span>{{#str}}feedback, mod_kuet{{/str}}</span>
                 </div>
-                <div class="custom-control custom-switch">
+                <div class="form-check form-switch">
                     <input id="showhide_feedback" type="checkbox"
                            data-action="showhide_feedback"
-                           class="custom-control-input"
-                    >
-                    <label for="showhide_feedback" class="custom-control-label"
-                           title="{{#str}}feedback, mod_kuet{{/str}}" >
-                    </label>
+                           class="form-check-input"
+                           title="{{#str}}feedback, mod_kuet{{/str}}">
+                    <label for="showhide_feedback" class="form-check-label visually-hidden">{{#str}}feedback, mod_kuet{{/str}}</label>
                 </div>
             </div>
             <div class="separator">
@@ -177,9 +172,7 @@
     </div>
     <button class="btn teacher-control-panel-collapse" type="button"
             data-bs-toggle="collapse"
-            data-toggle="collapse"
             data-bs-target="#control-panel"
-            data-target="#control-panel"
             aria-expanded="true"
             aria-controls="control-panel">
         {{#pix}}i/collapse, mod_kuet{{/pix}}

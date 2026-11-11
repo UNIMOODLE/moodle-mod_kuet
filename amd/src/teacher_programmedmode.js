@@ -35,6 +35,7 @@
 import jQuery from 'jquery';
 import Ajax from 'core/ajax';
 import Templates from 'core/templates';
+import * as fEvents from 'core_filters/events';
 import Notification from 'core/notification';
 import {get_strings as getStrings} from 'core/str';
 import ModalEvents from 'core/modal_events';
@@ -183,6 +184,8 @@ ProgrammedMode.prototype.reloadRace = function() {
             let scrollUsersTop = document.querySelector('#content-users').scrollTop;
             let scrollQuestionsLeft = document.querySelector('#questions-list').scrollLeft;
             identifier.html(html);
+            // Bootstrap 5 tooltips are not delegated: core sets them up on this event.
+            fEvents.notifyFilterContentUpdated(identifier);
             let newScrollUsers = document.querySelector('#content-users');
             let newScrollQuestions = document.querySelector('#questions-list');
             ProgrammedMode.prototype.raceMode();

@@ -276,6 +276,8 @@
                 .content-points {
                     width: 100%;
                     padding: 8px;
+                    // The pills keep their light gold/silver/bronze in dark mode too, so the text stays dark.
+                    color: #212529;
                     border-radius: 40px;
                     border: 2px solid;
                     text-align: center;

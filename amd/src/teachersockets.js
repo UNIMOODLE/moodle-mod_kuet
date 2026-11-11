@@ -928,6 +928,8 @@ Sockets.prototype.raceResults = function() {
             }
             identifier.html(html);
             Templates.runTemplateJS(js);
+            // Bootstrap 5 tooltips are not delegated: core sets them up on this event.
+            fEvents.notifyFilterContentUpdated(identifier);
             let newScrollUsers = document.querySelector('#content-users');
             let newScrollQuestions = document.querySelector('#questions-list');
             let scrollUsers = document.querySelector('#content-users');

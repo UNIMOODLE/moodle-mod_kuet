@@ -50,8 +50,8 @@ Students can see whether their answer was correct, the points scored, and any fe
 
 | | |
 |---|---|
-| Moodle | 5.0, 5.1 and 5.2 |
-| PHP | 8.2 or later; Moodle 5.2 itself requires 8.3 |
+| Moodle | 5.0, 5.1, 5.2 and 5.3 |
+| PHP | 8.2 or later; Moodle 5.2 and 5.3 themselves require 8.3 |
 | Real-time sessions | A WebSocket server. The plugin ships one that can be run on the Moodle host, or an external one can be configured — see [Scalability and Real-Time Interaction with WebSockets](#scalability-and-real-time-interaction-with-websockets) |
 
 For Moodle 4.3 to 4.5, use the `v1.0.0-MOODLE_405` release instead.

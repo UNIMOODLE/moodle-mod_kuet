@@ -265,7 +265,7 @@ Numerical.prototype.reply = function() {
         if (hasUnits) {
             let contentUnit = jQuery(REGION.UNITSCONTENT);
             if (contentUnit.is('div')) {
-                unit = contentUnit.find('input[type="radio"]:checked').attr('name');
+                unit = contentUnit.find('input[type="radio"]:checked').val();
                 multiplier = contentUnit.find('input[type="radio"]:checked').data('multiplier');
             } else if (contentUnit.is('select')) {
                 unit = contentUnit.find(':selected').val();

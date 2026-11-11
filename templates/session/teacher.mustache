@@ -46,9 +46,9 @@
     <div class="teacher-session-content" data-region="teacher-session-content">
         <div class="row summary-session">
             <div class="col-12">
-                <div class="d-flex align-items-center float-right mb-2">
+                <div class="d-flex align-items-center float-end mb-2">
                     {{#hasqrcodeimage}}
-                        <div class="imageQr mr-3">
+                        <div class="imageQr me-3">
                             <div class="item">
                                 <a href="#imageQr">
                                     <img src="{{{urlqrcode}}}" />
@@ -57,7 +57,7 @@
                         </div>
                         <div class="lightboxes">
                             <div class="lightbox" id="imageQr">
-                                <a href="#" class="close">&times;</a>
+                                <a href="#" class="btn-close btn-close-white" aria-label="{{#str}}closebuttontitle, core{{/str}}"></a>
                                 <div class="content">
                                     <img src="{{{urlqrcode}}}" />
                                 </div>

@@ -50,6 +50,10 @@ $kuet = $DB->get_record('kuet', ['id' => $cm->instance], '*', MUST_EXIST);
 
 $PAGE->set_url('/mod/kuet/editquestion.php', ['id' => $cmid, 'sid' => $sid, 'kid' => $kid]);
 require_login($course, false, $cm);
+// Only those who manage the sessions, and only on a question of a session of this activity.
+require_capability('mod/kuet:managesessions', context_module::instance($cm->id));
+\mod_kuet\helpers\modcontext::require_session_in_cm($sid, $cmid);
+\mod_kuet\helpers\modcontext::require_question_in_session($kid, $sid);
 
 $ksquestion = new kuet_questions($kid);
 $question = $DB->get_record('question', ['id' => $ksquestion->get('questionid')], '*', MUST_EXIST);

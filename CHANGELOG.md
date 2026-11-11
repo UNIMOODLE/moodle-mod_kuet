@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.0.2-MOODLE_503
+- Supports Moodle 5.3.
+- Fixed the Kuet dialogs on Moodle 5.2 and later, where the module that opens
+  them failed to load because it registered itself in core/modal_registry, which
+  Moodle 5.2 removed. On those versions a new session could not be finished in
+  its wizard ("End" stayed disabled) and so could never be started, and the
+  previews of the wizard and of the reports did nothing.
+- Kuet now follows the dark colour mode of Moodle 5.3: panels, tables, question
+  statements, icons, drop-down lists and the session QR code are readable in
+  it, and the match question can be answered with its drop-down lists. The
+  light mode, and the versions without a dark mode, look as before.
+- The "Next" link that Moodle 5.3 adds at the foot of every activity page for
+  the linear navigation of the course is no longer shown during a live session,
+  where it took the participant out of the game.
+- Fixed the action drop-downs of the sessions panel and of the teacher's control
+  panel, which did not open on Bootstrap 5, and the duplicated id they shared.
+- Kuet no longer relies on the Bootstrap 4 compatibility layer of Moodle: its
+  markup, scripts and styles use Bootstrap 5 only.
+
 ## v1.0.1-MOODLE_502
 - Fixed the grade item of the activity, which was created with the site-wide
   maximum grade instead of the maximum configured on the activity itself, so a

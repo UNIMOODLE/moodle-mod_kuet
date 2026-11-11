@@ -139,7 +139,7 @@ class calculated extends questions implements questionType {
             $unitid = 0;
             foreach ($units->getValue($question->ap) as $key => $unit) {
                 $data->units[$key] = [];
-                $data->units[$key]['unitid'] = 'unit_' . $unitid;
+                $data->units[$key]['unitid'] = 'unit_' . $unitid++;
                 $data->units[$key]['unittext'] = $key;
                 $data->units[$key]['multiplier'] = $unit;
             }

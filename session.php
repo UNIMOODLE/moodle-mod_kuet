@@ -58,6 +58,12 @@ require_capability('mod/kuet:view', $cmcontext);
 $strkuet = get_string('modulename', 'kuet');
 $PAGE->set_heading($course->fullname);
 $PAGE->set_title(get_string('session', 'kuet')) . ' - ' . kuet_sessions::get_sessionname($kuet->id, $sid);
+// Moodle 5.3+: the course's linear navigation adds a sticky "Next" link to every activity page,
+// which in the middle of a live session takes the student out of the game (Kuet's own button to
+// move on is also called "Next"). The method does not exist before 5.3, nor does the footer.
+if (method_exists($PAGE, 'set_show_navigation_footer')) {
+    $PAGE->set_show_navigation_footer(false);
+}
 
 $activesession = kuet_sessions::get_active_session_id($kuet->id);
 if ($activesession !== 0 && $activesession !== $sid) {

@@ -66,21 +66,20 @@
             </div>
         </div>
         <div class="col-12 containt-answers">
-            <div class="form-group input-content">
+            <div class="mb-3 input-content">
                 {{#unitdisplay}}
                     {{#unitsleft}}
                         <span class="units_title">{{#str}}unit, mod_kuet{{/str}}:</span>
                         {{#showunitsradio}}
-                            <div class="btn-group btn-group-toggle" data-toggle="buttons" id="unitsContent">
+                            <div class="btn-group" role="group" id="unitsContent">
                                 {{#units}}
-                                    <label class="btn btn-primary {{#unitselected}}active{{/unitselected}}">
-                                        <input type="radio" name="{{ unittext }}" {{#unitselected}}checked{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
-                                    </label>
+                                    <input type="radio" class="btn-check" name="kuet-units-{{uniqid}}" value="{{ unittext }}" {{#unitselected}}checked{{/unitselected}} data-multiplier="{{ multiplier }}" id="kuet-{{uniqid}}-{{ unitid }}" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="kuet-{{uniqid}}-{{ unitid }}">{{ unittext }}</label>
                                 {{/units}}
                             </div>
                         {{/showunitsradio}}
                         {{#showunitsselect}}
-                            <select class="custom-select" id="unitsContent">
+                            <select class="form-select" id="unitsContent">
                                 <option value="...{{#str}}choose, moodle{{/str}}" data-multiplier="" id="0">...{{#str}}choose, moodle{{/str}}</option>
                                 {{#units}}
                                     <option value="{{ unittext }}" {{#unitselected}}selected{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}">{{ unittext }}</option>
@@ -104,16 +103,15 @@
                     {{^unitsleft}}
                         <span class="units_title">{{#str}}unit, mod_kuet{{/str}}:</span>
                         {{#showunitsradio}}
-                            <div class="btn-group btn-group-toggle" data-toggle="buttons" id="unitsContent">
+                            <div class="btn-group" role="group" id="unitsContent">
                                 {{#units}}
-                                    <label class="btn btn-primary {{#unitselected}}active{{/unitselected}}">
-                                        <input type="radio" name="{{ unittext }}" {{#unitselected}}checked{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}" autocomplete="off"> {{ unittext }}
-                                    </label>
+                                    <input type="radio" class="btn-check" name="kuet-units-{{uniqid}}" value="{{ unittext }}" {{#unitselected}}checked{{/unitselected}} data-multiplier="{{ multiplier }}" id="kuet-{{uniqid}}-{{ unitid }}" autocomplete="off">
+                                    <label class="btn btn-outline-primary" for="kuet-{{uniqid}}-{{ unitid }}">{{ unittext }}</label>
                                 {{/units}}
                             </div>
                         {{/showunitsradio}}
                         {{#showunitsselect}}
-                            <select class="custom-select" id="unitsContent">
+                            <select class="form-select" id="unitsContent">
                                 <option value="...{{#str}}choose, moodle{{/str}}" data-multiplier="" id="0">...{{#str}}choose, moodle{{/str}}</option>
                                 {{#units}}
                                     <option value="{{ unittext }}" {{#unitselected}}selected{{/unitselected}} data-multiplier="{{ multiplier }}" id="{{ unitid }}">{{ unittext }}</option>

@@ -5,7 +5,7 @@
 
             .list-group-item {
                 border: 0;
-                border-bottom: 1px solid #edebf4;
+                border-bottom: 1px solid var(--kuet-divider-color);
                 display: flex;
                 flex-flow: row nowrap;
                 justify-content: flex-start;

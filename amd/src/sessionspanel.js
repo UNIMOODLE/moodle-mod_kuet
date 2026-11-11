@@ -37,6 +37,7 @@ import {get_strings as getStrings, get_string as getString} from 'core/str';
 import Ajax from 'core/ajax';
 import ModalEvents from 'core/modal_events';
 import Templates from 'core/templates';
+import * as fEvents from 'core_filters/events';
 import Notification from 'core/notification';
 import ModalSaveCancel from 'core/modal_save_cancel';
 import ModalAlert from 'core/local/modal/alert';
@@ -207,6 +208,8 @@ SessionsPanel.prototype.copySession = function(e) {
                                 Templates.render(TEMPLATES.PANEL, response).then((html, js) => {
                                     identifier.html(html);
                                     Templates.runTemplateJS(js);
+                                    // Bootstrap 5 tooltips are not delegated: core sets them up on this event.
+                                    fEvents.notifyFilterContentUpdated(identifier);
                                 }).catch(Notification.exception);
                             }).fail(Notification.exception);
                         } else {
@@ -273,6 +276,8 @@ SessionsPanel.prototype.deleteSession = function(e) {
                                 Templates.render(templatePanel, response).done(function(html, js) {
                                     identifier.html(html);
                                     Templates.runTemplateJS(js);
+                                    // Bootstrap 5 tooltips are not delegated: core sets them up on this event.
+                                    fEvents.notifyFilterContentUpdated(identifier);
                                 });
                             }).fail(Notification.exception);
                         } else {

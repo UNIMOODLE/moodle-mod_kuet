@@ -34,7 +34,6 @@
 
 import CustomEvents from 'core/custom_interaction_events';
 import Modal from 'core/modal';
-import ModalRegistry from 'core/modal_registry';
 
 let SELECTORS = {
     CANCEL_BUTTON: '[data-action="close"]',
@@ -56,7 +55,5 @@ const ModalKuet = class extends Modal {
         }.bind(this));
     }
 };
-
-ModalRegistry.register(ModalKuet.TYPE, ModalKuet, ModalKuet.TEMPLATE);
 
 export default ModalKuet;
